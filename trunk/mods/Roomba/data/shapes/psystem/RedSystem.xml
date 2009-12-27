@@ -1,0 +1,24 @@
+<ParticleSystem>
+  <System>        
+    <GlobalMovement>true</GlobalMovement>
+    <ParticleSize>10 10</ParticleSize>
+  </System>
+  <Gravity>
+    <Direction>0 0 -.2</Direction>
+    <AffectorTimeMS>2000</AffectorTimeMS>
+  </Gravity>
+  <Fade>
+    <TargetColor>255 255 255 255</TargetColor>
+    <AffectorTimeMS>500</AffectorTimeMS>
+  </Fade>
+  <Emitter>
+    <Direction>0 0 .01</Direction>
+    <MinParticlesPerSecond>100</MinParticlesPerSecond>
+    <MaxParticlesPerSecond>1000</MaxParticlesPerSecond>
+    <MinStartColor>255 0 0 255</MinStartColor>
+    <MaxStartColor>0 0 255 128</MaxStartColor>
+    <LifetimeMin>500</LifetimeMin>
+    <LifetimeMax>2000</LifetimeMax>
+    <MaxAngleDegrees>180</MaxAngleDegrees>
+  </Emitter>
+</ParticleSystem>
