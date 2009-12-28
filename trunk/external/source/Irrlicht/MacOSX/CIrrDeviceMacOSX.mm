@@ -357,7 +357,7 @@ CIrrDeviceMacOSX::CIrrDeviceMacOSX(const SIrrlichtCreationParameters& param)
 		[NSBundle loadNibNamed:@"MainMenu" owner:[NSApp delegate]];
 		[NSApp finishLaunching];
 
-		path = [[[NSBundle mainBundle] bundlePath] stringByDeletingLastPathComponent];
+		path = [[NSBundle mainBundle] resourcePath];
 		chdir([path fileSystemRepresentation]);
 	}
 
