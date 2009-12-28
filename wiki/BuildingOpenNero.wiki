@@ -2,11 +2,21 @@
 
 = Overview =
 
+OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. In general, to build OpenNERO, you will first call cmake to produce IDE and operating system specific build files, and then use your IDE or build command to produce the binary. OpenNERO can be built on Linux, Mac OS X and Windows using Xcode, GNU make, Eclipse and Microsoft Visual Studio.
+
 = Mac OS X =
 
 == Prerequisites == 
+ * Download and install [http://www.cmake.org/cmake/resources/software.html cmake]
+ * Install [http://developer.apple.com/tools/xcode/ Xcode] (optional install on the Mac OS X DVD)
 
 == Steps to build ==
+ * (recommended) create a new directory for your build
+ * in your build directory, run {{{
+cmake -G Xcode /path/to/opennero/checkout
+}}}
+ * open the resulting OpenNERO.xcodeproj Xcode project file
+ * Build OpenNERO using Xcode
 
 = Windows =
 
