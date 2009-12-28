@@ -622,6 +622,15 @@ namespace scene
 			f32 rotateSpeed = 100.0f, f32 moveSpeed = 0.5f, s32 id=-1,
 			SKeyMap* keyMapArray=0, s32 keyMapSize=0, bool noVerticalMovement=false,
 			f32 jumpSpeed = 0.f, bool invertMouse=false) = 0;
+        //! Adds a camera scene node which is able to be controlled with the mouse and keys
+		//! like in most real time strategy (RTS) games: 
+		virtual ICameraSceneNode* addCameraSceneNodeNero(ISceneNode* parent = 0,
+            bool edgeScroll = true, f32 relEdgeSize = 0.1f,
+			f32 rotateSpeed = 1500.0f, f32 moveSpeed = 200.0f, f32 zoomSpeed = 20.0f, s32 id=-1 ) = 0;        
+
+        //! Adds a camera scene node which is able to be controlled with the mouse and keys
+        //! like in most first person shooter (FPS) games: 
+        virtual ICameraSceneNode* addCameraSceneNodeNeroFP(ISceneNode* parent = 0, s32 id=-1) = 0;
 
 		//! Adds a dynamic light scene node to the scene graph.
 		/** The light will cast dynamic light on all
