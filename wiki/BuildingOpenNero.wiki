@@ -1,0 +1,21 @@
+#summary Describe how to build OpenNERO for a variety of platforms.
+
+= Overview =
+
+= Mac OS X =
+
+== Prerequisites == 
+
+== Steps to build ==
+
+= Windows =
+
+== Prerequisites ==
+
+== Steps to build ==
+
+= Linux =
+
+== Prerequisites == 
+
+== Steps to build ==
