@@ -12,9 +12,7 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. In 
 
 == Steps to build ==
  * (recommended) create a new directory for your build
- * in your build directory, run {{{
-cmake -G Xcode /path/to/opennero/checkout
-}}}
+ * in your build directory, run `cmake -G Xcode /path/to/opennero/checkout`
  * open the resulting OpenNERO.xcodeproj Xcode project file
  * Build OpenNERO using Xcode
 
