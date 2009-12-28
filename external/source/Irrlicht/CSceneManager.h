@@ -147,6 +147,13 @@ namespace scene
 			f32 rotateSpeed = 100.0f, f32 moveSpeed = .5f, s32 id=-1,
 			SKeyMap* keyMapArray=0, s32 keyMapSize=0, bool noVerticalMovement=false,
 			f32 jumpSpeed = 0.f, bool invertMouseY=false);
+        //! Add a camera for OpenNERO
+		virtual ICameraSceneNode* addCameraSceneNodeNero(ISceneNode* parent = 0,
+            bool edgeScroll = true, f32 relEdgeSize = 0.1f,
+			f32 rotateSpeed = 1500.0f, f32 moveSpeed = 200.0f, f32 zoomSpeed = 20.0f, s32 id=-1 );
+
+        //! Add a first person camera for OpenNERO
+        ICameraSceneNode* addCameraSceneNodeNeroFP(ISceneNode* parent, s32 id );
 
 		//! Adds a dynamic light scene node. The light will cast dynamic light on all
 		//! other scene nodes in the scene, which have the material flag video::MTF_LIGHTING

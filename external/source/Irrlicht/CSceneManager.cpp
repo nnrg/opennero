@@ -119,6 +119,10 @@
 #include "COctTreeSceneNode.h"
 #include "CCameraSceneNode.h"
 
+#include "CCameraMayaSceneNode.h"
+#include "CCameraFPSSceneNode.h"
+#include "CCameraNeroSceneNode.h"
+#include "CCameraNeroFPSceneNode.h"
 #include "CLightSceneNode.h"
 #include "CBillboardSceneNode.h"
 #include "CMeshSceneNode.h"
@@ -725,6 +729,43 @@ ICameraSceneNode* CSceneManager::addCameraSceneNodeFPS(ISceneNode* parent,
 	return node;
 }
 
+//! Adds a camera scene node which is able to be controlled with the mouse and keys
+//! like in most real-time strategy (RTS) games:
+ICameraSceneNode* CSceneManager::addCameraSceneNodeNero(ISceneNode* parent,
+                                                        bool edgeScroll,
+                                                        f32 relEdgeSize,
+                                                        f32 rotateSpeed, 
+                                                        f32 moveSpeed, 
+                                                        f32 zoomSpeed,                                                         
+                                                        s32 id )
+{
+	if (!parent)
+		parent = this;
+
+	ICameraSceneNode* node = new CCameraNeroSceneNode(parent, this, CursorControl, 
+                                                      edgeScroll, relEdgeSize,
+                                                      id, rotateSpeed, moveSpeed, zoomSpeed );
+	node->drop();
+
+	setActiveCamera(node);
+
+	return node;
+}
+
+//! Adds a camera scene node which is passive and attached to another scene node
+//! like in most first person shooters (FPS):
+ICameraSceneNode* CSceneManager::addCameraSceneNodeNeroFP(ISceneNode* parent, s32 id )
+{
+    if (!parent)
+        parent = this;
+
+    ICameraSceneNode* node = new CCameraNeroFPSceneNode(parent, this, id);
+    node->drop();
+
+    setActiveCamera(node);
+
+    return node;
+}
 
 //! Adds a dynamic light scene node. The light will cast dynamic light on all
 //! other scene nodes in the scene, which have the material flag video::MTF_LIGHTING
