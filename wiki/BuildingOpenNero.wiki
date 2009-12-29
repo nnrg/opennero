@@ -1,4 +1,5 @@
 #summary Describe how to build OpenNERO for a variety of platforms.
+#sidebar TableOfContents
 
 = Overview =
 
