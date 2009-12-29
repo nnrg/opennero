@@ -2,7 +2,7 @@
 
 = Overview =
 
-OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. In general, to build OpenNERO, you will first call cmake to produce IDE and operating system specific build files, and then use your IDE or build command to produce the binary. OpenNERO can be built on Linux, Mac OS X and Windows using Xcode, GNU make, Eclipse and Microsoft Visual Studio.
+OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. First, run cmake to produce the build files, and then run make (or your IDE) to produce the executable.
 
 = Mac OS X =
 
@@ -13,7 +13,7 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. In 
 == Steps to build ==
  # (recommended) create a new directory for your build
  # in your build directory, run `cmake -G Xcode /path/to/opennero/checkout`
- # open the resulting OpenNERO.xcodeproj Xcode project file
+ # open the resulting OpenNERO.xcodeproja Xcode project file
  # Build OpenNERO using Xcode
 
 = Windows =
@@ -25,7 +25,7 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. In 
 == Steps to build ==
  # Open CMake, specify the source directory (opennero checkout directory) and build directory (another directory), and generate the files for your version of Visual Studio
  # Open the OpenNERO.sln solution file and build OpenNERO using Visual Studio.
- # To run from within Visual Studio, set the working directory for debugging to `*`$(TargetDir)`*`
+ # To run from within Visual Studio, set the working directory for debugging to `$(TargetDir)`
 
 = Linux =
 
