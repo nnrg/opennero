@@ -1,0 +1,16 @@
+#summary This page describes how to run OpenNERO starting from the binary distribution or from a custom build.
+
+= Introduction =
+
+OpenNERO consists of a core binary executable exporting an embedded Python API, and a collection of one or more *mods*. A mod is a logically separate unit of OpenNERO that can be a custom game, an AI experiment, or both. Each mod is defined as a directory next to the application. When you start OpenNERO, it shows a menu with existing mods and an option to exit. Currently, there are three mods:
+ * Maze - a simple maze world on an island, with search, learning and first-person agents.
+ * Roomba - a messy computer lab which gets cleaner with the help of some cleaning robots.
+ * NERO - a partial implementation of [http://www.nerogame.org/ Neuro Evolving Robotic Operatives (NERO)], where you can evolve your own team of neural network-driven robots along a variety of fitness criteria.
+
+= The Mods in more detail =
+
+== Maze ==
+
+== Roomba ==
+
+== NERO ==
