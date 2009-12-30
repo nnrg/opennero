@@ -1,4 +1,4 @@
-#summary Describe how to build OpenNERO for a variety of platforms.
+#summary This page describes how to build OpenNERO from source for a variety of platforms.
 #sidebar TableOfContents
 
 = Overview =
