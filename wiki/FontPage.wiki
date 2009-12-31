@@ -16,8 +16,9 @@ OpenNERO is built using open source components, including:
  * [http://www.python.org/ Python scripting language] - governed by the [http://www.python.org/psf/license/ Python License]
  * [http://nn.cs.utexas.edu/?rtNEAT rtNEAT algorithm] - created by [http://www.cs.ucf.edu/~kstanley/ Ken Stanley] and [http://www.cs.utexas.edu/~risto/ Risto Miikkulainen] at UT Austin.
 ----
-==Acknowledgements==
+==Contributors==
 There are many people who have contributed and continue to contribute to OpenNERO. Here is a list in progress.
  * [http://www.cs.utexas.edu/~ikarpov/ Igor V. Karpov]
  * [http://www.jbsheblak.com/ John B. Sheblak]
- * Undergraduates from the [http://web3.cns.utexas.edu/fri/ Freshman Research Initiative] Computational Intelligence and Game Design stream.
+ * Members of the [http://nn.cs.utexas.edu/ Neural Networks Research Group] at UT Austin
+ * Students and alumni of the [http://web3.cns.utexas.edu/fri/ Freshman Research Initiative] Computational Intelligence and Game Design stream.
