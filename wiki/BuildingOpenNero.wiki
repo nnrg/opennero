@@ -3,7 +3,12 @@
 
 = Overview =
 
-OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. First, run cmake to produce the build files, and then run make (or your IDE) to produce the executable.
+OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The general steps are:
+ * Install prerequisites as needed.
+ * [http://code.google.com/p/opennero/source/checkout Check out the source code].
+ * Run [http://www.cmake.org/ CMake].
+ * Build.
+ * Continue to [RunningOpenNero Running OpenNERO]
 
 = Mac OS X =
 
