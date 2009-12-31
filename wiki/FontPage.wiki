@@ -1,0 +1,23 @@
+----
+==About OpenNERO==
+[http://nn.cs.utexas.edu/?opennero OpenNERO] is an open source software platform designed for research and education in computational intelligence in games. The project is based on the [http://www.nerogame.org/ Neuro-Evolving Robotic Operatives (NERO) game] developed by graduate and undergraduate students at the  [http://nn.cs.utexas.edu/ Neural Networks Research Group] and [http://www.cs.utexas.edu/ Department of Computer Science] at the [http://www.utexas.edu/ University of Texas at Austin].
+
+|| _OpenNERO Start Page_ <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-hub.png http://opennero.googlecode.com/svn/wiki/OpenNERO-hub.tiny.png] || _The Maze mod_ <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.png http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png] ||
+|| _The Roomba mod_ <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.png http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png] || _The NERO mod_ <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png] ||
+
+----
+==Getting started==
+You can download a binary build of OpenNERO for your platform, or checkout the current source and build it yourself. Please see BuildingOpenNero for how to build and RunningOpenNero for how to run OpenNERO.
+----
+==Components==
+OpenNERO is built using open source components, including:
+ * [http://irrlicht.sourceforge.net/ Irrlicht 3D Engine] - released under the [http://irrlicht.sourceforge.net/license.html Irrlicht Engine License]
+ * [http://www.boost.org/ Boost C++ libraries] - governed by the [http://www.boost.org/users/license.html Boost Software License]
+ * [http://www.python.org/ Python scripting language] - governed by the [http://www.python.org/psf/license/ Python License]
+ * [http://nn.cs.utexas.edu/?rtNEAT rtNEAT algorithm] - created by [http://www.cs.ucf.edu/~kstanley/ Ken Stanley] and [http://www.cs.utexas.edu/~risto/ Risto Miikkulainen] at UT Austin.
+----
+==Acknowledgements==
+There are many people who have contributed and continue to contribute to OpenNERO. Here is a list in progress.
+ * [http://www.cs.utexas.edu/~ikarpov/ Igor V. Karpov]
+ * [http://www.jbsheblak.com/ John B. Sheblak]
+ * Undergraduates from the [http://web3.cns.utexas.edu/fri/ Freshman Research Initiative] Computational Intelligence and Game Design stream.
