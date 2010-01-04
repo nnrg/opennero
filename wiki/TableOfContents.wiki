@@ -1,3 +1,6 @@
   * Getting started with OpenNERO
     * [RunningOpenNero Running OpenNERO]
+      * [MazeMod The Maze mod]
+      * [RoombaMod The Roomba mod]
+      * [NeroMod The NERO mod]
     * [BuildingOpenNero Building OpenNERO]
