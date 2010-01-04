@@ -1,0 +1,2 @@
+#summary Student exercises using OpenNERO
+#sidebar TableOfContents
