@@ -1,1 +1,2 @@
 #summary Help for NERO mod of OpenNERO
+#sidebar TableOfContents
