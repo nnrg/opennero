@@ -14,13 +14,13 @@ OpenNERO consists of a the core program and a collection of one or more *mods*. 
 
 == Maze ==
 
-[http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.png http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png]
+[MazeMod http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png]
 
 == Roomba ==
 
-[http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.png http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png]
+[RoombaMod http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png]
 
 
 == NERO ==
 
-[http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png]
+[NeroMod http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png]
