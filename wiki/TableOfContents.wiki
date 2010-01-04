@@ -3,4 +3,5 @@
       * [MazeMod The Maze mod]
       * [RoombaMod The Roomba mod]
       * [NeroMod The NERO mod]
+    * [OpenNeroExercises Exercises in OpenNERO]
     * [BuildingOpenNero Building OpenNERO]
