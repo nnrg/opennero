@@ -1,2 +1,4 @@
 #summary Help for NERO mod of OpenNERO
 #sidebar TableOfContents
+
+http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png
