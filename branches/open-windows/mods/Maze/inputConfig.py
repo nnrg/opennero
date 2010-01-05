@@ -1,5 +1,6 @@
 from OpenNero import *
 
+from common.module import openWiki
 from Maze.module import getMod, delMod
 
 # functions bound to key/mouse events
@@ -30,4 +31,5 @@ def createInputMapping():
     ioMap.BindKey( "KEY_RIGHT", "onPress", first_person_control('CW') )
     ioMap.BindKey( "KEY_UP", "onPress", first_person_control('FWD') )
     ioMap.BindKey( "KEY_DOWN", "onPress", first_person_control('BCK') )
+    ioMap.BindKey( "KEY_F1", "onPress", openWiki('MazeMod') )
     return ioMap

@@ -24,3 +24,11 @@ def addSkyBox(prefix, extension = None):
     
 def getNextFreeId():
     return getSimContext().getNextFreeId()
+
+def openWiki(page):
+    import webbrowser
+    def closure():
+        print 'openWiki:', page
+        webbrowser.open('http://code.google.com/p/opennero/wiki/' + page)
+    return closure
+
