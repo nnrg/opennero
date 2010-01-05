@@ -1,0 +1,11 @@
+<Template>
+  <Audio>    
+  </Audio>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <AniMesh>data/shapes/cube/red_cube.obj</AniMesh>
+    <Scale>2.5 2.5 2.5</Scale>
+    <Rotation>0 0 0</Rotation>
+  </Render>  
+</Template>
