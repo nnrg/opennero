@@ -2,8 +2,8 @@
 ==About OpenNERO==
 [http://nn.cs.utexas.edu/?opennero OpenNERO] is an open source software platform designed for research and education in computational intelligence in games. The project is based on the [http://www.nerogame.org/ Neuro-Evolving Robotic Operatives (NERO) game] developed by graduate and undergraduate students at the  [http://nn.cs.utexas.edu/ Neural Networks Research Group] and [http://www.cs.utexas.edu/ Department of Computer Science] at the [http://www.utexas.edu/ University of Texas at Austin].
 
-|| ===[RunningOpenNero OpenNERO Start Page]=== <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-hub.png http://opennero.googlecode.com/svn/wiki/OpenNERO-hub.tiny.png] || ===[MazeMod The Maze mod]=== <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.png http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png] ||
-|| ===[RoombaMod The Roomba mod]=== <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.png http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png] || ===[NeroMod The NERO mod]=== <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png] ||
+|| [RunningOpenNero OpenNERO Start Page] <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-hub.png http://opennero.googlecode.com/svn/wiki/OpenNERO-hub.tiny.png] || [MazeMod The Maze mod] <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.png http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png] ||
+|| [RoombaMod The Roomba mod] <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.png http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png] || [NeroMod The NERO mod] <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png] ||
 
 ----
 ==Getting started==
