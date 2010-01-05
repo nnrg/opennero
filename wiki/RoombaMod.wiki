@@ -1,4 +1,4 @@
 #summary Help for Roomba mod of OpenNERO
 #sidebar TableOfContents
 
-<img height="50%" width="50%" src="http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.png" />
+http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.png
