@@ -26,7 +26,7 @@ namespace OpenNero
     double TableApproximator::predict(const FeatureVector& sensors, const FeatureVector& actions)
     {
         StateActionPair key(sensors,actions);
-        TableMap::iterator found = table.find(key);
+        StateActionDoubleMap::iterator found = table.find(key);
         if (found == table.end())
         {
             return 0;
@@ -47,7 +47,7 @@ namespace OpenNero
 
     TilesApproximator::TilesApproximator(const AgentInitInfo& info) 
         : Approximator(info)
-        , mAlpha(0.1)
+        , mAlpha(0.1f)
         , ints_index()
         , floats_index()
         , num_tilings(32)

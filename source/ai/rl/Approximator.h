@@ -4,6 +4,7 @@
 #include "core/Common.h"
 #include "ai/AI.h"
 #include "core/HashMap.h"
+#include <boost/unordered_map.hpp>
 #include <boost/functional/hash.hpp>
 
 namespace OpenNero
@@ -32,14 +33,14 @@ namespace OpenNero
         /// update the value associated with a particular feature vector
         virtual void update(const FeatureVector& sensors, const FeatureVector& actions, double target) = 0;
     };
-    
-    /// An exact table-based approximator
+
+	typedef boost::unordered_map<StateActionPair, double> StateActionDoubleMap;
+
+	/// An exact table-based approximator
     class TableApproximator : public Approximator
     {
-    public:
-        typedef hash_map<StateActionPair, double, boost::hash<StateActionPair> > TableMap;
     private:
-        TableMap table;
+        StateActionDoubleMap table;
     public:
         /// constructor
         explicit TableApproximator(const AgentInitInfo& info);
