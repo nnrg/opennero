@@ -1,4 +1,29 @@
 #summary Help for Roomba mod of OpenNERO
 #sidebar TableOfContents
 
-http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.png
+=Roomba Mod=
+
+The Roomba environment is a virtual computer lab with crumbs distributed on the floor. The agents collect the crumbs and receive reward for doing so.
+
+<img src=http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.png height=300 width=400></img>
+
+==Controls==
+
+ * *Esc* - exit the Maze and return to the Hub
+ * *F1* - get help by opening the web browser and navigating to this page
+ * *A* - move camera left
+ * *D* - move camera right
+ * *W* - move camera forward
+ * *S* - move camera back
+ * *Q* - pan camera left
+ * *E* - pan camera right
+ * *space bar* - recenter camera to origin
+
+==What the display means==
+
+ * Blue cubes - crumbs on the floor
+ * Grey cylinders - vacuum cleaner agents
+
+==User Interface==
+
+The control panel allows you to select the number of agents to run, as well as the policy used to control them. You can select a scripted agent that greedily selects the closest crumb and moves to collect it, or an evolving agent that improves with time. 
