@@ -1,89 +1,101 @@
-OpenNERO (c) 2007-2008 The University of Texas at Austin
+OpenNERO (c) 2007-2009 The University of Texas at Austin
 
-NOTE: pardon our dust! this project is currently settling in to its new google.code home.
+http://opennero.googlecode.com/
 
-OpenNERO is an open source software platform for research and education in aritificial intelligence and games.
-The project uses the following tools and libraries:
- - Irrlicht Engine (http://irrlicht.sourceforge.net/)
- - Boost C++ Libraries (http://www.boost.org/)
- - Python (http://www.python.org/)
- - Open Dynamics Engine (ODE) (http://www.ode.org/)
- - CMake build system (http://www.cmake.org/)
- - TinyXML (http://tinyxml.sourceforge.net/)
+.-------.
+| ABOUT |
+'-------'
 
-===============================================================================
-| Documentation
--------------------------------------------------------------------------------
+OpenNERO is an open source software platform designed for research and education in 
+computational intelligence in games. The project is based on the Neuro-Evolving Robotic 
+Operatives (NERO) game developed by graduate and undergraduate students at the Neural 
+Networks Research Group and Department of Computer Science at 
+the University of Texas at Austin.
 
-   1) http://code.google.com/p/opennero (documentation forthcoming)
-   2) Run doxygen (C++ code-level documation generated in 'docs')
-   3) possibly outdated AIIDE-08 demo plan in 'docs/demo'
+.------------.
+| COMPONENTS |
+'------------'
 
-===============================================================================
-| Generating build files using CMake
--------------------------------------------------------------------------------
+OpenNERO is built using open source components, including:
 
-   1) If not already installed on your system, download and install cmake from
-      http://www.cmake.org/
+   * Irrlicht 3D Engine - released under the Irrlicht Engine License
+   * Boost C++ libraries - governed by the Boost Software License
+   * Python scripting language - governed by the Python License
+   * rtNEAT algorithm - created by Ken Stanley and Risto Miikkulainen at UT Austin.
 
-   2) Use cmake to generate the build or project files for your preferred 
-      platform as described below.
- 
-===============================================================================
-| Building OpenNERO on Micrsoft Windows
--------------------------------------------------------------------------------
+.-----------------------------------------------------------------------------.
+| BUILDING OPENNERO (http://code.google.com/p/opennero/wiki/BuildingOpenNero) |
+'-----------------------------------------------------------------------------'
 
-   1) Run CMake and generate files for "Visual Studio 8 2005" or later:
-       cmd> cmake -G "Visual Studio 8 2005" .
+OpenNERO uses the CMake cross-platform build system. The general steps are:
 
-   2) Open the generated solution file OpenNERO.sln using your copy of Visual Studio
+   * Install prerequisites as needed.
+   * Check out the source code.
+   * Run CMake.
+   * Build.
+   * Continue to Running OpenNERO
 
-   3) Build using Visual Studio
+Mac OS X
 
-===============================================================================
-| Building OpenNERO on Linux
--------------------------------------------------------------------------------
+Prerequisites
 
-   0) Make sure the following packages are installed on Ubuntu (or equivalent):
-      * libboost-dev
-      * libboost-date-time-dev
-      * libboost-doc
-      * libboost-filesystem-dev
-      * libboost-python-dev
-      * libboost-serialization-dev
-      * libx11-dev
-      * libxxf86vm-dev
-      * libopenal-dev
-      * libalut-dev
-      * libgl-dev
-      * libz-dev
+   * Download and install cmake
+   * Install Xcode (optional install on the Mac OS X DVD)
 
-   1) Run CMake and generate files using the default (Makefile) generator (or any other you prefer):
+Steps to build
 
-      > cmake .
+   * (recommended) create a new directory for your build
+   * in your build directory, run cmake -G Xcode /path/to/opennero/checkout
+   * open the resulting OpenNERO.xcodeproja Xcode project file
+   * Build OpenNERO using Xcode
 
-   2) Run make to build the binaries
+Windows
 
-      > make
+Prerequisites
 
-===============================================================================
-| Building OpenNERO on Mac OS X
--------------------------------------------------------------------------------
+   * cmake
+   * Microsoft Visual Studio
 
-   1) Run CMake and generate project files using the default (Makefile) generator:
+Steps to build
 
-      > cmake .
+   * Open CMake, specify the source directory (opennero checkout directory) 
+     and build directory (another directory), and generate the files for your 
+     version of Visual Studio
+   * Open the OpenNERO.sln solution file and build OpenNERO using Visual Studio.
+   * To run from within Visual Studio, set the working directory for debugging to $(TargetDir)
 
-   2) Run make to build the binaries
+Linux
 
-      > make
+Prerequisites
 
-**OR**
+Make sure the following packages are installed on Ubuntu (or equivalent):
 
-   1) Run CMake and generate project files using the XCode generator:
+   * libboost-dev
+   * libboost-date-time-dev
+   * libboost-doc
+   * libboost-filesystem-dev
+   * libboost-python-dev
+   * libboost-serialization-dev
+   * libx11-dev
+   * libxxf86vm-dev
+   * libgl-dev
+   * libz-dev
 
-      > cmake -G Xcode .
+Steps to build
 
-   2) Open and build the resulting XCode project file
+   * (recommended) create a new directory for your build
+   * in your build directory, run cmake /path/to/opennero/checkout
+   * building using make: make
 
-      > open OpenNERO.xcodeproj
+To run
+
+     cd dist
+     ./OpenNERO
+
+.----------------------------------------------------------------------------.
+| BUILDING OPENNERO (http://code.google.com/p/opennero/wiki/RunningOpenNero) |
+'----------------------------------------------------------------------------'
+
+For further help, please see online documentation at:
+
+  http://code.google.com/p/opennero/wiki/RunningOpenNero
