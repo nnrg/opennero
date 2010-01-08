@@ -1,4 +1,49 @@
 #summary Help for NERO mod of OpenNERO
 #sidebar TableOfContents
+=The NERO Mod=
+
+The Nero mod provides an interface for users to modify the fitness function live and see the effects of these changes in the behaviour of the agents
 
 http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png
+
+==Controls:==
+
+  * W -- Up
+  * A -- Left
+  * S -- Down
+  * D -- Right
+  * Q -- Rotate Left
+  * E -- Rotate Right
+
+==Nero Controls Parameters==
+
+  * The Large Button: Spawns Agents
+  * Stand Ground:
+    * Positive: Punished for nonzero movement velocity
+    * Negative: Rewarded for nonzero movement velocity
+  * Stick Together:
+    * Positive: Rewarded for small distance to closest allied agent (Based on Distance Slider)
+    * Negative: Rewarded for large distance to closest allied agent (Based on Distance Slider)
+  * Approach Enemy:
+    * Positive: Rewarded for small distance to closest enemy agent (Based on Distance Slider)
+    * Negative: Rewarded for large distance to closest enemy agent (Based on Distance Slider)
+  * Approach Flag:
+    * Positive: Rewarded for small distance to flag (Based on Distance Slider)
+    * Negative: Rewarded for large distance to flag (Based on Distance Slider)
+  * Hit Target:
+    * Positive: Rewarded for hitting enemy agents
+    * Negative: Punished for hitting enemy agents
+  * Avoid Fire:
+    * Positive: Punished for having hit points reduced
+    * Negative: Rewarded for having hit points reduced
+
+  * Lifetime: The number of action steps each agent gets to perform before being removed from the simulation
+  * Friendly Fire: The % of damage which allied units take from being hit by an ally
+  * Explore/Exploit: The % of generated agents which are the best of previous generations being reevaluated (This tends to be important in coevolution)
+  * Hitpoints: The amount of damage a unit can take before dying (Note: being hit by an enemy is 1 point of damage)
+
+  * Train: Use the above settings
+  * Fight: Set Exploit to 100%, reset population, lifetime to infinity, hitpoints to 1. Designed for simulation of battles between coevolved troops.
+
+===Current Implementation Notes===
+ * Unfortunately, moving the flag and army spawn points is not currently implemented. This is in the works however.
