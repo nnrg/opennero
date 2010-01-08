@@ -55,7 +55,7 @@ namespace OpenNero
             virtual AIObjectPtr GetBody() { return mBody.lock(); }
 
             /// get the shared simulation data for adjusting pose
-            SimEntityData* GetSharedData() { return GetBody()->GetSharedData(); }
+            SimEntityData* GetSharedState() { return GetBody()->GetSharedState(); }
 
             std::string name; ///< name of this brain
     };

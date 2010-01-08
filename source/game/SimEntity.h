@@ -112,7 +112,7 @@ namespace OpenNero
         SimEntity& operator=( const SimEntity& obj );
 
 		/// Get a constant reference to the shared data for this SimEntity
-        const SimEntityData& GetData() const { return mSharedData; }
+        const SimEntityData& GetState() const { return mSharedData; }
 
         /// find the collision point of the ray with the object
         bool GetCollisionPoint(const Line3f& ray, const IrrHandles& irr, Vector3f& outCollisionPoint) const;
@@ -161,7 +161,7 @@ namespace OpenNero
         AIObjectPtr         mAIObject;
 #if NERO_BUILD_AUDIO
         AudioObjectPtr      mAudioObject;
-#endif /// NERO_BUILD_AUDIO
+#endif // NERO_BUILD_AUDIO
 
 #if NERO_BUILD_PHYSICS
 		/// hook into physics

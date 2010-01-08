@@ -15,8 +15,8 @@ namespace OpenNero {
 	public:
 		SimEntityComponent(SimEntityPtr parent) : mParent(parent), mSharedData(NULL) {}     ///< SimEntityComponent constructor
 		virtual ~SimEntityComponent() {}                                                    ///< virtual destructor
-		void SetSharedData(SimEntityData* data) { mSharedData = data; }                     ///< Set the entity's shared data
-		SimEntityData* GetSharedData() { return mSharedData; }                              ///< Return the entity's shared data
+		void SetSharedState(SimEntityData* data) { mSharedData = data; }                     ///< Set the entity's shared data
+		SimEntityData* GetSharedState() { return mSharedData; }                              ///< Return the entity's shared data
 		SimEntityPtr GetEntity() { return mParent.lock(); }                                 ///< Return the entity
 	};
 }

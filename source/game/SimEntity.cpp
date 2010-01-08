@@ -195,7 +195,7 @@ namespace OpenNero
             mSceneObject = obj;
             if (mSceneObject )
             {
-                mSceneObject->SetSharedData( &mSharedData );
+                mSceneObject->SetSharedState( &mSharedData );
             }
         }
     }
@@ -208,7 +208,7 @@ namespace OpenNero
         mAudioObject = obj;
         if (mAudioObject )
         {
-            mAudioObject->SetSharedData( &mSharedData );
+            mAudioObject->SetSharedState( &mSharedData );
         }
     }
 #endif // NERO_BUILD_AUDIO
@@ -218,7 +218,7 @@ namespace OpenNero
         mAIObject = obj;
         if (mAIObject )
         {
-            mAIObject->SetSharedData( &mSharedData );
+            mAIObject->SetSharedState( &mSharedData );
         }
     }
 
@@ -228,7 +228,7 @@ namespace OpenNero
         mPhysicsObject = obj;
         if (mPhysicsObject )
         {
-            mPhysicsObject->SetSharedData( &mSharedData );
+            mPhysicsObject->SetSharedState( &mSharedData );
         }
     }
 #endif // NERO_BUILD_PHYSICS
@@ -237,7 +237,7 @@ namespace OpenNero
     /// the derived class
     SimEntity& SimEntity::operator=( const SimEntity& obj )
     {
-        mSharedData = obj.GetData();
+        mSharedData = obj.GetState();
         SetSceneObject( obj.mSceneObject );
         return *this;
     }

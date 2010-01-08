@@ -789,7 +789,7 @@ namespace OpenNero
     }
 
     /// Setup a pointer to the shared data for the parent sim entity
-    void SceneObject::SetSharedData( SimEntityData* sharedData )
+    void SceneObject::SetSharedState( SimEntityData* sharedData )
     {
         Assert( sharedData );
         mSharedData = sharedData;
