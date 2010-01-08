@@ -901,6 +901,7 @@ namespace OpenNero
 				LOG_F_WARNING("render", "Could not set animation to " << animation_type);
 				return false;
 			}
+            return true;
 		} else {
 			LOG_F_WARNING("render", "Node is not animated when trying to set animation to " << animation_type);
 			return false;
