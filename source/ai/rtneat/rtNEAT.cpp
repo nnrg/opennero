@@ -223,9 +223,9 @@ namespace OpenNero
         AssertMsg(org, "No rtNEAT organism found!");
 
         return PyOrganismPtr(new PyOrganism(org));
-     }
-    
-    /// load a population from a file
+    }
+
+    /// save a population to a file
     bool RTNEAT::save_population(const std::string& pop_file)
     {
         std::string fname = Kernel::findResource(pop_file, false);
@@ -243,7 +243,7 @@ namespace OpenNero
             return true;
         }
     }
-    
+
     using namespace boost::python;
 
     /// Export RTNEAT related classes and functions to Python
