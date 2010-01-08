@@ -52,6 +52,3 @@ The Button and Slider Panel lists the command and fitness parameter settings for
   * Fight: Set Exploit to 100%, reset population, lifetime to infinity, hitpoints to 1. Designed for simulation of battles between coevolved troops.
 
 Please note that the fitness settings are the same for both populations
-
-#===Current Implementation Notes===
-# * Unfortunately, moving the flag and army spawn points is not currently implemented. #This is in the works however.
