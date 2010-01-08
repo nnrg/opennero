@@ -6,17 +6,23 @@ The Nero mod provides an interface for users to modify the fitness function live
 
 http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png
 
-==Controls:==
+==Controls==
 
-  * W -- Up
-  * A -- Left
-  * S -- Down
-  * D -- Right
-  * Q -- Rotate Left
-  * E -- Rotate Right
+  * *W* - Up
+  * *A* - Left
+  * *S* - Down
+  * *D* - Right
+  * *Q* - Rotate Left
+  * *E* - Rotate Right
 
-==Nero Controls Parameters==
+==What the Display Means==
+  * *People* - Agents. Depending on their spawn point they are of one of two populations of agents
+  * *Trees, Walls, Etc.* - Obstacles, these cannot be moved through, and themselves do not move
+  * *Blue Cube* - Current Flag Location
 
+==User Interface==
+
+The Button and Slider Panel lists the command and fitness parameter settings for the game.
   * The Large Button: Spawns Agents
   * Stand Ground:
     * Positive: Punished for nonzero movement velocity
@@ -44,6 +50,8 @@ http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png
 
   * Train: Use the above settings
   * Fight: Set Exploit to 100%, reset population, lifetime to infinity, hitpoints to 1. Designed for simulation of battles between coevolved troops.
+
+Please note that the fitness settings are the same for both populations
 
 ===Current Implementation Notes===
  * Unfortunately, moving the flag and army spawn points is not currently implemented. This is in the works however.
