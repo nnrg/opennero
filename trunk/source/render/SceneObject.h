@@ -138,7 +138,7 @@ namespace OpenNero
         ObjectTemplatePtr GetObjectTemplate();
 
         /// the shared sim entity data
-        void SetSharedData( SimEntityData* sharedData );
+        void SetSharedState( SimEntityData* sharedData );
 
         /// set the debugging text for this scene node
         void SetText(const std::string& str);

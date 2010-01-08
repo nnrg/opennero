@@ -67,7 +67,7 @@ namespace OpenNero
         ObjectTemplatePtr GetObjectTemplate();
 
         /// set the shared data for this AudioObject
-        void SetSharedData( SimEntityData* sharedData );
+        void SetSharedState( SimEntityData* sharedData );
 
         /// process a tick for this AudioObject
         void ProcessTick( float32_t dt );

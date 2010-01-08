@@ -483,7 +483,7 @@ namespace OpenNero
                     LineSet::instance().AddSegment(origin, outPosition, kRed);
                 }
                 // return the result: (sim, hit)
-                return py::make_tuple(ent->GetData(), outPosition);
+                return py::make_tuple(ent->GetState(), outPosition);
             }
         } else {
             if (vis)

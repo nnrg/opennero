@@ -356,10 +356,10 @@ namespace OpenNero
         void* data2 = dGeomGetData(o2);
         Assert(data1 == NULL || data2 == NULL);
         if (data1 != NULL) {
-            engine->found(* static_cast<IPhysicsObject*>(data1)->GetSharedData());
+            engine->found(* static_cast<IPhysicsObject*>(data1)->GetSharedState());
         }
         if (data2 != NULL) {
-            engine->found(* static_cast<IPhysicsObject*>(data2)->GetSharedData());
+            engine->found(* static_cast<IPhysicsObject*>(data2)->GetSharedState());
         }
     }
 
@@ -378,7 +378,7 @@ namespace OpenNero
         if (needle != _ids_by_geom.end()) {
             SimEntityPtr ent = Kernel::GetSimContext()->getSimulation()->Find(needle->second);
             if (ent) {
-                found(ent->GetData());
+                found(ent->GetState());
             } else {
                 LOG_F_WARNING("physics", "sensor hit an unknown object: " << geom);
             }

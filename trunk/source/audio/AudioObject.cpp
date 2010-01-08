@@ -108,7 +108,7 @@ namespace OpenNero
 
     /// Set the data that we shared with other components
     /// @param sharedData ptr to shared data
-    void AudioObject::SetSharedData( SimEntityData* sharedData )
+    void AudioObject::SetSharedState( SimEntityData* sharedData )
     {
         Assert( sharedData );
         mSharedData = sharedData;

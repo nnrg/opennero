@@ -78,10 +78,10 @@ namespace OpenNero
     /// get reconciled with the physical world.
     void ODEPhysicsObject::UpdateBeforePhysics()
     {
-        const Vector3f pos(GetSharedData()->GetPosition()); // r.h. position
-        const Vector3f vel(GetSharedData()->GetVelocity()); // r.h. velocity
-        const Vector3f rot(GetSharedData()->GetRotation()); // r.h. Euler angle in degrees
-        const Vector3f acc(GetSharedData()->GetAcceleration()); // r.h. linear acceleration
+        const Vector3f pos(GetSharedState()->GetPosition()); // r.h. position
+        const Vector3f vel(GetSharedState()->GetVelocity()); // r.h. velocity
+        const Vector3f rot(GetSharedState()->GetRotation()); // r.h. Euler angle in degrees
+        const Vector3f acc(GetSharedState()->GetAcceleration()); // r.h. linear acceleration
         // set position of the body and the geometry
         dBodySetPosition(_id, pos.X, pos.Y, pos.Z);
         dGeomSetPosition(_geom, pos.X, pos.Y, pos.Z);
@@ -119,11 +119,11 @@ namespace OpenNero
         const dReal *ode_pos = dBodyGetPosition(_id);
         const dReal *ode_quat = dBodyGetQuaternion(_id);
         const dReal *ode_vel = (dReal*)dBodyGetLinearVel(_id);
-        GetSharedData()->SetPosition(Vector3f((F32)ode_pos[0], (F32)ode_pos[1], (F32)ode_pos[2]));
+        GetSharedState()->SetPosition(Vector3f((F32)ode_pos[0], (F32)ode_pos[1], (F32)ode_pos[2]));
         Vector3f euler;
         ODEQuaternionToEuler(ode_quat, euler);
-        GetSharedData()->SetRotation(euler);
-        GetSharedData()->SetVelocity(Vector3f((F32)ode_vel[0], (F32)ode_vel[1], (F32)ode_vel[2]));
+        GetSharedState()->SetRotation(euler);
+        GetSharedState()->SetVelocity(Vector3f((F32)ode_vel[0], (F32)ode_vel[1], (F32)ode_vel[2]));
     }
 
     void ODEPhysicsObject::SnapToPlane()
