@@ -53,5 +53,5 @@ The Button and Slider Panel lists the command and fitness parameter settings for
 
 Please note that the fitness settings are the same for both populations
 
-===Current Implementation Notes===
- * Unfortunately, moving the flag and army spawn points is not currently implemented. This is in the works however.
+#===Current Implementation Notes===
+# * Unfortunately, moving the flag and army spawn points is not currently implemented. #This is in the works however.
