@@ -13,12 +13,16 @@ OFFSET = -HEIGHT/2
 
 NEAT_ACTIONS = 5
 NEAT_SENSORS = 15
+pop_size = 50
 
 OBSTACLE = 1 #0b0001
 AGENT = 2 #0b0010
 
 class NeroModule:
     def __init__(self):
+        global rtneat, rtneat2
+        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size, 1.0)
+        rtneat2 = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size,1.0)
         self.environment = None
         self.agent_id = None
         self.agent_map = {}
@@ -113,6 +117,7 @@ class NeroModule:
 
     def start_rtneat(self):
         """ start the rtneat learning stuff"""
+        global rtneat, rtneat2
         disable_ai()
         from NeroEnvironment import NeroEnvironment
 
@@ -120,9 +125,6 @@ class NeroModule:
         #addObject("data/shapes/dwarf/Dwarf.xml",Vector3f(60,60,2))
 
         # Create RTNEAT Object
-        pop_size = 50
-        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size, 1.0)
-        rtneat2 = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size,1.0)
         set_ai("neat",rtneat)
         enable_ai()
         for i in range(0, 10):
@@ -136,6 +138,18 @@ class NeroModule:
              self.currTeam = 2
              set_ai("neat",rtneat2)
              addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + i,2*YDIM/3 + i ,2),type = AGENT)
+    
+    def save_rtneat(self):
+        global rtneat, rtneat2
+        rtneat.save_population("../rtneat.gnm")
+        rtneat2.save_population("../rtneat2.gnm")
+
+    def load_rtneat(self):
+        import os
+        global rtneat, rtneat2
+        if os.path.exists("rtneat.gnm") and os.path.exists("rtneat2.gnm"):
+         rtneat = RTNEAT("rtneat.gnm", "data/ai/neat-params.dat", pop_size)
+         rtneat2= RTNEAT("rtneat2.gnm","data/ai/neat-params.dat", pop_size)
 
     def sgChange(self,value):
         self.sg = value
