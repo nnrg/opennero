@@ -1,4 +1,4 @@
 #summary Q-Learning demo
 #sidebar TableOfContents
 
-_Coming soon_
+_Page coming soon_
