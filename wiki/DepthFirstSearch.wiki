@@ -1,4 +1,4 @@
 #summary Depth First Search demo
 #sidebar TableOfContents
 
-_Coming soon_
+_Page coming soon_
