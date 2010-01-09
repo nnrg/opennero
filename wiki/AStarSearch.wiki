@@ -1,0 +1,4 @@
+#summary A-star Search demo
+#sidebar TableOfContents
+
+_Coming soon_
