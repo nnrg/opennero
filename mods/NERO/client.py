@@ -10,6 +10,12 @@ def toggle_ai_callback():
     reset_ai()
     getMod().start_rtneat()
 
+def save_ai_call():
+    getMod().save_rtneat()
+
+def load_ai_call():
+    getMod().load_rtneat()
+
 def recenter(cam):
     def closure():
         cam.setPosition(Vector3f(0, 0, 100))
@@ -26,9 +32,18 @@ def CreateGui(guiMan):
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")  
 
-    toggleAiButton = gui.create_button( guiMan, 'toggle_ai', Pos2i(0,0),Pos2i(60,160), '' )
+    toggleAiButton = gui.create_button( guiMan, 'toggle_ai', Pos2i(0,0),Pos2i(60,80), '' )
     toggleAiButton.text = 'Deploy'
     toggleAiButton.OnMouseLeftClick = toggle_ai_callback
+
+    saveAiButton = gui.create_button(guiMan, 'save_ai', Pos2i(0,80),Pos2i(30,80), '')
+    saveAiButton.text = 'Save'
+    saveAiButton.OnMouseLeftClick = save_ai_call
+
+    loadAiButton = gui.create_button(guiMan, 'load_ai', Pos2i(30,80),Pos2i(30,80),'')
+    loadAiButton.text = 'Load'
+    loadAiButton.OnMouseLeftClick = load_ai_call
+
 
     #Stand Ground Scroll Data
     sgText = gui.create_text(guiMan, 'sgText', Pos2i(65,-2), Pos2i(85,15), "Stand Ground")
@@ -179,6 +194,8 @@ def CreateGui(guiMan):
     guiWindow = gui.create_window( guiMan, 'window', Pos2i(20,20),Pos2i(600,185), 'Nero Controls' )
 
     guiWindow.addChild(toggleAiButton)
+    guiWindow.addChild(saveAiButton)
+    guiWindow.addChild(loadAiButton)
     guiWindow.addChild(sgScroll)
     guiWindow.addChild(stScroll)
     guiWindow.addChild(aeScroll)
@@ -238,6 +255,8 @@ def sg_adjusted(scroll, value):
        print ('Stand Ground adjusted!') 
     return closure
     return 0
+
+
 
 def st_adjusted(scroll, value):
     # this returns a callback function for reacting to the changing epsilon value
