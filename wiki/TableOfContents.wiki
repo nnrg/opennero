@@ -1,7 +1,8 @@
   * Getting started with OpenNERO
-    * [RunningOpenNero Running OpenNERO]
+    * [RunningOpenNero Running]
       * [MazeMod The Maze mod]
       * [RoombaMod The Roomba mod]
       * [NeroMod The NERO mod]
-    * [OpenNeroExercises Exercises in OpenNERO]
-    * [BuildingOpenNero Building OpenNERO]
+    * [OpenNeroDemos Demonstrations]
+    * [OpenNeroExercises Exercises]
+    * [BuildingOpenNero Building]
