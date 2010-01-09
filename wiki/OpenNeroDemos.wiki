@@ -1,7 +1,7 @@
 #summary AI techniques that can be demonstrated in OpenNERO
 #sidebar TableOfContents
 
-When you [https://code.google.com/p/opennero/downloads/ download] and [RunningOpenNero run] OpenNERO
+When you [/p/opennero/downloads/ download] and [RunningOpenNero run] OpenNERO
  * Search
    * [DepthFirstSearch Depth First Search] in MazeMod.
    * [AStarSearch `A*` Search] in three varieties is demonstrated in the MazeMod.
