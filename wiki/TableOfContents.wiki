@@ -4,5 +4,12 @@
       * [RoombaMod The Roomba mod]
       * [NeroMod The NERO mod]
     * [OpenNeroDemos Demonstrations]
+      * [DepthFirstSearch Depth First Search] in MazeMod.
+      * [AStarSearch `A*` Search] in three varieties is demonstrated in the MazeMod.
+      * [QLearning Q-Learning]
+      * [SarsaLearning Sarsa(λ)]
+      * [NeuroEvolution Neuroevolution]
+      * [CoEvolution Co-evolution]
+      * [HumanSolutions Human-generated solutions]
     * [OpenNeroExercises Exercises]
     * [BuildingOpenNero Building]
