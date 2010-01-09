@@ -3,17 +3,17 @@
 
 When you [https://code.google.com/p/opennero/downloads/ download] and [RunningOpenNero run] OpenNERO
  * Search
-   * Depth First Search in MazeMod.
-   * `A*` Search in three varieties is demonstrated in the MazeMod.
+   * [DepthFirstSearch Depth First Search] in MazeMod.
+   * [AStarSearch `A*` Search] in three varieties is demonstrated in the MazeMod.
  * Reinforcement learning
-   * Q-Learning with ε-greedy policy
-   * Sarsa(λ) with ε-greedy policy
+   * [QLearning Q-Learning] with ε-greedy policy
+   * [SarsaLearning Sarsa(λ)] with ε-greedy policy
  * Neuroevolution
-   * Neuroevolution agents are available in MazeMod, NeroMod and RoombaMod.
+   * [NeuroEvolution Neuroevolution] agents are available in MazeMod, NeroMod and RoombaMod.
  * Co-Evolution
-   * Co-evolution of two populations is demonstrated in NeroMod.
- * Human-generated solutions
+   * [CoEvolution Co-evolution] of two populations is demonstrated in NeroMod.
+ * [HumanSolutions Human-generated solutions]
    * A scripted solution (greedy policy) is available in the RoombaMod.
    * A human can try to manually solve the MazeMod task by using the first person mode.
  * Other
-   * An agent that selects actions uniformly at random can be demonstrated in the MazeMod.
+   * An agent that selects actions uniformly at random is demonstrated in the MazeMod.
