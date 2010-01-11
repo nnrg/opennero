@@ -1,4 +1,12 @@
 #summary Depth First Search demo
 #sidebar TableOfContents
 
-_Page coming soon_
+[http://en.wikipedia.org/wiki/Depth-first_search Depth-First Search] is a technique for searching a graph or a tree-like structure. MazeMod includes an agent that searches for the target (red square) by expanding the graph in a depth-first manner.
+
+To demonstrate, start OpenNERO and select Maze.
+
+Once the maze is displayed, click Depth First Search.
+
+The agent marks the locations on the maze where it has been with blue marker boxes.
+
+If the agent reaches a dead-end, it will retrace its steps to the most recent un-expanded branch of the graph representing the maze.
