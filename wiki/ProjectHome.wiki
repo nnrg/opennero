@@ -1,5 +1,8 @@
 #summary OpenNERO Project Home
 #sidebar TableOfContents
+
+<wiki:toc />
+
 ----
 ==About OpenNERO==
 [http://nn.cs.utexas.edu/?opennero OpenNERO] is an open source software platform designed for research and education in Artificial Intelligence. The project is based on the [http://www.nerogame.org/ Neuro-Evolving Robotic Operatives (NERO) game] developed by graduate and undergraduate students at the  [http://nn.cs.utexas.edu/ Neural Networks Research Group] and [http://www.cs.utexas.edu/ Department of Computer Science] at the [http://www.utexas.edu/ University of Texas at Austin].
