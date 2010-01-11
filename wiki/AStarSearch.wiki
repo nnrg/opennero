@@ -15,9 +15,9 @@ To start this visualization, start OpenNERO and click on the Maze button. After 
 
 This visualization shows what would happen if the agent was a physical robot that has to move in order to get to and expand the next node in the graph. As the agent runs around the maze, it marks the cells with three different kinds of markers:
 
- * blue - visited node
- * yellow - next node to expand
- * green - active node (that may be expanded later)
+ * <font color="blue">blue</font> - visited node
+ * <font color="yellow">yellow</font> - next node to expand
+ * <font color="green">green</font> - active node (that may be expanded later)
 
 =Teleporting `A*`=
 
@@ -25,9 +25,9 @@ To start this visualization, start OpenNERO and click on the Maze button. After 
 
 If the agent can teleport (or consider teleporting) from any explored place to any other explored place in the maze, it can perform the search more efficiently. Here, the markers are the same:
 
- * blue - visited node
- * yellow - next node to expand
- * green - active node (that may be expanded later)
+ * <font color="blue">blue</font> - visited node
+ * <font color="yellow">yellow</font> - next node to expand
+ * <font color="green">green</font> - active node (that may be expanded later)
 
 But this time the agent does not need to physically travel from a dead-end to the next green-turned-yellow node - instead, it can just appear there. This saves a lot of time!
 
@@ -37,7 +37,7 @@ To start this visualization, start OpenNERO and click on the Maze button. After 
 
 Finally, if you have a small army of agents at your disposal, you can try to explore the graph by cloning them. In this visualization, there are only two types of markers:
 
- * blue - visited node
- * yellow - next node to expand
+ * <font color="blue">blue</font> - visited node
+ * <font color="yellow">yellow</font> - next node to expand
 
 And the active nodes are replaced with waiting copies of the agent. When the agent has found a dead-end, it is removed and the next-most-likely agent is activated to continue the search.
