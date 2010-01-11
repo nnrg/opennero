@@ -1,4 +1,43 @@
 #summary A-star Search demo
 #sidebar TableOfContents
 
-_Page coming soon_
+=Introduction=
+
+[http://en.wikipedia.org/wiki/A*_search_algorithm A* Search Algorithm] is a way to sift through a graph or a tree in order to find something. When given an appropriate _heuristic_ the algorithm will try to expand the most promising branches of the graph first.
+
+In OpenNERO, there are three different visualizations of this algorithm in the MazeMod. All of them start at one end of the maze and try to find the goal (red cube) at the opposite end.
+
+Yellow lines emanating from the agent indicate sensor rays cast that did not encounter an obstacle. Red lines indicate sensors that have hit a wall. This is the information that the agent uses to construct and search the graph. 
+
+=Single Agent `A*`=
+
+To start this visualization, start OpenNERO and click on the Maze button. After the maze loads, click on the *Single Agent `A*`* button.
+
+This visualization shows what would happen if the agent was a physical robot that has to move in order to get to and expand the next node in the graph. As the agent runs around the maze, it marks the cells with three different kinds of markers:
+
+ * blue - visited node
+ * yellow - next node to expand
+ * green - active node (that may be expanded later)
+
+=Teleporting `A*`=
+
+To start this visualization, start OpenNERO and click on the Maze button. After the maze loads, click on the *Teleporting `A*`* button.
+
+If the agent can teleport (or consider teleporting) from any explored place to any other explored place in the maze, it can perform the search more efficiently. Here, the markers are the same:
+
+ * blue - visited node
+ * yellow - next node to expand
+ * green - active node (that may be expanded later)
+
+But this time the agent does not need to physically travel from a dead-end to the next green-turned-yellow node - instead, it can just appear there. This saves a lot of time!
+
+=Front `A*`=
+
+To start this visualization, start OpenNERO and click on the Maze button. After the maze loads, click on the *Front `A*`* button.
+
+Finally, if you have a small army of agents at your disposal, you can try to explore the graph by cloning them. In this visualization, there are only two types of markers:
+
+ * blue - visited node
+ * yellow - next node to expand
+
+And the active nodes are replaced with waiting copies of the agent. When the agent has found a dead-end, it is removed and the next-most-likely agent is activated to continue the search.
