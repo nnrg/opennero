@@ -4,3 +4,5 @@
 [http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node65.html Q-Learning] is a type of time-difference [http://webdocs.cs.ualberta.ca/~sutton/book/the-book.html Reinforcement Learning] that uses a _value function_ to pick the best action.
 
 In MazeMod, a Q-Learning reinforcement agent leans to navigate the maze from experience. To start this demonstration, start OpenNERO and click on the Maze button. Once the maze loads, click the Q-Learning button. You can adjust the fraction of the actions taken greedily vs actions taken to explore the environment using the explore-exploit slider.
+
+Implementation of this method can be found in [http://code.google.com/p/opennero/source/browse/trunk/source/ai/rl/QLearning.h QLearning.h] and [http://code.google.com/p/opennero/source/browse/trunk/source/ai/rl/QLearning.cpp QLearning.cpp].
