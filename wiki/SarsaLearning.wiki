@@ -5,4 +5,4 @@
 
 In MazeMod, a Sarsa reinforcement agent leans to navigate the maze from experience. To start this demonstration, start OpenNERO and click on the Maze button. Once the maze loads, click the Sarsa button. You can adjust the fraction of the actions taken greedily vs actions taken to explore the environment using the explore-exploit slider.
 
-Implementation of this method can be found in [http://code.google.com/p/opennero/source/browse/trunk/source/ai/rl/Sarsa.h Sarsa.h] and [http://code.google.com/p/opennero/source/browse/trunk/source/ai/rl/Sarsa.cpp].
+Implementation of this method can be found in [http://code.google.com/p/opennero/source/browse/trunk/source/ai/rl/Sarsa.h Sarsa.h] and [http://code.google.com/p/opennero/source/browse/trunk/source/ai/rl/Sarsa.cpp Sarsa.cpp].
