@@ -1,6 +1,8 @@
 #summary A-star Search demo
 #sidebar TableOfContents
 
+<wiki:toc />
+
 =Introduction=
 
 [http://en.wikipedia.org/wiki/A*_search_algorithm A* Search Algorithm] is a way to sift through a graph or a tree in order to find something. When given an appropriate _heuristic_ the algorithm will try to expand the most promising branches of the graph first.
