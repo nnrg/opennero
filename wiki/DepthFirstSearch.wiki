@@ -10,3 +10,5 @@ Once the maze is displayed, click Depth First Search.
 The agent marks the locations on the maze where it has been with blue marker boxes.
 
 If the agent reaches a dead-end, it will retrace its steps to the most recent un-expanded branch of the graph representing the maze.
+
+The source code for this and other Maze agents is in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py agent.py].
