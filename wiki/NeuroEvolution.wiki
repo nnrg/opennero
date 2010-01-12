@@ -9,11 +9,13 @@ OpenNERO includes several demonstrations of the [http://nn.cs.utexas.edu/?NEAT N
 
 =Evolving a maze agent=
 
-MazeMod includes the ability to evolve a solution 
+MazeMod includes the ability to evolve an agent to navigate the maze. After starting the mod, select the *Neuroevolution* button.
 
 =Evolution in the NERO mod=
 
-Like the [http://www.nerogame.org NERO game], NeroMod is built around evolving a population of agents for a variety of tasks. This is achieved through changing the fitness function using the sliders.
+Like the [http://www.nerogame.org NERO game], NeroMod is built around evolving a population of agents for a variety of tasks. 
+
+After starting the *NERO* mod, set the desired fitness sliders and click *Deploy*. Sliders can be adjusted during the training process to shape the agents via their fitness function.
 
 =Evolving a cleaning robot=
 
