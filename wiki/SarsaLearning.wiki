@@ -18,7 +18,7 @@ Additional parameters can be set in [http://code.google.com/p/opennero/source/br
   </AI>
 }}}
 
-The parameters passed to the QLearningBrain constructor are:
+The parameters passed to the SarsaBrain constructor are:
 
  * γ (gamma) - reward discount factor (between 0 and 1)
  * α (alpha) - learning rate (between 0 and 1)
