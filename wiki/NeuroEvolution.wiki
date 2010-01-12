@@ -6,3 +6,20 @@
 =Introduction=
 
 OpenNERO includes several demonstrations of the [http://nn.cs.utexas.edu/?NEAT NEAT] ([http://nn.cs.utexas.edu/?rtNEAT rtNEAT]) algorithm. NEAT is an evolutionary algorithm and adapts the weights and the topologies of neural network controllers.
+
+#summary NeuroEvolution demo
+#sidebar TableOfContents
+
+<wiki:toc />
+
+=Evolving a maze agent=
+
+MazeMod includes the ability to evolve a solution 
+
+=Evolution in the NERO mod=
+
+Like the [http://www.nerogame.org NERO game], NeroMod is built around evolving a population of agents for a variety of tasks. This is achieved through changing the fitness function using the sliders.
+
+=Evolving a cleaning robot=
+
+In the RoombaMod, select the *rtNEAT* agents and click *Add Bots* to have them evolve a better cleaning strategy.
