@@ -5,6 +5,8 @@
 
 In MazeMod, the user can select the First Person button to try to solve the maze themselves.
 
+<a href="http://opennero.googlecode.com/svn/wiki/OpenNERO-maze-fp.png"><img width="400" height="300" alt="" src="http://opennero.googlecode.com/svn/wiki/OpenNERO-maze-fp.png" /></a>
+
 ==Scripted Roomba==
 
 In RoombaMod, one simple strategy is the greedy vacuum cleaner that detects and drives to the nearest piece of litter. In order to start this demonstration, first select the Roomba mod from the main menu and then *Switch to Script* and *Add Bots*.
