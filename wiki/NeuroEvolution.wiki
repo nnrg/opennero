@@ -7,11 +7,6 @@
 
 OpenNERO includes several demonstrations of the [http://nn.cs.utexas.edu/?NEAT NEAT] ([http://nn.cs.utexas.edu/?rtNEAT rtNEAT]) algorithm. NEAT is an evolutionary algorithm and adapts the weights and the topologies of neural network controllers.
 
-#summary NeuroEvolution demo
-#sidebar TableOfContents
-
-<wiki:toc />
-
 =Evolving a maze agent=
 
 MazeMod includes the ability to evolve a solution 
