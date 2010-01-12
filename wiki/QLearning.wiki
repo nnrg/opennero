@@ -8,3 +8,17 @@ In MazeMod, a Q-Learning reinforcement agent leans to navigate the maze from exp
 Time-difference reinforcement learning agents can optionally use a _function approximator_ such as an ANN. In the simple case of the maze, the methods do not use an approximator and store a value for each state-action pair (tabular case).
 
 Implementation of this method can be found in [http://code.google.com/p/opennero/source/browse/trunk/source/ai/rl/QLearning.h QLearning.h] and [http://code.google.com/p/opennero/source/browse/trunk/source/ai/rl/QLearning.cpp QLearning.cpp].
+
+Additional parameters can be set in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/data/shapes/character/SydneyQLearning.xml SydneyQLearning.xml] by changing the AI section:
+
+{{{
+  <AI>
+    <Python agent="QLearningBrain(0.8, 0.8, 0.1)" />
+  </AI>
+}}}
+
+The parameters passed to the QLearningBrain constructor are:
+
+ * γ (gamma) - reward discount factor (between 0 and 1)
+ * α (alpha) - learning rate (between 0 and 1)
+ * ε (epsilon) - parameter for the epsilon-greedy policy (between 0 and 1)
