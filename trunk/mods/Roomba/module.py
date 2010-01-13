@@ -223,8 +223,8 @@ class SandboxEnvironment(Environment):
             return self.states[agent]
         else:
             print "new state created"
-            pos = agent.sim.position
-            rot = agent.sim.rotation
+            pos = agent.state.position
+            rot = agent.state.rotation
             self.states[agent] = AgentState(pos, rot)
             return self.states[agent]
         
@@ -251,9 +251,9 @@ class SandboxEnvironment(Environment):
         """ reset the environment to its initial state """
         state = self.get_state(agent)
         state.reset()
-        agent.sim.position = state.initial_position
-        agent.sim.rotation = state.initial_rotation
-        agent.sim.velocity = state.initial_velocity
+        agent.state.position = state.initial_position
+        agent.state.rotation = state.initial_rotation
+        agent.state.velocity = state.initial_velocity
         state.episode_count += 1
         self.add_crumbs()
         print "Episode %d complete" % state.episode_count
@@ -272,13 +272,13 @@ class SandboxEnvironment(Environment):
         """
         state = self.get_state(agent) # the agent's status
         if (state.is_out == True):
-            getMod().unmark(agent.sim.position.x, agent.sim.position.y)
+            getMod().unmark(agent.state.position.x, agent.state.position.y)
         else:
             assert(self.get_agent_info(agent).actions.validate(action)) # check if the action is valid
             if (str(type(agent)) == "<class 'Roomba.roomba.RoombaBrain'>"):
                 angle = action[0] # in range of -pi to pi
                 degree_angle = degrees(angle)
-                delta_angle = degree_angle - agent.sim.rotation.z
+                delta_angle = degree_angle - agent.state.rotation.z
                 delta_dist = MAX_SPEED
             else:
                 # The first action specifies the distance to move in the forward direction
@@ -295,8 +295,8 @@ class SandboxEnvironment(Environment):
         state = self.get_state(agent)
         state.step_count += 1
 
-        position = agent.sim.position
-        rotation = agent.sim.rotation
+        position = agent.state.position
+        rotation = agent.state.rotation
         
         if self.out_of_bounds(position):
             state.bumped = True
@@ -310,8 +310,8 @@ class SandboxEnvironment(Environment):
 
         state.position = position
         state.rotation = rotation
-        agent.sim.position = position
-        agent.sim.rotation = rotation
+        agent.state.position = position
+        agent.state.rotation = rotation
         
         reward = 0
         
@@ -353,7 +353,7 @@ class SandboxEnvironment(Environment):
                 sensors[0] = 0
 
             # get agent's position
-            pos = agent.sim.position
+            pos = agent.state.position
             sensors[1] = pos.x
             sensors[2] = pos.y
         
@@ -396,10 +396,10 @@ class SandboxEnvironment(Environment):
                 if obscured: continue
                 """
 
-                distx = cube_position[0] - agent.sim.position.x
-                disty = cube_position[1] - agent.sim.position.y
+                distx = cube_position[0] - agent.state.position.x
+                disty = cube_position[1] - agent.state.position.y
                 dist = sqrt(distx**2 + disty**2)
-                angle = degrees(atan2(disty, distx)) - agent.sim.rotation.z  # range [-360, 360]
+                angle = degrees(atan2(disty, distx)) - agent.state.rotation.z  # range [-360, 360]
                 if angle > 180: angle = angle - 360
                 if angle < -180: angle = angle + 360
                 angle = angle/180 # range [-1, 1]
@@ -424,7 +424,7 @@ class SandboxEnvironment(Environment):
             # the agent.
             for wall_id in self.active_walls:
                 # Construct the start and end points of a ray to intersect with the wall.
-                ray_start = agent.sim.position
+                ray_start = agent.state.position
                 ray_end = Vector3f(state.position.x + self.MAX_DISTANCE*cos(radians(state.rotation.z)),
                                    state.position.y + self.MAX_DISTANCE*sin(radians(state.rotation.z)),
                                    state.position.z)

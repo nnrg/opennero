@@ -50,11 +50,11 @@ class AgentState:
         """
         Update the state of the agent
         """
-        pos = copy(agent.sim.position)
+        pos = copy(agent.state.position)
         self.prev_rc = self.rc
         self.rc = maze.xy2rc(pos.x, pos.y)
         self.prev_pose = self.pose
-        self.pose = (pos.x, pos.y, agent.sim.rotation.z + self.initial_rotation.z)
+        self.pose = (pos.x, pos.y, agent.state.rotation.z + self.initial_rotation.z)
         self.current_step += 1
         self.time = time.time()
 
@@ -142,8 +142,8 @@ class MazeEnvironment(Environment):
         state = self.get_state(agent)
         state.rc = (0,0)
         state.prev_rc = (0,0)
-        agent.sim.position = copy(state.initial_position)
-        agent.sim.rotation = copy(state.initial_rotation)
+        agent.state.position = copy(state.initial_position)
+        agent.state.rotation = copy(state.initial_rotation)
         state.goal_reached = False
         state.current_step = 0
         state.current_episode += 1
@@ -155,7 +155,7 @@ class MazeEnvironment(Environment):
 
     def set_animation(self, agent, state, animation):
         if state.animation != animation:
-            agent.sim.setAnimation(animation)
+            agent.state.setAnimation(animation)
             state.animation = animation
 
     def step(self, agent, action):
@@ -167,8 +167,8 @@ class MazeEnvironment(Environment):
             state.prev_rc = state.rc
             return 0
         if state.current_step == 0:
-            state.initial_position = agent.sim.position
-            state.initial_rotation = agent.sim.rotation
+            state.initial_position = agent.state.position
+            state.initial_rotation = agent.state.rotation
         state.current_step += 1
         (r,c) = state.rc
         a = int(round(action[0]))
@@ -184,12 +184,12 @@ class MazeEnvironment(Environment):
         state.rc = (new_r, new_c)
         (old_r,old_c) = state.prev_rc
         (old_x,old_y) = self.maze.rc2xy(old_r, old_c)
-        pos0 = agent.sim.position
+        pos0 = agent.state.position
         pos0.x = old_x
         pos0.y = old_y
-        agent.sim.position = pos0
+        agent.state.position = pos0
         relative_rotation = self.get_next_rotation((dr,dc))
-        agent.sim.rotation = state.initial_rotation + relative_rotation
+        agent.state.rotation = state.initial_rotation + relative_rotation
         if new_r == ROWS - 1 and new_c == COLS - 1:
             state.goal_reached = True
             return self.rewards.goal_reached(state)
@@ -205,10 +205,10 @@ class MazeEnvironment(Environment):
         state.prev_rc = (r,c)
         state.rc = (r,c)
         (x,y) = self.maze.rc2xy(r,c)
-        pos0 = agent.sim.position
+        pos0 = agent.state.position
         pos0.x = x
         pos0.y = y
-        agent.sim.position = pos0
+        agent.state.position = pos0
 
     def sense(self, agent):
         """
@@ -223,7 +223,7 @@ class MazeEnvironment(Environment):
         v[0] = state.rc[0]
         v[1] = state.rc[1]
         offset = GRID_DX/10.0
-        p0 = agent.sim.position
+        p0 = agent.state.position
         for i, (dr, dc) in enumerate(MazeEnvironment.MOVES):
             direction = Vector3f(dr, dc, 0)
             ray = (p0 + direction * offset, p0 + direction * GRID_DX)
@@ -241,11 +241,11 @@ class MazeEnvironment(Environment):
         if dr != 0 or dc != 0:
             (x0,y0) = self.maze.rc2xy(r0,c0)
             (x1,y1) = self.maze.rc2xy(r1,c1)
-            pos = agent.sim.position
+            pos = agent.state.position
             fraction = min(1.0,float(time.time() - state.time)/self.step_delay)
             pos.x = x0 * (1 - fraction) + x1 * fraction
             pos.y = y0 * (1 - fraction) + y1 * fraction
-            agent.sim.position = pos
+            agent.state.position = pos
             self.set_animation(agent, state, 'run')
         else:
             self.set_animation(agent, state, 'stand')
@@ -324,8 +324,8 @@ class ContMazeEnvironment(MazeEnvironment):
         """
         state = self.get_state(agent)
         state.pose = (state.initial_position.x, state.initial_position.y, state.initial_rotation.z)
-        agent.sim.position = copy(state.initial_position)
-        agent.sim.rotation = copy(state.initial_rotation)
+        agent.state.position = copy(state.initial_position)
+        agent.state.rotation = copy(state.initial_rotation)
         state.goal_reached = False
         state.current_step = 0
         state.current_episode += 1
@@ -367,14 +367,14 @@ class ContMazeEnvironment(MazeEnvironment):
             if new_x != x or new_y != y:
                 self.set_animation(agent, state, 'run')
         if state.current_step == 0:
-            state.initial_position = agent.sim.position
-            state.initial_rotation = agent.sim.rotation
+            state.initial_position = agent.state.position
+            state.initial_rotation = agent.state.rotation
         # move the agent
-        agent.sim.rotation = state.initial_rotation + Vector3f(0,0,new_heading)
-        pos0 = agent.sim.position
+        agent.state.rotation = state.initial_rotation + Vector3f(0,0,new_heading)
+        pos0 = agent.state.position
         pos0.x = new_x
         pos0.y = new_y
-        agent.sim.position = pos0
+        agent.state.position = pos0
         # update agent state
         state.update(agent, self.maze)
         (new_r, new_c) = state.rc
@@ -404,7 +404,7 @@ class ContMazeEnvironment(MazeEnvironment):
         angle_to_target = wrap_degrees(angle_to_target, -heading) # heading to target relative to us
         v[3] = angle_to_target
         d_angle = 360.0 / ContMazeEnvironment.N_RAYS
-        p0 = agent.sim.position
+        p0 = agent.state.position
         for i in range(ContMazeEnvironment.N_RAYS):
             angle = radians(heading + i * d_angle)
             direction = Vector3f(cos(angle), sin(angle), 0) # direction of ray

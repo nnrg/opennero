@@ -451,7 +451,7 @@ class MoveForwardAndStopAgent(AgentBrain):
         v = self.actions.get_instance()
         state = get_environment().get_state(self) # our state
         maze = get_environment().maze # the maze we are in
-        ((r1, c1), (r2, c2)) = Maze.module.getMod().marker_states[self.sim.id] # what are we marking?
+        ((r1, c1), (r2, c2)) = Maze.module.getMod().marker_states[self.state.id] # what are we marking?
         state.prev_rc, state.rc = (r1,c1), (r1,c1) # pretend like we were always there
         state.sensors = False # don't want sensors
         dr, dc = r2 - r1, c2 - c1 # figure out where we are going

@@ -81,17 +81,17 @@ class YoMazeEnvironment(MazeEnvironment):
         state = self.get_state(agent)
         # check if the action is valid
         if state.current_step == 0:
-            state.initial_position = agent.sim.position
-            state.initial_rotation = agent.sim.rotation
+            state.initial_position = agent.state.position
+            state.initial_rotation = agent.state.rotation
             state.pose = (copy(state.initial_position), copy(state.initial_rotation))
         state.current_step += 1
-        (r, c) = self.world_to_grid(agent.sim.position, state.pose, True)
+        (r, c) = self.world_to_grid(agent.state.position, state.pose, True)
         if r == ROWS - 1 and c == COLS - 1:
             self.reset(agent)
             return MazeEnvironment.REWARD_VALID_MOVE
 
-        position = agent.sim.position
-        rotation = agent.sim.rotation
+        position = agent.state.position
+        rotation = agent.state.rotation
         state.pose = (copy(position), copy(rotation))
         heading = radians(rotation.z)
 
@@ -125,8 +125,8 @@ class YoMazeEnvironment(MazeEnvironment):
             self.update_observer((position.x, position.y, radians(rotation.z)))
         state.position = (new_r, new_c)
         state.prev_position = (r, c)
-        agent.sim.position = position
-        agent.sim.rotation = rotation
+        agent.state.position = position
+        agent.state.rotation = rotation
         if new_r == ROWS - 1 and new_c == COLS - 1:
             state.goal_reached = True
             print "CONGRATULATIONS! Goal reached! Restarting the maze."

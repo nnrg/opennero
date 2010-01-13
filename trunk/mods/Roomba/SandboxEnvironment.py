@@ -86,8 +86,8 @@ class SandboxEnvironment(Environment):
             return self.states[agent]
         else:
             print "new state created"
-            pos = agent.sim.position
-            rot = agent.sim.rotation
+            pos = agent.state.position
+            rot = agent.state.rotation
             self.states[agent] = AgentState(pos, rot)
             return self.states[agent]
         
@@ -116,9 +116,9 @@ class SandboxEnvironment(Environment):
         """ reset the environment to its initial state """
         state = self.get_state(agent)
         state.reset()
-        agent.sim.position = state.initial_position
-        agent.sim.rotation = state.initial_rotation
-        agent.sim.velocity = state.initial_velocity
+        agent.state.position = state.initial_position
+        agent.state.rotation = state.initial_rotation
+        agent.state.velocity = state.initial_velocity
         state.episode_count += 1
         self.add_crumbs()
         print "Episode %d complete" % state.episode_count
@@ -137,12 +137,12 @@ class SandboxEnvironment(Environment):
         """
         state = self.get_state(agent) # the agent's status
         if (state.is_out == True):
-            server.unmark(agent.sim.position.x, agent.sim.position.y)
+            server.unmark(agent.state.position.x, agent.state.position.y)
         else:
             assert(self.agent_info.actions.validate(action)) # check if the action is valid
             angle = action[0] # in range of -pi to pi
-            position = Vector3f(agent.sim.position.x, agent.sim.position.y, agent.sim.position.z)
-            rotation = agent.sim.rotation
+            position = Vector3f(agent.state.position.x, agent.state.position.y, agent.state.position.z)
+            rotation = agent.state.rotation
             displacement = Vector3f(cos(angle) * MAX_SPEED, sin(angle) * MAX_SPEED, 0)
             if self.out_of_bounds(position + displacement):
                 state.bumped = True
@@ -150,7 +150,7 @@ class SandboxEnvironment(Environment):
                     self.update_position(agent, position - displacement)
             else:
                 rotation.z = rotation.z + degrees(angle)
-                agent.sim.rotation = rotation
+                agent.state.rotation = rotation
                 return self.update_position(agent, position+displacement)
             # check if agent has expended its step allowance
             if (self.max_steps != 0) and (state.step_count >= self.max_steps):
@@ -158,7 +158,7 @@ class SandboxEnvironment(Environment):
         return 0
         
     def update_position(self, agent, pos):
-        agent.sim.position = pos
+        agent.state.position = pos
         state = self.get_state(agent)
         state.step_count += 1
         print self.server.findInSphere(pos, MAX_SPEED)
@@ -197,7 +197,7 @@ class SandboxEnvironment(Environment):
             v[0] = 0
 
         # get agent's position
-        pos = agent.sim.position
+        pos = agent.state.position
         v[1] = pos.x
         v[2] = pos.y
 

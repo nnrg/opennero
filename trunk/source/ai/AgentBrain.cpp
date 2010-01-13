@@ -68,7 +68,7 @@ namespace OpenNero
             .def("act", pure_virtual(&AgentBrain::act), "Called for every step of the state-action loop")
             .def("end", pure_virtual(&AgentBrain::end), "Called at the end of a learning episode")
             .def("destroy", pure_virtual(&AgentBrain::destroy), "Called after learning ends")
-            .add_property("sim", make_function(&AgentBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
+            .add_property("state", make_function(&AgentBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
         // export the interface to python so that we can override its methods there
         python::class_<TDBrain, noncopyable, bases<AgentBrain>, TDBrainPtr >("TDBrain", "CMAC tile coding SARSA agent", no_init )
             .def("initialize", &TDBrain::initialize, "Called before learning starts")
@@ -79,7 +79,7 @@ namespace OpenNero
             .add_property("epsilon", &TDBrain::getEpsilon, &TDBrain::setEpsilon)
             .add_property("alpha", &TDBrain::getAlpha, &TDBrain::setAlpha)
             .add_property("gamma", &TDBrain::getGamma, &TDBrain::setGamma)
-            .add_property("sim", make_function(&TDBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
+            .add_property("state", make_function(&TDBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
         // export the interface to python so that we can override its methods there
         python::class_<SarsaBrain, bases<TDBrain>, SarsaBrainPtr >("SarsaBrain", "CMAC tile coding SARSA agent", init<double, double, double, double>() )
             .def("initialize", &SarsaBrain::initialize, "Called before learning starts")
@@ -90,7 +90,7 @@ namespace OpenNero
             .add_property("epsilon", &TDBrain::getEpsilon, &TDBrain::setEpsilon)
             .add_property("alpha", &TDBrain::getAlpha, &TDBrain::setAlpha)
             .add_property("gamma", &TDBrain::getGamma, &TDBrain::setGamma)
-            .add_property("sim", make_function(&SarsaBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
+            .add_property("state", make_function(&SarsaBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
         // export the interface to python so that we can override its methods there
         python::class_<QLearningBrain, bases<TDBrain>, QLearningBrainPtr >("QLearningBrain", "CMAC tile coding SARSA agent", init<double, double, double>() )
             .def("initialize", &QLearningBrain::initialize, "Called before learning starts")
@@ -101,7 +101,7 @@ namespace OpenNero
             .add_property("epsilon", &TDBrain::getEpsilon, &TDBrain::setEpsilon)
             .add_property("alpha", &TDBrain::getAlpha, &TDBrain::setAlpha)
             .add_property("gamma", &TDBrain::getGamma, &TDBrain::setGamma)
-            .add_property("sim", make_function(&QLearningBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
+            .add_property("state", make_function(&QLearningBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
 		;
     }
 }

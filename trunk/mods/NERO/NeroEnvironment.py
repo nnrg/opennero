@@ -103,11 +103,11 @@ class NeroEnvironment(Environment):
         reset the environment to its initial state
         """
         state = self.get_state(agent)
-        agent.sim.position = state.initial_position
+        agent.state.position = state.initial_position
 #Vector3f(self.XDIM/2,self.YDIM/2,0)
-        agent.sim.rotation = state.initial_rotation#Vector3f(0,0,0)
-        agent.sim.velocity = Vector3f(0,0,0)
-        agent.sim.acceleration = Vector3f(0,0,0)
+        agent.state.rotation = state.initial_rotation#Vector3f(0,0,0)
+        agent.state.velocity = Vector3f(0,0,0)
+        agent.state.acceleration = Vector3f(0,0,0)
         state.current_step = 0
         state.current_episode += 1
         state.position = (state.initial_position.x, state.initial_position.y)
@@ -145,7 +145,7 @@ class NeroEnvironment(Environment):
             return self.states[agent]
         else:
             self.states[agent] = AgentState()
-            self.states[agent].id = agent.sim.id
+            self.states[agent].id = agent.state.id
             myTeam = agent.getTeam()
             self.states[agent].team = myTeam
             if myTeam in self.teams:
@@ -184,8 +184,8 @@ class NeroEnvironment(Environment):
 
         state = self.get_state(agent)
         if state.current_step == 0:
-            state.initial_position = agent.sim.position
-            state.initial_rotation = agent.sim.rotation
+            state.initial_position = agent.state.position
+            state.initial_rotation = agent.state.rotation
         
 
         state.current_step += 1
@@ -207,18 +207,18 @@ class NeroEnvironment(Environment):
         distance_af = getMod().dtc
         friendly_fire = getMod().ff
         
-        position = agent.sim.position
-        rotation = agent.sim.rotation
+        position = agent.state.position
+        rotation = agent.state.rotation
 
         rotation.z += action[1]
-        agent.sim.rotation.z = action[1] + agent.sim.rotation.z
+        agent.state.rotation.z = action[1] + agent.state.rotation.z
         heading = rotation.z
 
         position.x += MAX_SPEED * cos(heading) * action[0]
         position.y += MAX_SPEED * sin(heading) * action[0]
 
 
-        firing = agent.sim.position
+        firing = agent.state.position
         firing.x += self.MAX_DIST * cos(action[2] + heading)
         firing.y += self.MAX_DIST * sin(action[2] + heading)
         
@@ -230,12 +230,12 @@ class NeroEnvironment(Environment):
         if safe:
          self.update_observer((position.x, position.y, radians(rotation.z)))
         else:
-            position = agent.sim.position
-        p0 = agent.sim.position
+            position = agent.state.position
+        p0 = agent.state.position
         p1 = firing
         data = getSimContext().findInRay(p0,p1,AGENT + OBSTACLE,True)
         
-        string = agent.sim.label + str(len(data)) +": "
+        string = agent.state.label + str(len(data)) +": "
         
         hit = 0
         
@@ -250,8 +250,8 @@ class NeroEnvironment(Environment):
                     target.curr_damage += 1
                     hit = 1
 
-        agent.sim.position = position
-        agent.sim.rotation = rotation
+        agent.state.position = position
+        agent.state.rotation = rotation
 
         state.position = (position.x,position.y)
 
@@ -294,12 +294,12 @@ class NeroEnvironment(Environment):
   
     def raySense (self, agent, heading_mod, dist, types = 0, boo = False):
         state = self.get_state(agent)
-        firing = agent.sim.position
-        rotation = agent.sim.rotation
+        firing = agent.state.position
+        rotation = agent.state.rotation
         heading = rotation.z + heading_mod
         firing.x += dist * cos(heading)
         firing.y += dist * sin(heading)
-        p0 = agent.sim.position
+        p0 = agent.state.position
         p1 = firing
         result = getSimContext().findInRay(p0,p1,types)
         if len(result) > 0:
