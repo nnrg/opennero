@@ -26,9 +26,20 @@ namespace OpenNero
     class AgentBrain : public TemplatedObject
     {
             AIObjectWPtr mBody; ///< AIObject where this brain is attached
+
+        public:
+
+            std::string name; ///< name of this brain
+            
+            size_t episode; ///< episode count
+            
+            size_t step; ///< step count
+            
+            double fitness; ///< cumulative reward for the current episode
+
         public:
             /// constructor
-            AgentBrain() : mBody() {}
+            AgentBrain() : mBody(), name(), episode(0), step(0), fitness(0) {}
 
             /// destructor
             virtual ~AgentBrain() {}
@@ -56,8 +67,6 @@ namespace OpenNero
 
             /// get the shared simulation data for adjusting pose
             SimEntityData* GetSharedState() { return GetBody()->GetSharedState(); }
-
-            std::string name; ///< name of this brain
     };
 
     /// shared pointer to an AgentBrain

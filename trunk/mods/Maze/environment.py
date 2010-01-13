@@ -11,19 +11,18 @@ class MazeRewardStructure:
     def valid_move(self, state):
         # return some fraction of 100 depending on how close to the target we get
         (r,c) = state.rc
-        return state.reward(100.0*(r+c)/(ROWS+COLS))
+        return 100.0*(r+c)/(ROWS+COLS)
     def out_of_bounds(self, state):
-        return state.reward(-5)
+        return -5
     def hit_wall(self, state):
-        return state.reward(-5)
+        return -5
     def goal_reached(self, state):
         print 'GOAL REACHED!'
-        return state.reward(100)
+        return 100
     def last_reward(self, state):
         # return some fraction of 100 depending on how close to the target we get
         (r,c) = state.rc
-        reward = 100.0*(r+c)/(ROWS+COLS)
-        return state.reward(reward)
+        return 100.0*(r+c)/(ROWS+COLS)
 
 class AgentState:
     """
@@ -38,11 +37,8 @@ class AgentState:
         self.initial_position = Vector3f(x, y, 0)
         self.initial_rotation = Vector3f(0, 0, 0)
         self.goal_reached = False
-        self.current_step = 0
-        self.current_episode = 0
         self.time = time.time()
         self.start_time = self.time
-        self.fitness = 0 # cumulative reward
         self.sensors = True
         self.animation = 'stand'
 
@@ -55,18 +51,7 @@ class AgentState:
         self.rc = maze.xy2rc(pos.x, pos.y)
         self.prev_pose = self.pose
         self.pose = (pos.x, pos.y, agent.state.rotation.z + self.initial_rotation.z)
-        self.current_step += 1
         self.time = time.time()
-
-    def reward(self, reward):
-        self.fitness += reward
-        # episode step reward fitness
-        print 'REWARD: %d\t%d\t%f\t%f' % (self.current_episode, self.current_step, reward, self.fitness)
-        return reward
-
-    def __str__(self):
-        return 'maze.environment.AgentState( (r,c) = %s, (x, y, heading) = %s, step = %d )' \
-            % (str(self.rc), str(self.pose), self.current_step)
 
 class MazeEnvironment(Environment):
     MOVES = [(1,0), (-1,0), (0,1), (0,-1)]
@@ -145,9 +130,7 @@ class MazeEnvironment(Environment):
         agent.state.position = copy(state.initial_position)
         agent.state.rotation = copy(state.initial_rotation)
         state.goal_reached = False
-        state.current_step = 0
-        state.current_episode += 1
-        print 'Episode %d complete' % state.current_episode
+        print 'Episode %d complete' % agent.episode
         return True
 
     def get_agent_info(self, agent):
@@ -166,10 +149,9 @@ class MazeEnvironment(Environment):
         if not self.agent_info.actions.validate(action):
             state.prev_rc = state.rc
             return 0
-        if state.current_step == 0:
+        if agent.step == 0:
             state.initial_position = agent.state.position
             state.initial_rotation = agent.state.rotation
-        state.current_step += 1
         (r,c) = state.rc
         a = int(round(action[0]))
         state.prev_rc = state.rc
@@ -193,7 +175,7 @@ class MazeEnvironment(Environment):
         if new_r == ROWS - 1 and new_c == COLS - 1:
             state.goal_reached = True
             return self.rewards.goal_reached(state)
-        elif state.current_step >= self.max_steps:
+        elif agent.step >= self.max_steps:
             return self.rewards.last_reward(state)
         return self.rewards.valid_move(state)
 
@@ -257,7 +239,7 @@ class MazeEnvironment(Environment):
 
     def is_episode_over(self, agent):
         state = self.get_state(agent)
-        if self.max_steps != 0 and state.current_step >= self.max_steps:
+        if self.max_steps != 0 and agent.step >= self.max_steps:
             return True
         elif state.goal_reached:
             return True
@@ -327,9 +309,7 @@ class ContMazeEnvironment(MazeEnvironment):
         agent.state.position = copy(state.initial_position)
         agent.state.rotation = copy(state.initial_rotation)
         state.goal_reached = False
-        state.current_step = 0
-        state.current_episode += 1
-        print 'Episode %d complete' % state.current_episode
+        print 'Episode %d complete' % agent.episode
         return True
 
     def step(self, agent, action):
@@ -366,7 +346,7 @@ class ContMazeEnvironment(MazeEnvironment):
                 return self.rewards.hit_wall(state)
             if new_x != x or new_y != y:
                 self.set_animation(agent, state, 'run')
-        if state.current_step == 0:
+        if agent.step == 0:
             state.initial_position = agent.state.position
             state.initial_rotation = agent.state.rotation
         # move the agent
@@ -381,7 +361,7 @@ class ContMazeEnvironment(MazeEnvironment):
         if new_r == ROWS - 1 and new_c == COLS - 1:
             state.goal_reached = True
             return self.rewards.goal_reached(state)
-        elif state.current_step >= self.max_steps:
+        elif agent.step >= self.max_steps:
             return self.rewards.last_reward(state)
         return self.rewards.valid_move(state)
 

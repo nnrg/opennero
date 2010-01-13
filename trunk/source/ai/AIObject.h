@@ -59,7 +59,7 @@ namespace OpenNero
         EnvironmentPtr getWorld() const { return mWorld.lock(); }
 
         /// set the most recent reward for this AIObject
-        void setReward(Reward reward) { mReward = reward; }
+        void setReward(Reward reward);
 
         /// get the most recent reward for this AIObject
         Reward getReward() const { return mReward; }
@@ -70,7 +70,6 @@ namespace OpenNero
         AgentBrainPtr mAgentBrain; ///< the brain whose actions we are applying
         EnvironmentWPtr mWorld; ///< world we are acting in
         Reward mReward; ///< the reward received by the agent after performing the previous action
-        bool mFirstStep; ///< true iff the agent has not performed any steps yet
     };
 
     /// print an AI object to stream
