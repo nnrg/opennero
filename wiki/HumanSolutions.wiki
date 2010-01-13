@@ -5,6 +5,8 @@
 
 In MazeMod, the user can select the First Person button to try to solve the maze themselves.
 
+To control the agent, use A,W,S,D keys or the arrow keys on the keyboard.
+
 <a href="http://opennero.googlecode.com/svn/wiki/OpenNERO-maze-fp.png"><img width="400" height="300" alt="" src="http://opennero.googlecode.com/svn/wiki/OpenNERO-maze-fp.png" /></a>
 
 ==Scripted Roomba==
