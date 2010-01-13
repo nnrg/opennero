@@ -68,6 +68,9 @@ namespace OpenNero
             .def("act", pure_virtual(&AgentBrain::act), "Called for every step of the state-action loop")
             .def("end", pure_virtual(&AgentBrain::end), "Called at the end of a learning episode")
             .def("destroy", pure_virtual(&AgentBrain::destroy), "Called after learning ends")
+            .def_readonly("step", &AgentBrain::step, "Current step count")
+            .def_readonly("episode", &AgentBrain::episode, "Current episode count")
+            .def_readonly("fitness", &AgentBrain::fitness, "Cumulative reward for this episode")
             .add_property("state", make_function(&AgentBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
         // export the interface to python so that we can override its methods there
         python::class_<TDBrain, noncopyable, bases<AgentBrain>, TDBrainPtr >("TDBrain", "CMAC tile coding SARSA agent", no_init )

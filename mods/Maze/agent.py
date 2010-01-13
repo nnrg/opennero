@@ -35,39 +35,34 @@ class RandomAgent(AgentBrain):
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-        self.reward = 0
 
     def initialize(self, init_info):
         """
         create a new agent
         """
         self.action_info = init_info.actions
-        self.reward = 0
         return True
 
     def start(self, time, sensors):
         """
         return first action given the first observations
         """
-        self.reward = 0
         return self.action_info.random()
 
     def reset(self):
-        self.reward = 0
+        pass
 
     def act(self, time, sensors, reward):
         """
         return an action given the reward for the previous action and the new observations
         """
-        self.reward += reward # store reward
         return self.action_info.random()
 
     def end(self, time, reward):
         """
         receive the reward for the last observation
         """
-        self.reward += reward # store reward
-        print  "Final reward: %f, cumulative: %f" % (reward, self.reward)
+        print  "Final reward: %f, cumulative: %f" % (reward, self.fitness)
         return True
 
     def destroy(self):
@@ -104,7 +99,6 @@ class DFSSearchAgent(SearchAgent):
         """
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
         SearchAgent.__init__(self) 
-        self.reward = 0        
         self.visited = set([])
         self.adjlist = {}
         self.parents = {}
@@ -146,12 +140,9 @@ class DFSSearchAgent(SearchAgent):
 
     def initialize(self, init_info):
         self.constraints = init_info.actions
-        self.reward = 0
         return True
 
     def start(self, time, sensors):
-        # reset the reward
-        self.reward = 0
         # interpret the sensors
         row = int(sensors[0])
         col = int(sensors[1])
@@ -159,14 +150,12 @@ class DFSSearchAgent(SearchAgent):
         return self.dfs_action(sensors)
 
     def reset(self):
-        self.reward = 0
         self.visited = set([])
         self.adjlist = {}
         self.parents = {}
         self.backpointers = {}
 
     def act(self, time, sensors, reward):
-        self.reward += reward # store reward
         # interpret the sensors
         row = int(sensors[0])
         col = int(sensors[1])
@@ -174,8 +163,7 @@ class DFSSearchAgent(SearchAgent):
         return self.dfs_action(sensors)
 
     def end(self, time, reward):
-        self.reward += reward # store reward
-        print  "Final reward: %f, cumulative: %f" % (reward, self.reward)
+        print  "Final reward: %f, cumulative: %f" % (reward, self.fitness)
         self.highlight_path()
         self.reset()
         return True
@@ -201,17 +189,12 @@ class AStarSearchAgent(SearchAgent):
 
     def reset(self):
         self.highlight_path()
-        self.reward = 0
-        self.visited = set([])
         self.adjlist = {}
         self.parents = {}
-        self.backpointers = {}
-        self.reward = 0
         self.pq = [] # empty priority queue
         self.visited = set([]) # set of nodes we have visited
         self.enqueued = set([]) # set of things in the queue (superset of visited)
         self.backpointers = {} # a dictionary from nodes to their predecessors
-        self.reward = 0 # the reward is zero initially
         self.goal = None # we have no idea where to go at first
         self.heuristic = manhattan_heuristic # minimize the Manhattan distance
 
@@ -292,8 +275,6 @@ class AStarSearchAgent(SearchAgent):
         Choose initial action after receiving the first sensor vector.
         For the manual A* search, we enqueue the neighboring nodes and move to one of them.
         """
-        # reset the reward
-        self.reward = 0
         # interpret the sensors
         row = int(sensors[0])
         col = int(sensors[1])
@@ -308,7 +289,6 @@ class AStarSearchAgent(SearchAgent):
         For the manual A* search, we deque our next node and check if we can go there. If we can, we do, and mark the node visited. 
         If we cannot, we have to follow the path to the goal.
         """
-        self.reward += reward # store reward
         # interpret the sensors
         row = int(sensors[0])
         col = int(sensors[1])
@@ -321,8 +301,7 @@ class AStarSearchAgent(SearchAgent):
         """
         at the end of an episode, the environment tells us the final reward
         """
-        self.reward += reward # store reward
-        print  "Final reward: %f, cumulative: %f" % (reward, self.reward)
+        print  "Final reward: %f, cumulative: %f" % (reward, self.fitness)
         self.reset()
         return True
 
@@ -410,7 +389,6 @@ class FirstPersonAgent(AgentBrain):
     def __init__(self):
         AgentBrain.__init__(self) # do not remove!
         self.time = 0
-        self.reward = 0
     def initialize(self, init_info):
         self.constraints = init_info.actions
         return True
@@ -426,11 +404,8 @@ class FirstPersonAgent(AgentBrain):
     def start(self, time, sensors):
         return self.key_action()
     def act(self, time, sensors, reward):
-        self.reward += reward
         return self.key_action()
     def end(self, time, reward):
-        self.reward += reward
-        print 'final reward: %f' % self.reward
         return True
     def destroy(self):
         return True
@@ -493,14 +468,12 @@ class RTNEATAgent(AgentBrain):
         EXPLOIT_PROB = Maze.module.getMod().epsilon
         self.org = rtneat.next_organism(EXPLOIT_PROB)
         self.net = self.org.net
-        self.reward = 0
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
         """
         a state transition
         """
-        self.reward += reward # store reward
         # return action
         return self.network_action(sensors)
 
@@ -508,11 +481,10 @@ class RTNEATAgent(AgentBrain):
         """
         end of an episode
         """
-        self.reward += reward # store reward
-        self.org.fitness = self.reward # assign organism fitness for evolution
+        self.org.fitness = self.fitness # assign organism fitness for evolution
         self.org.time_alive += 1
         #assert(self.org.fitness >= 0) # we have to have a non-negative fitness for rtNEAT to work
-        print  "Final reward: %f, cumulative: %f" % (reward, self.reward)
+        print  "Final reward: %f, cumulative: %f" % (reward, self.fitness)
         return True
 
     def destroy(self):

@@ -42,7 +42,6 @@ namespace OpenNero
         , mAgentBrain()
         , mWorld(world)
         , mReward()
-        , mFirstStep(true)
     {
     }
 
@@ -56,13 +55,14 @@ namespace OpenNero
     {
         NERO_PERF_EVENT_SCOPED( AIObject__ProcessTick );
         Assert(getBrain());
-        if (mFirstStep)
+        if (getBrain()->step == 0) // if first step
         {
             Sensors sensors = getWorld()->sense(getBrain());
             setActions(getBrain()->start(dt, sensors));
-            mFirstStep = false;
-            mReward = getWorld()->step(getBrain(), getActions());
-            if (mSharedData)
+            setReward(getWorld()->step(getBrain(), getActions()));
+            getBrain()->step++;
+            getBrain()->fitness += getReward();
+            if (mSharedData && !getBrain()->name.empty())
             {
                 mSharedData->SetLabel(getBrain()->name);
             }
@@ -73,20 +73,29 @@ namespace OpenNero
             if (getWorld()->is_active(getBrain()))
             {
                 if (getWorld()->is_episode_over(getBrain())) {
-                    getBrain()->end(dt, mReward);
+                    getBrain()->end(dt, getReward());
                     getWorld()->reset(getBrain());
-                    mFirstStep = true;
+                    getBrain()->episode++;
+                    getBrain()->step = 0;
+                    getBrain()->fitness = 0;
                 } else {
                     Sensors sensors = getWorld()->sense(getBrain());
                     setActions(getBrain()->act(dt, sensors, getReward()));
                     setReward(getWorld()->step(getBrain(), getActions()));
+                    getBrain()->step++;
                 }
             }
-            else
-            {
-                return;
-            }
         }
+    }
+    
+    void AIObject::setReward(Reward reward)
+    {
+        mReward = reward;
+        getBrain()->fitness += reward;
+        LOG_F_MSG("ai.tick",getBrain()->episode << 
+                            "\t " << getBrain()->step <<
+                            "\t " << getReward() <<
+                            "\t " << getBrain()->fitness);
     }
 
     /// sense the agent's environment
