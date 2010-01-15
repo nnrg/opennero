@@ -56,7 +56,6 @@ class LearningCurve:
             self.plot_episode()
             self.data = []
         sec = time.mktime(t) * 1000000
-        sec = sec * 1000000
         sec += msec
         if not self.min_time:
             self.min_time = sec
