@@ -224,7 +224,9 @@ class MazeEnvironment(Environment):
             (x0,y0) = self.maze.rc2xy(r0,c0)
             (x1,y1) = self.maze.rc2xy(r1,c1)
             pos = agent.state.position
-            fraction = min(1.0,float(time.time() - state.time)/self.step_delay)
+            fraction = 1.0
+            if self.step_delay != 0:
+                fraction = min(1.0,float(time.time() - state.time)/self.step_delay)
             pos.x = x0 * (1 - fraction) + x1 * fraction
             pos.y = y0 * (1 - fraction) + y1 * fraction
             agent.state.position = pos
