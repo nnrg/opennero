@@ -1,4 +1,5 @@
 #summary A-star Search demo
+#labels Demo
 #sidebar TableOfContents
 
 <wiki:toc />
