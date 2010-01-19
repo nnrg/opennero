@@ -63,7 +63,8 @@ def CreateGui(guiMan):
     agentWindow.addChild(sarsaButton)
     agentWindow.addChild(qlearningButton)
 
-    epsilonValue = gui.create_text(guiMan, 'epsilonEditBox', Pos2i(260,0), Pos2i(100,30), '50')
+    epsilon_percent = int(INITIAL_EPSILON * 100)
+    epsilonValue = gui.create_text(guiMan, 'epsilonEditBox', Pos2i(260,0), Pos2i(100,30), str(epsilon_percent))
 
     epsilonLabel = gui.create_text(guiMan, 'epsilonLabel', Pos2i(10,0), Pos2i(100,30), 'Exploit-Explore:')
 
@@ -74,8 +75,8 @@ def CreateGui(guiMan):
     epsilonScroll.setMax(100)
     epsilonScroll.setLargeStep(10)
     epsilonScroll.setSmallStep(1)
-    epsilonScroll.setPos(50)
-    getMod().set_epsilon(0.5)
+    epsilonScroll.setPos(epsilon_percent)
+    getMod().set_epsilon(INITIAL_EPSILON)
     epsilonScroll.OnScrollBarChange = epsilon_adjusted(epsilonScroll, epsilonValue)
 
     paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 500), Pos2i(300,100), 'Parameters')
