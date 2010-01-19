@@ -1,4 +1,5 @@
 #summary Generate a maze in OpenNERO
+#labels Exercise
 #sidebar TableOfContents
 
 _UNDER CONSTRUCTION_
