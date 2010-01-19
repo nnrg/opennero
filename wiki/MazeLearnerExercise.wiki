@@ -1,4 +1,5 @@
 #summary Write an Adaptive Agent for the Maze
+#labels Exercise
 #sidebar TableOfContents
 
 _UNDER CONSTRUCTION_
