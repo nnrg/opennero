@@ -1,4 +1,5 @@
 #summary Co-Evolution demo
+#labels Demo
 #sidebar TableOfContents
 
 _Page coming soon..._
