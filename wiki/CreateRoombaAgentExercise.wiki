@@ -1,4 +1,5 @@
 #summary Create a Roomba Agent in OpenNERO
+#labels Exercise
 #sidebar TableOfContents
 
 _UNDER CONSTRUCTION_
