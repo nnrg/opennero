@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """Process and display performance of AI algorithms in OpenNERO.
 
-opennero_plot reads a log file (or receives this file over the network) and 
+plot_server reads a log file (or receives this file over the network) and 
 plots the performance of the AI algorithm which is producing this log file.
 """
 
@@ -11,13 +11,16 @@ import time
 import numpy as np
 import matplotlib.pyplot as pl
 import matplotlib.mlab as mlab
-from threading import Thread
-import SocketServer
+import socket
 
 __author__ = "Igor Karpov (ikarpov@cs.utexas.edu)"
 __copyright__ = "Copyright 2010, The University of Texas at Austin"
 __license__ = "LGPL"
 __version__ = "0.1.0"
+
+HOST, PORT = "localhost", 9999
+ADDR = (HOST, PORT)
+BUFSIZE = 4086
 
 ai_tick_pattern = re.compile(r'(?P<date>[^\[]*)\.(?P<msec>[0-9]+) \(m\) \[ai\.tick\]\s+(?P<episode>\S+)\s+(?P<step>\S+)\s+(?P<reward>\S+)\s+(?P<fitness>\S+)')
 timestamp_format = r'%Y-%b-%d %H:%M:%S'
@@ -61,28 +64,8 @@ class LearningCurve:
         if not self.min_time:
             self.min_time = sec
         self.max_time = sec
-        #print sec, episode, step, reward, fitness
+        print sec, episode, step, reward, fitness
         self.data.append( (time, msec, episode, step, reward, fitness) )
-
-class MyTCPHandler(SocketServer.BaseRequestHandler):
-    """
-    The RequestHandler class for our server.
-
-    It is instantiated once per connection to the server, and must
-    override the handle() method to implement communication to the
-    client.
-    """
-
-    def __init__(self):
-        self.lc = LearningCurve()
-
-    def handle(self):
-        # self.request is the TCP socket connected to the client
-        self.data = self.request.recv(1024).strip()
-        print self.data
-        process_line(lc, self.data)
-        # just send back the same data, but upper-cased
-        self.request.send(self.data.upper())
 
 def process_line(lc, line):
     """Process a line of the log file and record the information in it in the LearningCurve lc
@@ -97,34 +80,26 @@ def process_line(lc, line):
         reward = float(m.group('reward'))
         fitness = float(m.group('fitness'))
         lc.append( t, ms, episode, step, reward, fitness )
-
-def process_log(f):
-    """Process AI ticks in a log
-    ai tick looks like this:
-    2010-Jan-14 10:35:31.669395 (M) [ai.tick] 0     0     -5     -5
-    fields are: tstamp, episode, step, reward, fitness
-    """
+        
+def server():
     lc = LearningCurve()
-    for line in f.xreadlines():
-        process_line(lc, line)
+    # Create socket and bind to address
+    UDPSock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
+    UDPSock.bind(ADDR)
+    # Receive messages
+    while 1:
+        data,addr = UDPSock.recvfrom(BUFSIZE)
+        if not data:
+            print "Client has exited!"
+            break
+        else:
+            process_line(lc, data)
+    # Close socket
+    UDPSock.close()
     return lc
 
-def server():
-    HOST, PORT = "localhost", 9999
-    # Create the server, binding to localhost on port 9999
-    server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
-    # Activate the server; this will keep running until you
-    # interrupt the program with Ctrl-C
-    server.serve_forever()
-
 def main():
-    lc = None
-    if len(sys.argv) > 1:
-        f = open(sys.argv[1])
-        lc = process_log(f)
-    else:
-        server()
-    f.close()
+    lc = server()
     x = np.array(range(0,len(lc.episodes)))
     y = np.array(lc.episodes)
     pl.figure()
