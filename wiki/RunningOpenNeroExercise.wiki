@@ -1,5 +1,5 @@
 #summary Running OpenNERO exercises
-#labels exercise
+#labels Exercise
 #sidebar TableOfContents
 
 _UNDER CONSTRUCTION_
