@@ -88,7 +88,7 @@ def server():
     UDPSock.bind(ADDR)
     # Receive messages
     while 1:
-        data,addr = UDPSock.recvfrom(BUFSIZE)
+        data = UDPSock.recv(BUFSIZE)
         if not data:
             print "Client has exited!"
             break
