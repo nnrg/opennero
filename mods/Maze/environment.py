@@ -103,6 +103,7 @@ class MazeEnvironment(Environment):
         else:
             self.states[agent] = AgentState(self.maze)
             if hasattr(agent, 'epsilon'):
+                print 'epsilon:', self.epsilon
                 agent.epsilon = self.epsilon
             return self.states[agent]
 
