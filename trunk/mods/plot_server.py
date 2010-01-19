@@ -73,40 +73,40 @@ class MyTCPHandler(SocketServer.BaseRequestHandler):
     client.
     """
 
-	def __init__(self):
-		self.lc = LearningCurve()
+    def __init__(self):
+        self.lc = LearningCurve()
 
     def handle(self):
         # self.request is the TCP socket connected to the client
         self.data = self.request.recv(1024).strip()
         print self.data
-       	process_line(lc, self.data)
+        process_line(lc, self.data)
         # just send back the same data, but upper-cased
         self.request.send(self.data.upper())
 
 def process_line(lc, line):
-	"""Process a line of the log file and record the information in it in the LearningCurve lc
-	"""
-	line = line.strip().lower()
-	m = ai_tick_pattern.search(line)
-	if m:
-		t = time.strptime(m.group('date'), timestamp_format)
-		ms = int(m.group('msec'))
-		episode = int(m.group('episode'))
-		step = int(m.group('step'))
-		reward = float(m.group('reward'))
-		fitness = float(m.group('fitness'))
-		lc.append( t, ms, episode, step, reward, fitness )
+    """Process a line of the log file and record the information in it in the LearningCurve lc
+    """
+    line = line.strip().lower()
+    m = ai_tick_pattern.search(line)
+    if m:
+        t = time.strptime(m.group('date'), timestamp_format)
+        ms = int(m.group('msec'))
+        episode = int(m.group('episode'))
+        step = int(m.group('step'))
+        reward = float(m.group('reward'))
+        fitness = float(m.group('fitness'))
+        lc.append( t, ms, episode, step, reward, fitness )
 
 def process_log(f):
     """Process AI ticks in a log
     ai tick looks like this:
-    2010-Jan-14 10:35:31.669395 (M) [ai.tick] 0	 0	 -5	 -5
+    2010-Jan-14 10:35:31.669395 (M) [ai.tick] 0     0     -5     -5
     fields are: tstamp, episode, step, reward, fitness
     """
     lc = LearningCurve()
     for line in f.xreadlines():
-    	process_line(lc, line)
+        process_line(lc, line)
     return lc
 
 def server():
@@ -123,7 +123,7 @@ def main():
         f = open(sys.argv[1])
         lc = process_log(f)
     else:
-    	server()
+        server()
     f.close()
     x = np.array(range(0,len(lc.episodes)))
     y = np.array(lc.episodes)
