@@ -1,4 +1,5 @@
 #summary Depth First Search demo
+#labels Demo
 #sidebar TableOfContents
 
 [http://en.wikipedia.org/wiki/Depth-first_search Depth-First Search] is a technique for searching a graph or a tree-like structure. MazeMod includes an agent that searches for the target (red square) by expanding the graph in a depth-first manner.
