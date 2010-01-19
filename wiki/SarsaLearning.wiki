@@ -1,4 +1,5 @@
 #summary Sarsa learning demo
+#labels Demo
 #sidebar TableOfContents
 
 [http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node64.html Sarsa] is a type of time-difference [http://webdocs.cs.ualberta.ca/~sutton/book/the-book.html Reinforcement Learning] that uses a _value function_ to pick the best action.
