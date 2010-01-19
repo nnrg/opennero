@@ -1,4 +1,5 @@
 #summary Write a maze solver agent
+#labels Exercise
 #sidebar TableOfContents
 
 _UNDER CONSTRUCTION_
