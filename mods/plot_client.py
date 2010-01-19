@@ -20,7 +20,9 @@ def main():
     # Send messages
     for line in f.xreadlines():
         line = line.strip()
-        UDPSock.sendto(line,ADDR)
+        if line:
+            UDPSock.sendto(line,ADDR)
+    UDPSock.sendto('',ADDR)
     f.close()
     UDPSock.close()
 
