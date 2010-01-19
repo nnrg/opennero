@@ -1,4 +1,5 @@
 #summary Adding things to OpenNERO mods
+#labels exercise
 #sidebar TableOfContents
 
 _UNDER CONSTRUCTION_
