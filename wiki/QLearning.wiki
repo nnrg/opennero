@@ -1,4 +1,5 @@
 #summary Q-Learning demo
+#labels Demo
 #sidebar TableOfContents
 
 [http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node65.html Q-Learning] is a type of time-difference [http://webdocs.cs.ualberta.ca/~sutton/book/the-book.html Reinforcement Learning] that uses a _value function_ to pick the best action.
