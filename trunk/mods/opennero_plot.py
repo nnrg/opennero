@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib.pyplot as pl
 import matplotlib.mlab as mlab
 from threading import Thread
+import SocketServer
 
 __author__ = "Igor Karpov (ikarpov@cs.utexas.edu)"
 __copyright__ = "Copyright 2010, The University of Texas at Austin"
@@ -63,6 +64,40 @@ class LearningCurve:
         #print sec, episode, step, reward, fitness
         self.data.append( (time, msec, episode, step, reward, fitness) )
 
+class MyTCPHandler(SocketServer.BaseRequestHandler):
+    """
+    The RequestHandler class for our server.
+
+    It is instantiated once per connection to the server, and must
+    override the handle() method to implement communication to the
+    client.
+    """
+
+	def __init__(self):
+		self.lc = LearningCurve()
+
+    def handle(self):
+        # self.request is the TCP socket connected to the client
+        self.data = self.request.recv(1024).strip()
+        print self.data
+       	process_line(lc, self.data)
+        # just send back the same data, but upper-cased
+        self.request.send(self.data.upper())
+
+def process_line(lc, line):
+	"""Process a line of the log file and record the information in it in the LearningCurve lc
+	"""
+	line = line.strip().lower()
+	m = ai_tick_pattern.search(line)
+	if m:
+		t = time.strptime(m.group('date'), timestamp_format)
+		ms = int(m.group('msec'))
+		episode = int(m.group('episode'))
+		step = int(m.group('step'))
+		reward = float(m.group('reward'))
+		fitness = float(m.group('fitness'))
+		lc.append( t, ms, episode, step, reward, fitness )
+
 def process_log(f):
     """Process AI ticks in a log
     ai tick looks like this:
@@ -71,23 +106,24 @@ def process_log(f):
     """
     lc = LearningCurve()
     for line in f.xreadlines():
-        line = line.strip().lower()
-        m = ai_tick_pattern.search(line)
-        if m:
-            t = time.strptime(m.group('date'), timestamp_format)
-            ms = int(m.group('msec'))
-            episode = int(m.group('episode'))
-            step = int(m.group('step'))
-            reward = float(m.group('reward'))
-            fitness = float(m.group('fitness'))
-            lc.append( t, ms, episode, step, reward, fitness )
+    	process_line(lc, line)
     return lc
 
+def server():
+    HOST, PORT = "localhost", 9999
+    # Create the server, binding to localhost on port 9999
+    server = SocketServer.TCPServer((HOST, PORT), MyTCPHandler)
+    # Activate the server; this will keep running until you
+    # interrupt the program with Ctrl-C
+    server.serve_forever()
+
 def main():
-    f = sys.stdin
+    lc = None
     if len(sys.argv) > 1:
         f = open(sys.argv[1])
-    lc = process_log(f)
+        lc = process_log(f)
+    else:
+    	server()
     f.close()
     x = np.array(range(0,len(lc.episodes)))
     y = np.array(lc.episodes)
