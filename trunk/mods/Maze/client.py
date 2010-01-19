@@ -5,6 +5,7 @@ from random import seed, randint
 from inputConfig import createInputMapping
 
 from common import *
+import common.gui as gui
 
 from Maze.module import getMod, delMod
 from Maze.constants import *
