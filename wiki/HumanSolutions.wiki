@@ -1,4 +1,5 @@
 #summary Human-generated solutions
+#labels Demo
 #sidebar TableOfContents
 
 ==First Person Control==
