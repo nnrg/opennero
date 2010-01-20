@@ -119,7 +119,7 @@ namespace OpenNero
             if( se.ExecFile(appConfigFile) )
             {
                 // get the app config defined in the file
-                appConfig = se.Extract<AppConfig>("app_config");
+                se.Extract<AppConfig>("app_config", appConfig);
             }
             se.destroy();
         }
@@ -142,7 +142,8 @@ namespace OpenNero
             if( se.ExecFile(logFileName) )
             {
                 // get the list of receivers and the size of the list
-                boost::python::list pyReceiverList = se.Extract<boost::python::list>("ignore_types");
+            	boost::python::list pyReceiverList;
+                se.Extract<boost::python::list>("ignore_types", pyReceiverList);
                 if( !pyReceiverList.ptr() )
                 {
                     LOG_ERROR( "Failed to get the log types variable from the log config file." );
