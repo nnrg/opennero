@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib.pyplot as pl
 import matplotlib.mlab as mlab
 import socket
+import tempfile
 
 __author__ = "Igor Karpov (ikarpov@cs.utexas.edu)"
 __copyright__ = "Copyright 2010, The University of Texas at Austin"
@@ -23,7 +24,11 @@ ADDR = (HOST, PORT)
 BUFSIZE = 4086
 
 ai_tick_pattern = re.compile(r'(?P<date>[^\[]*)\.(?P<msec>[0-9]+) \(m\) \[ai\.tick\]\s+(?P<episode>\S+)\s+(?P<step>\S+)\s+(?P<reward>\S+)\s+(?P<fitness>\S+)')
-timestamp_format = r'%Y-%b-%d %H:%M:%S'
+timestamp_fmt = r'%Y-%b-%d %H:%M:%S'
+file_timestamp_fmt = r'%Y-%m-%d-%H-%M-%S'
+
+def timestamped_filename(prefix = '', postfix = ''):
+    return '%s%s%s' % (prefix, time.strftime(file_timestamp_fmt), postfix)
 
 class LearningCurve:
     def __init__(self):
@@ -31,19 +36,25 @@ class LearningCurve:
         self.max_time = None
         self.data = []
         self.episodes = []
+        self.fig = None
+
+    def save(self):
+        if self.fig:
+            self.fig.savefig(timestamped_filename('opennero-','-episodes.png'))
 
     def reset(self):
+        self.save()
         self.min_time = None
         self.max_time = None
         self.data = []
         self.episodes = []
-        pl.figure()
+        self.fig = pl.figure()
         pl.hold(True)
         pl.xlabel('step')
         pl.ylabel('fitness')
         pl.title('Episodes')
         pl.grid(True)
-
+    
     def plot_episode(self):
         M = np.array(self.data)
         steps = M[:,-3]
@@ -73,7 +84,7 @@ def process_line(lc, line):
     line = line.strip().lower()
     m = ai_tick_pattern.search(line)
     if m:
-        t = time.strptime(m.group('date'), timestamp_format)
+        t = time.strptime(m.group('date'), timestamp_fmt)
         ms = int(m.group('msec'))
         episode = int(m.group('episode'))
         step = int(m.group('step'))
@@ -100,14 +111,16 @@ def server():
 
 def main():
     lc = server()
+    lc.save()
     x = np.array(range(0,len(lc.episodes)))
     y = np.array(lc.episodes)
-    pl.figure()
+    fig = pl.figure()
     pl.plot(x, y, linewidth=1.0)
     pl.xlabel('episode')
     pl.ylabel('fitness')
     pl.title('By-episode fitness')
     pl.grid(True)
+    fig.savefig(timestamped_filename('opennero-','-fitness.png'))
     pl.show()
     print 'done'
 
