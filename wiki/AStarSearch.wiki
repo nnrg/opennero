@@ -46,3 +46,7 @@ Finally, if you have a small army of agents at your disposal, you can try to exp
  * <font color="yellow">yellow</font> - next node to expand
 
 And the active nodes are replaced with waiting copies of the agent. When the agent has found a dead-end, it is removed and the next-most-likely agent is activated to continue the search.
+
+=Code=
+
+The `A*` agent is implemented in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py mods/Maze/agent.py].
