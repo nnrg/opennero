@@ -10,6 +10,7 @@
 #include <fstream>
 #include "core/Preprocessor.h"
 #include "Log.h"
+#include "scripting/scriptIncludes.h"
 
 namespace OpenNero
 {	
@@ -147,6 +148,38 @@ namespace OpenNero
             void flush();
         };
 
+        /// PyLogConnection allows us to send logs to a logging system implemented in Python
+        /// This can be something in Python's logging module, or something that sends messages
+        /// over the network.
+        class PyLogConnection : public ILogConnection
+        {
+        	/// a Python object that implements logging methods
+        	boost::python::object logging_object;
+
+        	/// write to the log
+        	void Write( const char* msg );
+        public:
+            /// constructor
+        	PyLogConnection();
+
+            /// destructor
+            ~PyLogConnection();
+
+			/// log a debug message
+			void LogDebug( const char* msg );
+
+            /// log a message
+            void LogMsg( const char* msg );
+
+            /// log a warning
+            void LogWarning( const char* msg );
+
+            /// log an error
+            void LogError( const char* msg );
+
+            /// get the name of the connection
+            const std::string getConnectionName() const;
+        };
     } // end Log
      
 	

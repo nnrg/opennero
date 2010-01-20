@@ -4,9 +4,10 @@
 //---------------------------------------------------
 
 #include "core/Common.h"
-#include "LogConnections.h"
 #include <iostream>
 #include <fstream>
+#include "LogConnections.h"
+#include "scripting/scripting.h"
 
 namespace OpenNero
 {	
@@ -48,8 +49,64 @@ namespace OpenNero
         void FileStreamConnection::flush()
         {
             mStream.flush();
-        }		
+        }
 
+        /// constructor
+        PyLogConnection::PyLogConnection() : logging_object()
+        {
+            // set up network logging facilities
+        	ScriptingEngine::instance().ImportModule("plot_client");
+        	ScriptingEngine::instance().Eval("plot_client.NetworkLogWriter", logging_object);
+        }
+
+        /// destructor
+        PyLogConnection::~PyLogConnection()
+        {
+        	// TODO: should flush and close the logging object somehow
+        }
+
+        /// write to the log
+		void PyLogConnection::Write(const char* msg)
+		{
+			try
+			{
+				logging_object.attr("write")(msg);
+			}
+			catch (const boost::python::error_already_set& err)
+			{
+				ScriptingEngine::instance().LogError();
+			}
+		}
+
+		/// log a debug message
+		void PyLogConnection::LogDebug( const char* msg )
+		{
+			Write(msg);
+		}
+
+        /// log a message
+        void PyLogConnection::LogMsg( const char* msg )
+        {
+			Write(msg);
+        }
+
+        /// log a warning
+        void PyLogConnection::LogWarning( const char* msg )
+        {
+			Write(msg);
+        }
+
+        /// log an error
+        void PyLogConnection::LogError( const char* msg )
+        {
+			Write(msg);
+        }
+
+        /// get the name of the connection
+        const std::string PyLogConnection::getConnectionName() const
+		{
+        	return "PyLogConnection";
+		}
 	} // end Log	
 	
 } //end OpenNero
