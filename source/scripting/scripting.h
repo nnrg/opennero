@@ -109,6 +109,7 @@ namespace OpenNero
 
             python::extract<Result> extraction(o);
             result = extraction();
+            return true;
         }
 
         /**
