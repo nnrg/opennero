@@ -2,7 +2,7 @@
 #labels Demo
 #sidebar TableOfContents
 
-[http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node64.html Sarsa] is a type of time-difference [http://webdocs.cs.ualberta.ca/~sutton/book/the-book.html Reinforcement Learning] that uses a _value function_ to pick the best action.
+[http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node64.html Sarsa] is a type of temporal difference [http://webdocs.cs.ualberta.ca/~sutton/book/the-book.html Reinforcement Learning] (section 21.2.3 of [http://aima.cs.berkeley.edu/ AIMA]) that uses a _value function_ to pick the best action.
 
 In MazeMod, a Sarsa reinforcement agent leans to navigate the maze from experience. To start this demonstration, start OpenNERO and click on the Maze button. Once the maze loads, click the Sarsa button. You can adjust the fraction of the actions taken greedily vs actions taken to explore the environment using the explore-exploit slider.
 
