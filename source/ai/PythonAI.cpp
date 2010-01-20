@@ -37,7 +37,8 @@ namespace OpenNero
         Assert(pythonTemplate);
         std::string py_agent_expression = pythonTemplate->getBrainExpr();
         // TODO: this evaluation line does not work within the context of the module path
-        AgentBrainPtr brain = script.Eval<AgentBrainPtr>(py_agent_expression);
+        AgentBrainPtr brain;
+        script.Eval<AgentBrainPtr>(py_agent_expression, brain);
         AssertMsg(brain, "Could not load Python agent " << py_agent_expression);
         brain->name = pythonTemplate->getBrainExpr();
         setBrain(brain);

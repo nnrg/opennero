@@ -102,21 +102,23 @@ namespace OpenNero
         Scheduler& GetScheduler();
 
         /// extract a typed value from a python object
-        template<typename T> T Extract(const std::string& name)
+        template <typename Result>
+        bool Extract(const std::string& name, Result& result)
         {
             python::object o = _globals[name.c_str()];
 
-            python::extract<T> extraction(o);
-            return extraction();
+            python::extract<Result> extraction(o);
+            result = extraction();
         }
 
         /**
          * Evaluate the expression and return its result, assuming it can be converted to type T
          * @param expression a Python expression
+         * @param result the result of the expression
          * @return the result of evaluating the Python expression
          */
-        template<typename Result>
-        Result Eval( const std::string& expression)
+        template <typename Result>
+        bool Eval( const std::string& expression, Result& result)
         {
             python::object o;
             try {
@@ -125,10 +127,11 @@ namespace OpenNero
             catch (python::error_already_set const &)
             {
                 LogError();
-                return Result();
+                return false;
             }
             python::extract<Result> extraction(o);
-            return extraction();
+            result = extraction();
+            return true;
         }
 
         /// Call a script method with no parameters and no return value
