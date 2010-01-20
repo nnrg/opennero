@@ -6,7 +6,7 @@
 
 =Introduction=
 
-[http://en.wikipedia.org/wiki/A*_search_algorithm A* Search Algorithm] is a way to sift through a graph or a tree in order to find something. When given an appropriate _heuristic_ the algorithm will try to expand the most promising branches of the graph first.
+The [http://en.wikipedia.org/wiki/A*_search_algorithm A* Search Algorithm] (described in section 3.5.2 of [http://aima.cs.berkeley.edu/contents.html AIMA]) is a way to sift through a graph or a tree in order to find something. When given an appropriate _heuristic_ the algorithm will try to expand the most promising branches of the graph first.
 
 In OpenNERO, there are three different visualizations of this algorithm in the MazeMod. All of them start at one end of the maze and try to find the goal (red cube) at the opposite end.
 
