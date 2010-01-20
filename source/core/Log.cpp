@@ -193,36 +193,4 @@ namespace OpenNero
 
 	} // end Log
 
-    /// log a debugging message from Python
-    void py_log_debug(const std::string& msg)
-    {
-        LOG_F_DEBUG("python", msg);
-    }
-
-    /// log a message from Python
-    void py_log_msg(const std::string& msg)
-    {
-        LOG_F_MSG("python", msg);
-    }
-
-    /// log a warning message from Python
-    void py_log_warning(const std::string& msg)
-    {
-        LOG_F_WARNING("python", msg);
-    }
-
-    /// log an error message from Python
-    void py_log_error(const std::string& msg)
-    {
-        LOG_F_ERROR("python", msg);
-    }
-
-    PYTHON_BINDER(LogBinder)
-    {
-        def("log_message",&py_log_msg, "print a message to the log");
-        def("log_warn",&py_log_warning, "print a warning message to the log");
-        def("log_debug",&py_log_debug, "print a debugging message to the log");
-        def("log_error",&py_log_error, "print an error message to the log");
-    }
-
 } //end OpenNero
