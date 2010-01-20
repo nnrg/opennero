@@ -12,7 +12,9 @@ In OpenNERO, there are three different visualizations of this algorithm in the M
 
 Yellow lines emanating from the agent indicate sensor rays cast that did not encounter an obstacle. Red lines indicate sensors that have hit a wall. This is the information that the agent uses to construct and search the graph. 
 
-=Single Agent `A*`=
+=Ways of visualizing `A*`=
+
+==Single Agent `A*`==
 
 To start this visualization, start OpenNERO and click on the Maze button. After the maze loads, click on the *Single Agent `A*`* button.
 
@@ -22,7 +24,7 @@ This visualization shows what would happen if the agent was a physical robot tha
  * <font color="yellow">yellow</font> - next node to expand
  * <font color="green">green</font> - active node (that may be expanded later)
 
-=Teleporting `A*`=
+==Teleporting `A*`==
 
 To start this visualization, start OpenNERO and click on the Maze button. After the maze loads, click on the *Teleporting `A*`* button.
 
@@ -34,7 +36,7 @@ If the agent can teleport (or consider teleporting) from any explored place to a
 
 But this time the agent does not need to physically travel from a dead-end to the next green-turned-yellow node - instead, it can just appear there. This saves a lot of time!
 
-=Front `A*`=
+==Front `A*`==
 
 To start this visualization, start OpenNERO and click on the Maze button. After the maze loads, click on the *Front `A*`* button.
 
