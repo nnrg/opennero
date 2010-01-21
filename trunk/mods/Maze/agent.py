@@ -465,8 +465,8 @@ class RTNEATAgent(AgentBrain):
         start of an episode
         """
         global rtneat
-        EXPLOIT_PROB = Maze.module.getMod().epsilon
-        self.org = rtneat.next_organism(EXPLOIT_PROB)
+        epsilon = Maze.module.getMod().epsilon
+        self.org = rtneat.next_organism(epsilon)
         self.net = self.org.net
         return self.network_action(sensors)
 
@@ -510,7 +510,7 @@ class RTNEATAgent(AgentBrain):
 
         maxOutput = 0 # select the action based on the biggest output of the network
 
-        for i in range(0,2):
+        for i in range(len(outputs)):
             if outputs[maxOutput] < outputs[i]:
                 maxOutput = i
 
