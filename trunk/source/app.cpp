@@ -47,21 +47,8 @@ namespace OpenNero
         // turn on our custom logging system
         OpenNero::Log::LogSystemInit();
 
-        CommandLineParams params = parse_command_line(argc, argv);
-
-        AppConfig appConfig;
-
-        // read the application configuration
-        CommandLineParams::const_iterator configFileParam = params.find("config");
-        CommandLineParams::const_iterator seedsParam = params.find("seeds");
-        if (configFileParam != params.end()) {
-            appConfig = ReadAppConfig(argc, argv, configFileParam->second);
-        } else {
-            appConfig = ReadAppConfig(argc, argv, "appConfig.py");
-        }
-        if (seedsParam != params.end()) {
-            appConfig.seeds = seedsParam->second;
-        }
+		// read the application configuration
+        AppConfig appConfig = ReadAppConfig(argc, argv, "appConfig.py");
 
         // configure our log receivers
         LogSpecifyReceivers( argc, argv, appConfig.log_config_file );
