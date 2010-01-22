@@ -72,7 +72,6 @@ IF (APPLE)
   SET(MACOSX_BUNDLE_COPYRIGHT "(c) 2007-2008 The University of Texas at Austin")
   SET(MACOSX_BUNDLE_NIB_FILE "MainMenu")
   CONFIGURE_FILE(${CMAKE_MODULE_PATH}/OpenNERO-Info.plist ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
-  CONFIGURE_FILE(${OpenNERO_SOURCE_DIR}/mods/logConfig_example.py ${CMAKE_CURRENT_BINARY_DIR}/logConfig.py)
   ADD_EXECUTABLE(OpenNERO MACOSX_BUNDLE ${OpenNERO_sources} ${OpenNERO_headers})
   GET_TARGET_PROPERTY(OpenNERO_LOCATION OpenNERO LOCATION)
   STRING(REGEX REPLACE "\\.app/Contents/MacOS/OpenNERO" "" OpenNERO_LOCATION "${OpenNERO_LOCATION}")
@@ -80,7 +79,6 @@ IF (APPLE)
   ADD_CUSTOM_TARGET(CopyStuff ALL
     COMMAND mkdir -p ${OpenNERO_APP_RESOURCES}
     COMMAND rsync -auv --delete-excluded --exclude='.svn' ${OpenNERO_SOURCE_DIR}/mods/* ${OpenNERO_APP_RESOURCES}
-    COMMAND cp -f ${CMAKE_CURRENT_BINARY_DIR}/logConfig.py ${OpenNERO_APP_RESOURCES}
     COMMAND cp -f ${CMAKE_CURRENT_BINARY_DIR}/Info.plist ${OpenNERO_LOCATION}.app/Contents
     COMMAND find ${OpenNERO_LOCATION}.app/Contents -name "\".svn\"" | xargs rm -rf)
   ADD_CUSTOM_TARGET(BundleStuff ALL
