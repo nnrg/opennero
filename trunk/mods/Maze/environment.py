@@ -40,6 +40,7 @@ class AgentState:
         self.time = time.time()
         self.start_time = self.time
         self.sensors = True
+        self.short_circuit = 0
         self.animation = 'stand'
 
     def update(self, agent, maze):
@@ -161,9 +162,17 @@ class MazeEnvironment(Environment):
         (dr,dc) = MazeEnvironment.MOVES[a]
         new_r, new_c = r + dr, c + dc
         if not self.maze.rc_bounds(new_r, new_c):
-            return self.rewards.out_of_bounds(state)
+            state.short_circuit += 1    
+            if state.short_circuit < 3:
+             return self.rewards.out_of_bounds(state)
+            else:
+             return self.rewards.out_of_bounds(state) * (self.max_steps - agent.step)
         elif self.maze.is_wall(r,c,dr,dc):
-            return self.rewards.hit_wall(state)
+            state.short_circuit += 1
+            if state.short_circuit < 3:
+             return self.rewards.hit_wall(state)
+            else:
+             return self.rewards.hit_wall(state) * (self.max_steps - agent.step)
         state.rc = (new_r, new_c)
         (old_r,old_c) = state.prev_rc
         (old_x,old_y) = self.maze.rc2xy(old_r, old_c)
@@ -243,6 +252,8 @@ class MazeEnvironment(Environment):
     def is_episode_over(self, agent):
         state = self.get_state(agent)
         if self.max_steps != 0 and agent.step >= self.max_steps:
+            return True
+        elif state.short_circuit >= 3:
             return True
         elif state.goal_reached:
             return True
