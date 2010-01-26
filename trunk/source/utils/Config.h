@@ -72,6 +72,7 @@ namespace OpenNero
         std::string render_type;         ///< The type of renderer "OpenGL" or "null"
         std::string start_mod_name;      ///< The starting mod name
         std::string start_mod_dir;       ///< The starting mod directory
+        std::string start_command;       ///< The Python command to run after loading the module
         uint32_t    window_width;        ///< Window width
         uint32_t    window_height;       ///< window height
         uint8_t     window_BPP;          ///< window bits per pixel
