@@ -47,7 +47,6 @@ config_opts = [ \
                'seeds=' \
               ]
 
-
 def default_app_config():
     """get the default app_config"""
     app_config = AppConfig()
