@@ -96,6 +96,7 @@ namespace OpenNero
             ar & BOOST_SERIALIZATION_NVP(render_type);
             ar & BOOST_SERIALIZATION_NVP(start_mod_name);
             ar & BOOST_SERIALIZATION_NVP(start_mod_dir);
+            ar & BOOST_SERIALIZATION_NVP(start_command);
             ar & BOOST_SERIALIZATION_NVP(window_width);
             ar & BOOST_SERIALIZATION_NVP(window_height);
             ar & BOOST_SERIALIZATION_NVP(window_BPP);
