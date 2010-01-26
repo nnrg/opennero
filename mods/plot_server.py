@@ -23,7 +23,7 @@ HOST, PORT = "localhost", 9999
 ADDR = (HOST, PORT)
 BUFSIZE = 4086
 
-ai_tick_pattern = re.compile(r'(?P<date>[^\[]*)\.(?P<msec>[0-9]+) \(m\) \[ai\.tick\]\s+(?P<episode>\S+)\s+(?P<step>\S+)\s+(?P<reward>\S+)\s+(?P<fitness>\S+)')
+ai_tick_pattern = re.compile(r'(?P<date>[^\[]*)\.(?P<msec>[0-9]+) \(m\) \[ai\.tick\]\s+(?P<id>\S+)\s+(?P<episode>\S+)\s+(?P<step>\S+)\s+(?P<reward>\S+)\s+(?P<fitness>\S+)')
 timestamp_fmt = r'%Y-%b-%d %H:%M:%S'
 file_timestamp_fmt = r'%Y-%m-%d-%H-%M-%S'
 
