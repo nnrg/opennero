@@ -27,6 +27,8 @@ def usage():
     print '     Startup mod path to use'
     print '   --mod=...'
     print '     Startup mod to use'
+    print '   --command=...'
+    print '     Python command to run immediately after loading the mod'
     print '   --seeds=...'
     print '     Random seeds to use'
 
@@ -41,6 +43,7 @@ config_opts = [ \
                'fullscreen', \
                'mod-path=', \
                'mod=', \
+               'command=', \
                'seeds=' \
               ]
 
@@ -59,6 +62,7 @@ def default_app_config():
     app_config.use_vsync = True
     app_config.start_mod_dir = "hub:common"
     app_config.start_mod_name = "hub"
+    app_config.start_command = ""
     app_config.seeds = "55555"
     return app_config
 
@@ -84,6 +88,8 @@ def process_config_opts(app_config, opts):
             app_config.start_mod_dir = a
         elif o == '--mod':
             app_config.start_mod_name = a
+        elif o == '--command':
+            app_config.start_command = a
         elif o == '--seeds':
             app_config.seeds
         else:
