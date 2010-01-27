@@ -56,4 +56,4 @@ The agent receives a reward for picking up crumbs around the lab. The crumbs can
 
 ==Parameters==
 
-The parameters for evolving the teams can be adjusted in [[http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/data/ai/neat-params.dat Roomba/data/ai/neat-params.dat].
+The parameters for evolving the teams can be adjusted in [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/data/ai/neat-params.dat Roomba/data/ai/neat-params.dat].
