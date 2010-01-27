@@ -16,7 +16,7 @@ MazeMod includes the ability to evolve an agent to navigate the maze. After star
 
 ==Fitness function==
 
-The fitness function for each network genotype is calculated by running the agent for a set number of steps and adding up the step-by-step rewards. The rewards for the maze are set in Maze/environment.py as part of the `RewardStructure` class. Some example values are:
+The fitness function for each network genotype is calculated by running the agent for a set number of steps and adding up the step-by-step rewards. The rewards for the maze are set in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/environment.py Maze/environment.py] as part of the `RewardStructure` class. Some example values are:
  * -1 for a valid move
  * -5 for running into a wall
  * 100 for reaching the goal
@@ -36,11 +36,13 @@ After starting the *NERO* mod, set the desired fitness sliders and click *Deploy
 
 ==Fitness function==
 
-TBA
+TBC
+
+==Saving and Loading Your Teams==
 
 ==Parameters==
 
-The parameters for evolving the teams can be adjusted in NERO/data/ai/neat-params.dat.
+The parameters for evolving the teams can be adjusted in [http://code.google.com/p/opennero/source/browse/trunk/mods/NERO/data/ai/neat-params.dat NERO/data/ai/neat-params.dat].
 
 =Evolving a cleaning robot=
 
@@ -48,8 +50,8 @@ In the RoombaMod, select the *rtNEAT* agents and click *Add Bots* to have them e
 
 ==Reward==
 
-The agent receives a reward for picking up crumbs around the lab. The crumbs can have different values, which are specified in Roomba/world_config.txt. This file also specifies the distribution of the crumbs in the lab.
+The agent receives a reward for picking up crumbs around the lab. The crumbs can have different values, which are specified in [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/world_config.txt Roomba/world_config.txt]. This file also specifies the distribution of the crumbs in the lab.
 
 ==Parameters==
 
-The parameters for evolving the teams can be adjusted in Roomba/data/ai/neat-params.dat.
+The parameters for evolving the teams can be adjusted in [[http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/data/ai/neat-params.dat Roomba/data/ai/neat-params.dat].
