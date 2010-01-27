@@ -6,6 +6,8 @@
 
 =Introduction=
 
+http://opennero.googlecode.com/svn/wiki/neuroevolution.png
+
 [http://nn.cs.utexas.edu/?miikkulainen:encyclopedia10-ne Neuroevolution] is a method for modifying neural network weights, topologies, or ensembles in order to learn a specific task. Evolutionary computation is used to search for network parameters that maximize a fitness function that measures performance in the task. Compared to other neural network learning methods, neuroevolution is highly general, allowing learning without explicit targets, with nondifferentiable activation functions, and with recurrent networks. It can also be combined with standard neural network learning to e.g. model biological adaptation. Neuroevolution can also be seen as a policy search method for reinforcement-learning problems, where it is well suited to continuous domains and to domains where the state is only partially observable.
 
 OpenNERO includes several demonstrations of the [http://nn.cs.utexas.edu/?NEAT NEAT] ([http://nn.cs.utexas.edu/?rtNEAT rtNEAT]) algorithm. NEAT is an evolutionary algorithm and adapts the weights and the topologies of neural network controllers.
