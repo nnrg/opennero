@@ -14,7 +14,7 @@ OpenNERO includes several demonstrations of the [http://nn.cs.utexas.edu/?NEAT N
 
 =Evolving a maze agent=
 
-MazeMod includes the ability to evolve an agent to navigate the maze. After starting the mod, select the *Neuroevolution* button. You will see a small fraction of the total population (usually 5-10 out of 50) run out into the maze. Each time an agent restarts from the beginning, it gets a new network phenotype to evaluate. This can be a newly generated one (explore) or an exact replica of the best found so far (exploit). Note the same trade-off between exploration and exploitation that exists in SarsaDemo and QLearningDemo!
+MazeMod includes the ability to evolve an agent to navigate the maze. After starting the mod, select the *Neuroevolution* button. You will see a small fraction of the total population (usually 5-10 out of 50) run out into the maze. Each time an agent restarts from the beginning, it gets a new network phenotype to evaluate. This can be a newly generated one (explore) or an exact replica of the best found so far (exploit). This is a similar trade-off between exploration and exploitation to the one that exists in [SarsaLearning Sarsa] and [QLearning Q-Learning]!
 
 ==Fitness function==
 
@@ -28,7 +28,7 @@ Is this the best reward structure? Designing the right reward structure for more
 
 ==Parameters==
 
-Exploration/exploitation parameter can also be adjusted with an on-screen slider.
+Exploration/exploitation parameter can also be adjusted with an on-screen slider. The parameters for evolving the teams can be adjusted in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/data/ai/neat-params.dat Maze/data/ai/neat-params.dat]. Parameters are the dark art of many learning method implementations, and rtNEAT is no exception. We provided parameter files that historically worked well, however, your mileage may vary.
 
 =Evolution in the NERO mod=
 
@@ -38,9 +38,15 @@ After starting the *NERO* mod, set the desired fitness sliders and click *Deploy
 
 ==Fitness function==
 
-TBC
+The fitness in the NERO mod is controlled via a set of sliders that represent positive or negative value associated with some dimensions of the performance.
+
+There are two important things to know about the NERO fitness function. First, it is _multi-objective_ - you can choose a number of priorities at any stage during your training, such as keeping away from the enemy team while still firing at them. Second, it is a _dynamic shaping function_ - as the trainer, you can choose to set the sliders to one set of values for a period of time and then to another when you are satisfied with the result.
+
+In fact, we have found that learning simple skills first and then combining them is much faster than trying to evolve the complete behavior from scratch!
 
 ==Saving and Loading Your Teams==
+
+Use the Load and Save buttons to Load and Save population files. These represent the weights and connections that your team has evolved - save early and save often (and to different files)!
 
 ==Parameters==
 
