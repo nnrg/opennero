@@ -6,7 +6,6 @@
    * [QLearning Q-Learning]
    * [SarsaLearning Sarsa(λ)]
    * [NeuroEvolution Neuroevolution]
-   * [CoEvolution Co-evolution]
    * [HumanSolutions Human-generated solutions]
  * [OpenNeroExercises Exercises]
     * RunningOpenNeroExercise
