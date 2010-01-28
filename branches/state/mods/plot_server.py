@@ -16,9 +16,6 @@ import SocketServer
 import tempfile
 
 __author__ = "Igor Karpov (ikarpov@cs.utexas.edu)"
-__copyright__ = "Copyright 2010, The University of Texas at Austin"
-__license__ = "LGPL"
-__version__ = "0.1.0"
 
 HOST, PORT = "localhost", 9999
 ADDR = (HOST, PORT)
@@ -41,7 +38,9 @@ class LearningCurve:
 
     def save(self):
         if self.fig:
-            self.fig.savefig(timestamped_filename('opennero-','-episodes.png'))
+            fname = timestamped_filename('opennero-','-episodes.png')
+            print 'saving to:', fname
+            self.fig.savefig(fname)
 
     def display(self):
         x = np.array(range(len(self.episodes)))
@@ -52,7 +51,9 @@ class LearningCurve:
         pl.ylabel('fitness')
         pl.title('By-episode fitness')
         pl.grid(True)
-        fig.savefig(timestamped_filename('opennero-','-fitness.png'))
+        fname = timestamped_filename('opennero-','-fitness.png')
+        print 'saving to:', fname
+        fig.savefig(fname)
         pl.show()        
 
     def reset(self):
@@ -90,50 +91,47 @@ class LearningCurve:
         self.max_time = sec
         print sec, episode, step, reward, fitness
         self.data.append( (time, msec, episode, step, reward, fitness) )
-
-def process_line(lc, line):
-    """Process a line of the log file and record the information in it in the LearningCurve lc
-    """
-    line = line.strip().lower()
-    m = ai_tick_pattern.search(line)
-    if m:
-        t = time.strptime(m.group('date'), timestamp_fmt)
-        ms = int(m.group('msec'))
-        episode = int(m.group('episode'))
-        step = int(m.group('step'))
-        reward = float(m.group('reward'))
-        fitness = float(m.group('fitness'))
-        lc.append( t, ms, episode, step, reward, fitness )
         
-def process_file(fname):
-    lc = LearningCurve()
-    f = open(fname)
-    for line in f:
-        line = line.strip()
-        process_line(lc, line)
-    f.close()
-    return lc
+    def process_line(self, line):
+        """Process a line of the log file and record the information in it in the LearningCurve
+        """
+        line = line.strip().lower()
+        m = ai_tick_pattern.search(line)
+        if m:
+            t = time.strptime(m.group('date'), timestamp_fmt)
+            ms = int(m.group('msec'))
+            episode = int(m.group('episode'))
+            step = int(m.group('step'))
+            reward = float(m.group('reward'))
+            fitness = float(m.group('fitness'))
+            self.append( t, ms, episode, step, reward, fitness )
+            
+    def process_file(self, f):
+        line = f.readline()
+        while line:
+            self.process_line(line.strip())
+            line = f.readline()
 
-class MyTCPHandler(SocketServer.StreamRequestHandler):
+class PlotTCPHandler(SocketServer.StreamRequestHandler):
     def handle(self):
         lc = LearningCurve()
-        for line in self.rfile:
-            line = line.strip()
-            process_line(lc, line)
+        lc.process_file(self.rfile)
         lc.save()
         lc.display()
 
 def main():
-    lc = None
     if len(sys.argv) > 1:
         print 'opening OpenNERO log file', sys.argv[1]
-        lc = process_file(sys.argv[1])
+        f = open(sys.argv[1])
+        lc = LearningCurve()
+        lc.process_file(f)
+        f.close()
         lc.save()
         lc.display()
     else:
         # Create the server, binding to localhost on port 9999
-        server = SocketServer.TCPServer(ADDR, MyTCPHandler)
-        print 'Starting server on', ADDR
+        server = SocketServer.TCPServer(ADDR, PlotTCPHandler)
+        print 'Listening on ', ADDR
         # Activate the server; this will keep running until you
         # interrupt the program with Ctrl-C
         server.serve_forever()
