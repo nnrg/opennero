@@ -14,11 +14,10 @@ BUFSIZE = 4096
 class NetworkLogWriter:
     def __init__(self, host = 'localhost', port = 9999):
         self.addr = (host, port)
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.connect(self.addr)
     def write(self, msg):
-        msg = msg.strip()
-        if msg:
-            self.sock.sendto(msg, self.addr)
+        self.sock.send(msg)
     def flush(self):
         pass
     def close(self):
