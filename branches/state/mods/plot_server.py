@@ -12,6 +12,7 @@ import numpy as np
 import matplotlib.pyplot as pl
 import matplotlib.mlab as mlab
 import socket
+import SocketServer
 import tempfile
 
 __author__ = "Igor Karpov (ikarpov@cs.utexas.edu)"
@@ -41,6 +42,18 @@ class LearningCurve:
     def save(self):
         if self.fig:
             self.fig.savefig(timestamped_filename('opennero-','-episodes.png'))
+
+    def display(self):
+        x = np.array(range(len(self.episodes)))
+        y = np.array(self.episodes)
+        fig = pl.figure()
+        pl.plot(x, y, linewidth=1.0)
+        pl.xlabel('episode')
+        pl.ylabel('fitness')
+        pl.title('By-episode fitness')
+        pl.grid(True)
+        fig.savefig(timestamped_filename('opennero-','-fitness.png'))
+        pl.show()        
 
     def reset(self):
         self.save()
@@ -92,36 +105,38 @@ def process_line(lc, line):
         fitness = float(m.group('fitness'))
         lc.append( t, ms, episode, step, reward, fitness )
         
-def server():
+def process_file(fname):
     lc = LearningCurve()
-    # Create socket and bind to address
-    UDPSock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-    UDPSock.bind(ADDR)
-    # Receive messages
-    while 1:
-        data = UDPSock.recv(BUFSIZE)
-        if not data:
-            print "Client has exited!"
-            break
-        else:
-            process_line(lc, data)
-    # Close socket
-    UDPSock.close()
+    f = open(fname)
+    for line in f:
+        line = line.strip()
+        process_line(lc, line)
+    f.close()
     return lc
 
+class MyTCPHandler(SocketServer.StreamRequestHandler):
+    def handle(self):
+        lc = LearningCurve()
+        for line in self.rfile:
+            line = line.strip()
+            process_line(lc, line)
+        lc.save()
+        lc.display()
+
 def main():
-    lc = server()
-    lc.save()
-    x = np.array(range(0,len(lc.episodes)))
-    y = np.array(lc.episodes)
-    fig = pl.figure()
-    pl.plot(x, y, linewidth=1.0)
-    pl.xlabel('episode')
-    pl.ylabel('fitness')
-    pl.title('By-episode fitness')
-    pl.grid(True)
-    fig.savefig(timestamped_filename('opennero-','-fitness.png'))
-    pl.show()
+    lc = None
+    if len(sys.argv) > 1:
+        print 'opening OpenNERO log file', sys.argv[1]
+        lc = process_file(sys.argv[1])
+        lc.save()
+        lc.display()
+    else:
+        # Create the server, binding to localhost on port 9999
+        server = SocketServer.TCPServer(ADDR, MyTCPHandler)
+        print 'Starting server on', ADDR
+        # Activate the server; this will keep running until you
+        # interrupt the program with Ctrl-C
+        server.serve_forever()
     print 'done'
 
 if __name__ == "__main__":
