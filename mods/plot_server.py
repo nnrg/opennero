@@ -12,12 +12,10 @@ import numpy as np
 import matplotlib.pyplot as pl
 import matplotlib.mlab as mlab
 import socket
+import SocketServer
 import tempfile
 
 __author__ = "Igor Karpov (ikarpov@cs.utexas.edu)"
-__copyright__ = "Copyright 2010, The University of Texas at Austin"
-__license__ = "LGPL"
-__version__ = "0.1.0"
 
 HOST, PORT = "localhost", 9999
 ADDR = (HOST, PORT)
@@ -40,7 +38,23 @@ class LearningCurve:
 
     def save(self):
         if self.fig:
-            self.fig.savefig(timestamped_filename('opennero-','-episodes.png'))
+            fname = timestamped_filename('opennero-','-episodes.png')
+            print 'saving to:', fname
+            self.fig.savefig(fname)
+
+    def display(self):
+        x = np.array(range(len(self.episodes)))
+        y = np.array(self.episodes)
+        fig = pl.figure()
+        pl.plot(x, y, linewidth=1.0)
+        pl.xlabel('episode')
+        pl.ylabel('fitness')
+        pl.title('By-episode fitness')
+        pl.grid(True)
+        fname = timestamped_filename('opennero-','-fitness.png')
+        print 'saving to:', fname
+        fig.savefig(fname)
+        pl.show()        
 
     def reset(self):
         self.save()
@@ -77,51 +91,50 @@ class LearningCurve:
         self.max_time = sec
         print sec, episode, step, reward, fitness
         self.data.append( (time, msec, episode, step, reward, fitness) )
-
-def process_line(lc, line):
-    """Process a line of the log file and record the information in it in the LearningCurve lc
-    """
-    line = line.strip().lower()
-    m = ai_tick_pattern.search(line)
-    if m:
-        t = time.strptime(m.group('date'), timestamp_fmt)
-        ms = int(m.group('msec'))
-        episode = int(m.group('episode'))
-        step = int(m.group('step'))
-        reward = float(m.group('reward'))
-        fitness = float(m.group('fitness'))
-        lc.append( t, ms, episode, step, reward, fitness )
         
-def server():
-    lc = LearningCurve()
-    # Create socket and bind to address
-    UDPSock = socket.socket(socket.AF_INET,socket.SOCK_DGRAM)
-    UDPSock.bind(ADDR)
-    # Receive messages
-    while 1:
-        data = UDPSock.recv(BUFSIZE)
-        if not data:
-            print "Client has exited!"
-            break
-        else:
-            process_line(lc, data)
-    # Close socket
-    UDPSock.close()
-    return lc
+    def process_line(self, line):
+        """Process a line of the log file and record the information in it in the LearningCurve
+        """
+        line = line.strip().lower()
+        m = ai_tick_pattern.search(line)
+        if m:
+            t = time.strptime(m.group('date'), timestamp_fmt)
+            ms = int(m.group('msec'))
+            episode = int(m.group('episode'))
+            step = int(m.group('step'))
+            reward = float(m.group('reward'))
+            fitness = float(m.group('fitness'))
+            self.append( t, ms, episode, step, reward, fitness )
+            
+    def process_file(self, f):
+        line = f.readline()
+        while line:
+            self.process_line(line.strip())
+            line = f.readline()
+
+class PlotTCPHandler(SocketServer.StreamRequestHandler):
+    def handle(self):
+        lc = LearningCurve()
+        lc.process_file(self.rfile)
+        lc.save()
+        lc.display()
 
 def main():
-    lc = server()
-    lc.save()
-    x = np.array(range(0,len(lc.episodes)))
-    y = np.array(lc.episodes)
-    fig = pl.figure()
-    pl.plot(x, y, linewidth=1.0)
-    pl.xlabel('episode')
-    pl.ylabel('fitness')
-    pl.title('By-episode fitness')
-    pl.grid(True)
-    fig.savefig(timestamped_filename('opennero-','-fitness.png'))
-    pl.show()
+    if len(sys.argv) > 1:
+        print 'opening OpenNERO log file', sys.argv[1]
+        f = open(sys.argv[1])
+        lc = LearningCurve()
+        lc.process_file(f)
+        f.close()
+        lc.save()
+        lc.display()
+    else:
+        # Create the server, binding to localhost on port 9999
+        server = SocketServer.TCPServer(ADDR, PlotTCPHandler)
+        print 'Listening on ', ADDR
+        # Activate the server; this will keep running until you
+        # interrupt the program with Ctrl-C
+        server.serve_forever()
     print 'done'
 
 if __name__ == "__main__":

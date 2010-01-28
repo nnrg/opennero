@@ -117,22 +117,17 @@ namespace OpenNero
         // TODO: Boost.Python does not support Py_Finalize(), so this may cause a leak
         Py_Finalize();
     }
-
+    
     void ScriptingEngine::init(int argc, char** argv)
     {
         if (!_initialized)
         {
             // start the Python interpreter
+            Assert(argc > 0);
+            Py_SetProgramName(argv[0]);
             Py_InitializeEx(0); // no interrupt handlers
-            if (argc > 0)
-            {
-                PySys_SetArgv(argc, argv);
-            }
-            else
-            {
-                char* no_args[] = { "opennero", NULL };
-                PySys_SetArgv(1, no_args);
-            }
+            PySys_SetArgv(argc, argv);
+            Assert(Py_IsInitialized());
 
             // get the main module
             _main_module = python::import("__main__");
@@ -171,6 +166,8 @@ namespace OpenNero
         //if( _initialized )
         //{
         // TODO : Should this do more to reset the python state?
+        // Boost.Python warns not to call this when embedding Python using Boost
+        // Py_Finalize(); 
         //_initialized = false;
         //}
     }
