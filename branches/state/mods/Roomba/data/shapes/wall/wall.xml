@@ -1,0 +1,9 @@
+<Template>
+	<Render>
+		<MaterialType>solid</MaterialType>
+		<MaterialFlagLighting>false</MaterialFlagLighting>
+		<AniMesh>data/shapes/cube/cube.obj</AniMesh>
+		<Scale>1 128 20</Scale>
+		<Rotation>0 0 0</Rotation>
+	</Render>
+</Template>
