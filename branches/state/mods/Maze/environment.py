@@ -9,19 +9,22 @@ import observer
 
 class MazeRewardStructure:
     def valid_move(self, state):
-        # return some fraction of 100 depending on how close to the target we get
-        (r,c) = state.rc
-        return 100.0*(r+c)/(ROWS+COLS)
+        # a valid move is just a -1 (to reward shorter routes)
+        return -1
     def out_of_bounds(self, state):
+        # running out of bounds costs -5
         return -5
     def hit_wall(self, state):
+        # running into a wall costs -5
         return -5
     def goal_reached(self, state):
         print 'GOAL REACHED!'
+        # reaching a goal is great!
         return 100
     def last_reward(self, state):
         # return some fraction of 100 depending on how close to the target we get
         (r,c) = state.rc
+        print 'EPISODE ENDED AT', r, c
         return 100.0*(r+c)/(ROWS+COLS)
 
 class AgentState:
@@ -176,7 +179,7 @@ class MazeEnvironment(Environment):
         if new_r == ROWS - 1 and new_c == COLS - 1:
             state.goal_reached = True
             return self.rewards.goal_reached(state)
-        elif agent.step >= self.max_steps:
+        elif agent.step >= self.max_steps - 1:
             return self.rewards.last_reward(state)
         return self.rewards.valid_move(state)
 
@@ -364,7 +367,7 @@ class ContMazeEnvironment(MazeEnvironment):
         if new_r == ROWS - 1 and new_c == COLS - 1:
             state.goal_reached = True
             return self.rewards.goal_reached(state)
-        elif agent.step >= self.max_steps:
+        elif agent.step >= self.max_steps - 1:
             return self.rewards.last_reward(state)
         return self.rewards.valid_move(state)
 
