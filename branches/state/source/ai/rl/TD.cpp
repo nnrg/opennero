@@ -54,7 +54,6 @@ namespace OpenNero
         {
         	new_action = mInfo.actions.getRandom();
             double value = predict(new_state);
-            LOG_F_DEBUG("ai", "state: " << new_state << " random action: " << new_action << " value: " << value);
             return value;
         }
         // enumerate all possible actions (actions must be discrete!)
@@ -66,14 +65,12 @@ namespace OpenNero
         for (iter = action_list.begin(); iter != action_list.end(); ++iter)
         {
             double value = mApproximator->predict(new_state, *iter);
-            LOG_F_DEBUG("ai", "state: " << new_state << " action: " << *iter << " value: " << value);
             if (value > max_value)
             {
                 max_value = value;
                 new_action = *iter;
             }
         }
-        LOG_F_DEBUG("ai", "max value: " << max_value);
         // Assuming if you choose max value, you will want to update with that as your prediction
         return max_value;
     }
