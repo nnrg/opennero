@@ -28,84 +28,72 @@ file_timestamp_fmt = r'%Y-%m-%d-%H-%M-%S'
 def timestamped_filename(prefix = '', postfix = ''):
     return '%s%s%s' % (prefix, time.strftime(file_timestamp_fmt), postfix)
 
+class AgentHistory():
+    def __init__(self):
+        self.episode_time = []
+        self.episode_fitness = []
+        self.time = []
+        self.fitness = []
+    def append(self, ms, fitness):
+        self.episode_time.append(ms)
+        self.episode_fitness.append(fitness)        
+    def episode(self):
+        if len(self.episode_time) > 0:
+            self.time.append(self.episode_time[-1])
+            self.fitness.append(self.episode_fitness[-1])
+        self.episode_time = []
+        self.episode_fitness = []
+    def plot(self):
+        if len(self.time) > 0:
+            x = np.array(self.time)
+            y = np.array(self.fitness)
+            pl.scatter(x, y, linewidth=1.0)        
+
 class LearningCurve:
     def __init__(self):
-        self.min_time = None
-        self.max_time = None
-        self.data = []
-        self.episodes = []
-        self.fig = None
-
+        self.histories = {}
+        
+    def append(self, id, ms, episode, step, reward, fitness):
+        record = None
+        if id in self.histories:
+            record = self.histories[id]
+        else:
+            record = AgentHistory()
+            self.histories[id] = record
+        if step == 0:
+            record.episode()
+        record.append(ms, fitness)
+        
     def save(self):
-        if self.fig:
-            fname = timestamped_filename('opennero-','-episodes.png')
-            print 'saving to:', fname
-            self.fig.savefig(fname)
-
-    def display(self):
-        x = np.array(range(len(self.episodes)))
-        y = np.array(self.episodes)
         fig = pl.figure()
-        pl.plot(x, y, linewidth=1.0)
         pl.xlabel('episode')
         pl.ylabel('fitness')
         pl.title('By-episode fitness')
         pl.grid(True)
+        pl.hold(True)
+        for id in self.histories:
+            self.histories[id].plot()
         fname = timestamped_filename('opennero-','-fitness.png')
         print 'saving to:', fname
         fig.savefig(fname)
-        pl.show()        
+        pl.show()
 
-    def reset(self):
-        self.save()
-        self.min_time = None
-        self.max_time = None
-        self.data = []
-        self.episodes = []
-        self.fig = pl.figure()
-        pl.hold(True)
-        pl.xlabel('step')
-        pl.ylabel('fitness')
-        pl.title('Episodes')
-        pl.grid(True)
-    
-    def plot_episode(self):
-        M = np.array(self.data)
-        steps = M[:,-3]
-        fitness = M[:,-1]
-        pl.plot(steps, fitness, linewidth=1.0)
-
-    def append(self, t, msec, episode, step, reward, fitness):
-        #only remember the most recent set of episodes
-        if episode == 0 and step == 0:
-            self.reset()
-        elif step == 0:
-            # on episode start, append the previous episode's fitness
-            self.episodes.append(self.data[-1][-1])
-            self.plot_episode()
-            self.data = []
-        sec = time.mktime(t) * 1000000
-        sec += msec
-        if not self.min_time:
-            self.min_time = sec
-        self.max_time = sec
-        print sec, episode, step, reward, fitness
-        self.data.append( (time, msec, episode, step, reward, fitness) )
-        
     def process_line(self, line):
         """Process a line of the log file and record the information in it in the LearningCurve
         """
         line = line.strip().lower()
         m = ai_tick_pattern.search(line)
         if m:
-            t = time.strptime(m.group('date'), timestamp_fmt)
-            ms = int(m.group('msec'))
+            id = int(m.group('id')) # id of the agent
+            t = time.strptime(m.group('date'), timestamp_fmt) # time of the record
+            ms = int(m.group('msec')) # milliseconds
             episode = int(m.group('episode'))
             step = int(m.group('step'))
             reward = float(m.group('reward'))
             fitness = float(m.group('fitness'))
-            self.append( t, ms, episode, step, reward, fitness )
-            
+            ms += time.mktime(t) * 1000000
+            self.append( id, ms, episode, step, reward, fitness )
+
     def process_file(self, f):
         line = f.readline()
         while line:
@@ -117,7 +105,7 @@ class PlotTCPHandler(SocketServer.StreamRequestHandler):
         lc = LearningCurve()
         lc.process_file(self.rfile)
         lc.save()
-        lc.display()
+        #lc.display()
 
 def main():
     if len(sys.argv) > 1:
@@ -127,7 +115,7 @@ def main():
         lc.process_file(f)
         f.close()
         lc.save()
-        lc.display()
+        #lc.display()
     else:
         # Create the server, binding to localhost on port 9999
         server = SocketServer.TCPServer(ADDR, PlotTCPHandler)
