@@ -205,6 +205,11 @@ class MazeMod:
         self.epsilon = epsilon
         if self.environment:
             self.environment.epsilon = epsilon
+            
+    def set_speedup(self, speedup):
+        self.speedup = speedup
+        if self.environment:
+            self.environment.speedup = speedup
 
 gMod = None
 

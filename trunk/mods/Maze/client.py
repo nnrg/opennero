@@ -78,20 +78,45 @@ def CreateGui(guiMan):
     epsilonScroll.setPos(epsilon_percent)
     getMod().set_epsilon(INITIAL_EPSILON)
     epsilonScroll.OnScrollBarChange = epsilon_adjusted(epsilonScroll, epsilonValue)
+    
+    speedupValue = gui.create_text(guiMan, 'speedupEditBox', Pos2i(260, 50), Pos2i(100, 30), str(0))
+    
+    speedupLabel = gui.create_text(guiMan, 'speedupLabel', Pos2i(10, 50), Pos2i(100, 30), 'Speedup:')
+    
+    speedupScroll = gui.create_scroll_bar(guiMan, 'speedupScroll', Pos2i(100, 50), Pos2i(150,20), True)
+    speedupScroll.setMax(100)
+    speedupScroll.setLargeStep(10)
+    speedupScroll.setSmallStep(1)
+    speedupScroll.setPos(0)
+    getMod().set_speedup(0)
+    speedupScroll.OnScrollBarChange = speedup_adjusted(speedupScroll, speedupValue)
 
     paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 500), Pos2i(300,100), 'Parameters')
     paramWindow.addChild(epsilonLabel)
     paramWindow.addChild(epsilonScroll)
     paramWindow.addChild(epsilonValue)
+    paramWindow.addChild(speedupLabel)
+    paramWindow.addChild(speedupScroll)
+    paramWindow.addChild(speedupValue)
 
 def epsilon_adjusted(scroll, value):
-    # use a closure to remember the GUI elements we are dealing with
+    # generate a closure that will be called whenever the epsilon slider is adjusted
     value.text = str(scroll.getPos())
     getMod().set_epsilon(float(scroll.getPos())/100)
     def closure():
         value.text = str(scroll.getPos())
         getMod().set_epsilon(float(scroll.getPos())/100)
         print('Epsilon adjusted!')
+    return closure
+    
+def speedup_adjusted(scroll, value):
+    # generate a closure that will be called whenever the speedup slider is adjusted
+    value.text = str(scroll.getPos())
+    getMod().set_speedup(float(scroll.getPos())/100)
+    def closure():
+        value.text = str(scroll.getPos())
+        getMod().set_speedup(float(scroll.getPos())/100)
+        print('Speedup %s' % value.text)
     return closure
 
 def recenter(cam):

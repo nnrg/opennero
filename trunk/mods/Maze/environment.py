@@ -98,7 +98,11 @@ class MazeEnvironment(Environment):
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
         self.max_steps = MAX_STEPS
         self.step_delay = STEP_DELAY
+        self.speedup = 0
         print 'Initialized MazeEnvironment'
+        
+    def get_delay(self):
+        return self.step_delay * (1.0 - self.speedup)
 
     def get_state(self, agent):
         if agent in self.states:
@@ -229,15 +233,15 @@ class MazeEnvironment(Environment):
             (x1,y1) = self.maze.rc2xy(r1,c1)
             pos = agent.state.position
             fraction = 1.0
-            if self.step_delay != 0:
-                fraction = min(1.0,float(time.time() - state.time)/self.step_delay)
+            if self.get_delay() != 0:
+                fraction = min(1.0,float(time.time() - state.time)/self.get_delay())
             pos.x = x0 * (1 - fraction) + x1 * fraction
             pos.y = y0 * (1 - fraction) + y1 * fraction
             agent.state.position = pos
             self.set_animation(agent, state, 'run')
         else:
             self.set_animation(agent, state, 'stand')
-        if time.time() - state.time > self.step_delay:
+        if time.time() - state.time > self.get_delay():
             state.time = time.time()
             return True # call the sense/act/step loop
         else:
@@ -416,8 +420,8 @@ class ContMazeEnvironment(MazeEnvironment):
     def is_active(self, agent):
         state = self.get_state(agent)
         # TODO: interpolate
-        fraction = min(1.0,float(time.time() - state.time)/self.step_delay)
-        if time.time() - state.time > self.step_delay:
+        fraction = min(1.0,float(time.time() - state.time)/self.get_delay())
+        if time.time() - state.time > self.get_delay():
             state.time = time.time()
             return True # call the sense/act/step loop
         else:
