@@ -20,6 +20,7 @@
 #include "gui/GuiManager.h"
 #include "gui/GuiImage.h"
 #include "gui/GuiEditBox.h"
+#include "gui/GuiCheckBox.h"
 #include "gui/GuiText.h"
 #include "gui/GuiComboBox.h"
 #include "gui/GuiScrollBar.h"
@@ -87,6 +88,16 @@ namespace OpenNero
         }     
     };
 
+    /// A factory for making EditBoxElement
+    class GuiCheckBoxElementFactory : public GenericElementFactory< GuiCheckBox, IGUICheckBox>
+    {
+    public:
+        GuiBasePtr CreateElement( uint32_t newElemId )
+        {
+            Assert( mRes );
+            return GenericConstruction( mRes->mIrr.mpGuiEnv->addCheckBox( false, sDefaultGuiElementPosition, NULL, newElemId ) );
+        }     
+    };
 
     /// A factory for making ScrollBar
     class GuiScrollBarElementFactory : public GenericElementFactory< GuiScrollBar, IGUIScrollBar>
@@ -580,6 +591,7 @@ namespace OpenNero
         RegisterElementFactory( "horizontal scroll bar",   IGuiElementFactoryPtr( new GuiHorizontalScrollBarElementFactory ) );
         RegisterElementFactory( "combo box",    IGuiElementFactoryPtr( new GuiComboBoxElementFactory ) );
         RegisterElementFactory( "edit box",     IGuiElementFactoryPtr( new GuiEditBoxElementFactory ) );
+        RegisterElementFactory( "check box",    IGuiElementFactoryPtr( new GuiCheckBoxElementFactory ) );
         RegisterElementFactory( "text",         IGuiElementFactoryPtr( new GuiTextElementFactory ) );
         RegisterElementFactory( "image",        IGuiElementFactoryPtr( new GuiImageElementFactory ) );
         RegisterElementFactory( "window",       IGuiElementFactoryPtr( new GuiWindowElementFactory ) );
