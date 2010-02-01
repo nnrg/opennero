@@ -185,7 +185,7 @@ namespace OpenNero
             close->setID( childId );
 
             // create our close button
-	    CloseButton* cb = new CloseButton( mRes->mpManager,win);
+            CloseButton* cb = new CloseButton( mRes->mpManager,win);
             GuiButtonPtr closeButton( static_cast<GuiButton*>(cb) );
             closeButton->setGuiElement(close);
 
@@ -338,6 +338,9 @@ namespace OpenNero
 
             case EGET_SCROLL_BAR_CHANGED:
                 return HandleScrollBarChanged(event);
+                
+            case EGET_CHECKBOX_CHANGED:
+                return HandleCheckBoxChanged(event);
                 
             default:
                 return false;
@@ -807,6 +810,29 @@ namespace OpenNero
             elem->OnScrollBarChange( /*event*/ );
         }
 
+        return true;
+    }
+    
+    bool GuiManager::HandleCheckBoxChanged( const SEvent& event )
+    {
+        Assert( event.EventType == EET_GUI_EVENT );
+        Assert( event.GUIEvent.EventType == EGET_CHECKBOX_CHANGED );
+        Assert( event.GUIEvent.Caller );
+        
+        IGUICheckBox* check_box = static_cast<IGUICheckBox*>(event.GUIEvent.Caller);
+        s32 id = check_box->getID();
+        
+        GuiBasePtr elem = findContainerById(id);
+        
+        if (elem && elem->RespondsTo(GuiBase::kResponse_OnCheckBoxChange))
+        {
+            elem->OnCheckBoxChange( /* event */ );
+        }
+        else
+        {
+            return false;
+        }
+        
         return true;
     }
 

@@ -240,6 +240,7 @@ namespace OpenNero
         bool HandleFileChooseDialogCancelled( const SEvent& event );
         bool HandleMenuItemSelected( const SEvent& event );
         bool HandleScrollBarChanged( const SEvent& event );
+        bool HandleCheckBoxChanged( const SEvent& event );
         /// @}
 
         /// Modify the way an element is registered with the system

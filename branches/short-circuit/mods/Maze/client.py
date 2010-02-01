@@ -79,18 +79,23 @@ def CreateGui(guiMan):
     getMod().set_epsilon(INITIAL_EPSILON)
     epsilonScroll.OnScrollBarChange = epsilon_adjusted(epsilonScroll, epsilonValue)
     
-    speedupValue = gui.create_text(guiMan, 'speedupEditBox', Pos2i(260, 50), Pos2i(100, 30), str(0))
+    speedupValue = gui.create_text(guiMan, 'speedupEditBox', Pos2i(260, 30), Pos2i(100, 30), str(0))
     
-    speedupLabel = gui.create_text(guiMan, 'speedupLabel', Pos2i(10, 50), Pos2i(100, 30), 'Speedup:')
+    speedupLabel = gui.create_text(guiMan, 'speedupLabel', Pos2i(10, 30), Pos2i(100, 30), 'Speedup:')
     
-    speedupScroll = gui.create_scroll_bar(guiMan, 'speedupScroll', Pos2i(100, 50), Pos2i(150,20), True)
+    speedupScroll = gui.create_scroll_bar(guiMan, 'speedupScroll', Pos2i(100, 30), Pos2i(150,20), True)
     speedupScroll.setMax(100)
     speedupScroll.setLargeStep(10)
     speedupScroll.setSmallStep(1)
     speedupScroll.setPos(0)
     getMod().set_speedup(0)
     speedupScroll.OnScrollBarChange = speedup_adjusted(speedupScroll, speedupValue)
-
+    
+    shortcircuitLabel = gui.create_text(guiMan, 'shortcircuitLabel', Pos2i(10, 60), Pos2i(100,30), 'Short-Circuit:')
+    
+    shortcircuitCheck = gui.create_check_box(guiMan, 'shortcircuitCheck', Pos2i(100, 60), Pos2i(20, 20))
+    shortcircuitCheck.checked = False
+    
     paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 500), Pos2i(300,100), 'Parameters')
     paramWindow.addChild(epsilonLabel)
     paramWindow.addChild(epsilonScroll)
@@ -98,6 +103,8 @@ def CreateGui(guiMan):
     paramWindow.addChild(speedupLabel)
     paramWindow.addChild(speedupScroll)
     paramWindow.addChild(speedupValue)
+    paramWindow.addChild(shortcircuitLabel)
+    paramWindow.addChild(shortcircuitCheck)
 
 def epsilon_adjusted(scroll, value):
     # generate a closure that will be called whenever the epsilon slider is adjusted
