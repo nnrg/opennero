@@ -4,6 +4,7 @@ from common import *
 from constants import *
 from Maze.environment import MazeEnvironment, ContMazeEnvironment
 from Maze.agent import FirstPersonAgent
+from ext_agent import *
 
 class MazeMod:
     # initializer
@@ -174,11 +175,14 @@ class MazeMod:
         # Create RTNEAT object
         pop_size = 50
         pop_on_field_size = 10
+        global ext
+        ext = ext_agent("data/ai/neat-params.dat", 8, 3, pop_size)
         rtneat = RTNEAT("data/ai/neat-params.dat", 8, 3, pop_size, 1.0)
         set_ai("neat",rtneat)
         enable_ai()
         for i in range(0, pop_on_field_size):
             self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(GRID_DX, GRID_DY, 2) )
+        print "INITILIZATION COMPLETE"
 
     def start_sarsa(self):
         """ start the rtneat learning demo """
@@ -210,6 +214,10 @@ class MazeMod:
         self.speedup = speedup
         if self.environment:
             self.environment.speedup = speedup
+
+    def get_ext(self):
+        global ext
+        return ext
 
 gMod = None
 

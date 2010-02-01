@@ -3,6 +3,7 @@ from common import *
 import Maze
 from Maze.environment import MazeEnvironment, ContMazeEnvironment
 from Maze.constants import *
+from ext_agent import *
 
 import random
 from heapq import heappush, heappop
@@ -449,13 +450,18 @@ class RTNEATAgent(AgentBrain):
         """
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
         AgentBrain.__init__(self)
-        global rtneat
-        rtneat = get_ai("neat")
+        #global rtneat
+        global ext
+        ext = Maze.module.getMod().get_ext()
+        self.myBrain = ext.getAgent()
+        print "__init__"
+        #rtneat = get_ai("neat")
 
     def initialize(self, init_info):
         """
         Initialize an agent brain with sensor information
         """
+        print "initilize"
         self.actions = init_info.actions # constraints for actions
         self.sensors = init_info.sensors # constraints for sensors
         return True
@@ -464,10 +470,13 @@ class RTNEATAgent(AgentBrain):
         """
         start of an episode
         """
-        global rtneat
+        print "start (AGENT.PY)"
+        #global rtneat
         epsilon = Maze.module.getMod().epsilon
-        self.org = rtneat.next_organism(epsilon)
-        self.net = self.org.net
+        #self.org = rtneat.next_organism(epsilon)
+        #self.myBrain = ext.getAgent()
+        #self.net = self.org.net
+        print "ABOUT TO RETURN"
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
@@ -475,7 +484,10 @@ class RTNEATAgent(AgentBrain):
         a state transition
         """
         # return action
+        print "acting"
         return self.network_action(sensors)
+        #global ext
+        #return ext.action(sensors,self.myBrain)
 
     def end(self, time, reward):
         """
@@ -485,6 +497,8 @@ class RTNEATAgent(AgentBrain):
         self.org.time_alive += 1
         #assert(self.org.fitness >= 0) # we have to have a non-negative fitness for rtNEAT to work
         print  "Final reward: %f, cumulative: %f" % (reward, self.fitness)
+        global ext
+        ext.reward(self.fitness,self.myBrain)
         return True
 
     def destroy(self):
@@ -500,14 +514,19 @@ class RTNEATAgent(AgentBrain):
         Activate the network to produce the output
         Collect and interpret the outputs as valid maze actions
         """
+        print "network_action"
         self.sensors.validate(sensors)
         inputs = [sensor for sensor in sensors] # create the sensor array
-        self.net.load_sensors(inputs)
-        self.net.activate()
-        outputs = self.net.get_outputs()
+        #self.net.load_sensors(inputs)
+        #self.net.activate()
+        #outputs = self.net.get_outputs()
 
-        actions = self.actions.get_instance() # make a vector for the actions
+        print "calling ext"
+        global ext
+        print "about to output"
+        outputs = ext.action(sensors,self.myBrain)#self.actions.get_instance() # make a vector for the actions
 
+        print "output got"
         maxOutput = 0 # select the action based on the biggest output of the network
 
         for i in range(len(outputs)):
