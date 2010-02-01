@@ -1,0 +1,13 @@
+<Template>
+  <ObjectTemplate>
+    <Name>Terrain</Name>
+  </ObjectTemplate>
+  <Render>
+    <MaterialType>detail</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <Terrain>data/terrain/terrain-heightmap-shadowgrove.bmp</Terrain>
+    <Texture0>data/terrain/detailmap3.jpg</Texture0>
+    <ScaleTexture>5 5</ScaleTexture>
+    <Scale>3.336 1.668 2.0</Scale>
+  </Render>
+</Template>
