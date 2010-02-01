@@ -10,6 +10,8 @@ class MazeMod:
     def __init__(self):
         print 'Creating MazeMod'
         self.epsilon = 0.5
+        self.speedup = 0.0
+        self.shortcircuit = False
         self.environment = None
         self.agent_id = None # the ID of the agent
         self.marker_map = {} # a map of cells and markers so that we don't have more than one per cell
@@ -70,6 +72,9 @@ class MazeMod:
 
     def set_environment(self,env):
         self.environment = env
+        self.environment.epsilon = self.epsilon
+        self.environment.speedup = self.speedup
+        self.environment.shortcircuit = self.shortcircuit
         for id in self.wall_ids: # delete the walls
             removeObject(id)
         del self.wall_ids[:] # clear the ids
@@ -203,13 +208,21 @@ class MazeMod:
 
     def set_epsilon(self, epsilon):
         self.epsilon = epsilon
+        print 'Epsilon set to', self.speedup
         if self.environment:
             self.environment.epsilon = epsilon
             
     def set_speedup(self, speedup):
         self.speedup = speedup
+        print 'Speedup set to', self.speedup
         if self.environment:
             self.environment.speedup = speedup
+    
+    def set_shortcircuit(self, shortcircuit):
+        self.shortcircuit = shortcircuit
+        print 'Short-circuit set to', self.shortcircuit
+        if self.environment:
+            self.environment.shortcircuit = shortcircuit
 
 gMod = None
 
