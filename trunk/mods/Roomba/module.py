@@ -21,12 +21,14 @@ STEP_DT = 0.1
 AGENT_X = 10
 AGENT_Y = 10
 
+ROOMBA_RAD = 4  # Physical Radius of Roomba, for wall collision
+
 N_FIXED_SENSORS = 3     # 0: wall bump, 1: self position X, 2: self position Y
 N_S_IN_BLOCK = 4
 
-XDIM = 200
-YDIM = 200
-HEIGHT = 20
+XDIM = 200.0
+YDIM = 200.0
+HEIGHT = 20.0
 OFFSET = -HEIGHT/2
 
 class SandboxMod:
@@ -212,7 +214,14 @@ class SandboxEnvironment(Environment):
 
         # set up shop
         # Add Wayne's Roomba room with experimentally-derived vertical offset to match crumbs.
-        addObject("data/terrain/RoombaRoom.xml", Vector3f(XDIM/2,YDIM/2,-2), Vector3f(0,0,0), Vector3f(1, 1, 1))
+        addObject("data/terrain/RoombaRoom.xml", Vector3f(XDIM/2,YDIM/2, -1), Vector3f(0,0,0), Vector3f(XDIM/245.0, YDIM/245.0, HEIGHT/24.5))
+
+        # corner walls (visualize room limit)
+        #addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, 0, HEIGHT/2 + OFFSET), Vector3f(0, 0, 90), Vector3f(1,XDIM,HEIGHT) )
+        #addObject("data/shapes/cube/Cube.xml", Vector3f(0, YDIM/2, HEIGHT/2 + OFFSET), Vector3f(0, 0, 0), Vector3f(1,XDIM,HEIGHT) )
+        #addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM, YDIM/2, HEIGHT/2 + OFFSET), Vector3f(0, 0, 0), Vector3f(1,XDIM,HEIGHT) )
+        #addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM, HEIGHT/2 + OFFSET), Vector3f(0, 0, 90), Vector3f(1,XDIM,HEIGHT) )
+
         # getSimContext().addAxes()
         self.add_crumbs()
         for crumb in self.crumbs:
@@ -245,7 +254,7 @@ class SandboxEnvironment(Environment):
         for pellet in self.crumbs:
             if not (pellet.x, pellet.y) in getMod().marker_map:
                 getMod().mark_blue(pellet.x, pellet.y)
-	    self.crumb_count = len(getMod().marker_map)
+	self.crumb_count = len(getMod().marker_map)
 
     def reset(self, agent):
         """ reset the environment to its initial state """
@@ -290,24 +299,37 @@ class SandboxEnvironment(Environment):
         state.reward += reward
         return reward
 
-    # delta_angle is in degrees
+    # delta_angle (degrees) is change in angle
+    # delta_dist is change in distance (or velocity, since unit of time unchanged)
     def update_position(self, agent, delta_dist, delta_angle):
         state = self.get_state(agent)
         state.step_count += 1
 
         position = agent.state.position
         rotation = agent.state.rotation
-        
-        if self.out_of_bounds(position):
-            state.bumped = True
-            rotation.z += delta_angle
-            position.x -= delta_dist*cos(radians(rotation.z))
-            position.y -= delta_dist*sin(radians(rotation.z))
-        else:
-            rotation.z += delta_angle
-            position.x += delta_dist*cos(radians(rotation.z))
-            position.y += delta_dist*sin(radians(rotation.z))
 
+        # posteriori collision detection
+        rotation.z += delta_angle
+        position.x += delta_dist*cos(radians(rotation.z))
+        position.y += delta_dist*sin(radians(rotation.z))
+
+        # check if one of 4 out-of-bound conditions applies
+        # if yes, back-track to correct position
+        if (position.x) < 0 or (position.y) < 0 or \
+           (position.x) > self.XDIM or (position.y) > self.YDIM:
+
+            print "bump @ ", position.x, ", ", position.y
+            # correct position
+            if (position.x) < 0:
+                position.x -= delta_dist*cos(radians(rotation.z))    
+            if (position.y) < 0:
+                position.y -= delta_dist*sin(radians(rotation.z))
+            if (position.x) > self.XDIM:
+                position.x -= delta_dist*cos(radians(rotation.z))
+            if (position.y) > self.YDIM:
+                position.y -= delta_dist*sin(radians(rotation.z))
+            
+        # register new position
         state.position = position
         state.rotation = rotation
         agent.state.position = position
@@ -332,14 +354,7 @@ class SandboxEnvironment(Environment):
         # check if agent has expended its step allowance
         if (self.max_steps != 0) and (state.step_count >= self.max_steps):
             state.is_out = True    # if yes, mark it to be removed
-        return reward
-    
-    def out_of_bounds(self, pos):
-        return \
-            (pos.x) < 0 or \
-            (pos.y) < 0 or \
-            (pos.x) > self.XDIM or \
-            (pos.y) > self.YDIM
+        return reward            
     
     def sense(self, agent):
         """ figure out what the agent should sense """
@@ -374,28 +389,9 @@ class SandboxEnvironment(Environment):
             # with respect to the agent.  The fifth sensor detects the minimum angular
             # distance between the agent and the nearest cubes detected by the other sensors.
             # All sensor readings are normalized to lie in [-1, 1].
-            """
-            for id in self.active_cubes:
-                # Sensors detect the cube only if it has not yet been visited by the agent.
-                if id not in state.visited_cubes:
-                    cube_position = getSimContext().getObjectPosition(id)
-            """
+            
             for cube_position in getMod().marker_map:
                 
-                """
-                # The agents cannot see the cube if it is behind a wall; check if the ray
-                # from the agent to the cube intersects the wall.
-                obscured = False
-                for wall_id in self.active_walls:
-                    self.server.context.client.getCollisionPoint(state.position, cube_position, wall_id)
-                    intersection = self.server.getCollisionPoint()
-                    if intersection != None:
-                        obscured = True
-                        break
-
-                if obscured: continue
-                """
-
                 distx = cube_position[0] - agent.state.position.x
                 disty = cube_position[1] - agent.state.position.y
                 dist = sqrt(distx**2 + disty**2)
@@ -419,25 +415,7 @@ class SandboxEnvironment(Environment):
                     if dist < sensors[3]:
                         sensors[3] = dist
                         if fabs(angle) < fabs(sensors[4]): sensors[4] = angle
-            """
-            # The sixth sensor detects the distance to the closest wall directly in front of
-            # the agent.
-            for wall_id in self.active_walls:
-                # Construct the start and end points of a ray to intersect with the wall.
-                ray_start = agent.state.position
-                ray_end = Vector3f(state.position.x + self.MAX_DISTANCE*cos(radians(state.rotation.z)),
-                                   state.position.y + self.MAX_DISTANCE*sin(radians(state.rotation.z)),
-                                   state.position.z)
-                
-                # Find intersection point of the ray and the wall.
-                self.server.context.client.getCollisionPoint(ray_start, ray_end, wall_id)
-                intersection = self.server.getCollisionPoint()
-                if intersection != None:  # if the ray actually intersects the wall
-                    dist = intersection.getDistanceFrom(state.position)
-                    if dist < sensors[5]:
-                        sensors[5] = dist
-            """
-                    
+                                
             # Any distance sensor that still has the value MAX_DISTANCE is set to -1.
             for i in range(0, 6):
                 if i != 4 and sensors[i] >= self.MAX_DISTANCE:
