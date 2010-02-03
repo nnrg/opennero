@@ -6,9 +6,10 @@ from inputConfig import *
 def toggle_ai_callback():
     global toggleAiButton
     toggle_ai()
-    toggleAiButton.text = 'AI on'
-    reset_ai()
-    getMod().start_rtneat()
+    if toggleAiButton.text == 'Deploy':
+     getMod().start_rtneat()
+     reset_ai()
+     toggleAiButton.text = 'Toggle AI'
 
 def save_ai_call():
     getMod().save_rtneat()
