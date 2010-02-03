@@ -11,7 +11,19 @@ In this exercise, you will go through the steps required to create a Mod consist
 
 ==Creating a Mod==
 
-TBA
+ * Create a new sub-folder in the mods directory you are using.
+ * Create two (empty) files: *main.py* and *__init__.py*
+ * In *main.py*, define the ModMain function: {{{
+def ModMain():
+    print 'Hello, Mod!'
+}}}
+ * This is the function that will get called when you load your mod.
+ * If using source, update the build
+ * Run the application
+
+You should see a button appear for your mod in the Hub menu. When you press this button, you should see an empty screen and the output log (usually nero_log.txt) should contain 'Hello, Mod!'. Congratulations, you've added a mod!
+
+Now let's make it more useful.
 
 ==Adding objects==
 
