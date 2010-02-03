@@ -12,8 +12,8 @@ In this exercise, you will go through the steps required to create a Mod consist
 ==Creating a Mod==
 
  * Create a new sub-folder in the mods directory you are using.
- * Create two (empty) files: *main.py* and *__init__.py*
- * In *main.py*, define the ModMain function:
+ * Create two (empty) files: *`main.py`* and *`__init__.py`*
+ * In *main.py*, define the `ModMain` function:
 {{{
 def ModMain():
     print 'Hello, Mod!'
