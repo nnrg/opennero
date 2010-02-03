@@ -32,5 +32,5 @@ class ext_agent:
    def getAgent(self):
        agent = self.rtneat.next_organism()
        self.id += 1
-       print type(agent)
+       print type(agent.net)
        return agent

@@ -177,9 +177,9 @@ class MazeMod:
         pop_on_field_size = 10
         global ext
         ext = ext_agent("data/ai/neat-params.dat", 8, 3, pop_size)
-        rtneat = RTNEAT("data/ai/neat-params.dat", 8, 3, pop_size, 1.0)
-        set_ai("neat",rtneat)
-        enable_ai()
+        #rtneat = RTNEAT("data/ai/neat-params.dat", 8, 3, pop_size, 1.0)
+        #set_ai("neat",rtneat)
+        #enable_ai()
         for i in range(0, pop_on_field_size):
             self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(GRID_DX, GRID_DY, 2) )
         print "INITILIZATION COMPLETE"

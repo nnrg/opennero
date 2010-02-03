@@ -246,7 +246,7 @@ namespace OpenNero
 
     using namespace boost::python;
 
-    /// Export RTNEAT related classes and functions to Python
+ /*//   /// Export RTNEAT related classes and functions to Python
     PYTHON_BINDER(RTNEAT)
     {
         // export Network
@@ -272,5 +272,5 @@ namespace OpenNero
             .def(init<const std::string&, S32, S32, S32, F32>())
             .def("next_organism", &RTNEAT::next_organism, "evolve a new organism and return it")
             .def("save_population", &RTNEAT::save_population, "save the population to a file");
-    }
+    }*/
 }
