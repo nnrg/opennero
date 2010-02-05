@@ -33,4 +33,10 @@ The control panel allows you to select the number of agents to run, as well as t
 ==Some functionality provided by the scripting language==
 Changing Blue cube distribution:
  * [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/world_config.txt world_config.txt] *can* hold all information needed to distribute the Blue cubes. You can think of this file as a very rudimentary "map" or "scenario," as the term is used in strategy games. 
-    *
+    * The first few lines under Dimensions list the sizes of the room. However, these are only filler at the moment.
+    * Each line under "Pellets" hold information about one Blue cube. A typical line may look like this: 
+{{{1	cluster	86.8597775308	20.5101799601	7.31971084367	7.31971084367}}}
+    * The first number ("1") is the amount of reward the robot gets for picking up this particular Blue cube
+    * "cluster" specify the kind of distribution that this Blue cube belong to. In the case of "cluster", this cube will be placed randomly but close to a certain point. If we have bunch of cubes with identical information, they will "cluster" together, thus the name. The other options for this field are "manual" and "random" (uniform randomization).
+    * The numbers that follow are other pieces of information used to generate the position of this Blue cube. Here, from left to right, we have the x and y coordinate of the cluster center, and about 1/3 of the x and y spread, respectively.
+    
