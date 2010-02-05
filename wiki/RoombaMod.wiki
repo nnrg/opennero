@@ -29,3 +29,8 @@ The Roomba environment is a virtual computer lab with crumbs distributed on the 
 ==User Interface==
 
 The control panel allows you to select the number of agents to run, as well as the policy used to control them. You can select a scripted agent that greedily selects the closest crumb and moves to collect it, or an evolving agent that improves with time. 
+
+==Some functionality provided by the scripting language==
+Changing Blue cube distribution:
+ * [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/world_config.txt world_config.txt] *can* hold all information needed to distribute the Blue cubes. You can think of this file as a very rudimentary "map" or "scenario," as the term is used in strategy games. 
+    *
