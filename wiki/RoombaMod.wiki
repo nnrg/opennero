@@ -21,8 +21,10 @@ The Roomba environment is a virtual computer lab with crumbs distributed on the 
 
 ==What the display means==
 
- * Blue cubes - crumbs on the floor
- * Grey cylinders - vacuum cleaner agents
+ * Blue cubes: bread crumbs (or pieces of trash) on the floor, which the vacuum cleaners must pick up
+ * Grey cylinders: vacuum cleaner agents
+ * Walls: the limits of the environment
+ * Tables, Chairs, Computers: at the moment these are only decorations
 
 ==User Interface==
 
