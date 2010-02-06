@@ -16,7 +16,7 @@ In this exercise, you will go through the steps required to create a Mod consist
  * In *main.py*, define the `ModMain` function:
 {{{
 def ModMain():
-    print 'Hello, Mod!'
+    print "Hello, Mod!"
 }}}
  * This is the function that will get called when you load your mod.
  * If using source, update the build
@@ -68,7 +68,7 @@ from OpenNero import * # import the OpenNERO C++ API, such as Vector3f
 from common import * # import commonly used OpenNERO Python API, such as addObject
 
 def ModMain():
-    print 'Hello, Mod!'
+    print "Hello, Mod!"
     addObject("cube/Cube.xml", Vector3f(0,0,0)) # add a default-looking cube at the center of the world
 }}}
 
@@ -79,6 +79,21 @@ If by the end of this you have something that looks like this:
 Then you were successful, and you are looking at (one side of) a cube.
 
 ==Adding a camera==
+
+You are looking at the cube at a flat angle. If you wanted to see it's 3-dimensionality, you could try adding the following code:
+
+{{{
+    camRotateSpeed = 10
+    camMoveSpeed   = 500
+    camZoomSpeed   = 50
+    cam = getSimContext().addCamera(camRotateSpeed, camMoveSpeed, camZoomSpeed)
+    cam.setFarPlane(5000)
+    cam.setEdgeScroll(False)
+    cam.setPosition(Vector3f(5, 5, 5))
+    cam.setTarget(Vector3f(0, 0, 1))
+}}}
+
+Adding a camera in this way will change your vantage point, where you are looking, and allow you to use the *A*, *S*, *W* and *D* keys to move around, *Q* and *E* keys to rotate, and *Z* and *C* keys (or mouse wheel) to zoom in or out.
 
 ==Adding an environment==
 
