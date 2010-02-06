@@ -61,6 +61,19 @@ Now we need to get the [http://en.wikipedia.org/wiki/Obj obj file] that our XML 
 
 Or, you can copy [http://code.google.com/p/opennero/source/browse/trunk/mods/common/data/shapes/cube/cube.obj mods/common/data/shapes/cube/cube.obj] to `TESTMOD/cube/`
 
+Now that you have the template `cube/Cube.xml`, you should change your `main.py` to actually add a cube into the world. The new file should look something like this:
+
+{{{
+from OpenNero import * # import the OpenNERO C++ API, such as Vector3f
+from common import * # import commonly used OpenNERO Python API, such as addObject
+
+def ModMain():
+    print 'Hello, Mod!'
+    addObject("cube/Cube.xml", Vector3f(0,0,0)) # add a default-looking cube at the center of the world
+}}}
+
+==Adding a camera==
+
 ==Adding an environment==
 
 TBA
