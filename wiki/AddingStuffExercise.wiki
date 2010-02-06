@@ -11,8 +11,8 @@ In this exercise, you will go through the steps required to create a Mod consist
 
 ==Creating a Mod==
 
- * Create a new sub-folder in the mods directory you are using.
- * Create two (empty) files: *`main.py`* and *`__init__.py`*
+ * Create a new sub-folder in the mods directory you are using. For the rest of this discussion we will assume this folder is called TESTMOD, but it can be anything you want.
+ * Create two (empty) files in TESTMOD: *`main.py`* and *`__init__.py`*
  * In *main.py*, define the `ModMain` function:
 {{{
 def ModMain():
@@ -22,13 +22,44 @@ def ModMain():
  * If using source, update the build
  * Run the application
 
-You should see a button appear for your mod in the Hub menu. When you press this button, you should see an empty screen and the output log (usually nero_log.txt) should contain 'Hello, Mod!'. Congratulations, you've added a mod!
+You should see a button appear for TESTMOD in the Hub menu. When you press this button, you should see an empty screen and the output log (usually nero_log.txt) should contain 'Hello, Mod!'. Congratulations, you've added a mod!
 
 Now let's make it more useful.
 
 ==Adding objects==
 
-TBA
+Each new type of object in OpenNERO is defined in an XML file called a Template. Here is an example (which is just a cube):
+{{{
+<Template>
+  <Audio>
+  </Audio>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <AniMesh>cube/cube.obj</AniMesh>
+    <Scale>1 1 1</Scale>
+    <Rotation>0 0 0</Rotation>
+  </Render>
+</Template>
+}}}
+
+Create a file like this in `TESTMOD/cube/Cube.xml`
+
+Here are some things about this file:
+ * Top level sections, like Audio, Render and AI (which we will add later) describe different aspects of the entity.
+ * Render part describes how the object looks. In particular, it tells OpenNERO that:
+   * the object is made of solid material
+   * it is not a light source
+   * it is based on the (possibly animated) mesh in cube/cube.obj
+   * it defaults to the X-Y-Z scale of 1x1x1 (relative to mesh dimensions)
+   * it is initially not rotated from the mesh (using around-X, around-Y, around-Z [http://en.wikipedia.org/wiki/Euler_angles Euler Angle] in degrees)
+
+Now we need to get the [http://en.wikipedia.org/wiki/Obj obj file] that our XML file refers to. There are several ways to get such a file - make a new model in a 3D modeling tool and export it, refer to one of the common models in OpenNERO, or copy the common model into the local directory (if you need to modify it for your mod). OpenNERO already comes with a cube obj file, so we can just refer to it with:
+{{{
+<AniMesh>data/shapes/cube/cube.obj</AniMesh>
+}}}
+
+Or, you can copy [http://code.google.com/p/opennero/source/browse/trunk/mods/common/data/shapes/cube/cube.obj mods/common/data/shapes/cube/cube.obj] to `TESTMOD/cube/`
 
 ==Adding an environment==
 
@@ -37,3 +68,9 @@ TBA
 ==Adding an agent==
 
 TBA
+
+==Adding user interaction==
+
+===Adding keyboard commands===
+
+===Adding graphical user interface===
