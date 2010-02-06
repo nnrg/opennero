@@ -72,6 +72,12 @@ def ModMain():
     addObject("cube/Cube.xml", Vector3f(0,0,0)) # add a default-looking cube at the center of the world
 }}}
 
+If by the end of this you have something that looks like this:
+
+<a href="http://opennero.googlecode.com/svn/wiki/AddingStuffExercise-Cube.png"><img src="http://opennero.googlecode.com/svn/wiki/AddingStuffExercise-Cube.png" height="300" width="400"></img></a>
+
+Then you were successful, and you are looking at (one side of) a cube.
+
 ==Adding a camera==
 
 ==Adding an environment==
