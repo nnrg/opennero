@@ -140,10 +140,12 @@ namespace OpenNero
         PyOrganism(OrganismPtr org) : mOrganism(org) {}
         /// set the fitness of the organism
         void SetFitness(double fitness) { mOrganism->fitness = fitness; }
-        /// get the fitness of the organim
+        /// get the fitness of the organism
         double GetFitness() const { return mOrganism->fitness; }
+		/// get the genome ID of this organism
+        int GetId() const { return mOrganism->gnome->genome_id; }
         /// set the amount of time the organism has to live
-    		void SetTimeAlive(int time_alive) { mOrganism->time_alive = time_alive; }
+    	void SetTimeAlive(int time_alive) { mOrganism->time_alive = time_alive; }
         /// get the amount of time that the organism has to live
         int GetTimeAlive() const { return mOrganism->time_alive; }
         /// get network of the organism
@@ -260,6 +262,7 @@ namespace OpenNero
         // export Organism
         class_<PyOrganism, PyOrganismPtr>("Organism", "a phenotype and a genotype for a neural network", no_init)
             .add_property("net", &PyOrganism::GetNetwork, "neural network (phenotype)")
+            .add_property("id", &PyOrganism::GetId, "evolution-wide unique id of the organism")
             .add_property("fitness", &PyOrganism::GetFitness, &PyOrganism::SetFitness, "organism fitness (non-negative real)")
 			.add_property("time_alive", &PyOrganism::GetTimeAlive, &PyOrganism::SetTimeAlive, "organism time alive (integer, non negative)")
             .def(self_ns::str(self_ns::self));
