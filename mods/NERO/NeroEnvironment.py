@@ -16,12 +16,9 @@ class AgentState:
     def __init__(self):
         self.id = -1
         self.position = (0, 0)
-        self.prev_position = (0, 0)
+        self.prev_position = (0, 0, 0)
         self.initial_position = Vector3f(0, 0, 0)
         self.initial_rotation = Vector3f(0, 0, 0)
-        self.goal_reached = False
-        self.current_step = 0
-        self.current_episode = 0
         self.time = time.time()
         self.start_time = self.time
         self.total_damage = 0
@@ -29,6 +26,17 @@ class AgentState:
         self.curr_fitness = 0
         self.prev_fitness = 0
         self.team = 0
+
+    def update(self, agent, maze):
+        """
+        Update the state of the agent
+        """
+        pos = copy(agent.state.position)
+        self.prev_rc = self.rc
+        self.rc = maze.xy2rc(pos.x, pos.y)
+        self.prev_pose = self.pose
+        self.pose = (pos.x, pos.y, agent.state.rotation.z + self.initial_rotation.z)
+        self.time = time.time()
 
 class NeroEnvironment(Environment):
     """
@@ -44,8 +52,6 @@ class NeroEnvironment(Environment):
         Environment.__init__(self) 
         
         self.curr_id = 0
-        self.current_step = 0
-        self.current_episode = 0
         self.step_size = 0.1 # time between steps in seconds
         self.max_steps = 20
         self.time = time.time()
@@ -104,12 +110,7 @@ class NeroEnvironment(Environment):
         """
         state = self.get_state(agent)
         agent.state.position = state.initial_position
-#Vector3f(self.XDIM/2,self.YDIM/2,0)
-        agent.state.rotation = state.initial_rotation#Vector3f(0,0,0)
-        agent.state.velocity = Vector3f(0,0,0)
-        agent.state.acceleration = Vector3f(0,0,0)
-        state.current_step = 0
-        state.current_episode += 1
+        agent.state.rotation = state.initial_rotation
         state.position = (state.initial_position.x, state.initial_position.y)
         state.prev_position = state.position
         state.time = time.time()
@@ -119,7 +120,6 @@ class NeroEnvironment(Environment):
         state.prev_fitness = state.curr_fitness
         state.curr_fitness = 0
         state.team = agent.getTeam()
-        state.goal_reached = False
         
         #update client fitness
         from client import set_stat
@@ -130,13 +130,13 @@ class NeroEnvironment(Environment):
         avg /= len(ff[0])
 
         set_stat(avg,state.team)
-
-        print "Episode %d complete" % state.current_episode 
+        
+        print "Episode %d complete" % agent.episode 
         return True
     
     def get_agent_info(self, agent):
         """
-        return a blueprint for a new agent        
+        return a blueprint for a new agent
         """
         return self.agent_info
    
@@ -183,13 +183,11 @@ class NeroEnvironment(Environment):
         print action
 
         state = self.get_state(agent)
-        if state.current_step == 0:
+        if agent.step == 0:
             state.initial_position = agent.state.position
             state.initial_rotation = agent.state.rotation
         
 
-        state.current_step += 1
-        
         # Update Damage totals
         state.total_damage += state.curr_damage
         damage = state.curr_damage
@@ -391,7 +389,7 @@ class NeroEnvironment(Environment):
         from NERO.module import getMod
         self.max_steps = getMod().lt
         state = self.get_state(agent)
-        if self.max_steps != 0 and state.current_step >= self.max_steps:
+        if self.max_steps != 0 and agent.step >= self.max_steps:
             return True
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
             return True
