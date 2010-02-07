@@ -26,17 +26,16 @@ class AgentState:
         self.curr_fitness = 0
         self.prev_fitness = 0
         self.team = 0
+        self.sg = 0
+        self.st = 0
+        self.ae = 0
+        self.ag = 0
+        self.ht = 0
+        self.vg = 0
 
-    def update(self, agent, maze):
-        """
-        Update the state of the agent
-        """
-        pos = copy(agent.state.position)
-        self.prev_rc = self.rc
-        self.rc = maze.xy2rc(pos.x, pos.y)
-        self.prev_pose = self.pose
-        self.pose = (pos.x, pos.y, agent.state.rotation.z + self.initial_rotation.z)
-        self.time = time.time()
+
+
+
 
 class NeroEnvironment(Environment):
     """
@@ -61,6 +60,7 @@ class NeroEnvironment(Environment):
         self.states = {}
         self.teams = {}
         self.flag_loc = getMod().flag_loc
+        self.pop_state = {}
 
 
         abound = FeatureVectorInfo() # actions
@@ -186,7 +186,7 @@ class NeroEnvironment(Environment):
         if agent.step == 0:
             state.initial_position = agent.state.position
             state.initial_rotation = agent.state.rotation
-        
+            self.pop_state[agent.org.id] = state 
 
         # Update Damage totals
         state.total_damage += state.curr_damage
@@ -260,7 +260,25 @@ class NeroEnvironment(Environment):
         ff.append(self.nearest(state.position,state.id,ffr[0]))
         ff.append(self.nearest(state.position,state.id,ffr[1]))
         
-        #Update Fitness Function
+        #calculate f
+        #sg = -action[0]
+        #st = self.distance(ff[0].position,state.position)
+        #ae = self.distance(ff[1].position,state.position)
+        #af = (distance_af/self.flag_distance(agent))
+        #ht = h
+        #vf = -damage
+        
+        
+        #update current self data with f's
+        #self.sg += sg
+        #self.st += st
+        #self.ae += ae
+        #self.af += af
+        #self.ht += ht
+        #self.vg += vf
+
+        
+        #Update Fitness Function with 
         stand_ground   *= -action[0]
         if not safe:
             stand_ground = 0
@@ -280,14 +298,19 @@ class NeroEnvironment(Environment):
           approach_enemy *= min(distance_ae/atemp,1)
          else:
           approach_enemy = 0
-        approach_flag  *= min((distance_af/self.flag_distance(agent)),1)
+        approach_flag  *= (distance_af/self.flag_distance(agent))
         hit_target     *= hit
         avoid_fire     *= -damage
-
+        
      
-        print "sg: " + str(stand_ground) + " st: " + str(stick_together) + " ae: " + str(approach_enemy) + " af: " + str(approach_flag) + " ht: " + str(hit_target) +  " vf: " + str(avoid_fire)
-        state.curr_fitness += stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
-        return stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
+        #print "sg: " + str(stand_ground) + " st: " + str(stick_together) + "
+        #ae: " + str(approach_enemy) + " af: " + str(approach_flag) + " ht: " +
+        #str(hit_target) +  " vf: " + str(avoid_fire)
+        #state.curr_fitness += stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
+
+        state.curr_fitness = 0
+        return 0
+        #return stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
     
   
     def raySense (self, agent, heading_mod, dist, types = 0, boo = False):
