@@ -97,7 +97,83 @@ Adding a camera in this way will change your vantage point, where you are lookin
 
 ==Adding an environment==
 
-TBA
+An environment in OpenNERO is where you can define the rules of the world, such as what happens when an agent reaches the end of the maze, or when two agents bump into each other, or if one of them vacuums up a crumb.
+
+Here is a basic environment class (that does not do a whole lot yet):
+
+{{{
+class TestEnvironment(Environment):
+    def __init__(self):
+        """
+        Create the environment
+        """
+        Environment.__init__(self)
+
+        # define the action space
+        action_info = FeatureVectorInfo()
+        action_info.add_discrete(0, 3) # 0, 1, 2 or 3
+
+        # define the observation space
+        observation_info = FeatureVectorInfo()
+        observation_info.add_continuous(0, 1) # between 0 and 100
+
+        # define the reward space
+        reward_info = FeatureVectorInfo()        
+        reward_info.add_continuous(0,100) # between 0 and 100
+
+        self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
+        print 'Initialized TestEnvironment'
+        print self.agent_info
+        
+    def reset(self, agent):
+        """
+        Reset the environment to its initial state
+        """
+        return True
+
+    def get_agent_info(self, agent):
+        return self.agent_info
+
+    def step(self, agent, action):
+        """
+        Adjust the world and the agent based on its action
+        @return the agent's reward
+        """
+        return 0
+
+    def sense(self, agent):
+        """
+        Figure out what the agent's input (observation) is
+        @return the agent's observation
+        """
+        default_observation = self.agent_info.sensors.get_instance()
+        return default_observation
+
+    def is_active(self, agent):
+        
+        return True
+
+    def is_episode_over(self, agent):
+        """
+        Figure out if the agent should 'die' and 'respawn'
+        """
+        return False
+
+    def cleanup(self):
+        """
+        Perform any last-minute cleanup tasks
+        """
+        pass
+}}}
+
+You can put it in your main.py (or another Python file if you would like).
+
+To set it as the current environment, use this code:
+
+{{{
+    env = TestEnvironment()
+    set_environment(env)
+}}}
 
 ==Adding an agent==
 
