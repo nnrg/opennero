@@ -99,7 +99,7 @@ Adding a camera in this way will change your vantage point, where you are lookin
 
 Let us now make our Mod more interesting by adding a textured terrain and walls surrounding the terrain.  We can do this in the same way that we added the cube, i.e. by creating the files defining the terrain and walls and then invoking the {{{addObject()}}} function in `main.py`.  OpenNERO already comes with the files for a flat terrain and a wall, so we will use them in this exercise for simplicity.
 
-Copy the terrain files [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/data/terrain/FlatTerrain.xml mods/Roomba/data/terrain/FlatTerrain.xml], [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/data/terrain/ flat-texture.jpg mods/Roomba/data/terrain/flat-texture.jpg], and [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/data/terrain/terrain-heightmap-flat.bmp mods/Roomba/data/terrain/terrain-heightmap-flat.bmp] to `TESTMOD/data/terrain/`
+Copy the terrain files [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/data/terrain/FlatTerrain.xml mods/Roomba/data/terrain/FlatTerrain.xml], [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/data/terrain/flat-texture.jpg mods/Roomba/data/terrain/flat-texture.jpg], and [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/data/terrain/terrain-heightmap-flat.bmp mods/Roomba/data/terrain/terrain-heightmap-flat.bmp] to `TESTMOD/data/terrain/`
 
 The XML template file for the flat terrain looks like this:
 {{{
