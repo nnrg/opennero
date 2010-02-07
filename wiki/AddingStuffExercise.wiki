@@ -120,17 +120,43 @@ The XML template file for the flat terrain looks like this:
 
 Notice that the `Render` section in this template is different from the template for the cube in a couple of ways:
   * It uses a [http://en.wikipedia.org/wiki/Heightmap height map] file instead of a mesh object file to specify the geometry of the terrain.  Height maps are more convenient for specifying terrains.
-  * It specifies an image to be used as texture for the surface of the terrain (see [http://en.wikipedia.org/wiki/Texture_mapping texture mapping] for details).
+  * It specifies an image file containing a chessboard pattern to be used as texture for the surface of the terrain (see [http://en.wikipedia.org/wiki/Texture_mapping texture mapping] for details).
 
-Add the terrain to the Mod by adding the following line of code to `main.py`:
+Add the terrain to the Mod at X-Y-Z coordinates `(-50,-50,0)` with the following line of code to `main.py`:
 {{{
     addObject("data/terrain/FlatTerrain.xml", Vector3f(-50,-50,0)) # add a flat terrain at coordinates (-50,-50,0)
 }}}
 
-Now the Mod should look like the following, with the cube at the center of the terrain:
+Now the Mod should look like the following, with the cube at the center of the terrain (the bottom half of the cube is below the terrain):
 
 <a href="http://opennero.googlecode.com/svn/wiki/AddingStuffExercise-Terrain.png"><img src="http://opennero.googlecode.com/svn/wiki/AddingStuffExercise-Terrain.png" height="300" width="400"></img></a>
 
+Zoom out to see the edges of the terrain.  The next task is to add bounding walls to the four edges of the terrain.  Create `TESTMOD/data/wall/BrickWall.xml` with the following XML template for the wall in it:
+{{{
+<Template>
+  <Audio>    
+  </Audio>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>true</MaterialFlagLighting>
+    <AniMesh>data/wall/BrickWall.obj</AniMesh>
+    <CastsShadow>true</CastsShadow>
+    <Scale>2 3 3</Scale>
+  </Render>  
+</Template>
+}}}
+
+Copy the wall object file [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/data/shapes/wall/BrickWall.obj mods/Maze/data/shapes/wall/BrickWall.obj] to `TESTMOD/data/wall/`.  The object file references a [http://en.wikipedia.org/wiki/Material_Template_Library material file] describing the light reflecting properties of the model.  So copy that file [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/data/shapes/wall/BrickWall.mtl mods/Maze/data/shapes/wall/BrickWall.mtl] to `TESTMOD/data/wall/` as well.
+
+The same template file can be used multiple times with {{{addObject()}}}, each time using a different geometric transformation to create different walls.  In addition to the {{{Vector3f()}}} argument specifying the X-Y-Z translation of the object, {{{addObject()}}} can take two more {{{Vector3f()}}} arguments specifying the X-Y-Z rotation and X-Y-Z scale of the object respectively.  For example, the code
+{{{
+    addObject("data/wall/BrickWall.xml", Vector3f(-50,0,0), Vector3f(0,0,90), Vector3f(2,1,1))
+}}}
+rotates the wall 90 degrees about the Z-axis, scales it 2 times the original size along the X-axis, and moves it to one edge of the terrain.
+
+Add four walls in this manner, enclosing the terrain on all four sides:
+
+<a href="http://opennero.googlecode.com/svn/wiki/AddingStuffExercise-Walls.png"><img src="http://opennero.googlecode.com/svn/wiki/AddingStuffExercise-Walls.png" height="300" width="400"></img></a>
 
 ==Adding an environment==
 
