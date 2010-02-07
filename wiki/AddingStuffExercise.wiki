@@ -36,14 +36,14 @@ Each new type of object in OpenNERO is defined in an XML file called a Template.
   <Render>
     <MaterialType>solid</MaterialType>
     <MaterialFlagLighting>false</MaterialFlagLighting>
-    <AniMesh>cube/cube.obj</AniMesh>
+    <AniMesh>data/cube/cube.obj</AniMesh>
     <Scale>1 1 1</Scale>
     <Rotation>0 0 0</Rotation>
   </Render>
 </Template>
 }}}
 
-Create a file like this in `TESTMOD/cube/Cube.xml`
+Create this file in `TESTMOD/data/cube/Cube.xml`
 
 Here are some things about this file:
  * Top level sections, like Audio, Render and AI (which we will add later) describe different aspects of the entity.
@@ -59,9 +59,9 @@ Now we need to get the [http://en.wikipedia.org/wiki/Obj obj file] that our XML 
 <AniMesh>data/shapes/cube/cube.obj</AniMesh>
 }}}
 
-Or, you can copy [http://code.google.com/p/opennero/source/browse/trunk/mods/common/data/shapes/cube/cube.obj mods/common/data/shapes/cube/cube.obj] to `TESTMOD/cube/`
+Or, you can copy [http://code.google.com/p/opennero/source/browse/trunk/mods/common/data/shapes/cube/cube.obj mods/common/data/shapes/cube/cube.obj] to `TESTMOD/data/cube/`
 
-Now that you have the template `cube/Cube.xml`, you should change your `main.py` to actually add a cube into the world. The new file should look something like this:
+Now that you have the template `data/cube/Cube.xml`, you should change your `main.py` to actually add a cube into the world. The new file should look something like this:
 
 {{{
 from OpenNero import * # import the OpenNERO C++ API, such as Vector3f
@@ -69,7 +69,7 @@ from common import * # import commonly used OpenNERO Python API, such as addObje
 
 def ModMain():
     print "Hello, Mod!"
-    addObject("cube/Cube.xml", Vector3f(0,0,0)) # add a default-looking cube at the center of the world
+    addObject("data/cube/Cube.xml", Vector3f(0,0,0)) # add a default-looking cube at the center of the world
 }}}
 
 If by the end of this you have something that looks like this:
@@ -94,6 +94,43 @@ You are looking at the cube at a flat angle. If you wanted to see it's 3-dimensi
 }}}
 
 Adding a camera in this way will change your vantage point, where you are looking, and allow you to use the *A*, *S*, *W* and *D* keys to move around, *Q* and *E* keys to rotate, and *Z* and *C* keys (or mouse wheel) to zoom in or out.
+
+==Adding a terrain and walls==
+
+Let us now make our Mod more interesting by adding a textured terrain and walls surrounding the terrain.  We can do this in the same way that we added the cube, i.e. by creating the files defining the terrain and walls and then invoking the {{{addObject()}}} function in `main.py`.  OpenNERO already comes with the files for a flat terrain and a wall, so we will use them in this exercise for simplicity.
+
+Copy the terrain files [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/data/terrain/FlatTerrain.xml mods/Roomba/data/terrain/FlatTerrain.xml], [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/data/terrain/ flat-texture.jpg mods/Roomba/data/terrain/flat-texture.jpg], and [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/data/terrain/terrain-heightmap-flat.bmp mods/Roomba/data/terrain/terrain-heightmap-flat.bmp] to `TESTMOD/data/terrain/`
+
+The XML template file for the flat terrain looks like this:
+{{{
+<Template>
+  <ObjectTemplate>
+    <Name>Terrain</Name>
+  </ObjectTemplate>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <Terrain>data/terrain/terrain-heightmap-flat.bmp</Terrain>
+    <Texture0>data/terrain/flat-texture.jpg</Texture0>    
+    <ScaleTexture>1.0 1.0</ScaleTexture>
+    <Scale>0.390625 0.390625 1</Scale>
+  </Render>
+</Template>
+}}}
+
+Notice that the `Render` section in this template is different from the template for the cube in a couple of ways:
+  * It uses a [http://en.wikipedia.org/wiki/Heightmap height map] file instead of a mesh object file to specify the geometry of the terrain.  Height maps are more convenient for specifying terrains.
+  * It specifies an image to be used as texture for the surface of the terrain (see [http://en.wikipedia.org/wiki/Texture_mapping texture mapping] for details).
+
+Add the terrain to the Mod by adding the following line of code to `main.py`:
+{{{
+    addObject("data/terrain/FlatTerrain.xml", Vector3f(-50,-50,0)) # add a flat terrain at coordinates (-50,-50,0)
+}}}
+
+Now the Mod should look like the following, with the cube at the center of the terrain:
+
+<a href="http://opennero.googlecode.com/svn/wiki/AddingStuffExercise-Terrain.png"><img src="http://opennero.googlecode.com/svn/wiki/AddingStuffExercise-Terrain.png" height="300" width="400"></img></a>
+
 
 ==Adding an environment==
 
