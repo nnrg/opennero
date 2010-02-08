@@ -94,6 +94,9 @@ namespace OpenNero {
         /// normalize the feature vector to the range 0-1
         FeatureVector normalize(const FeatureVector& array) const;
 
+        /// given a feature vector in the range 0-1, make a feature vector with these constraints
+		FeatureVector denormalize(const FeatureVector& array) const;
+
         /// create a vector of the appropriate size
         FeatureVector getInstance() const;
 

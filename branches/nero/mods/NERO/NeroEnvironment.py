@@ -211,8 +211,8 @@ class NeroEnvironment(Environment):
         # get the current pose of the agent
         (x,y,heading) = state.pose
         # get the actions of the agent
-        move_by = action[0]
-        turn_by = degrees(action[1])
+        turn_by = degrees(action[0])
+        move_by = action[1]
         fire_by = action[2]
         print 'action - move by: %f, turn by: %f, fire by %f' % (move_by, turn_by, fire_by)
         # figure out the new heading
@@ -369,7 +369,12 @@ class NeroEnvironment(Environment):
     def angle(self,agloc,tgloc):
         if(agloc[1] == tgloc[1]):
             return 0
-        return tan((agloc[0]-tgloc[0])/ (agloc[1]-tgloc[1]))
+        (x,y,heading) = agloc
+        (xt, yt, ignore) = tgloc
+        # angle to target
+        theading = atan2(yt - y, xt -x)
+        rel_angle_to_target = theading - radians(heading)
+        return rel_angle_to_target
 
     def nearest(self,cloc,id,array):
         # TODO: this needs to only be computed once per tick, not per agent
