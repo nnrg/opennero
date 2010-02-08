@@ -250,12 +250,6 @@ class NeroEnvironment(Environment):
                 else:
                     target.curr_damage += 1
                     hit = 1
-        # make the calculated motion
-        agent.state.position = new_position
-        new_rotation = copy(rotation)
-        new_rotation.z = new_heading
-        agent.state.rotation = new_rotation
-        state.update(agent) # update our state
         # calculate friend/foe
         ffr = self.getFriendFoe(agent)
         if ffr[0] == []:
@@ -305,6 +299,14 @@ class NeroEnvironment(Environment):
         avoid_fire     *= -damage        
         
         state.curr_fitness += stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
+
+        # make the calculated motion
+        agent.state.position = position
+        rotation.z = new_heading
+        agent.state.rotation = rotation
+        state.prev_pose = state.pose
+        state.pose = (new_position.x, new_position.y, rotation.z)
+        state.time = time.time()
         
         return stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
     
