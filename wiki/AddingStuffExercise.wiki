@@ -74,7 +74,7 @@ def ModMain():
 
 If by the end of this you have something that looks like this:
 
-<a href="http://opennero.googlecode.com/svn/wiki/AddingStuffExercise/Cube.png"><img src="http://opennero.googlecode.com/svn/wiki/AddingStuffExercise/Cube.png" height="300" width="400"></img></a>
+<a href="http://opennero.googlecode.com/svn/wiki/AddingStuffExerciseFiles/Cube.png"><img src="http://opennero.googlecode.com/svn/wiki/AddingStuffExerciseFiles/Cube.png" height="300" width="400"></img></a>
 
 Then you were successful, and you are looking at (one side of) a cube.
 
@@ -129,7 +129,7 @@ Add the terrain to your Mod with the following line of code to `main.py`:
 
 Now you should get the following, with the cube at the center of the terrain (the bottom half of the cube is below the terrain):
 
-<a href="http://opennero.googlecode.com/svn/wiki/AddingStuffExercise/Terrain.png"><img src="http://opennero.googlecode.com/svn/wiki/AddingStuffExercise/Terrain.png" height="300" width="400"></img></a>
+<a href="http://opennero.googlecode.com/svn/wiki/AddingStuffExerciseFiles/Terrain.png"><img src="http://opennero.googlecode.com/svn/wiki/AddingStuffExerciseFiles/Terrain.png" height="300" width="400"></img></a>
 
 Zoom out to see the edges of the terrain.  The next task is to add bounding walls to the four edges of the terrain.  Create `TESTMOD/data/wall/BrickWall.xml` with the following XML template for the wall:
 {{{
@@ -156,7 +156,7 @@ rotates the wall 90 degrees about the Z-axis, scales it 2 times the original siz
 
 In this manner, add four walls enclosing the terrain on all four sides:
 
-<a href="http://opennero.googlecode.com/svn/wiki/AddingStuffExercise/Walls.png"><img src="http://opennero.googlecode.com/svn/wiki/AddingStuffExercise/Walls.png" height="300" width="400"></img></a>
+<a href="http://opennero.googlecode.com/svn/wiki/AddingStuffExerciseFiles/Walls.png"><img src="http://opennero.googlecode.com/svn/wiki/AddingStuffExerciseFiles/Walls.png" height="300" width="400"></img></a>
 
 ==Adding an environment==
 
