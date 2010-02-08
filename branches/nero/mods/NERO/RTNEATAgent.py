@@ -92,16 +92,14 @@ class RTNEATAgent(AgentBrain):
         Collect and interpret the outputs as valid maze actions
         """
         assert(len(sensors)==15) # make sure we have the right number of sensors
+        sensors = self.sensors.normalize(sensors)
         inputs = [sensor for sensor in sensors] # create the sensor array
         self.net.load_sensors(inputs)
         self.net.activate()
         outputs = self.net.get_outputs()
-
+        print 'in:', inputs, 'out:', outputs
         actions = self.actions.get_instance() # make a vector for the actions
-
-        maxOutput = 0 # select the action based on the biggest output of the network
-
         for i in range(0,len(self.actions.get_instance())):
             actions[i] = outputs[i]
-
+        actions = self.actions.denormalize(actions)
         return actions
