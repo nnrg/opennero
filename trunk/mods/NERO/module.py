@@ -52,8 +52,6 @@ class NeroModule:
             return
         
         self.environment = NeroEnvironment(XDIM, YDIM)
-        #enviro = NeroEnvironment(XDIM,YDIM)
-        #set_environment(enviro)
 
         set_environment(self.environment)
         
@@ -67,10 +65,7 @@ class NeroModule:
         addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM, HEIGHT +OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall3", type = OBSTACLE )
         addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1, YDIM,HEIGHT), label="World Wall4", type = OBSTACLE)
 
-        # add terrain
-#        addObject("data/terrain/GrassyTerrain.xml", Vector3f(0, 0, 0), scale=Vector3f(XDIM, YDIM, 1), label="Terrain", type = OBSTACLE)
-
-        # Add Wayne's World.
+        # Add the surrounding Environment
         addObject("data/terrain/WaynesWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="WaynesWorld", type = OBSTACLE)
 
         # add trees
@@ -115,16 +110,15 @@ class NeroModule:
         addObject("data/shapes/tree/Tree.xml", Vector3f(86, 393, 0), label="Tree38", type = OBSTACLE)
         addObject("data/shapes/tree/Tree.xml", Vector3f(778, 389, 0), label="Tree39", type = OBSTACLE)
 
+
+    #The following is run when the Deploy button is pressed
     def start_rtneat(self):
         """ start the rtneat learning stuff"""
         global rtneat, rtneat2
         disable_ai()
         from NeroEnvironment import NeroEnvironment
 
-        #ADD TURRET
-        #addObject("data/shapes/dwarf/Dwarf.xml",Vector3f(60,60,2))
-
-        # Create RTNEAT Object
+        # Create RTNEAT Objects
         set_ai("neat",rtneat)
         enable_ai()
         for i in range(0, 10):
@@ -138,12 +132,14 @@ class NeroModule:
              self.currTeam = 2
              set_ai("neat",rtneat2)
              addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + i,2*YDIM/3 + i ,2),type = AGENT)
-    
+   
+   #The following is run when the Save button is pressed
     def save_rtneat(self):
         global rtneat, rtneat2
         rtneat.save_population("../rtneat.gnm")
         rtneat2.save_population("../rtneat2.gnm")
 
+    #The following is run when the Load button is pressed
     def load_rtneat(self):
         import os
         global rtneat, rtneat2
@@ -151,6 +147,7 @@ class NeroModule:
          rtneat = RTNEAT("rtneat.gnm", "data/ai/neat-params.dat", pop_size)
          rtneat2= RTNEAT("rtneat2.gnm","data/ai/neat-params.dat", pop_size)
 
+    #The following functions are used to let the client update the fitness function
     def sgChange(self,value):
         self.sg = value
 

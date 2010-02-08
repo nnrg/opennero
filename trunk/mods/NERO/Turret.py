@@ -16,7 +16,6 @@ class Turret(AgentBrain):
 
     def start(self, time, sensors):
         a = self.actions.get_instance()
-        print "STARTING TURRET"
         for x in range(len(self.actions)):
             a[x] = 0
             if x == 2:
@@ -24,10 +23,6 @@ class Turret(AgentBrain):
         return a
 
     def act(self,time,sensors,reward):
-        print "ACTING TURRET"
-        #self.previous_fire += .1
-        #if self.previous_fire >= pi * 2:
-        #    self.previous_fire = 0
         a = self.actions.get_instance()
         for x in range(len(self.actions)):
             a[x] = 0
