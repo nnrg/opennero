@@ -62,7 +62,6 @@ class NeroEnvironment(Environment):
         self.flag_loc = getMod().flag_loc
         self.pop_state = {}
 
-
         abound = FeatureVectorInfo() # actions
         sbound = FeatureVectorInfo() # sensors
         rbound = FeatureVectorInfo() # rewards
@@ -144,6 +143,7 @@ class NeroEnvironment(Environment):
         if agent in self.states:
             return self.states[agent]
         else:
+            print str(dir(agent.org))
             self.states[agent] = AgentState()
             self.states[agent].id = agent.state.id
             myTeam = agent.getTeam()
@@ -306,11 +306,11 @@ class NeroEnvironment(Environment):
         #print "sg: " + str(stand_ground) + " st: " + str(stick_together) + "
         #ae: " + str(approach_enemy) + " af: " + str(approach_flag) + " ht: " +
         #str(hit_target) +  " vf: " + str(avoid_fire)
-        #state.curr_fitness += stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
+        state.curr_fitness += stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
 
-        state.curr_fitness = 0
-        return 0
-        #return stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
+        #state.curr_fitness = 0
+        #return 0
+        return stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
     
   
     def raySense (self, agent, heading_mod, dist, types = 0, boo = False):
