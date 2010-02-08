@@ -160,90 +160,64 @@ In this manner, add four walls enclosing the terrain on all four sides:
 
 ==Adding an environment==
 
-An environment in OpenNERO is where you can define the rules of the world, such as what happens when an agent reaches the end of the maze, or when two agents bump into each other, or if one of them vacuums up a crumb.
+An environment in OpenNERO is where you can define the rules of the world, such as what happens when an agent reaches the end of the maze, or when two agents bump into each other, or if one of them vacuums up a crumb.  Therefore, we must specify the environment in an environment class for the agent to function correctly.  We will discuss the detailed contents of the environment class in another exercise; for this exercise, just copy the file [http://opennero.googlecode.com/svn/wiki/AddingStuffExerciseFiles/environment.py environment.py], which contains a simple `TestEnvironment` class, to your `TESTMOD` directory.
 
-Here is a basic environment class (that does not do a whole lot yet):
-
+You must now add the following line of code to the top of `main.py` to access the `TestEnvironment` class:
 {{{
-class TestEnvironment(Environment):
-    def __init__(self):
-        """
-        Create the environment
-        """
-        Environment.__init__(self)
-
-        # define the action space
-        action_info = FeatureVectorInfo()
-        action_info.add_discrete(0, 3) # 0, 1, 2 or 3
-
-        # define the observation space
-        observation_info = FeatureVectorInfo()
-        observation_info.add_continuous(0, 1) # between 0 and 100
-
-        # define the reward space
-        reward_info = FeatureVectorInfo()        
-        reward_info.add_continuous(0,100) # between 0 and 100
-
-        self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
-        print 'Initialized TestEnvironment'
-        print self.agent_info
-        
-    def reset(self, agent):
-        """
-        Reset the environment to its initial state
-        """
-        return True
-
-    def get_agent_info(self, agent):
-        return self.agent_info
-
-    def step(self, agent, action):
-        """
-        Adjust the world and the agent based on its action
-        @return the agent's reward
-        """
-        return 0
-
-    def sense(self, agent):
-        """
-        Figure out what the agent's input (observation) is
-        @return the agent's observation
-        """
-        default_observation = self.agent_info.sensors.get_instance()
-        return default_observation
-
-    def is_active(self, agent):
-        
-        return True
-
-    def is_episode_over(self, agent):
-        """
-        Figure out if the agent should 'die' and 'respawn'
-        """
-        return False
-
-    def cleanup(self):
-        """
-        Perform any last-minute cleanup tasks
-        """
-        pass
+from TESTMOD.environment import *
 }}}
 
-You can put it in your main.py (or another Python file if you would like).
-
-To set it as the current environment, use this code:
-
+To set it as the current environment, add the following code to the `ModMain()` function of `main.py`:
 {{{
+    # create environment for the agent
     env = TestEnvironment()
     set_environment(env)
 }}}
 
 ==Adding an agent==
 
-TBA
+An agent in OpenNERO is an object consisting of two parts:
+  # A graphical rendering of the body of the agent, and
+  # The AI specifying the behavior of the agent
 
-==Adding user interaction==
+These two parts are configured using an XML template file as follows:
+{{{
+<Template>
+	<Render>
+		<MaterialType>solid</MaterialType>
+		<MaterialFlagLighting>true</MaterialFlagLighting>
+		<AniMesh>data/character/sydney.md2</AniMesh>
+		<Texture0>data/character/sydney.bmp</Texture0>
+		<CastsShadow>true</CastsShadow>
+		<Scale>0.2 0.2 0.2</Scale>
+	</Render>
+	<AI>
+		<Python agent="TestAgent()" />
+	</AI>
+</Template>
+}}}
 
-===Adding keyboard commands===
+Copy this template to `TESTMOD/data/character/SydneyAgent.xml`.
 
-===Adding graphical user interface===
+The `Render` section in this file is similar to what we have seen previously.  The files referenced in this section can be obtained from [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/data/shapes/character/sydney.md2 mods/Maze/data/shapes/character/sydney.md2] and [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/data/shapes/character/sydney.bmp mods/Maze/data/shapes/character/sydney.bmp].  Copy them to `TESTMOD/data/character/`.
+
+The `AI` section specifies a Python class `TestAgent` that contains the behavior of the agent, e.g. what actions the agent takes in response to its sensor readings.  We will discuss the details of this class in another exercise.  A simple `TestAgent` class that ignores the agent's sensor readings and moves the agent in response to keyboard arrow keys is implemented in [http://opennero.googlecode.com/svn/wiki/AddingStuffExerciseFiles/agent.py agent.py].  Copy this file to your `TESTMOD` directory.
+
+Now add the following line of code to the top of `main.py`
+{{{
+from TESTMOD.agent import *
+}}}
+and add the following code to the `ModMain()` function
+{{{
+    # create key binding to control the agent
+    ioMap = createInputMapping()
+    getSimContext().setInputMapping(ioMap)
+
+    # enable AI and create the agent
+    enable_ai()
+    addObject("data/character/SydneyAgent.xml", Vector3f(0, 0, 4.5))
+}}}
+
+This will give you an agent that you can control using the arrow keys:
+
+<a href="http://opennero.googlecode.com/svn/wiki/AddingStuffExerciseFiles/Agent.png"><img src="http://opennero.googlecode.com/svn/wiki/AddingStuffExerciseFiles/Agent.png" height="300" width="400"></img></a>
