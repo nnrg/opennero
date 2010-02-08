@@ -33,9 +33,9 @@ class AgentState:
         self.sg = 0
         self.st = 0
         self.ae = 0
-        self.ag = 0
+        self.af = 0
         self.ht = 0
-        self.vg = 0
+        self.vf = 0
         self.animation = 'stand'
 
 class NeroEnvironment(Environment):
@@ -252,21 +252,25 @@ class NeroEnvironment(Environment):
         ff.append(self.nearest(state.pose, state.id, ffr[0]))
         ff.append(self.nearest(state.pose, state.id, ffr[1]))
         
+        st = 0
+        ae = 0
         #calculate f
-        #sg = -action[0]
-        #st = self.distance(ff[0].position,state.position)
-        #ae = self.distance(ff[1].position,state.position)
-        #af = (distance_af/self.flag_distance(agent))
-        #ht = h
-        #vf = -damage        
+        sg = -action[0]
+        if ff[0] != 1:
+         st = self.distance(ff[0].pose,state.pose)
+        if ff[1] != 1:
+         ae = self.distance(ff[1].pose,state.pose)
+        af = (distance_af/self.flag_distance(agent))
+        ht = hit
+        vf = -damage        
         
-        #update current self data with f's
-        #self.sg += sg
-        #self.st += st
-        #self.ae += ae
-        #self.af += af
-        #self.ht += ht
-        #self.vg += vf
+        #update current state data with f's
+        state.sg += sg
+        state.st += st
+        state.ae += ae
+        state.af += af
+        state.ht += ht
+        state.vf += vf
         
         #Update Fitness Function with 
         stand_ground *= -action[0]
