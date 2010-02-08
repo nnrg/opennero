@@ -177,6 +177,16 @@ def CreateGui(guiMan):
     hpScroll.setPos(5)
     hpScroll.OnScrollBarChange = hp_adjusted(hpScroll, hpValue)
 
+    #Speedup Scroll Data
+    spText = gui.create_text(guiMan, 'spText', Pos2i(65,152), Pos2i(85,15), 'Speedup')
+    spValue = gui.create_text(guiMan, 'spValue', Pos2i(310,152),Pos2i(20,15), '0') 
+    spScroll = gui.create_scroll_bar(guiMan, 'spScroll', Pos2i(150,155), Pos2i(150,10), True)
+    spScroll.setMax(100)
+    spScroll.setLargeStep(10)
+    spScroll.setSmallStep(1)
+    spScroll.setPos(0)
+    spScroll.OnScrollBarChange = sp_adjusted(spScroll,spValue)
+
     global stat1Value, stat2Value, stat1Label, stat2Label
 
     stat1Label = gui.create_text(guiMan, 'stat1Label', Pos2i(350,90),Pos2i(110,15),'Team 1: Avg Fitness: ')
@@ -193,7 +203,7 @@ def CreateGui(guiMan):
     modeScroll.setPos(0)
     modeScroll.OnScrollBarChange = mode_adjusted(modeScroll)
 
-    guiWindow = gui.create_window( guiMan, 'window', Pos2i(20,20),Pos2i(600,185), 'Nero Controls' )
+    guiWindow = gui.create_window( guiMan, 'window', Pos2i(20,20),Pos2i(600,190), 'Nero Controls' )
 
     guiWindow.addChild(toggleAiButton)
     guiWindow.addChild(saveAiButton)
@@ -211,6 +221,7 @@ def CreateGui(guiMan):
     guiWindow.addChild(ffScroll)
     guiWindow.addChild(eeScroll)
     guiWindow.addChild(hpScroll)
+    guiWindow.addChild(spScroll)
     guiWindow.addChild(sgText)
     guiWindow.addChild(stText)
     guiWindow.addChild(aeText)
@@ -224,6 +235,7 @@ def CreateGui(guiMan):
     guiWindow.addChild(ffText)
     guiWindow.addChild(eeText)
     guiWindow.addChild(hpText)
+    guiWindow.addChild(spText)
     guiWindow.addChild(sgValue)
     guiWindow.addChild(stValue)
     guiWindow.addChild(aeValue)
@@ -237,6 +249,7 @@ def CreateGui(guiMan):
     guiWindow.addChild(ffValue)
     guiWindow.addChild(eeValue)
     guiWindow.addChild(hpValue)
+    guiWindow.addChild(spValue)
     guiWindow.addChild(stat1Label)
     guiWindow.addChild(stat1Value)
     guiWindow.addChild(stat2Label)
@@ -389,6 +402,15 @@ def hp_adjusted(scroll, value):
         value.text = str(scroll.getPos())
         getMod().hpChange(scroll.getPos())
         print('Hitpoint adjusted!')
+    return closure
+
+def sp_adjusted(scroll, value):
+    value.text = str(scroll.getPos())
+    getMod().hpChange(float(scroll.getPos()))
+    def closure():
+        value.text = str(scroll.getPos())
+        #getMod().spChange(scroll.getPos())
+        print('Speedup adjusted!')
     return closure
 
 def mode_adjusted(scroll):
