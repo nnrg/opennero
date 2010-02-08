@@ -33,10 +33,6 @@ class AgentState:
         self.ht = 0
         self.vg = 0
 
-
-
-
-
 class NeroEnvironment(Environment):
     """
     Environment for the Nero
@@ -143,7 +139,6 @@ class NeroEnvironment(Environment):
         if agent in self.states:
             return self.states[agent]
         else:
-            print str(dir(agent.org))
             self.states[agent] = AgentState()
             self.states[agent].id = agent.state.id
             myTeam = agent.getTeam()
@@ -303,13 +298,8 @@ class NeroEnvironment(Environment):
         avoid_fire     *= -damage
         
      
-        #print "sg: " + str(stand_ground) + " st: " + str(stick_together) + "
-        #ae: " + str(approach_enemy) + " af: " + str(approach_flag) + " ht: " +
-        #str(hit_target) +  " vf: " + str(avoid_fire)
         state.curr_fitness += stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
 
-        #state.curr_fitness = 0
-        #return 0
         return stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
     
   
@@ -355,13 +345,11 @@ class NeroEnvironment(Environment):
         v[9] = self.flag_distance(agent)
         v[10] = sin((state.position[1] - self.flag_loc.y) / v[9])
 
-        # TODO: make faster?
         ffr = self.getFriendFoe(agent)
         if (ffr[0] == []):
             return v
 
         ff = []
-        # TODO: make faster?
         ff.append(self.nearest(state.position,state.id,ffr[0]))
         ff.append(self.nearest(state.position,state.id,ffr[1]))
         if ff[0] == 1:

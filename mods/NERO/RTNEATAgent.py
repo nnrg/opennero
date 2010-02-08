@@ -1,12 +1,11 @@
 from OpenNero import *
 import random
-#from module import getMod
 from time import time
+
+FITNESS_OUT = False
 
 def gettime():
 	return time() 
-
-EXPLOIT_PROB = 0.0
 
 class RTNEATAgent(AgentBrain):
     """
@@ -40,9 +39,10 @@ class RTNEATAgent(AgentBrain):
         print "PRODUCING A BRAND SPANKING NEW ORGANISM"
         EXPLOIT_PROB = getMod().ee
         self.org = rtneat.next_organism(EXPLOIT_PROB)
-        #self.file_out = []
-        #self.file_out.append(str(gettime()))
-        #self.file_out.append(",")
+        if FITNESS_OUT:    
+            self.file_out = []
+            self.file_out.append(str(gettime()))
+            self.file_out.append(",")
         self.net = self.org.net
         self.reward = 0
         return self.network_action(sensors)
@@ -59,16 +59,18 @@ class RTNEATAgent(AgentBrain):
         """
         end of an episode
         """
-        #self.file_out.append(str(gettime()))
-        #self.file_out.append(",")
+        if FITNESS_OUT:
+            self.file_out.append(str(gettime()))
+            self.file_out.append(",")
         self.reward += reward # store reward
         self.org.fitness = self.reward # assign organism fitness for evolution
         self.org.time_alive += 1
-        #self.file_out.append(str(self.reward))
-        #self.file_out.append('\n')
-        #strn = "".join(self.file_out)
-        #f = open('output.out','a')
-        #f.write(strn)
+        if FITNESS_OUT:
+            self.file_out.append(str(self.reward))
+            self.file_out.append('\n')
+            strn = "".join(self.file_out)
+            f = open('output.out' + str(self.team),'a')
+            f.write(strn)
         #assert(self.org.fitness >= 0) # we have to have a non-negative fitness for rtNEAT to work
         print  "Final reward: %f, cumulative: %f" % (reward, self.reward)
         return True
@@ -96,15 +98,10 @@ class RTNEATAgent(AgentBrain):
         outputs = self.net.get_outputs()
 
         actions = self.actions.get_instance() # make a vector for the actions
-        #actions = outputs
 
         maxOutput = 0 # select the action based on the biggest output of the network
 
         for i in range(0,len(self.actions.get_instance())):
             actions[i] = outputs[i]
-            #if outputs[maxOutput] < outputs[i]:
-            #    maxOutput = i
-
-        #actions[maxOutput] = 1
 
         return actions
