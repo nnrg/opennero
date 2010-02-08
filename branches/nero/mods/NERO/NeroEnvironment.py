@@ -36,6 +36,7 @@ class AgentState:
         self.ag = 0
         self.ht = 0
         self.vg = 0
+        self.animation = 'stand'
 
     def update(self, agent):
         """
@@ -388,9 +389,28 @@ class NeroEnvironment(Environment):
                 value - self.distance(cloc,other.pose)
         return nearest
 
+    def set_animation(self, agent, state, animation):
+        if state.animation != animation:
+            agent.state.setAnimation(animation)
+            state.animation = animation
+
     def is_active(self, agent):
         """ return true when the agent should act """
         state = self.get_state(agent)
+        # interpolate between prev_pose and pose
+        (x1, y1, h1) = state.prev_pose
+        (x2, y2, h2) = state.pose
+        if x1 != x2 or y1 != y2:
+            fraction = 1.0
+            if self.step_size:
+                fraction = min(1.0,float(time.time() - state.time)/self.step_size)
+            pos = agent.state.position
+            pos.x = x1 * (1 - fraction) + x2 * fraction
+            pos.y = y1 * (1 - fraction) + y2 * fraction
+            agent.state.position = pos
+            self.set_animation(agent, state, 'run')
+        else:
+            self.set_animation(agent, state, 'stand')
         if time.time() - state.time > self.step_size:
             state.time = time.time()
             return True
