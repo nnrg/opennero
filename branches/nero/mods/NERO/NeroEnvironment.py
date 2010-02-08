@@ -60,7 +60,7 @@ class NeroEnvironment(Environment):
         Environment.__init__(self) 
         
         self.curr_id = 0
-        self.step_size = 0.1 # time between steps in seconds
+        self.step_size = 1.0 # time between steps in seconds
         self.max_steps = 20
         self.time = time.time()
         self.XDIM = XDIM
@@ -226,8 +226,8 @@ class NeroEnvironment(Environment):
         # see if we can move forward
         new_position = copy(position)
         new_position.x, new_position.y = new_x, new_y
-        ray = self.raySense(agent, turn_by, MAX_SPEED * move_by, OBSTACLE + AGENT)
-        safe = (ray < 0.5)
+        distance_ahead = self.raySense(agent, turn_by, MAX_SPEED * move_by, OBSTACLE)
+        safe = (distance_ahead >= 1)
         if not safe:
             # keep the position the same if we cannot move
             print "not safe to move!"

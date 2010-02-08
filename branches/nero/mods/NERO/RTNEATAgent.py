@@ -97,7 +97,6 @@ class RTNEATAgent(AgentBrain):
         self.net.load_sensors(inputs)
         self.net.activate()
         outputs = self.net.get_outputs()
-        print 'in:', inputs, 'out:', outputs
         actions = self.actions.get_instance() # make a vector for the actions
         for i in range(0,len(self.actions.get_instance())):
             actions[i] = outputs[i]
