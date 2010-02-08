@@ -166,6 +166,8 @@ namespace OpenNero
         int GetTimeAlive() const { return mOrganism->time_alive; }
         /// get network of the organism
         PyNetworkPtr GetNetwork() const { return PyNetworkPtr(new PyNetwork(mOrganism->net)); }
+        /// save this organism to a file
+        bool Save(const std::string& fname) const { return mOrganism->print_to_file(fname); }
         /// operator to push to an output stream
         friend std::ostream& operator<<(std::ostream& output, const PyOrganism& net);
     };
@@ -281,6 +283,7 @@ namespace OpenNero
             .add_property("id", &PyOrganism::GetId, "evolution-wide unique id of the organism")
             .add_property("fitness", &PyOrganism::GetFitness, &PyOrganism::SetFitness, "organism fitness (non-negative real)")
 			.add_property("time_alive", &PyOrganism::GetTimeAlive, &PyOrganism::SetTimeAlive, "organism time alive (integer, non negative)")
+            .def("save", &PyOrganism::Save, "save the organism to file")
             .def(self_ns::str(self_ns::self));
 
         // export AI base class
