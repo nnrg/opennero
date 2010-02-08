@@ -176,8 +176,12 @@ class NeroEnvironment(Environment):
         state = self.get_state(agent)
         if agent.step == 0:
             print 'FIRST STEP!', state.id, agent.state.position
-            state.initial_position = agent.state.position
-            state.initial_rotation = agent.state.rotation
+            p = agent.state.position
+            r = agent.state.rotation
+            state.initial_position = p
+            state.initial_rotation = r
+            state.pose = (p.x, p.y, r.z)
+            state.prev_pose = (p.x, p.y, r.z)
             self.pop_state[agent.org.id] = state 
         
         # Update Damage totals
