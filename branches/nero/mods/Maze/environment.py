@@ -386,7 +386,7 @@ class ContMazeEnvironment(MazeEnvironment):
             return v
         (x,y,heading) = state.pose # current agent pose
         v[0] = x # the agent can observe its position
-        v[1] = y # the agent can observa its position
+        v[1] = y # the agent can observe its position
         (tx, ty) = self.maze.rc2xy(ROWS-1,COLS-1) # coordinates of target
         tx, ty = tx - x, ty - y # line to target
         v[2] = hypot(tx, ty) # distance to target

@@ -1,6 +1,7 @@
 from OpenNero import *
 from module import getMod, delMod
 from common import *
+import common.gui as gui
 from inputConfig import *
     
 def toggle_ai_callback():

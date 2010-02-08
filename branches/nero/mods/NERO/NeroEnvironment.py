@@ -2,10 +2,10 @@ import time
 from math import *
 from OpenNero import *
 from NERO.module import *
+from copy import copy
 
 MAX_SPEED = 10
 MAX_SD = 100
-MAX_ACC = 1000000
 OBSTACLE = 1#b0001
 AGENT = 2#b0010
 
@@ -15,10 +15,14 @@ class AgentState:
     """
     def __init__(self):
         self.id = -1
-        self.position = (0, 0)
-        self.prev_position = (0, 0, 0)
+        # current x, y, heading pose
+        self.pose = (0, 0, 0)
+        # previous x, y, heading pose
+        self.prev_pose = (0, 0, 0)
+        # starting position
         self.initial_position = Vector3f(0, 0, 0)
-        self.initial_rotation = Vector3f(0, 0, 0)
+        # starting orientation
+        self.initial_rotation = Vector3f(0, 0, 0)        
         self.time = time.time()
         self.start_time = self.time
         self.total_damage = 0
@@ -32,6 +36,15 @@ class AgentState:
         self.ag = 0
         self.ht = 0
         self.vg = 0
+
+    def update(self, agent):
+        """
+        Update the state of the agent
+        """
+        pos = copy(agent.state.position)
+        self.prev_pose = self.pose
+        self.pose = (pos.x, pos.y, agent.state.rotation.z + self.initial_rotation.z)
+        self.time = time.time()
 
 class NeroEnvironment(Environment):
     """
@@ -65,22 +78,20 @@ class NeroEnvironment(Environment):
         # actions
         abound.add_continuous(-pi/2, pi/2) # direction of motion
         abound.add_continuous(0,1) # how fast to move
-        abound.add_continuous(-pi/2,pi/2) # Firing direction
+        abound.add_continuous(-pi/2, pi/2) # Firing direction
         abound.add_continuous(0,1)
         abound.add_continuous(0,1) 
 
-         #sensors
-        sbound.add_continuous(0,1) # Straight Ahead
-        
-        sbound.add_continuous(0,1) # +.25 Rads
-        sbound.add_continuous(0,1) # +.50 Rads
-        sbound.add_continuous(0,1) # +.75 Rads
-        sbound.add_continuous(0,1) # +1.0 Rads
-
-        sbound.add_continuous(0,1) # -.25 Rads
-        sbound.add_continuous(0,1) # -.50 Rads
-        sbound.add_continuous(0,1) # -.75 Rads
-        sbound.add_continuous(0,1) # -1.0 Rads
+        #sensors
+        sbound.add_continuous(0,1) # -60 deg        
+        sbound.add_continuous(0,1) # -45 deg
+        sbound.add_continuous(0,1) # -30 deg
+        sbound.add_continuous(0,1) # -15 deg
+        sbound.add_continuous(0,1) # straight ahead
+        sbound.add_continuous(0,1) # 15 deg
+        sbound.add_continuous(0,1) # 30 deg
+        sbound.add_continuous(0,1) # 45 deg
+        sbound.add_continuous(0,1) # 60 deg
         
         sbound.add_continuous(0,self.MAX_DIST) # Flag Sensors - Dist
         sbound.add_continuous(-1 * pi * 2, pi * 2) # Flag Sensors - Heading
@@ -104,18 +115,15 @@ class NeroEnvironment(Environment):
         reset the environment to its initial state
         """
         state = self.get_state(agent)
-        agent.state.position = state.initial_position
-        agent.state.rotation = state.initial_rotation
-        state.position = (state.initial_position.x, state.initial_position.y)
-        state.prev_position = state.position
-        state.time = time.time()
-        state.start_time = state.time
+        agent.state.position = copy(state.initial_position)
+        agent.state.rotation = copy(state.initial_rotation)
+        state.pose = (state.initial_position.x, state.initial_position.y, state.initial_rotation.z)
+        state.prev_pose = state.pose
         state.total_damage = 0
         state.curr_damage = 0
         state.prev_fitness = state.curr_fitness
         state.curr_fitness = 0
         state.team = agent.getTeam()
-        
         #update client fitness
         from client import set_stat
         ff = self.getFriendFoe(agent)
@@ -123,9 +131,7 @@ class NeroEnvironment(Environment):
         for x in ff[0]:
             avg += x.prev_fitness
         avg /= len(ff[0])
-
         set_stat(avg,state.team)
-        
         print "Episode %d complete" % agent.episode 
         return True
     
@@ -182,7 +188,7 @@ class NeroEnvironment(Environment):
             state.initial_position = agent.state.position
             state.initial_rotation = agent.state.rotation
             self.pop_state[agent.org.id] = state 
-
+        
         # Update Damage totals
         state.total_damage += state.curr_damage
         damage = state.curr_damage
@@ -199,39 +205,40 @@ class NeroEnvironment(Environment):
         distance_ae = getMod().dtb
         distance_af = getMod().dtc
         friendly_fire = getMod().ff
-        
+        # the position and the rotation of the agent on-screen
         position = agent.state.position
         rotation = agent.state.rotation
-
-        rotation.z += action[1]
-        agent.state.rotation.z = action[1] + agent.state.rotation.z
-        heading = rotation.z
-
-        position.x += MAX_SPEED * cos(heading) * action[0]
-        position.y += MAX_SPEED * sin(heading) * action[0]
-
-
-        firing = agent.state.position
-        firing.x += self.MAX_DIST * cos(action[2] + heading)
-        firing.y += self.MAX_DIST * sin(action[2] + heading)
-        
-        safe = True
-        mo = self.raySense(agent,heading,action[0] * MAX_SPEED,OBSTACLE + AGENT)
-        if mo < 0.5:
-            safe = False
-
-        if safe:
-         self.update_observer((position.x, position.y, radians(rotation.z)))
-        else:
-            position = agent.state.position
-        p0 = agent.state.position
-        p1 = firing
-        data = getSimContext().findInRay(p0,p1,AGENT + OBSTACLE,True)
-        
+        # get the current pose of the agent
+        (x,y,heading) = state.pose
+        # get the actions of the agent
+        move_by = action[0]
+        turn_by = degrees(action[1])
+        fire_by = action[2]
+        print 'action - move by: %f, turn by: %f, fire by %f' % (move_by, turn_by, fire_by)
+        # figure out the new heading
+        new_heading = wrap_degrees(heading, turn_by)        
+        # figure out the new x,y location
+        new_x = x + MAX_SPEED * cos(radians(new_heading)) * move_by
+        new_y = y + MAX_SPEED * sin(radians(new_heading)) * move_by
+        # figure out the firing location
+        fire_x = x + self.MAX_DIST * cos(radians(new_heading))
+        fire_y = y + self.MAX_DIST * sin(radians(new_heading))
+        # see if we can move forward
+        new_position = copy(position)
+        new_position.x, new_position.y = new_x, new_y
+        ray = self.raySense(agent, turn_by, MAX_SPEED * move_by, OBSTACLE + AGENT)
+        safe = (ray < 0.5)
+        if not safe:
+            # keep the position the same if we cannot move
+            print "not safe to move!"
+            new_position = agent.state.position
+        # draw the line of fire
+        fire_pos = copy(position)
+        fire_pos.x, fire_pos.y = fire_x, fire_y
+        data = getSimContext().findInRay(position,fire_pos,AGENT + OBSTACLE,True)
+        # calculate if we hit anyone
         string = agent.state.label + str(len(data)) +": "
-        
         hit = 0
-        
         if len(data) > 0:
             sim = data[0]
             string += str(sim.label) + "," + str(sim.id) + ";"
@@ -242,18 +249,19 @@ class NeroEnvironment(Environment):
                 else:
                     target.curr_damage += 1
                     hit = 1
-
-        agent.state.position = position
-        agent.state.rotation = rotation
-
-        state.position = (position.x,position.y)
-
+        # make the calculated motion
+        agent.state.position = new_position
+        new_rotation = copy(rotation)
+        new_rotation.z = new_heading
+        agent.state.rotation = new_rotation
+        state.update(agent) # update our state
+        # calculate friend/foe
         ffr = self.getFriendFoe(agent)
         if ffr[0] == []:
             return 0 #Corner Case
         ff= []
-        ff.append(self.nearest(state.position,state.id,ffr[0]))
-        ff.append(self.nearest(state.position,state.id,ffr[1]))
+        ff.append(self.nearest(state.pose,state.id,ffr[0]))
+        ff.append(self.nearest(state.pose,state.id,ffr[1]))
         
         #calculate f
         #sg = -action[0]
@@ -261,8 +269,7 @@ class NeroEnvironment(Environment):
         #ae = self.distance(ff[1].position,state.position)
         #af = (distance_af/self.flag_distance(agent))
         #ht = h
-        #vf = -damage
-        
+        #vf = -damage        
         
         #update current self data with f's
         #self.sg += sg
@@ -271,7 +278,6 @@ class NeroEnvironment(Environment):
         #self.af += af
         #self.ht += ht
         #self.vg += vf
-
         
         #Update Fitness Function with 
         stand_ground   *= -action[0]
@@ -280,39 +286,37 @@ class NeroEnvironment(Environment):
         if ff[0] == 1:
             stick_together = 0
         else:
-         stemp = self.distance(ff[0].position,state.position)
-         if stemp > 0:
-          stick_together *= min(distance_st/stemp,1)
-         else:
-          stick_together = 0
+            stemp = self.distance(ff[0].pose,state.pose)
+            if stemp > 0:
+                stick_together *= min(distance_st/stemp,1)
+            else:
+                stick_together = 0
         if ff[1] == 1:
             approach_enemy = 0
         else:
-         atemp = self.distance(ff[1].position,state.position)
-         if atemp > 0:
-          approach_enemy *= min(distance_ae/atemp,1)
-         else:
-          approach_enemy = 0
+            atemp = self.distance(ff[1].pose,state.pose)
+            if atemp > 0:
+                approach_enemy *= min(distance_ae/atemp,1)
+            else:
+                approach_enemy = 0
         approach_flag  *= (distance_af/self.flag_distance(agent))
         hit_target     *= hit
-        avoid_fire     *= -damage
+        avoid_fire     *= -damage        
         
-     
         state.curr_fitness += stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
-
+        
         return stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
     
-  
-    def raySense (self, agent, heading_mod, dist, types = 0, boo = False):
+    def raySense (self, agent, heading_mod, dist, types = 0, draw = False):
         state = self.get_state(agent)
         firing = agent.state.position
         rotation = agent.state.rotation
-        heading = rotation.z + heading_mod
+        heading = radians(rotation.z + heading_mod)
         firing.x += dist * cos(heading)
         firing.y += dist * sin(heading)
         p0 = agent.state.position
         p1 = firing
-        result = getSimContext().findInRay(p0,p1,types)
+        result = getSimContext().findInRay(p0, p1, types, draw)
         if len(result) > 0:
             (sim, hit) = result
             ray = p1 - p0
@@ -327,41 +331,36 @@ class NeroEnvironment(Environment):
         """ figure out what the agent should sense """
         v = self.agent_info.sensors.get_instance()
         vx = []
-        vx.append(self.raySense(agent,0,MAX_SD,OBSTACLE))
-        vx.append(self.raySense(agent,.25,MAX_SD,OBSTACLE))
-        vx.append(self.raySense(agent,.5,MAX_SD,OBSTACLE))
-        vx.append(self.raySense(agent,.75,MAX_SD,OBSTACLE))
-        vx.append(self.raySense(agent,1,MAX_SD,OBSTACLE))
-        vx.append(self.raySense(agent,-.25,MAX_SD,OBSTACLE))
-        vx.append(self.raySense(agent,-.5,MAX_SD,OBSTACLE))
-        vx.append(self.raySense(agent,-.75,MAX_SD,OBSTACLE))
-        vx.append(self.raySense(agent,-1,MAX_SD,OBSTACLE))
-
+        vx.append(self.raySense(agent, -60,MAX_SD,OBSTACLE))
+        vx.append(self.raySense(agent, -45,MAX_SD,OBSTACLE))
+        vx.append(self.raySense(agent, -30,MAX_SD,OBSTACLE))
+        vx.append(self.raySense(agent, -15,MAX_SD,OBSTACLE))
+        vx.append(self.raySense(agent, 0,MAX_SD,OBSTACLE))
+        vx.append(self.raySense(agent, 15,MAX_SD,OBSTACLE))
+        vx.append(self.raySense(agent, 30,MAX_SD,OBSTACLE))
+        vx.append(self.raySense(agent, 45,MAX_SD,OBSTACLE))
+        vx.append(self.raySense(agent, 60,MAX_SD,OBSTACLE))
         for iter in range(len(vx)):
             v[iter] = vx[iter]
-
         state = self.get_state(agent)
-        
         v[9] = self.flag_distance(agent)
-        v[10] = sin((state.position[1] - self.flag_loc.y) / v[9])
-
+        v[10] = sin((state.pose[1] - self.flag_loc.y) / v[9])
         ffr = self.getFriendFoe(agent)
         if (ffr[0] == []):
             return v
-
         ff = []
-        ff.append(self.nearest(state.position,state.id,ffr[0]))
-        ff.append(self.nearest(state.position,state.id,ffr[1]))
+        ff.append(self.nearest(state.pose,state.id,ffr[0]))
+        ff.append(self.nearest(state.pose,state.id,ffr[1]))
         if ff[0] == 1:
             return v
-        v[11] = self.distance(ff[0].position,state.position)
-        v[12] = self.angle(state.position,ff[0].position)
-        v[13] = self.distance(state.position,ff[1].position)
-        v[14] = self.angle(state.position,ff[1].position)
+        v[11] = self.distance(ff[0].pose,state.pose)
+        v[12] = self.angle(state.pose,ff[0].pose)
+        v[13] = self.distance(state.pose,ff[1].pose)
+        v[14] = self.angle(state.pose,ff[1].pose)
         return v
     
     def flag_distance(self, agent):
-        pos = self.get_state(agent).position
+        pos = self.get_state(agent).pose
         return pow(pow(float(pos[0]) - self.flag_loc.x, 2) + pow(float(pos[1]) - self.flag_loc.y,2),.5)
 
     def distance(self,agloc,tgloc):
@@ -373,16 +372,16 @@ class NeroEnvironment(Environment):
         return tan((agloc[0]-tgloc[0])/ (agloc[1]-tgloc[1]))
 
     def nearest(self,cloc,id,array):
+        # TODO: this needs to only be computed once per tick, not per agent
         nearest = 1
         value = self.MAX_DIST * 5
         for other in array:
             if id == other.id:
                 continue
-            if self.distance(cloc,other.position) < value:
+            if self.distance(cloc,other.pose) < value:
                 nearest = other
-                value - self.distance(cloc,other.position)
+                value - self.distance(cloc,other.pose)
         return nearest
-
 
     def is_active(self, agent):
         """ return true when the agent should act """
@@ -407,11 +406,16 @@ class NeroEnvironment(Environment):
         else:
             return False
     
-    def update_observer(self, pose):
-        return 1 
-   
     def cleanup(self):
         """
         cleanup the world
         """
         return True
+
+def wrap_degrees(a,da):
+    a2 = a + da
+    if a2 > 180:
+        a2 = -180 + (a2 % 180)
+    elif a2 < -180:
+        a2 = 180 - (abs(a2) % 180)
+    return a2
