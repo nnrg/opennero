@@ -209,7 +209,7 @@ class NeroEnvironment(Environment):
         turn_by = degrees(action[0])
         move_by = action[1]
         fire_by = action[2]
-        print 'action - move by: %f, turn by: %f, fire by %f' % (move_by, turn_by, fire_by)
+        print 'move by: %f, turn by: %f, fire by %f' % (move_by, turn_by, fire_by)
         # figure out the new heading
         new_heading = wrap_degrees(heading, turn_by)        
         # figure out the new x,y location
@@ -299,6 +299,7 @@ class NeroEnvironment(Environment):
         state.curr_fitness += stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
 
         # make the calculated motion
+        position.x, position.y = state.pose[0], state.pose[1]
         agent.state.position = position
         rotation.z = new_heading
         agent.state.rotation = rotation

@@ -17,8 +17,6 @@ class RTNEATAgent(AgentBrain):
         """
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
         AgentBrain.__init__(self)
-        global rtneat
-        rtneat = get_ai("neat")
 
     def initialize(self, init_info):
         """
@@ -35,10 +33,12 @@ class RTNEATAgent(AgentBrain):
         start of an episode
         """
         from NERO.module import getMod
-        global rtneat
         print "PRODUCING A BRAND SPANKING NEW ORGANISM"
         EXPLOIT_PROB = getMod().ee
+	rtneat = get_ai("neat%d" % self.team)
         self.org = rtneat.next_organism(EXPLOIT_PROB)
+	active_set = rtneat.get_population_ids()
+	print 'population set for team %d:' % self.team , active_set
         if FITNESS_OUT:    
             self.file_out = []
             self.file_out.append(str(gettime()))
