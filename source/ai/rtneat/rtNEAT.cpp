@@ -78,6 +78,22 @@ namespace OpenNero
             mEvalQueue.push(mPopulation->organisms[i]);
         }
     }
+    
+    boost::python::list RTNEAT::get_population_ids()
+    {
+        boost::python::list result;
+        vector<OrganismPtr>::iterator org_iter;
+        for (org_iter = mPopulation->organisms.begin(); 
+             org_iter != mPopulation->organisms.end(); 
+             ++org_iter) {
+            if ((*org_iter)->time_alive > 0)
+            {
+                result.append((*org_iter)->gnome->genome_id);
+            }
+            mPopulation->reassign_species(*org_iter);
+        }
+        return result;
+    }
 
     /// Destructor
     RTNEAT::~RTNEAT()
@@ -274,6 +290,7 @@ namespace OpenNero
         class_<RTNEAT, bases<AI>, RTNEATPtr>("RTNEAT", init<const std::string&, const std::string&, S32>())
             .def(init<const std::string&, S32, S32, S32, F32>())
             .def("next_organism", &RTNEAT::next_organism, "evolve a new organism and return it")
+            .def("get_population_ids", &RTNEAT::get_population_ids, "get a list of the current genome ids")
             .def("save_population", &RTNEAT::save_population, "save the population to a file");
     }
 }

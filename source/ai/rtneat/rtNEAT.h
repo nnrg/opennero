@@ -4,7 +4,9 @@
 #ifndef _OPENNERO_AI_RTNEAT_RTNEAT_H_
 #define _OPENNERO_AI_RTNEAT_RTNEAT_H_
 
+#include "core/Preprocessor.h"
 #include "rtneat/population.h"
+#include "scripting/scripting.h"
 #include "ai/AI.h"
 #include <string>
 #include <set>
@@ -54,6 +56,9 @@ namespace OpenNero
 
         /// load a population from a file
         bool load_population(const std::string& population_file);
+        
+        /// get the list of IDs in the currently scored population
+        boost::python::list get_population_ids();
 
         /// load info about this AI from the object template
         bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data) { return true; }
