@@ -52,6 +52,7 @@ class RTNEATAgent(AgentBrain):
         a state transition
         """
         self.reward += reward # store reward
+        self.state.label = "%.02f" % self.reward
         # return action
         return self.network_action(sensors)
 

@@ -9,6 +9,7 @@
 		<CastsShadow>true</CastsShadow>
         <Texture0>data/shapes/character/sydney.bmp</Texture0>
 		<Scale>0.2 0.2 0.2</Scale>
+		<DrawLabel>true</DrawLabel>
 	</Render>
 	<AI>
 		<Python agent="RTNEATAgent()" />
