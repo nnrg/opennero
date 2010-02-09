@@ -62,7 +62,7 @@ namespace OpenNero
             setReward(getWorld()->step(getBrain(), getActions()));
             getBrain()->step++;
             getBrain()->fitness += getReward();
-            if (mSharedData && !getBrain()->name.empty())
+            if (mSharedData && mSharedData->GetLabel().empty() && !getBrain()->name.empty())
             {
                 mSharedData->SetLabel(getBrain()->name);
             }

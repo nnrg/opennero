@@ -109,7 +109,6 @@ class NeroEnvironment(Environment):
         reset the environment to its initial state
         """
         state = self.get_state(agent)
-        print 'RESET', state.id
         agent.state.position = copy(state.initial_position)
         agent.state.rotation = copy(state.initial_rotation)
         state.pose = (state.initial_position.x, state.initial_position.y, state.initial_rotation.z)
