@@ -220,7 +220,7 @@ class NeroEnvironment(Environment):
         turn_by = degrees(action[0])
         move_by = action[1]
         fire_by = action[2]
-        print 'move by: %f, turn by: %f, fire by %f' % (move_by, turn_by, fire_by)
+        #print 'move by: %f, turn by: %f, fire by %f' % (move_by, turn_by, fire_by)
         # figure out the new heading
         new_heading = wrap_degrees(heading, turn_by)        
         # figure out the new x,y location
@@ -236,7 +236,7 @@ class NeroEnvironment(Environment):
         safe = (distance_ahead >= 1)
         if not safe:
             # keep the position the same if we cannot move
-            print "not safe to move!"
+            #print "not safe to move!"
             new_position = agent.state.position
         # draw the line of fire
         fire_pos = copy(position)
@@ -320,10 +320,10 @@ class NeroEnvironment(Environment):
         
         if agent.step >= self.max_steps - 1:
             
-            print "PERSONAL DATA: sg: " , state.sg, " st: ", state.st, " ae: " , state.ae ," af: ", state.af, " ht: ", state.ht, " vf: ", state.vf
+            #print "PERSONAL DATA: sg: " , state.sg, " st: ", state.st, " ae: " , state.ae ," af: ", state.af, " ht: ", state.ht, " vf: ", state.vf
             avg,sig = self.generate_averages(agent)
-            print "AVG:",avg
-            print "SIG:",sig
+            #print "AVG:",avg
+            #print "SIG:",sig
             sum = 0
             sum += ((state.sg - avg['sg'])/sig['sg']) * stand_ground
             sum += ((state.st - avg['st'])/sig['st']) * stick_together
