@@ -36,13 +36,11 @@ class AgentHistory():
         self.fitness = []
     def append(self, ms, fitness):
         self.episode_time.append(ms)
-        self.episode_fitness.append(fitness)        
+        self.episode_fitness.append(fitness)
     def episode(self):
         if len(self.episode_time) > 0:
             self.time.append(self.episode_time[-1])
             self.fitness.append(self.episode_fitness[-1])
-        self.episode_time = []
-        self.episode_fitness = []
     def plot(self):
         if len(self.time) > 0:
             x = np.array(self.time)

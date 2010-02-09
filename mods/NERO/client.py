@@ -267,11 +267,8 @@ def sg_adjusted(scroll, value):
        result = scroll.getPos() - 100
        value.text = str(result)
        getMod().sgChange(float(result)/100)
-       print ('Stand Ground adjusted!') 
     return closure
     return 0
-
-
 
 def st_adjusted(scroll, value):
     # this returns a callback function for reacting to the changing epsilon value
@@ -282,7 +279,6 @@ def st_adjusted(scroll, value):
         result = scroll.getPos() - 100
         value.text = str(result)
         getMod().stChange(float(result)/100)
-        print('Stick Together adjusted!')
     return closure
 
 def ae_adjusted(scroll, value):
@@ -294,7 +290,6 @@ def ae_adjusted(scroll, value):
         result = scroll.getPos() - 100
         value.text = str(result)
         getMod().aeChange(float(result)/100)
-        print('Approach Enemy adjusted!')
     return closure
 
 def af_adjusted(scroll, value):
@@ -306,7 +301,6 @@ def af_adjusted(scroll, value):
         result = scroll.getPos() - 100
         value.text = str(result)
         getMod().afChange(float(result)/100)
-        print('Approach Flag adjusted!')
     return closure
 
 def ht_adjusted(scroll, value):
@@ -318,7 +312,6 @@ def ht_adjusted(scroll, value):
         result = scroll.getPos() - 100
         value.text = str(result)
         getMod().htChange(float(result)/100)
-        print('Stand Ground adjusted!')
     return closure    
 
 def vf_adjusted(scroll, value):
@@ -330,7 +323,6 @@ def vf_adjusted(scroll, value):
         result = scroll.getPos() - 100
         value.text = str(result)
         getMod().vfChange(float(result)/100)
-        print('Avoid Fire adjusted!')
     return closure
 
 def lt_adjusted(scroll, value):
@@ -340,7 +332,6 @@ def lt_adjusted(scroll, value):
     def closure():
         value.text = str(scroll.getPos())
         getMod().ltChange(float(scroll.getPos()))
-        print('Lifetime adjusted!')
     return closure
 
 def dta_adjusted(scroll, value):
@@ -350,7 +341,6 @@ def dta_adjusted(scroll, value):
     def closure():
         value.text = str(scroll.getPos())
         getMod().dtaChange(float(scroll.getPos()))
-        print('Stick Together Distance adjusted!')
     return closure
 
 def dtb_adjusted(scroll, value):
@@ -360,7 +350,6 @@ def dtb_adjusted(scroll, value):
     def closure():
         value.text = str(scroll.getPos())
         getMod().dtbChange(float(scroll.getPos()))
-        print('Approach Enemy Distance adjusted!')
     return closure
 
 def dtc_adjusted(scroll, value):
@@ -370,7 +359,6 @@ def dtc_adjusted(scroll, value):
     def closure():
         value.text = str(scroll.getPos())
         getMod().dtcChange(float(scroll.getPos()))
-        print('Approach Flag Distance adjusted!')
     return closure
 
 def ff_adjusted(scroll, value):
@@ -382,7 +370,6 @@ def ff_adjusted(scroll, value):
         result = scroll.getPos() - 100
         value.text = str(result)
         getMod().ffChange(float(result)/100)
-        print('Friendly Fire adjusted!')
     return closure
 
 def ee_adjusted(scroll, value):
@@ -392,7 +379,6 @@ def ee_adjusted(scroll, value):
     def closure():
         value.text = str(scroll.getPos())
         getMod().eeChange(float(scroll.getPos())/100)
-        print('Explore/Exploit adjusted!')
     return closure
 
 def hp_adjusted(scroll, value):
@@ -401,7 +387,6 @@ def hp_adjusted(scroll, value):
     def closure():
         value.text = str(scroll.getPos())
         getMod().hpChange(scroll.getPos())
-        print('Hitpoint adjusted!')
     return closure
 
 def sp_adjusted(scroll, value):
@@ -409,8 +394,7 @@ def sp_adjusted(scroll, value):
     getMod().hpChange(float(scroll.getPos()))
     def closure():
         value.text = str(scroll.getPos())
-        #getMod().spChange(scroll.getPos())
-        print('Speedup adjusted!')
+        getMod().set_speedup(scroll.getPos())
     return closure
 
 def mode_adjusted(scroll):
