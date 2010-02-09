@@ -331,6 +331,12 @@ class NeroEnvironment(Environment):
             sum += ((state.af - avg['af'])/sig['af']) * approach_flag
             sum += ((state.ht - avg['ht'])/sig['ht']) * hit_target
             sum += ((state.vf - avg['vf'])/sig['vf']) * avoid_fire
+        
+            #Add current unit to pop_state
+            if agent.get_team() == 1: 
+             self.pop_state_1[agent.org.id] = state 
+            else:
+             self.pop_state_2[agent.org.id] = state 
 
             return sum
            # print "FINAL REWARD (if Z):", sum
@@ -484,9 +490,15 @@ class NeroEnvironment(Environment):
         curr_dict = {}
         for x in pop:
             curr_dict[x] = pop_state[x]
-           
-
+        curr_dict[agent.org.id] = pop_state[agent.org.id]
         pop_state = curr_dict
+        
+        #Add current unit to pop_state
+        #if agent.get_team() == 1: 
+        #     self.pop_state_1 = pop_state
+        #else:
+        #     self.pop_state_2 = pop_state
+
         for x in pop_state:
             x = pop_state[x]
             average['sg'] += x.sg
