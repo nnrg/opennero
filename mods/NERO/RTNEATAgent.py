@@ -41,7 +41,7 @@ class RTNEATAgent(AgentBrain):
 	rtneat = get_ai("neat%d" % self.team)
         self.org = rtneat.next_organism(EXPLOIT_PROB)
 	active_set = rtneat.get_population_ids()
-	print 'population set for team %d:' % self.team , active_set
+	#print 'population set for team %d:' % self.team , active_set
         if FITNESS_OUT:    
             self.file_out = []
             self.file_out.append(str(gettime()))
