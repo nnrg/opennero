@@ -319,9 +319,11 @@ class NeroEnvironment(Environment):
         state.time = time.time()
         
         if agent.step >= self.max_steps - 1:
-            
+            rtneat = agent.get_rtneat()
+            pop = rtneat.get_population_ids()
+            if len(pop) == 0:
+                return 0
             avg,sig = self.generate_averages(agent)
-            
             sum = 0
             sum += ((state.sg - avg['sg'])/sig['sg']) * getMod().sg
             sum += ((state.st - avg['st'])/sig['st']) * getMod().st
