@@ -61,7 +61,9 @@ class NeroEnvironment(Environment):
         self.states = {}
         self.teams = {}
         self.flag_loc = getMod().flag_loc
-        self.pop_state = {}
+        
+        self.pop_state_1 = {}
+        self.pop_state_2 = {}
 
         abound = FeatureVectorInfo() # actions
         sbound = FeatureVectorInfo() # sensors
@@ -182,12 +184,21 @@ class NeroEnvironment(Environment):
             state.initial_rotation = r
             state.pose = (p.x, p.y, r.z)
             state.prev_pose = (p.x, p.y, r.z)
-            self.pop_state[agent.org.id] = state 
+            if agent.get_team() == 1: 
+             self.pop_state_1[agent.org.id] = state 
+            else:
+             self.pop_state_2[agent.org.id] = state 
         
         # Update Damage totals
         state.total_damage += state.curr_damage
         damage = state.curr_damage
         state.curr_damage = 0
+        
+        #Add current unit to pop_state
+        if agent.get_team() == 1: 
+             self.pop_state_1[agent.org.id] = state 
+        else:
+             self.pop_state_2[agent.org.id] = state 
         
         #Fitness Function Parameters
         stand_ground = getMod().sg
@@ -307,7 +318,25 @@ class NeroEnvironment(Environment):
         state.pose = (new_position.x, new_position.y, rotation.z)
         state.time = time.time()
         
-        return stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
+        if agent.step >= self.max_steps - 1:
+            
+            print "PERSONAL DATA: sg: " , state.sg, " st: ", state.st, " ae: " , state.ae ," af: ", state.af, " ht: ", state.ht, " vf: ", state.vf
+            avg,sig = self.generate_averages(agent)
+            print "AVG:",avg
+            print "SIG:",sig
+            sum = 0
+            sum += ((state.sg - avg['sg'])/sig['sg']) * stand_ground
+            sum += ((state.st - avg['st'])/sig['st']) * stick_together
+            sum += ((state.ae - avg['ae'])/sig['ae']) * approach_enemy
+            sum += ((state.af - avg['af'])/sig['af']) * approach_flag
+            sum += ((state.ht - avg['ht'])/sig['ht']) * hit_target
+            sum += ((state.vf - avg['vf'])/sig['vf']) * avoid_fire
+
+            return sum
+           # print "FINAL REWARD (if Z):", sum
+
+        return 0
+        #return stand_ground + stick_together + approach_enemy + approach_flag + hit_target + avoid_fire
     
     def raySense (self, agent, heading_mod, dist, types=0, draw=False):
         state = self.get_state(agent)
@@ -437,6 +466,52 @@ class NeroEnvironment(Environment):
         cleanup the world
         """
         return True
+
+    def generate_averages(self,agent):
+        rtneat = agent.get_rtneat()
+        pop = rtneat.get_population_ids()
+        average = {'sg':0,'st':0,'ae':0,'af':0,'ht':0,'vf':0}
+        sigma   = {'sg':1,'st':1,'ae':1,'af':1,'ht':1,'vf':1}
+        if len(pop) == 0:
+            return average,sigma
+        
+        #Add current unit to pop_state
+        if agent.get_team() == 1: 
+             pop_state = self.pop_state_1
+        else:
+             pop_state = self.pop_state_2
+        
+        curr_dict = {}
+        for x in pop:
+            curr_dict[x] = pop_state[x]
+           
+
+        pop_state = curr_dict
+        for x in pop_state:
+            x = pop_state[x]
+            average['sg'] += x.sg
+            average['st'] += x.st
+            average['ae'] += x.ae
+            average['af'] += x.af
+            average['ht'] += x.ht
+            average['vf'] += x.vf
+        for x in average:
+            average[x] /= len(pop_state)
+         
+        for x in pop_state:
+            x = pop_state[x]
+            sigma['sg'] += pow(average['sg'] - x.sg,2)
+            sigma['st'] += pow(average['st'] - x.st,2)
+            sigma['ae'] += pow(average['ae'] - x.ae,2)
+            sigma['af'] += pow(average['af'] - x.af,2)
+            sigma['ht'] += pow(average['ht'] - x.ht,2)
+            sigma['vf'] += pow(average['vf'] - x.vf,2)
+
+        for x in sigma:
+            sigma[x] /= len(pop_state)
+            sigma[x] = pow(sigma[x],.5)
+
+        return average,sigma
 
 def wrap_degrees(a, da):
     a2 = a + da

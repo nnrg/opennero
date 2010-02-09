@@ -28,6 +28,9 @@ class RTNEATAgent(AgentBrain):
         self.team = getMod().currTeam #Team ID
         return True
 
+    def get_rtneat(self):
+        return get_ai("neat%d" % self.team)
+
     def start(self, time, sensors):
         """
         start of an episode
@@ -82,9 +85,13 @@ class RTNEATAgent(AgentBrain):
         """
         return True
         
+    #TODO: REPLACE THIS WITH get_team
     def getTeam(self):
         return self.team
-    
+   
+    def get_team(self):
+        return self.team
+
     def network_action(self, sensors):
         """
         Take the current network
