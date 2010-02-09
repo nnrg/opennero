@@ -124,8 +124,8 @@ class NeroModule:
         enable_ai()
         for i in range(0, 10):
             self.agent_map[(0,i)] = getNextFreeId()
-            dx = random.randrange(XDIM/20)
-            dy = random.randrange(XDIM/20)
+            dx = random.randrange(XDIM/20) - XDIM/40
+            dy = random.randrange(XDIM/20) - XDIM/40
             if i % 2 == 0:
                 self.currTeam = 1
                 addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
