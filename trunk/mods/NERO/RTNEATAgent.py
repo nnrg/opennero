@@ -36,12 +36,11 @@ class RTNEATAgent(AgentBrain):
         start of an episode
         """
         from NERO.module import getMod
-        print "PRODUCING A BRAND SPANKING NEW ORGANISM"
+        print "a brand new organism"
         EXPLOIT_PROB = getMod().ee
-	rtneat = get_ai("neat%d" % self.team)
+        rtneat = get_ai("neat%d" % self.team)
         self.org = rtneat.next_organism(EXPLOIT_PROB)
-	active_set = rtneat.get_population_ids()
-	#print 'population set for team %d:' % self.team , active_set
+        self.state.label = "%.02f" % self.org.fitness
         if FITNESS_OUT:    
             self.file_out = []
             self.file_out.append(str(gettime()))
@@ -54,8 +53,7 @@ class RTNEATAgent(AgentBrain):
         """
         a state transition
         """
-        self.reward += reward # store reward
-        self.state.label = "%.02f" % self.reward
+        self.reward += reward # store reward        
         # return action
         return self.network_action(sensors)
 
