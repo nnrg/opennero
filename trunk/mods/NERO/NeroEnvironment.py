@@ -38,7 +38,7 @@ class AgentState:
         self.vf = 0
         self.final_fitness = 0
         self.animation = 'stand'
-
+        
 class NeroEnvironment(Environment):
     """
     Environment for the Nero
@@ -48,12 +48,11 @@ class NeroEnvironment(Environment):
         """
         Create the environment
         """
-
         print "CREATING NERO ENVIRONMENT: " + str(dir(module))
         Environment.__init__(self) 
-        
+
         self.curr_id = 0
-        self.step_size = 0.1 # time between steps in seconds
+        self.step_delay = 0.5 # time between steps in seconds
         self.max_steps = 20
         self.time = time.time()
         self.XDIM = XDIM
@@ -62,7 +61,8 @@ class NeroEnvironment(Environment):
         self.states = {}
         self.teams = {}
         self.flag_loc = getMod().flag_loc
-        
+        self.speedup = 0
+
         self.pop_state_1 = {}
         self.pop_state_2 = {}
 
@@ -440,8 +440,8 @@ class NeroEnvironment(Environment):
         (x2, y2, h2) = state.pose
         if x1 != x2 or y1 != y2:
             fraction = 1.0
-            if self.step_size:
-                fraction = min(1.0, float(time.time() - state.time) / self.step_size)
+            if self.get_delay() != 0:
+                fraction = min(1.0, float(time.time() - state.time) / self.get_delay())
             pos = agent.state.position
             pos.x = x1 * (1 - fraction) + x2 * fraction
             pos.y = y1 * (1 - fraction) + y2 * fraction
@@ -449,7 +449,7 @@ class NeroEnvironment(Environment):
             self.set_animation(agent, state, 'run')
         else:
             self.set_animation(agent, state, 'stand')
-        if time.time() - state.time > self.step_size:
+        if time.time() - state.time > self.get_delay():
             state.time = time.time()
             return True
         else:
@@ -526,6 +526,9 @@ class NeroEnvironment(Environment):
             sigma[x] = pow(sigma[x],.5)
 
         return average,sigma
+    
+    def get_delay(self):
+        return self.step_delay * (1.0 - self.speedup)
 
 def wrap_degrees(a, da):
     a2 = a + da

@@ -103,46 +103,64 @@ class NeroModule:
         if os.path.exists("rtneat.gnm") and os.path.exists("rtneat2.gnm"):
             rtneat = RTNEAT("rtneat.gnm", "data/ai/neat-params.dat", pop_size)
             rtneat2= RTNEAT("rtneat2.gnm","data/ai/neat-params.dat", pop_size)
-
+    
+    def set_speedup(self, speedup):
+        self.speedup = speedup
+        if self.environment:
+            self.environment.speedup = speedup
+    
     #The following functions are used to let the client update the fitness function
     def sgChange(self,value):
         self.sg = value
+        print 'Stand ground:',value
 
     def stChange(self,value):
         self.st = value
+        print 'Stick together:',value
 
     def aeChange(self,value):
         self.ae = value
+        print 'Approach enemy:',value
 
     def afChange(self,value):
         self.af = value
+        print 'Approach flag:',value
 
     def htChange(self,value):
         self.ht = value
+        print 'Hit target:',value
 
     def vfChange(self,value):
         self.vf = value
+        print 'Avoid fire:',value
 
     def ltChange(self,value):
         self.lt = value
+        print 'lifetime:',value
 
     def dtaChange(self,value):
         self.dta = value
+        print 'Distance to approach A:',value
 
     def dtbChange(self,value):
         self.dtb = value
+        print 'Distance to approach B:',value
 
     def dtcChange(self,value):
         self.dtc = value
+        print 'Distance to approach C:',value
 
     def ffChange(self,value):
         self.ff = value
+        print 'Friendly fire:',value
 
     def eeChange(self,value):
         self.ee = value
+        print 'Explore/exploit:',value
 
     def hpChange(self,value):
         self.hp = value
+        print 'Hit points:',value
 
 gMod = None
 
