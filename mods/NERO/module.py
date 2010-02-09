@@ -119,19 +119,19 @@ class NeroModule:
         from NeroEnvironment import NeroEnvironment
 
         # Create RTNEAT Objects
-        set_ai("neat",rtneat)
+        set_ai("neat1",rtneat)
+        set_ai("neat2", rtneat2)
         enable_ai()
         for i in range(0, 10):
             self.agent_map[(0,i)] = getNextFreeId()
-            
+            dx = random.randrange(XDIM/20)
+            dy = random.randrange(XDIM/20)
             if i % 2 == 0:
-             self.currTeam = 1
-             set_ai("neat",rtneat)
-             addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + i,YDIM/3 + i,2),type = AGENT)
+                self.currTeam = 1
+                addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
             else:
-             self.currTeam = 2
-             set_ai("neat",rtneat2)
-             addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + i,2*YDIM/3 + i ,2),type = AGENT)
+                self.currTeam = 2
+                addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
    
    #The following is run when the Save button is pressed
     def save_rtneat(self):
@@ -144,8 +144,8 @@ class NeroModule:
         import os
         global rtneat, rtneat2
         if os.path.exists("rtneat.gnm") and os.path.exists("rtneat2.gnm"):
-         rtneat = RTNEAT("rtneat.gnm", "data/ai/neat-params.dat", pop_size)
-         rtneat2= RTNEAT("rtneat2.gnm","data/ai/neat-params.dat", pop_size)
+            rtneat = RTNEAT("rtneat.gnm", "data/ai/neat-params.dat", pop_size)
+            rtneat2= RTNEAT("rtneat2.gnm","data/ai/neat-params.dat", pop_size)
 
     #The following functions are used to let the client update the fitness function
     def sgChange(self,value):

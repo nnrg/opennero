@@ -370,7 +370,6 @@ bool Network::backprop()
 void Network::show_activation() const
 {
     vector<NNodePtr>::const_iterator curnode;
-    S32 count;
 
     cout<<"Network "<<name<<" with id "<<net_id<<": (";
 

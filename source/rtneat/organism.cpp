@@ -15,29 +15,23 @@ Organism::Organism(double fit, GenomePtr g, int gen, const string &md) :
     error(0),
     winner(false), 
     gnome(g),
-    net(),
+    net(gnome->genesis(gnome->genome_id)),
     species(), //Start it in no Species
     expected_offspring(0), 
     generation(gen), 
     eliminate(false), 
     champion(false), 
     super_champ_offspring(0), 
+    pop_champ(false),
+    pop_champ_child(false),
+    high_fit(0), 
+    time_alive(0), 
+    mut_struct_baby(false),
+    mate_baby(false),
     metadata(md),
+    modified(true),
     smited(false)
 {
-    assert(gnome);
-    net = gnome->genesis(gnome->genome_id);
-
-    time_alive=0;
-
-    //DEBUG vars
-    pop_champ=false;
-    pop_champ_child=false;
-    high_fit=0;
-    mut_struct_baby=0;
-    mate_baby=0;
-
-    modified = true;
 }
 
 Organism::Organism(const Organism& org) :
@@ -52,19 +46,17 @@ Organism::Organism(const Organism& org) :
     generation(org.generation),
     eliminate(org.eliminate), 
     champion(org.champion), 
-    super_champ_offspring(org.super_champ_offspring),
+    super_champ_offspring(org.super_champ_offspring), 
+    pop_champ(org.pop_champ),
+    pop_champ_child(org.pop_champ_child),
+    high_fit(org.high_fit), 
+    time_alive(org.time_alive), 
+    mut_struct_baby(org.mut_struct_baby),
+    mate_baby(org.mate_baby),
     metadata(org.metadata),
+    modified(false),
     smited(false)
 {
-    assert(gnome);
-    time_alive = org.time_alive;
-    pop_champ = org.pop_champ;
-    pop_champ_child = org.pop_champ_child;
-    high_fit = org.high_fit;
-    mut_struct_baby = org.mut_struct_baby;
-    mate_baby = org.mate_baby;
-
-    modified = false;
 }
 
 Organism::~Organism()

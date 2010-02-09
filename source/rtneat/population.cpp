@@ -262,11 +262,11 @@ bool Population::verify()
 {
     vector<OrganismPtr>::iterator curorg;
 
-    bool verification;
+    bool verification = true;
 
     for (curorg=organisms.begin(); curorg!=organisms.end(); ++curorg)
     {
-        verification=((*curorg)->gnome)->verify();
+        verification = verification && ((*curorg)->gnome)->verify();
     }
 
     return verification;
