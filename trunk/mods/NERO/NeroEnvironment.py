@@ -36,6 +36,7 @@ class AgentState:
         self.af = 0
         self.ht = 0
         self.vf = 0
+        self.final_fitness = 0
         self.animation = 'stand'
 
 class NeroEnvironment(Environment):
@@ -319,17 +320,15 @@ class NeroEnvironment(Environment):
         
         if agent.step >= self.max_steps - 1:
             
-            #print "PERSONAL DATA: sg: " , state.sg, " st: ", state.st, " ae: " , state.ae ," af: ", state.af, " ht: ", state.ht, " vf: ", state.vf
             avg,sig = self.generate_averages(agent)
-            #print "AVG:",avg
-            #print "SIG:",sig
+            
             sum = 0
-            sum += ((state.sg - avg['sg'])/sig['sg']) * stand_ground
-            sum += ((state.st - avg['st'])/sig['st']) * stick_together
-            sum += ((state.ae - avg['ae'])/sig['ae']) * approach_enemy
-            sum += ((state.af - avg['af'])/sig['af']) * approach_flag
-            sum += ((state.ht - avg['ht'])/sig['ht']) * hit_target
-            sum += ((state.vf - avg['vf'])/sig['vf']) * avoid_fire
+            sum += ((state.sg - avg['sg'])/sig['sg']) * getMod().sg
+            sum += ((state.st - avg['st'])/sig['st']) * getMod().st
+            sum += ((state.ae - avg['ae'])/sig['ae']) * getMod().ae
+            sum += ((state.af - avg['af'])/sig['af']) * getMod().af
+            sum += ((state.ht - avg['ht'])/sig['ht']) * getMod().ht
+            sum += ((state.vf - avg['vf'])/sig['vf']) * getMod().vf
         
             #Add current unit to pop_state
             if agent.get_team() == 1: 
@@ -337,6 +336,8 @@ class NeroEnvironment(Environment):
             else:
              self.pop_state_2[agent.org.id] = state 
 
+            state.final_fitness = sum
+            
             return sum
            # print "FINAL REWARD (if Z):", sum
 
