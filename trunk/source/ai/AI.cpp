@@ -1,4 +1,3 @@
-
 #include "core/Common.h"
 #include "AI.h"
 #include "SensorArray.h"
@@ -91,6 +90,19 @@ namespace OpenNero
         return result;
     }
 
+    /// given a feature vector in the range 0-1, make a feature vector with these constraints
+    FeatureVector FeatureVectorInfo::denormalize(const FeatureVector& array) const
+	{
+    	FeatureVector result(array);
+    	for (size_t i = 0; i < size(); ++i)
+    	{
+    		// 0 will be = lower, 1 will be = upper
+    		double d = upper[i] - lower[i];
+    		result[i] = array[i] * d + lower[i];
+    	}
+    	return result;
+	}
+
     /// validate a vector of values against these bounds
     bool FeatureVectorInfo::validate(const FeatureVector& array) const
     {
@@ -99,6 +111,7 @@ namespace OpenNero
         {
             if (array[i] < lower[i] || array[i] > upper[i])
             {
+            	LOG_F_DEBUG("ai", "value in position " << i << " was " << array[i] << " which is not between " << lower[i] << " and " << upper[i]);
                 return false;
             }
         }
@@ -281,6 +294,7 @@ namespace OpenNero
             .def("add", &FeatureVectorInfo::add, "Add an element")
             .def("validate", &FeatureVectorInfo::validate, "Check whether a feature vector is valid")
             .def("normalize", &FeatureVectorInfo::normalize, "Normalize the feature vector given this info")
+            .def("denormalize", &FeatureVectorInfo::denormalize, "Create an instance of a feature vector from a vector of values between 0 and 1")
             .def("get_instance", &FeatureVectorInfo::getInstance, "Create a feature vector based on this information")
             .def("random", &FeatureVectorInfo::getRandom, "Create a random feature vector uniformly distributed within bounds");
 

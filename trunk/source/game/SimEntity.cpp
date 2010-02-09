@@ -258,7 +258,8 @@ namespace OpenNero
             return false;
         }
         Triangle3f resultTriangle; // ignored
-        ISceneNode* node = collider->getSceneNodeAndCollisionPointFromRay(ray, outCollisionPoint, resultTriangle, 0, node);
+        ISceneNode* node(NULL);
+        node = collider->getSceneNodeAndCollisionPointFromRay(ray, outCollisionPoint, resultTriangle, 0);
         return (node != NULL);
     }
 

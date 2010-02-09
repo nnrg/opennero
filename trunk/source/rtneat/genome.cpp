@@ -10,18 +10,20 @@
 using namespace NEAT;
 using namespace std;
 
-Genome::Genome(S32 id, vector<TraitPtr> t, vector<NNodePtr> n, vector<GenePtr> g) :
-  genome_id(id), traits(t), nodes(n), genes(g)
+Genome::Genome(S32 id, vector<TraitPtr> t, vector<NNodePtr> n, vector<GenePtr> g)
+    : genome_id(id)
+    , traits(t)
+    , nodes(n)
+    , genes(g)
 {
 }
 
 Genome::Genome(S32 id, vector<TraitPtr> t, vector<NNodePtr> n, vector<LinkPtr> links)
+    : genome_id(id)
+    , traits(t)
+    , nodes(n)
 {
     vector<LinkPtr>::iterator curlink;
-    traits=t;
-    nodes=n;
-
-    genome_id=id;
 
     //We go through the links and turn them into original genes
     for (curlink=links.begin(); curlink!=links.end(); ++curlink)
@@ -34,9 +36,8 @@ Genome::Genome(S32 id, vector<TraitPtr> t, vector<NNodePtr> n, vector<LinkPtr> l
 }
 
 Genome::Genome(const Genome& genome)
+    : genome_id(genome.genome_id)
 {
-    genome_id = genome.genome_id;
-
     vector<TraitPtr>::const_iterator curtrait;
     vector<NNodePtr>::const_iterator curnode;
     vector<GenePtr>::const_iterator curgene;
@@ -99,13 +100,12 @@ Genome::Genome(const Genome& genome)
 }
 
 Genome::Genome(S32 id, std::ifstream &iFile)
+    : genome_id(id)
 {
     string curword; //max word size of 128 characters
     string curline; //max line size of 1024 characters
 
     bool done=false;
-
-    genome_id=id;
     
     //Loop until file is finished, parsing each line
     while (!done && iFile)
@@ -161,6 +161,7 @@ Genome::Genome(S32 id, std::ifstream &iFile)
 }
 
 Genome::Genome(S32 new_id, S32 i, S32 o, S32 n, S32 nmax, bool r, F64 linkprob)
+    : genome_id(new_id)
 {
     int totalnodes;
     bool *cm; //The connection matrix which will be randomized
@@ -194,11 +195,6 @@ Genome::Genome(S32 new_id, S32 i, S32 o, S32 n, S32 nmax, bool r, F64 linkprob)
 
     //Retrieves the nodes pointed to by connection genes
     vector<NNodePtr>::iterator node_iter;
-
-    //Assign the id
-    genome_id=new_id;
-
-    //cout<<"Assigned id "<<genome_id<<endl;
 
     //Step through the connection matrix, randomly assigning bits
     cmp=cm;
@@ -330,6 +326,7 @@ Genome::Genome(S32 new_id, S32 i, S32 o, S32 n, S32 nmax, bool r, F64 linkprob)
 }
 
 Genome::Genome(S32 num_in, S32 num_out, S32 num_hidden, S32 type)
+    : genome_id(0)
 {
 
     //Temporary lists of nodes
@@ -347,9 +344,6 @@ Genome::Genome(S32 num_in, S32 num_out, S32 num_hidden, S32 type)
 
     int count;
     int ncount;
-
-    //Assign the id 0
-    genome_id=0;
 
     //Create a dummy trait (this is for future expansion of the system)
     TraitPtr newtrait(new Trait(1,0,0,0,0,0,0,0,0,0));
@@ -533,8 +527,6 @@ Genome::Genome(S32 num_in, S32 num_out, S32 num_hidden, S32 type)
 
 GenomePtr Genome::new_Genome_load(const std::string& filename)
 {
-    GenomePtr newgenome;
-
     S32 id;
 
     string curword;
@@ -545,7 +537,7 @@ GenomePtr Genome::new_Genome_load(const std::string& filename)
     if (!iFile)
     {
         cerr<<"Can't open "<<filename<<" for input"<<endl;
-        return newgenome;
+        return GenomePtr();
     }
 
     iFile>>curword;
@@ -564,7 +556,7 @@ GenomePtr Genome::new_Genome_load(const std::string& filename)
 
     iFile>>id;
 
-    newgenome.reset(new Genome(id,iFile));
+    GenomePtr newgenome(new Genome(id,iFile));
 
     iFile.close();
 
@@ -871,8 +863,6 @@ GenomePtr Genome::duplicate(S32 new_id)
     NNodePtr onode; //For forming a gene
     TraitPtr traitptr;
 
-    GenomePtr newgenome;
-
     //Duplicate the traits
     for (curtrait=traits.begin(); curtrait!=traits.end(); ++curtrait)
     {
@@ -927,7 +917,7 @@ GenomePtr Genome::duplicate(S32 new_id)
     }
 
     //Finally, return the genome
-    newgenome.reset(new Genome(new_id,traits_dup,nodes_dup,genes_dup));
+    GenomePtr newgenome(new Genome(new_id,traits_dup,nodes_dup,genes_dup));
 
     return newgenome;
 

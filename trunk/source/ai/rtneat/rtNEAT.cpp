@@ -36,7 +36,7 @@ namespace OpenNero
     /// @param filename name of the file with the initial population genomes
     /// @param param_file file with RTNEAT parameters to load
     /// @param population_size size of the population to construct
-    RTNEAT::RTNEAT(const std::string& filename, const std::string& param_file, S32 population_size)
+    RTNEAT::RTNEAT(const std::string& filename, const std::string& param_file, size_t population_size)
         : mPopulation()
         , mEvalQueue()
         , mOffspringCount(0)
@@ -60,7 +60,7 @@ namespace OpenNero
     /// @param outputs number of outputs
     /// @param population_size size of the population to construct
     /// @param noise variance of the Gaussian used to assign initial weights
-    RTNEAT::RTNEAT(const std::string& param_file, S32 inputs, S32 outputs, S32 population_size, F32 noise)
+    RTNEAT::RTNEAT(const std::string& param_file, size_t inputs, size_t outputs, size_t population_size, F32 noise)
         : mPopulation()
         , mEvalQueue()
         , mOffspringCount(0)
