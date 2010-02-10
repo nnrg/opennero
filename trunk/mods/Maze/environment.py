@@ -4,25 +4,28 @@ from copy import copy
 from mazer import Maze
 from constants import *
 from OpenNero import *
+from collections import deque
 
 import observer
 
 class MazeRewardStructure:
+    """ This defines the reward that the agents get for running the maze """
     def valid_move(self, state):
-        # a valid move is just a -1 (to reward shorter routes)
+        """ a valid move is just a -1 (to reward shorter routes) """
         return -1
     def out_of_bounds(self, state):
-        # running out of bounds costs -5
+        """ reward for running out of bounds of the maze (hitting the outer wall) """
         return -5
     def hit_wall(self, state):
-        # running into a wall costs -5
+        """ reward for hitting any other wall """
         return -5
     def goal_reached(self, state):
+        """ reward for reaching the goal """
         print 'GOAL REACHED!'
         # reaching a goal is great!
         return 100
     def last_reward(self, state):
-        # return some fraction of 100 depending on how close to the target we get
+        """ reward for ending without reaching the goal """
         (r,c) = state.rc
         print 'EPISODE ENDED AT', r, c
         return 100.0*(r+c)/(ROWS+COLS)
@@ -44,6 +47,8 @@ class AgentState:
         self.start_time = self.time
         self.sensors = True
         self.animation = 'stand'
+        self.observation_history = deque([ [x] for x in range(HISTORY_LENGTH)])
+        self.action_history = deque([ [x] for x in range(HISTORY_LENGTH)])
 
     def update(self, agent, maze):
         """
@@ -55,6 +60,22 @@ class AgentState:
         self.prev_pose = self.pose
         self.pose = (pos.x, pos.y, agent.state.rotation.z + self.initial_rotation.z)
         self.time = time.time()
+        
+    def record_action(self, action):
+        self.action_history.popleft()
+        self.action_history.append(action)
+        
+    def record_observation(self, observation):
+        self.observation_history.popleft()
+        self.observation_history.append(observation)
+    
+    def is_stuck(self):
+        """ for now the only way to get stuck is to have the same state-action pair """
+        if not is_uniform(self.action_history):
+            return False
+        if not is_uniform(self.observation_history):
+            return False
+        return True
 
 class MazeEnvironment(Environment):
     MOVES = [(1,0), (-1,0), (0,1), (0,-1)]
@@ -109,6 +130,7 @@ class MazeEnvironment(Environment):
             return self.states[agent]
         else:
             self.states[agent] = AgentState(self.maze)
+            assert(self.states[agent].sensors)
             if hasattr(agent, 'epsilon'):
                 print 'epsilon:', self.epsilon
                 agent.epsilon = self.epsilon
@@ -154,6 +176,7 @@ class MazeEnvironment(Environment):
         Discrete version
         """
         state = self.get_state(agent)
+        state.record_action(action)
         if not self.agent_info.actions.validate(action):
             state.prev_rc = state.rc
             return 0
@@ -206,10 +229,6 @@ class MazeEnvironment(Environment):
         """
         state = self.get_state(agent)
         v = self.agent_info.sensors.get_instance()
-        if not state.sensors:
-            # it is possible the agent is not interested in sensors
-            # like if it is a marker agent
-            return v
         v[0] = state.rc[0]
         v[1] = state.rc[1]
         offset = GRID_DX/10.0
@@ -220,6 +239,7 @@ class MazeEnvironment(Environment):
             # we only look for objects of type 1, which means walls
             objects = getSimContext().findInRay(ray[0], ray[1], 1, True)
             v[2 + i] = len(objects)
+        state.record_observation(v)
         return v
 
     def is_active(self, agent):
@@ -253,6 +273,9 @@ class MazeEnvironment(Environment):
             return True
         elif state.goal_reached:
             return True
+        elif state.is_stuck():
+            print "HELP! I'M STUCK"
+            return False
         else:
             return False
 
@@ -327,6 +350,7 @@ class ContMazeEnvironment(MazeEnvironment):
         Continuous version
         """
         state = self.get_state(agent)
+        state.record_action(action)
         if not self.agent_info.actions.validate(action):
             return 0
         a = int(round(action[0]))
@@ -381,9 +405,6 @@ class ContMazeEnvironment(MazeEnvironment):
         """
         state = self.get_state(agent)
         v = self.agent_info.sensors.get_instance()
-        if not state.sensors:
-            # if this is not a sensitive agent, don't bother
-            return v
         (x,y,heading) = state.pose # current agent pose
         v[0] = x # the agent can observe its position
         v[1] = y # the agent can observe its position
@@ -415,6 +436,7 @@ class ContMazeEnvironment(MazeEnvironment):
         if not self.agent_info.sensors.validate(v):
             print 'ERROR: incorect observation!', v
             print '       should be:', self.agent_info.sensors
+        state.record_observation(v)
         return v
 
     def is_active(self, agent):
@@ -426,6 +448,20 @@ class ContMazeEnvironment(MazeEnvironment):
             return True # call the sense/act/step loop
         else:
             return False
+
+def is_uniform(vv):
+    """ return true iff all the feature vectors in v are identical """
+    l = len(vv)
+    print vv
+    if l == 0:
+        return False
+    v0 = [x for x in vv[0]]
+    for i in range(1, len(vv)):
+        vi = [x for x in vv[i]]
+        print v0, vi
+        if v0 != vi:
+            return False
+    return True
 
 def wrap_degrees(a,da):
     a2 = a + da
