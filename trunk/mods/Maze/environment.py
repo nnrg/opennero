@@ -120,6 +120,7 @@ class MazeEnvironment(Environment):
         self.max_steps = MAX_STEPS
         self.step_delay = STEP_DELAY
         self.speedup = 0
+        self.shortcircuit = False
         print 'Initialized MazeEnvironment'
         
     def get_delay(self):
@@ -273,7 +274,7 @@ class MazeEnvironment(Environment):
             return True
         elif state.goal_reached:
             return True
-        elif state.is_stuck():
+        elif self.shortcircuit and state.is_stuck():
             print "HELP! I'M STUCK"
             return False
         else:
@@ -452,13 +453,11 @@ class ContMazeEnvironment(MazeEnvironment):
 def is_uniform(vv):
     """ return true iff all the feature vectors in v are identical """
     l = len(vv)
-    print vv
     if l == 0:
         return False
     v0 = [x for x in vv[0]]
     for i in range(1, len(vv)):
         vi = [x for x in vv[i]]
-        print v0, vi
         if v0 != vi:
             return False
     return True
