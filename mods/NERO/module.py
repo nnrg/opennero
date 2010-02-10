@@ -26,12 +26,7 @@ class NeroModule:
         self.environment = None
         self.agent_id = None
         self.agent_map = {}
-        self.sg =  0
-        self.st =  0
-        self.ae =  1
-        self.af =  0
-        self.ht =  0
-        self.vf =  0
+        self.weights = Fitness()
         self.lt = 10
         self.dta = 50
         self.dtb = 50
@@ -40,7 +35,8 @@ class NeroModule:
         self.ee =  0
         self.hp = 50
         self.currTeam = 1
-        self.flag_loc = Vector3f(20,20,0)
+        self.flag_loc = Vector3f(20,20,0)
+
 
     def setup_map(self):
         """
@@ -110,30 +106,10 @@ class NeroModule:
             self.environment.speedup = speedup
     
     #The following functions are used to let the client update the fitness function
-    def sgChange(self,value):
-        self.sg = value
-        print 'Stand ground:',value
-
-    def stChange(self,value):
-        self.st = value
-        print 'Stick together:',value
-
-    def aeChange(self,value):
-        self.ae = value
-        print 'Approach enemy:',value
-
-    def afChange(self,value):
-        self.af = value
-        print 'Approach flag:',value
-
-    def htChange(self,value):
-        self.ht = value
-        print 'Hit target:',value
-
-    def vfChange(self,value):
-        self.vf = value
-        print 'Avoid fire:',value
-
+    def set_weight(self, key, value):
+        self.weights[key] = value
+        print key, value
+        
     def ltChange(self,value):
         self.lt = value
         print 'lifetime:',value
