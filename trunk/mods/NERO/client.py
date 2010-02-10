@@ -1,5 +1,6 @@
 from OpenNero import *
 from module import getMod, delMod
+from NeroEnvironment import Fitness
 from common import *
 import common.gui as gui
 from inputConfig import *
@@ -48,25 +49,24 @@ def CreateGui(guiMan):
 
 
     #Stand Ground Scroll Data
-    sgText = gui.create_text(guiMan, 'sgText', Pos2i(65,-2), Pos2i(85,15), "Stand Ground")
+    sgText = gui.create_text(guiMan, 'sgText', Pos2i(65,-2), Pos2i(85,15), Fitness.STAND_GROUND)
     sgValue = gui.create_text(guiMan, 'sgValue', Pos2i(310,-2), Pos2i(20,15), '0')
     sgScroll = gui.create_scroll_bar(guiMan, 'sgScroll', Pos2i(150, 0), Pos2i(150,10), True)
     sgScroll.setMax(200)
     sgScroll.setLargeStep(10)
     sgScroll.setSmallStep(1)
     sgScroll.setPos(100)
-    sgScroll.OnScrollBarChange = sg_adjusted(sgScroll, sgValue)
+    sgScroll.OnScrollBarChange = weight_adjusted(sgScroll, Fitness.STAND_GROUND, sgValue)
 
     #Stick Together Scroll Data
-    stText = gui.create_text(guiMan, 'stText', Pos2i(65,12), Pos2i(85,15), "Stick Together")
+    stText = gui.create_text(guiMan, 'stText', Pos2i(65,12), Pos2i(85,15), Fitness.STICK_TOGETHER)
     stValue = gui.create_text(guiMan, 'stValue', Pos2i(310,12), Pos2i(20,15), '0')
     stScroll = gui.create_scroll_bar(guiMan, 'stScroll', Pos2i(150, 15), Pos2i(150,10), True)
     stScroll.setMax(200)
     stScroll.setLargeStep(10)
     stScroll.setSmallStep(1)
     stScroll.setPos(100)
-    stScroll.OnScrollBarChange = st_adjusted(stScroll, stValue)
-
+    stScroll.OnScrollBarChange = weight_adjusted(stScroll, Fitness.STICK_TOGETHER, stValue)
 
     dtaText = gui.create_text(guiMan, 'dtaText', Pos2i(350,12), Pos2i(50,15),"Distance")
     dtaValue = gui.create_text(guiMan, 'dtaValue', Pos2i(560,12), Pos2i(20,15), '50')
@@ -78,14 +78,14 @@ def CreateGui(guiMan):
     dtaScroll.OnScrollBarChange = dta_adjusted(dtaScroll, dtaValue)
 
     #Approach Enemy Scroll Data
-    aeText = gui.create_text(guiMan, 'aeText', Pos2i(65,27), Pos2i(85,15), "Approach Enemy")
+    aeText = gui.create_text(guiMan, 'aeText', Pos2i(65,27), Pos2i(85,15), Fitness.APPROACH_ENEMY)
     aeValue = gui.create_text(guiMan, 'aeValue', Pos2i(310,27), Pos2i(20,15), '0')
     aeScroll = gui.create_scroll_bar(guiMan, 'aeScroll', Pos2i(150, 30), Pos2i(150,10), True)
     aeScroll.setMax(200)
     aeScroll.setLargeStep(10)
     aeScroll.setSmallStep(1)
     aeScroll.setPos(200)
-    aeScroll.OnScrollBarChange = ae_adjusted(aeScroll, aeValue)
+    aeScroll.OnScrollBarChange = weight_adjusted(aeScroll, Fitness.APPROACH_ENEMY, aeValue)
 
 
     dtbText = gui.create_text(guiMan, 'dtbText', Pos2i(350,27), Pos2i(50,15),"Distance")
@@ -98,14 +98,14 @@ def CreateGui(guiMan):
     dtbScroll.OnScrollBarChange = dtb_adjusted(dtbScroll, dtbValue)
 
     #Approach Flag Scroll Data
-    afText = gui.create_text(guiMan, 'afText', Pos2i(65,42), Pos2i(85,15), "Approach Flag")
+    afText = gui.create_text(guiMan, 'afText', Pos2i(65,42), Pos2i(85,15), Fitness.APPROACH_FLAG)
     afValue = gui.create_text(guiMan, 'afValue', Pos2i(310,42), Pos2i(20,15), '0')
     afScroll = gui.create_scroll_bar(guiMan, 'afScroll', Pos2i(150, 45), Pos2i(150,10), True)
     afScroll.setMax(200)
     afScroll.setLargeStep(10)
     afScroll.setSmallStep(1)
     afScroll.setPos(100)
-    afScroll.OnScrollBarChange = af_adjusted(afScroll, afValue)
+    afScroll.OnScrollBarChange = weight_adjusted(afScroll, Fitness.APPROACH_FLAG, afValue)
 
 
     dtcText = gui.create_text(guiMan, 'dtcText', Pos2i(350,42), Pos2i(50,15),"Distance")
@@ -118,24 +118,24 @@ def CreateGui(guiMan):
     dtcScroll.OnScrollBarChange = dtc_adjusted(dtcScroll, dtcValue)
 
     #Hit Target Scroll Data
-    htText = gui.create_text(guiMan, 'htText', Pos2i(65,57), Pos2i(85,15), "Hit Target")
+    htText = gui.create_text(guiMan, 'htText', Pos2i(65,57), Pos2i(85,15), Fitness.HIT_TARGET)
     htValue = gui.create_text(guiMan, 'htValue', Pos2i(310,57), Pos2i(20,15), '0')
     htScroll = gui.create_scroll_bar(guiMan, 'htScroll', Pos2i(150, 60), Pos2i(150,10), True)
     htScroll.setMax(200)
     htScroll.setLargeStep(10)
     htScroll.setSmallStep(1)
     htScroll.setPos(100)
-    htScroll.OnScrollBarChange = ht_adjusted(htScroll, htValue)
+    htScroll.OnScrollBarChange = weight_adjusted(htScroll, Fitness.HIT_TARGET, htValue)
 
     #Avoid Fire Scroll Data
-    vfText = gui.create_text(guiMan, 'vfText', Pos2i(65,72), Pos2i(85,15), "Avoid Fire")
+    vfText = gui.create_text(guiMan, 'vfText', Pos2i(65,72), Pos2i(85,15), Fitness.AVOID_FIRE)
     vfValue = gui.create_text(guiMan, 'vfValue', Pos2i(310,72), Pos2i(20,15), '0')
     vfScroll = gui.create_scroll_bar(guiMan, 'vfScroll', Pos2i(150, 75), Pos2i(150,10), True)
     vfScroll.setMax(200)
     vfScroll.setLargeStep(10)
     vfScroll.setSmallStep(1)
     vfScroll.setPos(100)
-    vfScroll.OnScrollBarChange = vf_adjusted(vfScroll, vfValue)
+    vfScroll.OnScrollBarChange = weight_adjusted(vfScroll, Fitness.AVOID_FIRE, vfValue)
 
     #Lifetime Scroll Data
     ltText = gui.create_text(guiMan, 'ltText', Pos2i(65,92), Pos2i(85,15), "Lifetime")
@@ -189,11 +189,11 @@ def CreateGui(guiMan):
 
     global stat1Value, stat2Value, stat1Label, stat2Label
 
-    stat1Label = gui.create_text(guiMan, 'stat1Label', Pos2i(350,90),Pos2i(110,15),'Team 1: Avg Fitness: ')
-    stat1Value = gui.create_text(guiMan, 'stat1Value', Pos2i(470,90),Pos2i(85,15),'n/a')
+    #stat1Label = gui.create_text(guiMan, 'stat1Label', Pos2i(350,90),Pos2i(110,15),'Team 1: Avg Fitness: ')
+    #stat1Value = gui.create_text(guiMan, 'stat1Value', Pos2i(470,90),Pos2i(85,15),'n/a')
 
-    stat2Label = gui.create_text(guiMan, 'stat2Label', Pos2i(350,105),Pos2i(110,15),'Team 2: Avg Fitness: ')
-    stat2Value = gui.create_text(guiMan, 'stat2Label', Pos2i(470,105),Pos2i(85,15),'n/a')
+    #stat2Label = gui.create_text(guiMan, 'stat2Label', Pos2i(350,105),Pos2i(110,15),'Team 2: Avg Fitness: ')
+    #stat2Value = gui.create_text(guiMan, 'stat2Label', Pos2i(470,105),Pos2i(85,15),'n/a')
 
     trainText = gui.create_text(guiMan, 'trainText', Pos2i(350,130), Pos2i(40,30), "Train")
     fightText = gui.create_text(guiMan, 'fightText', Pos2i(520,130), Pos2i(100,30), "Fight")
@@ -250,80 +250,24 @@ def CreateGui(guiMan):
     guiWindow.addChild(eeValue)
     guiWindow.addChild(hpValue)
     guiWindow.addChild(spValue)
-    guiWindow.addChild(stat1Label)
-    guiWindow.addChild(stat1Value)
-    guiWindow.addChild(stat2Label)
-    guiWindow.addChild(stat2Value)
+    #guiWindow.addChild(stat1Label)
+    #guiWindow.addChild(stat1Value)
+    #guiWindow.addChild(stat2Label)
+    #guiWindow.addChild(stat2Value)
     guiWindow.addChild(modeScroll)
     guiWindow.addChild(fightText)
     guiWindow.addChild(trainText)
 
-def sg_adjusted(scroll, value):
-    # this returns a callback function for reacting to the changing epsilon value
+def weight_adjusted(scroll, key, value):
     result = scroll.getPos() - 100
     value.text = str(result)
-    getMod().sgChange(float(result)/100)
+    getMod().set_weight(key, float(result)/100)
     def closure():
        result = scroll.getPos() - 100
        value.text = str(result)
-       getMod().sgChange(float(result)/100)
+       getMod().set_weight(key, float(result)/100)
     return closure
     return 0
-
-def st_adjusted(scroll, value):
-    # this returns a callback function for reacting to the changing epsilon value
-    result = scroll.getPos() - 100
-    value.text = str(result)
-    getMod().stChange(float(result)/100)
-    def closure():
-        result = scroll.getPos() - 100
-        value.text = str(result)
-        getMod().stChange(float(result)/100)
-    return closure
-
-def ae_adjusted(scroll, value):
-    # this returns a callback function for reacting to the changing epsilon value
-    result = scroll.getPos() - 100
-    value.text = str(result)
-    getMod().aeChange(float(result)/100)
-    def closure():
-        result = scroll.getPos() - 100
-        value.text = str(result)
-        getMod().aeChange(float(result)/100)
-    return closure
-
-def af_adjusted(scroll, value):
-    # this returns a callback function for reacting to the changing epsilon value
-    result = scroll.getPos() - 100
-    value.text = str(result)
-    getMod().afChange(float(result)/100)
-    def closure():
-        result = scroll.getPos() - 100
-        value.text = str(result)
-        getMod().afChange(float(result)/100)
-    return closure
-
-def ht_adjusted(scroll, value):
-    # this returns a callback function for reacting to the changing epsilon value
-    result = scroll.getPos() - 100
-    value.text = str(result)
-    getMod().htChange(float(result)/100)
-    def closure():
-        result = scroll.getPos() - 100
-        value.text = str(result)
-        getMod().htChange(float(result)/100)
-    return closure    
-
-def vf_adjusted(scroll, value):
-    # this returns a callback function for reacting to the changing epsilon value
-    result = scroll.getPos() - 100
-    value.text = str(result)
-    getMod().vfChange(float(result)/100)
-    def closure():
-        result = scroll.getPos() - 100
-        value.text = str(result)
-        getMod().vfChange(float(result)/100)
-    return closure
 
 def lt_adjusted(scroll, value):
     # this returns a callback function for reacting to the changing epsilon value
