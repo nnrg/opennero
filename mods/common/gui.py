@@ -69,6 +69,14 @@ def create_edit_box( guiMan, name, position, extent, text ):
     e = gui_init_base( guiMan.createElement('edit box'), name, position, extent )
     e.text = text
     return e
+    
+def create_check_box( guiMan, name, position, extent, checked = False ):
+    """
+    @param checked the initial state of the checkbox
+    """
+    e = gui_init_base( guiMan.createElement('check box'), name, position, extent )
+    e.checked = checked
+    return e
 
 def create_scroll_bar( guiMan, name, position, extent, horizontal = False ):
     """
