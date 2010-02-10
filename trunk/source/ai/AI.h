@@ -172,15 +172,9 @@ namespace OpenNero {
     /// hash value of a feature vector
     size_t hash_value(const FeatureVector& fv);
     
-    /// equality for a feature vector
-    bool operator==(const FeatureVector& v1, const FeatureVector& v2);
-
     /// hash value of a state-action pair
     size_t hash_value(const StateActionPair& sa_pair);
     
-    /// equality for a state-action pair
-    bool operator==(const StateActionPair& p1, const StateActionPair& p2);
-
     /// An AI is a global "puppeteer" algorithm that manages the resources necessary
     /// to do learning or intelligent behavior. Examples of AI algorithms include policy search
     /// methods such as neuroevolution (rtNEAT), online learning methods such as Q-learning or

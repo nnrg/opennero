@@ -228,6 +228,7 @@ namespace OpenNero
     void GuiBase::SetOnMouseLeave( PyObject func )          {   SetResponseFunction( kResponse_OnMouseLeave, func); }
     void GuiBase::SetOnMouseMove( PyObject func )           {   SetResponseFunction( kResponse_OnMouseMove, func); }
     void GuiBase::SetOnScrollBarChange( PyObject func )     {   SetResponseFunction( kResponse_OnScrollBarChange, func); }
+    void GuiBase::SetOnCheckBoxChange( PyObject func )      {   SetResponseFunction( kResponse_OnCheckBoxChange, func); }
 
     GuiBase::PyObject GuiBase::GetOnMouseLeftDown()       {   return GetResponseFunction( kResponse_OnMouseLeftDown); }
     GuiBase::PyObject GuiBase::GetOnMouseRightDown()      {   return GetResponseFunction( kResponse_OnMouseRightDown); }
@@ -239,6 +240,7 @@ namespace OpenNero
     GuiBase::PyObject GuiBase::GetOnMouseLeave()          {   return GetResponseFunction( kResponse_OnMouseLeave); }
     GuiBase::PyObject GuiBase::GetOnMouseMove()           {   return GetResponseFunction( kResponse_OnMouseMove); }
     GuiBase::PyObject GuiBase::GetOnScrollBarChange()     {   return GetResponseFunction( kResponse_OnScrollBarChange); }
+    GuiBase::PyObject GuiBase::GetOnCheckBoxChange()      {   return GetResponseFunction( kResponse_OnCheckBoxChange); }
 
     void GuiBase::SetResponseFunction( ResponseFlag flag, PyObject func )
     {
@@ -389,6 +391,13 @@ namespace OpenNero
 
         return true;
     }
+    
+    bool PyGuiBase::OnCheckBoxChange( /*const SEvent& event*/ )
+    {
+        if (!AttemptPythonExecution(kResponse_OnCheckBoxChange) && !(AttemptOverrideExecution( "OnCheckBoxChange" )))
+            return Default_OnCheckBoxChange(/* event */);
+        return true;
+    }
 
     bool PyGuiBase::RespondsTo_Internal( ResponseFlag flag )
     {
@@ -416,6 +425,8 @@ namespace OpenNero
             case kResponse_OnMouseMove:         return CheckForOverride("OnMouseMove");
 
             case kResponse_OnScrollBarChange:   return CheckForOverride("OnScrollBarChange");
+            
+            case kResponse_OnCheckBoxChange:    return CheckForOverride("OnCheckBoxChange");
 
             default: Assert(false); return false;
             }
@@ -438,6 +449,7 @@ namespace OpenNero
     bool PyGuiBase::Default_OnMouseMove(  /*const SEvent& event*/ ) { return false; }
 
     bool PyGuiBase::Default_OnScrollBarChange() { return false; }
+    bool PyGuiBase::Default_OnCheckBoxChange() { return false; }
 
     bool PyGuiBase::CheckForOverride( const std::string& overrideName ) const
     {

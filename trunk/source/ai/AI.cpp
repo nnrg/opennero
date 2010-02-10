@@ -251,23 +251,9 @@ namespace OpenNero
         return boost::hash_value(sa_pair);
     }
     
-    bool operator==(const FeatureVector& v1, const FeatureVector& v2)
-    {
-        if (v1.size() != v2.size())
-        {
-            return false;
-        }
-        for (size_t i = 0; i < v1.size(); ++i)
-        {
-            if (v1[i] != v2[i]) return false;
-        }
-        return true;
-    }
-    
-    bool operator==(const StateActionPair& p1, const StateActionPair& p2)
-    {
-        return (p1.first == p2.first) && (p1.second == p2.second);
-    }
+    static bool eq_fv(const FeatureVector& v1, const FeatureVector& v2)
+    { return v1 == v2; }
+
 
     /// @brief export the OpenNERO AI script interface
     PYTHON_BINDER( AI )
@@ -301,6 +287,7 @@ namespace OpenNero
         // export std::vector<double>
         class_< std::vector<double> > ("DoubleVector", "A vector of real values")
             .def(self_ns::str(self_ns::self))
+            .def("__eq__", &eq_fv)
             .def(python::vector_indexing_suite< std::vector<double> >());
 
         class_<AgentInitInfo>("AgentInitInfo", "Initialization information given to the agent", 
