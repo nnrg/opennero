@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env pythonw
 """Process and display performance of AI algorithms in OpenNERO.
 
 plot_server reads a log file (or receives this file over the network) and 
@@ -20,6 +20,7 @@ __author__ = "Igor Karpov (ikarpov@cs.utexas.edu)"
 HOST, PORT = "localhost", 9999
 ADDR = (HOST, PORT)
 BUFSIZE = 4086
+SAVE_EVERY = 5
 
 ai_tick_pattern = re.compile(r'(?P<date>[^\[]*)\.(?P<msec>[0-9]+) \(m\) \[ai\.tick\]\s+(?P<id>\S+)\s+(?P<episode>\S+)\s+(?P<step>\S+)\s+(?P<reward>\S+)\s+(?P<fitness>\S+)')
 timestamp_fmt = r'%Y-%b-%d %H:%M:%S'
@@ -41,6 +42,8 @@ class AgentHistory():
         if len(self.episode_time) > 0:
             self.time.append(self.episode_time[-1])
             self.fitness.append(self.episode_fitness[-1])
+        self.episode_time = []
+        self.episode_fitness = []
     def plot(self):
         if len(self.time) > 0:
             x = np.array(self.time)
@@ -50,7 +53,8 @@ class AgentHistory():
 class LearningCurve:
     def __init__(self):
         self.histories = {}
-        
+        self.unsaved_for = 0
+         
     def append(self, id, ms, episode, step, reward, fitness):
         record = None
         if id in self.histories:
@@ -60,6 +64,11 @@ class LearningCurve:
             self.histories[id] = record
         if step == 0:
             record.episode()
+            if self.unsaved_for > SAVE_EVERY:
+                self.save()
+                self.unsaved_for = 0
+            else:
+                self.unsaved_for += 1
         record.append(ms, fitness)
         
     def save(self):
@@ -71,10 +80,11 @@ class LearningCurve:
         pl.hold(True)
         for id in self.histories:
             self.histories[id].plot()
-        fname = timestamped_filename('opennero-','-fitness.png')
+        #fname = timestamped_filename('opennero-','-fitness.png')
+        fname = 'opennero-fitness.png'
         print 'saving to:', fname
         fig.savefig(fname)
-        pl.show()
+        #pl.show()
 
     def process_line(self, line):
         """Process a line of the log file and record the information in it in the LearningCurve
