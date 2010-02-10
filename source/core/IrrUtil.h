@@ -119,7 +119,9 @@ namespace OpenNero
     /// Interface to a GUI button
 	typedef boost::intrusive_ptr<irr::gui::IGUIButton>				IGuiButton_IPtr;
     /// Interface to a GUI scrollbar
-	typedef boost::intrusive_ptr<irr::gui::IGUIScrollBar>				IGuiScrollBar_IPtr;
+	typedef boost::intrusive_ptr<irr::gui::IGUIScrollBar>			IGuiScrollBar_IPtr;
+    /// Interface to a GUI check box
+    typedef boost::intrusive_ptr<irr::gui::IGUICheckBox>            IGuiCheckBox_IPtr;
 	
 	/// a container of irrlicht ptrs using intrusive ptrs
     struct IrrHandles

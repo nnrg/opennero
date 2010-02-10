@@ -62,6 +62,8 @@ namespace OpenNero
             kResponse_OnMouseMove,
 
             kResponse_OnScrollBarChange,
+            
+            kResponse_OnCheckBoxChange,
 
             kResponse_Max
         };
@@ -194,6 +196,8 @@ namespace OpenNero
         virtual bool OnMouseMove(  /*const SEvent& event*/ ) = 0;
 
         virtual bool OnScrollBarChange( /* const SEvent& event */ ) = 0;
+
+        virtual bool OnCheckBoxChange( /* const SEvent& event */ ) = 0;
         /// @}
 
         ///@}
@@ -221,6 +225,7 @@ namespace OpenNero
         void SetOnMouseLeave( PyObject func );
         void SetOnMouseMove( PyObject func );
         void SetOnScrollBarChange( PyObject func );
+        void SetOnCheckBoxChange( PyObject func );
 
         PyObject GetOnMouseLeftDown();
         PyObject GetOnMouseRightDown();
@@ -232,7 +237,7 @@ namespace OpenNero
         PyObject GetOnMouseLeave();
         PyObject GetOnMouseMove();
         PyObject GetOnScrollBarChange();
-
+        PyObject GetOnCheckBoxChange();
         ///@}
 
     protected:
@@ -333,6 +338,8 @@ namespace OpenNero
         virtual bool OnMouseMove(  /*const SEvent& event*/ );
 
         virtual bool OnScrollBarChange( /*const SEvent& event*/ );
+        
+        virtual bool OnCheckBoxChange( /* const SEvent& event */ );
         ///@}
 
         /** @name C++ Event Handlers
@@ -357,6 +364,8 @@ namespace OpenNero
         virtual bool Default_OnMouseMove(  /*const SEvent& event*/ );
 
         virtual bool Default_OnScrollBarChange(); 
+        
+        virtual bool Default_OnCheckBoxChange();
         ///@}
 
     protected:
@@ -425,7 +434,8 @@ namespace OpenNero
                                         .add_property( "OnMouseEnter",       &guiClass::GetOnMouseEnter,       &guiClass::SetOnMouseEnter ) \
                                         .add_property( "OnMouseLeave",       &guiClass::GetOnMouseLeave,       &guiClass::SetOnMouseLeave ) \
                                         .add_property( "OnMouseMove",        &guiClass::GetOnMouseMove,        &guiClass::SetOnMouseMove ) \
-                                        .add_property( "OnScrollBarChange",  &guiClass::GetOnScrollBarChange,  &guiClass::SetOnScrollBarChange )
+                                        .add_property( "OnScrollBarChange",  &guiClass::GetOnScrollBarChange,  &guiClass::SetOnScrollBarChange ) \
+                                        .add_property( "OnCheckBoxChange",   &guiClass::GetOnCheckBoxChange,   &guiClass::SetOnCheckBoxChange )
 
 ///@}
 

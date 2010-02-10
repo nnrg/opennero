@@ -20,6 +20,7 @@
 #include "gui/GuiManager.h"
 #include "gui/GuiImage.h"
 #include "gui/GuiEditBox.h"
+#include "gui/GuiCheckBox.h"
 #include "gui/GuiText.h"
 #include "gui/GuiComboBox.h"
 #include "gui/GuiScrollBar.h"
@@ -87,6 +88,16 @@ namespace OpenNero
         }     
     };
 
+    /// A factory for making EditBoxElement
+    class GuiCheckBoxElementFactory : public GenericElementFactory< GuiCheckBox, IGUICheckBox>
+    {
+    public:
+        GuiBasePtr CreateElement( uint32_t newElemId )
+        {
+            Assert( mRes );
+            return GenericConstruction( mRes->mIrr.mpGuiEnv->addCheckBox( false, sDefaultGuiElementPosition, NULL, newElemId ) );
+        }     
+    };
 
     /// A factory for making ScrollBar
     class GuiScrollBarElementFactory : public GenericElementFactory< GuiScrollBar, IGUIScrollBar>
@@ -174,7 +185,7 @@ namespace OpenNero
             close->setID( childId );
 
             // create our close button
-	    CloseButton* cb = new CloseButton( mRes->mpManager,win);
+            CloseButton* cb = new CloseButton( mRes->mpManager,win);
             GuiButtonPtr closeButton( static_cast<GuiButton*>(cb) );
             closeButton->setGuiElement(close);
 
@@ -327,6 +338,9 @@ namespace OpenNero
 
             case EGET_SCROLL_BAR_CHANGED:
                 return HandleScrollBarChanged(event);
+                
+            case EGET_CHECKBOX_CHANGED:
+                return HandleCheckBoxChanged(event);
                 
             default:
                 return false;
@@ -580,6 +594,7 @@ namespace OpenNero
         RegisterElementFactory( "horizontal scroll bar",   IGuiElementFactoryPtr( new GuiHorizontalScrollBarElementFactory ) );
         RegisterElementFactory( "combo box",    IGuiElementFactoryPtr( new GuiComboBoxElementFactory ) );
         RegisterElementFactory( "edit box",     IGuiElementFactoryPtr( new GuiEditBoxElementFactory ) );
+        RegisterElementFactory( "check box",    IGuiElementFactoryPtr( new GuiCheckBoxElementFactory ) );
         RegisterElementFactory( "text",         IGuiElementFactoryPtr( new GuiTextElementFactory ) );
         RegisterElementFactory( "image",        IGuiElementFactoryPtr( new GuiImageElementFactory ) );
         RegisterElementFactory( "window",       IGuiElementFactoryPtr( new GuiWindowElementFactory ) );
@@ -795,6 +810,29 @@ namespace OpenNero
             elem->OnScrollBarChange( /*event*/ );
         }
 
+        return true;
+    }
+    
+    bool GuiManager::HandleCheckBoxChanged( const SEvent& event )
+    {
+        Assert( event.EventType == EET_GUI_EVENT );
+        Assert( event.GUIEvent.EventType == EGET_CHECKBOX_CHANGED );
+        Assert( event.GUIEvent.Caller );
+        
+        IGUICheckBox* check_box = static_cast<IGUICheckBox*>(event.GUIEvent.Caller);
+        s32 id = check_box->getID();
+        
+        GuiBasePtr elem = findContainerById(id);
+        
+        if (elem && elem->RespondsTo(GuiBase::kResponse_OnCheckBoxChange))
+        {
+            elem->OnCheckBoxChange( /* event */ );
+        }
+        else
+        {
+            return false;
+        }
+        
         return true;
     }
 
