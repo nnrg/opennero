@@ -29,56 +29,57 @@ class Fitness:
         for d in Fitness.dimensions:
             self.data[d] = 0
     def __repr__(self): return repr(self.data)
+    def __str__(self): return ' '.join([str(self.data[k]) for k in Fitness.dimensions])
     def __len__(self): return self.data
     def __getitem__(self, key): return self.data[key]
     def __setitem__(self, key, value): self.data[key] = value
     def __contains__(self, item): return item in self.data
-    def __iter__(self): return self.data.__iter__()
+    def __iter__(self): return Fitness.dimensions.__iter__()
     def sum(self): return sum(self.data.values())
     def __add__(self, other):
         result = Fitness()
         if is_number(other):
-            for d in self.data:
+            for d in Fitness.dimensions:
                 result[d] = self[d] + other
         else:
-            for d in self.data:
+            for d in Fitness.dimensions:
                 result[d] = self[d] + other[d]
         return result
     def __sub__(self, other):
         result = Fitness()
         if is_number(other):
-            for d in self.data:
+            for d in Fitness.dimensions:
                 result[d] = self[d] - other
         else:
-            for d in self.data:
+            for d in Fitness.dimensions:
                 result[d] = self[d] - other[d]
         return result
     def __mul__(self, other):
         result = Fitness()
         if is_number(other):
-            for d in self.data:
+            for d in Fitness.dimensions:
                 result[d] = self[d] * other
         else:
-            for d in self.data:
+            for d in Fitness.dimensions:
                 result[d] = self[d] * other[d]
         return result
     def __div__(self, other):
         result = Fitness()
         if is_number(other) and other != 0:
-            for d in self.data:
+            for d in Fitness.dimensions:
                 result[d] = self[d] / other
         else:
-            for d in self.data:
+            for d in Fitness.dimensions:
                 if other[d] != 0:
                     result[d] = self[d] / other[d]
         return result
     def __pow__(self, other):
         result = Fitness()
         if is_number(other):
-            for d in self.data:
+            for d in Fitness.dimensions:
                 result[d] = self[d] ** other
         else:
-            for d in self.data:
+            for d in Fitness.dimensions:
                 result[d] = self[d] ** other[d]
         return result
 
@@ -103,6 +104,7 @@ class AgentState:
         self.curr_damage = 0
         self.team = 0
         self.fitness = Fitness()
+        self.prev_fitness = Fitness()
         self.final_fitness = 0
         self.animation = 'stand'
         
@@ -184,6 +186,8 @@ class NeroEnvironment(Environment):
         state.total_damage = 0
         state.curr_damage = 0
         state.team = agent.getTeam()
+        state.prev_fitness = state.fitness
+        state.fitness = Fitness()
         #update client fitness
         from client import set_stat
         ff = self.getFriendFoe(agent)
@@ -351,13 +355,13 @@ class NeroEnvironment(Environment):
                 return 0
             avg,sig = self.generate_averages(agent)
             sums = Fitness()
+            print 'FITNESS:', state.fitness
             sums = getMod().weights * (state.fitness - avg) / sig
-        
             #Add current unit to pop_state
             if agent.get_team() == 1: 
-                self.pop_state_1[agent.org.id] = state 
+                self.pop_state_1[agent.org.id] = state
             else:
-                self.pop_state_2[agent.org.id] = state 
+                self.pop_state_2[agent.org.id] = state
             state.final_fitness = sums.sum()
             return state.final_fitness
 
@@ -506,15 +510,14 @@ class NeroEnvironment(Environment):
         curr_dict[agent.org.id] = pop_state[agent.org.id]
         pop_state = curr_dict
         # calculate population average
-        average = Fitness()
-        for x in pop_state:
-            average = average + pop_state[x].fitness
-        average = average / len(pop_state)
         # calculate population standard deviation
+        average = Fitness()
         sigma = Fitness()
-        for x in pop_state: 
-            sigma = sigma + pop_state[x].fitness ** 2
-        sigma = ((sigma - (average ** 2)) / len(pop_state)) ** 0.5
+        for x in pop_state:
+            average = average + pop_state[x].prev_fitness # sum of fitnesses
+            sigma = sigma + pop_state[x].prev_fitness ** 2 # sum of squares
+        average = average / float(len(pop_state))
+        sigma = (sigma / float(len(pop_state)) - average ** 2) ** 0.5
         return average,sigma
     
     def get_delay(self):
