@@ -42,11 +42,11 @@ class TestEnvironment(Environment):
         # If either action is non-zero, then change the position and orientation
         # of the agent.
         if actions[0] != 0 or actions[1] != 0:
-            agent.sim.position = Vector3f(agent.sim.position.x + actions[0],
-                                          agent.sim.position.y + actions[1],
-                                          agent.sim.position.z)
-            agent.sim.rotation = Vector3f(agent.sim.rotation.x,
-                                          agent.sim.rotation.y,
+            agent.state.position = Vector3f(agent.state.position.x + actions[0],
+                                          agent.state.position.y + actions[1],
+                                          agent.state.position.z)
+            agent.state.rotation = Vector3f(agent.state.rotation.x,
+                                          agent.state.rotation.y,
                                           degrees(atan2(actions[1], actions[0])))
         return 0
 
