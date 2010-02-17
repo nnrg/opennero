@@ -206,6 +206,7 @@ namespace OpenNero
             vector<OrganismPtr>::iterator org_iter;
             for (org_iter = mPopulation->organisms.begin(); org_iter != mPopulation->organisms.end(); ++org_iter)
             {
+                if((*org_iter)->time_alive > 0)
                 (*org_iter)->fitness -= least_fitness;
             }
             OrganismPtr removed = mPopulation->remove_worst();
@@ -236,7 +237,7 @@ namespace OpenNero
                         (*org_iter)->fitness += least_fitness;
                     }
                     mPopulation->reassign_species(*org_iter);
-                }
+                } 
             }
         }
 
