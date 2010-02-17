@@ -59,7 +59,7 @@ Now we need to get the [http://en.wikipedia.org/wiki/Obj obj file] that our XML 
 <AniMesh>data/shapes/cube/cube.obj</AniMesh>
 }}}
 
-Or, you can copy [http://code.google.com/svn/trunk/mods/common/data/shapes/cube/cube.obj mods/common/data/shapes/cube/cube.obj] to `TESTMOD/data/cube/`
+Or, you can copy [http://opennero.googlecode.com/svn/trunk/mods/common/data/shapes/cube/cube.obj mods/common/data/shapes/cube/cube.obj] to `TESTMOD/data/cube/`
 
 Now that you have the template `data/cube/Cube.xml`, you should change your `main.py` to actually add a cube into the world. The new file should look something like this:
 
@@ -99,7 +99,7 @@ Adding a camera in this way will change your vantage point, where you are lookin
 
 Let us now make our Mod more interesting by adding a textured terrain and walls surrounding the terrain.  We can do this in the same way that we added the cube, i.e. by creating the files defining the new objects and then invoking the {{{addObject()}}} function in `main.py`.  OpenNERO already comes with the files for a flat grassy terrain and a brick wall, which we will use in this exercise.
 
-Copy the terrain files [http://code.google.com/svn/trunk/mods/common/data/terrain/GrassyTerrain.xml mods/common/data/terrain/GrassyTerrain.xml], [http://code.google.com/svn/trunk/mods/common/data/terrain/grass.jpg mods/common/data/terrain/grass.jpg], and [http://code.google.com/svn/trunk/mods/common/data/terrain/terrain-heightmap-flat.bmp mods/common/data/terrain/terrain-heightmap-flat.bmp] to `TESTMOD/data/terrain/`
+Copy the terrain files [http://opennero.googlecode.com/svn/trunk/mods/common/data/terrain/GrassyTerrain.xml mods/common/data/terrain/GrassyTerrain.xml], [http://opennero.googlecode.com/svn/trunk/mods/common/data/terrain/grass.jpg mods/common/data/terrain/grass.jpg], and [http://opennero.googlecode.com/svn/trunk/mods/common/data/terrain/terrain-heightmap-flat.bmp mods/common/data/terrain/terrain-heightmap-flat.bmp] to `TESTMOD/data/terrain/`
 
 The XML template file for the grassy terrain looks like this:
 {{{
@@ -146,7 +146,7 @@ Zoom out to see the edges of the terrain.  The next task is to add bounding wall
 </Template>
 }}}
 
-Copy the wall object file [http://code.google.com/svn/trunk/mods/Maze/data/shapes/wall/BrickWall.obj mods/Maze/data/shapes/wall/BrickWall.obj] to `TESTMOD/data/wall/`.  The object file references a [http://en.wikipedia.org/wiki/Material_Template_Library material file] describing the visual properties of the model.  So copy that file [http://code.google.com/svn/trunk/mods/Maze/data/shapes/wall/BrickWall.mtl mods/Maze/data/shapes/wall/BrickWall.mtl] and the texture file [http://code.google.com/svn/trunk/mods/Maze/data/shapes/wall/bricks.JPG mods/Maze/data/shapes/wall/bricks.JPG] to `TESTMOD/data/wall/` as well.
+Copy the wall object file [http://opennero.googlecode.com/svn/trunk/mods/Maze/data/shapes/wall/BrickWall.obj mods/Maze/data/shapes/wall/BrickWall.obj] to `TESTMOD/data/wall/`.  The object file references a [http://en.wikipedia.org/wiki/Material_Template_Library material file] describing the visual properties of the model.  So copy that file [http://opennero.googlecode.com/svn/trunk/mods/Maze/data/shapes/wall/BrickWall.mtl mods/Maze/data/shapes/wall/BrickWall.mtl] and the texture file [http://opennero.googlecode.com/svn/trunk/mods/Maze/data/shapes/wall/bricks.JPG mods/Maze/data/shapes/wall/bricks.JPG] to `TESTMOD/data/wall/` as well.
 
 The same template file can be used multiple times with {{{addObject()}}}, each time using a different geometric transformation to create different walls.  In addition to the {{{Vector3f()}}} argument specifying the X-Y-Z translation of the object, {{{addObject()}}} can also take two more {{{Vector3f()}}} arguments specifying the X-Y-Z rotation and X-Y-Z scale of the object respectively.  For example, the code
 {{{
@@ -199,7 +199,7 @@ These two parts are configured using an XML template file as follows:
 
 Copy this template to `TESTMOD/data/character/SydneyAgent.xml`.
 
-The `Render` section in this file is similar to what we have seen previously.  The files referenced in this section can be obtained from [http://code.google.com/svn/trunk/mods/Maze/data/shapes/character/sydney.md2 mods/Maze/data/shapes/character/sydney.md2] and [http://code.google.com/svn/trunk/mods/Maze/data/shapes/character/sydney.bmp mods/Maze/data/shapes/character/sydney.bmp].  Copy them to `TESTMOD/data/character/`.
+The `Render` section in this file is similar to what we have seen previously.  The files referenced in this section can be obtained from [http://opennero.googlecode.com/svn/trunk/mods/Maze/data/shapes/character/sydney.md2 mods/Maze/data/shapes/character/sydney.md2] and [http://opennero.googlecode.com/svn/trunk/mods/Maze/data/shapes/character/sydney.bmp mods/Maze/data/shapes/character/sydney.bmp].  Copy them to `TESTMOD/data/character/`.
 
 The `AI` section specifies a Python class `TestAgent` that contains the behavior of the agent, e.g. what actions the agent takes in response to its sensor readings.  We will discuss the details of this class in another exercise.  A simple `TestAgent` class that ignores the agent's sensor readings and moves the agent in response to keyboard arrow keys is implemented in [http://opennero.googlecode.com/svn/wiki/AddingStuffExerciseFiles/agent.py agent.py].  Copy this file to your `TESTMOD` directory.
 
