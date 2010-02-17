@@ -348,10 +348,10 @@ def mode_adjusted(scroll):
      if cmode == 0:
        print "Training Mode"
        global stat1Label, stat2Label, stat1Value, stat2Value
-       stat1Label.text = "Team 1 Avg Fitness:"
-       stat2Label.text = "Team 2 Avg Fitness:"
-       stat1Value.text = "n/a"
-       stat2Value.text = "n/a"
+       #stat1Label.text = "Team 1 Avg Fitness:"
+       #stat2Label.text = "Team 2 Avg Fitness:"
+       #stat1Value.text = "n/a"
+       #stat2Value.text = "n/a"
        mode = 0
      else:
         mode = 1
@@ -361,8 +361,8 @@ def mode_adjusted(scroll):
         getMod().eeChange(1.0)
         getMod().ltChange(0)
         global value1, value2, stat1Label, stat2Label
-        stat1Label.text = "Team 1 Score:"
-        stat2Label.text = "Team 2 Score:"
+        #stat1Label.text = "Team 1 Score:"
+        #stat2Label.text = "Team 2 Score:"
         value1 = 6
         value2 = 6
         set_stat(1,1)
@@ -374,6 +374,7 @@ def set_stat(value, team):
     global mode
     global value1,value2
     print "set_stat mode: " + str(mode)
+    """
     if mode == 0:
      if team == 1:
       stat1Value.text = str(value)
@@ -389,6 +390,7 @@ def set_stat(value, team):
     if mode == 2:
         stat1Value.text = "n/a"
         stat2Value.text = "n/a"
+    """
 
 def ClientMain():
     # physics off, ai off by default
