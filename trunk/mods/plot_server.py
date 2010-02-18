@@ -12,7 +12,6 @@ import sys
 import os
 import re
 import time
-import random
 import threading
 import SocketServer
 
@@ -76,20 +75,13 @@ class AgentHistory:
     def append(self, ms, fitness):
         self.episode_fitness.append(ms, fitness)
 
-    def episode(self):
-        if len(self.episode_fitness) > 0:
-            self.fitness.append(ms, fitness)
-        self.episode_fitness = XYData()
+    def episode(self):        
+        #if len(self.episode_fitness) > 0:
+        #    self.fitness.append(self.episode_fitness.x[-1], self.episode_fitness.y[-1])
+        #self.episode_fitness = XYData()
+        pass
 
     def plot(self, axes):
-        # plot the between-episodes fitness
-        t = np.array(self.fitness.x)
-        f = np.array(self.fitness.y)
-        if self.fitness.handle:
-            self.fitness.handle.set_xdata(t)
-            self.fitness.handle.set_ydata(f)
-        else:
-            self.fitness.handle = axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
         # plot the within-episode reward
         t = np.array(self.episode_fitness.x)
         f = np.array(self.episode_fitness.y)
@@ -98,6 +90,14 @@ class AgentHistory:
             self.episode_fitness.handle.set_ydata(f)
         else:
             self.episode_fitness.handle = axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
+        # plot the between-episodes fitness
+        #t = np.array(self.fitness.x)
+        #f = np.array(self.fitness.y)
+        #if self.fitness.handle:
+        #    self.fitness.handle.set_xdata(t)
+        #    self.fitness.handle.set_ydata(f)
+        #else:
+        #    self.fitness.handle = axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
 
 class LearningCurve:
     """ The learning curve of a group of agents """
@@ -105,7 +105,7 @@ class LearningCurve:
     def __init__(self):
         self.histories = {}
         self.total = XYData()
-         
+
     def append(self, id, ms, episode, step, reward, fitness):
         record = None
         if id in self.histories:
@@ -297,15 +297,14 @@ def start_server():
     # Exit the server thread when the main thread terminates
     server_thread.setDaemon(True)
     server_thread.start()
-    print 'Listening on ', ADDR
 
 class PlotTCPHandler(SocketServer.StreamRequestHandler):
     def handle(self):
         global app
         lc = LearningCurve()
-        lc.process_file(self.rfile)
         if app:
             app.frame.learning_curve = lc
+        lc.process_file(self.rfile)
 
 def main():
     global app
@@ -321,10 +320,11 @@ def main():
         app.MainLoop()
     else:
         lc = LearningCurve()
-        start_server()
         app = wx.PySimpleApp()
         app.frame = GraphFrame(lc)
+        start_server()
         app.frame.Show()
+        print 'Listening on ', ADDR
         app.MainLoop()
     print 'done'
 
