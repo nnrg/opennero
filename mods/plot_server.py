@@ -9,6 +9,7 @@ connection from plot_client.
 """
 
 import sys
+import os
 import re
 import time
 import random
@@ -42,23 +43,30 @@ def timestamped_filename(prefix = '', postfix = ''):
     return '%s%s%s' % (prefix, time.strftime(file_timestamp_fmt), postfix)
 
 class XYData:
+    """ 2-D data with min and max values """
+
     def __init__(self):
         self.xmin = None
         self.xmax = None
         self.ymin = None
         self.ymax = None
-        self.x
-        self.y
-    def append(x,y):
+        self.x = []
+        self.y = []
+
+    def append(self,x,y):
         self.xmin = min(self.xmin, x) if self.xmin else x
         self.xmax = max(self.xmax, x) if self.ymax else x
         self.ymin = min(self.ymin, y) if self.ymin else y
         self.ymax = max(self.ymax, y) if self.ymax else y
+        self.x.append(x)
+        self.y.append(y)
+
+    def __len__(self):
+        return len(self.x)
 
 class AgentHistory:
-    """
-    The history of a particular agent
-    """
+    """ The history of a particular agent """
+
     def __init__(self):
         self.episode_fitness = XYData()
         self.fitness = XYData()
@@ -67,23 +75,24 @@ class AgentHistory:
         self.episode_fitness.append(ms, fitness)
 
     def episode(self):
-        if len(self.episode_time) > 0:
+        if len(self.episode_fitness) > 0:
             self.fitness.append(ms, fitness)
         self.episode_fitness = XYData()
 
-    def plot(self):
-        if len(self.time) > 0:
-            x = np.array(self.fitness.x)
-            y = np.array(self.fitness.y)
-            pl.scatter(x, y)        
+    def plot(self, axes):
+        if len(self.fitness) > 0:
+            t = np.array(self.fitness.x)
+            f = np.array(self.fitness.y)
+            return axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
+        else:
+            return None
 
 class LearningCurve:
-    """
-    The learning curve of a group of agents
-    """
+    """ The learning curve of a group of agents """
+
     def __init__(self):
         self.histories = {}
-        self.unsaved_for = 0
+        self.total = XYData()
          
     def append(self, id, ms, episode, step, reward, fitness):
         record = None
@@ -94,13 +103,19 @@ class LearningCurve:
             self.histories[id] = record
         if step == 0:
             record.episode()
-            if self.unsaved_for > SAVE_EVERY:
-                self.save()
-                self.unsaved_for = 0
-            else:
-                self.unsaved_for += 1
         record.append(ms, fitness)
-        
+        self.total.append(ms, fitness)
+
+    def plot(self, axes):
+        axes.hold(False)
+        t = np.array(self.total.x)
+        f = np.array(self.total.y)
+        return axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
+        #for id in self.histories:
+        #    r = self.histories[id].plot(axes)
+        #    axes.hold(True)
+        #return r
+
     def save(self):
         fig = pl.figure()
         pl.xlabel('episode')
@@ -144,10 +159,10 @@ class GraphFrame(wx.Frame):
     """
     title = 'OpenNERO performance plot'
     
-    def __init__(self):
+    def __init__(self, learning_curve):
         wx.Frame.__init__(self, None, -1, self.title)
-        
-        self.data = []
+
+        self.learning_curve = learning_curve        
         self.paused = False
 
         self.create_menu()
@@ -205,47 +220,26 @@ class GraphFrame(wx.Frame):
 
         # plot the data as a line series, and save the reference 
         # to the plotted line series
-        self.plot_data = self.axes.plot(
-            self.data, 
-            linewidth=1,
-            color=(1, 1, 0),
-            )[0]
+        self.plot_handle = self.learning_curve.plot(self.axes)
 
     def draw_plot(self):
         """ Redraws the plot
         """
-        # when xmin is on auto, it "follows" xmax to produce a 
-        # sliding window effect. therefore, xmin is assigned after
-        # xmax.
-        #
-        xmax = len(self.data) if len(self.data) > 50 else 50
-        xmin = xmax - 50
-
-        # for ymin and ymax, find the minimal and maximal values
-        # in the data set and add a mininal margin.
-        # 
-        # note that it's easy to change this scheme to the 
-        # minimal/maximal value in the current display, and not
-        # the whole data set.
-        ymin = round(min(self.data), 0) - 1        
-        ymax = round(max(self.data), 0) + 1
-
+        # bounds on x and y
+        xmin = self.learning_curve.total.xmin if self.learning_curve.total.xmin else 0
+        xmax = self.learning_curve.total.xmax if self.learning_curve.total.xmax else 50
+        ymax = self.learning_curve.total.ymax if self.learning_curve.total.ymax else 1
+        ymin = self.learning_curve.total.ymin if self.learning_curve.total.ymin else 0
+        
         self.axes.set_xbound(lower=xmin, upper=xmax)
         self.axes.set_ybound(lower=ymin, upper=ymax)
         
-        # anecdote: axes.grid assumes b=True if any other flag is
-        # given even if b is set to False.
-        # so just passing the flag into the first statement won't
-        # work.
         self.axes.grid(True, color='gray')
-
-        # Using setp here is convenient, because get_xticklabels
-        # returns a list over which one needs to explicitly 
-        # iterate, and setp already handles this.
+        
         pylab.setp(self.axes.get_xticklabels(), visible=True)
         
-        self.plot_data.set_xdata(np.arange(len(self.data)))
-        self.plot_data.set_ydata(np.array(self.data))
+        self.plot_handle.set_xdata(np.array(self.learning_curve.total.x))
+        self.plot_handle.set_ydata(np.array(self.learning_curve.total.y))
         
         self.canvas.draw()
     
@@ -279,9 +273,8 @@ class GraphFrame(wx.Frame):
     def on_redraw_timer(self, event):
         # if paused do not add data, but still redraw the plot
         # (to respond to scale modifications, grid change, etc.)
-        if not self.paused:
-            self.data.append(random.random())
-        
+        #if not self.paused:
+        #    self.data.append(self.source.next())
         self.draw_plot()
     
     def on_exit(self, event):
@@ -306,6 +299,13 @@ class PlotTCPHandler(SocketServer.StreamRequestHandler):
         lc.save()
         #lc.display()
 
+def input_generator():
+    i = 0
+    while True:
+        i += 1
+        x = int(input("Value #%d: " % i))
+        yield x
+
 def main():
     if len(sys.argv) > 1:
         print 'opening OpenNERO log file', sys.argv[1]
@@ -316,8 +316,15 @@ def main():
         lc.save()
         #lc.display()
     else:
+        lc = LearningCurve()
+        f = 0
+        for i in range(30):
+            r = random.random()
+            f += r
+            lc.append(1, i * 1000, 0, i, r, f)
+        print len(lc.total)
         app = wx.PySimpleApp()
-        app.frame = GraphFrame()
+        app.frame = GraphFrame(lc)
         app.frame.Show()
         app.MainLoop()
         # Create the server, binding to localhost on port 9999
