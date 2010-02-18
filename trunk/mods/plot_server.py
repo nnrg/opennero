@@ -1,19 +1,31 @@
 #!/usr/bin/env pythonw
-"""Process and display performance of AI algorithms in OpenNERO.
+"""
+Plot the performance of AI algorithms in OpenNERO.
 
-plot_server reads a log file (or receives this file over the network) and 
-plots the performance of the AI algorithm which is producing this log file.
+The program can plot either a saved log file or a live session streaming
+over the network. To open a file, specify it as the command line argument.
+Otherwise, the program will start in server mode and listen for a 
+connection from plot_client.
 """
 
 import sys
 import re
 import time
-import numpy as np
+import random
+import SocketServer
+
+# we are going to use matplotlib within a WX application
+import wx
+import matplotlib
+matplotlib.use('WXAgg')
 import matplotlib.pyplot as pl
 import matplotlib.mlab as mlab
-import socket
-import SocketServer
-import tempfile
+import numpy as np
+import pylab
+from matplotlib.figure import Figure
+from matplotlib.backends.backend_wxagg import \
+    FigureCanvasWxAgg as FigCanvas, \
+    NavigationToolbar2WxAgg as NavigationToolbar
 
 __author__ = "Igor Karpov (ikarpov@cs.utexas.edu)"
 
@@ -29,28 +41,46 @@ file_timestamp_fmt = r'%Y-%m-%d-%H-%M-%S'
 def timestamped_filename(prefix = '', postfix = ''):
     return '%s%s%s' % (prefix, time.strftime(file_timestamp_fmt), postfix)
 
-class AgentHistory():
+class XYData:
     def __init__(self):
-        self.episode_time = []
-        self.episode_fitness = []
-        self.time = []
-        self.fitness = []
+        self.xmin = None
+        self.xmax = None
+        self.ymin = None
+        self.ymax = None
+        self.x
+        self.y
+    def append(x,y):
+        self.xmin = min(self.xmin, x) if self.xmin else x
+        self.xmax = max(self.xmax, x) if self.ymax else x
+        self.ymin = min(self.ymin, y) if self.ymin else y
+        self.ymax = max(self.ymax, y) if self.ymax else y
+
+class AgentHistory:
+    """
+    The history of a particular agent
+    """
+    def __init__(self):
+        self.episode_fitness = XYData()
+        self.fitness = XYData()
+
     def append(self, ms, fitness):
-        self.episode_time.append(ms)
-        self.episode_fitness.append(fitness)
+        self.episode_fitness.append(ms, fitness)
+
     def episode(self):
         if len(self.episode_time) > 0:
-            self.time.append(self.episode_time[-1])
-            self.fitness.append(self.episode_fitness[-1])
-        self.episode_time = []
-        self.episode_fitness = []
+            self.fitness.append(ms, fitness)
+        self.episode_fitness = XYData()
+
     def plot(self):
         if len(self.time) > 0:
-            x = np.array(self.time)
-            y = np.array(self.fitness)
-            pl.scatter(x, y, linewidth=1.0)        
+            x = np.array(self.fitness.x)
+            y = np.array(self.fitness.y)
+            pl.scatter(x, y)        
 
 class LearningCurve:
+    """
+    The learning curve of a group of agents
+    """
     def __init__(self):
         self.histories = {}
         self.unsaved_for = 0
@@ -87,7 +117,8 @@ class LearningCurve:
         #pl.show()
 
     def process_line(self, line):
-        """Process a line of the log file and record the information in it in the LearningCurve
+        """
+        Process a line of the log file and record the information in it in the LearningCurve
         """
         line = line.strip().lower()
         m = ai_tick_pattern.search(line)
@@ -108,6 +139,166 @@ class LearningCurve:
             self.process_line(line.strip())
             line = f.readline()
 
+class GraphFrame(wx.Frame):
+    """ The main frame of the application
+    """
+    title = 'OpenNERO performance plot'
+    
+    def __init__(self):
+        wx.Frame.__init__(self, None, -1, self.title)
+        
+        self.data = []
+        self.paused = False
+
+        self.create_menu()
+        self.create_main_panel()
+        self.create_status_bar()
+        
+        self.redraw_timer = wx.Timer(self)
+        self.Bind(wx.EVT_TIMER, self.on_redraw_timer, self.redraw_timer)        
+        self.redraw_timer.Start(100)
+
+    def create_menu(self):
+        self.menubar = wx.MenuBar()        
+        menu_file = wx.Menu()
+        m_save = menu_file.Append(-1, "&Save plot\tCtrl-S", "Save plot to file")
+        self.Bind(wx.EVT_MENU, self.on_save_plot, m_save)
+        menu_file.AppendSeparator()
+        m_quit = menu_file.Append(-1, "Q&uit\tCtrl-Q", "Quit")
+        self.Bind(wx.EVT_MENU, self.on_exit, m_quit)                
+        self.menubar.Append(menu_file, "&File")
+        self.SetMenuBar(self.menubar)
+
+    def create_main_panel(self):
+        self.panel = wx.Panel(self)
+        
+        self.init_plot()
+        self.canvas = FigCanvas(self.panel, -1, self.fig)
+        
+        self.pause_button = wx.Button(self.panel, -1, "Pause")
+        self.Bind(wx.EVT_BUTTON, self.on_pause_button, self.pause_button)
+        self.Bind(wx.EVT_UPDATE_UI, self.on_update_pause_button, self.pause_button)
+        
+        self.hbox1 = wx.BoxSizer(wx.HORIZONTAL)
+        self.hbox1.Add(self.pause_button, border=5, flag=wx.ALL | wx.ALIGN_CENTER_VERTICAL)
+        
+        self.vbox = wx.BoxSizer(wx.VERTICAL)
+        self.vbox.Add(self.canvas, 1, flag=wx.LEFT | wx.TOP | wx.GROW)        
+        self.vbox.Add(self.hbox1, 0, flag=wx.ALIGN_LEFT | wx.TOP)
+        
+        self.panel.SetSizer(self.vbox)
+        self.vbox.Fit(self)
+
+    def create_status_bar(self):
+        self.statusbar = self.CreateStatusBar()
+
+    def init_plot(self):
+        self.dpi = 100
+        self.fig = Figure((3.0, 3.0), dpi=self.dpi)
+
+        self.axes = self.fig.add_subplot(111)
+        self.axes.set_axis_bgcolor('black')
+        self.axes.set_title('Agent fitness over time', size=12)
+        
+        pylab.setp(self.axes.get_xticklabels(), fontsize=8)
+        pylab.setp(self.axes.get_yticklabels(), fontsize=8)
+
+        # plot the data as a line series, and save the reference 
+        # to the plotted line series
+        self.plot_data = self.axes.plot(
+            self.data, 
+            linewidth=1,
+            color=(1, 1, 0),
+            )[0]
+
+    def draw_plot(self):
+        """ Redraws the plot
+        """
+        # when xmin is on auto, it "follows" xmax to produce a 
+        # sliding window effect. therefore, xmin is assigned after
+        # xmax.
+        #
+        xmax = len(self.data) if len(self.data) > 50 else 50
+        xmin = xmax - 50
+
+        # for ymin and ymax, find the minimal and maximal values
+        # in the data set and add a mininal margin.
+        # 
+        # note that it's easy to change this scheme to the 
+        # minimal/maximal value in the current display, and not
+        # the whole data set.
+        ymin = round(min(self.data), 0) - 1        
+        ymax = round(max(self.data), 0) + 1
+
+        self.axes.set_xbound(lower=xmin, upper=xmax)
+        self.axes.set_ybound(lower=ymin, upper=ymax)
+        
+        # anecdote: axes.grid assumes b=True if any other flag is
+        # given even if b is set to False.
+        # so just passing the flag into the first statement won't
+        # work.
+        self.axes.grid(True, color='gray')
+
+        # Using setp here is convenient, because get_xticklabels
+        # returns a list over which one needs to explicitly 
+        # iterate, and setp already handles this.
+        pylab.setp(self.axes.get_xticklabels(), visible=True)
+        
+        self.plot_data.set_xdata(np.arange(len(self.data)))
+        self.plot_data.set_ydata(np.array(self.data))
+        
+        self.canvas.draw()
+    
+    def on_pause_button(self, event):
+        self.paused = not self.paused
+    
+    def on_update_pause_button(self, event):
+        label = "Resume" if self.paused else "Pause"
+        self.pause_button.SetLabel(label)
+    
+    def on_cb_grid(self, event):
+        self.draw_plot()
+    
+    def on_cb_xlab(self, event):
+        self.draw_plot()
+    
+    def on_save_plot(self, event):
+        file_choices = "PNG (*.png)|*.png"
+        dlg = wx.FileDialog(
+            self, 
+            message="Save plot as...",
+            defaultDir=os.getcwd(),
+            defaultFile="plot.png",
+            wildcard=file_choices,
+            style=wx.SAVE)
+        if dlg.ShowModal() == wx.ID_OK:
+            path = dlg.GetPath()
+            self.canvas.print_figure(path, dpi=self.dpi)
+            self.flash_status_message("Saved to %s" % path)
+    
+    def on_redraw_timer(self, event):
+        # if paused do not add data, but still redraw the plot
+        # (to respond to scale modifications, grid change, etc.)
+        if not self.paused:
+            self.data.append(random.random())
+        
+        self.draw_plot()
+    
+    def on_exit(self, event):
+        self.Destroy()
+    
+    def flash_status_message(self, msg, flash_len_ms=1500):
+        self.statusbar.SetStatusText(msg)
+        self.timeroff = wx.Timer(self)
+        self.Bind(
+            wx.EVT_TIMER, 
+            self.on_flash_status_off, 
+            self.timeroff)
+        self.timeroff.Start(flash_len_ms, oneShot=True)
+    
+    def on_flash_status_off(self, event):
+        self.statusbar.SetStatusText('')
+
 class PlotTCPHandler(SocketServer.StreamRequestHandler):
     def handle(self):
         lc = LearningCurve()
@@ -125,12 +316,16 @@ def main():
         lc.save()
         #lc.display()
     else:
+        app = wx.PySimpleApp()
+        app.frame = GraphFrame()
+        app.frame.Show()
+        app.MainLoop()
         # Create the server, binding to localhost on port 9999
-        server = SocketServer.TCPServer(ADDR, PlotTCPHandler)
-        print 'Listening on ', ADDR
+        #server = SocketServer.TCPServer(ADDR, PlotTCPHandler)
+        #print 'Listening on ', ADDR
         # Activate the server; this will keep running until you
         # interrupt the program with Ctrl-C
-        server.serve_forever()
+        #server.serve_forever()
     print 'done'
 
 if __name__ == "__main__":
