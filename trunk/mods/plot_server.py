@@ -13,6 +13,7 @@ import os
 import re
 import time
 import random
+import threading
 import SocketServer
 
 # we are going to use matplotlib within a WX application
@@ -52,6 +53,7 @@ class XYData:
         self.ymax = None
         self.x = []
         self.y = []
+        self.handle = None # plot handle
 
     def append(self,x,y):
         self.xmin = min(self.xmin, x) if self.xmin else x
@@ -80,12 +82,22 @@ class AgentHistory:
         self.episode_fitness = XYData()
 
     def plot(self, axes):
-        if len(self.fitness) > 0:
-            t = np.array(self.fitness.x)
-            f = np.array(self.fitness.y)
-            return axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
+        # plot the between-episodes fitness
+        t = np.array(self.fitness.x)
+        f = np.array(self.fitness.y)
+        if self.fitness.handle:
+            self.fitness.handle.set_xdata(t)
+            self.fitness.handle.set_ydata(f)
         else:
-            return None
+            self.fitness.handle = axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
+        # plot the within-episode reward
+        t = np.array(self.episode_fitness.x)
+        f = np.array(self.episode_fitness.y)
+        if self.episode_fitness.handle:
+            self.episode_fitness.handle.set_xdata(t)
+            self.episode_fitness.handle.set_ydata(f)
+        else:
+            self.episode_fitness.handle = axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
 
 class LearningCurve:
     """ The learning curve of a group of agents """
@@ -110,26 +122,9 @@ class LearningCurve:
         axes.hold(False)
         t = np.array(self.total.x)
         f = np.array(self.total.y)
-        return axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
-        #for id in self.histories:
-        #    r = self.histories[id].plot(axes)
-        #    axes.hold(True)
-        #return r
-
-    def save(self):
-        fig = pl.figure()
-        pl.xlabel('episode')
-        pl.ylabel('fitness')
-        pl.title('By-episode fitness')
-        pl.grid(True)
-        pl.hold(True)
         for id in self.histories:
-            self.histories[id].plot()
-        #fname = timestamped_filename('opennero-','-fitness.png')
-        fname = 'opennero-fitness.png'
-        print 'saving to:', fname
-        fig.savefig(fname)
-        #pl.show()
+            self.histories[id].plot(axes)
+            axes.hold(True)
 
     def process_line(self, line):
         """
@@ -220,7 +215,7 @@ class GraphFrame(wx.Frame):
 
         # plot the data as a line series, and save the reference 
         # to the plotted line series
-        self.plot_handle = self.learning_curve.plot(self.axes)
+        self.learning_curve.plot(self.axes)
 
     def draw_plot(self):
         """ Redraws the plot
@@ -238,8 +233,7 @@ class GraphFrame(wx.Frame):
         
         pylab.setp(self.axes.get_xticklabels(), visible=True)
         
-        self.plot_handle.set_xdata(np.array(self.learning_curve.total.x))
-        self.plot_handle.set_ydata(np.array(self.learning_curve.total.y))
+        self.learning_curve.plot(self.axes)
         
         self.canvas.draw()
     
@@ -292,47 +286,46 @@ class GraphFrame(wx.Frame):
     def on_flash_status_off(self, event):
         self.statusbar.SetStatusText('')
 
+app = None
+
+def start_server():
+    # Create the server, binding to localhost on port 9999
+    server = SocketServer.TCPServer(ADDR, PlotTCPHandler)
+    # Start a thread with the server -- that thread will then start one
+    # more thread for each request
+    server_thread = threading.Thread(target=server.serve_forever)
+    # Exit the server thread when the main thread terminates
+    server_thread.setDaemon(True)
+    server_thread.start()
+    print 'Listening on ', ADDR
+
 class PlotTCPHandler(SocketServer.StreamRequestHandler):
     def handle(self):
+        global app
         lc = LearningCurve()
         lc.process_file(self.rfile)
-        lc.save()
-        #lc.display()
-
-def input_generator():
-    i = 0
-    while True:
-        i += 1
-        x = int(input("Value #%d: " % i))
-        yield x
+        if app:
+            app.frame.learning_curve = lc
 
 def main():
+    global app
     if len(sys.argv) > 1:
         print 'opening OpenNERO log file', sys.argv[1]
         f = open(sys.argv[1])
         lc = LearningCurve()
         lc.process_file(f)
         f.close()
-        lc.save()
-        #lc.display()
-    else:
-        lc = LearningCurve()
-        f = 0
-        for i in range(30):
-            r = random.random()
-            f += r
-            lc.append(1, i * 1000, 0, i, r, f)
-        print len(lc.total)
         app = wx.PySimpleApp()
         app.frame = GraphFrame(lc)
         app.frame.Show()
         app.MainLoop()
-        # Create the server, binding to localhost on port 9999
-        #server = SocketServer.TCPServer(ADDR, PlotTCPHandler)
-        #print 'Listening on ', ADDR
-        # Activate the server; this will keep running until you
-        # interrupt the program with Ctrl-C
-        #server.serve_forever()
+    else:
+        lc = LearningCurve()
+        start_server()
+        app = wx.PySimpleApp()
+        app.frame = GraphFrame(lc)
+        app.frame.Show()
+        app.MainLoop()
     print 'done'
 
 if __name__ == "__main__":
