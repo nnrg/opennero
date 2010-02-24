@@ -75,9 +75,9 @@ class AgentHistory:
     def append(self, ms, fitness):
         self.episode_fitness.append(ms, fitness)
 
-    def episode(self):        
-        #if len(self.episode_fitness) > 0:
-        #    self.fitness.append(self.episode_fitness.x[-1], self.episode_fitness.y[-1])
+    def episode(self):
+        if len(self.episode_fitness) > 0:
+            self.fitness.append(self.episode_fitness.x[-1], self.episode_fitness.y[-1])
         #self.episode_fitness = XYData()
         pass
 
@@ -91,13 +91,13 @@ class AgentHistory:
         else:
             self.episode_fitness.handle = axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
         # plot the between-episodes fitness
-        #t = np.array(self.fitness.x)
-        #f = np.array(self.fitness.y)
-        #if self.fitness.handle:
-        #    self.fitness.handle.set_xdata(t)
-        #    self.fitness.handle.set_ydata(f)
-        #else:
-        #    self.fitness.handle = axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
+        t = np.array(self.fitness.x)
+        f = np.array(self.fitness.y)
+        if self.fitness.handle:
+            self.fitness.handle.set_xdata(t)
+            self.fitness.handle.set_ydata(f)
+        else:
+            self.fitness.handle = axes.plot(t, f, 'ro', linewidth=0)[0]
 
 class LearningCurve:
     """ The learning curve of a group of agents """
@@ -135,13 +135,13 @@ class LearningCurve:
         if m:
             id = int(m.group('id')) # id of the agent
             t = time.strptime(m.group('date'), timestamp_fmt) # time of the record
-            ms = int(m.group('msec')) # milliseconds
+            ms = int(m.group('msec'))  / 1000000.0 # seconds
             episode = int(m.group('episode'))
             step = int(m.group('step'))
             reward = float(m.group('reward'))
             fitness = float(m.group('fitness'))
-            ms += time.mktime(t) * 1000000
-            self.append( id, ms, episode, step, reward, fitness )
+            base = time.mktime(t)
+            self.append( id, base + ms, episode, step, reward, fitness )
 
     def process_file(self, f):
         line = f.readline()
