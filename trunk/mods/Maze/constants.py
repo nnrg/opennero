@@ -9,3 +9,5 @@ NUDGE_Y = 20.0 # shift the island in +y by ...
 WALL_TEMPLATE = "data/shapes/wall/BrickWall.xml"
 INITIAL_EPSILON = 0.1
 HISTORY_LENGTH = 5 # number of state-action pairs used to determine if the agent is stuck
+OBSTACLE_MASK = 1 #0b0001
+AGENT_MASK = 2 #0b0010
