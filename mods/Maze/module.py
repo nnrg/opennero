@@ -5,6 +5,67 @@ from constants import *
 from Maze.environment import MazeEnvironment, ContMazeEnvironment
 from Maze.agent import FirstPersonAgent
 
+def count_neurons(constraints):
+    """
+    Count the number of neurons required to represent the given feature vector
+    constraints. For continuous values, scale to a single neuron. For discrete
+    values, use (max - min) neurons for a 1-of-N encoding.
+    """
+    n_neurons = 0
+    for i in range(len(constraints)):
+        if constraints.discrete(i):
+            n_neurons += int(constraints.max(i) - constraints.min(i) + 1)
+        else:
+            n_neurons += 1
+    print constraints, 'requires', n_neurons
+    return n_neurons
+    
+def input_to_neurons(constraints, input):
+    """
+    Convert to the ANN coding required to represent the given feature vector. 
+    For continuous values, scale to a single neuron. For discrete
+    values, use (max - min) neurons for a 1-of-N encoding.
+    """
+    neurons = []
+    for i in range(len(constraints)):
+        if constraints.discrete(i):
+            section_size = int(constraints.max(i) - constraints.min(i) + 1)
+            index = input[i] - constraints.min(i)
+            section = [0 for x in range(section_size)]
+            section[index] = 1
+            neurons.extend(section)
+        else:
+            delta = constraints.max(i) - constraints.min(i)
+            neurons.append(neurons[neuron_i] - constraints.min(i)) / delta
+    assert(len(neurons) == count_neurons(constraints))
+    return neurons
+
+def neurons_to_output(constraints, neurons):
+    """
+    Convert each continuous value from a neuron output to its range, and each 
+    discrete value from it's max-of-N output encoding (where N = Max - Min).
+    """
+    result = constraints.get_instance()
+    neuron_i = 0
+    for result_i in range(len(constraints)):
+        assert(neuron_i < len(neurons))
+        assert(neuron_i >= result_i)
+        if constraints.discrete(i):
+            # section of the neurons coding for this output
+            section_size = int(constraints.max(i) - constraints.min(i))
+            section_values = neurons[neuron_i:(neuron_i + section_size)]
+            # the maximally activated neuron in this section
+            max_neuron = max(section_values)
+            max_index = section_values.index(section_values)
+            # the result output
+            result[result_i] = constraints.min(i) + max_index
+            neuron_i += section_size
+        else:
+            delta = constraints.max(i) - constraints.min(i)
+            result[result_i] = constraints.min(i) + neurons[neuron_i] * delta
+            neuron_i += 1
+    return result
+
 class MazeMod:
     # initializer
     def __init__(self):
@@ -86,13 +147,13 @@ class MazeMod:
             z_rotation = 0
             if r1 != r2:
                 z_rotation = 90
-            self.wall_ids.append(addObject(WALL_TEMPLATE, pos, Vector3f(0, 0, z_rotation), type=1))
+            self.wall_ids.append(addObject(WALL_TEMPLATE, pos, Vector3f(0, 0, z_rotation), type=OBSTACLE_MASK))
         # world boundaries
         for i in range(1,COLS+1):
-            self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(GRID_DX/2, i * GRID_DY, 2), Vector3f(0, 0, 90), type=1 ))
-            self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(i * GRID_DX, GRID_DY/2, 2), Vector3f(0, 0, 0), type=1 ))
-            self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(i * GRID_DX, COLS * GRID_DY + GRID_DY/2, 2), Vector3f(0, 0, 0), type=1 ))
-            self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(ROWS * GRID_DX + GRID_DX/2, i * GRID_DY, 2), Vector3f(0, 0, 90), type=1 ))
+            self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(GRID_DX/2, i * GRID_DY, 2), Vector3f(0, 0, 90), type=OBSTACLE_MASK ))
+            self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(i * GRID_DX, GRID_DY/2, 2), Vector3f(0, 0, 0), type=OBSTACLE_MASK ))
+            self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(i * GRID_DX, COLS * GRID_DY + GRID_DY/2, 2), Vector3f(0, 0, 0), type=OBSTACLE_MASK ))
+            self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(ROWS * GRID_DX + GRID_DX/2, i * GRID_DY, 2), Vector3f(0, 0, 90), type=OBSTACLE_MASK ))
         # goal (red cube)
         self.wall_ids.append(addObject("data/shapes/cube/RedCube.xml", Vector3f(ROWS * GRID_DX, COLS * GRID_DY, 5), Vector3f(45,45,45)))
 
@@ -117,7 +178,7 @@ class MazeMod:
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
             self.set_environment(MazeEnvironment())
-        self.agent_id = addObject("data/shapes/character/SydneyDFS.xml", Vector3f(GRID_DX, GRID_DY, 2) )
+        self.agent_id = addObject("data/shapes/character/SydneyDFS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
 
@@ -127,7 +188,7 @@ class MazeMod:
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
             self.set_environment(MazeEnvironment())
-        self.agent_id = addObject("data/shapes/character/SydneyAStar.xml", Vector3f(GRID_DX, GRID_DY, 2) )
+        self.agent_id = addObject("data/shapes/character/SydneyAStar.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
 
@@ -137,7 +198,7 @@ class MazeMod:
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
             self.set_environment(MazeEnvironment())
-        self.agent_id = addObject("data/shapes/character/SydneyAStar2.xml", Vector3f(GRID_DX, GRID_DY, 2) )
+        self.agent_id = addObject("data/shapes/character/SydneyAStar2.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
 
@@ -147,7 +208,7 @@ class MazeMod:
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
             self.set_environment(MazeEnvironment())
-        self.agent_id = addObject("data/shapes/character/SydneyAStar3.xml", Vector3f(GRID_DX, GRID_DY, 2) )
+        self.agent_id = addObject("data/shapes/character/SydneyAStar3.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
 
@@ -157,7 +218,7 @@ class MazeMod:
         self.reset_maze()
         if self.environment.__class__.__name__ != 'ContMazeEnvironment':
             self.set_environment(ContMazeEnvironment())
-        self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2) )
+        self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         enable_ai()
 
     def start_random(self):
@@ -168,7 +229,7 @@ class MazeMod:
         if self.environment.__class__.__name__ != 'MazeEnvironment':
             self.set_environment(MazeEnvironment())
         enable_ai()
-        self.agent_id = addObject("data/shapes/character/SydneyRandom.xml",Vector3f(GRID_DX, GRID_DY, 2) )
+        self.agent_id = addObject("data/shapes/character/SydneyRandom.xml",Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
 
     def start_rtneat(self):
         """ start the rtneat learning demo """
@@ -176,14 +237,30 @@ class MazeMod:
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
             self.set_environment(MazeEnvironment())
-        # Create RTNEAT object
+        agent_info = get_environment().agent_info
+
+        # Create an rtNEAT object appropriate for the environment
         pop_size = 50
         pop_on_field_size = 10
-        rtneat = RTNEAT("data/ai/neat-params.dat", 8, 3, pop_size, 1.0)
+
+        # Establish the number of inputs and outputs
+        # We use 1 neuron for each continuous value, and N neurons for 1-of-N
+        # coding for discrete variables
+
+        # For inputs, the number of neurons depends on the sensor constraints
+        n_inputs = count_neurons(agent_info.sensors)
+
+        # For outputs, the number of neurons depends on the action constraints
+        n_outputs = count_neurons(agent_info.actions)
+        
+        print 'RTNEAT, inputs: %d, outputs: %d' % (n_inputs, n_outputs)
+
+        # create the rtneat object that will manage the population of agents
+        rtneat = RTNEAT("data/ai/neat-params.dat", n_inputs, n_outputs, pop_size, 1.0)
         set_ai("neat",rtneat)
         enable_ai()
         for i in range(0, pop_on_field_size):
-            self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(GRID_DX, GRID_DY, 2) )
+            self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK)
 
     def start_sarsa(self):
         """ start the rtneat learning demo """
@@ -191,7 +268,7 @@ class MazeMod:
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
             self.set_environment(MazeEnvironment())
-        self.agent_id = addObject("data/shapes/character/SydneySarsa.xml", Vector3f(GRID_DX, GRID_DY, 2) )
+        self.agent_id = addObject("data/shapes/character/SydneySarsa.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         enable_ai()
 
     def start_qlearning(self):
@@ -200,7 +277,7 @@ class MazeMod:
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
             self.set_environment(MazeEnvironment())
-        self.agent_id = addObject("data/shapes/character/SydneyQLearning.xml", Vector3f(GRID_DX, GRID_DY, 2) )
+        self.agent_id = addObject("data/shapes/character/SydneyQLearning.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         enable_ai()
 
     def control_fps(self,key):
