@@ -49,6 +49,15 @@ class AgentState:
         self.animation = 'stand'
         self.observation_history = deque([ [x] for x in range(HISTORY_LENGTH)])
         self.action_history = deque([ [x] for x in range(HISTORY_LENGTH)])
+        self.reward_history = deque([ 0 for x in range(HISTORY_LENGTH)])
+        
+    def reset(self):
+        self.rc = (0,0)
+        self.prev_rc = (0,0)
+        self.goal_reached = False
+        self.observation_history = deque([ [x] for x in range(HISTORY_LENGTH)])
+        self.action_history = deque([ [x] for x in range(HISTORY_LENGTH)])
+        self.reward_history = deque([ 0 for x in range(HISTORY_LENGTH)])
 
     def update(self, agent, maze):
         """
@@ -69,6 +78,11 @@ class AgentState:
         self.observation_history.popleft()
         self.observation_history.append(observation)
     
+    def record_reward(self, reward):
+        self.reward_history.popleft()
+        self.reward_history.append(reward)
+        return reward
+    
     def is_stuck(self):
         """ for now the only way to get stuck is to have the same state-action pair """
         if not is_uniform(self.action_history):
@@ -76,6 +90,12 @@ class AgentState:
         if not is_uniform(self.observation_history):
             return False
         return True
+        
+    def get_reward(self):
+        r0 = self.reward_history.popleft()
+        for r in self.reward_history:
+            assert(r == r0)
+        return r0
 
 class MazeEnvironment(Environment):
     MOVES = [(1,0), (-1,0), (0,1), (0,-1)]
@@ -156,12 +176,10 @@ class MazeEnvironment(Environment):
         reset the environment to its initial state
         """
         state = self.get_state(agent)
-        state.rc = (0,0)
-        state.prev_rc = (0,0)
+        print 'Episode %d complete' % agent.episode
+        state.reset()
         agent.state.position = copy(state.initial_position)
         agent.state.rotation = copy(state.initial_rotation)
-        state.goal_reached = False
-        print 'Episode %d complete' % agent.episode
         return True
 
     def get_agent_info(self, agent):
@@ -188,13 +206,13 @@ class MazeEnvironment(Environment):
         a = int(round(action[0]))
         state.prev_rc = state.rc
         if a == len(MazeEnvironment.MOVES): # null action
-            return self.rewards.valid_move(state)
+            return state.record_reward(self.rewards.valid_move(state))
         (dr,dc) = MazeEnvironment.MOVES[a]
         new_r, new_c = r + dr, c + dc
         if not self.maze.rc_bounds(new_r, new_c):
-            return self.rewards.out_of_bounds(state)
+            return state.record_reward(self.rewards.out_of_bounds(state))
         elif self.maze.is_wall(r,c,dr,dc):
-            return self.rewards.hit_wall(state)
+            return state.record_reward(self.rewards.hit_wall(state))
         state.rc = (new_r, new_c)
         (old_r,old_c) = state.prev_rc
         (old_x,old_y) = self.maze.rc2xy(old_r, old_c)
@@ -206,10 +224,10 @@ class MazeEnvironment(Environment):
         agent.state.rotation = state.initial_rotation + relative_rotation
         if new_r == ROWS - 1 and new_c == COLS - 1:
             state.goal_reached = True
-            return self.rewards.goal_reached(state)
+            return state.record_reward(self.rewards.goal_reached(state))
         elif agent.step >= self.max_steps - 1:
-            return self.rewards.last_reward(state)
-        return self.rewards.valid_move(state)
+            return state.record_reward(self.rewards.last_reward(state))
+        return state.record_reward(self.rewards.valid_move(state))
 
     def teleport(self, agent, r, c):
         """
@@ -239,7 +257,7 @@ class MazeEnvironment(Environment):
             ray = (p0 + direction * offset, p0 + direction * GRID_DX)
             # we only look for objects of type 1, which means walls
             objects = getSimContext().findInRay(ray[0], ray[1], 1, True)
-            v[2 + i] = len(objects)
+            v[2 + i] = int(len(objects) > 0)
         state.record_observation(v)
         return v
 
@@ -274,9 +292,8 @@ class MazeEnvironment(Environment):
             return True
         elif state.goal_reached:
             return True
-        elif self.shortcircuit and state.is_stuck():
-            print "HELP! I'M STUCK"
-            return False
+        #elif self.shortcircuit and state.is_stuck():
+        #    return False
         else:
             return False
 

@@ -17,7 +17,6 @@ def count_neurons(constraints):
             n_neurons += int(constraints.max(i) - constraints.min(i) + 1)
         else:
             n_neurons += 1
-    print constraints, 'requires', n_neurons
     return n_neurons
     
 def input_to_neurons(constraints, input):
@@ -30,8 +29,8 @@ def input_to_neurons(constraints, input):
     for i in range(len(constraints)):
         if constraints.discrete(i):
             section_size = int(constraints.max(i) - constraints.min(i) + 1)
-            index = input[i] - constraints.min(i)
             section = [0 for x in range(section_size)]
+            index = int(input[i] - constraints.min(i))
             section[index] = 1
             neurons.extend(section)
         else:
@@ -50,18 +49,18 @@ def neurons_to_output(constraints, neurons):
     for result_i in range(len(constraints)):
         assert(neuron_i < len(neurons))
         assert(neuron_i >= result_i)
-        if constraints.discrete(i):
+        if constraints.discrete(result_i):
             # section of the neurons coding for this output
-            section_size = int(constraints.max(i) - constraints.min(i))
+            section_size = int(constraints.max(result_i) - constraints.min(result_i) + 1)
             section_values = neurons[neuron_i:(neuron_i + section_size)]
             # the maximally activated neuron in this section
             max_neuron = max(section_values)
-            max_index = section_values.index(section_values)
+            max_index = section_values.index(max_neuron)
             # the result output
-            result[result_i] = constraints.min(i) + max_index
+            result[result_i] = constraints.min(result_i) + max_index
             neuron_i += section_size
         else:
-            delta = constraints.max(i) - constraints.min(i)
+            delta = constraints.max(result_i) - constraints.min(result_i)
             result[result_i] = constraints.min(i) + neurons[neuron_i] * delta
             neuron_i += 1
     return result

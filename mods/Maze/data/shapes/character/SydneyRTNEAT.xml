@@ -6,10 +6,11 @@
 		<MaterialType>solid</MaterialType>
 		<MaterialFlagLighting>true</MaterialFlagLighting>
 		<AniMesh>data/shapes/character/sydney.md2</AniMesh>
+		<Texture0>data/shapes/character/sydney.bmp</Texture0>
 		<CastsShadow>true</CastsShadow>
 		<Footprints>
 			<Frames>3</Frames>
-			<Trail>100</Trail>
+			<Trail>25</Trail>
 			<Object>data/shapes/footprint/Footprint.xml</Object>
 		</Footprints>
 		<Texture0>data/shapes/character/sydney.bmp</Texture0>

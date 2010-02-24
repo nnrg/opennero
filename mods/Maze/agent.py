@@ -486,7 +486,7 @@ class RTNEATAgent(AgentBrain):
         #assert(self.org.fitness >= 0) # we have to have a non-negative fitness for rtNEAT to work
         print  "Final reward: %f, cumulative: %f" % (reward, self.fitness)
         return True
-
+        
     def destroy(self):
         """
         the agent brain is discarded
@@ -500,20 +500,15 @@ class RTNEATAgent(AgentBrain):
         Activate the network to produce the output
         Collect and interpret the outputs as valid maze actions
         """
-        self.sensors.validate(sensors)
-        inputs = [sensor for sensor in sensors] # create the sensor array
+        assert(self.sensors.validate(sensors))
+        inputs = Maze.module.input_to_neurons(self.sensors, sensors)
         self.net.load_sensors(inputs)
         self.net.activate()
         outputs = self.net.get_outputs()
-
-        actions = self.actions.get_instance() # make a vector for the actions
-
-        maxOutput = 0 # select the action based on the biggest output of the network
-
-        for i in range(len(outputs)):
-            if outputs[maxOutput] < outputs[i]:
-                maxOutput = i
-
-        actions[0] = maxOutput
-
+        actions = Maze.module.neurons_to_output(self.actions, outputs)
+        # debugging output
+        #print 'obs -> net:', sensors, inputs
+        #print '    -> org -> out:', self.org.id, outputs
+        #print '    -> action:', actions
+        assert(self.actions.validate(actions))
         return actions
