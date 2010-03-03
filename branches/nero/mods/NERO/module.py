@@ -11,8 +11,8 @@ YDIM = 400
 HEIGHT = 20
 OFFSET = -HEIGHT/2
 
-NEAT_ACTIONS = 5
-NEAT_SENSORS = 15
+NEAT_ACTIONS = 4
+NEAT_SENSORS = 8
 pop_size = 50
 
 OBSTACLE = 1 #0b0001
@@ -35,7 +35,7 @@ class NeroModule:
         self.ee =  0
         self.hp = 50
         self.currTeam = 1
-        self.flag_loc = Vector3f(20,20,0)
+        self.flag_loc = Vector3f(XDIM/2,YDIM/2,0)
 
 
     def setup_map(self):
@@ -59,7 +59,7 @@ class NeroModule:
         # addObject("data/shapes/cube/Cube.xml", Vector3f(0, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall1", type = OBSTACLE )
         # addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall2", type = OBSTACLE )
         # addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM, HEIGHT +OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall3", type = OBSTACLE )
-        # addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1, YDIM,HEIGHT), label="World Wall4", type = OBSTACLE)
+        #addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1, YDIM,HEIGHT), label="World Wall4", type = OBSTACLE)
 
         # Add the surrounding Environment
         addObject("data/terrain/NeroWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="NeroWorld", type = OBSTACLE)

@@ -3,6 +3,7 @@ import random
 from time import time
 
 FITNESS_OUT = False
+NEAT_SENSORS = 8
 
 def gettime():
 	return time() 
@@ -97,14 +98,16 @@ class RTNEATAgent(AgentBrain):
         Activate the network to produce the output
         Collect and interpret the outputs as valid maze actions
         """
-        assert(len(sensors)==15) # make sure we have the right number of sensors
+        assert(len(sensors)==NEAT_SENSORS) # make sure we have the right number of sensors
         sensors = self.sensors.normalize(sensors)
         inputs = [sensor for sensor in sensors] # create the sensor array
         self.net.load_sensors(inputs)
         self.net.activate()
         outputs = self.net.get_outputs()
         actions = self.actions.get_instance() # make a vector for the actions
+         
         for i in range(0,len(self.actions.get_instance())):
-            actions[i] = outputs[i]
+            actions[i] = outputs[i]#max(outputs) == outputs[i]
+        
         actions = self.actions.denormalize(actions)
         return actions

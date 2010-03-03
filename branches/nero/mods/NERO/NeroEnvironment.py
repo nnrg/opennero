@@ -140,13 +140,15 @@ class NeroEnvironment(Environment):
         rbound = FeatureVectorInfo() # rewards
         
         # actions
-        abound.add_continuous(-pi / 2, pi / 2) # direction of motion
+        #abound.add_continuous(-pi / 2, pi / 2) # direction of motion
         abound.add_continuous(0, 1) # how fast to move
-        abound.add_continuous(-pi / 2, pi / 2) # Firing direction
+        #abound.add_continuous(-pi / 2, pi / 2) # Firing direction
         abound.add_continuous(0, 1)
         abound.add_continuous(0, 1) 
+        abound.add_continuous(0, 1)
 
         #sensors
+        """
         sbound.add_continuous(0, 1) # -60 deg        
         sbound.add_continuous(0, 1) # -45 deg
         sbound.add_continuous(0, 1) # -30 deg
@@ -156,16 +158,22 @@ class NeroEnvironment(Environment):
         sbound.add_continuous(0, 1) # 30 deg
         sbound.add_continuous(0, 1) # 45 deg
         sbound.add_continuous(0, 1) # 60 deg
-        
+        """
+        sbound.add_continuous(-1 * pi * 2, pi * 2)
         sbound.add_continuous(0, self.MAX_DIST) # Flag Sensors - Dist
         sbound.add_continuous(-1 * pi * 2, pi * 2) # Flag Sensors - Heading
-        
+        sbound.add_discrete(0,1)
+        sbound.add_discrete(0,1)
+        sbound.add_discrete(0,1)
+        sbound.add_discrete(0,1)
+        sbound.add_discrete(0,1) # Bias
+        """
         sbound.add_continuous(0, self.MAX_DIST) # Ally Sensors - Dist
         sbound.add_continuous(-1 * pi * 2, pi * 2) # Ally Sensors - Heading
         
         sbound.add_continuous(0, self.MAX_DIST) # Enemy Sensors - Dist
         sbound.add_continuous(-1 * pi * 2, pi * 2) # Enemy Sensors - Heading
-        
+        """
         #rewards
 #        rbound.add_continuous(-100,100) # range for reward
         
@@ -355,14 +363,16 @@ class NeroEnvironment(Environment):
                 return 0
             avg,sig = self.generate_averages(agent)
             sums = Fitness()
-            print 'FITNESS:', state.fitness
-            sums = getMod().weights * (state.fitness - avg) / sig
+            sums = getMod().weights * (state.fitness) #- avg) / sig
             #Add current unit to pop_state
             if agent.get_team() == 1: 
                 self.pop_state_1[agent.org.id] = state
             else:
                 self.pop_state_2[agent.org.id] = state
             state.final_fitness = sums.sum()
+            
+            print 'FITNESS:', state.fitness
+            print "FINAL_FITNESS:", state.final_fitness
             return state.final_fitness
 
         return 0
@@ -391,32 +401,38 @@ class NeroEnvironment(Environment):
         """ figure out what the agent should sense """
         v = self.agent_info.sensors.get_instance()
         vx = []
-        vx.append(self.raySense(agent, -60, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, -45, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, -30, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, -15, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 0, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 15, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 30, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 45, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 60, MAX_SD, OBSTACLE))
-        for iter in range(len(vx)):
-            v[iter] = vx[iter]
+        #vx.append(self.raySense(agent, -60, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, -45, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, -30, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, -15, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, 0, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, 15, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, 30, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, 45, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, 60, MAX_SD, OBSTACLE))
+        #for iter in range(len(vx)):
+        #    v[iter] = vx[iter]
         state = self.get_state(agent)
-        v[9] = self.flag_distance(agent)
-        v[10] = sin((state.pose[1] - self.flag_loc.y) / v[9])
-        ffr = self.getFriendFoe(agent)
-        if (ffr[0] == []):
-            return v
-        ff = []
-        ff.append(self.nearest(state.pose, state.id, ffr[0]))
-        ff.append(self.nearest(state.pose, state.id, ffr[1]))
-        if ff[0] == 1:
-            return v
-        v[11] = self.distance(ff[0].pose, state.pose)
-        v[12] = self.angle(state.pose, ff[0].pose)
-        v[13] = self.distance(state.pose, ff[1].pose)
-        v[14] = self.angle(state.pose, ff[1].pose)
+        v[0] = state.pose[2] % 2 * 3.14159265358979
+        v[1] = self.flag_distance(agent)
+        v[2] = sin((state.pose[1] - self.flag_loc.y) / self.flag_distance(agent))
+        v[3] = state.pose[1] - self.flag_loc.y >= 0
+        v[4] = state.pose[1] - self.flag_loc.y <= 0
+        v[5] = state.pose[0] - self.flag_loc.x >= 0
+        v[6] = state.pose[0] - self.flag_loc.x <= 0
+        v[7] = 1
+        #ffr = self.getFriendFoe(agent)
+        #if (ffr[0] == []):
+        #    return v
+        #ff = []
+        #ff.append(self.nearest(state.pose, state.id, ffr[0]))
+        #ff.append(self.nearest(state.pose, state.id, ffr[1]))
+        #if ff[0] == 1:
+        #    return v
+        #v[11] = self.distance(ff[0].pose, state.pose)
+        #v[12] = self.angle(state.pose, ff[0].pose)
+        #v[13] = self.distance(state.pose, ff[1].pose)
+        #v[14] = self.angle(state.pose, ff[1].pose)
         return v
     
     def flag_distance(self, agent):

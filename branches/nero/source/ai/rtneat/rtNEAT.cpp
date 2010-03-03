@@ -181,7 +181,9 @@ namespace OpenNero
     PyOrganismPtr RTNEAT::next_organism(float prob)
     {
         OrganismPtr org;
-        
+        static int index = 0;
+        static OrganismPtr elite_org;
+
         //With prob probability, instead of "exploring", "exploit" by
         //re-evaluating a previous agent.
         if (!mEvalQueue.empty())
@@ -190,7 +192,7 @@ namespace OpenNero
             mEvalQueue.pop();
         }
  
-        //Notes on current implementation.
+        //With prob chance get elite agent
         else if (RANDOM.randF() < prob)
         {
             vector<OrganismPtr>::iterator most = max_element(mPopulation->organisms.begin(), mPopulation->organisms.end());
@@ -199,6 +201,14 @@ namespace OpenNero
         else
         {
  
+            // Find organism with highest fitness before we change the population.
+            if (index == 0) {
+                vector<OrganismPtr>::iterator elite = max_element(mPopulation->organisms.begin(), mPopulation->organisms.end(), fitness_less);
+                AssertMsg(elite != mPopulation->organisms.end(), "highest fitness organism not found");
+                LOG_F_DEBUG("ai", "highest fitness: " << (*elite)->fitness);
+                elite_org = *elite;
+            }
+
             vector<OrganismPtr>::iterator least = min_element(mPopulation->organisms.begin(), mPopulation->organisms.end(), fitness_less);
             AssertMsg(least != mPopulation->organisms.end(), "lowest fitness organism not found");
             double least_fitness = (*least)->fitness;
@@ -212,10 +222,19 @@ namespace OpenNero
             OrganismPtr removed = mPopulation->remove_worst();
             if (removed) {
                 SpeciesPtr parent = mPopulation->choose_parent_species();
+                S32 generation = static_cast<S32>(mOffspringCount++);
 
+                // use copy of elite organism for first individual in the population and reproduce
+                // for the other individuals
+                if (index == 0) {
+                    org.reset(new Organism(0.0, elite_org->gnome->duplicate(generation), generation));
+                    mPopulation->add_organism(org);
+                }
+                else {
                 // reproduce
                 org = parent->reproduce_one(static_cast<S32>(mOffspringCount++), mPopulation, mPopulation->species, 0, 0);
                 AssertMsg(org, "Organism did not reproduce correctly");
+                }
 
                 size_t num_species = mPopulation->species.size(); // number of species in the population
 
@@ -239,6 +258,7 @@ namespace OpenNero
                     mPopulation->reassign_species(*org_iter);
                 } 
             }
+            index = (index+1)%mPopulation->organisms.size();
         }
 
         AssertMsg(org, "No rtNEAT organism found!");
