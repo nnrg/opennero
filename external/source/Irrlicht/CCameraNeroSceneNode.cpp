@@ -51,6 +51,8 @@ CCameraNeroSceneNode::CCameraNeroSceneNode(ISceneNode* parent, ISceneManager* mg
     KeyMap.push_back(SCamKeyMap(kAction_RotateRight,    irr::KEY_KEY_E));
     KeyMap.push_back(SCamKeyMap(kAction_ZoomOut,        irr::KEY_KEY_Z));
     KeyMap.push_back(SCamKeyMap(kAction_ZoomIn,         irr::KEY_KEY_C));
+	KeyMap.push_back(SCamKeyMap(kAction_TiltUp,         irr::KEY_KEY_R));
+	KeyMap.push_back(SCamKeyMap(kAction_TiltDown,       irr::KEY_KEY_F));
 }
 
 
@@ -145,9 +147,11 @@ void CCameraNeroSceneNode::animate( u32 timeMs )
     bool rotateRight = CursorKeys[kAction_RotateRight];
     bool zoomIn      = CursorKeys[kAction_ZoomIn];
     bool zoomOut     = CursorKeys[kAction_ZoomOut];
+	bool tiltUp      = CursorKeys[kAction_TiltUp];
+	bool tiltDown    = CursorKeys[kAction_TiltDown];
 
 	// update position
-	core::vector3df pos = getPosition();	
+	core::vector3df pos = getPosition();
 
 	// Update rotation
 	Target.set(0,0,1);
@@ -183,10 +187,14 @@ void CCameraNeroSceneNode::animate( u32 timeMs )
             mWheelMovement += ZoomSpeed/50 * timeDiffScalar;
 
         if( zoomIn )
-            mWheelMovement -= ZoomSpeed/50 * timeDiffScalar;                
-    }
+            mWheelMovement -= ZoomSpeed/50 * timeDiffScalar;
 
-    RelativeRotation.X = 45;
+		if (tiltUp)
+			RelativeRotation.X -= RotateSpeed * timeDiffScalar;
+
+		if (tiltDown)
+			RelativeRotation.X += RotateSpeed * timeDiffScalar;
+    }
 
 	// set target
 
