@@ -30,6 +30,8 @@ namespace scene
             kAction_RotateRight,
             kAction_ZoomOut,
             kAction_ZoomIn,
+			kAction_TiltUp,
+			kAction_TiltDown,
             kActions_MAX
         };
 
