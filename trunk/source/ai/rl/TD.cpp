@@ -29,9 +29,9 @@ namespace OpenNero
     Actions TDBrain::act(const TimeType& time, const Sensors& new_state, const Reward& reward)
     {
         double new_Q = epsilon_greedy(new_state); // select new action and estimate its value
+        double old_Q = mApproximator->predict(state, action);
         // Q(s_t, a_t) <- Q(s_t, a_t) + \alpha [r_{t+1} + \gamma Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t)
-        // LOG_F_DEBUG("ai", "TD UPDATE s1: " << state << ", a1: " << action << ", r: " << reward << ", s2: " << new_state << ", a2" << new_action);
-        mApproximator->update(state, action, mAlpha*(reward + mGamma * new_Q));
+        mApproximator->update(state, action, old_Q + mAlpha * (reward + mGamma * new_Q - old_Q));
         action = new_action;
         state = new_state;
         return action;
@@ -42,7 +42,8 @@ namespace OpenNero
     {
         // Q(s_t, a_t) <- Q(s_t, a_t) + \alpha [r_{t+1} - Q(s_t, a_t)]
         // LOG_F_DEBUG("ai", "TD FINAL UPDATE s1: " << state << ", a1: " << action << ", r: " << reward);
-        mApproximator->update(state, action, reward);
+        double old_Q = mApproximator->predict(state, action);
+        mApproximator->update(state, action, old_Q + mAlpha * (reward - old_Q));
         return true;
     }
 
@@ -53,7 +54,7 @@ namespace OpenNero
         if (RANDOM.randF() < mEpsilon)
         {
         	new_action = mInfo.actions.getRandom();
-            double value = predict(new_state);
+            double value = mApproximator->predict(new_state, new_action);
             return value;
         }
         // enumerate all possible actions (actions must be discrete!)

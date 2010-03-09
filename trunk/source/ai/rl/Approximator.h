@@ -20,8 +20,9 @@ namespace OpenNero
         /// information about the agent for which this approximator is used
         AgentInitInfo mInfo;
     public:
-        /// @param info information about the agent for which this approximator is to be used
+        /// Constructor
         explicit Approximator(const AgentInitInfo& info) : mInfo(info) {}
+        /// Destructor
         virtual ~Approximator() {}
 
         /// return a copy of this approximator

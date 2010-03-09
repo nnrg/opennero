@@ -5,27 +5,32 @@
 
 namespace OpenNero
 {
-    /// constructor
+    /// @param info information about the agent for which this approximator is to be used
     TableApproximator::TableApproximator(const AgentInitInfo& info) :
         Approximator(info)
         , table()
     {
     }
 
+    /// copy constructor
     TableApproximator::TableApproximator(const TableApproximator& a) :
         Approximator(a)
         , table(a.table)
     {
     }
 
+    /// destructor
     TableApproximator::~TableApproximator()
     {
     }
 
     /// predict the value associated with a particular feature vector
-    double TableApproximator::predict(const FeatureVector& sensors, const FeatureVector& actions)
+    /// @param observation observation to update
+    /// @param action action to update
+    /// @return currently approximated (exact) value
+    double TableApproximator::predict(const FeatureVector& observation, const FeatureVector& action)
     {
-        StateActionPair key(sensors,actions);
+        StateActionPair key(observation,action);
         StateActionDoubleMap::iterator found = table.find(key);
         if (found == table.end())
         {
@@ -38,13 +43,17 @@ namespace OpenNero
 
     }
 
-    /// update the value associated with a particular feature vector
-    void TableApproximator::update(const FeatureVector& sensors, const FeatureVector& actions, double target)
+    /// @param observation observation to update
+    /// @param action action to update
+    /// @param target new value for this state/action pair
+    void TableApproximator::update(const FeatureVector& observation, const FeatureVector& action, double target)
     {
-        StateActionPair key(sensors,actions);
+        StateActionPair key(observation,action);
         table[key] = target;
     }
 
+    /// Create a new tiles approximator based on the agent description provided
+    /// @param info agent interface description
     TilesApproximator::TilesApproximator(const AgentInitInfo& info) 
         : Approximator(info)
         , mAlpha(0.1f)
@@ -124,44 +133,44 @@ namespace OpenNero
     }
 
     /// convert feature vector into tiles
-    void TilesApproximator::to_tiles(const FeatureVector& sensors, const FeatureVector& actions)
+    void TilesApproximator::to_tiles(const FeatureVector& observation, const FeatureVector& action)
     {
         size_t num_sensors = mInfo.sensors.size();
         size_t num_actions = mInfo.actions.size();
-        Assert(num_sensors == sensors.size());
-        Assert(num_actions == actions.size());
+        Assert(num_sensors == observation.size());
+        Assert(num_actions == action.size());
         // shuffle feature vector into the arrays
         for (size_t i = 0; i < ints_index.size(); ++i)
         {
             if (ints_index[i] < num_sensors)
             {
-                ints[i] = (int)sensors[ints_index[i]];
+                ints[i] = (int)observation[ints_index[i]];
             }
             else
             {
-                ints[i] = (int)actions[ints_index[i] - num_sensors];
+                ints[i] = (int)action[ints_index[i] - num_sensors];
             }
         }
         for (size_t i = 0; i < floats_index.size(); ++i)
         {
             if (floats_index[i] < num_sensors)
             {
-                floats[i] = (float)sensors[floats_index[i]];
+                floats[i] = (float)observation[floats_index[i]];
             }
             else
             {
-                floats[i] = (float)actions[floats_index[i] - num_sensors];
+                floats[i] = (float)action[floats_index[i] - num_sensors];
             }
         }
         // convert the input values to tiles
         GetTiles(tiles, num_tilings, num_weights, floats, floats_index.size(), ints, ints_index.size());
     }
     
-    /// @param sensors sensor vector
-    /// @param actions action vector
-    double TilesApproximator::predict(const FeatureVector& sensors, const FeatureVector& actions)
+    /// @param observation sensor vector
+    /// @param action action vector
+    double TilesApproximator::predict(const FeatureVector& observation, const FeatureVector& action)
     {
-        to_tiles(sensors, actions);
+        to_tiles(observation, action);
         double result=0.0;
         for (size_t i = 0; i < num_tilings; ++i) 
         {
@@ -171,13 +180,12 @@ namespace OpenNero
     }
     
     /// Adapt the tile weights for the tiles that are triggered by the given example
-    /// @param sensors sensor vector
-    /// @param actions action vector
+    /// @param observation sensor vector
+    /// @param action action vector
     /// @param target output target
-    void TilesApproximator::update(const FeatureVector& sensors, const FeatureVector& actions, double target)
+    void TilesApproximator::update(const FeatureVector& observation, const FeatureVector& action, double target)
     {
-        // first, predict the value
-        double x = predict(sensors, actions);
+        double x = predict(observation, action);
         // then, adapt weights towards the prediction
         for (size_t i = 0; i < num_tilings; ++i) 
         {
