@@ -13,8 +13,7 @@ N_FIXED_SENSORS = 3     # 0: wall bump, 1: self position X
 
 class RoombaBrain(AgentBrain):
     """
-    RoombaBrain for cs378i homework 7
-    For now, it just returns random actions (making sure they are in the right range)
+    Scripted behavior for Roomba agent
     A "lifetime" of an agent brain looks like this:
     1. __init__() is called (new brain)
     2. initialize() is called (passing specs for sensors, actions and rewards)
@@ -34,7 +33,8 @@ class RoombaBrain(AgentBrain):
           
     def initialize(self, init_info):
         """
-        A new soul
+        init_info contains a description of the observations the agent will see
+        and the actions the agent will be able to perform
         """
         self.constraints = init_info.actions
         self.action_sq = Queue()
@@ -137,7 +137,7 @@ class RoombaBrain(AgentBrain):
 
     def destroy(self):
         """
-        called when the agent is destroy
+        called when the agent is destroyed
         """
         self.time = 0
         return True
