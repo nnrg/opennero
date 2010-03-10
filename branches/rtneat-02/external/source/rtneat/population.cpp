@@ -1,4 +1,4 @@
-#include "core/Common.h"
+#include "Types.h"
 #include "population.h"
 #include <vector>
 #include <algorithm>
@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include <stdexcept>
+#include <iostream>
 
 using namespace std;
 using namespace NEAT;
@@ -31,8 +32,9 @@ namespace PopulationConsole
 }
 
 Population::Population(GenomePtr g, S32 size)
-{
+{    
     PopulationConsole::initConsole();
+    cerr << "IVK: Population(" << g.get() << ", " << size << ")" << endl;
     winnergen=0;
     highest_fitness=0.0;
     highest_last_changed=0;
@@ -309,13 +311,16 @@ bool Population::spawn(GenomePtr g, S32 size)
     GenomePtr new_genome;
     OrganismPtr new_organism;
 
+    cout << "IVK: spawn(" << g.get() << ", " << size << ")" << endl;
+
     //Create size copies of the Genome
     //Start with perturbed linkweights
     for (count=1; count<=size; count++)
     {
-        //cout<<"CREATING ORGANISM "<<count<<endl;
-
+        cerr << "CREATING ORGANISM " << count << endl;
+        
         new_genome=g->duplicate(count);
+        cerr << "IVK: new_genome: " << new_genome.get() << endl;
         //new_genome->mutate_link_weights(1.0,1.0,GAUSSIAN);
         new_genome->mutate_link_weights(1.0, 1.0, COLDGAUSSIAN);
         new_genome->randomize_traits();

@@ -1,4 +1,4 @@
-#include "core/Common.h"
+#include "Types.h"
 #include "genome.h"
 #include "innovation.h"
 #include "gene.h"

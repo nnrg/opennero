@@ -5,7 +5,6 @@
 #include "genome.h"
 #include "species.h"
 #include "pool.h"
-#include "XMLSerializable.h"
 #include <string>
 #include <map>
 
@@ -19,10 +18,8 @@ namespace NEAT
     /// ORGANISM CLASS:
     /// Organisms are Genomes and Networks with fitness information, 
     /// i.e. The genotype and phenotype together
-    class Organism : public XMLSerializable
+    class Organism
     {
-            friend class boost::serialization::access;
-
             Organism() {}
 
         public:
@@ -69,24 +66,6 @@ namespace NEAT
             //Should this organism have a fitness penalty?
             bool smited;
             
-            /// serialize this object to/from a Boost serialization archive
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                //LOG_F_DEBUG("rtNEAT", "serialize::organism");
-                ar & BOOST_SERIALIZATION_NVP(fitness);
-                ar & BOOST_SERIALIZATION_NVP(winner);
-                ar & BOOST_SERIALIZATION_NVP(gnome);
-                // ar & BOOST_SERIALIZATION_NVP(net);
-                ar & BOOST_SERIALIZATION_NVP(species);
-                ar & BOOST_SERIALIZATION_NVP(expected_offspring);
-                ar & BOOST_SERIALIZATION_NVP(generation);
-                ar & BOOST_SERIALIZATION_NVP(eliminate);
-                ar & BOOST_SERIALIZATION_NVP(champion);
-                ar & BOOST_SERIALIZATION_NVP(super_champ_offspring);
-                ar & BOOST_SERIALIZATION_NVP(pop_champ);
-                ar & BOOST_SERIALIZATION_NVP(pop_champ_child);        
-            }
     };
 
     // This is used for list sorting of Organisms by fitness..highest fitness first
@@ -117,11 +96,6 @@ namespace NEAT
             std::map<std::string,std::string> mTokens; ///< metadata key value pair tokens
     };
 
-    /// write organism to stream
-    std::ostream& operator<<(std::ostream& out, const OrganismPtr& x);
-    
-    /// read organism from stream
-    std::istream& operator>>(std::istream& in, OrganismPtr& x);
 } // namespace NEAT
 
 #endif

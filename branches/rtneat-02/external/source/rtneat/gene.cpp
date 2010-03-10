@@ -1,6 +1,5 @@
-#include "core/Common.h"
+#include "Types.h"
 #include "gene.h"
-#include "XMLSerializable.h"
 #include <sstream>
 
 using namespace NEAT;

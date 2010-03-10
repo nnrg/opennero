@@ -1,4 +1,4 @@
-#include "core/Common.h"
+#include "Types.h"
 #include "network.h"
 
 using namespace NEAT;
@@ -675,4 +675,20 @@ S32 Network::load_in(F64 d)
         return 0;
     else
         return 1;
+}
+
+//Find the maximum number of neurons between an ouput and an input
+int Network::max_depth() {
+    std::vector<NNodePtr>::iterator curoutput; //The current output we are looking at
+    int cur_depth; //The depth of the current node
+    int max=0; //The max depth
+    
+    for(curoutput=outputs.begin();
+        curoutput!=outputs.end();
+        curoutput++) {
+        cur_depth=(*curoutput)->depth(0,shared_from_this());
+        if (cur_depth>max) max=cur_depth;
+    }
+
+    return max;
 }

@@ -24,7 +24,6 @@ namespace NEAT
     class Population : public boost::enable_shared_from_this<Population>
     {
         private:
-            friend class boost::serialization::access;
         
             Population() {}
         
@@ -151,32 +150,7 @@ namespace NEAT
             //    -delete by killing off the organisms themselves (if not speciated)
             // It does the latter if it sees the species list is empty
             ~Population();
-            
-            /// serialize this object to/from a Boost serialization archive
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                //LOG_F_DEBUG("rtNEAT", "serialize::population");
-                ar & BOOST_SERIALIZATION_NVP(organisms);
-                ar & BOOST_SERIALIZATION_NVP(species);
-                ar & BOOST_SERIALIZATION_NVP(last_species);
-                ar & BOOST_SERIALIZATION_NVP(cur_innov_num);
-                ar & BOOST_SERIALIZATION_NVP(cur_node_id);
-                ar & BOOST_SERIALIZATION_NVP(innovations);
-                ar & BOOST_SERIALIZATION_NVP(mean_fitness);
-                ar & BOOST_SERIALIZATION_NVP(variance);
-                ar & BOOST_SERIALIZATION_NVP(standard_deviation);
-                ar & BOOST_SERIALIZATION_NVP(winnergen);
-                ar & BOOST_SERIALIZATION_NVP(highest_fitness);
-                ar & BOOST_SERIALIZATION_NVP(highest_last_changed);
-            }
     };
-    
-    /// write the population out to stream (XML serialization)
-    std::ostream& operator<<(std::ostream& out, const PopulationPtr& x);
-    
-    /// read the population from stream (XML serialization)
-    std::istream& operator>>(std::istream& in, PopulationPtr& x);
     
 } // namespace NEAT
 

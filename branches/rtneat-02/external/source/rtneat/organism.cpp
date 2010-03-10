@@ -1,4 +1,4 @@
-#include "core/Common.h"
+#include "Types.h"
 #include "neat.h"
 #include "organism.h"
 #include "network.h"

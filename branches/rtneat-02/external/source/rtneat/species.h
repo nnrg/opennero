@@ -9,7 +9,6 @@
 #include "population.h"
 #include "network.h"
 #include "gene.h"
-#include "XMLSerializable.h"
 
 namespace NEAT
 {
@@ -25,10 +24,8 @@ namespace NEAT
     //   single species, so that compatible organisms
     //   can mate.                                      
     // ---------------------------------------------  
-    class Species : public XMLSerializable, public boost::enable_shared_from_this<Species>
+    class Species : public boost::enable_shared_from_this<Species>
     {
-            friend class boost::serialization::access;
-
             Species() {}
 
         public:
@@ -105,7 +102,7 @@ namespace NEAT
             //      sorted_species.sort(order_species);
             OrganismPtr reproduce_one(S32 generation, PopulationPtr& pop,
                                       std::vector<SpeciesPtr>& sorted_species,
-                                      bool addAdv, Genome* adv);
+                                      bool addAdv = false, Genome* adv = NULL);
 
             Species(int i);
 
@@ -115,27 +112,7 @@ namespace NEAT
 
             ~Species();
             
-            /// serialize this object to/from a Boost serialization archive
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                //LOG_F_DEBUG("rtNEAT", "serialize::species");
-                ar & BOOST_SERIALIZATION_NVP(id);
-                ar & BOOST_SERIALIZATION_NVP(age);
-                ar & BOOST_SERIALIZATION_NVP(ave_fitness);
-                ar & BOOST_SERIALIZATION_NVP(max_fitness);
-                ar & BOOST_SERIALIZATION_NVP(max_fitness_ever);
-                ar & BOOST_SERIALIZATION_NVP(expected_offspring);
-                ar & BOOST_SERIALIZATION_NVP(novel);
-                ar & BOOST_SERIALIZATION_NVP(checked);
-                ar & BOOST_SERIALIZATION_NVP(obliterate);
-                ar & BOOST_SERIALIZATION_NVP(organisms);
-                ar & BOOST_SERIALIZATION_NVP(age_of_last_improvement);        
-            }
-
     };
-
-    std::ostream& operator<<(std::ostream& out, const SpeciesPtr& x);
 
     // This is used for list sorting of Species by fitness of best organism highest fitness first 
     bool order_species(SpeciesPtr x, SpeciesPtr y);

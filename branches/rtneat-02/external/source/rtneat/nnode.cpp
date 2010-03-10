@@ -1,4 +1,4 @@
-#include "core/Common.h"
+#include "Types.h"
 #include <vector>
 #include <sstream>
 
@@ -424,4 +424,33 @@ const char* NEAT::getNodePlaceString(nodeplace place) {
     default:
         return "unknown";
     }
+}
+
+//Find the greatest depth starting from this neuron at depth d
+int NNode::depth(int d, NetworkPtr mynet) {
+    std::vector<LinkPtr> innodes = this->incoming;
+    std::vector<LinkPtr>::iterator curlink;
+    int cur_depth; //The depth of the current node
+    int max=d; //The max depth
+    
+    if (d>100) {
+        //std::cout<<mynet->genotype<<std::endl;
+        //std::cout<<"** DEPTH NOT DETERMINED FOR NETWORK WITH LOOP"<<std::endl;
+        return 10;
+    }
+    
+    if ((this->type)==SENSOR) {
+        // Base case
+        return d;
+    } else {
+        // Recursion
+        for(curlink=innodes.begin();curlink!=innodes.end();++curlink) {
+            cur_depth = (*curlink)->in_node.lock()->depth(d+1,mynet);
+            if (cur_depth>d) max=cur_depth;
+        }
+        
+        return max;
+
+  } //end else
+
 }

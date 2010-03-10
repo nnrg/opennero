@@ -4,7 +4,6 @@
 #include "neat.h"
 #include "trait.h"
 #include "nnode.h"
-#include "XMLSerializable.h"
 #include <ostream>
 #include <string>
 
@@ -14,12 +13,11 @@ namespace NEAT
     // A LINK is a connection from one node to another with an associated weight 
     // It can be marked as recurrent 
     // Its parameters are made public for efficiency 
-    class Link : public XMLSerializable
+    class Link
     {
-            friend class boost::serialization::access;
             Link() {}
     
-    
+    public:
             NNodeWeakPtr in_node; // NNode inputting into the link
             NNodeWeakPtr out_node; // NNode that the link affects
         public:
@@ -76,23 +74,7 @@ namespace NEAT
                 out_node = p;
             }
             
-            /// serialize this object to/from a Boost serialization archive
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                //LOG_F_DEBUG("rtNEAT", "serialize::link");
-                ar & BOOST_SERIALIZATION_NVP(in_node);
-                ar & BOOST_SERIALIZATION_NVP(out_node);
-                ar & BOOST_SERIALIZATION_NVP(weight);
-                ar & BOOST_SERIALIZATION_NVP(is_recurrent);
-                ar & BOOST_SERIALIZATION_NVP(time_delay);
-                ar & BOOST_SERIALIZATION_NVP(trait_id);
-            }
-            
     };
-
-    std::ostream& operator<<(std::ostream& out, const LinkPtr& x);
-    
 
 } // namespace NEAT
 

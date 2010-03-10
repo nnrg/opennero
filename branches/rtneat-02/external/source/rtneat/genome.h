@@ -6,7 +6,6 @@
 #include <string>
 #include <boost/enable_shared_from_this.hpp>
 #include "neat.h"
-#include "XMLSerializable.h"
 
 namespace NEAT
 {
@@ -30,9 +29,8 @@ namespace NEAT
     //    list of Genes provide an evolutionary history of innovation and     
     //    link-building.
 
-    class Genome : public boost::enable_shared_from_this<Genome>, public XMLSerializable
+    class Genome : public boost::enable_shared_from_this<Genome>
     {
-            friend class boost::serialization::access;
             Genome() {}
 
         public:
@@ -192,17 +190,6 @@ namespace NEAT
             std::vector<std::string> getSensorNames() const;
             std::vector<std::string> getSensorArgs() const;
 
-            /// serialize this object to/from a Boost serialization archive
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                //LOG_F_DEBUG("rtNEAT", "serialize::genome");
-                ar & BOOST_SERIALIZATION_NVP(genome_id);
-                ar & BOOST_SERIALIZATION_NVP(traits);
-                ar & BOOST_SERIALIZATION_NVP(nodes);
-                ar & BOOST_SERIALIZATION_NVP(genes);
-                // ar & BOOST_SERIALIZATION_NVP(phenotype); // TODO: don't really need to save the network
-            }
         protected:
             //Inserts a NNode into a given ordered list of NNodes in order
             void node_insert(std::vector<NNodePtr> &nlist, NNodePtr n);
@@ -224,11 +211,6 @@ namespace NEAT
 
     void print_Genome_tofile(GenomePtr g, const std::string& filename);
 
-    /// write genome to stream
-    std::ostream& operator<<(std::ostream& out, const GenomePtr& x);
-    
-    /// read genome from stream
-     std::istream& operator>>(std::istream& in, GenomePtr& x);
 } // namespace NEAT
 
 #endif

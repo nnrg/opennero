@@ -1,14 +1,13 @@
 #ifndef _NERO_NEAT_H_
 #define _NERO_NEAT_H_
 
-#include "core/Common.h"
+#include "Types.h"
 #include "mersennetwister.h"
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
 
 namespace NEAT
 {
-    using namespace OpenNero;
     extern U32 time_alive_minimum; // Minimum time alive to be considered for selection or death in real-time evolution 
     const S32 num_trait_params = 8;
 
@@ -57,6 +56,8 @@ namespace NEAT
     extern S32 print_every; // Tells to print population to file every n generations 
     extern S32 babies_stolen; // The number of babies to siphon off to the champions 
     extern F64 backprop_learning_rate; // Learning rate of back-propagation algorithm
+
+    extern int num_runs; // number of times to run the experiment
 
     extern MTRand NEATRandGen; // Random number generator; can pass seed value as argument
 

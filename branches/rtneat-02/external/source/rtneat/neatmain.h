@@ -1,0 +1,8 @@
+extern double *testdoub;
+
+
+
+
+
+
+

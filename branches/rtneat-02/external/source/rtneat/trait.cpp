@@ -1,4 +1,4 @@
-#include "core/Common.h"
+#include "Types.h"
 #include "trait.h"
 
 using namespace NEAT;

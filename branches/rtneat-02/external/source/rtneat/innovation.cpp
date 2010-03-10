@@ -1,4 +1,4 @@
-#include "core/Common.h"
+#include "Types.h"
 #include "innovation.h"
 
 using namespace NEAT;

@@ -1,10 +1,9 @@
-#include "core/Common.h"
+#include "Types.h"
 #include <fstream>
 #include <cmath>
 #include <iostream>
 #include <string>
 #include "neat.h"
-#include "XMLSerializable.h"
 
 using namespace std;
 
@@ -43,6 +42,7 @@ namespace NEAT
     S32 newlink_tries = 0; // Number of tries mutate_add_link will attempt to find an open link 
     S32 print_every = 0; // Tells to print population to file every n generations 
     S32 babies_stolen = 0; // The number of babies to siphen off to the champions 
+    int num_runs = 0; // number of times to run the experiment
     F64 backprop_learning_rate = 0; // Learning rate of back-propagation algorithm
     MTRand NEATRandGen((U64)0); //TODO: we should probably move the Mersenne Twister random generator to OpenNero common
 
@@ -120,6 +120,8 @@ namespace NEAT
         paramFile >> print_every;
 	paramFile.ignore(256,' ');
         paramFile >> babies_stolen;
+    paramFile.ignore(256, ' ');
+        paramFile >> num_runs;
 	paramFile.ignore(256,' ');
         paramFile >> backprop_learning_rate;
         cout << "trait_param_mut_prob="<< trait_param_mut_prob << endl;
@@ -154,6 +156,7 @@ namespace NEAT
         cout << "newlink_tries="<< newlink_tries << endl;
         cout << "print_every="<< print_every << endl;
         cout << "babies_stolen="<< babies_stolen << endl;
+        cout << "num_runs=" << num_runs << endl;
         cout << "backprop_learning_rate="<< backprop_learning_rate << endl;
         paramFile.close();
         return true;
