@@ -320,7 +320,6 @@ ELSE (_boost_IN_CACHE)
 				STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+)" "\\1_\\2" 
 					_boost_PATH_SUFFIX ${_boost_PATH_SUFFIX})
 			ENDIF(_boost_PATH_SUFFIX MATCHES "[0-9]+\\.[0-9]+\\.[0-9]+")
-			message(STATUS "Appending ${_boost_PATH_SUFFIX}")
 			LIST(APPEND _boost_PATH_SUFFIXES "${_boost_PATH_SUFFIX}")
 		ENDFOREACH(_boost_INFIX)
     ENDFOREACH(_boost_VER)
