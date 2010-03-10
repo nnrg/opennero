@@ -54,7 +54,7 @@ namespace OpenNero
         if (RANDOM.randF() < mEpsilon)
         {
         	new_action = mInfo.actions.getRandom();
-            double value = mApproximator->predict(new_state, new_action);
+            double value = predict(new_state);
             return value;
         }
         // enumerate all possible actions (actions must be discrete!)
