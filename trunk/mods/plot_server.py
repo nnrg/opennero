@@ -64,6 +64,13 @@ class XYData:
 
     def __len__(self):
         return len(self.x)
+        
+    def __str__(self):
+        if len(self.x) == 0:
+            return 'XYData(len = 0)'
+        else:
+            return 'XYData(len = %d, xmin = %f, xmax = %f, ymin = %f, ymax = %f)' % \
+                (len(self.x), self.xmin, self.xmax, self.ymin, self.ymax)
 
 class AgentHistory:
     """ The history of a particular agent """
@@ -81,23 +88,26 @@ class AgentHistory:
         #self.episode_fitness = XYData()
         pass
 
-    def plot(self, axes):
-        # plot the within-episode reward
-        t = np.array(self.episode_fitness.x)
-        f = np.array(self.episode_fitness.y)
-        if self.episode_fitness.handle:
-            self.episode_fitness.handle.set_xdata(t)
-            self.episode_fitness.handle.set_ydata(f)
-        else:
-            self.episode_fitness.handle = axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
-        # plot the between-episodes fitness
-        t = np.array(self.fitness.x)
-        f = np.array(self.fitness.y)
-        if self.fitness.handle:
-            self.fitness.handle.set_xdata(t)
-            self.fitness.handle.set_ydata(f)
-        else:
-            self.fitness.handle = axes.plot(t, f, 'ro', linewidth=0)[0]
+    def plot(self, axes, tmin):
+        # figure out starting time
+        if len(self.episode_fitness) > 0:
+            # plot the within-episode reward
+            t = np.array(self.episode_fitness.x) - tmin
+            f = np.array(self.episode_fitness.y)
+            if self.episode_fitness.handle:
+                self.episode_fitness.handle.set_xdata(t)
+                self.episode_fitness.handle.set_ydata(f)
+            else:
+                self.episode_fitness.handle = axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
+        if len(self.fitness) > 0:
+            # plot the between-episodes fitness
+            t = np.array(self.fitness.x) - tmin
+            f = np.array(self.fitness.y)
+            if self.fitness.handle:
+                self.fitness.handle.set_xdata(t)
+                self.fitness.handle.set_ydata(f)
+            else:
+                self.fitness.handle = axes.plot(t, f, 'co', linewidth=0)[0]
 
 class LearningCurve:
     """ The learning curve of a group of agents """
@@ -105,7 +115,19 @@ class LearningCurve:
     def __init__(self):
         self.histories = {}
         self.total = XYData()
-
+        
+    def tmin(self):
+        return 0
+    
+    def tmax(self):
+        return self.total.xmax - self.total.xmin if len(self.total) > 1 else 1
+        
+    def fmin(self):
+        return self.total.ymin if len(self.total) > 0 else 0
+    
+    def fmax(self):
+        return self.total.ymax if len(self.total) > 0 else 1
+    
     def append(self, id, ms, episode, step, reward, fitness):
         record = None
         if id in self.histories:
@@ -119,12 +141,11 @@ class LearningCurve:
         self.total.append(ms, fitness)
 
     def plot(self, axes):
-        axes.hold(False)
+        axes.hold(True)
         t = np.array(self.total.x)
         f = np.array(self.total.y)
         for id in self.histories:
-            self.histories[id].plot(axes)
-            axes.hold(True)
+            self.histories[id].plot(axes, self.total.xmin)
 
     def process_line(self, line):
         """
@@ -135,12 +156,12 @@ class LearningCurve:
         if m:
             id = int(m.group('id')) # id of the agent
             t = time.strptime(m.group('date'), timestamp_fmt) # time of the record
-            ms = int(m.group('msec'))  / 1000000.0 # seconds
             episode = int(m.group('episode'))
             step = int(m.group('step'))
             reward = float(m.group('reward'))
             fitness = float(m.group('fitness'))
-            base = time.mktime(t)
+            ms = int(m.group('msec')) / 1000000.0 # the micro-second part in seconds
+            base = time.mktime(t) # seconds since the epoch
             self.append( id, base + ms, episode, step, reward, fitness )
 
     def process_file(self, f):
@@ -185,16 +206,12 @@ class GraphFrame(wx.Frame):
         self.init_plot()
         self.canvas = FigCanvas(self.panel, -1, self.fig)
         
-        self.pause_button = wx.Button(self.panel, -1, "Pause")
-        self.Bind(wx.EVT_BUTTON, self.on_pause_button, self.pause_button)
-        self.Bind(wx.EVT_UPDATE_UI, self.on_update_pause_button, self.pause_button)
-        
-        self.hbox1 = wx.BoxSizer(wx.HORIZONTAL)
-        self.hbox1.Add(self.pause_button, border=5, flag=wx.ALL | wx.ALIGN_CENTER_VERTICAL)
+        #self.pause_button = wx.Button(self.panel, -1, "Pause")
+        #self.Bind(wx.EVT_BUTTON, self.on_pause_button, self.pause_button)
+        #self.Bind(wx.EVT_UPDATE_UI, self.on_update_pause_button, self.pause_button)
         
         self.vbox = wx.BoxSizer(wx.VERTICAL)
-        self.vbox.Add(self.canvas, 1, flag=wx.LEFT | wx.TOP | wx.GROW)        
-        self.vbox.Add(self.hbox1, 0, flag=wx.ALIGN_LEFT | wx.TOP)
+        self.vbox.Add(self.canvas, 2, wx.EXPAND)
         
         self.panel.SetSizer(self.vbox)
         self.vbox.Fit(self)
@@ -207,6 +224,8 @@ class GraphFrame(wx.Frame):
         self.fig = Figure((3.0, 3.0), dpi=self.dpi)
 
         self.axes = self.fig.add_subplot(111)
+        self.axes.set_xlabel('Time (seconds)')
+        self.axes.set_ylabel('Reward')
         self.axes.set_axis_bgcolor('black')
         self.axes.set_title('Agent fitness over time', size=12)
         
@@ -221,10 +240,10 @@ class GraphFrame(wx.Frame):
         """ Redraws the plot
         """
         # bounds on x and y
-        xmin = self.learning_curve.total.xmin if self.learning_curve.total.xmin else 0
-        xmax = self.learning_curve.total.xmax if self.learning_curve.total.xmax else 50
-        ymax = self.learning_curve.total.ymax if self.learning_curve.total.ymax else 1
-        ymin = self.learning_curve.total.ymin if self.learning_curve.total.ymin else 0
+        xmin = self.learning_curve.tmin()
+        xmax = self.learning_curve.tmax()
+        ymin = self.learning_curve.fmin()
+        ymax = self.learning_curve.fmax()
         
         self.axes.set_xbound(lower=xmin, upper=xmax)
         self.axes.set_ybound(lower=ymin, upper=ymax)
