@@ -13,7 +13,7 @@ FILE(GLOB_RECURSE OpenNERO_sources *.cpp)
 FILE(GLOB_RECURSE OpenNERO_headers *.h)
 
 # find the Boost C++ libraries
-SET(Boost_ADDITIONAL_VERSIONS 1.42.0 1.42 1.41.0 1.41 1.40.0 1.40 1.39.0 1.39 1.38.0 1.38 1.37.0 1.37)
+SET(Boost_ADDITIONAL_VERSIONS 1.45.0 1.45 1.44.0 1.44 1.43.0 1.43 1.42.0 1.42 1.41.0 1.41 1.40.0 1.40 1.39.0 1.39 1.38.0 1.38 1.37.0 1.37)
 FIND_PACKAGE (Boost COMPONENTS python filesystem serialization system date_time)
 IF (${Boost_MINOR_VERSION} LESS 35)
   FIND_PACKAGE (Boost COMPONENTS python filesystem serialization date_time)
