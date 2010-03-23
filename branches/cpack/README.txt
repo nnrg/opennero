@@ -25,3 +25,7 @@ DIRECTORY CONTENTS
  external/ - directory with supporting libraries developed by the open source community and used in OpenNERO
  docs/ - documentation (some of it has to be generated with cmake and doxygen from source)
  cmake/ - directory with supporting cross-platform make scripts
+
+FOR MORE INFORMATION CONTACT
+
+opennero-questions@googlegroups.com
