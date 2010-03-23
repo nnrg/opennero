@@ -57,7 +57,9 @@ namespace OpenNero
     /// Join two path elements
     std::string FilePathJoin( const std::string& p1, const std::string& p2 )
     {
-        return (fs::path(p1) / fs::path(p2)).string();
+		fs::path path1(p1);
+		fs::path path2(p2);
+        return (path1 / path2).string();
     }
 
 } //end OpenNero

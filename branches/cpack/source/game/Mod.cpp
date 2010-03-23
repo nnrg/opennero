@@ -4,6 +4,13 @@
 #include <sstream>
 #include <boost/filesystem.hpp>
 
+#if NERO_PLATFORM_WINDOWS
+	#include <windows.h>
+	#ifdef FindResource
+	#undef FindResource
+	#endif
+#endif
+
 namespace OpenNero
 {
     using namespace std;
@@ -53,10 +60,16 @@ namespace OpenNero
         }
         else
         {
-            // if that doesn't work, return a new path
-            // TODO: need to handle this in a platform-friendly way (see bug )
-            path = FilePathJoin(mPath.front(), name);
-            LOG_F_DEBUG("game", "new resource location: " << path);
+			ostringstream user_path;
+			// here we want to get a path that is a user-specific place where we can save files
+#if NERO_PLATFORM_WINDOWS
+			char profilepath[250];
+			ExpandEnvironmentStrings("%LOCALAPPDATA%",profilepath,250);
+			user_path << profilepath;
+#else // NERO_PLATFORM_WINDOWS
+			user_path << "~/.opennero" << endl;
+#endif // NERO_PLATFORM_WINDOWS
+            path = FilePathJoin(user_path.str(), name);
             return true;
         }
     }
