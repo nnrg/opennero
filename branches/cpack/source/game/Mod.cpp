@@ -9,6 +9,9 @@
 	#ifdef FindResource
 	#undef FindResource
 	#endif
+	#ifdef CreateDirectory
+	#undef CreateDirectory
+	#endif
 #endif
 
 namespace OpenNero
@@ -18,9 +21,26 @@ namespace OpenNero
     namespace fs = boost::filesystem;
 
     /// default Mod constructor
-    Mod::Mod() : mPath(), context(), name()
+    Mod::Mod() : mPath(), context(), name(), mUserPrefix()
     {
+		// here we want to get a path that is a user-specific place where we can save files
+#if NERO_PLATFORM_WINDOWS
+		TCHAR profilepath[MAX_PATH];
+		ExpandEnvironmentStrings("%LOCALAPPDATA%\\OpenNERO", profilepath, MAX_PATH);
+		mUserPrefix = profilepath;
+		if (mUserPrefix.empty() || mUserPrefix == "%LOCALAPPDATA%\\OpenNERO") {
+			ExpandEnvironmentStrings("%USERPROFILE%\\Local Settings\\Application Data\\OpenNERO", profilepath, MAX_PATH);
+			mUserPrefix = profilepath;
+		}
+#else // NERO_PLATFORM_WINDOWS
+		mUserPrefix = "~/.opennero";
+#endif // NERO_PLATFORM_WINDOWS
+		if (!FileExists(mUserPrefix))
+		{
+			CreateDirectory(mUserPrefix);
+		}
         mPath.push_back("."); // working directory
+		mPath.push_back(mUserPrefix);
     }
     
     /// Find resource by name (normally mod-relative path).
@@ -60,20 +80,7 @@ namespace OpenNero
         }
         else
         {
-			string user_path;
-			// here we want to get a path that is a user-specific place where we can save files
-#if NERO_PLATFORM_WINDOWS
-			TCHAR profilepath[MAX_PATH];
-			ExpandEnvironmentStrings("%LOCALAPPDATA%", profilepath, MAX_PATH);
-			user_path = profilepath;
-			if (user_path.empty() || user_path == "%LOCALAPPDATA%") {
-				ExpandEnvironmentStrings("%USERPROFILE%\\Local Settings\\Application Data", profilepath, MAX_PATH);
-				user_path = profilepath;
-			}
-#else // NERO_PLATFORM_WINDOWS
-			user_path = "~/.opennero";
-#endif // NERO_PLATFORM_WINDOWS
-            path = FilePathJoin(user_path, name);
+            path = FilePathJoin(mUserPrefix, name);
             return true;
         }
     }

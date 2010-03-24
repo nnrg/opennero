@@ -62,6 +62,11 @@ namespace OpenNero
         return (path1 / path2).string();
     }
 
+	/// Create a directory
+	bool CreateDirectory( const std::string& filePathName ) {
+		return fs::create_directory(filePathName);
+	}
+
 } //end OpenNero
 
 
