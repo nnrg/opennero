@@ -10,7 +10,7 @@
 namespace OpenNero
 {
     
-    void GuiEditBox::setText( const std::string text )
+    void GuiEditBox::setText( const std::string& text )
     {
         Assert( getGuiElement() );
         
