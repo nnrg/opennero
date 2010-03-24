@@ -119,9 +119,11 @@ ELSEIF (WIN32)
     COMMAND xcopy /S /D /I /Y "${OpenNERO_RESOURCES_DIR}*" "${OpenNERO_APP_RESOURCES}"
     VERBATIM)
   # for each Boost DLL we found, copy it to the target directory
+  # and add it to the list of things we need to install
   FOREACH (boostlib ${Boost_LIBRARIES})
     STRING(REGEX REPLACE ".lib$" ".dll" boostdll ${boostlib})
     IF (EXISTS ${boostdll})
+      INSTALL(PROGRAMS ${boostdll} DESTINATION ".")
       FILE(TO_NATIVE_PATH ${boostdll} boostdll)
       ADD_CUSTOM_COMMAND(TARGET CopyStuff POST_BUILD COMMAND xcopy /D /I "${boostdll}" "${OpenNERO_APP_RESOURCES}")
     ENDIF (EXISTS ${boostdll})
@@ -148,5 +150,11 @@ IF (APPLE)
     BUNDLE DESTINATION /Applications)
 ELSE (APPLE)
   INSTALL(TARGETS OpenNERO
-    RUNTIME DESTINATION bin)
+    RUNTIME DESTINATION ".")
 ENDIF (APPLE)
+
+INSTALL(DIRECTORY ${OpenNERO_SOURCE_DIR}/mods/
+        DESTINATION "."
+        USE_SOURCE_PERMISSIONS
+        PATTERN ".svn" EXCLUDE
+    )

@@ -19,7 +19,7 @@ namespace OpenNero
     {
     public:
     	/// set the text of this edit box
-        void setText( const std::string name );
+        void setText( const std::string& text );
 
         /// This element_can_ gain focus
         bool CanGainFocus() { return true; }

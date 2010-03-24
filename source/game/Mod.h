@@ -12,6 +12,7 @@ namespace OpenNero
     class Mod
     {
         std::vector<std::string>     mPath;     ///< Base Directory for the Mod
+		std::string                  mUserPrefix; ///< directory with write access for storing user files
 
     public:
         SimContextPtr                context;  ///< Context for this mod

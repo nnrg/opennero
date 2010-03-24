@@ -7,6 +7,7 @@
 #include "Log.h"
 #include "LogConnections.h"
 #include "scripting/scriptIncludes.h"
+#include "game/Kernel.h"
 #include <vector>
 #include <iostream>
 
@@ -145,7 +146,9 @@ namespace OpenNero
 		void LogSystemInit()
 		{
             // initialize the connections
-            ILogConnectionPtr fileLog( new FileStreamConnection( "nero_file_log", "nero_log.txt") );
+			string log_file = Kernel::instance().findResource("nero_log.txt", false);
+			cout << "LOG CREATED in " << log_file << endl;
+            ILogConnectionPtr fileLog( new FileStreamConnection( "nero_file_log", log_file.c_str()) );
             ILogConnectionPtr stdioLog( new StreamLogConnection<std::ostream>( "console_log", &std::cout ) );
 
 			AddLogConnection(fileLog);
