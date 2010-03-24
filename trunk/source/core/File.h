@@ -22,6 +22,8 @@ namespace OpenNero
     /// Join two path elements
     std::string FilePathJoin( const std::string& p1, const std::string& p2 );
 
+	/// Create a directory
+	bool CreateDirectory( const std::string& filePathName );
 } //end OpenNero
 
 #endif // _CORE_FILE_H_

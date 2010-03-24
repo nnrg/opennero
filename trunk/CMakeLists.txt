@@ -3,9 +3,9 @@
 # > cmake .
 # > make
 
-# require at least cmake 2.4
+# require at least cmake 2.6
 IF(COMMAND cmake_minimum_required)
-  CMAKE_MINIMUM_REQUIRED(VERSION 2.4)
+  CMAKE_MINIMUM_REQUIRED(VERSION 2.6)
 ENDIF(COMMAND cmake_minimum_required)
 
 # the project is called OpenNERO
@@ -62,15 +62,55 @@ ADD_SUBDIRECTORY (${CMAKE_CURRENT_SOURCE_DIR}/external/source)
 # compile source
 ADD_SUBDIRECTORY (${CMAKE_CURRENT_SOURCE_DIR}/source)
 
-# package stuff
+# INSTALL
+
+# we want to create packages for the platforms using CMake and CPack
+# To do this, we use INSTALL commands in source/ and external/source/ 
+# to figure out *what to install*, and the section below to figure out
+# *how to package* it.
+
+# We have to install system libraries ourselves, but use 
+# InstallRequiredSystemLibraries to figure out what they are
+SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP true) 
+INCLUDE(InstallRequiredSystemLibraries)
+# Include system runtime libraries in the installation if any are
+# specified by CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS.
+IF(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
+    IF(WIN32)
+      # DLLs go same place as programs on Windows
+      INSTALL(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ".")
+    ELSE(WIN32)
+      # .so go same place as libraries on non-Windows
+      INSTALL(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS} DESTINATION ".")
+    ENDIF(WIN32)
+ENDIF(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS)
+
 SET(CPACK_PACKAGE_NAME "OpenNERO")
 SET(CPACK_PACKAGE_VENDOR "NNRG, UTCS, UT Austin")
 SET(CPACK_PACKAGE_DESCRIPTION_SUMMARY "OpenNERO - A game platform for AI research and education")
-SET(CPACK_PACKAGE_VERSION "1.0.0")
-SET(CPACK_PACKAGE_VERSION_MAJOR "1")
-SET(CPACK_PACKAGE_VERSION_MINOR "0")
-SET(CPACK_PACKAGE_VERSION_PATCH "0")
-SET(CPACK_PACKAGE_INSTALL_DIRECTORY "CPack Component Example")
+SET(CPACK_PACKAGE_DESCRIPTION_FILE "${CMAKE_CURRENT_SOURCE_DIR}/README.txt")
+SET(CPACK_RESOURCE_FILE_LICENSE "${CMAKE_CURRENT_SOURCE_DIR}/COPYING.txt")
+SET(CPACK_PACKAGE_VERSION "2010.03.23")
+SET(CPACK_PACKAGE_VERSION_MAJOR "2010")
+SET(CPACK_PACKAGE_VERSION_MINOR "03")
+SET(CPACK_PACKAGE_VERSION_PATCH "23")
+SET(CPACK_PACKAGE_INSTALL_DIRECTORY "OpenNERO")
+IF(WIN32 AND NOT UNIX)
+  # There is a bug in NSI that does not handle full unix paths properly. Make
+  # sure there is at least one set of four (4) backlasshes.
+  SET(CPACK_NSIS_INSTALLED_ICON_NAME "OpenNERO.exe")
+  SET(CPACK_NSIS_DISPLAY_NAME "OpenNERO")
+  SET(CPACK_NSIS_HELP_LINK "http:\\\\\\\\opennero.googlecode.com")
+  SET(CPACK_NSIS_URL_INFO_ABOUT "http:\\\\\\\\opennero.googlecode.com")
+  SET(CPACK_NSIS_CONTACT "opennero-questions@groups.google.com")
+  SET(CPACK_NSIS_MODIFY_PATH ON)
+ELSE(WIN32 AND NOT UNIX)
+  #SET(CPACK_STRIP_FILES "OpenNERO")
+  SET(CPACK_SOURCE_STRIP_FILES "")
+ENDIF(WIN32 AND NOT UNIX)
+SET(CPACK_PACKAGE_EXECUTABLES "OpenNERO" "OpenNERO")
 
 # cpack include
 INCLUDE(CPack)
+
+# This concludes the installation section.
