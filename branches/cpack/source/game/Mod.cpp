@@ -60,16 +60,20 @@ namespace OpenNero
         }
         else
         {
-			ostringstream user_path;
+			string user_path;
 			// here we want to get a path that is a user-specific place where we can save files
 #if NERO_PLATFORM_WINDOWS
-			char profilepath[250];
-			ExpandEnvironmentStrings("%LOCALAPPDATA%",profilepath,250);
-			user_path << profilepath;
+			TCHAR profilepath[MAX_PATH];
+			ExpandEnvironmentStrings("%LOCALAPPDATA%", profilepath, MAX_PATH);
+			user_path = profilepath;
+			if (user_path.empty() || user_path == "%LOCALAPPDATA%") {
+				ExpandEnvironmentStrings("%USERPROFILE%\\Local Settings\\Application Data", profilepath, MAX_PATH);
+				user_path = profilepath;
+			}
 #else // NERO_PLATFORM_WINDOWS
-			user_path << "~/.opennero" << endl;
+			user_path = "~/.opennero";
 #endif // NERO_PLATFORM_WINDOWS
-            path = FilePathJoin(user_path.str(), name);
+            path = FilePathJoin(user_path, name);
             return true;
         }
     }
