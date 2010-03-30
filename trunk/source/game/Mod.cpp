@@ -33,7 +33,8 @@ namespace OpenNero
 			mUserPrefix = profilepath;
 		}
 #else // NERO_PLATFORM_WINDOWS
-		mUserPrefix = "~/.opennero";
+		string homeDir(getenv("HOME"));
+		mUserPrefix = homeDir + "/.opennero";
 #endif // NERO_PLATFORM_WINDOWS
 		if (!FileExists(mUserPrefix))
 		{
