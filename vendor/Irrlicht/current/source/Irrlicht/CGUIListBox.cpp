@@ -36,17 +36,14 @@ CGUIListBox::CGUIListBox(IGUIEnvironment* environment, IGUIElement* parent,
 	IGUISkin* skin = Environment->getSkin();
 	const s32 s = skin->getSize(EGDS_SCROLLBAR_SIZE);
 
-	ScrollBar = new CGUIScrollBar(false, Environment, this, 0,
+	ScrollBar = new CGUIScrollBar(false, Environment, this, -1,
 		core::rect<s32>(RelativeRect.getWidth() - s, 0, RelativeRect.getWidth(), RelativeRect.getHeight()),
 		!clip);
 	ScrollBar->setSubElement(true);
 	ScrollBar->setTabStop(false);
 	ScrollBar->setAlignment(EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
 	ScrollBar->setVisible(false);
-	ScrollBar->drop();
-
 	ScrollBar->setPos(0);
-	ScrollBar->grab();
 
 	setNotClipped(!clip);
 
@@ -166,8 +163,9 @@ void CGUIListBox::recalculateItemHeight()
 
 	TotalItemHeight = ItemHeight * Items.size();
 	ScrollBar->setMax(TotalItemHeight - AbsoluteRect.getHeight());
-	ScrollBar->setSmallStep ( 1 );
-	ScrollBar->setLargeStep ( ItemHeight );
+	s32 minItemHeight = ItemHeight > 0 ? ItemHeight : 1;
+	ScrollBar->setSmallStep ( minItemHeight );
+	ScrollBar->setLargeStep ( 2*minItemHeight );
 
 	if ( TotalItemHeight <= AbsoluteRect.getHeight() )
 		ScrollBar->setVisible(false);
@@ -390,7 +388,7 @@ bool CGUIListBox::OnEvent(const SEvent& event)
 				switch(event.MouseInput.Event)
 				{
 				case EMIE_MOUSE_WHEEL:
-					ScrollBar->setPos(ScrollBar->getPos() + (s32)event.MouseInput.Wheel*-10);
+					ScrollBar->setPos(ScrollBar->getPos() + (s32)event.MouseInput.Wheel*-ItemHeight/2);
 					return true;
 
 				case EMIE_LMOUSE_PRESSED_DOWN:

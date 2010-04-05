@@ -57,8 +57,11 @@ namespace scene
 		//! playback has ended. Set this to 0 to disable the callback again.
 		virtual void setAnimationEndCallback(IAnimationEndCallBack* callback=0);
 
-		//! sets the speed with witch the animation is played
+		//! sets the speed with which the animation is played
 		virtual void setAnimationSpeed(f32 framesPerSecond);
+
+		//! gets the speed with which the animation is played
+		virtual f32 getAnimationSpeed() const;
 
 		//! returns the material based on the zero based index i. To get the amount
 		//! of materials used by this scene node, use getMaterialCount().
@@ -162,7 +165,7 @@ namespace scene
 	private:
 
 		//! Get a static mesh for the current frame of this animated mesh
-		IMesh* getMeshForCurrentFrame(bool forceRecalcOfControlJoints);
+		IMesh* getMeshForCurrentFrame();
 
 		void buildFrameNr(u32 timeMs);
 		void checkJoints();

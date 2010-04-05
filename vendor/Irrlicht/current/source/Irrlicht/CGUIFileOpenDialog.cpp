@@ -194,6 +194,7 @@ bool CGUIFileOpenDialog::OnEvent(const SEvent& event)
 							FileDirectory = L"";
 							FileName = FileList->getFullFileName(selected);
 						}
+						return true;
 					}
 				}
 				break;
@@ -213,8 +214,8 @@ bool CGUIFileOpenDialog::OnEvent(const SEvent& event)
 						else
 						{
 							FileName = FileList->getFullFileName(selected);
-							return true;
 						}
+						return true;
 					}
 				}
 				break;
@@ -357,7 +358,7 @@ void CGUIFileOpenDialog::fillListBox()
 		int len = mbstowcs(ws,cs,strlen(cs));
 		ws[len] = 0;
 		s = ws;
-		delete ws;
+		delete [] ws;
 		#else
 		s = FileSystem->getWorkingDirectory();
 		#endif

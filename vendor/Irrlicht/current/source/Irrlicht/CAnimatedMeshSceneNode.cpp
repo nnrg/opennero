@@ -195,7 +195,7 @@ void CAnimatedMeshSceneNode::OnRegisterSceneNode()
 	}
 }
 
-IMesh * CAnimatedMeshSceneNode::getMeshForCurrentFrame(bool forceRecalcOfControlJoints)
+IMesh * CAnimatedMeshSceneNode::getMeshForCurrentFrame()
 {
 	if(Mesh->getMeshType() != EAMT_SKINNED)
 	{
@@ -204,7 +204,7 @@ IMesh * CAnimatedMeshSceneNode::getMeshForCurrentFrame(bool forceRecalcOfControl
 	else
 	{
 		// As multiple scene nodes may be sharing the same skinned mesh, we have to
-		// re-animated it every frame to ensure that this node gets the mesh that it needs.
+		// re-animate it every frame to ensure that this node gets the mesh that it needs.
 
 		CSkinnedMesh* skinnedMesh = reinterpret_cast<CSkinnedMesh*>(Mesh);
 
@@ -246,7 +246,7 @@ void CAnimatedMeshSceneNode::OnAnimate(u32 timeMs)
 
 	if (Mesh)
 	{
-		scene::IMesh * mesh = getMeshForCurrentFrame( true );
+		scene::IMesh * mesh = getMeshForCurrentFrame();
 
 		if (mesh)
 			Box = mesh->getBoundingBox();
@@ -271,7 +271,7 @@ void CAnimatedMeshSceneNode::render()
 
 	++PassCount;
 
-	scene::IMesh* m = getMeshForCurrentFrame( false );
+	scene::IMesh* m = getMeshForCurrentFrame();
 
 	if(m)
 	{
@@ -349,6 +349,7 @@ void CAnimatedMeshSceneNode::render()
 	{
 		video::SMaterial debug_mat;
 		debug_mat.Lighting = false;
+		debug_mat.AntiAliasing=0;
 		driver->setMaterial(debug_mat);
 		// show normals
 		if (DebugDataVisible & scene::EDS_NORMALS)
@@ -523,6 +524,12 @@ void CAnimatedMeshSceneNode::setAnimationSpeed(f32 framesPerSecond)
 }
 
 
+f32 CAnimatedMeshSceneNode::getAnimationSpeed() const
+{
+	return FramesPerSecond * 1000.f;
+}
+
+
 //! returns the axis aligned bounding box of this node
 const core::aabbox3d<f32>& CAnimatedMeshSceneNode::getBoundingBox() const
 {
@@ -561,10 +568,7 @@ IShadowVolumeSceneNode* CAnimatedMeshSceneNode::addShadowVolumeSceneNode(const I
 		return 0;
 
 	if (Shadow)
-	{
-		os::Printer::log("This node already has a shadow.", ELL_WARNING);
-		return 0;
-	}
+		return Shadow;
 
 	if (!shadowMesh)
 		shadowMesh = Mesh; // if null is given, use the mesh of node
@@ -763,12 +767,12 @@ void CAnimatedMeshSceneNode::serializeAttributes(io::IAttributes* out, io::SAttr
 {
 	IAnimatedMeshSceneNode::serializeAttributes(out, options);
 
-	out->addString("Mesh", SceneManager->getMeshCache()->getMeshFilename(Mesh).c_str());
+	out->addString("Mesh", SceneManager->getMeshCache()->getMeshName(Mesh).getPath().c_str());
 	out->addBool("Looping", Looping);
 	out->addBool("ReadOnlyMaterials", ReadOnlyMaterials);
 	out->addFloat("FramesPerSecond", FramesPerSecond);
-
-	// TODO: write animation names instead of frame begin and ends
+	out->addInt("StartFrame", StartFrame);
+	out->addInt("EndFrame", EndFrame);
 }
 
 
@@ -777,12 +781,14 @@ void CAnimatedMeshSceneNode::deserializeAttributes(io::IAttributes* in, io::SAtt
 {
 	IAnimatedMeshSceneNode::deserializeAttributes(in, options);
 
-	io::path oldMeshStr = SceneManager->getMeshCache()->getMeshFilename(Mesh);
+	io::path oldMeshStr = SceneManager->getMeshCache()->getMeshName(Mesh);
 	io::path newMeshStr = in->getAttributeAsString("Mesh");
 
 	Looping = in->getAttributeAsBool("Looping");
 	ReadOnlyMaterials = in->getAttributeAsBool("ReadOnlyMaterials");
 	FramesPerSecond = in->getAttributeAsFloat("FramesPerSecond");
+	StartFrame = in->getAttributeAsInt("StartFrame");
+	EndFrame = in->getAttributeAsInt("EndFrame");
 
 	if (newMeshStr != "" && oldMeshStr != newMeshStr)
 	{
@@ -1054,8 +1060,14 @@ ISceneNode* CAnimatedMeshSceneNode::clone(ISceneNode* newParent, ISceneManager* 
 	if (!newManager) newManager = SceneManager;
 
 	CAnimatedMeshSceneNode * newNode =
-		new CAnimatedMeshSceneNode(Mesh, newParent, newManager, ID, RelativeTranslation,
+		new CAnimatedMeshSceneNode(Mesh, NULL, newManager, ID, RelativeTranslation,
 						 RelativeRotation, RelativeScale);
+
+	if ( newParent )
+	{
+		newNode->setParent(newParent); 	// not in constructor because virtual overload for updateAbsolutePosition won't be called
+		newNode->drop();
+	}
 
 	newNode->cloneMembers(this, newManager);
 
@@ -1082,7 +1094,6 @@ ISceneNode* CAnimatedMeshSceneNode::clone(ISceneNode* newParent, ISceneManager* 
 	newNode->RenderFromIdentity = RenderFromIdentity;
 	newNode->MD3Special = MD3Special;
 
-	(void)newNode->drop();
 	return newNode;
 }
 

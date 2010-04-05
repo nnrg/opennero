@@ -14,6 +14,8 @@ windows book for details.
 #error Windows only example
 #else
 #include <windows.h> // this example only runs with windows
+#include <iostream>
+#include "driverChoice.h"
 
 using namespace irr;
 
@@ -50,9 +52,27 @@ static LRESULT CALLBACK CustomWndProc(HWND hWnd, UINT message,
 }
 
 
+/*
+   Now ask for the driver and create the Windows specific window.
+*/
 int main()
-//int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hpre, LPSTR cmd, int cc)
 {
+	// ask user for driver
+	video::E_DRIVER_TYPE driverType=driverChoiceConsole();
+	if (driverType==video::EDT_COUNT)
+		return 1;
+
+	printf("Select the render window (some dead window may exist too):\n"\
+		" (a) Window with button (via CreationParam)\n"\
+		" (b) Window with button (via beginScene)\n"\
+		" (c) Own Irrlicht window (default behavior)\n"\
+		" (otherKey) exit\n\n");
+
+	char key;
+	std::cin >> key;
+	if (key != 'a' && key != 'b' && key != 'c')
+		return 1;
+
 	HINSTANCE hInstance = 0;
 	// create dialog
 
@@ -105,6 +125,7 @@ int main()
 	HWND hIrrlichtWindow = CreateWindow("BUTTON", "",
 			WS_CHILD | WS_VISIBLE | BS_OWNERDRAW,
 			50, 80, 320, 220, hWnd, NULL, hInstance, NULL);
+	video::SExposedVideoData videodata((key=='b')?hIrrlichtWindow:0);
 
 	/*
 	So now that we have some window, we can create an Irrlicht device
@@ -115,8 +136,9 @@ int main()
 	// create irrlicht device in the button window
 
 	irr::SIrrlichtCreationParameters param;
-	param.WindowId = reinterpret_cast<void*>(hIrrlichtWindow); // hColorButton
-	param.DriverType = video::EDT_OPENGL;
+	param.DriverType = driverType;
+	if (key=='a')
+		param.WindowId = reinterpret_cast<void*>(hIrrlichtWindow);
 
 	irr::IrrlichtDevice* device = irr::createDeviceEx(param);
 
@@ -125,6 +147,21 @@ int main()
 	irr::scene::ISceneManager* smgr = device->getSceneManager();
 	video::IVideoDriver* driver = device->getVideoDriver();
 
+	if (driverType==video::EDT_OPENGL)
+	{
+		HDC HDc=GetDC(hIrrlichtWindow);
+		PIXELFORMATDESCRIPTOR pfd={0};
+		pfd.nSize=sizeof(PIXELFORMATDESCRIPTOR);
+		int pf = GetPixelFormat(HDc);
+		DescribePixelFormat(HDc, pf, sizeof(PIXELFORMATDESCRIPTOR), &pfd);
+		pfd.dwFlags |= PFD_DOUBLEBUFFER | PFD_SUPPORT_OPENGL | PFD_DRAW_TO_WINDOW;
+		pfd.cDepthBits=16;
+		pf = ChoosePixelFormat(HDc, &pfd);
+		SetPixelFormat(HDc, pf, &pfd);
+		videodata.OpenGLWin32.HDc = HDc;
+		videodata.OpenGLWin32.HRc=wglCreateContext(HDc);
+		wglShareLists((HGLRC)driver->getExposedVideoData().OpenGLWin32.HRc, (HGLRC)videodata.OpenGLWin32.HRc);
+	}
 	scene::ICameraSceneNode* cam = smgr->addCameraSceneNode();
 	cam->setTarget(core::vector3df(0,0,0));
 
@@ -169,7 +206,7 @@ int main()
 
 	while (device->run())
 	{
-		driver->beginScene(true, true, 0);
+		driver->beginScene(true, true, 0, videodata);
 		smgr->drawAll();
 		driver->endScene();
 	}
@@ -195,7 +232,7 @@ int main()
 		device->getTimer()->tick();
 
 		// draw engine picture
-		driver->beginScene(true, true, 0);
+		driver->beginScene(true, true, 0, (key=='c')?hIrrlichtWindow:0);
 		smgr->drawAll();
 		driver->endScene();
 	}*/

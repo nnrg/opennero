@@ -1,17 +1,17 @@
 /** Example 007 Collision
 
-We will describe 2 methods: Automatic collision detection for moving through 3d worlds
-with stair climbing and sliding, and manual scene node and triangle picking using a
-ray.  In this case, we will use a ray coming out from the camera, but you can use
-any ray.
+We will describe 2 methods: Automatic collision detection for moving through
+3d worlds with stair climbing and sliding, and manual scene node and triangle
+picking using a ray.  In this case, we will use a ray coming out from the
+camera, but you can use any ray.
 
-To start, we take the program from tutorial 2, which loads and displays a quake
-3 level. We will use the level to walk in it and to pick triangles from. In
-addition we'll place 3 animated models into it for triangle picking. The
-following code starts up the engine and loads a quake 3 level, as per tutorial 2.
+To start, we take the program from tutorial 2, which loads and displays a
+quake 3 level. We will use the level to walk in it and to pick triangles from.
+In addition we'll place 3 animated models into it for triangle picking. The
+following code starts up the engine and loads the level, as per tutorial 2.
 */
 #include <irrlicht.h>
-#include <iostream>
+#include "driverChoice.h"
 
 using namespace irr;
 
@@ -37,28 +37,10 @@ enum
 
 int main()
 {
-	// let user select driver type
-
-	video::E_DRIVER_TYPE driverType;
-
-	printf("Please select the driver you want for this example:\n"\
-		" (a) Direct3D 9.0c\n (b) Direct3D 8.1\n (c) OpenGL 1.5\n"\
-		" (d) Software Renderer\n (e) Burning's Software Renderer\n"\
-		" (f) NullDevice\n (otherKey) exit\n\n");
-
-	char i;
-	std::cin >> i;
-
-	switch(i)
-	{
-		case 'a': driverType = video::EDT_DIRECT3D9;break;
-		case 'b': driverType = video::EDT_DIRECT3D8;break;
-		case 'c': driverType = video::EDT_OPENGL;   break;
-		case 'd': driverType = video::EDT_SOFTWARE; break;
-		case 'e': driverType = video::EDT_BURNINGSVIDEO;break;
-		case 'f': driverType = video::EDT_NULL;     break;
-		default: return 0;
-	}
+	// ask user for driver
+	video::E_DRIVER_TYPE driverType=driverChoiceConsole();
+	if (driverType==video::EDT_COUNT)
+		return 1;
 
 	// create device
 
@@ -78,7 +60,7 @@ int main()
 
 	// The Quake mesh is pickable, but doesn't get highlighted.
 	if (q3levelmesh)
-		q3node = smgr->addOctTreeSceneNode(q3levelmesh->getMesh(0), 0, IDFlag_IsPickable);
+		q3node = smgr->addOctreeSceneNode(q3levelmesh->getMesh(0), 0, IDFlag_IsPickable);
 
 	/*
 	So far so good, we've loaded the quake 3 level like in tutorial 2. Now,
@@ -87,7 +69,7 @@ int main()
 	nodes for doing different things with them, for example collision
 	detection. There are different triangle selectors, and all can be
 	created with the ISceneManager. In this example, we create an
-	OctTreeTriangleSelector, which optimizes the triangle output a little
+	OctreeTriangleSelector, which optimizes the triangle output a little
 	bit by reducing it like an octree. This is very useful for huge meshes
 	like quake 3 levels. After we created the triangle selector, we attach
 	it to the q3node. This is not necessary, but in this way, we do not
@@ -101,7 +83,7 @@ int main()
 	{
 		q3node->setPosition(core::vector3df(-1350,-130,-1400));
 
-		selector = smgr->createOctTreeTriangleSelector(
+		selector = smgr->createOctreeTriangleSelector(
 				q3node->getMesh(), q3node, 128);
 		q3node->setTriangleSelector(selector);
 		// We're not done with this selector yet, so don't drop it.
@@ -236,6 +218,9 @@ int main()
 	scene::ISceneNode* highlightedSceneNode = 0;
 	scene::ISceneCollisionManager* collMan = smgr->getSceneCollisionManager();
 	int lastFPS = -1;
+
+	// draw the selection triangle only as wireframe
+	material.Wireframe=true;
 
 	while(device->run())
 	if (device->isWindowActive())

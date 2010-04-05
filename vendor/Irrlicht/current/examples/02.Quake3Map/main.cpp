@@ -6,7 +6,7 @@ controlled camera.
 
 Please note that you should know the basics of the engine before starting this
 tutorial. Just take a short look at the first tutorial, if you haven't done
-this yet: http://irrlicht.sourceforge.net/tut001.html 
+this yet: http://irrlicht.sourceforge.net/tut001.html
 
 Lets start like the HelloWorld example: We include the irrlicht header files
 and an additional file to be able to ask the user for a driver type using the
@@ -47,6 +47,9 @@ int main()
 	which video driver to use. The Software device might be
 	too slow to draw a huge Quake 3 map, but just for the fun of it, we make
 	this decision possible, too.
+	Instead of copying this whole code into your app, you can simply include
+	driverChoice.h from Irrlicht's include directory. The function
+	driverChoiceConsole does exactly the same.
 	*/
 
 	// ask user for driver
@@ -54,8 +57,8 @@ int main()
 	video::E_DRIVER_TYPE driverType;
 
 	printf("Please select the driver you want for this example:\n"\
-		" (a) Direct3D 9.0c\n (b) Direct3D 8.1\n (c) OpenGL 1.5\n"\
-		" (d) Software Renderer\n (e) Burning's Software Renderer\n"\
+		" (a) OpenGL 1.5\n (b) Direct3D 9.0c\n (c) Direct3D 8.1\n"\
+		" (d) Burning's Software Renderer\n (e) Software Renderer\n"\
 		" (f) NullDevice\n (otherKey) exit\n\n");
 
 	char i;
@@ -63,14 +66,14 @@ int main()
 
 	switch(i)
 	{
-		case 'a': driverType = video::EDT_DIRECT3D9;break;
-		case 'b': driverType = video::EDT_DIRECT3D8;break;
-		case 'c': driverType = video::EDT_OPENGL;   break;
-		case 'd': driverType = video::EDT_SOFTWARE; break;
-		case 'e': driverType = video::EDT_BURNINGSVIDEO;break;
+		case 'a': driverType = video::EDT_OPENGL;   break;
+		case 'b': driverType = video::EDT_DIRECT3D9;break;
+		case 'c': driverType = video::EDT_DIRECT3D8;break;
+		case 'd': driverType = video::EDT_BURNINGSVIDEO;break;
+		case 'e': driverType = video::EDT_SOFTWARE; break;
 		case 'f': driverType = video::EDT_NULL;     break;
 		default: return 1;
-	}	
+	}
 
 	// create device and exit if creation failed
 
@@ -104,24 +107,24 @@ int main()
 	really animated, they are only a huge chunk of static geometry with
 	some materials attached. Hence the IAnimatedMesh consists of only one
 	frame, so we get the "first frame" of the "animation", which is our
-	quake level and create an OctTree scene node with it, using
-	irr::scene::ISceneManager::addOctTreeSceneNode().
-	The OctTree optimizes the scene a little bit, trying to draw only geometry
-	which is currently visible. An alternative to the OctTree would be a
+	quake level and create an Octree scene node with it, using
+	irr::scene::ISceneManager::addOctreeSceneNode().
+	The Octree optimizes the scene a little bit, trying to draw only geometry
+	which is currently visible. An alternative to the Octree would be a
 	irr::scene::IMeshSceneNode, which would always draw the complete
 	geometry of the mesh, without optimization. Try it: Use
 	irr::scene::ISceneManager::addMeshSceneNode() instead of
-	addOctTreeSceneNode() and compare the primitives drawn by the video
+	addOctreeSceneNode() and compare the primitives drawn by the video
 	driver. (There is a irr::video::IVideoDriver::getPrimitiveCountDrawn()
 	method in the irr::video::IVideoDriver class). Note that this
-	optimization with the OctTree is only useful when drawing huge meshes
+	optimization with the Octree is only useful when drawing huge meshes
 	consisting of lots of geometry.
 	*/
 	scene::IAnimatedMesh* mesh = smgr->getMesh("20kdm2.bsp");
 	scene::ISceneNode* node = 0;
-	
+
 	if (mesh)
-		node = smgr->addOctTreeSceneNode(mesh->getMesh(0), 0, -1, 1024);
+		node = smgr->addOctreeSceneNode(mesh->getMesh(0), 0, -1, 1024);
 //		node = smgr->addMeshSceneNode(mesh->getMesh(0));
 
 	/*

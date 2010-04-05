@@ -114,6 +114,7 @@
 				Name="VCCLCompilerTool"
 				Optimization="2"
 				EnableIntrinsicFunctions="true"
+				AdditionalIncludeDirectories="..\include"
 				RuntimeLibrary="2"
 				EnableFunctionLevelLinking="true"
 				WarningLevel="3"
@@ -171,6 +172,14 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}"
 			>
 			<File
+				RelativePath=".\anti-aliasing.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\archiveReader.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\b3dAnimation.cpp"
 				>
 			</File>
@@ -188,6 +197,10 @@
 			</File>
 			<File
 				RelativePath=".\disambiguateTextures.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\draw2DImage.cpp"
 				>
 			</File>
 			<File
@@ -223,11 +236,35 @@
 				>
 			</File>
 			<File
+				RelativePath=".\irrArray.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\irrCoreEquals.cpp"
 				>
 			</File>
 			<File
+				RelativePath=".\irrList.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\irrMap.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\irrString.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\lightMaps.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\line2dIntersectWith.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\loadTextures.cpp"
 				>
 			</File>
 			<File
@@ -247,11 +284,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\meshLoaders.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\meshTransform.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\planeMatrix.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\removeCustomAnimator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\renderTargetTexture.cpp"
 				>
 			</File>
 			<File
@@ -263,6 +312,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\serializeAttributes.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\softwareDevice.cpp"
 				>
 			</File>
@@ -271,11 +324,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\testaabbox.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\testDimension2d.cpp"
 				>
 			</File>
 			<File
 				RelativePath=".\testGeometryCreator.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\testQuaternion.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\testS3DVertex.cpp"
 				>
 			</File>
 			<File
@@ -291,7 +356,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\testXML.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\textureFeatures.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\textureRenderStates.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\timer.cpp"
 				>
 			</File>
 			<File
@@ -304,10 +381,6 @@
 			</File>
 			<File
 				RelativePath=".\writeImageToFile.cpp"
-				>
-			</File>
-			<File
-				RelativePath=".\zipReader.cpp"
 				>
 			</File>
 		</Filter>

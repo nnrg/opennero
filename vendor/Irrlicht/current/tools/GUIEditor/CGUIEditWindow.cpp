@@ -45,7 +45,7 @@ CGUIEditWindow::CGUIEditWindow(IGUIEnvironment* environment, core::rect<s32> rec
 	TabControl->setSubElement(true);
 	TabControl->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
 
-	IGUITab* ToolsTab = TabControl->addTab(L"Tools");
+	TabControl->addTab(L"Tools");
 	//L"Texture Cache Browser"
 	//L"Font Browser"
 	//L"Font Generator"
@@ -186,6 +186,8 @@ bool CGUIEditWindow::OnEvent(const SEvent &event)
 				Resizing = false;
 			}
 			break;
+		default:
+			break;
 		}
 
 		break;
@@ -254,7 +256,11 @@ bool CGUIEditWindow::OnEvent(const SEvent &event)
 				return true;
 			}
 			break;
+		default:
+			break;
 		}
+	default:
+		break;
 	}
 
 	return Parent ? Parent->OnEvent(event) : false;
@@ -276,7 +282,12 @@ void CGUIEditWindow::setDraggable(bool draggable)
 
 // we're supposed to supply these if we're creating an IGUIWindow
 // but we don't need them so we'll just return null
+
+//! Returns the rectangle of the drawable area (without border, without titlebar and without scrollbars)
+core::rect<s32> CGUIEditWindow::getClientRect() const
+{
+	return core::recti();
+}
 IGUIButton* CGUIEditWindow::getCloseButton() const     {return 0;}
 IGUIButton* CGUIEditWindow::getMinimizeButton() const  {return 0;}
 IGUIButton* CGUIEditWindow::getMaximizeButton() const  {return 0;}
-
