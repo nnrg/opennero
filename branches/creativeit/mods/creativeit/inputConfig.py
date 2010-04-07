@@ -88,6 +88,7 @@ def show_context_menu():
 
     # add a wall at the current cursor location
     def add_wall():
+        print 'Adding wall: ', location, getMod().object_z
         getMod().addWall(Vector3f(location.x, location.y, getMod().object_z))
 
     # add a cube at the current cursor location
@@ -113,36 +114,36 @@ def show_context_menu():
     # to modify it; otherwise show general options.
     if selected_object_id in getMod().object_ids:
         pathButton = gui.create_button(guiMan, 'path', Pos2i(0,0), Pos2i(0,0), '')
-        pathButton.OnMouseLeftClick = lambda: specify_object_path()
+        pathButton.OnMouseLeftClick = specify_object_path
         contextMenu.addItem('Specify object path', pathButton)
 
         moveButton = gui.create_button(guiMan, 'move', Pos2i(0,0), Pos2i(0,0), '')
-        moveButton.OnMouseLeftClick = lambda: move_object()
+        moveButton.OnMouseLeftClick = move_object
         contextMenu.addItem('Move object', moveButton)
 
         rotateButton = gui.create_button(guiMan, 'rotate', Pos2i(0,0), Pos2i(0,0), '')
-        rotateButton.OnMouseLeftClick = lambda: rotate_object()
+        rotateButton.OnMouseLeftClick = rotate_object
         contextMenu.addItem('Rotate object', rotateButton)
 
         scaleButton = gui.create_button(guiMan, 'scale', Pos2i(0,0), Pos2i(0,0), '')
-        scaleButton.OnMouseLeftClick = lambda: scale_object()
+        scaleButton.OnMouseLeftClick = scale_object
         contextMenu.addItem('Scale object', scaleButton)
 
         colorButton = gui.create_button(guiMan, 'color', Pos2i(0,0), Pos2i(0,0), '')
-        colorButton.OnMouseLeftClick = lambda: color_object()
+        colorButton.OnMouseLeftClick = color_object
         contextMenu.addItem('Color object', colorButton)
 
         removeButton = gui.create_button(guiMan, 'remove', Pos2i(0,0), Pos2i(0,0), '')
-        removeButton.OnMouseLeftClick = lambda: remove_object()
+        removeButton.OnMouseLeftClick = remove_object
         contextMenu.addItem('Remove object', removeButton)
 
     else:
         wallButton = gui.create_button(guiMan, 'wall', Pos2i(0,0), Pos2i(0,0), '')
-        wallButton.OnMouseLeftClick = lambda: add_wall()
+        wallButton.OnMouseLeftClick = add_wall
         contextMenu.addItem('Add wall', wallButton)
 
         cubeButton = gui.create_button(guiMan, 'cube', Pos2i(0,0), Pos2i(0,0), '')
-        cubeButton.OnMouseLeftClick = lambda: add_cube()
+        cubeButton.OnMouseLeftClick = add_cube
         contextMenu.addItem('Add cube', cubeButton)
 
         rtneatButton = gui.create_button(guiMan, 'rtneat', Pos2i(0,0), Pos2i(0,0), '')
@@ -158,11 +159,11 @@ def show_context_menu():
         contextMenu.addItem('Run keyboard', keyboardButton)
 
         adviceButton = gui.create_button(guiMan, 'advice', Pos2i(0,0), Pos2i(0,0), '')
-        adviceButton.OnMouseLeftClick = lambda: give_advice()
+        adviceButton.OnMouseLeftClick = give_advice
         contextMenu.addItem('Give advice', adviceButton)
 
         loadTraceButton = gui.create_button(guiMan, 'load trace', Pos2i(0,0), Pos2i(0,0), '')
-        loadTraceButton.OnMouseLeftClick = lambda: load_trace()
+        loadTraceButton.OnMouseLeftClick = load_trace
         contextMenu.addItem('Load trace', loadTraceButton)
 
         unloadTraceButton = gui.create_button(guiMan, 'unload trace', Pos2i(0,0), Pos2i(0,0), '')

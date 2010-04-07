@@ -39,13 +39,13 @@ class CreativeITMod:
     def control_key(self, key):
         KeyboardAgent.keys.add(key) # tell the keyboard agent that a key has been hit this frame
 
-    def addWall(self, position, rotation = Vector3f(0,0,0), velocity = Vector3f(0,0,0), scale = Vector3f(1,1,1)):
+    def addWall(self, position, rotation = Vector3f(0,0,0), scale = Vector3f(1,1,1)):
         """ add a wall to the simulation """
-        self.environment.walls.add(addObject("data/shapes/wall/BrickWall.xml", position, rotation, velocity, scale))
+        self.environment.walls.add(addObject("data/shapes/wall/BrickWall.xml", position, rotation, scale))
 
-    def addCube(self, position, rotation = Vector3f(0,0,0), velocity = Vector3f(0,0,0), scale = Vector3f(1,1,1)):
+    def addCube(self, position, rotation = Vector3f(0,0,0), scale = Vector3f(1,1,1)):
         """ add a cube to the simulation """
-        self.environment.cubes.add(addObject("data/shapes/cube/WhiteCube.xml", position, rotation, velocity, scale))
+        self.environment.cubes.add(addObject("data/shapes/cube/WhiteCube.xml", position, rotation, scale))
     
     def removeObject(self, id):
         """ schedule an object to be removed from the simulation """
