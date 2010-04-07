@@ -52,9 +52,9 @@ def show_context_menu():
     # find the screen position at which to open the context menu
     cursor = getSimContext().getMousePosition()
     print 'cursor:', cursor.x, cursor.y
-    location = getSimContext().getClickPosition(cursor.x, cursor.y)
+    location = getSimContext().getClickedPosition(cursor.x, cursor.y)
     print 'location:', location
-    selected_object_id = getSimContext().getEntityIdUnderMouse(cursor.x, cursor.y)
+    selected_object_id = getSimContext().getClickedEntityId(cursor.x, cursor.y)
 
     contextMenu = gui.create_context_menu(guiMan, 'context', cursor)
 
@@ -186,7 +186,7 @@ def mouse_action():
         return
 
     cursor = getSimContext().getMousePosition()
-    location = getSimContext().getClickPosition(cursor.x, cursor.y)
+    location = getSimContext().getClickedPosition(cursor.x, cursor.y)
 
     if 'pos' in getMod().modify_object_id:
         getMod().setObjectPosition(getMod().modify_object_id['pos'], Vector3f(location.x, location.y, getMod().object_z))

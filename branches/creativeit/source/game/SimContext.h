@@ -84,12 +84,6 @@ namespace OpenNero
         /// set the fog mode
         void SetFog();
 
-        /// Get the SimEntity under the user specified cursor position on screen
-        SimEntityPtr GetEntityUnderMouse(const int32_t& x, const int32_t& y) const;
-
-        /// Get the Id of the SimEntity under the user specified cursor position on screen
-        SimId GetEntityIdUnderMouse(const int32_t& x, const int32_t& y) const;
-
         /// Get the vector from camera origin to the specified cursor position on screen
         Line3f GetRayUnderMouse(const int32_t& x, const int32_t& y) const;
 
@@ -102,13 +96,13 @@ namespace OpenNero
 		boost::python::tuple FindInRay( const Vector3f& origin, const Vector3f& target, const uint32_t& type = 0, const bool val = false) const;
 
         /// Get (approximate) 3d position of the click
-        Vector3f GetClickPosition(const int32_t& x, const int32_t& y) const;
+        Vector3f GetClickedPosition(const int32_t& x, const int32_t& y) const;
 
-        /// Find the collision point of the specified ray and the object
-        bool GetCollisionPoint(const Vector3f& start, const Vector3f& end, SimId id, Vector3f& outCollisionPoint) const;
+        /// Get the SimEntity under the user specified cursor position on screen
+        SimEntityPtr GetClickedEntity(const int32_t& x, const int32_t& y) const;
 
-        /// Get the point of intersection of the vector from camera origin to the specified cursor position on screen
-        Vector3f GetPointUnderMouse(const int32_t& x, const int32_t& y) const;
+        /// Get the Id of the SimEntity under the user specified cursor position on screen
+        SimId GetClickedEntityId(const int32_t& x, const int32_t& y) const;
 
         /// Get the current position of the mouse on the screen
         Pos2i GetMousePosition() const;
@@ -169,6 +163,7 @@ namespace OpenNero
 
         /// return the simulation
         SimulationPtr getSimulation() { return mpSimulation; }
+        
         /// return the simulation while changing nothing
         const SimulationPtr getSimulation() const { return mpSimulation; }
 

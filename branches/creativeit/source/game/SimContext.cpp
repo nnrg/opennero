@@ -406,7 +406,7 @@ namespace OpenNero
     /// @param x screen x-coordinate for active camera
     /// @param y screen y-coordinate for active camera
     /// @return the SimEntity intersected first by the ray from the camera origin through the view plane
-    SimEntityPtr SimContext::GetEntityUnderMouse(const int32_t& x, const int32_t& y) const
+    SimEntityPtr SimContext::GetClickedEntity(const int32_t& x, const int32_t& y) const
     {
         Pos2i pos(x,y);
         // get scene node
@@ -416,15 +416,19 @@ namespace OpenNero
         {
             result = getSimulation()->FindBySceneObjectId(node->getID());
         }
+        else
+        {
+            LOG_F_WARNING("core", "unable to find clicked entity at location " << x << ", " << y);
+        }
         return result;
     }
 
     /// @param x screen x-coordinate for active camera
     /// @param y screen y-coordinate for active camera
     /// @return the Id of the SimEntity intersected first by the ray from the camera origin through the view plane
-    SimId SimContext::GetEntityIdUnderMouse(const int32_t& x, const int32_t& y) const
+    SimId SimContext::GetClickedEntityId(const int32_t& x, const int32_t& y) const
     {
-        SimEntityPtr ent = GetEntityUnderMouse(x, y);
+        SimEntityPtr ent = GetClickedEntity(x, y);
         if (ent) {
             return ent->GetSimId();
         } else {
@@ -502,7 +506,7 @@ namespace OpenNero
     /// @param x screen x-coordinate for active camera
     /// @param y screen y-coordinate for active camera
     /// @return Approximate 3d position of the click
-    Vector3f SimContext::GetClickPosition(const int32_t& x, const int32_t& y) const
+    Vector3f SimContext::GetClickedPosition(const int32_t& x, const int32_t& y) const
     {
         Pos2i pos(x,y);
         ISceneCollisionManager* collider = mIrr.mpSceneManager->getSceneCollisionManager();
@@ -550,40 +554,8 @@ namespace OpenNero
                 return ConvertIrrlichtToNeroPosition(collision_point);
             }
         }
-        else 
-        {
-            LOG_F_WARNING("core", "could not find collision point on click");
-            return ConvertIrrlichtToNeroPosition(ray.end);
-        }
-
-    }
-
-    /// @param start Start point of the ray
-    /// @param end End point of the ray
-    /// @param id The id of the object to collide with
-    /// @param outCollisionPoint The collision point of the ray with the object
-    /// @return true if collision occurs; false otherwise
-    bool SimContext::GetCollisionPoint(const Vector3f& start, const Vector3f& end, SimId id, Vector3f& outCollisionPoint) const
-    {
-        Line3f ray(ConvertNeroToIrrlichtPosition(start), ConvertNeroToIrrlichtPosition(end));
-
-        if (mpSimulation->Find(id)->GetCollisionPoint(ray, mIrr, outCollisionPoint))
-        {
-            outCollisionPoint = ConvertIrrlichtToNeroPosition(outCollisionPoint);
-            return true;
-        }
-        else
-        {
-            return false;
-        }
-    }
-
-    /// @param x screen x-coordinate for active camera
-    /// @param y screen y-coordinate for active camera
-    /// @return the point of intersection of the 3d ray from the camera origin through the view plane
-    Vector3f SimContext::GetPointUnderMouse(const int32_t& x, const int32_t& y) const
-    {
-        return GetRayUnderMouse(x, y).end;
+        LOG_F_WARNING("core", "could not find collision point on click " << x << ", " << y);
+        return ConvertIrrlichtToNeroPosition(ray.end);
     }
 
     /// @return the current position of the mouse
@@ -719,10 +691,9 @@ namespace OpenNero
 			.def("findInSphere",         &SimContext::FindInSphere, "Find all the objects within the specified sphere (origin:Vector3f, radius:float)" )
 #endif // NERO_BUILD_PHYSICS
 			.def("findInRay",            &SimContext::FindInRay, findInRay_overloads("Find all the objects within the specified ray (origin:Vector3f, target:Vector3f, [int])") )
-            .def("getEntityIdUnderMouse", &SimContext::GetEntityIdUnderMouse, "Get the id of the entity intersected first by the ray from the camera origin through the view plane")
-            .def("getClickPosition",    &SimContext::GetClickPosition, "Approximate 3d position of the mouse click")
-            .def("getCollisionPoint",   &SimContext::GetCollisionPoint, "Find the collision point of the specified ray and object")
-            .def("getPointUnderMouse",  &SimContext::GetPointUnderMouse, "Get the point of intersection of the 3d ray from the camera origin through the view plane")
+            .def("getClickedPosition",    &SimContext::GetClickedPosition, "Approximate 3d position of the mouse click")
+            //.def("getClickedEntity",    &SimContext::GetClickedEntity, "Return the entity that was clicked")
+            .def("getClickedEntityId",  &SimContext::GetClickedEntityId, "Return the id of the entity that was clicked")
             .def("getMousePosition",    &SimContext::GetMousePosition, "Get the current position of the mouse")
             .def("setObjectPosition",   &SimContext::SetObjectPosition, "Set the position of an object specified by its id")
             .def("setObjectRotation",   &SimContext::SetObjectRotation, "Set the rotation of an object specified by its id")

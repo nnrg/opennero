@@ -114,9 +114,6 @@ namespace OpenNero
 		/// Get a constant reference to the shared data for this SimEntity
         const SimEntityData& GetState() const { return mSharedData; }
 
-        /// find the collision point of the ray with the object
-        bool GetCollisionPoint(const Line3f& ray, const IrrHandles& irr, Vector3f& outCollisionPoint) const;
-
         /// get position of the object
         const Vector3f& GetPosition() const;
 

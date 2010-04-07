@@ -285,7 +285,7 @@ class ForageEnvironment(Environment):
         # while moving to the new position.
         collided = False
         for wid in self.active_walls:
-            if getSimContext().getCollisionPoint(state.position, position, wid, Vector3f(0,0,0)):
+            if getSimContext().findInRay(state.position, position, 0, False):
                 collided = True
                 break
 
@@ -433,7 +433,7 @@ class ForageEnvironment(Environment):
                                        state.position.y + self.MAX_DISTANCE*sin(radians(sensor_angle)),
                                        state.position.z)
                     intersection = Vector3f(0,0,0)
-                    if getSimContext().getCollisionPoint(ray_start, ray_end, wid, intersection):
+                    if getSimContext().findInRay(ray_start, ray_end, 0, False):
                         dist = intersection.getDistanceFrom(state.position)
                         if dist > maxdist: dist = maxdist   # wall farther than the farthest cube
                         dist = dist/maxdist if maxdist > 0 else 1.0

@@ -242,27 +242,6 @@ namespace OpenNero
         return *this;
     }
 
-    /// @param ray The ray that is collided with this entity.
-    /// @param irr Handle to Irrlicht objects.
-    /// @param outCollisionPoint The collision point of the ray with this entity.
-    /// @return true if collision occurs; false otherwise.
-    bool SimEntity::GetCollisionPoint(const Line3f& ray, const IrrHandles& irr, Vector3f& outCollisionPoint) const
-    {
-        // get collider
-        ISceneCollisionManager* collider = irr.mpSceneManager->getSceneCollisionManager();
-        Assert(collider);
-        // get scene node
-        ISceneNode* sceneNode = mSceneObject->mSceneNode;
-        if (!sceneNode)
-        {
-            return false;
-        }
-        Triangle3f resultTriangle; // ignored
-        ISceneNode* node(NULL);
-        node = collider->getSceneNodeAndCollisionPointFromRay(ray, outCollisionPoint, resultTriangle, 0);
-        return (node != NULL);
-    }
-
     const Vector3f& SimEntity::GetPosition() const
     {
         return mSharedData.GetPosition();
