@@ -1,0 +1,14 @@
+<Template>
+	<Audio>
+		<Rocket>maze/data/sounds/rocket_launcher.ogg</Rocket>
+	</Audio>
+	<Render>
+		<MaterialType>solid</MaterialType>
+		<MaterialFlagLighting>false</MaterialFlagLighting>
+		<AniMesh>data/shapes/dwarf/dwarf.x</AniMesh>
+		<Scale>1 1 1</Scale>
+	</Render>
+	<AI>
+		<Python agent="SearchAgent()" />
+	</AI>
+</Template>
