@@ -424,7 +424,12 @@ namespace OpenNero
     /// @return the Id of the SimEntity intersected first by the ray from the camera origin through the view plane
     SimId SimContext::GetEntityIdUnderMouse(const int32_t& x, const int32_t& y) const
     {
-        return GetEntityUnderMouse(x, y)->GetSimId();
+        SimEntityPtr ent = GetEntityUnderMouse(x, y);
+        if (ent) {
+            return ent->GetSimId();
+        } else {
+            return 0;
+        }
     }
 
     /// @param x screen x-coordinate for active camera
