@@ -42,16 +42,21 @@ class CreativeITMod:
     def addWall(self, position, rotation = Vector3f(0,0,0), scale = Vector3f(1,1,1)):
         """ add a wall to the simulation """
         print 'Adding wall position:', position, ' rotation:', rotation, ' scale: ', scale
-        self.environment.walls.add(addObject("data/shapes/wall/BrickWall.xml", position, rotation, scale))
+        id = addObject("data/shapes/wall/BrickWall.xml", position, rotation, scale)
+        self.object_ids.add(id)
+        self.environment.walls.add(id)
 
     def addCube(self, position, rotation = Vector3f(0,0,0), scale = Vector3f(1,1,1)):
         """ add a cube to the simulation """
-        self.environment.cubes.add(addObject("data/shapes/cube/WhiteCube.xml", position, rotation, scale))
+        id = addObject("data/shapes/cube/WhiteCube.xml", position, rotation, scale)
+        self.object_ids.add(id)
+        self.environment.cubes.add(id)
     
     def removeObject(self, id):
         """ schedule an object to be removed from the simulation """
+        self.object_ids.remove(id)
         self.environment.remove_object(id)
-        self._removeObject(id)
+        removeObject(id)
 
     def setAdvice(self, advice):
         """ advice for rtneat agents """

@@ -1,6 +1,7 @@
 from OpenNero import *
 
 from common import *
+from math import *
 import common.gui as gui
 from common.module import openWiki, getGuiManager
 from creativeit.module import getMod, delMod
@@ -51,9 +52,7 @@ def show_context_menu():
 
     # find the screen position at which to open the context menu
     cursor = getSimContext().getMousePosition()
-    print 'cursor:', cursor.x, cursor.y
     location = getSimContext().getClickedPosition(cursor.x, cursor.y)
-    print 'location:', location
     selected_object_id = getSimContext().getClickedEntityId(cursor.x, cursor.y)
 
     contextMenu = gui.create_context_menu(guiMan, 'context', cursor)
@@ -64,7 +63,7 @@ def show_context_menu():
         def read_path(filename):
             with open(filename, 'r') as file:
                 code = compile(file.read(), filename, 'eval')
-            getMod().setObjectPath(code, selected_object_id)
+            getSimContext().setObjectPath(code, selected_object_id)
 
         guiMan.openFileChooserDialog("Open Object Path File", True, read_path)
 
@@ -90,7 +89,6 @@ def show_context_menu():
 
     # add a wall at the current cursor location
     def add_wall():
-        print 'Adding wall: ', location, getMod().object_z
         getMod().addWall(Vector3f(location.x, location.y, getMod().object_z))
 
     # add a cube at the current cursor location
@@ -111,7 +109,7 @@ def show_context_menu():
     # load previously stored trace.
     def load_trace():
         guiMan.openFileChooserDialog("Load Trace File", True, lambda filename: getMod().load_trace(filename))
-
+        
     # if the user clicked on an object they added previously, show the options
     # to modify it; otherwise show general options.
     if selected_object_id in getMod().object_ids:
@@ -189,12 +187,12 @@ def mouse_action():
     location = getSimContext().getClickedPosition(cursor.x, cursor.y)
 
     if 'pos' in getMod().modify_object_id:
-        getMod().setObjectPosition(getMod().modify_object_id['pos'], Vector3f(location.x, location.y, getMod().object_z))
+        getSimContext().setObjectPosition(getMod().modify_object_id['pos'], Vector3f(location.x, location.y, getMod().object_z))
 
     elif 'rot' in getMod().modify_object_id:
         position = getSimContext().getObjectPosition(getMod().modify_object_id['rot'])
         angle = atan2(location.x-position.x, location.y-position.y)
-        getMod().setObjectRotation(getMod().modify_object_id['rot'], Vector3f(0, 0, -degrees(angle)))       
+        getSimContext().setObjectRotation(getMod().modify_object_id['rot'], Vector3f(0, 0, -degrees(angle)))       
 
     elif 'scale' in getMod().modify_object_id:
         position = getSimContext().getObjectPosition(getMod().modify_object_id['scale'])
@@ -211,7 +209,7 @@ def mouse_action():
         if localx < 0: scalex = 1/scalex
         if localy < 0: scaley = 1/scaley
 
-        getMod().setObjectScale(getMod().modify_object_id['scale'], Vector3f(scalex, scaley, 1))       
+        getSimContext().setObjectScale(getMod().modify_object_id['scale'], Vector3f(scalex, scaley, 1))       
 
     elif 'color' in getMod().modify_object_id:
         position = getSimContext().getObjectPosition(getMod().modify_object_id['color'])
@@ -225,7 +223,7 @@ def mouse_action():
         if localx < 0: scolor = SColor(0, color, 0, 0)
         else: scolor = SColor(0, 0, 0, color)
         
-        getMod().setObjectColor(getMod().modify_object_id['color'], scolor)       
+        getSimContext().setObjectColor(getMod().modify_object_id['color'], scolor)       
 
 
 def reset_mouse_action():
