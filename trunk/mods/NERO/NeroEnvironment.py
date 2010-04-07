@@ -321,12 +321,13 @@ class NeroEnvironment(Environment):
         
         st = 0
         ae = 0
-        #calculate f
+        
+	#calculate f
         sg = -action[0]
         if ff[0] != 1:
-            st = self.distance(ff[0].pose,state.pose)
+            st = distance_st / self.distance(ff[0].pose,state.pose)
         if ff[1] != 1:
-            ae = self.distance(ff[1].pose,state.pose)
+            ae = distance_ae / self.distance(ff[1].pose,state.pose)
         af = (distance_af/self.flag_distance(agent))
         ht = hit
         vf = -damage        
