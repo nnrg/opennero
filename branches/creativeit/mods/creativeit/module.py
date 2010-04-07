@@ -1,17 +1,23 @@
 from math import *
 
 from OpenNero import *
-from common.server import *
+from common import *
 from creativeit import *
 from ForageEnvironment import ForageEnvironment
 from KeyboardAgent import KeyboardAgent
 from RTNEATAgent import RTNEATAgent
 
-class CreativeITServer(Server):
+class CreativeITMod:
     
     # initializer
-    def __init__(self, serverContext):
-        Server.__init__(self, serverContext)
+    def __init__(self):
+        self.object_ids = set()         # Ids of objects added to the world by the user
+        self.object_z = 2               # Z cooridinate of objects added by the user
+        self.modify_object_id = dict()  # Id of object whose pos/rot/scale/color is to be modified            
+        self.scale_const = 10           # Constant used for scaling objects by moving mouse
+        self.color_value_max = 100      # Maximum of color values associated with objects
+        self.color_const = 4            # Constant used for adjusting color of objects by moving mouse
+        self.tracing = False            # Flag indicating if agent is being traced
         self.agents = {}  # ids of agents
         # egocentric sensor angles are specified in the range [-1, 1]; multiplying this number
         # by 180 gives the angle in degrees.  cube sensors are evenly distributed around the
@@ -26,37 +32,27 @@ class CreativeITServer(Server):
         self.rtneat = None
         self.scripted = None
     
-    # every method that expects to be called from a client
-    # should be of the required form:
-    # def methodName( self, client, param0, param1, ..., paramN )
-    #
-    # the 'client' param is implicitly passed by the system to
-    # allow the server to recognize which client is making the
-    # request for this method to be called
-    
     # add a set of coordinate axes
-    def addAxes(self, client):
-        self.context.sim_context.addAxes()
+    def addAxes(self):
+        getSimContext().addAxes()
 
-    def control_key(self, client, key):
+    def control_key(self, key):
         KeyboardAgent.keys.add(key) # tell the keyboard agent that a key has been hit this frame
 
-    def addWall(self, client, position, rotation = Vector3f(0,0,0), velocity = Vector3f(0,0,0), scale = Vector3f(1,1,1)):
+    def addWall(self, position, rotation = Vector3f(0,0,0), velocity = Vector3f(0,0,0), scale = Vector3f(1,1,1)):
         """ add a wall to the simulation """
-        self.environment.walls.add(self._getNextFreeId())
-        self._addObject("data/shapes/wall/BrickWall.xml", position, rotation, velocity, scale)
+        self.environment.walls.add(addObject("data/shapes/wall/BrickWall.xml", position, rotation, velocity, scale))
 
-    def addCube(self, client, position, rotation = Vector3f(0,0,0), velocity = Vector3f(0,0,0), scale = Vector3f(1,1,1)):
+    def addCube(self, position, rotation = Vector3f(0,0,0), velocity = Vector3f(0,0,0), scale = Vector3f(1,1,1)):
         """ add a cube to the simulation """
-        self.environment.cubes.add(self._getNextFreeId())
-        self._addObject("data/shapes/cube/WhiteCube.xml", position, rotation, velocity, scale)
+        self.environment.cubes.add(addObject("data/shapes/cube/WhiteCube.xml", position, rotation, velocity, scale))
     
-    def removeObject(self, client, id):
+    def removeObject(self, id):
         """ schedule an object to be removed from the simulation """
         self.environment.remove_object(id)
         self._removeObject(id)
 
-    def setAdvice(self, client, advice):
+    def setAdvice(self, advice):
         """ advice for rtneat agents """
         if self.rtneat != None:
             self.rtneat.advice = Advice(advice, self.rtneat, self.num_sensors, self.num_outputs, True)
@@ -65,49 +61,49 @@ class CreativeITServer(Server):
         for state in self.environment.states.values():
             state.has_new_advice = True
 
-    def setObjectPath(self, client, path, id):
+    def setObjectPath(self, path, id):
         """ set the path of the specified object """
         self.environment.object_paths[id] = path
 
-    def start_tracing(self, client):
+    def start_tracing(self):
         """ start tracing the agents """
         self.environment.start_tracing()
 
-    def stop_tracing(self, client):
+    def stop_tracing(self):
         """ stop tracing the agents """
         self.environment.stop_tracing()
 
-    def enable_simdisplay(self, client):
+    def enable_simdisplay(self):
         """ start displaying the simulation of agents """
         self.environment.simdisplay = True
 
-    def disable_simdisplay(self, client):
+    def disable_simdisplay(self):
         """ stop displaying the simulation of agents """
         self.environment.simdisplay = False
 
-    def save_trace(self, client, filename):
+    def save_trace(self, filename):
         """ save the current trace to the given filename """
         self.environment.save_trace(filename)
 
-    def load_trace(self, client, filename):
+    def load_trace(self, filename):
         """ load previously saved trace file """
         self.environment.load_trace(filename)
 
-    def unload_trace(self, client):
+    def unload_trace(self):
         """ unload previously loaded trace """
         self.environment.unload_trace()
 
-    def enable_backprop(self, client):
+    def enable_backprop(self):
         """ run backprop if trace has been loaded """
         print "enabling backprop ..."
         self.environment.run_backprop = True
 
-    def disable_backprop(self, client):
+    def disable_backprop(self):
         """ stop running backprop """
         print "disabling backprop ..."
         self.environment.run_backprop = False
 
-    def start_rtneat(self, client):
+    def start_rtneat(self):
         """ start rtneat to find a solution """
         disable_ai()
         set_environment(self.environment)
@@ -117,34 +113,35 @@ class CreativeITServer(Server):
         set_ai("neat", self.rtneat)
         enable_ai()
         for i in range(self.pop_size):
-            self.agents[i] = self._getNextFreeId()
-            #self._addObject("data/shapes/character/CubeRTNEAT.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
-            self._addObject("data/shapes/character/SydneyRTNEAT.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
+            self.agents[i] = addObject("data/shapes/character/SydneyRTNEAT.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
 
     
-    def start_scripted(self, client):
+    def start_scripted(self):
         """ start scripted agent to find a solution """
         disable_ai()
         set_environment(self.environment)
         self.environment.initialize()
         self.scripted = Scripted(self.num_sensors, self.num_outputs)
-        self.agents[0] = self._getNextFreeId()
-        #self._addObject("data/shapes/character/CubeScripted.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
-        self._addObject("data/shapes/character/SydneyScripted.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
+        self.agents[0] = addObject("data/shapes/character/SydneyScripted.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
         enable_ai()
 
 
-    def start_keyboard(self,client):
+    def start_keyboard(self):
         """ start the keyboard agent to teach by demonstration """
         disable_ai()
         set_environment(self.environment)
         self.environment.initialize()
-        self.agents[0] = self._getNextFreeId()
-        #self._addObject("data/shapes/character/CubeKeyboard.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
-        self._addObject("data/shapes/character/SydneyKeyboard.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
+        self.agents[0] = addObject("data/shapes/character/SydneyKeyboard.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
         enable_ai()
 
-    
-def ServerMain():
-    # replace the default server object with our custom server
-    RegisterServer(CreativeITServer(ServerContext()))
+gMod = None
+
+def delMod():
+    global gMod
+    gMod = None
+
+def getMod():
+    global gMod
+    if not gMod:
+        gMod = CreativeITMod()
+    return gMod

@@ -274,54 +274,7 @@ class ForageEnvironment(Environment):
         rotation = Vector3f(state.rotation.x, state.rotation.y, state.rotation.z)
         velocity = Vector3f(state.velocity.x, state.velocity.y, state.velocity.z)
 
-#        # Actions interpreted as acceleration.
-#        velx = velocity.x
-#        vely = velocity.y
-#        dvelx = actions[0]*self.ACCELERATION
-#        dvely = actions[1]*self.ACCELERATION/100
-# 
-#        # Calculate drag assuming viscous resistance (drag = -velocity*const). 
-#        dragx = -velx*self.DRAG_CONST 
-#        dragy = -vely*self.DRAG_CONST 
-#        # If no other force is acting, drag cannot change sign of velocity. 
-#        if velx*(velx+dragx) < 0: dragx = -velx 
-#        if vely*(vely+dragy) < 0: dragy = -vely 
-#        # Calculate new velocity.
-#        velx += dvelx + dragx 
-#        vely += dvely + dragy 
-#        if velx > self.VELOCITY: velx = self.VELOCITY
-#        elif velx < -self.VELOCITY: velx = -self.VELOCITY
-#        if vely > self.VELOCITY: vely = self.VELOCITY
-#        elif vely < -self.VELOCITY: vely = -self.VELOCITY
-# 
-#        dposx = velx
-#        dposy = vely
-#        dpos = sqrt(dposx*dposx + dposy*dposy)
-#        rotation.z += degrees(atan2(dposy, dposx))
-#        position.x += dpos*cos(radians(rotation.z))
-#        position.y += dpos*sin(radians(rotation.z))
-#        velocity.x = velx
-#        velocity.y = vely
-
-        # The first action specifies the distance to move in the forward (X) direction
-        # and the second action specifies the distance to move in the orthogonal (Y)
-        # direction.  Egocentric coordinates.
-        #dposx = fabs(actions[0])*self.VELOCITY
-        #dposy = actions[1]*self.VELOCITY
-        #dpos = sqrt(dposx*dposx + dposy*dposy)
-        #rotation.z += degrees(atan2(dposy, dposx))
-        #position.x += dpos*cos(radians(rotation.z))
-        #position.y += dpos*sin(radians(rotation.z))
-
-        # Global coordinates.
-        #rotation.z = degrees(atan2(dposy, dposx))
-        #position.x += dposx
-        #position.y += dposy
-        #velocity.x = actions[0]
-        #velocity.y = actions[1]
-
         # Polar coordinates (i.e. distance, orientation [-ANGLE, ANGLE])
-        #dpos = (actions[0]+0.4)*self.VELOCITY if actions[0]+0.4 > 0.0 else 0.0
         dpos = fabs(actions[0])*self.VELOCITY
         dtheta = actions[1]*2*self.ANGULAR_VELOCITY
         rotation.z += dtheta
@@ -397,15 +350,6 @@ class ForageEnvironment(Environment):
                 cube_position = getSimContext().getObjectPosition(cid)
                 dist = cube_position.getDistanceFrom(state.position)
                 maxdist = max(maxdist, dist)
-
-                # The agents cannot see the cube if it is behind a wall; check if the ray
-                # from the agent to the cube intersects any wall.
-                #obscured = False
-                #for wid in self.active_walls:
-                #    if getSimContext().getCollisionPoint(state.position, cube_position, wid, Vector3f(0,0,0)):
-                #        obscured = True
-                #        break
-                #if obscured: continue
 
                 cube_angle = degrees(atan2(cube_position.y - state.position.y, cube_position.x - state.position.x))
                 cube_angle = cube_angle - floor(cube_angle/360)*360  # range [0, 360)

@@ -1,7 +1,7 @@
 from math import *
 from OpenNero import *
-from common.server import GetRegisteredServer
 import random
+import creativeit
 
 class RTNEATAgent(AgentBrain):
     INDEX_COUNT = 0
@@ -19,7 +19,7 @@ class RTNEATAgent(AgentBrain):
         AgentBrain.__init__(self)
         self.rtneat = get_ai("neat")
         self.org = None
-        self.environment = GetRegisteredServer().environment
+        self.environment = creativeit.module.getMod().environment
         self.passed_steps = 0
 
     def initialize(self, init_info):
@@ -38,7 +38,7 @@ class RTNEATAgent(AgentBrain):
         # we get an rtneat organism for the agent.  The index is reassigned at the
         # start of every episode because the organism changes in every episode.
         self.index = RTNEATAgent.INDEX_COUNT
-        RTNEATAgent.INDEX_COUNT = (RTNEATAgent.INDEX_COUNT+1)%GetRegisteredServer().pop_size
+        RTNEATAgent.INDEX_COUNT = (RTNEATAgent.INDEX_COUNT+1) % creativeit.module.getMod().pop_size
 
         self.org = self.rtneat.next_organism(self.org)
         self.net = self.org.net
@@ -120,7 +120,7 @@ class RTNEATAgent(AgentBrain):
         Activate the network to produce the output
         Collect and interpret the outputs as valid actions
         """
-        assert(len(sensors) == GetRegisteredServer().num_sensors) # make sure we have the right number of sensors
+        assert(len(sensors) == creativeit.module.getMod().num_sensors) # make sure we have the right number of sensors
         inputs = [sensor for sensor in sensors] # create the sensor array
         self.net.load_sensors(inputs)
         self.net.activate()
