@@ -504,22 +504,19 @@ namespace OpenNero
     /// @return Approximate 3d position of the click
     Vector3f SimContext::GetClickPosition(const int32_t& x, const int32_t& y) const
     {
-        // TODO: hide this Irrlicht-specific code
         Pos2i pos(x,y);
         ISceneCollisionManager* collider = mIrr.mpSceneManager->getSceneCollisionManager();
-        Assert(collider != NULL);
         // get ray
         Line3f ray = collider->getRayFromScreenCoordinates(pos);
-        Vector3f resultPosition;
-        Triangle3f resultTriangle;
-        ISceneNode* node = collider->getSceneNodeAndCollisionPointFromRay(ray, resultPosition, resultTriangle);
-        if (node == NULL)
-        {
+        Vector3f out_collision_point;
+        Triangle3f out_collision_tri;
+        ISceneNode* out_node = collider->getSceneNodeAndCollisionPointFromRay(ray, out_collision_point, out_collision_tri);
+        if (out_node) {
+            LOG_F_DEBUG("IVK", "node clicked!");
+            return ConvertIrrlichtToNeroPosition(out_collision_point);
+        } else {
+            LOG_F_DEBUG("IVK", "no node clicked!");
             return ConvertIrrlichtToNeroPosition(ray.end);
-        }
-        else
-        {
-            return ConvertIrrlichtToNeroPosition(resultPosition);
         }
     }
 
@@ -674,8 +671,8 @@ namespace OpenNero
             .def("addCamera",            &SimContext::AddCamera, "Create and add a camera to the context and return camera")
             .def("addLightSource",       &SimContext::AddLightSource, addLightSource_overloads("Add a light source to the scene"))
             .def("addSkyBox",            &SimContext::AddSkyBox, addSkyBox_overloads("Add a sky box consisting of 6 images starting with arg0 and ending with arg1"))
-            .def("addObject",      &SimContext::AddObject, "Create an object on the server and broadcast to clients")
-            .def("removeObject",   &SimContext::RemoveObject, "Remove an object from the server and broadcast to clients")
+            .def("addObject",            &SimContext::AddObject, "Create an object on the server and broadcast to clients")
+            .def("removeObject",         &SimContext::RemoveObject, "Remove an object from the server and broadcast to clients")
             .def("getGuiManager",        &SimContext::GetGuiManager, "Return the gui manager for the context")
             .def("killGame",             &SimContext::KillGame, "Kill the game")
             .def("setInputMapping",      &SimContext::SetInputMapping, "Set the io map to use" )

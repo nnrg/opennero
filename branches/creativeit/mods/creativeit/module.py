@@ -41,6 +41,7 @@ class CreativeITMod:
 
     def addWall(self, position, rotation = Vector3f(0,0,0), scale = Vector3f(1,1,1)):
         """ add a wall to the simulation """
+        print 'Adding wall position:', position, ' rotation:', rotation, ' scale: ', scale
         self.environment.walls.add(addObject("data/shapes/wall/BrickWall.xml", position, rotation, scale))
 
     def addCube(self, position, rotation = Vector3f(0,0,0), scale = Vector3f(1,1,1)):
@@ -113,7 +114,7 @@ class CreativeITMod:
         set_ai("neat", self.rtneat)
         enable_ai()
         for i in range(self.pop_size):
-            self.agents[i] = addObject("data/shapes/character/SydneyRTNEAT.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
+            self.agents[i] = addObject("data/shapes/character/SydneyRTNEAT.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
 
     
     def start_scripted(self):
@@ -122,7 +123,7 @@ class CreativeITMod:
         set_environment(self.environment)
         self.environment.initialize()
         self.scripted = Scripted(self.num_sensors, self.num_outputs)
-        self.agents[0] = addObject("data/shapes/character/SydneyScripted.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
+        self.agents[0] = addObject("data/shapes/character/SydneyScripted.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
         enable_ai()
 
 
@@ -131,7 +132,7 @@ class CreativeITMod:
         disable_ai()
         set_environment(self.environment)
         self.environment.initialize()
-        self.agents[0] = addObject("data/shapes/character/SydneyKeyboard.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
+        self.agents[0] = addObject("data/shapes/character/SydneyKeyboard.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
         enable_ai()
 
 gMod = None

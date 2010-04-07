@@ -14,7 +14,7 @@ def first_person_control(command):
     # get the controller action
     def closure():
         # controller action
-        getMod().control_fps(command)
+        getMod().control_key(command)
     return closure
 
 # an empty function
@@ -51,7 +51,9 @@ def show_context_menu():
 
     # find the screen position at which to open the context menu
     cursor = getSimContext().getMousePosition()
+    print 'cursor:', cursor.x, cursor.y
     location = getSimContext().getClickPosition(cursor.x, cursor.y)
+    print 'location:', location
     selected_object_id = getSimContext().getEntityIdUnderMouse(cursor.x, cursor.y)
 
     contextMenu = gui.create_context_menu(guiMan, 'context', cursor)
@@ -246,9 +248,11 @@ def createInputMapping():
     ioMap.BindMouseButton( "right", "onPress", show_context_menu )
 
     # FPS control
-    ioMap.BindKey( "KEY_KEY_A", "onPress", first_person_control('CCW') )
-    ioMap.BindKey( "KEY_KEY_D", "onPress", first_person_control('CW') )
-    ioMap.BindKey( "KEY_KEY_W", "onPress", first_person_control('FWD') )
-    ioMap.BindKey( "KEY_KEY_S", "onPress", first_person_control('BCK') )
+    ioMap.BindKey( "KEY_KEY_A", "onHold", first_person_control('left') )
+    ioMap.BindKey( "KEY_KEY_D", "onHold", first_person_control('right') )
+    ioMap.BindKey( "KEY_KEY_W", "onHold", first_person_control('fwd') )
+    ioMap.BindKey( "KEY_KEY_S", "onHold", first_person_control('back') )
+    ioMap.BindKey( "KEY_KEY_Q", "onHold", first_person_control('Lturn') )
+    ioMap.BindKey( "KEY_KEY_E", "onHold", first_person_control('Rturn') )
 
     return ioMap
