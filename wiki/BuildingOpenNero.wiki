@@ -28,11 +28,12 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The
 == Prerequisites ==
  * [http://www.cmake.org/cmake/resources/software.html cmake]
  * [http://www.microsoft.com/visualstudio/ Microsoft Visual Studio]
+ * [http://www.python.org/download/releases/2.6.5/ Latest Python 2.x with source]
 
 == Steps to build ==
- # Open CMake, specify the source directory (opennero checkout directory) and build directory (another directory), and generate the files for your version of Visual Studio
+ # Open CMake, specify the source directory (opennero checkout directory) and build directory (another directory). Choose 'Suppress dev Warnings -WnoDev' from the Options menu. Click the Configure button, then click the Generate button.
  # Open the OpenNERO.sln solution file and build OpenNERO using Visual Studio.
- # To run from within Visual Studio, set the working directory for debugging to `$(TargetDir)`
+ # To run from within Visual Studio, set OpenNERO as startup project. Also set the working directory of OpenNERO for debugging to `$(TargetDir)` (right mouse click on OpenNERO, select properties, debugging).
 
 = Linux =
 
