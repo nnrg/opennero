@@ -1105,10 +1105,10 @@ void Genome::mutate_link_weights(F64 power, F64 rate, mutator mut_type)
                 ((*curgene)->lnk)->weight=randnum;
 
             //Cap the weights at 20.0 (experimental)
-            if (((*curgene)->lnk)->weight > 3.0)
-                ((*curgene)->lnk)->weight = 3.0;
-            else if (((*curgene)->lnk)->weight < -3.0)
-                ((*curgene)->lnk)->weight = -3.0;
+            if (((*curgene)->lnk)->weight > NEAT::max_link_weight)
+                ((*curgene)->lnk)->weight = NEAT::max_link_weight;
+            else if (((*curgene)->lnk)->weight < -NEAT::max_link_weight)
+                ((*curgene)->lnk)->weight = -NEAT::max_link_weight;
 
             //Record the innovation
             //(*curgene)->mutation_num+=randnum;
@@ -1781,6 +1781,9 @@ void Genome::mutate_add_sensor(vector<InnovationPtr> &innovs, double &curinnov)
                     //Choose the new weight
                     //newweight=(gaussrand())/1.5;  //Could use a gaussian
                     newweight=randposneg()*randfloat()*3.0; //used to be 10.0
+                    // The above value of 3.0 is not changed to NEAT::max_link_weight, which is set
+                    // large enough to protect weights of advice network, since we don't want such
+                    // large changes in weight mutations.
 
                     //Create the new gene
                     newgene.reset(new Gene(((thetrait[traitnum])),

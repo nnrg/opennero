@@ -57,6 +57,7 @@ namespace NEAT
     extern S32 print_every; // Tells to print population to file every n generations 
     extern S32 babies_stolen; // The number of babies to siphon off to the champions 
     extern F64 backprop_learning_rate; // Learning rate of back-propagation algorithm
+    extern F64 max_link_weight; // Link weights are capped at this (and negative of this) value
 
     extern MTRand NEATRandGen; // Random number generator; can pass seed value as argument
 

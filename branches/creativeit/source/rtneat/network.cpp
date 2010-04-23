@@ -141,6 +141,27 @@ void Network::print_links_tofile(const std::string& filename) const
 
 } //print_links_tofile
 
+// Print the connections weights separated by only carriage returns
+void Network::print_links() const
+{
+    vector<NNodePtr>::const_iterator curnode;
+    vector<LinkPtr>::const_iterator curlink;
+
+    for (curnode=all_nodes.begin(); curnode!=all_nodes.end(); ++curnode)
+    {
+        if (((*curnode)->type)!=SENSOR)
+        {
+            for (curlink=((*curnode)->incoming).begin(); curlink!=((*curnode)->incoming).end(); ++curlink)
+            {
+                cout<<(*curlink)->get_in_node()->node_id<<" -> "<<(*curlink)->get_out_node()->node_id<<" : "<<(*curlink)->weight;
+                if ((*curlink)->is_recurrent) cout<<" recur";
+                cout<<endl;
+            } // end for loop on links
+        } //end if
+    } //end for loop on nodes
+
+} //print_links
+
 // Activates the net such that all outputs are active
 // Returns true on success;
 bool Network::activate()
@@ -440,6 +461,12 @@ void Network::load_sensors(const F64 *sensvals)
     for (sensPtr=inputs.begin(); sensPtr!=inputs.end(); ++sensPtr)
     {
         //only load values into SENSORS (not BIASes)
+        // ??? BIASes are also SENSORS.  See definition of enums nodetype and
+        // nodeplace in nnode.h, and Genome constructors in genome.cpp where
+        // SENSOR NNodes are created.  According to the NEAT documentation,
+        // nodetype of NNode is used inside Networks and nodeplace of NNode is
+        // used inside Genomes. The consequence of BIASes also being SENSORS
+        // is that bias values must also be passed in sensvals. -- Vinod
         if (((*sensPtr)->type)==SENSOR)
         {
             (*sensPtr)->sensor_load(*sensvals);
@@ -458,6 +485,12 @@ void Network::load_sensors(const vector<F64> &sensvals)
         != inputs.end() && valPtr != sensvals.end(); ++sensPtr, ++valPtr)
     {
         //only load values into SENSORS (not BIASes)
+        // ??? BIASes are also SENSORS.  See definition of enums nodetype and
+        // nodeplace in nnode.h, and Genome constructors in genome.cpp where
+        // SENSOR NNodes are created.  According to the NEAT documentation,
+        // nodetype of NNode is used inside Networks and nodeplace of NNode is
+        // used inside Genomes. The consequence of BIASes also being SENSORS
+        // is that bias values must also be passed in sensvals. -- Vinod
         if (((*sensPtr)->type)==SENSOR)
         {
             (*sensPtr)->sensor_load(*valPtr);

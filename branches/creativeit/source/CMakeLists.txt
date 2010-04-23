@@ -44,6 +44,48 @@ IF (PYTHON_FOUND)
   MESSAGE(STATUS "Found Python libraries in " ${PYTHON_INCLUDE_PATH} " and " ${PYTHON_LIBRARIES})
 ENDIF (PYTHON_FOUND)
 
+# find lex
+FIND_PROGRAM(LEX_EXE flex)
+IF(LEX_EXE STREQUAL "LEX_EXE-NOTFOUND")
+  MESSAGE(FATAL_ERROR "dear user, plase install flex!")
+ENDIF(LEX_EXE STREQUAL "LEX_EXE-NOTFOUND")
+
+# find yacc
+FIND_PROGRAM(YACC_EXE bison)
+IF(YACC_EXE STREQUAL "YACC_EXE-NOTFOUND")
+  MESSAGE(FATAL_ERROR "dear user, plase install bison!")
+ENDIF(YACC_EXE STREQUAL "YACC_EXE-NOTFOUND")
+
+SET(ADVICE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/advice)
+
+# reuseable cmake macro for yacc
+MACRO(YACC_FILE _filename)
+  GET_FILENAME_COMPONENT(_basename ${_filename} NAME_WE)
+  SET(_generated_source ${ADVICE_DIR}/${_basename}.tab.cc)
+  SET(_generated_header ${ADVICE_DIR}/${_basename}.tab.hh)
+  ADD_CUSTOM_COMMAND(
+    OUTPUT  ${_generated_source} ${_generated_header}
+    COMMAND ${YACC_EXE} -d --output=${_generated_source} ${ADVICE_DIR}/${_filename}
+    DEPENDS ${ADVICE_DIR}/${_filename}
+    )
+  SET(OpenNERO_sources ${OpenNERO_sources} ${_generated_source})
+  SET(OpenNERO_headers ${OpenNERO_headers} ${_generated_header})
+ENDMACRO(YACC_FILE)
+
+# reuseable cmake macro for lex
+MACRO(LEX_FILE _filename)
+  GET_FILENAME_COMPONENT(_basename ${_filename} NAME_WE)
+  SET(_generated_source ${ADVICE_DIR}/${_basename}.yy.cc)
+  ADD_CUSTOM_COMMAND(
+    OUTPUT  ${_generated_source}
+    COMMAND ${LEX_EXE} -o${_generated_source} ${ADVICE_DIR}/${_filename}
+    DEPENDS ${ADVICE_DIR}/${_filename} )
+  SET(OpenNERO_sources ${OpenNERO_sources} ${_generated_source})
+ENDMACRO(LEX_FILE)
+
+YACC_FILE(advice.y)
+LEX_FILE(advice.l)
+
 # header include directories
 IF (EXISTS "/p/include")
   INCLUDE_DIRECTORIES ("/p/include")

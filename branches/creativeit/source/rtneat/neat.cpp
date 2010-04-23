@@ -44,6 +44,7 @@ namespace NEAT
     S32 print_every = 0; // Tells to print population to file every n generations 
     S32 babies_stolen = 0; // The number of babies to siphen off to the champions 
     F64 backprop_learning_rate = 0; // Learning rate of back-propagation algorithm
+    F64 max_link_weight = 3; // Link weights are capped at this (and negative of this) value
     MTRand NEATRandGen((U64)0); //TODO: we should probably move the Mersenne Twister random generator to OpenNero common
 
     bool load_neat_params(const string& filename)
@@ -122,6 +123,8 @@ namespace NEAT
         paramFile >> babies_stolen;
 	paramFile.ignore(256,' ');
         paramFile >> backprop_learning_rate;
+	paramFile.ignore(256,' ');
+        paramFile >> max_link_weight;
         cout << "trait_param_mut_prob="<< trait_param_mut_prob << endl;
         cout << "trait_mutation_power="<< trait_mutation_power << endl;
         cout << "linktrait_mut_sig="<< linktrait_mut_sig << endl;
@@ -155,6 +158,7 @@ namespace NEAT
         cout << "print_every="<< print_every << endl;
         cout << "babies_stolen="<< babies_stolen << endl;
         cout << "backprop_learning_rate="<< backprop_learning_rate << endl;
+        cout << "max_link_weight="<< max_link_weight << endl;
         paramFile.close();
         return true;
     }

@@ -3,9 +3,9 @@
 #include "game/Kernel.h"
 #include "ai/AIObject.h"
 #include "ai/rtneat/rtNEAT.h"
+#include "ai/rtneat/advice.h"
 #include "rtneat/population.h"
 #include "rtneat/network.h"
-#include "scripting/scriptIncludes.h"
 #include "math/Random.h"
 #include <ostream>
 #include <fstream>
@@ -79,9 +79,9 @@ namespace OpenNero
         }
     }
     
-    boost::python::list RTNEAT::get_population_ids()
+    py::list RTNEAT::get_population_ids()
     {
-        boost::python::list result;
+        py::list result;
         vector<OrganismPtr>::iterator org_iter;
         for (org_iter = mPopulation->organisms.begin(); 
              org_iter != mPopulation->organisms.end(); 
@@ -98,48 +98,40 @@ namespace OpenNero
     /// Destructor
     RTNEAT::~RTNEAT()
     {
-
     }
 
-    /// A Python wrapper for the Network class with a simple interface for forward prop
-    class PyNetwork
+    /// load sensor values into the network
+    void PyNetwork::load_sensors(py::list l)
     {
-        NetworkPtr mNetwork;
-    public:
-        /// Constructor
-        PyNetwork(NetworkPtr net) : mNetwork(net) {}
-
-        /// flush the network by clearing its internal state
-        void flush() { mNetwork->flush(); }
-
-        /// load sensor values into the network
-        void load_sensors(py::list l)
+        std::vector<double> sensors;
+        for (py::ssize_t i = 0; i < py::len(l); ++i)
         {
-            std::vector<double> sensors;
-            for (py::ssize_t i = 0; i < py::len(l); ++i)
-            {
-                sensors.push_back(py::extract<double>(l[i]));
-            }
-            mNetwork->load_sensors(sensors);
+            sensors.push_back(py::extract<double>(l[i]));
         }
+        mNetwork->load_sensors(sensors);
+    }
 
-        /// activate the network for one or more steps until signal reaches output
-        bool activate() { return mNetwork->activate(); }
+    /// load error values into the network
+    void PyNetwork::load_errors(py::list l)
+    {
+        std::vector<double> errors;
+        for (py::ssize_t i = 0; i < py::len(l); ++i)
+            {
+                errors.push_back(py::extract<double>(l[i]));
+            }
+        mNetwork->load_errors(errors);
+    }
 
-        /// get output values from the network
-        py::list get_outputs()
+    py::list PyNetwork::get_outputs()
+    {
+        py::list l;
+        std::vector<NNodePtr>::const_iterator iter;
+        for (iter = mNetwork->outputs.begin(); iter != mNetwork->outputs.end(); ++iter)
         {
-            py::list l;
-            std::vector<NNodePtr>::const_iterator iter;
-            for (iter = mNetwork->outputs.begin(); iter != mNetwork->outputs.end(); ++iter)
-            {
-                l.append((*iter)->get_active_out());
-            }
-            return l;
+            l.append((*iter)->get_active_out());
         }
-        /// operator to push to an output stream
-        friend std::ostream& operator<<(std::ostream& output, const PyNetwork& net);
-    };
+        return l;
+    }
 
     std::ostream& operator<<(std::ostream& output, const PyNetwork& net)
     {
@@ -147,75 +139,85 @@ namespace OpenNero
         return output;
     }
 
-    /// A Python wrapper for the Organism class with a simple interface for fitness and network
-    class PyOrganism
-    {
-        OrganismPtr mOrganism;
-    public:
-        /// constructor for a PyOrganism
-        PyOrganism(OrganismPtr org) : mOrganism(org) {}
-        /// set the fitness of the organism
-        void SetFitness(double fitness) { mOrganism->fitness = fitness; }
-        /// get the fitness of the organism
-        double GetFitness() const { return mOrganism->fitness; }
-		/// get the genome ID of this organism
-        int GetId() const { return mOrganism->gnome->genome_id; }
-        /// set the amount of time the organism has to live
-    	void SetTimeAlive(int time_alive) { mOrganism->time_alive = time_alive; }
-        /// get the amount of time that the organism has to live
-        int GetTimeAlive() const { return mOrganism->time_alive; }
-        /// get network of the organism
-        PyNetworkPtr GetNetwork() const { return PyNetworkPtr(new PyNetwork(mOrganism->net)); }
-        /// save this organism to a file
-        bool Save(const std::string& fname) const { return mOrganism->print_to_file(fname); }
-        /// operator to push to an output stream
-        friend std::ostream& operator<<(std::ostream& output, const PyOrganism& net);
-    };
-
     std::ostream& operator<<(std::ostream& output, const PyOrganism& org)
     {
         output << org.mOrganism;
         return output;
     }
+    
+    PyOrganismPtr RTNEAT::next_organism(PyOrganismPtr org) {
+        static size_t count = 0; // count of organisms spliced with advice
 
-    PyOrganismPtr RTNEAT::next_organism(float prob)
-    {
-        OrganismPtr org;
-        
-        //With prob probability, instead of "exploring", "exploit" by
-        //re-evaluating a previous agent.
-        if (!mEvalQueue.empty())
-         {
-            org = mEvalQueue.front();
-            mEvalQueue.pop();
-        }
- 
-        //Notes on current implementation.
-        else if (RANDOM.randF() < prob)
+        // If user has provided any advice, splice it into the organism
+        // and return it; otherwise, evolve and return the next organism.
+        if (mAdvice && count < mPopulation->organisms.size()) 
         {
-            vector<OrganismPtr>::iterator most = max_element(mPopulation->organisms.begin(), mPopulation->organisms.end());
-            org = *most;
+            if (org == NULL) 
+            {
+                org = evolve_next_organism();
+            }
+            mAdvice->splice_advice_org(org);
+            count++;
+            if (count == mPopulation->organisms.size()) 
+            {
+                mAdvice.reset();
+                count = 0;
+            }
+            return org;
         }
         else
         {
- 
+            return evolve_next_organism();
+        }
+    }
+
+    PyOrganismPtr RTNEAT::evolve_next_organism()
+    {
+        OrganismPtr org;
+        static int index = 0;   // index of current organism in population
+        static OrganismPtr elite_org;   // the organism with highest fitness in the population
+
+        if (!mEvalQueue.empty())
+        {
+            org = mEvalQueue.front();
+            mEvalQueue.pop();
+        }
+        else
+        {
+            // Find organism with highest fitness before we change the population.
+            if (index == 0) {
+                vector<OrganismPtr>::iterator elite = max_element(mPopulation->organisms.begin(), mPopulation->organisms.end(), fitness_less);
+                AssertMsg(elite != mPopulation->organisms.end(), "highest fitness organism not found");
+                LOG_F_DEBUG("ai", "highest fitness: " << (*elite)->fitness);
+                elite_org = *elite;
+            }
+
             vector<OrganismPtr>::iterator least = min_element(mPopulation->organisms.begin(), mPopulation->organisms.end(), fitness_less);
             AssertMsg(least != mPopulation->organisms.end(), "lowest fitness organism not found");
             double least_fitness = (*least)->fitness;
             LOG_F_DEBUG("ai", "lowest fitness: " << least_fitness);
             vector<OrganismPtr>::iterator org_iter;
-            for (org_iter = mPopulation->organisms.begin(); org_iter != mPopulation->organisms.end(); ++org_iter)
-            {
-                if((*org_iter)->time_alive > 0)
-                (*org_iter)->fitness -= least_fitness;
+            for (org_iter = mPopulation->organisms.begin(); org_iter != mPopulation->organisms.end(); ++org_iter) {
+                if ((*org_iter)->time_alive > 0) {
+                    (*org_iter)->fitness -= least_fitness;
+                }
             }
+
             OrganismPtr removed = mPopulation->remove_worst();
             if (removed) {
                 SpeciesPtr parent = mPopulation->choose_parent_species();
+                S32 generation = static_cast<S32>(mOffspringCount++);
 
-                // reproduce
-                org = parent->reproduce_one(static_cast<S32>(mOffspringCount++), mPopulation, mPopulation->species, 0, 0);
-                AssertMsg(org, "Organism did not reproduce correctly");
+                // use copy of elite organism for first individual in the population and reproduce
+                // for the other individuals
+                if (index == 0) {
+                    org.reset(new Organism(0.0, elite_org->gnome->duplicate(generation), generation));
+                    mPopulation->add_organism(org);
+                }
+                else {
+                    org = parent->reproduce_one(generation, mPopulation, mPopulation->species, 0, 0);
+                    AssertMsg(org, "Organism did not reproduce correctly");
+                }
 
                 size_t num_species = mPopulation->species.size(); // number of species in the population
 
@@ -231,14 +233,14 @@ namespace OpenNero
                 //Go through entire population, reassigning organisms to new species
                 for (org_iter = mPopulation->organisms.begin(); org_iter != mPopulation->organisms.end(); ++org_iter) {
                     assert((*org_iter)->gnome);
-                    if ((*org_iter)->time_alive > 0)
-                    {
- 
+                    if ((*org_iter)->time_alive > 0) {
                         (*org_iter)->fitness += least_fitness;
                     }
                     mPopulation->reassign_species(*org_iter);
-                } 
+                }
             }
+
+            index = (index+1)%mPopulation->organisms.size();
         }
 
         AssertMsg(org, "No rtNEAT organism found!");
@@ -273,9 +275,15 @@ namespace OpenNero
         // export Network
         class_<PyNetwork, PyNetworkPtr>("Network", "an artificial neural network", no_init )
             .def("load_sensors", &PyNetwork::load_sensors, "load sensor values into the network")
+            .def("load_errors", &PyNetwork::load_errors, "load error values into the network")
+            .def("show_activation", &PyNetwork::show_activation, "print the activations of all nodes")
+            .def("show_input", &PyNetwork::show_input, "print the activations of input nodes")
+            .def("show_output", &PyNetwork::show_output, "print the activations of output nodes")
             .def("activate", &PyNetwork::activate, "activate the network for one or more steps until signal reaches output")
+            .def("backprop", &PyNetwork::backprop, "back-propagates error in the network for one or more steps until signal reaches input")
             .def("flush", &PyNetwork::flush, "flush the network by clearing its internal state")
             .def("get_outputs", &PyNetwork::get_outputs, "get output values from the network")
+            .def("print_links", &PyNetwork::print_links, "print network connections and their weights")
             .def(self_ns::str(self_ns::self));
 
         // export Organism
@@ -284,6 +292,7 @@ namespace OpenNero
             .add_property("id", &PyOrganism::GetId, "evolution-wide unique id of the organism")
             .add_property("fitness", &PyOrganism::GetFitness, &PyOrganism::SetFitness, "organism fitness (non-negative real)")
 			.add_property("time_alive", &PyOrganism::GetTimeAlive, &PyOrganism::SetTimeAlive, "organism time alive (integer, non negative)")
+            .def("update_genotype", &PyOrganism::UpdateGenotype, "import weights from network to genotype")
             .def("save", &PyOrganism::Save, "save the organism to file")
             .def(self_ns::str(self_ns::self));
 
@@ -293,6 +302,7 @@ namespace OpenNero
         // export RTNEAT interface
         class_<RTNEAT, bases<AI>, RTNEATPtr>("RTNEAT", init<const std::string&, const std::string&, S32>())
             .def(init<const std::string&, S32, S32, S32, F32>())
+            .add_property("advice", &RTNEAT::get_advice, &RTNEAT::set_advice, "user provided advice")
             .def("next_organism", &RTNEAT::next_organism, "evolve a new organism and return it")
             .def("get_population_ids", &RTNEAT::get_population_ids, "get a list of the current genome ids")
             .def("save_population", &RTNEAT::save_population, "save the population to a file");
