@@ -173,10 +173,10 @@ class ForageEnvironment(Environment):
             print "new state created"
         state = self.states[agent]
         if state.current_step == 0:
-            state.orig_position = agent.sim.position
-            state.initial_position = agent.sim.position
-            state.initial_rotation = agent.sim.rotation
-            state.initial_velocity = agent.sim.velocity
+            state.orig_position = agent.state.position
+            state.initial_position = agent.state.position
+            state.initial_rotation = agent.state.rotation
+            state.initial_velocity = agent.state.velocity
             state.position = state.initial_position
             state.rotation = state.initial_rotation
             state.velocity = state.initial_velocity
@@ -191,15 +191,15 @@ class ForageEnvironment(Environment):
         state.rotation = state.initial_rotation
         state.velocity = state.initial_velocity
         state.orig_position = state.initial_position
-        agent.sim.position = state.initial_position
-        agent.sim.rotation = state.initial_rotation
-        agent.sim.velocity = state.initial_velocity
+        agent.state.position = state.initial_position
+        agent.state.rotation = state.initial_rotation
+        agent.state.velocity = state.initial_velocity
         state.goal_reached = False
         state.has_new_advice = False
         state.current_step = 0
         state.current_episode += 1
         state.visited_cubes = set()
-        agent.sim.color = SColor(0, 255, 255, 255)
+        agent.state.color = SColor(0, 255, 255, 255)
 
         self.active_cubes = copy(self.cubes)
         self.active_walls = copy(self.walls)
@@ -219,15 +219,15 @@ class ForageEnvironment(Environment):
         if self.tracing:
             self.trace.actions.append([a for a in actions])
         
-        state.position = agent.sim.position
-        state.rotation = agent.sim.rotation
-        state.velocity = agent.sim.velocity
+        state.position = agent.state.position
+        state.rotation = agent.state.rotation
+        state.velocity = agent.state.velocity
 
         reward = 0
         if self.perform_actions(state, actions):
-            agent.sim.position = state.position
-            agent.sim.rotation = state.rotation
-            agent.sim.velocity = state.velocity
+            agent.state.position = state.position
+            agent.state.rotation = state.rotation
+            agent.state.velocity = state.velocity
 
             reward = self.calculate_reward(state)
 

@@ -19,6 +19,6 @@
 		<Scale>0.2 0.2 0.2</Scale>
 	</Render>
 	<AI>
-		<Python agent="KeyboardAgent()" />
+		<Python agent="creativeit.KeyboardAgent.KeyboardAgent()" />
 	</AI>
 </Template>

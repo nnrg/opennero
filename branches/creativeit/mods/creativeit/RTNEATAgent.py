@@ -40,7 +40,7 @@ class RTNEATAgent(AgentBrain):
         self.index = RTNEATAgent.INDEX_COUNT
         RTNEATAgent.INDEX_COUNT = (RTNEATAgent.INDEX_COUNT+1) % creativeit.module.getMod().pop_size
 
-        self.org = self.rtneat.next_organism(self.org)
+        self.org = self.rtneat.next_organism(0)
         self.net = self.org.net
         self.net.flush()
         self.reward = 0

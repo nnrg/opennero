@@ -11,6 +11,6 @@
 		<Scale>1 1 1</Scale>
 	</Render>
 	<AI>
-		<Python agent="RTNEATAgent()" />
+		<Python agent="creativeit.RTNEATAgent.RTNEATAgent()" />
 	</AI>
 </Template>

@@ -11,6 +11,6 @@
 		<Scale>1 1 1</Scale>
 	</Render>
 	<AI>
-		<Python agent="ScriptedAgent()" />
+		<Python agent="creativeit.ScriptedAgent.ScriptedAgent()" />
 	</AI>
 </Template>
