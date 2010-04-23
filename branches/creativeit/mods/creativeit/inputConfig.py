@@ -220,8 +220,8 @@ def mouse_action():
         color_value = fabs(localx)*getMod().color_const
         if color_value > getMod().color_value_max: color_value = getMod().color_value_max
         color = int(color_value*255/getMod().color_value_max)
-        if localx < 0: scolor = SColor(0, color, 0, 0)
-        else: scolor = SColor(0, 0, 0, color)
+        if localx < 0: scolor = Color(0, color, 0, 0)
+        else: scolor = Color(0, 0, 0, color)
         
         getSimContext().setObjectColor(getMod().modify_object_id['color'], scolor)       
 

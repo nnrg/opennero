@@ -40,7 +40,7 @@ class RTNEATAgent(AgentBrain):
         self.index = RTNEATAgent.INDEX_COUNT
         RTNEATAgent.INDEX_COUNT = (RTNEATAgent.INDEX_COUNT+1) % creativeit.module.getMod().pop_size
 
-        self.org = self.rtneat.next_organism(0)
+        self.org = self.rtneat.next_organism(self.org)
         self.net = self.org.net
         self.net.flush()
         self.reward = 0
@@ -48,7 +48,7 @@ class RTNEATAgent(AgentBrain):
         self.reward_steps_total = 0
         self.org.fitness = 0
         #if self.index == 0:  # Color the elite organism
-        #    self.sim.color = SColor(0, 200, 28, 56)
+        #    self.sim.color = Color(0, 200, 28, 56)
         #print "got network to evaluate: " + str(self.net)
         if self.index == 0:
             self.net.print_links()

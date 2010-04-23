@@ -1,5 +1,6 @@
 import time
 import pickle
+from common import *
 from math import *
 from copy import copy
 from OpenNero import *
@@ -149,7 +150,7 @@ class ForageEnvironment(Environment):
         self.use_trace = True
         for i in range(len(self.trace.position)):
             self.path_markers_trace.append(getSimContext().getNextFreeId())
-            getSimContext().addObject("data/shapes/cube/YellowCube.xml", self.trace.position[i], Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.25,0.25,0.25))
+            addObject("data/shapes/cube/YellowCube.xml", position=self.trace.position[i], rotation=Vector3f(0,0,0), scale=Vector3f(0.25,0.25,0.25))
 
     def unload_trace(self):
         # unload previously loaded trace
@@ -199,7 +200,7 @@ class ForageEnvironment(Environment):
         state.current_step = 0
         state.current_episode += 1
         state.visited_cubes = set()
-        agent.state.color = SColor(0, 255, 255, 255)
+        agent.state.color = Color(0, 255, 255, 255)
 
         self.active_cubes = copy(self.cubes)
         self.active_walls = copy(self.walls)
@@ -315,11 +316,11 @@ class ForageEnvironment(Environment):
 
         if hasattr(agent, 'index') and agent.index == 0 and state.current_episode > 0:
             self.path_markers_champ.append(getSimContext().getNextFreeId())
-            getSimContext().addObject("data/shapes/cube/BlueCube.xml", state.position, Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.25,0.25,0.25))
+            addObject("data/shapes/cube/BlueCube.xml", position=state.position, rotation=Vector3f(0,0,0), scale=Vector3f(0.25,0.25,0.25))
 
         if isinstance(agent, KeyboardAgent):
             self.path_markers_champ.append(getSimContext().getNextFreeId())
-            getSimContext().addObject("data/shapes/cube/YellowCube.xml", state.position, Vector3f(0,0,0), Vector3f(0,0,0), Vector3f(0.25,0.25,0.25))
+            addObject("data/shapes/cube/YellowCube.xml", position=state.position, rotation=Vector3f(0,0,0), scale=Vector3f(0.25,0.25,0.25))
 
         return sensors
 
