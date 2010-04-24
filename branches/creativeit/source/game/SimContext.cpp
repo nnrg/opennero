@@ -721,6 +721,9 @@ namespace OpenNero
             .def("getObjectScale",      &SimContext::GetObjectScale, "Get the scale of an object specified by its id")
             .def("getObjectLabel",      &SimContext::GetObjectLabel, "Get the label of an object specified by its id")
             .def("getObjectColor",      &SimContext::GetObjectColor, "Get the color of an object specified by its id")
+            .def("getObjectBBMinEdge",  &SimContext::GetObjectBBMinEdge, "Get the bounding box min edge of an object specified by its id")
+            .def("getObjectBBMaxEdge",  &SimContext::GetObjectBBMaxEdge, "Get the bounding box max edge of an object specified by its id")
+            .def("transformVector",     &SimContext::TransformVector, "Transform the given vector by the matrix of the object specified by id")
         ;
 
         // this is how Python can access the C++ reference to SimContext

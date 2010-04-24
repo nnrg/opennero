@@ -24,6 +24,7 @@ namespace OpenNero
         child->setRelativeBounds(rect);
     }
 
+
     PYTHON_BINDER( GuiWindow )
     {
         using namespace boost;
@@ -36,6 +37,11 @@ namespace OpenNero
 
             // Hack in our gui base methods
             _GUI_BASE_HACK_(GuiWindow)
+
+            // Additional methods
+            .def("setVisible",                          &GuiWindow::setVisible, "Set the visibility of this window" )
+            .def("setVisibleCloseButton",               &GuiWindow::setVisibleCloseButton, "Set the visibility of the close button" )
+            //.def("setDraggable",                        &GuiWindow::setDraggable, "Set whether the window can be dragged by the mouse" )
         ;
     }
 }
