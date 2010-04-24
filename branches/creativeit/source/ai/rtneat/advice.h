@@ -6,6 +6,7 @@
 
 #include "rtneat/genome.h"
 #include "ai/rtneat/rtNEAT.h"
+#include "ai/AI.h"
 
 
 namespace OpenNero
@@ -23,7 +24,10 @@ namespace OpenNero
         /// @param numOutputs number of network outputs
         /// @param newOutputs new output units are used for the advice representation
         ///     if true; old outputs are used otherwise
-        Advice(const char* advice, RTNEAT& rtneat, S32 numInputs, S32 numOutputs, bool newOutputs);
+        /// @param inputBoundsNetwork bounds on the inputs in the network
+        /// @param inputBoundsAdvice bounds on the inputs in the advice language
+        Advice(const char* advice, RTNEAT& rtneat, S32 numInputs, S32 numOutputs, bool newOutputs,
+               const FeatureVectorInfo& inputBoundsNetwork, const FeatureVectorInfo& inputBoundsAdvice);
         
         /// Destructor
         ~Advice() {}

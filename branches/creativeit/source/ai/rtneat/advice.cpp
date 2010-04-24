@@ -6,17 +6,19 @@
 #include "scripting/scriptIncludes.h"
 
 /// yacc/lex parsing function defined in advice/advice.y
-extern Rules* yyParseAdvice(const char* advice, U32 numSensors, U32 numActions, Agent::Type type);
+extern Rules* yyParseAdvice(const char* advice, U32 numSensors, U32 numActions, Agent::Type type,
+                            const FeatureVectorInfo& sensorBoundsNetwork, const FeatureVectorInfo& sensorBoundsAdvice);
 
 namespace OpenNero
 {
     using namespace NEAT;
 
-    Advice::Advice(const char* advice, RTNEAT& rtneat, S32 numInputs, S32 numOutputs, bool newOutputs) :
+    Advice::Advice(const char* advice, RTNEAT& rtneat, S32 numInputs, S32 numOutputs, bool newOutputs,
+                   const FeatureVectorInfo& inputBoundsNetwork, const FeatureVectorInfo& inputBoundsAdvice) :
             mRTNEAT(rtneat), mNumInputs(numInputs), mNumOutputs(numOutputs), mGenome(), mNewOutputs(newOutputs)
     {
         // Parse the advice.
-        Rules* parse_result = yyParseAdvice(advice, mNumInputs, mNumOutputs, Agent::eEvolved);
+        Rules* parse_result = yyParseAdvice(advice, mNumInputs, mNumOutputs, Agent::eEvolved, inputBoundsNetwork, inputBoundsAdvice);
         if (parse_result == NULL) {
             return;
         }
@@ -148,7 +150,7 @@ namespace OpenNero
     /// Export the Advice class to Python
     PYTHON_BINDER(Advice)
     {
-        class_<Advice>("Advice", "an interface for providing advice to rtNEAT networks", init<const char*, RTNEAT&, S32, S32, bool>())
+        class_<Advice>("Advice", "an interface for providing advice to rtNEAT networks", init<const char*, RTNEAT&, S32, S32, bool, FeatureVectorInfo&, FeatureVectorInfo&>())
             .def("splice_advice_org", &Advice::splice_advice_org, "splice the advice genome into the given organism")
             .def("splice_advice_pop", &Advice::splice_advice_pop, "splice the advice genome into every organism in the population");
     }
