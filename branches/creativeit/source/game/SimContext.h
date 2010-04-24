@@ -132,6 +132,15 @@ namespace OpenNero
         /// Get override color of the SimEntity specified by the id
         SColor GetObjectColor( SimId id ) const;
 
+        /// Get the bounding box min edge of the SimEntity specified by the netID
+        Vector3f GetObjectBBMinEdge( uint32_t netID ) const;
+
+        /// Get the bounding box max edge of the SimEntity specified by the netID
+        Vector3f GetObjectBBMaxEdge( uint32_t netID ) const;
+
+        /// Transform the given vector by the matrix of the SimEntity specified by the netID
+        Vector3f TransformVector( uint32_t netID, const Vector3f& vect ) const;
+
         /// End the game
         void KillGame();
 
@@ -176,10 +185,15 @@ namespace OpenNero
 
         /// update the audio system
         void UpdateAudioSystem(float32_t dt);
+		/// act on user inputs
         void UpdateInputSystem(float32_t dt);
+		/// render graphics
         void UpdateRenderSystem(float32_t dt);
+		/// update scripting objects
         void UpdateScriptingSystem(float32_t dt);
+		/// update simulation
         void UpdateSimulation(float32_t dt);
+
     private:
 
         // clear out the context

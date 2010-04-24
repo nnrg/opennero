@@ -821,6 +821,20 @@ namespace OpenNero
         return BBoxf();
     }
 
+    /// Transform the given vector by applying the object's matrix
+    Vector3f SceneObject::transformVector(const Vector3f& vect) const
+    {
+        if ( mSceneNode )
+        {
+
+            Vector3f result;
+            mSceneNode->getAbsoluteTransformation().transformVect(result, ConvertNeroToIrrlichtPosition(vect));
+            return ConvertIrrlichtToNeroPosition(result);
+        }
+
+        return Vector3f();
+    }
+
     // get the scene object id
     SceneObjectId SceneObject::GetId()
     {

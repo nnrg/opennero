@@ -654,6 +654,21 @@ namespace OpenNero
         return ent->GetColor();
     }
 
+    /// @brief Return the bounding box min edge of the SimEntity specified by id
+    Vector3f SimContext::GetObjectBBMinEdge( uint32_t id ) const {
+        return mpSimulation->Find(id)->GetSceneObject()->getBoundingBox().MinEdge;
+    }
+
+    /// @brief Return the bounding box max edge of the SimEntity specified by id
+    Vector3f SimContext::GetObjectBBMaxEdge( uint32_t id ) const {
+        return mpSimulation->Find(id)->GetSceneObject()->getBoundingBox().MaxEdge;
+    }
+
+    /// @brief Transform the given vector by the matrix of the SimEntity specified by id
+    Vector3f SimContext::TransformVector( uint32_t id, const Vector3f& vect ) const {
+        return mpSimulation->Find(id)->GetSceneObject()->transformVector(vect);
+    }
+
     // --------------------------------------------------------------------
     //  Python Binding Procedures
 
