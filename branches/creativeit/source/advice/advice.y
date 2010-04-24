@@ -1,11 +1,9 @@
 /*
 the advice is expected to be in the following grammar:
-RULES -> RULE |
-         RULES RULE
-RULE -> if CONDS then RULE [ else RULE ] endif |
-        { SETRULES }
-CONDS -> TERM |
-         CONDS and TERM
+RULES -> RULE | RULES RULE
+RULE -> if CONDS { RULE } IFTAIL | SETRULES
+IFTAIL -> | elif CONDS { RULE } IFTAIL | else { RULE }
+CONDS -> TERM | CONDS and TERM
 TERM -> false | true | variable TERMOP VARVAL
 TERMOP -> <= | < | > | >=
 VARVAL -> variable | value
@@ -54,14 +52,14 @@ extern Rules* parsedRules;
 %token <bool_term> T_TRUE
 %token <variable> T_VARIABLE
 // keywords
-%token T_IF T_THEN T_ELSE T_ENDIF T_ASSIGN T_ACCUMULATE T_AND
-// punctuation
+%token T_IF T_ELIF T_ELSE T_AND
+// operations
 %token <leq_term> T_LEQ 
 %token <lt_term> T_LT 
 %token <gt_term> T_GT
 %token <geq_term> T_GEQ 
 %token T_LBRACE T_RBRACE
-%token T_PLUS T_MINUS T_MULT
+%token T_PLUS T_MINUS T_MULT T_ASSIGN T_ACCUMULATE 
 
 %type <conds> conds;
 %type <rule> rule;
@@ -72,7 +70,8 @@ extern Rules* parsedRules;
 %type <expr> expr;
 %type <eterm> eterm;
 %type <rules> rules;
-
+// expect 1 shift/reduce conflict in top-level set_rules
+%expect 1
 %%
 rules: 
 rule 
@@ -86,13 +85,13 @@ rule
 ;
 
 rule: 
-T_IF conds T_THEN rule if_tail T_ENDIF
+T_IF conds T_LBRACE rule T_RBRACE if_tail
 {
-    $$ = new IfRule($2, $4, $5);
+    $$ = new IfRule($2, $4, $6);
 }
-| T_LBRACE set_rules T_RBRACE
+| set_rules
 {
-    $$ = $2;
+    $$ = $1;
 }
 ;
 
@@ -100,9 +99,13 @@ if_tail: /* on nothing, return NULL */
 {
     $$ = NULL;
 }
-| T_ELSE rule
+| T_ELIF conds T_LBRACE rule T_RBRACE if_tail
 {
-    $$ = $2;
+    $$ = new IfRule($2, $4, $6);
+} 
+| T_ELSE T_LBRACE rule T_RBRACE
+{
+    $$ = $3;
 }
 ;
 
@@ -128,7 +131,7 @@ T_FALSE
 }
 | T_VARIABLE T_LEQ T_NUMBER
 {
-    $$ = new LEQTerm($1,Number::scale($3,$1));
+    $$ = new LEQTerm($1,Number::toNetwork($3,$1));
 }
 | T_VARIABLE T_LEQ T_VARIABLE
 {
@@ -136,7 +139,7 @@ T_FALSE
 }
 | T_VARIABLE T_LT T_NUMBER
 {
-    $$ = new LTTerm($1,Number::scale($3,$1));
+    $$ = new LTTerm($1,Number::toNetwork($3,$1));
 }
 | T_VARIABLE T_LT T_VARIABLE
 {
@@ -144,7 +147,7 @@ T_FALSE
 }
 | T_VARIABLE T_GT T_NUMBER
 {
-    $$ = new GTTerm($1,Number::scale($3,$1));
+    $$ = new GTTerm($1,Number::toNetwork($3,$1));
 }
 | T_VARIABLE T_GT T_VARIABLE
 {
@@ -152,7 +155,7 @@ T_FALSE
 }
 | T_VARIABLE T_GEQ T_NUMBER
 {
-    $$ = new GEQTerm($1,Number::scale($3,$1));
+    $$ = new GEQTerm($1,Number::toNetwork($3,$1));
 }
 | T_VARIABLE T_GEQ T_VARIABLE
 {
@@ -175,17 +178,17 @@ set_var:
 T_VARIABLE T_ASSIGN expr
 {
     if (Agent::mType == Agent::eEvolved) {
-        yyerror("assignment to network variables is not supported; use accumulation");
+        yyerror("cannot use \"=\" operator in neural network; use \"+=\" operator");
     }
     if (Variable::getType($1) == Variable::eSensor) {
-        yyerror("assignment to sensor variables is not supported");
+        yyerror("cannot set sensor variables");
     }
     $$ = new SetVar($1,$3,SetVar::eAssignment);
 }
 | T_VARIABLE T_ACCUMULATE expr
 {
     if (Variable::getType($1) == Variable::eSensor) {
-        yyerror("accumulation to sensor variables is not supported");
+        yyerror("cannot set sensor variables");
     }
     $$ = new SetVar($1,$3,SetVar::eAccumulation);
 }
@@ -206,33 +209,46 @@ eterm
 }
 ;
 
+// Since the range of sensor variables can be different from network variables, combining
+// them in assignment/accumulation expressions causes problems and is therefore currently
+// not supported, i.e. only network variables are allowed in such expressions.
 eterm:
 T_NUMBER
 {
-    // Terms are in the right-hand side of assignment/accumulation expressions.
-    // Since the variable on the left-hand side of such expressions is guaranteed
-    // to be a non-sensor variable, we can scale the number without checking the
-    // variable type.
-    $$ = new Eterm(Number::scale($1));
+    // Since variables in assignment/accumulation expressions are guaranteed to be
+    // non-sensor variables, we can convert the number without checking its type.
+    $$ = new Eterm(Number::toNetwork($1));
 }
 |
 T_VARIABLE
 {
+    if (Variable::getType($1) == Variable::eSensor) {
+        yyerror("sensor variables not allowed in assignment/accumulation expressions");
+    }
     $$ = new Eterm($1);
 }
 |
 T_MINUS T_VARIABLE
 {
+    if (Variable::getType($2) == Variable::eSensor) {
+        yyerror("sensor variables not allowed in assignment/accumulation expressions");
+    }
     $$ = new Eterm($2); $$->negate();
 }
 |
 T_VARIABLE T_MULT T_NUMBER
 {
+    if (Variable::getType($1) == Variable::eSensor) {
+        yyerror("sensor variables not allowed in assignment/accumulation expressions");
+    }
     $$ = new Eterm($1,$3);
 }
 |
 T_NUMBER T_MULT T_VARIABLE
 {
+    if (Variable::getType($3) == Variable::eSensor) {
+        yyerror("sensor variables not allowed in assignment/accumulation expressions");
+    }
     $$ = new Eterm($3,$1);
 }
 ;
@@ -248,21 +264,28 @@ int yywrap()
 void yyerror(const char *s) {
     printf("\n");
     std::ostringstream oss;
-    oss << s << " at line number " << Counters::mLine;
+    oss << s << ", at line number " << Counters::mLine;
     throw std::runtime_error(oss.str());
 }
 
 Rules* parsedRules;
 
-Rules* yyParseAdvice(const char* advice, U32 numSensors, U32 numActions, Agent::Type type) {
+Rules* yyParseAdvice(const char* advice, U32 numSensors, U32 numActions, Agent::Type type,
+                     const FeatureVectorInfo& sensorBoundsNetwork, const FeatureVectorInfo& sensorBoundsAdvice) {
     Variable::mNumSensors = numSensors;
     Variable::mNumActions = numActions;
-    Counters::mLine = 1;
     Agent::mType = type;
+    Number::mSensorBoundsNetwork = sensorBoundsNetwork;
+    Number::mSensorBoundsAdvice = sensorBoundsAdvice;
+    Counters::mLine = 1;
     YY_BUFFER_STATE parse_buffer = yy_scan_string (advice);
     parsedRules = NULL;
     yyparse();
     printf("\n");
     yy_delete_buffer(parse_buffer);
     return parsedRules;
+}
+
+Rules* yyParseAdvice(const char* advice, U32 numSensors, U32 numActions, Agent::Type type) {
+    return yyParseAdvice(advice, numSensors, numActions, type, FeatureVectorInfo(), FeatureVectorInfo());
 }

@@ -12,9 +12,8 @@ a[0123456789]+                              ECHO; yylval.variable = Variable::tr
 g[0123456789]+                              ECHO; yylval.variable = Variable::translate(Variable::eGeneral, atoi(yytext+1)); return T_VARIABLE;
 [-+]*[0123456789]+\.[0123456789]+|[-+]*\.[0123456789]+|[-+]*[0123456789]+         ECHO; yylval.number = Number::checkRange(atof(yytext)); return T_NUMBER;
 if                                          ECHO; return T_IF;
-then                                        ECHO; return T_THEN;
+elif                                        ECHO; return T_ELIF;
 else                                        ECHO; return T_ELSE;
-endif                                       ECHO; return T_ENDIF;
 \<\=                                        ECHO; return T_LEQ;
 \<                                          ECHO; return T_LT;
 \>\=                                        ECHO; return T_GEQ;

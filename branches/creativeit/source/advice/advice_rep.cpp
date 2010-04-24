@@ -16,6 +16,8 @@ const F64 Conds::mOmega;
 const F64 IfRule::mOmega;
 U32 Variable::mNumSensors;
 U32 Variable::mNumActions;
+FeatureVectorInfo Number::mSensorBoundsNetwork;
+FeatureVectorInfo Number::mSensorBoundsAdvice;
 U32 Counters::mLine;
 Agent::Type Agent::mType;
 
@@ -240,35 +242,33 @@ void Rules::evaluate(std::vector<F64>& variables) const {
 
 
 void LEQTerm::print() const {
-    if (mRHSType == eValue) printf("%s <= %f ", Variable::toString(mVariable).c_str(), Number::unscale(mRHSVal, mVariable));
+    if (mRHSType == eValue) printf("%s <= %f ", Variable::toString(mVariable).c_str(), Number::toAdvice(mRHSVal, mVariable));
     else if (mRHSType == eVariable) printf("%s <= %s ", Variable::toString(mVariable).c_str(), Variable::toString(mRHSVar).c_str());
 }
 
 void LTTerm::print() const {
-    if (mRHSType == eValue) printf("%s < %f ", Variable::toString(mVariable).c_str(), Number::unscale(mRHSVal, mVariable));
+    if (mRHSType == eValue) printf("%s < %f ", Variable::toString(mVariable).c_str(), Number::toAdvice(mRHSVal, mVariable));
     else if (mRHSType == eVariable) printf("%s < %s ", Variable::toString(mVariable).c_str(), Variable::toString(mRHSVar).c_str());
 }
 
 void GEQTerm::print() const {
-    if (mRHSType == eValue) printf("%s >= %f ", Variable::toString(mVariable).c_str(), Number::unscale(mRHSVal, mVariable));
+    if (mRHSType == eValue) printf("%s >= %f ", Variable::toString(mVariable).c_str(), Number::toAdvice(mRHSVal, mVariable));
     else if (mRHSType == eVariable) printf("%s >= %s ", Variable::toString(mVariable).c_str(), Variable::toString(mRHSVar).c_str());
 }
 
 void GTTerm::print() const {
-    if (mRHSType == eValue) printf("%s > %f ", Variable::toString(mVariable).c_str(), Number::unscale(mRHSVal, mVariable));
+    if (mRHSType == eValue) printf("%s > %f ", Variable::toString(mVariable).c_str(), Number::toAdvice(mRHSVal, mVariable));
     else if (mRHSType == eVariable) printf("%s > %s ", Variable::toString(mVariable).c_str(), Variable::toString(mRHSVar).c_str());
 }
 
 void IfRule::print() const {
     printf("if ");
     mConds->print();
-    printf("then ");
     mThen->print();
     if (mElse != NULL) {
         printf("else ");
         mElse->print();
     }
-    printf("endif ");
 }
 
 void Conds::print() const {
@@ -290,11 +290,9 @@ void SetRules::print() const {
 
 void Eterm::print() const {
     if (mType == eValue) {
-        // Terms are in the right-hand side of assignment/accumulation expressions.
-        // Since the variable on the left-hand side of such expressions is guaranteed
-        // to be a non-sensor variable, we can unscale the number without checking the
-        // variable type.
-        printf("%f ", Number::unscale(mValue));
+        // Since variables in assignment/accumulation expressions are guaranteed to be
+        // non-sensor variables, we can convert the number without checking its type.
+        printf("%f ", Number::toAdvice(mValue));
     }
     else if (mType == eVariable) {
         if (mValue != 1.0) printf("%f*", mValue);
@@ -385,7 +383,7 @@ U32 Variable::translate(Type type, U32 index) {
 void Variable::translateError(Type type, U32 index, std::string message) {
     printf("\n");
     std::ostringstream oss;
-    oss << message << ": " << toString(type, index) << " at line number " << Counters::mLine;
+    oss << message << ": " << toString(type, index) << ", at line number " << Counters::mLine;
     throw std::runtime_error(oss.str());
 }
 
@@ -477,42 +475,61 @@ void Variable::setValue(std::vector<F64>& variables, U32 var, F64 val) {
 }
 
 
-// Scale a value in [-1, 1] to [0.2, 0.8].
-F64 Number::scale(F64 val) {
+// Convert a non-sensor value in the advice language to network.
+F64 Number::toNetwork(F64 val) {
     if (Agent::mType == Agent::eEvolved) {
-        return 0.8 - (1.0-val)*0.6/2.0;
+        return (val+1.0)*0.6/2.0 + 0.2;
     }
     else {
         return val;
     }
 }
 
-// Scale a value in [-1, 1] to [0.2, 0.8] if var is non-sensor.
-F64 Number::scale(F64 val, U32 var) {
-    if (Variable::getType(var) == Variable::eSensor) {
-        return val;
-    }
-    else {
-        return Number::scale(val);
-    }
-}
-
-// This is the inverse operation of the above scaling.
-F64 Number::unscale(F64 val) {
+// Convert a value in the advice language to network.
+F64 Number::toNetwork(F64 val, U32 var) {
     if (Agent::mType == Agent::eEvolved) {
-        return 1.0 - (0.8-val)*2.0/0.6;
+        if (Variable::getType(var) == Variable::eSensor) {
+            F64 nmin = mSensorBoundsNetwork.getMin(Variable::getIndex(var));
+            F64 nmax = mSensorBoundsNetwork.getMax(Variable::getIndex(var));
+            F64 amin = mSensorBoundsAdvice.getMin(Variable::getIndex(var));
+            F64 amax = mSensorBoundsAdvice.getMax(Variable::getIndex(var));
+            return (val-amin)*(nmax-nmin)/(amax-amin) + nmin;
+        }
+        else {
+            return toNetwork(val);
+        }
     }
     else {
         return val;
     }
 }
 
-F64 Number::unscale(F64 val, U32 var) {
-    if (Variable::getType(var) == Variable::eSensor) {
-        return val;
+// Convert a non-sensor value in the network to advice language.
+F64 Number::toAdvice(F64 val) {
+    if (Agent::mType == Agent::eEvolved) {
+        return (val-0.2)*2.0/0.6 - 1.0;
     }
     else {
-        return Number::unscale(val);
+        return val;
+    }
+}
+
+// Convert a value in the network to advice language.
+F64 Number::toAdvice(F64 val, U32 var) {
+    if (Agent::mType == Agent::eEvolved) {
+        if (Variable::getType(var) == Variable::eSensor) {
+            F64 nmin = mSensorBoundsNetwork.getMin(Variable::getIndex(var));
+            F64 nmax = mSensorBoundsNetwork.getMax(Variable::getIndex(var));
+            F64 amin = mSensorBoundsAdvice.getMin(Variable::getIndex(var));
+            F64 amax = mSensorBoundsAdvice.getMax(Variable::getIndex(var));
+            return (val-nmin)*(amax-amin)/(nmax-nmin) + amin;
+        }
+        else {
+            return toAdvice(val);
+        }
+    }
+    else {
+        return val;
     }
 }
 

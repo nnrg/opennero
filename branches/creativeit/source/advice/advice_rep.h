@@ -3,6 +3,7 @@
 
 #include "rtneat/genome.h"
 #include "rtneat/population.h"
+#include "ai/AI.h"
 #include <cstdio>
 #include <vector>
 
@@ -426,23 +427,27 @@ namespace Variable {
 
 // Namespace for handling numerical values.
 namespace Number {
-    // Sensor variables take values in [-1, 1], while variables representing other units
-    // in the network produce values in (0, 1) because they are the output of sigmoid
-    // activation functions.  Since we restrict our attention to the approximately linear
-    // part of the sigmoid, i.e. values in the range [0.2, 0.8], and we want to keep the
-    // advice language simple, we allow all numerical values in the language to lie in
-    // [-1, 1], but scale those values associated with non-sensor variables to [0.2, 0.8]
-    // for the actual implementation of the advice.  The values scaled in this manner
-    // are the numerical constants in comparison and assignment/accumulation expressions
-    // with non-sensor variables on the left-hand side.
-    F64 scale(F64 val);
-    F64 scale(F64 val, U32 var);
+    // Bounds on sensors in the network and advice language.  These bounds are used to
+    // convert sensor values between network and advice.
+    extern FeatureVectorInfo mSensorBoundsNetwork;
+    extern FeatureVectorInfo mSensorBoundsAdvice;
 
-    // This is the inverse operation of the above scaling.
-    F64 unscale(F64 val);
-    F64 unscale(F64 val, U32 var);
+    // Since non-sensor variables have sigmoid output, we use the approximately linear
+    // region of the sigmoid, i.e. [0.2, 0.8], as the range for values in the network
+    // and [-1, 1] as the range for values in the advice.
 
-    // Make sure the given value is in the range [-1, 1].
+    // The values converted in this manner are the numerical constants in comparison and
+    // assignment/accumulation expressions, and the variable on the left-hand side of the
+    // expression determines the type of conversion.
+    F64 toNetwork(F64 val);
+    F64 toNetwork(F64 val, U32 var);
+
+    // This is the inverse of the above conversion.
+    F64 toAdvice(F64 val);
+    F64 toAdvice(F64 val, U32 var);
+
+    // Numerical values are constrained to the range [-1, 1]; make sure the given value
+    // is in this range.
     F64 checkRange(F64 val);
 }
 
