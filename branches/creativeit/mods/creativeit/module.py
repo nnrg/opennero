@@ -19,6 +19,9 @@ class CreativeITMod:
         self.color_const = 4            # Constant used for adjusting color of objects by moving mouse
         self.tracing = False            # Flag indicating if agent is being traced
         self.agents = {}  # ids of agents
+        self.key_object_id = dict()     # Key-id mapping of objects added using keyboard
+        self.inc_dec_value = 0.0        # Value that is incremented or decremented
+        self.inc_dec_funcs = dict()     # Functions indexed by object id, called when above value is changed
         # egocentric sensor angles are specified in the range [-1, 1]; multiplying this number
         # by 180 gives the angle in degrees.  cube sensors are evenly distributed around the
         # agent, while wall sensors are in front of the agent.

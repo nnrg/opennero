@@ -327,17 +327,17 @@ def createInputMapping():
 
     # FPS control
     # toggle add/remove predefined objects using keyboard
-    ioMap.BindKey( "KEY_KEY_1", "onPress", "toggle_object1()" )
-    ioMap.BindKey( "KEY_KEY_2", "onPress", "toggle_object2()" )
-    ioMap.BindKey( "KEY_KEY_3", "onPress", "toggle_object3()" )
-    ioMap.BindKey( "KEY_KEY_4", "onPress", "toggle_object4()" )
-    ioMap.BindKey( "KEY_KEY_5", "onPress", "toggle_object5()" )
-    ioMap.BindKey( "KEY_KEY_9", "onPress", "toggle_object9()" )
-    ioMap.BindKey( "KEY_KEY_0", "onPress", "toggle_object0()" )
+    ioMap.BindKey( "KEY_KEY_1", "onPress", toggle_object1 )
+    ioMap.BindKey( "KEY_KEY_2", "onPress", toggle_object2 )
+    ioMap.BindKey( "KEY_KEY_3", "onPress", toggle_object3 )
+    ioMap.BindKey( "KEY_KEY_4", "onPress", toggle_object4 )
+    ioMap.BindKey( "KEY_KEY_5", "onPress", toggle_object5 )
+    ioMap.BindKey( "KEY_KEY_9", "onPress", toggle_object9 )
+    ioMap.BindKey( "KEY_KEY_0", "onPress", toggle_object0 )
 
     # increment/decrement
-    ioMap.BindKey( "KEY_PERIOD", "onPress", "increment()" )
-    ioMap.BindKey( "KEY_COMMA", "onPress", "decrement()" )
+    ioMap.BindKey( "KEY_PERIOD", "onPress", increment )
+    ioMap.BindKey( "KEY_COMMA", "onPress", decrement )
     ioMap.BindKey( "KEY_KEY_A", "onHold", first_person_control('left') )
     ioMap.BindKey( "KEY_KEY_D", "onHold", first_person_control('right') )
     ioMap.BindKey( "KEY_KEY_W", "onHold", first_person_control('fwd') )
