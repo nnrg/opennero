@@ -20,7 +20,6 @@ else                                        ECHO; return T_ELSE;
 \>                                          ECHO; return T_GT;
 \{                                          ECHO; return T_LBRACE;
 \}                                          ECHO; return T_RBRACE;
-\+\=                                        ECHO; return T_ACCUMULATE;
 \=                                          ECHO; return T_ASSIGN;
 \+                                          ECHO; return T_PLUS;
 \-                                          ECHO; return T_MINUS;

@@ -1,14 +1,14 @@
 /*
 the advice is expected to be in the following grammar:
 RULES -> RULE | RULES RULE
-RULE -> if CONDS { RULE } IFTAIL | SETRULES
-IFTAIL -> | elif CONDS { RULE } IFTAIL | else { RULE }
+RULE -> if CONDS { SETRULES } IFTAIL
+IFTAIL -> | elif CONDS { SETRULES } IFTAIL | else { SETRULES }
 CONDS -> TERM | CONDS and TERM
 TERM -> false | true | variable TERMOP VARVAL
 TERMOP -> <= | < | > | >=
 VARVAL -> variable | value
 SETRULES -> SETVAR | SETRULES SETVAR
-SETVAR -> variable = EXPR | variable += EXPR
+SETVAR -> variable = EXPR
 EXPR -> ETERM | EXPR + ETERM | EXPR - ETERM
 ETERM -> value | variable | -variable | value*variable | variable*value
 */
@@ -59,7 +59,7 @@ extern Rules* parsedRules;
 %token <gt_term> T_GT
 %token <geq_term> T_GEQ 
 %token T_LBRACE T_RBRACE
-%token T_PLUS T_MINUS T_MULT T_ASSIGN T_ACCUMULATE 
+%token T_PLUS T_MINUS T_MULT T_ASSIGN 
 
 %type <conds> conds;
 %type <rule> rule;
@@ -71,7 +71,7 @@ extern Rules* parsedRules;
 %type <eterm> eterm;
 %type <rules> rules;
 // expect 1 shift/reduce conflict in top-level set_rules
-%expect 1
+//%expect 1
 %%
 rules: 
 rule 
@@ -85,13 +85,9 @@ rule
 ;
 
 rule: 
-T_IF conds T_LBRACE rule T_RBRACE if_tail
+T_IF conds T_LBRACE set_rules T_RBRACE if_tail
 {
     $$ = new IfRule($2, $4, $6);
-}
-| set_rules
-{
-    $$ = $1;
 }
 ;
 
@@ -99,11 +95,11 @@ if_tail: /* on nothing, return NULL */
 {
     $$ = NULL;
 }
-| T_ELIF conds T_LBRACE rule T_RBRACE if_tail
+| T_ELIF conds T_LBRACE set_rules T_RBRACE if_tail
 {
     $$ = new IfRule($2, $4, $6);
 } 
-| T_ELSE T_LBRACE rule T_RBRACE
+| T_ELSE T_LBRACE set_rules T_RBRACE
 {
     $$ = $3;
 }
@@ -177,20 +173,10 @@ set_var
 set_var:
 T_VARIABLE T_ASSIGN expr
 {
-    if (Agent::mType == Agent::eEvolved) {
-        yyerror("cannot use \"=\" operator in neural network; use \"+=\" operator");
-    }
     if (Variable::getType($1) == Variable::eSensor) {
         yyerror("cannot set sensor variables");
     }
-    $$ = new SetVar($1,$3,SetVar::eAssignment);
-}
-| T_VARIABLE T_ACCUMULATE expr
-{
-    if (Variable::getType($1) == Variable::eSensor) {
-        yyerror("cannot set sensor variables");
-    }
-    $$ = new SetVar($1,$3,SetVar::eAccumulation);
+    $$ = new SetVar($1,$3);
 }
 ;
 
@@ -210,20 +196,20 @@ eterm
 ;
 
 // Since the range of sensor variables can be different from network variables, combining
-// them in assignment/accumulation expressions causes problems and is therefore currently
-// not supported, i.e. only network variables are allowed in such expressions.
+// them in assignment expressions causes problems and is therefore currently not supported,
+// i.e. only network variables are allowed in such expressions.
 eterm:
 T_NUMBER
 {
-    // Since variables in assignment/accumulation expressions are guaranteed to be
-    // non-sensor variables, we can convert the number without checking its type.
+    // Since variables in assignment expressions are guaranteed to be non-sensor variables,
+    // we can convert the number without checking its type.
     $$ = new Eterm(Number::toNetwork($1));
 }
 |
 T_VARIABLE
 {
     if (Variable::getType($1) == Variable::eSensor) {
-        yyerror("sensor variables not allowed in assignment/accumulation expressions");
+        yyerror("sensor variables not allowed in assignment expressions");
     }
     $$ = new Eterm($1);
 }
@@ -231,7 +217,7 @@ T_VARIABLE
 T_MINUS T_VARIABLE
 {
     if (Variable::getType($2) == Variable::eSensor) {
-        yyerror("sensor variables not allowed in assignment/accumulation expressions");
+        yyerror("sensor variables not allowed in assignment expressions");
     }
     $$ = new Eterm($2); $$->negate();
 }
@@ -239,7 +225,7 @@ T_MINUS T_VARIABLE
 T_VARIABLE T_MULT T_NUMBER
 {
     if (Variable::getType($1) == Variable::eSensor) {
-        yyerror("sensor variables not allowed in assignment/accumulation expressions");
+        yyerror("sensor variables not allowed in assignment expressions");
     }
     $$ = new Eterm($1,$3);
 }
@@ -247,7 +233,7 @@ T_VARIABLE T_MULT T_NUMBER
 T_NUMBER T_MULT T_VARIABLE
 {
     if (Variable::getType($3) == Variable::eSensor) {
-        yyerror("sensor variables not allowed in assignment/accumulation expressions");
+        yyerror("sensor variables not allowed in assignment expressions");
     }
     $$ = new Eterm($3,$1);
 }

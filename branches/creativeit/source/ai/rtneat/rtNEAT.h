@@ -33,6 +33,7 @@ namespace OpenNero
         OrganismQueue mEvalQueue;         ///< queue of organisms to be evaluated
         size_t mOffspringCount;           ///< number of reproductions so far
         AdvicePtr mAdvice;                ///< user provided advice
+        bool mGenerational;               ///< whether or not to use generational NEAT instead of rtNEAT
     public:
         /// Constructor
         /// @param filename name of the file with the initial population genomes

@@ -112,10 +112,7 @@ private:
 
 // Class for setting values of variables
 struct SetVar : public ANode {
-    // Enum for the ways in which a variable can be set (assignment or accumulation).
-    enum Type {eAssignment, eAccumulation};
-
-    SetVar(U32 var, Expr* expr, SetVar::Type type) : mVariable(var), mExpr(expr), mWeight1(mOmega), mWeight2(-mOmega*0.5), mType(type) {}
+    SetVar(U32 var, Expr* expr) : mVariable(var), mExpr(expr), mWeight1(mOmega), mWeight2(-mOmega*0.5) {}
     ~SetVar() {
         delete mExpr;
     }
@@ -127,7 +124,6 @@ struct SetVar : public ANode {
 private:
     U32 mVariable;
     Expr* mExpr;
-    Type mType;
 
     // Approximate y = x with y = sigmoid(4*x - 2), which is exact for x = 0.5.
     // Note that this works because the sigmoid has slope 1/4 at y = 0.5.
@@ -348,8 +344,7 @@ private:
 
 
 struct SetRules : public Rule {
-    SetRules() : 
-            mSetVars() {}
+    SetRules() : mSetVars() {}
     SetRules(const std::vector<SetVar*>& setvars) : mSetVars(setvars) {}
     ~SetRules() {
         for (std::vector<SetVar*>::iterator i = mSetVars.begin(); i != mSetVars.end(); ++i) {
@@ -369,20 +364,30 @@ private:
 
 
 struct Rules : public ANode {
-    Rules() : mRules() {}
-    Rules(std::vector<Rule*> rules) : mRules(rules) {}
+    Rules() : mRules(), mWeight1(mOmega), mWeight2(mOmega/2.0) {}
+    Rules(const std::vector<Rule*>& rules) : mRules(rules), mWeight1(mOmega), mWeight2(mOmega*(-2.0*rules.size()+1.0)/2.0)  {}
     ~Rules() {
         for (std::vector<Rule*>::iterator i = mRules.begin(); i != mRules.end(); ++i) {
             delete (*i);
         }
     }
-    void print() const;
     U32 size() const { return mRules.size(); }
-    void append(Rule* r) { mRules.push_back(r); }
+    void append(Rule* r) {
+        mRules.push_back(r);
+        mWeight2 = mOmega*(-2.0*mRules.size()+1.0)/2.0;
+    }
+    void print() const;
     void buildRepresentation(PopulationPtr population, NNodePtr biasnode, GenomePtr genome, std::vector<NNodePtr>& variables, NNodePtr& ionode) const;
     void evaluate(std::vector<F64>& variables) const;
 
 private:
+    // We need to construct the conjunction of the last else nodes of all the rules.
+    // The weights below are therefore the same as for Conds, which constructs the
+    // conjunction of terms.
+    static const F64 mOmega = 8.0;
+    F64 mWeight1;
+    F64 mWeight2;
+
     std::vector<Rule*> mRules;
 };
 
@@ -422,6 +427,9 @@ namespace Variable {
 
     // Set the value of the given translated variable.
     void setValue(std::vector<F64>& variables, U32 var, F64 val);
+
+    // Construct rules for setting all action variables to evolved action variables.
+    SetRules* setActionsToEvolvedActions();
 }
 
 
@@ -437,8 +445,8 @@ namespace Number {
     // and [-1, 1] as the range for values in the advice.
 
     // The values converted in this manner are the numerical constants in comparison and
-    // assignment/accumulation expressions, and the variable on the left-hand side of the
-    // expression determines the type of conversion.
+    // assignment expressions, and the variable on the left-hand side of the expression
+    // determines the type of conversion.
     F64 toNetwork(F64 val);
     F64 toNetwork(F64 val, U32 var);
 

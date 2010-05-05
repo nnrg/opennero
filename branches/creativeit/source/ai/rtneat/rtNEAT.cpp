@@ -40,11 +40,13 @@ namespace OpenNero
         : mPopulation()
         , mEvalQueue()
         , mOffspringCount(0)
+        , mAdvice()
+        , mGenerational(true)
     {
         NEAT::load_neat_params(Kernel::findResource(param_file));
         NEAT::pop_size = population_size;
         NEAT::time_alive_minimum = 1; // organisms cannot be removed before the are evaluated at least once
-        mPopulation.reset(new Population(filename, population_size));
+        mPopulation.reset(new Population(Kernel::findResource(filename), population_size));
         AssertMsg(mPopulation, "initial population creation failed");
         mOffspringCount = mPopulation->organisms.size();
         AssertMsg(mOffspringCount == population_size, "population has " << mOffspringCount << " organisms instead of " << population_size);
@@ -64,6 +66,8 @@ namespace OpenNero
         : mPopulation()
         , mEvalQueue()
         , mOffspringCount(0)
+        , mAdvice()
+        , mGenerational(true)
     {
         NEAT::load_neat_params(Kernel::findResource(param_file));
         NEAT::pop_size = population_size;

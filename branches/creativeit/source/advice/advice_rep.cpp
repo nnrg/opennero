@@ -95,24 +95,30 @@ void IfRule::buildRepresentation(PopulationPtr population, NNodePtr biasnode, Ge
     NNodePtr thennode = ionode;
     mThen->buildRepresentation(population, biasnode, genome, variables, ionode);
 
-    if (mElse != NULL) {
-        // The else node is obtained by negating the then node.  In general, we think of
-        // the else node as the conjunction of previous condition (positive antecedent) and
-        // negation of the then node (negative antecedent).
-        NNodePtr elsenode(new NNode(NEURON, population->cur_node_id++, HIDDEN));
-        genome->nodes.push_back(elsenode);
-        genome->genes.push_back(GenePtr(new Gene(-mWeight1, thennode, elsenode, false, 0, -mWeight1)));
-        if (prvionode == biasnode) {
-            genome->genes.push_back(GenePtr(new Gene(mWeight2, biasnode, elsenode, false, 0, mWeight2)));
-        }
-        else {
-            genome->genes.push_back(GenePtr(new Gene(mWeight1, prvionode, elsenode, false, 0, mWeight1)));
-            genome->genes.push_back(GenePtr(new Gene(-mWeight2, biasnode, elsenode, false, 0, -mWeight2)));
-        }
+    // Compute the else node even if there is no else rule, since we use it to connect
+    // the evolved outputs to new outputs.
 
+    // The else node is obtained by negating the then node.  In general, we think of
+    // the else node as the conjunction of previous condition (positive antecedent) and
+    // negation of the then node (negative antecedent).
+    NNodePtr elsenode(new NNode(NEURON, population->cur_node_id++, HIDDEN));
+    genome->nodes.push_back(elsenode);
+    genome->genes.push_back(GenePtr(new Gene(-mWeight1, thennode, elsenode, false, 0, -mWeight1)));
+    if (prvionode == biasnode) {
+        genome->genes.push_back(GenePtr(new Gene(mWeight2, biasnode, elsenode, false, 0, mWeight2)));
+    }
+    else {
+        genome->genes.push_back(GenePtr(new Gene(mWeight1, prvionode, elsenode, false, 0, mWeight1)));
+        genome->genes.push_back(GenePtr(new Gene(-mWeight2, biasnode, elsenode, false, 0, -mWeight2)));
+    }
+
+    if (mElse != NULL) {
         // The else node is connected to the else rule.
         mElse->buildRepresentation(population, biasnode, genome, variables, elsenode);
     }
+
+    // return else node (or the else rule's else node).
+    ionode = elsenode;
 }
 
 void SetRules::buildRepresentation(PopulationPtr population, NNodePtr biasnode, GenomePtr genome, std::vector<NNodePtr>& variables, NNodePtr& ionode) const {
@@ -140,11 +146,6 @@ void Eterm::buildRepresentation(PopulationPtr population, NNodePtr biasnode, Gen
 }
 
 void SetVar::buildRepresentation(PopulationPtr population, NNodePtr biasnode, GenomePtr genome, std::vector<NNodePtr>& variables, NNodePtr& ionode) const {
-    // Only accumulation is supported for variables in the network.
-    if (mType == eAssignment) {
-        throw std::runtime_error("Assignment to network variables is not supported; use accumulation");
-    }
-
     // Build representations for each eterm, and connect their outputs to varnode.
     NNodePtr varnode = Variable::getNode(population, genome, variables, mVariable);
     const std::vector<Eterm*>& eterms = mExpr->getEterms();
@@ -165,9 +166,40 @@ void SetVar::buildRepresentation(PopulationPtr population, NNodePtr biasnode, Ge
 }
 
 void Rules::buildRepresentation(PopulationPtr population, NNodePtr biasnode, GenomePtr genome, std::vector<NNodePtr>& variables, NNodePtr& ionode) const {
+    // If the last else conditions of all rules are true, then we know that advice does not
+    // activate the outputs, and therefore we let the evolved outputs drive the outputs.
+    // For this, we collect all those else nodes.
+    std::vector<NNodePtr> elsenodes;
+
+    NNodePtr tmpnode;
     for (U32 i = 0; i < mRules.size(); i++) {
-        NNodePtr tmpnode = ionode;  // buildRepresentation() below may change tmpnode, so make copy
+        tmpnode = ionode;  // buildRepresentation() below changes tmpnode, so make copy
         mRules[i]->buildRepresentation(population, biasnode, genome, variables, tmpnode);
+        elsenodes.push_back(tmpnode);  // tmpnode now contains the last else condition of the rule
+    }
+
+    // tmpnode now contains the else node of the last rule.  If there is more than one
+    // rule, we set tmpnode to the conjunction of all their else nodes.
+    if (elsenodes.size() > 1) {
+        // Create a hidden node to compute the conjunction of the else nodes.
+        NNodePtr newnode(new NNode(NEURON, population->cur_node_id++, HIDDEN));
+        genome->nodes.push_back(newnode);
+
+        // Make connections to the hidden node from each term and from the bias node.
+        for (U32 i = 0; i < elsenodes.size(); i++) {
+            genome->genes.push_back(GenePtr(new Gene(mWeight1, elsenodes[i], newnode, false, 0, mWeight1)));
+        }
+        genome->genes.push_back(GenePtr(new Gene(mWeight2, biasnode, newnode, false, 0, mWeight2)));
+
+        tmpnode = newnode;
+    }
+
+    // Construct rules for setting outputs to evolved outputs, and build their representation
+    // using tmpnode as the condition node.
+    if (tmpnode != NULL) {
+        SetRules* setactions = Variable::setActionsToEvolvedActions();
+        setactions->buildRepresentation(population, biasnode, genome, variables, tmpnode);
+        delete setactions;
     }
 }
 
@@ -225,13 +257,7 @@ F64 Expr::evaluate(std::vector<F64>& variables) const {
 }
 
 void SetVar::evaluate(std::vector<F64>& variables) const {
-    if (mType == eAssignment) {
-        Variable::setValue(variables, mVariable, mExpr->evaluate(variables));
-    }
-    else {
-        F64 curValue = Variable::getValue(variables, mVariable);
-        Variable::setValue(variables, mVariable, curValue + mExpr->evaluate(variables));
-    }
+    Variable::setValue(variables, mVariable, mExpr->evaluate(variables));
 }
 
 void Rules::evaluate(std::vector<F64>& variables) const {
@@ -290,8 +316,8 @@ void SetRules::print() const {
 
 void Eterm::print() const {
     if (mType == eValue) {
-        // Since variables in assignment/accumulation expressions are guaranteed to be
-        // non-sensor variables, we can convert the number without checking its type.
+        // Since variables in assignment expressions are guaranteed to be non-sensor variables,
+        // we can convert the number without checking its type.
         printf("%f ", Number::toAdvice(mValue));
     }
     else if (mType == eVariable) {
@@ -310,9 +336,7 @@ void Expr::print() const {
 }
 
 void SetVar::print() const {
-    printf("%s ", Variable::toString(mVariable).c_str());
-    if (mType == eAssignment) printf("= ");
-    else printf("+= ");
+    printf("%s = ", Variable::toString(mVariable).c_str());
     mExpr->print();
 }
 
@@ -472,6 +496,25 @@ F64 Variable::getValue(std::vector<F64>& variables, U32 var) {
 void Variable::setValue(std::vector<F64>& variables, U32 var, F64 val) {
     if (var >= variables.size()) variables.resize(var+1, 0.0);
     variables[var] = val;
+}
+
+
+// Construct rules for setting all action variables to evolved action variables.
+SetRules* Variable::setActionsToEvolvedActions() {
+    SetRules* rules = new SetRules();
+
+    // We need one set variable rule for each action variable.
+    for (U32 i = 0; i < Variable::mNumActions; ++i) {
+        U32 rhs = Variable::translate(Variable::eEvolvedAction, i);
+        U32 lhs = Variable::translate(Variable::eAction, i);
+
+        Expr* expr = new Expr();
+        expr->append(new Eterm(rhs));
+        SetVar* setvar = new SetVar(lhs, expr);
+        rules->append(setvar);
+    }
+
+    return rules;
 }
 
 
