@@ -168,7 +168,7 @@ class ForageEnvironment(Environment):
             print "new state created"
         state = self.states[agent]
         if state.current_step == 0:
-            state.marked_position = agent.sim.position
+            state.marked_position = agent.state.position
             state.initial_position = agent.state.position
             state.initial_rotation = agent.state.rotation
             state.initial_velocity = agent.state.velocity

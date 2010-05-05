@@ -83,12 +83,14 @@ class CreativeITMod:
         id = addObject("data/shapes/wall/BrickWall.xml", position, rotation, scale)
         self.object_ids.add(id)
         self.environment.walls.add(id)
+        return id
 
     def addCube(self, position, rotation = Vector3f(0,0,0), scale = Vector3f(1,1,1)):
         """ add a cube to the simulation """
         id = addObject("data/shapes/cube/WhiteCube.xml", position, rotation, scale)
         self.object_ids.add(id)
         self.environment.cubes.add(id)
+        return id
     
     def removeObject(self, id):
         """ schedule an object to be removed from the simulation """
@@ -148,7 +150,7 @@ class CreativeITMod:
         if task == 'around':
             self.rtneat = RTNEAT('data/ai/cube_population.txt', "data/ai/neat-params.dat", self.pop_size)
         else:
-            self.rtneat = RTNEAT("data/ai/neat-params.dat", self.num_sensors, self.num_actions, self.pop_size, 1.0, True)
+            self.rtneat = RTNEAT("data/ai/neat-params.dat", self.num_sensors, self.num_actions, self.pop_size, 1.0)
         set_ai("neat", self.rtneat)
         enable_ai()
         for i in range(self.pop_size):

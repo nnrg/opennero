@@ -51,7 +51,7 @@ def set_circle_object_speed(speed):
         print "speed of object (id: %d) set to %f" % (oid, getMod().current_speed)
 
 # place predefined objects using keyboard
-def place_object(key, obj, pos, rot = Vector3f(0,0,0), vel = Vector3f(0,0,0), scl = Vector3f(1,1,1)):
+def place_object(key, obj, pos, rot = Vector3f(0,0,0), scl = Vector3f(1,1,1)):
     if key in getMod().key_object_id:
         getSimContext().setObjectPosition(getMod().key_object_id[key], getMod().key_orig_props[key]['pos'])
         getSimContext().setObjectRotation(getMod().key_object_id[key], getMod().key_orig_props[key]['rot'])
@@ -60,11 +60,11 @@ def place_object(key, obj, pos, rot = Vector3f(0,0,0), vel = Vector3f(0,0,0), sc
         set_circle_object_speed(1)
         print "reset object (id: %d) for key %s" % (getMod().key_object_id[key], key)
     else:
-        getMod().key_orig_props[key] = {'pos': pos, 'rot': rot, 'vel': vel, 'scl': scl}
+        getMod().key_orig_props[key] = {'pos': pos, 'rot': rot, 'scl': scl}
         if obj == 'cube':
-            getMod().addCube(pos, rot, scl)
+            getMod().key_object_id[key] = getMod().addCube(pos, rot, scl)
         else:
-            getMod().addWall(pos, rot, vel, scl)
+            getMod().key_object_id[key] = getMod().addWall(pos, rot, scl)
         print "added object (id: %d) for key %s" % (getMod().key_object_id[key], key)
         if getMod().task == 'circle':
             pathfile = "creativeit/data/ai/circle.py"
@@ -86,7 +86,7 @@ def place_object2():
     if getMod().task == 'combo':
         place_object('2', 'cube', Vector3f(830, -100, getMod().object_z))
     elif getMod().task == 'around':
-        place_object('2', 'wall', Vector3f(860, -60, getMod().object_z), Vector3f(0, 0, 100), Vector3f(0, 0, 0), Vector3f(10, 1, 1))
+        place_object('2', 'wall', Vector3f(860, -60, getMod().object_z), Vector3f(0, 0, 100), Vector3f(10, 1, 1))
  
 def place_object3():
     if getMod().task == 'combo':
@@ -98,7 +98,7 @@ def place_object4():
  
 def place_object5():
     if getMod().task == 'combo':
-        place_object('5', 'wall', Vector3f(862, -102, getMod().object_z), Vector3f(0, 0, 65), Vector3f(0, 0, 0), Vector3f(4.9, 9, 1))
+        place_object('5', 'wall', Vector3f(862, -102, getMod().object_z), Vector3f(0, 0, 65), Vector3f(4.9, 9, 1))
 
 def make_control_menu():
     guiMan = getGuiManager()
@@ -231,12 +231,12 @@ def show_context_menu():
 
     # add a wall at the current cursor location
     def add_wall():
-         getMod().addWall(Vector3f(location.x, location.y, getMod().object_z))
+         oid = getMod().addWall(Vector3f(location.x, location.y, getMod().object_z))
          print "wall (id: %d) added at location (%f, %f, %f)" % (oid, location.x, location.y, getMod().object_z)
 
     # add a cube at the current cursor location
     def add_cube():
-         getMod().addCube(Vector3f(location.x, location.y, getMod().object_z))
+         oid = getMod().addCube(Vector3f(location.x, location.y, getMod().object_z))
          print "cube (id: %d) added at location (%f, %f, %f)" % (oid, location.x, location.y, getMod().object_z)
 
     # give advice to agents.
