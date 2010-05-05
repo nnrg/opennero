@@ -22,11 +22,34 @@ class CreativeITMod:
         # egocentric sensor angles are specified in the range [-1, 1]; multiplying this number
         # by 180 gives the angle in degrees.  cube sensors are evenly distributed around the
         # agent, while wall sensors are in front of the agent.
-        self.cube_sensor_angles = [-0.125, -0.375, -0.625, -0.875, 0.125, 0.375, 0.625, 0.875]
-        self.wall_sensor_angles = [-0.10, -0.06, 0.0, 0.06, 0.10]
-        self.wall_sensor_hbases = [0.10, 0.06, 0.02, 0.06, 0.10]  # half base of the activation triangles
+        self.cube_sensor_angles = [-0.875, -0.625, -0.375, -0.125, 0.125, 0.375, 0.625, 0.875]
+        self.wall_sensor_angles = [-0.125, -0.0417, 0.0417, 0.125]
+        self.wall_sensor_hbases = [0.0417, 0.0417, 0.0417, 0.0417]  # half base of the activation triangles
         self.num_sensors = len(self.cube_sensor_angles) + len(self.wall_sensor_angles) + 1  # last input is bias
-        self.num_outputs = 2
+        self.num_actions = 2
+
+        # Bounds for sensors in neural network and advice language. These bounds are
+        # used to convert sensor values between network and advice.
+        self.sbounds_network = FeatureVectorInfo()
+        self.sbounds_advice = FeatureVectorInfo()
+
+        # Networks have better learning bias when cube sensors produce values in the
+        # range [-1, 1], but the range [0, 1] is more intuitive in the advice
+        # language.  Wall sensors use the same range [0, 1] for both network and advice.
+        # The sense() method in the ForageEnvironment class use these network bounds
+        # to scale the sensor values.
+        for i in range(len(self.cube_sensor_angles)):
+            self.sbounds_network.add_continuous(-1, 1)
+            self.sbounds_advice.add_continuous(0, 1)
+        for i in range(len(self.wall_sensor_angles)):
+            self.sbounds_network.add_continuous(0, 1)
+            self.sbounds_advice.add_continuous(0, 1)
+
+        # The last sensor is the bias, which always takes the value 1 (upper bound).
+        self.sbounds_network.add_continuous(0, 1)
+        self.sbounds_advice.add_continuous(0, 1)
+
+        self.agents = {}  # ids of agents
         self.pop_size = 20
         self.environment = ForageEnvironment(self)
         self.rtneat = None
@@ -61,7 +84,7 @@ class CreativeITMod:
     def setAdvice(self, advice):
         """ advice for rtneat agents """
         if self.rtneat != None:
-            self.rtneat.advice = Advice(advice, self.rtneat, self.num_sensors, self.num_outputs, True)
+            self.rtneat.advice = Advice(advice, self.rtneat, self.num_sensors, self.num_actions, True, self.sbounds_network, self.sbounds_advice)
         elif self.scripted != None:
             self.scripted.add_advice(advice)
         for state in self.environment.states.values():
@@ -70,14 +93,6 @@ class CreativeITMod:
     def setObjectPath(self, path, id):
         """ set the path of the specified object """
         self.environment.object_paths[id] = path
-
-    def start_tracing(self):
-        """ start tracing the agents """
-        self.environment.start_tracing()
-
-    def stop_tracing(self):
-        """ stop tracing the agents """
-        self.environment.stop_tracing()
 
     def enable_simdisplay(self):
         """ start displaying the simulation of agents """
@@ -115,19 +130,19 @@ class CreativeITMod:
         set_environment(self.environment)
         self.environment.initialize()
         RTNEATAgent.INDEX_COUNT = 0  # Initialize variable for assigning indexes to agents
-        self.rtneat = RTNEAT("data/ai/neat-params.dat", self.num_sensors, self.num_outputs, self.pop_size, 1.0)
+        self.rtneat = RTNEAT("data/ai/neat-params.dat", self.num_sensors, self.num_actions, self.pop_size, 1.0, True)
         set_ai("neat", self.rtneat)
         enable_ai()
         for i in range(self.pop_size):
             self.agents[i] = addObject("data/shapes/character/SydneyRTNEAT.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
-
+        print "Starting evolution agents..."
     
     def start_scripted(self):
         """ start scripted agent to find a solution """
         disable_ai()
         set_environment(self.environment)
         self.environment.initialize()
-        self.scripted = Scripted(self.num_sensors, self.num_outputs)
+        self.scripted = Scripted(self.num_sensors, self.num_actions)
         self.agents[0] = addObject("data/shapes/character/SydneyScripted.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
         enable_ai()
 
@@ -139,6 +154,8 @@ class CreativeITMod:
         self.environment.initialize()
         self.agents[0] = addObject("data/shapes/character/SydneyKeyboard.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
         enable_ai()
+        self.environment.start_tracing()
+        print "Starting keyboard agent..."
 
 gMod = None
 

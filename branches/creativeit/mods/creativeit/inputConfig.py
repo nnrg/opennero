@@ -22,16 +22,10 @@ def first_person_control(command):
 def blank():
     pass
 
-# start/stop tracing agent
-def toggle_tracing():
+# save trace of agent
+def save_trace():
     guiMan = getGuiManager()
-    if getMod().tracing:
-        getMod().stop_tracing()
-        guiMan.openFileChooserDialog("Save Trace File", True, lambda filename: getMod().save_trace(filename))
-        getMod().tracing = False
-    else:
-        getMod().start_tracing()
-        getMod().tracing = True
+    guiMan.openFileChooserDialog("Save Trace File", True, lambda filename: getMod().server.save_trace(filename))
 
 # enable simulation display
 def enable_simdisplay():
@@ -40,6 +34,112 @@ def enable_simdisplay():
 # disable simulation display
 def disable_simdisplay():
     getMod().disable_simdisplay()
+
+def cleanup_and_remove_object(oid):
+    if oid in getMod().inc_dec_funcs:
+        del getMod().inc_dec_funcs[oid]
+    removeObject(oid)
+
+# toggle add/remove predefined objects using keyboard
+def toggle_object(key, obj, pos, rot = Vector3f(0,0,0), vel = Vector3f(0,0,0), scl = Vector3f(1,1,1)):
+    if key in getMod().key_object_id:
+        print "removing object for key", key
+        cleanup_and_remove_object(getMod().key_object_id[key])
+        del getMod().key_object_id[key]
+        return None
+    else:
+        print "adding object for key", key
+        if obj == 'cube':
+            getMod().addCube(pos, rot, vel, scl)
+        else:
+            getMod().addWall(pos, rot, vel, scl)
+        return getMod().key_object_id[key]
+ 
+def toggle_object1():
+    toggle_object('1', 'cube', Vector3f(835, -160, getMod().object_z))
+ 
+def toggle_object2():
+    toggle_object('2', 'cube', Vector3f(830, -100, getMod().object_z))
+ 
+def toggle_object3():
+    toggle_object('3', 'cube', Vector3f(835, -70, getMod().object_z))
+ 
+def toggle_object4():
+    toggle_object('4', 'cube', Vector3f(835, 20, getMod().object_z))
+ 
+def toggle_object5():
+    toggle_object('5', 'wall', Vector3f(862, -102, getMod().object_z), Vector3f(0, 0, 65), Vector3f(0, 0, 0), Vector3f(4.9, 9, 1))
+
+
+def toggle_object9():
+    oid = toggle_object('9', 'wall', Vector3f(860, -60, getMod().object_z), Vector3f(0, 0, 100), Vector3f(0, 0, 0), Vector3f(10, 1, 1))
+    if oid != None:
+        getMod().inc_dec_value = 1.0
+        getMod().inc_dec_funcs[oid] = lambda scalex: getMod().server.setObjectScale(oid, Vector3f(scalex*10, 1, 1))
+
+ 
+def toggle_object0():
+    oid = toggle_object('0', 'cube', Vector3f(980, -60, getMod().object_z))
+    if oid != None:
+        from functools import partial
+        pathfile = "creativeit/data/ai/circle.py"
+        with open(pathfile, 'r') as file:
+            code = compile(file.read(), pathfile, 'eval')
+            getMod().inc_dec_value = 0.0
+            getMod().inc_dec_funcs[oid] = lambda speed: getMod().server.setObjectPath(partial(eval(code), speed), oid)
+            getMod().inc_dec_funcs[oid](getMod().inc_dec_value)  # initialize path of object
+
+
+def increment():
+    if getMod().inc_dec_value < 0.99:
+        getMod().inc_dec_value += 0.1
+    for func in getMod().inc_dec_funcs.values():
+        print "value incremented to", getMod().inc_dec_value
+        func(getMod().inc_dec_value)
+
+def decrement():
+    if getMod().inc_dec_value > 0.01:
+        getMod().inc_dec_value -= 0.1
+    for func in getMod().inc_dec_funcs.values():
+        print "value decremented to", getMod().inc_dec_value
+        func(getMod().inc_dec_value)
+
+
+def make_agent_menu():
+    guiMan = getGuiManager()
+
+    def start_rtneat():
+        getMod().start_rtneat()
+        guiMan.removeAll()
+
+    def start_scripted():
+        getMod().start_scripted()
+        guiMan.removeAll()
+
+    def start_keyboard():
+        getMod().start_keyboard()
+        guiMan.removeAll()
+
+    guiMan.setTransparency(1.0)
+    guiMan.setFont("data/gui/fonthaettenschweiler.bmp")
+    agentMenu = gui.create_window(guiMan, 'agent', Pos2i(0,50), Pos2i(100,110), 'Agent Control')
+    agentMenu.setVisibleCloseButton(False)
+    #agentMenu.setDraggable(False)
+
+    rtneatButton = gui.create_button(guiMan, 'rtneat', Pos2i(0,0), Pos2i(100,30), '')
+    rtneatButton.OnMouseLeftClick = lambda: start_rtneat()
+    rtneatButton.text = 'Start evolution'
+    agentMenu.addChild(rtneatButton)
+
+    scriptedButton = gui.create_button(guiMan, 'scripted', Pos2i(0,30), Pos2i(100,30), '')
+    scriptedButton.OnMouseLeftClick = lambda: start_scripted()
+    scriptedButton.text = 'Start scripted'
+    agentMenu.addChild(scriptedButton)
+
+    keyboardButton = gui.create_button(guiMan, 'keyboard', Pos2i(0,60), Pos2i(100,30), '')
+    keyboardButton.OnMouseLeftClick = lambda: start_keyboard()
+    keyboardButton.text = 'Start keyboard'
+    agentMenu.addChild(keyboardButton)
 
 def show_context_menu():
     guiMan = getGuiManager()
@@ -61,10 +161,11 @@ def show_context_menu():
     def specify_object_path():
         # reads path specified as python code from given filename
         def read_path(filename):
+            from functools import partial
             with open(filename, 'r') as file:
                 code = compile(file.read(), filename, 'eval')
             getSimContext().setObjectPath(code, selected_object_id)
-
+            getSimContext().setObjectPath(partial(eval(code), 1.0), selected_object_id)
         guiMan.openFileChooserDialog("Open Object Path File", True, read_path)
 
     # activate the selected object to be moved
@@ -85,7 +186,7 @@ def show_context_menu():
 
     # remove the selected object from the world
     def remove_object():
-        getMod().removeObject(selected_object_id)
+        cleanup_and_remove_object(selected_object_id)
 
     # add a wall at the current cursor location
     def add_wall():
@@ -146,18 +247,6 @@ def show_context_menu():
         cubeButton.OnMouseLeftClick = add_cube
         contextMenu.addItem('Add cube', cubeButton)
 
-        rtneatButton = gui.create_button(guiMan, 'rtneat', Pos2i(0,0), Pos2i(0,0), '')
-        rtneatButton.OnMouseLeftClick = lambda: getMod().start_rtneat()
-        contextMenu.addItem('Run rtNEAT', rtneatButton)
-
-        scriptedButton = gui.create_button(guiMan, 'scripted', Pos2i(0,0), Pos2i(0,0), '')
-        scriptedButton.OnMouseLeftClick = lambda: getMod().start_scripted()
-        contextMenu.addItem('Run scripted', scriptedButton)
-
-        keyboardButton = gui.create_button(guiMan, 'keyboard', Pos2i(0,0), Pos2i(0,0), '')
-        keyboardButton.OnMouseLeftClick = lambda: getMod().start_keyboard()
-        contextMenu.addItem('Run keyboard', keyboardButton)
-
         adviceButton = gui.create_button(guiMan, 'advice', Pos2i(0,0), Pos2i(0,0), '')
         adviceButton.OnMouseLeftClick = give_advice
         contextMenu.addItem('Give advice', adviceButton)
@@ -169,15 +258,6 @@ def show_context_menu():
         unloadTraceButton = gui.create_button(guiMan, 'unload trace', Pos2i(0,0), Pos2i(0,0), '')
         unloadTraceButton.OnMouseLeftClick = lambda: getMod().unload_trace()
         contextMenu.addItem('Unload trace', unloadTraceButton)
-
-        enableBackpropButton = gui.create_button(guiMan, 'enable backprop', Pos2i(0,0), Pos2i(0,0), '')
-        enableBackpropButton.OnMouseLeftClick = lambda: getMod().enable_backprop()
-        contextMenu.addItem('Enable Backprop', enableBackpropButton)
-
-        disableBackpropButton = gui.create_button(guiMan, 'disable backprop', Pos2i(0,0), Pos2i(0,0), '')
-        disableBackpropButton.OnMouseLeftClick = lambda: getMod().disable_backprop()
-        contextMenu.addItem('Disable Backprop', disableBackpropButton)
-
 
 def mouse_action():
     if len(getMod().modify_object_id) == 0:
@@ -237,7 +317,7 @@ def createInputMapping():
     # bind our keys
     ioMap.ClearMappings()
     ioMap.BindKey( "KEY_ESCAPE", "onPress", switchToHub )
-    ioMap.BindKey( "KEY_F5", "onPress", toggle_tracing )
+    ioMap.BindKey( "KEY_F5", "onPress", "save_trace()" )
     ioMap.BindKey( "KEY_F8", "onPress", enable_simdisplay )
     ioMap.BindKey( "KEY_F9", "onPress", disable_simdisplay )
     ioMap.BindMouseAction( "moveX", mouse_action )
@@ -246,6 +326,18 @@ def createInputMapping():
     ioMap.BindMouseButton( "right", "onPress", show_context_menu )
 
     # FPS control
+    # toggle add/remove predefined objects using keyboard
+    ioMap.BindKey( "KEY_KEY_1", "onPress", "toggle_object1()" )
+    ioMap.BindKey( "KEY_KEY_2", "onPress", "toggle_object2()" )
+    ioMap.BindKey( "KEY_KEY_3", "onPress", "toggle_object3()" )
+    ioMap.BindKey( "KEY_KEY_4", "onPress", "toggle_object4()" )
+    ioMap.BindKey( "KEY_KEY_5", "onPress", "toggle_object5()" )
+    ioMap.BindKey( "KEY_KEY_9", "onPress", "toggle_object9()" )
+    ioMap.BindKey( "KEY_KEY_0", "onPress", "toggle_object0()" )
+
+    # increment/decrement
+    ioMap.BindKey( "KEY_PERIOD", "onPress", "increment()" )
+    ioMap.BindKey( "KEY_COMMA", "onPress", "decrement()" )
     ioMap.BindKey( "KEY_KEY_A", "onHold", first_person_control('left') )
     ioMap.BindKey( "KEY_KEY_D", "onHold", first_person_control('right') )
     ioMap.BindKey( "KEY_KEY_W", "onHold", first_person_control('fwd') )

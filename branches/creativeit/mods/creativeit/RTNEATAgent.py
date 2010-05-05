@@ -6,7 +6,7 @@ import creativeit
 class RTNEATAgent(AgentBrain):
     INDEX_COUNT = 0
     BACKPROP_WINDOW_SIZE = 10
-    ERROR_THRESHOLD = 5
+    ERROR_THRESHOLD = 2
 
     """
     rtNEAT agent
@@ -50,23 +50,22 @@ class RTNEATAgent(AgentBrain):
         #if self.index == 0:  # Color the elite organism
         #    self.sim.color = Color(0, 200, 28, 56)
         #print "got network to evaluate: " + str(self.net)
-        if self.index == 0:
-            self.net.print_links()
+        #if self.index == 0:
+        #    self.net.print_links()
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
         """
         a state transition
         """
-        # Store fitness if a cube was collected, otherwise accumulate reward.
+        # Accumulate reward and increment fitness if a cube was visited.
+        self.reward += reward
+        self.reward_steps += 1
         if reward >= 1:
             self.org.fitness += reward
             self.reward = 0
             self.reward_steps_total += self.reward_steps
             self.reward_steps = 0
-        else:
-            self.reward += reward
-            self.reward_steps += 1
         return self.network_action(sensors) # return action
 
     def end(self, time, reward):
@@ -82,28 +81,35 @@ class RTNEATAgent(AgentBrain):
                 reward = self.environment.calculate_reward(state) if self.environment.perform_actions(state, actions) else 0.0
                 state.current_step += 1
 
-        # store last reward and add average reward to fitness (i.e. how good the agent was since
-        # collecting the last cube)
+        # accumulate reward and increment fitness if a cube was visited in the last step
         self.reward += reward
         self.reward_steps += 1
-        if self.reward != 0:  # note that reward can be negative
-            self.org.fitness += self.reward/self.reward_steps
+        if reward >= 1:
+            self.org.fitness += reward
             self.reward_steps_total += self.reward_steps
-        # increase fitness based on how quickly cubes were collected
-        self.org.fitness += 1.0/self.reward_steps_total if self.reward_steps_total > 0 else 0.0
+
+        # increase fitness by adding a fraction for how quickly the cubes were visited
+        self.org.fitness += self.org.fitness/self.reward_steps_total if self.reward_steps_total > 0 else 0.0
+
+        # add another fraction to fitness (i.e. average reward since visiting the last cube)
+        if reward < 1: self.org.fitness += self.reward/self.reward_steps/100  # note that average reward can be negative
+
         self.org.time_alive += 1
 
         # if a trace has been loaded, then process it here
         if self.environment.use_trace:
-            trfitness = self.evaluate_trace()  # Calculate fitness and passed steps
-            # Run backprop and update if not the elite organism and backprop is enabled
-            if self.index != 0 and self.environment.run_backprop:
-                self.backprop_trace()
-                trfitness = self.evaluate_trace()  # Calculate fitness and passed steps
-            self.org.fitness = floor(self.org.fitness if self.org.fitness > 0.0 else 0.0) + trfitness
-            print "index: %d, final reward: %f, trace fitness: %f, fitness: %f" % (self.index, reward, trfitness, self.org.fitness)
+            trfitness = self.evaluate_trace()  # Calculate trace fitness and passed steps
+            if self.environment.run_backprop:  # backprop invalidates self.org.fitness because it changes network
+                if self.index != 0:  # run backprop only if the agent is not the elite organism
+                    self.backprop_trace()
+                    trfitness = self.evaluate_trace()  # Calculate trace fitness again since backprop changes network
+                self.org.fitness = trfitness
+                print "index: %d, trace fitness: %f" % (self.index, trfitness)
+            else:
+                self.org.fitness = floor(self.org.fitness if self.org.fitness > 0.0 else 0.0) + trfitness
+                print "index: %d, trace fitness: %f, combined fitness: %f" % (self.index, trfitness, self.org.fitness)
         else:
-            print "index: %d, final reward: %f, fitness: %f" % (self.index, reward, self.org.fitness)
+            print "index: %d, fitness: %f" % (self.index, self.org.fitness)
 
         return True
 
@@ -126,22 +132,22 @@ class RTNEATAgent(AgentBrain):
         self.net.activate()
         outputs = self.net.get_outputs()
 
-        if self.index == 0:
-            print "agent 0 inputs: ", inputs
-            print "agent 0 outputs: ", outputs
-            self.net.show_activation()
+        #if self.index == 0:
+        #    print "agent 0 inputs: ", inputs
+        #    print "agent 0 outputs: ", outputs
+        #    #self.net.show_activation()
 
         actions = self.actions.get_instance() # make a vector for the actions
 
         assert(len(actions) == len(outputs))
         for i in range(len(outputs)):
             actions[i] = outputs[i] - 0.5
-            # make actions discrete, e.g. -0.4, -0.3, ... 0.3, 0.4
-            #discretization = 20.0
-            #if actions[i] > 0:
-            #    actions[i] = floor(actions[i]*discretization)/discretization
-            #else:
-            #    actions[i] = ceil(actions[i]*discretization)/discretization
+
+            # Scale values in the range [-0.25, 0.25] to [-0.5, 0.5] so that advice can
+            # produce maximum output when output is set to 1 (a variable set to 1 in the
+            # advice language produces only ~ 0.768 activation in the network since we
+            # restrict values to the region of the sigmoid that is approximately linear).
+            actions[i] = -0.5 if actions[i] < -0.25 else 0.5 if actions[i] > 0.25 else (actions[i]+0.25)/0.5 - 0.5;
 
         return actions
 
@@ -201,6 +207,9 @@ class RTNEATAgent(AgentBrain):
             if reduce(lambda x, y: x or y != 0, trace.actions[i], False):
                 sensors = self.environment.compute_sensors(state)
                 actions = self.network_action(sensors)
+
+                # TODO: will the scaling of actions in network_action() affect the implementation below?
+                # e.g. does it change the derivative at the output nodes?
 
                 # Don't run backprop on the first iteration, i.e. before the agent moves
                 if i > self.passed_steps:

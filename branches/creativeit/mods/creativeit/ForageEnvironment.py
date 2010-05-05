@@ -14,7 +14,7 @@ class AgentState:
         self.position = Vector3f(0, 0, 0)
         self.rotation = Vector3f(0, 0, 0)
         self.velocity = Vector3f(0, 0, 0)
-        self.orig_position = Vector3f(0, 0, 0)
+        self.marked_position = Vector3f(0, 0, 0)
         self.initial_position = Vector3f(0, 0, 0)
         self.initial_rotation = Vector3f(0, 0, 0)
         self.initial_velocity = Vector3f(0, 0, 0)
@@ -77,26 +77,26 @@ class ForageEnvironment(Environment):
         self.active_walls = set()  # ids of walls that simulation can see
         self.object_paths = dict() # dictionary containing any user-specified object paths
         self.num_sensors = server.num_sensors
-        self.num_actions = server.num_outputs
+        self.num_actions = server.num_actions
         
-        abound = FeatureVectorInfo()
         sbound = FeatureVectorInfo()
+        abound = FeatureVectorInfo()
         rbound = FeatureVectorInfo()
                 
+        # sensors
+        for i in range(self.num_sensors):
+            sbound.add_continuous(server.sbounds_network.min(i), server.sbounds_network.max(i))
+    
         # actions
         for i in range(self.num_actions):
             abound.add_continuous(-0.5, 0.5)
         
-        # sensors
-        for i in range(self.num_sensors):
-            sbound.add_continuous(-1, 1)
-    
         # rewards
         rbound.add_continuous(-1, 1)
         
         self.agent_info = AgentInitInfo(sbound, abound, rbound)
 
-        self.tracing = False             # indicates if the agents are being traced
+        self.tracing = False             # indicates if the agent is being traced
         self.simdisplay = True           # indicates if the simulation of agents is being displayed
         self.trace = None                # trace of agents
         self.use_trace = False           # use loaded trace for calculating reward
@@ -126,14 +126,11 @@ class ForageEnvironment(Environment):
     def start_tracing(self):
         # create trace object and start tracing
         # tracing of only one agent is currently supported
-        if not self.tracing and len(self.states) == 1:
-            print "starting trace..."
-            self.trace = AgentTrace()
-            self.tracing = True
+        self.trace = AgentTrace()
+        self.tracing = True
 
     def stop_tracing(self):
         # stop tracing the agent
-        print "stopping trace..."
         self.tracing = False
 
     def save_trace(self, filename):
@@ -174,7 +171,7 @@ class ForageEnvironment(Environment):
             print "new state created"
         state = self.states[agent]
         if state.current_step == 0:
-            state.orig_position = agent.state.position
+            state.marked_position = agent.sim.position
             state.initial_position = agent.state.position
             state.initial_rotation = agent.state.rotation
             state.initial_velocity = agent.state.velocity
@@ -191,7 +188,7 @@ class ForageEnvironment(Environment):
         state.position = state.initial_position
         state.rotation = state.initial_rotation
         state.velocity = state.initial_velocity
-        state.orig_position = state.initial_position
+        state.marked_position = state.initial_position
         agent.state.position = state.initial_position
         agent.state.rotation = state.initial_rotation
         agent.state.velocity = state.initial_velocity
@@ -202,10 +199,17 @@ class ForageEnvironment(Environment):
         state.visited_cubes = set()
         agent.state.color = Color(0, 255, 255, 255)
 
-        self.active_cubes = copy(self.cubes)
-        self.active_walls = copy(self.walls)
+        # If we have a population of agents, update active objects only for the last agent.
+        if not hasattr(agent, 'index') or agent.index == self.server.pop_size-1:
+            self.active_cubes = copy(self.cubes)
+            self.active_walls = copy(self.walls)
+
         while len(self.path_markers_champ) > 0:
             getSimContext().removeObject(self.path_markers_champ.pop())
+
+        # Restart tracing if it is enabled.
+        if self.tracing:
+            self.start_tracing()
 
         print "Episode %d complete" % state.current_episode
         return True
@@ -253,10 +257,10 @@ class ForageEnvironment(Environment):
         if closest_cube_dist < self.MIN_DISTANCE:  # Agent visits the cube if it is close enough.
             reward = 1
             state.visited_cubes.add(closest_cube_id)
-            state.orig_position = state.position
+            state.marked_position = state.position
         elif closest_cube_dist < self.MAX_DISTANCE:    # Reward based on how close agent is to the cube.
-            closest_cube_orig_dist = getSimContext().getObjectPosition(closest_cube_id).getDistanceFrom(state.orig_position)
-            reward = 1 - (closest_cube_dist/closest_cube_orig_dist)
+            closest_cube_dist_mark = getSimContext().getObjectPosition(closest_cube_id).getDistanceFrom(state.marked_position)
+            reward = 1 - (closest_cube_dist/closest_cube_dist_mark)
             if reward < -1:
                 reward = -1
         #else:                                          # No more cubes to visit.
@@ -318,7 +322,7 @@ class ForageEnvironment(Environment):
             self.path_markers_champ.append(getSimContext().getNextFreeId())
             addObject("data/shapes/cube/BlueCube.xml", position=state.position, rotation=Vector3f(0,0,0), scale=Vector3f(0.25,0.25,0.25))
 
-        if isinstance(agent, KeyboardAgent):
+        if isinstance(agent, KeyboardAgent) and self.tracing:
             self.path_markers_champ.append(getSimContext().getNextFreeId())
             addObject("data/shapes/cube/YellowCube.xml", position=state.position, rotation=Vector3f(0,0,0), scale=Vector3f(0.25,0.25,0.25))
 
@@ -328,7 +332,7 @@ class ForageEnvironment(Environment):
         """ compute the sensor readings of an agent, given its current state """
         # First, update the positions of any moving objects in the environment
         for oid, path in self.object_paths.items():
-            [x, y, z] = eval(path)(state.current_step)
+            [x, y, z] = path(state.current_step)
             getSimContext().setObjectPosition(oid, Vector3f(x, y, z))
 
         sensors = self.agent_info.sensors.get_instance()
@@ -379,13 +383,15 @@ class ForageEnvironment(Environment):
 
         # Normalize the sensor values to [-1, 1]
         maxval = max([sensors[i] for i in range(num_cube_sensors)])
-        minval = min([sensors[i] for i in range(num_cube_sensors)])
+        minval = 0.
+        lbound = self.server.sbounds_network.min(0)
+        ubound = self.server.sbounds_network.max(0)
         if maxval != minval:
             for i in range(num_cube_sensors):
-                sensors[i] = ((sensors[i]-minval)/(maxval-minval))*2 - 1
+                sensors[i] = ((sensors[i]-minval)/(maxval-minval))*(ubound-lbound) + lbound
         else:
             for i in range(num_cube_sensors):
-                sensors[i] = minval
+                sensors[i] = lbound
 
         # The next sensors detect the closest walls (i.e. those that produce maximum activation).
         num_wall_sensors = len(self.server.wall_sensor_angles)
@@ -482,17 +488,17 @@ class ForageEnvironment(Environment):
                     activation = (1-dist)*self.triangle_activation(angle, self.server.wall_sensor_angles[j], self.server.wall_sensor_hbases[j])
                     sensors[num_cube_sensors+j] = max(sensors[num_cube_sensors+j], activation)
 
-        # Make wall sensor values either 0 or 1.
+        # Make wall sensor values either lbound (not detected wall) or ubound (detected wall)
+        lbound = self.server.sbounds_network.min(num_cube_sensors)
+        ubound = self.server.sbounds_network.max(num_cube_sensors)
         for i in range(num_wall_sensors):
-            sensors[num_cube_sensors+i] = ceil(sensors[num_cube_sensors+i])
-
-        # Convert sensor values to [-1, 1]; -1 indicates sensor does not detect wall.
-        #for i in range(num_wall_sensors):
-        #    if sensors[num_cube_sensors+i] == 0.0:
-        #        sensors[num_cube_sensors+i] = -1.0
+            if sensors[num_cube_sensors+i] > 0.0:
+                sensors[num_cube_sensors+i] = ubound
+            else:
+                sensors[num_cube_sensors+i] = lbound
 
         # the last sensor is the bias
-        sensors[-1] = 1
+        sensors[-1] = self.server.sbounds_network.max(num_cube_sensors+num_wall_sensors)
 
         #print "sensors: ", sensors
         return sensors
@@ -537,10 +543,9 @@ class ForageEnvironment(Environment):
         state = self.get_state(agent)
         if self.simdisplay == False:
             return True
+        elif self.tracing:
+            return False
         elif self.STEPS_PER_EPISODE != 0 and state.current_step >= self.STEPS_PER_EPISODE:
-            #self.stop_tracing()
-            #self.save_trace("auto.trace")
-            #self.start_tracing()
             return True
         elif state.goal_reached:
             return True

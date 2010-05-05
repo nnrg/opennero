@@ -68,13 +68,24 @@ class ScriptedAgent(AgentBrain):
         Produce actions from sensor readings
         """
         assert(len(sensors) == GetRegisteredServer().num_sensors) # make sure we have the right number of sensors
-        inputs = [sensor for sensor in sensors] # create the sensor array
-        outputs = GetRegisteredServer().scripted.evaluate(inputs)
 
+        # create the sensor array and convert sensor values from network to advice space for
+        # script computations.
+        inputs = [sensor for sensor in sensors]
+        for i in range(len(inputs)):
+            nmin = GetRegisteredServer().sbounds_network.min(i)
+            nmax = GetRegisteredServer().sbounds_network.max(i)
+            amin = GetRegisteredServer().sbounds_advice.min(i)
+            amax = GetRegisteredServer().sbounds_advice.max(i)
+            inputs[i] = (inputs[i]-nmin)*(amax-amin)/(nmax-nmin) + amin;
+
+        outputs = GetRegisteredServer().scripted.evaluate(inputs) # evaluate the script to find outputs
         actions = self.actions.get_instance() # make a vector for the actions
 
         assert(len(actions) == len(outputs))
         for i in range(len(outputs)):
-            actions[i] = outputs[i] - 0.5
+            assert((outputs[i] >= -1 and outputs[i] <= 1), "agent action not in range [-1, 1]")
+            actions[i] = (outputs[i]+1.0)/2.0  # convert value from advice to network space, i.e. [0, 1]
+            actions[i] = actions[i] - 0.5
 
         return actions
