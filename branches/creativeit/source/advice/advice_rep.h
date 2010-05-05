@@ -183,15 +183,15 @@ private:
 
     bool mValue;
 
-    explicit BooleanTerm(bool val) : mValue(val), mWeight(val ? mOmega : -mOmega) {}
+    explicit BooleanTerm(bool val) : mWeight(val ? mOmega : -mOmega), mValue(val) {}
 };
 
 
 struct BinaryTerm : public Term {
     BinaryTerm(U32 var, F64 rhs, F64 w1, F64 w2, F64 w3) :
-            mVariable(var), mRHSVal(rhs), mWeight1(w1), mWeight2(w2), mWeight3(w3), mRHSType(eValue) {}
+            mWeight1(w1), mWeight2(w2), mWeight3(w3), mVariable(var), mRHSVal(rhs), mRHSType(eValue) {}
     BinaryTerm(U32 var, U32 rhs, F64 w1, F64 w2, F64 w3) :
-            mVariable(var), mRHSVar(rhs), mWeight1(w1), mWeight2(w2), mWeight3(w3), mRHSType(eVariable) {}
+            mWeight1(w1), mWeight2(w2), mWeight3(w3), mVariable(var), mRHSVar(rhs), mRHSType(eVariable) {}
     void buildRepresentation(PopulationPtr population, NNodePtr biasnode, GenomePtr genome, std::vector<NNodePtr>& variables, NNodePtr& ionode) const;
     bool evaluate(std::vector<F64>& variables) const;
     virtual bool compare(F64 lhs, F64 rhs) const = 0;
@@ -282,8 +282,8 @@ struct GTTerm : public BinaryTerm {
 
 
 struct Conds : public ANode {
-    Conds() : mTerms(), mWeight1(mOmega), mWeight2(mOmega/2.0) {}
-    Conds(const std::vector<Term*>& terms) : mTerms(terms), mWeight1(mOmega), mWeight2(mOmega*(-2.0*terms.size()+1.0)/2.0) {}
+    Conds() : mWeight1(mOmega), mWeight2(mOmega/2.0), mTerms() {}
+    Conds(const std::vector<Term*>& terms) : mWeight1(mOmega), mWeight2(mOmega*(-2.0*terms.size()+1.0)/2.0), mTerms(terms) {}
     ~Conds() {
         for (std::vector<Term*>::iterator i = mTerms.begin(); i != mTerms.end(); ++i) {
             delete (*i);
@@ -317,8 +317,8 @@ struct Rule : public ANode {
 
 
 struct IfRule : public Rule {
-    IfRule(Conds* conds, Rule* then, Rule* els = NULL) : mConds(conds), mThen(then), mElse(els),
-                                                         mWeight1(mOmega), mWeight2(mOmega/2) {}
+    IfRule(Conds* conds, Rule* then, Rule* els = NULL) : mWeight1(mOmega), mWeight2(mOmega/2), 
+                                                         mConds(conds), mThen(then), mElse(els) {}
     ~IfRule() { 
         delete mConds;
         delete mThen;
@@ -385,10 +385,10 @@ private:
     // The weights below are therefore the same as for Conds, which constructs the
     // conjunction of terms.
     static const F64 mOmega = 8.0;
+    std::vector<Rule*> mRules;
     F64 mWeight1;
     F64 mWeight2;
 
-    std::vector<Rule*> mRules;
 };
 
 

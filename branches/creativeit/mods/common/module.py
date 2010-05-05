@@ -31,4 +31,3 @@ def openWiki(page):
         print 'openWiki:', page
         webbrowser.open('http://code.google.com/p/opennero/wiki/' + page)
     return closure
-    

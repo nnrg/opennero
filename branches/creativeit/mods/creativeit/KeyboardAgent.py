@@ -78,10 +78,10 @@ class KeyboardAgent(AgentBrain):
             # Keys specify movement relative to screen coordinates.
             for key in KeyboardAgent.keys:
                 if key == 'right':
-                    theta = 0.5
+                    theta = -0.5
                     accel = 1
                 elif key == 'left':
-                    theta = -0.5
+                    theta = 0.5
                     accel = 1
                 elif key == 'fwd':
                     accel = 1

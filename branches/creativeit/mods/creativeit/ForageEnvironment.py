@@ -135,13 +135,11 @@ class ForageEnvironment(Environment):
 
     def save_trace(self, filename):
         # pickle the current trace in the given file
-        print "saving trace..."
         with open(filename, 'w') as file:
             pickle.dump(self.trace, file)
 
     def load_trace(self, filename):
         # load previously pickled trace from the given file
-        print "loading trace..."
         with open(filename, 'r') as file:
             self.trace = pickle.load(file)
         self.use_trace = True
@@ -151,7 +149,6 @@ class ForageEnvironment(Environment):
 
     def unload_trace(self):
         # unload previously loaded trace
-        print "unloading trace..."
         self.trace = None
         self.use_trace = False
         while len(self.path_markers_trace) > 0:
@@ -260,7 +257,7 @@ class ForageEnvironment(Environment):
             state.marked_position = state.position
         elif closest_cube_dist < self.MAX_DISTANCE:    # Reward based on how close agent is to the cube.
             closest_cube_dist_mark = getSimContext().getObjectPosition(closest_cube_id).getDistanceFrom(state.marked_position)
-            reward = 1 - (closest_cube_dist/closest_cube_dist_mark)
+            reward = 1 - (closest_cube_dist/closest_cube_dist_mark) if closest_cube_dist_mark > 0 else -1
             if reward < -1:
                 reward = -1
         #else:                                          # No more cubes to visit.
@@ -375,7 +372,7 @@ class ForageEnvironment(Environment):
         # function centered on the cube at the location of the sensor in proportion to the
         # distance of the cube from the agent.
         for i in range(len(cubedst)):
-            dist = cubedst[i]/maxdist
+            dist = cubedst[i]/maxdist if maxdist > 0 else 0
             angle = cubeang[i]
 
             for j in range(num_cube_sensors):

@@ -20,8 +20,16 @@ class CreativeITMod:
         self.tracing = False            # Flag indicating if agent is being traced
         self.agents = {}  # ids of agents
         self.key_object_id = dict()     # Key-id mapping of objects added using keyboard
-        self.inc_dec_value = 0.0        # Value that is incremented or decremented
-        self.inc_dec_funcs = dict()     # Functions indexed by object id, called when above value is changed
+        self.key_orig_props = dict()    # Original properties of objects added using keyboard
+        self.saved_cursor = None        # Saved mouse position used for adjusting radius and speed
+        self.radius_const = 0.01        # Constant used for adjusting radius of circle using mouse
+        self.speed_const = 0.01         # Constant used for adjusting speed of moving cube using mouse
+        self.current_radius = 1.0       # Current radius in terms of fraction of max value
+        self.current_speed = 1.0        # Current speed in terms of fraction of max value
+        self.circle_function = None     # Function describing the circular path
+        self.control = None             # The selected control method for agent
+        self.task = None                # The selected task
+        self.approach = None            # The selected approach
         # egocentric sensor angles are specified in the range [-1, 1]; multiplying this number
         # by 180 gives the angle in degrees.  cube sensors are evenly distributed around the
         # agent, while wall sensors are in front of the agent.
@@ -57,6 +65,10 @@ class CreativeITMod:
         self.environment = ForageEnvironment(self)
         self.rtneat = None
         self.scripted = None
+        
+        # Mark the position where the agents start.
+        self.start_pos = Vector3f(900, -60, 2)
+        addObject("data/shapes/cube/RedCube.xml", self.start_pos, Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))        
     
     # add a set of coordinate axes
     def addAxes(self):
@@ -93,7 +105,7 @@ class CreativeITMod:
         for state in self.environment.states.values():
             state.has_new_advice = True
 
-    def setObjectPath(self, path, id):
+    def setObjectPath(self, id, path):
         """ set the path of the specified object """
         self.environment.object_paths[id] = path
 
@@ -127,19 +139,21 @@ class CreativeITMod:
         print "disabling backprop ..."
         self.environment.run_backprop = False
 
-    def start_rtneat(self):
+    def start_rtneat(self, task):
         """ start rtneat to find a solution """
         disable_ai()
         set_environment(self.environment)
         self.environment.initialize()
         RTNEATAgent.INDEX_COUNT = 0  # Initialize variable for assigning indexes to agents
-        self.rtneat = RTNEAT("data/ai/neat-params.dat", self.num_sensors, self.num_actions, self.pop_size, 1.0, True)
+        if task == 'around':
+            self.rtneat = RTNEAT('data/ai/cube_population.txt', "data/ai/neat-params.dat", self.pop_size)
+        else:
+            self.rtneat = RTNEAT("data/ai/neat-params.dat", self.num_sensors, self.num_actions, self.pop_size, 1.0, True)
         set_ai("neat", self.rtneat)
         enable_ai()
         for i in range(self.pop_size):
             self.agents[i] = addObject("data/shapes/character/SydneyRTNEAT.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
-        print "Starting evolution agents..."
-    
+
     def start_scripted(self):
         """ start scripted agent to find a solution """
         disable_ai()
@@ -149,16 +163,14 @@ class CreativeITMod:
         self.agents[0] = addObject("data/shapes/character/SydneyScripted.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
         enable_ai()
 
-
     def start_keyboard(self):
-        """ start the keyboard agent to teach by demonstration """
+        """ start the keyboard agent to collect demonstration example """
         disable_ai()
         set_environment(self.environment)
         self.environment.initialize()
         self.agents[0] = addObject("data/shapes/character/SydneyKeyboard.xml", Vector3f(900, -60, 2), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
         enable_ai()
         self.environment.start_tracing()
-        print "Starting keyboard agent..."
 
 gMod = None
 

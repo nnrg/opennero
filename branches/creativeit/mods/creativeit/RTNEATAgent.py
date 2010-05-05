@@ -111,6 +111,11 @@ class RTNEATAgent(AgentBrain):
         else:
             print "index: %d, fitness: %f" % (self.index, self.org.fitness)
 
+        # if we are "Agent 0", we should save the population into a file with the current episode number
+
+        if self.index == 0:
+            self.rtneat.save_population('saved_population_%d.txt' % self.environment.get_state(self).current_episode)
+
         return True
 
     def destroy(self):
