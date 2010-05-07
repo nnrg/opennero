@@ -1,37 +1,10 @@
-# Notes:
-# - absolute value of constants in conditions should be greater than 0.1
-#   to ensure we are using the desired part of the sigmoid for producing
-#   true (value close to 1) and false (value close to 0)
-# - constants in set expressions should be between 0.2 and 0.8 to ensure
-#   we stay in the mostly linear part of the sigmoid
-# - 0.5 is subtracted from output values to get actions
-# - since the rules are converted to neural network, the rules are all
-#   evaluated in parallel
-# - set expressions with the same left hand side produce a value that is
-#   the sum of the right hand sides
-
-# if wall is straight ahead and to the right of the agent, then turn left.
-if i9 > 0.5 then
-{
-   set n1 0.8
+# if wall is to the right of the agent, then turn left and move forward.
+if s9 > 0.5 {
+   a0 = 1
+   a1 = 1
 }
-# if wall is straight ahead and to the left of the agent, then turn right.
-else if i11 > 0.5 then
-{
-   set n1 0.2
+# if wall is to the left of the agent, then turn right and move forward.
+elif s10 > 0.5 {
+   a0 = 1
+   a1 = -1
 }
-endif
-endif
-
-# if wall is to the right of the agent, then go straight.
-if i8 > 0.5 then
-{
-   set n0 0.8
-}
-# if wall is to the left of the agent, then go straight.
-else if i12 > 0.5 then
-{
-   set n0 0.8
-}
-endif
-endif

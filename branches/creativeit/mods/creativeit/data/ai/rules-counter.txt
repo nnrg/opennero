@@ -1,19 +1,14 @@
 # demonstrates how to use a counter in the advice language.
 
-# go straight for a certain number of time steps, turn left, and
-# then go straight again. g0 is the counter variable.
-if g0 > 100 and g0 < 130 then
-{
-   set o0 0.8
-   set o1 0.8
+# move straight for a certain number of time steps, turn left, and
+# then move straight again. g0 is the counter variable.
+if g0 > 0.1 and g0 < 0.13 {
+   a0 = 1
+   a1 = 1
 }
-else
-{
-   set o0 0.8
-   set o1 0.5
+else {
+   a0 = 1
+   a1 = 0
 }
-endif
 
-{
-   set g0 g0 + 1
-}
+g0 = g0 + 0.001

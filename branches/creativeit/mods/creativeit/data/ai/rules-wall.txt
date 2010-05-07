@@ -1,27 +1,12 @@
 # rules for an agent to go around walls.
 
 # if wall is straight ahead and to the right of the agent, then turn left.
-if i9 > 0.5 then
-{
-   set o1 0.8
+if s9 > 0.5 {
+   a0 = 1
+   a1 = 1
 }
 # if wall is straight ahead and to the left of the agent, then turn right.
-else if i11 > 0.5 then
-{
-   set o1 0.2
+elif s10 > 0.5 {
+   a0 = 1
+   a1 = -1
 }
-endif
-endif
-
-# if wall is to the right of the agent, then go straight.
-if i8 > 0.5 then
-{
-   set o0 0.8
-}
-# if wall is to the left of the agent, then go straight.
-else if i12 > 0.5 then
-{
-   set o0 0.8
-}
-endif
-endif
