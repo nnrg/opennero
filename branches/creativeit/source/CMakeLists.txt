@@ -44,17 +44,15 @@ IF (PYTHON_FOUND)
   MESSAGE(STATUS "Found Python libraries in " ${PYTHON_INCLUDE_PATH} " and " ${PYTHON_LIBRARIES})
 ENDIF (PYTHON_FOUND)
 
-# find lex
-FIND_PROGRAM(LEX_EXE flex)
-IF(LEX_EXE STREQUAL "LEX_EXE-NOTFOUND")
-  MESSAGE(FATAL_ERROR "dear user, plase install flex!")
-ENDIF(LEX_EXE STREQUAL "LEX_EXE-NOTFOUND")
+# find lex and yacc (or flex and bison)
+FIND_PACKAGE( LexYacc )
+IF (NOT LEX_FOUND)
+    MESSAGE(FATAL_ERROR "Dear user, please install flex (or lex)!")
+ENDIF (NOT LEX_FOUND)
 
-# find yacc
-FIND_PROGRAM(YACC_EXE bison)
-IF(YACC_EXE STREQUAL "YACC_EXE-NOTFOUND")
-  MESSAGE(FATAL_ERROR "dear user, plase install bison!")
-ENDIF(YACC_EXE STREQUAL "YACC_EXE-NOTFOUND")
+IF (NOT YACC_FOUND)
+    MESSAGE(FATAL_ERROR "Dear user, please install bison (or yacc)!")
+ENDIF (NOT YACC_FOUND)
 
 SET(ADVICE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/advice)
 
@@ -65,7 +63,7 @@ MACRO(YACC_FILE _filename)
   SET(_generated_header ${ADVICE_DIR}/${_basename}.tab.hh)
   ADD_CUSTOM_COMMAND(
     OUTPUT  ${_generated_source} ${_generated_header}
-    COMMAND ${YACC_EXE} -d --output=${_generated_source} ${ADVICE_DIR}/${_filename}
+    COMMAND ${YACC_PROGRAM} -d --output=${_generated_source} ${ADVICE_DIR}/${_filename}
     DEPENDS ${ADVICE_DIR}/${_filename}
     )
   SET(OpenNERO_sources ${OpenNERO_sources} ${_generated_source})
@@ -78,7 +76,7 @@ MACRO(LEX_FILE _filename)
   SET(_generated_source ${ADVICE_DIR}/${_basename}.yy.cc)
   ADD_CUSTOM_COMMAND(
     OUTPUT  ${_generated_source}
-    COMMAND ${LEX_EXE} -o${_generated_source} ${ADVICE_DIR}/${_filename}
+    COMMAND ${LEX_PROGRAM} -o${_generated_source} ${ADVICE_DIR}/${_filename}
     DEPENDS ${ADVICE_DIR}/${_filename} )
   SET(OpenNERO_sources ${OpenNERO_sources} ${_generated_source})
 ENDMACRO(LEX_FILE)
