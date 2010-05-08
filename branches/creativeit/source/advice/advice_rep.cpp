@@ -7,13 +7,63 @@
 using namespace NEAT;
 using namespace std;
 
-// Static members and extern variables.
-const F64 Eterm::mOmega;
-const F64 SetVar::mOmega;
-const F64 BooleanTerm::mOmega;
-const F64 BinaryTerm::mOmega;
-const F64 Conds::mOmega;
-const F64 IfRule::mOmega;
+/// Static members and extern variables.
+///@{
+
+/** 
+	Approximate y = x with y = sigmoid(4*x - 2), which is exact for x = 0.5.
+	Note that this works because the sigmoid has slope 1/4 at y = 0.5.
+	Since we use this rule as the consequent of a conditional, we modify it
+	as y = sigmoid(4*x - 2 - 8 + 8*cond), i.e. if cond ~ 0, then y ~ 0 and
+	if cond ~ 1, then y ~ sigmoid(4*x - 2). */
+const F64 Eterm::mOmega = 4.0;
+
+/** 
+	Approximate y = x with y = sigmoid(4*x - 2), which is exact for x = 0.5.
+	Note that this works because the sigmoid has slope 1/4 at y = 0.5. */
+const F64 SetVar::mOmega = 4.0;
+
+/** 
+	true/false is represented by a node that has high/low activation, and is
+	obtained by connecting from the bias node with a large positive/negative
+	weight. */
+const F64 BooleanTerm::mOmega = 4.6;
+
+/** 
+	Suppose we want to construct a network node that produces the activation
+	for GTTerm corresponding to the truth value of mVariable > mRHS.
+	Assume true is represented by high activation (greater than 0.9) and false
+	is represented by low activation (less than 0.1) of this node.  It receives
+	activation a1 and a2 from nodes representing mVariable and mRHS
+	respectively.  Then, the weights of these connections have the same
+	magnitude mOmega given by the following expression:
+	mOmega(a1 - a2) >= 2.197 (since sigmoid(2.197) is approximately 0.9)
+	Since the range of inputs is usually [-1, 1] or [0, 1], we will use
+	approximately 10% of it as the fuzzy range [-0.1, 0.1] to match (a1 - a2),
+	i.e. we want high activation for a1 - a2 >= 0.1 and low activation for
+	a1 - a2 <= -0.1
+	These assumptions yield the following value for mOmega. */
+const F64 BinaryTerm::mOmega = 21.97;
+
+/**
+	Conds is a conjunction of terms; its output node is created using connections
+	from its constituent terms and the bias node.  See towell:phd91 (page 23-24)
+	for weight calculation.*/
+const F64 Conds::mOmega = 8.0;
+
+/**
+	The then rule is attached to the condition, and the else rule is attached to
+	an else node created by negating the condition.  The negation is obtained by
+	a large negative weighted connection from the condition node and a smaller
+	positive weighted connection from the bias node.*/
+const F64 IfRule::mOmega = 8.0;
+
+/**
+	We need to construct the conjunction of the last else nodes of all the rules.
+	The weights below are therefore the same as for Conds, which constructs the
+	conjunction of terms. */
+const F64 Rules::mOmega = 8.0;
+
 U32 Variable::mNumSensors;
 U32 Variable::mNumActions;
 FeatureVectorInfo Number::mSensorBoundsNetwork;
