@@ -152,6 +152,9 @@ namespace OpenNero
         /// get transformed bounding box
         BBoxf getTransformedBoundingBox() const;
 
+        /// transform the given vector by applying the object's matrix
+        Vector3f transformVector(const Vector3f& vect) const;
+
         /// get the scene object id
         SceneObjectId GetId();
 

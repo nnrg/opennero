@@ -26,6 +26,18 @@ namespace OpenNero
         /// @param child the child element to add to our hierarchy
         void addChild( GuiBasePtr child );
 
+        /// Set the visibility of this window
+        /// @param visible visibility of the window
+        void setVisible(bool visible) { static_cast<IGUIWindow*>(getIrrGuiElement())->setVisible(visible); }
+
+        /// Set the visibility of the close button of the window
+        /// @param visible visibility of the close button
+        void setVisibleCloseButton(bool visible) { static_cast<IGUIWindow*>(getIrrGuiElement())->getCloseButton()->setVisible(visible); }
+
+        /// Set whether the window can be dragged by the mouse
+        /// @param draggable whether the window can be dragged
+        //void setDraggable(bool draggable) { static_cast<IGUIWindow*>(getIrrGuiElement())->setDraggable(draggable); }
+
     protected:
         /// Can this element gain focus?
         bool Default_CanGainFocus() { return true; }
