@@ -489,7 +489,9 @@ namespace OpenNero
     boost::python::tuple SimContext::FindInRay(const Vector3f& origin, 
                                                const Vector3f& target,
                                                const uint32_t& type,
-                                               const bool vis) const
+                                               const bool vis,
+                                               const SColor& foundColor,
+                                               const SColor& noneColor) const
 	{
         namespace py = boost::python;
         ISceneCollisionManager* collider = mIrr.mpSceneManager->getSceneCollisionManager();
@@ -501,10 +503,7 @@ namespace OpenNero
             (ray, outPosition, outTriangle, type);
         // convert back into our coord system
         outPosition = ConvertIrrlichtToNeroPosition(outPosition);
-        // TODO: the color should be a parameter along with vis
-        static const LineSet::LineColor kYellow( 255, 255, 255, 0 );
-        static const LineSet::LineColor kRed( 255, 255, 0, 0 );
-        if (node)
+        if (node && node->getID() >= kFirstSimId)
         {
             // we found a sim node, so return its data
             SimEntityPtr ent = getSimulation()->FindBySceneObjectId(node->getID());
@@ -514,7 +513,7 @@ namespace OpenNero
                 // draw a ray if requested
                 if(vis)
                 {
-                    LineSet::instance().AddSegment(origin, outPosition, kRed);
+                    LineSet::instance().AddSegment(origin, outPosition, foundColor);
                 }
                 // return the result: (sim, hit)
                 return py::make_tuple(ent->GetState(), outPosition);
@@ -522,7 +521,7 @@ namespace OpenNero
         } else {
             if (vis)
             {
-                LineSet::instance().AddSegment(origin, target, kYellow );
+                LineSet::instance().AddSegment(origin, target, noneColor);
             }
         }
         return py::make_tuple();
@@ -709,7 +708,7 @@ namespace OpenNero
 
     BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addLightSource_overloads, AddLightSource, 2, 3)
     
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(findInRay_overloads, FindInRay, 2, 4)
+    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(findInRay_overloads, FindInRay, 2, 6)
 
     PYTHON_BINDER( SimContext )
     {

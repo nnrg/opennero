@@ -93,7 +93,13 @@ namespace OpenNero
 #endif // NERO_BUILD_PHYSICS
 
 		/// Find the first object that intersects the specified ray
-		boost::python::tuple FindInRay( const Vector3f& origin, const Vector3f& target, const uint32_t& type = 0, const bool val = false) const;
+		boost::python::tuple FindInRay( const Vector3f& origin, 
+                                        const Vector3f& target, 
+                                        const uint32_t& type = 0, 
+                                        const bool val = false, 
+                                        const SColor& foundColor = SColor(255,255,0,0),
+                                        const SColor& noneColor = SColor(255,255,255,0)
+                                        ) const;
 
         /// Get (approximate) 3d position of the click
         Vector3f GetClickedPosition(const int32_t& x, const int32_t& y) const;
