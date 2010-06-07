@@ -183,7 +183,32 @@ namespace OpenNero
     /// Python interface method for adding a python controlled camera to the context
     CameraPtr SimContext::AddCamera( float32_t rotateSpeed, float32_t moveSpeed, float32_t zoomSpeed )
     {
+        //adziuk
         mpCamera.reset( new Camera( mIrr, rotateSpeed, moveSpeed, zoomSpeed ) );
+        
+        ICameraSceneNode * cam = get_pointer(mpCamera->getCamera());
+
+        cam->setTriangleSelector(GetSceneManager()->getRootSceneNode()->getTriangleSelector());
+        if(!GetSceneManager()->getRootSceneNode()->getTriangleSelector())
+        {
+            ISceneNode* root = GetSceneManager()->getRootSceneNode();
+            IMetaTriangleSelector* total = GetSceneManager()->createMetaTriangleSelector();
+            core::list< ISceneNode * > kids = root->getChildren();
+
+            core::list<ISceneNode*>::Iterator i = kids.begin();
+            for(i = kids.begin();i != kids.end(); i++)
+            {
+                total->addTriangleSelector((*(*i)).getTriangleSelector());
+            }
+            root->setTriangleSelector(total);
+            cam->setTriangleSelector(GetSceneManager()->getRootSceneNode()->getTriangleSelector());
+        }
+
+        ISceneNodeAnimatorCollisionResponse * arc = GetSceneManager()->createCollisionResponseAnimator(cam->getTriangleSelector(),cam);
+        arc->setGravity(vector3df(0,0,0));
+        cam->addAnimator(arc);
+        arc->drop();
+        
         return mpCamera;
     }
 

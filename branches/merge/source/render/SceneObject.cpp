@@ -519,6 +519,7 @@ namespace OpenNero
     */
     bool SceneObject::LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data )
     {
+        //adziuk
         if( !objTemplate )
             return false;
 
@@ -551,6 +552,12 @@ namespace OpenNero
             ITriangleSelector* triangleSelector = GetSceneManager()->createTriangleSelector(mAniSceneNode);
             AssertMsg(triangleSelector, "Could not create a collision object for id: " << data.GetId());
             mAniSceneNode->setTriangleSelector(triangleSelector);
+            IMetaTriangleSelector* meta = GetSceneManager()->createMetaTriangleSelector();
+            meta->addTriangleSelector(mAniSceneNode->getParent()->getTriangleSelector());
+            meta->addTriangleSelector(triangleSelector);
+            mAniSceneNode->getParent()->setTriangleSelector(meta);
+            triangleSelector->drop();
+            meta->drop();
         }
 
         // are we a terrain?
@@ -560,9 +567,10 @@ namespace OpenNero
             mSceneNode     = mTerrSceneNode;
             mTerrSceneNode->scaleTexture( mSceneObjectTemplate->mScaleTexture.X, mSceneObjectTemplate->mScaleTexture.Y );
             // add triangle selector for a terrain node
-            //ITriangleSelector* triangleSelector = GetSceneManager()->createTerrainTriangleSelector(mTerrSceneNode);
-            //AssertMsg(triangleSelector, "Could not create a collision object for id: " << data.GetId());
-            //mTerrSceneNode->setTriangleSelector(triangleSelector);
+            ITriangleSelector* triangleSelector = GetSceneManager()->createTerrainTriangleSelector(mTerrSceneNode);
+            AssertMsg(triangleSelector, "Could not create a collision object for id: " << data.GetId());
+            mTerrSceneNode->setTriangleSelector(triangleSelector);
+            triangleSelector->drop();
         }
 
         // are we a particle system?
