@@ -86,6 +86,8 @@ namespace OpenNero
         FPSCameraTemplatePtr            mFPSCamera;         ///< information about camera attachment
         float32_t                       mAnimationSpeed;    ///< animation speed
         FootprintTemplatePtr            mFootprints;        ///< footprint template
+		int                             mCollisionType;     ///< type of this object for collision purposes
+		int                             mCollisionMask;     ///< mask of objects this object collides with
     };
 
     SimId ConvertSceneIdToSimId(uint32_t simId);
@@ -105,18 +107,6 @@ namespace OpenNero
 
         // Allow SimEntity to manage scene object ids.
         friend class SimEntity;
-
-        /// Scene node ids are sim ids bit-shifted left BITMASK_SIZE times
-        /// with a bitmask appended to the right. This bitmask is used to determine
-        /// what type of object that scene node represents and is used during
-        /// collision checks. The bitmask constants are listed in this enum.
-        enum
-        {
-            TYPE_1 = (1 << 0), ///< object type 1 (can be selected for collisions)
-            TYPE_2 = (1 << 1), ///< object type 2 (can be selected for collisions)
-            TYPE_3 = (1 << 2), ///< object type 3 (can be selected for collisions)
-            TYPE_4 = (1 << 3), ///< object type 4 (can be selected for collisions)
-        };
         
         /// number of bits in the TYPE_ bitmask of a SceneObjectId
         static const SceneObjectId BITMASK_SIZE = 4;

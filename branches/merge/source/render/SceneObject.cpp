@@ -158,6 +158,33 @@ namespace OpenNero
                 return true;
             }
         };
+
+		void _addTriangleSelectorToParent(ISceneNode_IPtr node, ITriangleSelector_IPtr tri_selector) {
+			ITriangleSelector_IPtr parentTriangles = node->getParent()->getTriangleSelector();
+			IMetaTriangleSelector* meta;
+			if (parentTriangles) {
+				// if parent already has a triangle selector, use that
+				meta = (IMetaTriangleSelector*)parentTriangles.get();
+				meta->grab(); // since we will be dropping the same pointer twice below
+			} else {
+				// otherwise, create a new one and add it to parent
+				meta = GetSceneManager()->createMetaTriangleSelector();
+				node->getParent()->setTriangleSelector(meta);
+			}
+			meta->addTriangleSelector(tri_selector.get());
+			SafeIrrDrop(meta);
+		}
+
+		void _removeTriangleSelectorFromParent(ISceneNode_IPtr node) {
+			ITriangleSelector_IPtr tri_selector = node->getTriangleSelector();
+			if (!tri_selector) return; // no selector - return
+			if (!node->getParent()) return; // no parent - return
+			ITriangleSelector_IPtr parentTriangles = node->getParent()->getTriangleSelector();
+			if (!parentTriangles) return; // no parent selector - return
+			// if parent already has a triangle selector, use that
+			IMetaTriangleSelector* meta = (IMetaTriangleSelector*)parentTriangles.get();
+			meta->removeTriangleSelector(tri_selector.get());
+		}
     }
 
     SimId ConvertSceneIdToSimId(uint32_t id)
@@ -482,6 +509,9 @@ namespace OpenNero
         // allow irrlicht to clean up
         if( mSceneNode )
         {
+			// remove the triangle selector of this node from the parent (if any)
+			_removeTriangleSelectorFromParent(mSceneNode);
+
             // remove this node from the scene
             mSceneNode->remove();
 
@@ -549,16 +579,11 @@ namespace OpenNero
 			mSceneNode = mAniSceneNode;
             
             // add triangle selector for a mesh node
-            ITriangleSelector* triangleSelector = GetSceneManager()->createTriangleSelector(mAniSceneNode);
+            ITriangleSelector_IPtr triangleSelector = GetSceneManager()->createTriangleSelector(mAniSceneNode);
             AssertMsg(triangleSelector, "Could not create a collision object for id: " << data.GetId());
-            mAniSceneNode->setTriangleSelector(triangleSelector);
-            IMetaTriangleSelector* meta = GetSceneManager()->createMetaTriangleSelector();
-            meta->addTriangleSelector(mAniSceneNode->getParent()->getTriangleSelector());
-            meta->addTriangleSelector(triangleSelector);
-            mAniSceneNode->getParent()->setTriangleSelector(meta);
-            triangleSelector->drop();
-            meta->drop();
-        }
+            mAniSceneNode->setTriangleSelector(triangleSelector.get());
+			_addTriangleSelectorToParent(mAniSceneNode, triangleSelector);
+		}
 
         // are we a terrain?
         else if( mSceneObjectTemplate->mHeightmap != "" )
@@ -567,10 +592,10 @@ namespace OpenNero
             mSceneNode     = mTerrSceneNode;
             mTerrSceneNode->scaleTexture( mSceneObjectTemplate->mScaleTexture.X, mSceneObjectTemplate->mScaleTexture.Y );
             // add triangle selector for a terrain node
-            ITriangleSelector* triangleSelector = GetSceneManager()->createTerrainTriangleSelector(mTerrSceneNode);
+            ITriangleSelector_IPtr triangleSelector = GetSceneManager()->createTerrainTriangleSelector(mTerrSceneNode);
             AssertMsg(triangleSelector, "Could not create a collision object for id: " << data.GetId());
-            mTerrSceneNode->setTriangleSelector(triangleSelector);
-            triangleSelector->drop();
+            mTerrSceneNode->setTriangleSelector(triangleSelector.get());
+			_addTriangleSelectorToParent(mTerrSceneNode, triangleSelector);
         }
 
         // are we a particle system?

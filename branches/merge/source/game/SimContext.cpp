@@ -188,7 +188,6 @@ namespace OpenNero
         
         ICameraSceneNode * cam = get_pointer(mpCamera->getCamera());
 
-        cam->setTriangleSelector(GetSceneManager()->getRootSceneNode()->getTriangleSelector());
         if(!GetSceneManager()->getRootSceneNode()->getTriangleSelector())
         {
             ISceneNode* root = GetSceneManager()->getRootSceneNode();
@@ -201,14 +200,17 @@ namespace OpenNero
                 total->addTriangleSelector((*(*i)).getTriangleSelector());
             }
             root->setTriangleSelector(total);
-            cam->setTriangleSelector(GetSceneManager()->getRootSceneNode()->getTriangleSelector());
+			SafeIrrDrop(total);
         }
 
-        ISceneNodeAnimatorCollisionResponse * arc = GetSceneManager()->createCollisionResponseAnimator(cam->getTriangleSelector(),cam);
+        ISceneNodeAnimatorCollisionResponse * arc = 
+			GetSceneManager()->createCollisionResponseAnimator(
+				GetSceneManager()->getRootSceneNode()->getTriangleSelector(),
+				cam);
         arc->setGravity(vector3df(0,0,0));
         cam->addAnimator(arc);
-        arc->drop();
-        
+        SafeIrrDrop(arc);
+
         return mpCamera;
     }
 
