@@ -157,8 +157,15 @@ class NeroEnvironment(Environment):
         sbound.add_continuous(0, 1) # 45 deg
         sbound.add_continuous(0, 1) # 60 deg
         
-        sbound.add_continuous(0, self.MAX_DIST) # Flag Sensors - Dist
-        sbound.add_continuous(-1 * pi * 2, pi * 2) # Flag Sensors - Heading
+        #Flag Range Sensors
+        sbound.add_continuous(0, 1) # 0 - 45
+        sbound.add_continuous(0, 1) # 45 - 90
+        sbound.add_continuous(0, 1) # 90 - 135
+        sbound.add_continuous(0, 1) # 135 - 180
+        sbound.add_continuous(0, 1) # 180 - 225
+        sbound.add_continuous(0, 1) # 225 - 270
+        sbound.add_continuous(0, 1) # 270 - 315
+        sbound.add_continuous(0, 1) # 315 - 360
         
         sbound.add_continuous(0, self.MAX_DIST) # Ally Sensors - Dist
         sbound.add_continuous(-1 * pi * 2, pi * 2) # Ally Sensors - Heading
@@ -239,6 +246,10 @@ class NeroEnvironment(Environment):
         from NERO.module import getMod
         # check if the action is valid
         assert(self.agent_info.actions.validate(action))
+        
+        # adziuk: this the best place I can see for doing menu updates. =/
+        # Or maybe it should occur nearer the bottom.
+        
         state = self.get_state(agent)
         if agent.step == 0:
             p = agent.state.position
@@ -401,11 +412,36 @@ class NeroEnvironment(Environment):
         vx.append(self.raySense(agent, 30, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 45, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 60, MAX_SD, OBSTACLE))
+        state = self.get_state(agent)
+        
+        fd = self.flag_distance(agent)
+        fh = sin((state.pose[1] - self.flag_loc.y) / fd)
+        
+        vx.append(fh >= -45 and fh <= 45)
+        vx.append(fh >= 0 and fh <= 90)
+        vx.append(fh >= 45 and fh <= 135)
+        vx.append(fh >= 90 and fh <= 180)
+        
+        vx.append(fh >= 135 and fh <= 225)
+        vx.append(fh >= 180 and fh <= 270)
+        vx.append(fh >= 225 and fh <= 315)
+        vx.append(fh >= 270 and fh <= 360)
+        
+        """
+        vx.append(fh >= 0 and fh <= 45)
+        vx.append(fh >= 45 and fh <= 90)
+        vx.append(fh >= 90 and fh <= 135)
+        vx.append(fh >= 135 and fh <= 180)
+        
+        vx.append(fh >= 180 and fh <= 225)
+        vx.append(fh >= 225 and fh <= 270)
+        vx.append(fh >= 270 and fh <= 315)
+        vx.append(fh >= 315 and fh <= 360)
+        """
+
         for iter in range(len(vx)):
             v[iter] = vx[iter]
-        state = self.get_state(agent)
-        v[9] = self.flag_distance(agent)
-        v[10] = sin((state.pose[1] - self.flag_loc.y) / v[9])
+        
         ffr = self.getFriendFoe(agent)
         if (ffr[0] == []):
             return v
@@ -414,10 +450,10 @@ class NeroEnvironment(Environment):
         ff.append(self.nearest(state.pose, state.id, ffr[1]))
         if ff[0] == 1:
             return v
-        v[11] = self.distance(ff[0].pose, state.pose)
-        v[12] = self.angle(state.pose, ff[0].pose)
-        v[13] = self.distance(state.pose, ff[1].pose)
-        v[14] = self.angle(state.pose, ff[1].pose)
+        v[11 + 6] = self.distance(ff[0].pose, state.pose)
+        v[12 + 6] = self.angle(state.pose, ff[0].pose)
+        v[13 + 6] = self.distance(state.pose, ff[1].pose)
+        v[14 + 6] = self.angle(state.pose, ff[1].pose)
         return v
     
     def flag_distance(self, agent):
