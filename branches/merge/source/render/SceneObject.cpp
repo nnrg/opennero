@@ -297,22 +297,23 @@ namespace OpenNero
 
     /// copy ctor for scene object template
     SceneObjectTemplate::SceneObjectTemplate( const SceneObjectTemplate& objTempl )
-                                    : ObjectTemplate(objTempl)
+        : ObjectTemplate(objTempl)
+		, mAniMesh(objTempl.mAniMesh)
+		, mTextures(objTempl.mTextures)
+		, mHeightmap(objTempl.mHeightmap)
+		, mMaterialType(objTempl.mMaterialType)
+		, mScale(objTempl.mScale)
+		, mScaleTexture(objTempl.mScaleTexture)
+		, mParticleSystem(objTempl.mParticleSystem)
+		, mCastsShadow(objTempl.mCastsShadow)
+		, mDrawBoundingBox(objTempl.mDrawBoundingBox)
+		, mDrawLabel(objTempl.mDrawLabel)
+		, mFPSCamera(objTempl.mFPSCamera)
+		, mAnimationSpeed(objTempl.mAnimationSpeed)
+		, mFootprints(objTempl.mFootprints)
+		, mCollisionType(objTempl.mCollisionType)
+		, mCollisionMask(objTempl.mCollisionMask)
     {
-        mAniMesh            = objTempl.mAniMesh;
-        mTextures           = objTempl.mTextures;
-        mHeightmap          = objTempl.mHeightmap;
-        mMaterialType       = objTempl.mMaterialType;
-        mScale              = objTempl.mScale;
-        mScaleTexture       = objTempl.mScaleTexture;
-        mParticleSystem     = objTempl.mParticleSystem;
-        mCastsShadow        = objTempl.mCastsShadow;
-        mDrawBoundingBox    = objTempl.mDrawBoundingBox;
-        mDrawLabel          = objTempl.mDrawLabel;
-        mFPSCamera          = objTempl.mFPSCamera;
-        mAnimationSpeed     = objTempl.mAnimationSpeed;
-        mFootprints         = objTempl.mFootprints;
-
         // copy over the textures and the material flags
         std::copy( objTempl.mTextures.begin(), objTempl.mTextures.end(), mTextures.begin() );
         std::copy( objTempl.mMaterialFlags.begin(), objTempl.mMaterialFlags.end(), mMaterialFlags.begin() );
@@ -346,7 +347,9 @@ namespace OpenNero
         mDrawLabel(false),
         mFPSCamera(),
         mAnimationSpeed(25.0f),
-        mFootprints()
+        mFootprints(),
+		mCollisionType(0),
+		mCollisionMask(0)
     {
         AssertMsg( factory, "Invalid sim factory" );
 
@@ -386,6 +389,11 @@ namespace OpenNero
             propMap.getValue( mAnimationSpeed, "Template.Render.AnimationSpeed" );
             LOG_F_DEBUG( "render", "object animation speed: " << mAnimationSpeed );
         }
+
+		if (propMap.hasSection( "Template.Render.Collision" ))
+		{
+			propMap.getValue( mCollisionType, "Template.Render.Collision" );
+		}
 
         static const std::string kFootprints("Template.Render.Footprints");
         if (propMap.hasSection( kFootprints ) )
@@ -582,7 +590,18 @@ namespace OpenNero
             ITriangleSelector_IPtr triangleSelector = GetSceneManager()->createTriangleSelector(mAniSceneNode);
             AssertMsg(triangleSelector, "Could not create a collision object for id: " << data.GetId());
             mAniSceneNode->setTriangleSelector(triangleSelector.get());
-			_addTriangleSelectorToParent(mAniSceneNode, triangleSelector);
+
+			if (mSceneObjectTemplate->mCollisionType > 0) {
+				ISceneNodeAnimator* animator = GetSceneManager()->createCollisionResponseAnimator(
+					GetSceneManager()->getRootSceneNode()->getTriangleSelector(),
+					mAniSceneNode,
+					Vector3f(1,1,1),
+					Vector3f(0,0,0));
+				mAniSceneNode->addAnimator(animator);
+				SafeIrrDrop(animator);
+			} else {
+				_addTriangleSelectorToParent(mAniSceneNode, triangleSelector);
+			}
 		}
 
         // are we a terrain?
@@ -720,15 +739,23 @@ namespace OpenNero
         Assert( mSharedData );
 
         // set the position and rotation of our object
+		// NOTE: ikarpov
+		// Objects can now potentially have a collision response animator 
+		// associated with them. If this is the case, the pose will change
+		// to a value different from that we are assigning. This means that
+		// we need to do an additional check after the attempted assignment
+		// and feed the values back into our shared data if they are not 
+		// what we expected.
         if( mSceneNode )
         {
             // Note: jsheblak 28July2007
             // Setting the position of some large meshes in irrlicht every frame
             // causes them to flicker or disappear. Compare the position first and
             // update if necessary.
-            // TODO(ikarpov): currently this is a bit fragile because it assumes ownership of
-            //  the shared SimEntityData's dirty bits - we should really have our own view of the
-            //  shared cache
+			// Note that sometimes we might want to teleport the object regardless
+			// of its collisions. In Irrlicht, we do this by calling setTarget() on
+			// the object's animator after calling setPosition and setRotation().
+			// TODO: implement teleporting in OpenNERO
             if( mSharedData->IsDirty(SimEntityData::kDB_Position) )
             {
                 if (mCamera && mFPSCamera)
@@ -736,8 +763,10 @@ namespace OpenNero
                     mFPSCamera->UpdatePosition(mSharedData, mCamera);
                 }
             
+				Vector3f desiredPosition( ConvertNeroToIrrlichtPosition(mSharedData->GetPosition()) );
+
                 // convert from open nero's coordinate system to irrlicht's
-                mSceneNode->setPosition( ConvertNeroToIrrlichtPosition(mSharedData->GetPosition()) );
+                mSceneNode->setPosition( desiredPosition );
 
                 if (mAniSceneNode && mSceneObjectTemplate->mFootprints)
                 {
