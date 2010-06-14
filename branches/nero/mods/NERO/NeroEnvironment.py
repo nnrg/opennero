@@ -150,15 +150,15 @@ class NeroEnvironment(Environment):
         abound.add_continuous(0, 1) 
 
         #sensors
-        sbound.add_continuous(0, 1) # -60 deg        
-        sbound.add_continuous(0, 1) # -45 deg
-        sbound.add_continuous(0, 1) # -30 deg
-        sbound.add_continuous(0, 1) # -15 deg
-        sbound.add_continuous(0, 1) # straight ahead
-        sbound.add_continuous(0, 1) # 15 deg
-        sbound.add_continuous(0, 1) # 30 deg
-        sbound.add_continuous(0, 1) # 45 deg
-        sbound.add_continuous(0, 1) # 60 deg
+        #sbound.add_continuous(0, 1) # -60 deg        
+        #sbound.add_continuous(0, 1) # -45 deg
+        #sbound.add_continuous(0, 1) # -30 deg
+        #sbound.add_continuous(0, 1) # -15 deg
+        #sbound.add_continuous(0, 1) # straight ahead
+        #sbound.add_continuous(0, 1) # 15 deg
+        #sbound.add_continuous(0, 1) # 30 deg
+        #sbound.add_continuous(0, 1) # 45 deg
+        #sbound.add_continuous(0, 1) # 60 deg
         
         #Flag Range Sensors
         sbound.add_continuous(0, 1) # 0 - 45
@@ -406,15 +406,15 @@ class NeroEnvironment(Environment):
         """ figure out what the agent should sense """
         v = self.agent_info.sensors.get_instance()
         vx = []
-        vx.append(self.raySense(agent, -60, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, -45, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, -30, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, -15, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 0, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 15, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 30, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 45, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 60, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, -60, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, -45, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, -30, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, -15, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, 0, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, 15, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, 30, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, 45, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, 60, MAX_SD, OBSTACLE))
         state = self.get_state(agent)
         
         fd = self.flag_distance(agent)
