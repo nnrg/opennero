@@ -167,11 +167,11 @@ class NeroEnvironment(Environment):
         sbound.add_continuous(0, 1) # 270 - 315
         sbound.add_continuous(0, 1) # 315 - 360
         
-        sbound.add_continuous(0, self.MAX_DIST) # Ally Sensors - Dist
-        sbound.add_continuous(-1 * pi * 2, pi * 2) # Ally Sensors - Heading
+        #sbound.add_continuous(0, self.MAX_DIST) # Ally Sensors - Dist
+        #sbound.add_continuous(-1 * pi * 2, pi * 2) # Ally Sensors - Heading
         
-        sbound.add_continuous(0, self.MAX_DIST) # Enemy Sensors - Dist
-        sbound.add_continuous(-1 * pi * 2, pi * 2) # Enemy Sensors - Heading
+        #sbound.add_continuous(0, self.MAX_DIST) # Enemy Sensors - Dist
+        #sbound.add_continuous(-1 * pi * 2, pi * 2) # Enemy Sensors - Heading
         
         #rewards
 #        rbound.add_continuous(-100,100) # range for reward
@@ -438,18 +438,18 @@ class NeroEnvironment(Environment):
         for iter in range(len(vx)):
             v[iter] = vx[iter]
         
-        ffr = self.getFriendFoe(agent)
-        if (ffr[0] == []):
-            return v
-        ff = []
-        ff.append(self.nearest(state.pose, state.id, ffr[0]))
-        ff.append(self.nearest(state.pose, state.id, ffr[1]))
-        if ff[0] == 1:
-            return v
-        v[11 + 6] = self.distance(ff[0].pose, state.pose)
-        v[12 + 6] = self.angle(state.pose, ff[0].pose)
-        v[13 + 6] = self.distance(state.pose, ff[1].pose)
-        v[14 + 6] = self.angle(state.pose, ff[1].pose)
+        #ffr = self.getFriendFoe(agent)
+        #if (ffr[0] == []):
+        #    return v
+        #ff = []
+        #ff.append(self.nearest(state.pose, state.id, ffr[0]))
+        #ff.append(self.nearest(state.pose, state.id, ffr[1]))
+        #if ff[0] == 1:
+        #    return v
+        #v[11 + 6] = self.distance(ff[0].pose, state.pose)
+        #v[12 + 6] = self.angle(state.pose, ff[0].pose)
+        #v[13 + 6] = self.distance(state.pose, ff[1].pose)
+        #v[14 + 6] = self.angle(state.pose, ff[1].pose)
         return v
     
     def flag_distance(self, agent):
