@@ -415,9 +415,17 @@ class NeroEnvironment(Environment):
         state = self.get_state(agent)
         
         fd = self.flag_distance(agent)
-        fh = sin((state.pose[1] - self.flag_loc.y) / fd)
+        fh = degrees(sin((state.pose[1] - self.flag_loc.y) / fd)) + state.pose[2]
         
-        vx.append(fh >= -45 and fh <= 45)
+        if fh < 0:
+            fh += 360
+
+        if fh > 360:
+            fh -= 360
+
+
+
+        vx.append(fh <= 45)
         vx.append(fh >= 0 and fh <= 90)
         vx.append(fh >= 45 and fh <= 135)
         vx.append(fh >= 90 and fh <= 180)
@@ -427,18 +435,6 @@ class NeroEnvironment(Environment):
         vx.append(fh >= 225 and fh <= 315)
         vx.append(fh >= 270 and fh <= 360)
         
-        """
-        vx.append(fh >= 0 and fh <= 45)
-        vx.append(fh >= 45 and fh <= 90)
-        vx.append(fh >= 90 and fh <= 135)
-        vx.append(fh >= 135 and fh <= 180)
-        
-        vx.append(fh >= 180 and fh <= 225)
-        vx.append(fh >= 225 and fh <= 270)
-        vx.append(fh >= 270 and fh <= 315)
-        vx.append(fh >= 315 and fh <= 360)
-        """
-
         for iter in range(len(vx)):
             v[iter] = vx[iter]
         
@@ -489,7 +485,7 @@ class NeroEnvironment(Environment):
         if state.animation != animation:
             agent.state.setAnimation(animation)
             state.animation = animation
-
+    
     def is_active(self, agent):
         """ return true when the agent should act """
         state = self.get_state(agent)

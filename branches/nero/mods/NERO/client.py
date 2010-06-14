@@ -84,7 +84,7 @@ def CreateGui(guiMan):
     aeScroll.setMax(200)
     aeScroll.setLargeStep(10)
     aeScroll.setSmallStep(1)
-    aeScroll.setPos(200)
+    aeScroll.setPos(100)
     aeScroll.OnScrollBarChange = weight_adjusted(aeScroll, Fitness.APPROACH_ENEMY, aeValue)
 
 
@@ -104,7 +104,7 @@ def CreateGui(guiMan):
     afScroll.setMax(200)
     afScroll.setLargeStep(10)
     afScroll.setSmallStep(1)
-    afScroll.setPos(100)
+    afScroll.setPos(200)
     afScroll.OnScrollBarChange = weight_adjusted(afScroll, Fitness.APPROACH_FLAG, afValue)
 
 
