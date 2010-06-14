@@ -418,7 +418,7 @@ class NeroEnvironment(Environment):
         state = self.get_state(agent)
         
         fd = self.flag_distance(agent)
-        fh = degrees(sin((state.pose[1] - self.flag_loc.y) / fd)) + state.pose[2]
+        fh = degrees(asin((state.pose[1] - self.flag_loc.y) / fd)) + state.pose[2]
         
         if fh < 0:
             fh += 360
@@ -426,17 +426,15 @@ class NeroEnvironment(Environment):
         if fh > 360:
             fh -= 360
 
-
-
-        vx.append(fh <= 45)
-        vx.append(fh >= 0 and fh <= 90)
-        vx.append(fh >= 45 and fh <= 135)
-        vx.append(fh >= 90 and fh <= 180)
+        vx.append(max(0,cos(radians(fh-0))))
+        vx.append(max(0,cos(radians(fh-45))))
+        vx.append(max(0,cos(radians(fh-90))))
+        vx.append(max(0,cos(radians(fh-135))))
         
-        vx.append(fh >= 135 and fh <= 225)
-        vx.append(fh >= 180 and fh <= 270)
-        vx.append(fh >= 225 and fh <= 315)
-        vx.append(fh >= 270 and fh <= 360)
+        vx.append(max(0,cos(radians(fh-180))))
+        vx.append(max(0,cos(radians(fh-225))))
+        vx.append(max(0,cos(radians(fh-270))))
+        vx.append(max(0,cos(radians(fh-315))))
         
         for iter in range(len(vx)):
             v[iter] = vx[iter]
