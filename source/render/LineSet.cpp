@@ -66,6 +66,8 @@ namespace OpenNero
                                 ConvertNeroToIrrlichtPosition(citr->mEnd), 
                                 citr->mColor );
         }
+
+	driver->writeImageToFile(driver->createScreenShot(), "/home/pscamman/opennero-read-only/dist/NERO/full-image.jpg", 0);
     }
     
 };//end OpenNero

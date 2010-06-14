@@ -695,6 +695,7 @@ namespace OpenNero
             .def("getObjectScale",      &SimContext::GetObjectScale, "Get the scale of an object specified by its id")
             .def("getObjectLabel",      &SimContext::GetObjectLabel, "Get the label of an object specified by its id")
             .def("getObjectColor",      &SimContext::GetObjectColor, "Get the color of an object specified by its id")
+	    .def("getActiveCamera",	&SimContext::getActiveCamera, "Get the active camera")
         ;
 
         // this is how Python can access the C++ reference to SimContext
