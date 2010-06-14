@@ -14,6 +14,7 @@ OFFSET = -HEIGHT/2
 NEAT_ACTIONS = 5
 NEAT_SENSORS = 17
 pop_size = 50
+DEPLOY_SIZE = 25 * 2
 
 OBSTACLE = 1 #0b0001
 AGENT = 2 #0b0010
@@ -73,9 +74,9 @@ class NeroModule:
 
         # Create RTNEAT Objects
         set_ai("neat1",rtneat)
-        set_ai("neat2", rtneat2)
+        #set_ai("neat2", rtneat2)
         enable_ai()
-        for i in range(0, 10):
+        for i in range(0, DEPLOY_SIZE):
             self.agent_map[(0,i)] = getNextFreeId()
             dx = random.randrange(XDIM/20) - XDIM/40
             dy = random.randrange(XDIM/20) - XDIM/40
@@ -84,7 +85,7 @@ class NeroModule:
                 addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
             else:
                 self.currTeam = 2
-                addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
+                #addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
    
    #The following is run when the Save button is pressed
     def save_rtneat(self):
