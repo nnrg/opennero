@@ -77,7 +77,10 @@ class Fitness:
         result = Fitness()
         if is_number(other):
             for d in Fitness.dimensions:
-                result[d] = self[d] ** other
+                if self[d] >= 0:
+                    result[d] = self[d] ** other
+                else:
+                    result[d] = self[d] #mention this to Igor later.
         else:
             for d in Fitness.dimensions:
                 result[d] = self[d] ** other[d]
