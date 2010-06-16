@@ -151,10 +151,6 @@ namespace OpenNero
         AudioObjectPtr      mAudioObject;
 #endif // NERO_BUILD_AUDIO
 
-#if NERO_BUILD_PHYSICS
-		/// hook into physics
-        IPhysicsObjectPtr   mPhysicsObject;
-#endif // NERO_BUILD_PHYSICS
         /// hook into rendering
         SceneObjectPtr      mSceneObject;
 		/// @}

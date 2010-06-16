@@ -52,25 +52,6 @@ namespace OpenNero
     /// Exports AppConfig classes to Python
     PYTHON_BINDER( AppConfig )
     {
-#if NERO_BUILD_PHYSICS
-        class_<PhysicsConfig>("PhysicsConfig", "Configuration for the physics engine")
-            .def_readwrite("tracking_radius", &PhysicsConfig::tracking_radius, "maximum distance from the origin that the objects are tracked")
-            .def_readwrite("gravity", &PhysicsConfig::gravity, "acceleration due to gravity, m/s in -k" )
-            .def_readwrite("CFM", &PhysicsConfig::CFM, "ODE Constraints Force Mixing")
-            .def_readwrite("ERP", &PhysicsConfig::ERP, "ODE Error Reduction Parameter")
-            .def_readwrite("damping", &PhysicsConfig::damping, "Damping force constant (proportional to linear velocity)")
-            .def_readwrite("damping_torque", &PhysicsConfig::damping_torque, "Damping torque constant (proportional to rotational velocity)")
-            .def_readwrite("default_mass", &PhysicsConfig::default_mass, "default object mass (kg)")
-            .def_readwrite("step_size", &PhysicsConfig::step_size, "physics step size in (sec)")
-            .def_readwrite("slip1", &PhysicsConfig::slip1, "collision slip parameter")
-            .def_readwrite("slip2", &PhysicsConfig::slip2, "collision slip parameter")
-            .def_readwrite("soft_erp", &PhysicsConfig::soft_erp, "collision ERP")
-            .def_readwrite("soft_cfm", &PhysicsConfig::soft_cfm, "collision ERP")
-            .def_readwrite("mu", &PhysicsConfig::mu, "collision CFM")
-            .def_readwrite("ground_offset", &PhysicsConfig::ground_offset, "level of the ground plane (Z)")
-            .def(self_ns::str(self_ns::self));
-        ;
-#endif // NERO_BUILD_PHYSICS
 
         class_<AppConfig>("AppConfig", "A configuration of the application.")
             .def_readwrite("window_title", &AppConfig::window_title)
@@ -86,9 +67,6 @@ namespace OpenNero
             .def_readwrite("use_stencil_buffer", &AppConfig::use_stencil_buffer)
             .def_readwrite("use_vsync", &AppConfig::use_vsync)
             .def_readwrite("seeds", &AppConfig::seeds)
-#if NERO_BUILD_PHYSICS
-            .def_readwrite("physics", &AppConfig::physics_config)
-#endif // NERO_BUILD_PHYSICS
             .def(self_ns::str(self_ns::self))
         ;
 

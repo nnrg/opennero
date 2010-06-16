@@ -10,10 +10,6 @@
 #include "game/Simulation.h"
 #include "game/objects/TemplatedObject.h"
 
-#if NERO_BUILD_PHYSICS
-#include "physics/Physics.h"
-#endif // NERO_BUILD_PHYSICS
-
 #include "gui/GuiManager.h"
 
 #include "render/SceneObject.h"
@@ -101,9 +97,6 @@ namespace OpenNero
     {
         // initialize our base systems
         ScriptingEngine::instance().init(argc, argv);
-#if NERO_BUILD_PHYSICS
-        IPhysicsEngine::instance().init();
-#endif // NERO_BUILD_PHYSICS
 
         // reset the factory
         mpFactory.reset(new SimFactory( mIrr ));
@@ -269,11 +262,6 @@ namespace OpenNero
         // shut down the AI system
         AIManager::instance().destroy();
 
-#if NERO_BUILD_PHYSICS
-        // destroy the physical world (warning: potentially dangerous =)
-        IPhysicsEngine::instance().destroy();
-#endif // NERO_BUILD_PHYSICS
-
         return true;
     }
 
@@ -314,11 +302,6 @@ namespace OpenNero
         UpdateInputSystem(dt);
         UpdateSimulation(dt);
         UpdateScriptingSystem(dt);
-
-#if NERO_BUILD_PHYSICS
-        // udpate the physics world
-        IPhysicsEngine::instance().step(dt);
-#endif // NERO_BUILD_PHYSICS
 
         // update our local systems
 #if NERO_BUILD_AUDIO
@@ -475,13 +458,6 @@ namespace OpenNero
         line.setLine(ConvertIrrlichtToNeroPosition(line.start), ConvertIrrlichtToNeroPosition(line.end));
         return line;
     }
-
-#if NERO_BUILD_PHYSICS
-    SimDataVector SimContext::FindInSphere( const Vector3f& origin, F32 radius ) const
-    {
-        return getSimulation()->findInSphere(origin, radius);
-    }
-#endif // NERO_BUILD_PHYSICS
 
     /// @param origin origin of the ray to cast
     /// @param target target of the ray to cast
@@ -728,9 +704,6 @@ namespace OpenNero
             .def("killGame",             &SimContext::KillGame, "Kill the game")
             .def("setInputMapping",      &SimContext::SetInputMapping, "Set the io map to use" )
             .def("getNextFreeId",        &SimContext::GetNextFreeId, "Get the next available network ID" )
-#if NERO_BUILD_PHYSICS
-			.def("findInSphere",         &SimContext::FindInSphere, "Find all the objects within the specified sphere (origin:Vector3f, radius:float)" )
-#endif // NERO_BUILD_PHYSICS
 			.def("findInRay",            &SimContext::FindInRay, findInRay_overloads("Find all the objects within the specified ray (origin:Vector3f, target:Vector3f, [int])") )
             .def("getClickedPosition",    &SimContext::GetClickedPosition, "Approximate 3d position of the mouse click")
             //.def("getClickedEntity",    &SimContext::GetClickedEntity, "Return the entity that was clicked")

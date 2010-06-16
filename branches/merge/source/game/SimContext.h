@@ -87,11 +87,6 @@ namespace OpenNero
         /// Get the vector from camera origin to the specified cursor position on screen
         Line3f GetRayUnderMouse(const int32_t& x, const int32_t& y) const;
 
-#if NERO_BUILD_PHYSICS
-        /// Find all objects in a sphere
-        SimDataVector FindInSphere( const Vector3f& origin, F32 radius ) const;
-#endif // NERO_BUILD_PHYSICS
-
 		/// Find the first object that intersects the specified ray
 		boost::python::tuple FindInRay( const Vector3f& origin, 
                                         const Vector3f& target, 
