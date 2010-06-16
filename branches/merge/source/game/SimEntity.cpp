@@ -96,10 +96,10 @@ namespace OpenNero
 
     void SimEntity::ProcessTick(float32_t incAmt)
     {
-        NERO_PERF_EVENT_SCOPED( SimEntity_ProcessTick );
-
         if (mSceneObject)
         {
+            // This call will update the pose of the Irrlicht object to 
+            // correspond to our mSharedData
             mSceneObject->ProcessTick(incAmt);
         }
 
@@ -111,7 +111,11 @@ namespace OpenNero
 #endif // NERO_BUILD_AUDIO
 
         if (mAIObject && AIManager::const_instance().IsEnabled())
-        {   
+        {
+            // This call is the meat and potatoes of OpenNERO prope:
+            // if this object has a decision to make will ask the 
+            // Environment about what it sees and tell it how it wants to 
+            // act.
             mAIObject->ProcessTick(incAmt);
         }
     }
@@ -232,6 +236,29 @@ namespace OpenNero
     {
         mSharedData.SetPosition(pos);
     }
+    
+    /// Will moving the entity to new_pos cause it to collide with others?
+    bool SimEntity::CheckCollision( const SimEntitySet& others)
+    {
+        bool result = false; // initially, we have not found any collisions
+        SimEntitySet::const_iterator iter; // iterate over the list
+        for (iter = others.begin(); iter != others.end(); ++iter)
+        {
+            SimEntityPtr ent = *iter;
+            if (ent.get() == this) continue; // this is us, skip
+            mSceneObject->CheckCollision(mSharedData.GetPosition(), ent->mSceneObject);
+        }
+        return result;
+    }
+    
+    /// Assume that a collision occurred and resolve it (bounce)
+    /// For now we do this just by setting the position back to what it was 
+    /// before (which is stored in mSceneObject).
+    void SimEntity::ResolveCollision()
+    {
+        mSharedData.SetPosition(mSceneObject->getPosition());
+    }
+
 
     void SimEntity::SetRotation( const Vector3f& rot )
     {

@@ -158,33 +158,6 @@ namespace OpenNero
                 return true;
             }
         };
-
-		void _addTriangleSelectorToParent(ISceneNode_IPtr node, ITriangleSelector_IPtr tri_selector) {
-			ITriangleSelector_IPtr parentTriangles = node->getParent()->getTriangleSelector();
-			IMetaTriangleSelector* meta;
-			if (parentTriangles) {
-				// if parent already has a triangle selector, use that
-				meta = (IMetaTriangleSelector*)parentTriangles.get();
-				meta->grab(); // since we will be dropping the same pointer twice below
-			} else {
-				// otherwise, create a new one and add it to parent
-				meta = GetSceneManager()->createMetaTriangleSelector();
-				node->getParent()->setTriangleSelector(meta);
-			}
-			meta->addTriangleSelector(tri_selector.get());
-			SafeIrrDrop(meta);
-		}
-
-		void _removeTriangleSelectorFromParent(ISceneNode_IPtr node) {
-			ITriangleSelector_IPtr tri_selector = node->getTriangleSelector();
-			if (!tri_selector) return; // no selector - return
-			if (!node->getParent()) return; // no parent - return
-			ITriangleSelector_IPtr parentTriangles = node->getParent()->getTriangleSelector();
-			if (!parentTriangles) return; // no parent selector - return
-			// if parent already has a triangle selector, use that
-			IMetaTriangleSelector* meta = (IMetaTriangleSelector*)parentTriangles.get();
-			meta->removeTriangleSelector(tri_selector.get());
-		}
     }
 
     SimId ConvertSceneIdToSimId(uint32_t id)
@@ -298,13 +271,13 @@ namespace OpenNero
     /// copy ctor for scene object template
     SceneObjectTemplate::SceneObjectTemplate( const SceneObjectTemplate& objTempl )
         : ObjectTemplate(objTempl)
-		, mAniMesh(objTempl.mAniMesh)
-		, mTextures(objTempl.mTextures)
-		, mHeightmap(objTempl.mHeightmap)
-		, mMaterialType(objTempl.mMaterialType)
 		, mScale(objTempl.mScale)
 		, mScaleTexture(objTempl.mScaleTexture)
+		, mTextures(objTempl.mTextures)
+		, mMaterialType(objTempl.mMaterialType)
+		, mHeightmap(objTempl.mHeightmap)
 		, mParticleSystem(objTempl.mParticleSystem)
+		, mAniMesh(objTempl.mAniMesh)
 		, mCastsShadow(objTempl.mCastsShadow)
 		, mDrawBoundingBox(objTempl.mDrawBoundingBox)
 		, mDrawLabel(objTempl.mDrawLabel)
@@ -517,9 +490,6 @@ namespace OpenNero
         // allow irrlicht to clean up
         if( mSceneNode )
         {
-			// remove the triangle selector of this node from the parent (if any)
-			_removeTriangleSelectorFromParent(mSceneNode);
-
             // remove this node from the scene
             mSceneNode->remove();
 
@@ -557,7 +527,6 @@ namespace OpenNero
     */
     bool SceneObject::LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data )
     {
-        //adziuk
         if( !objTemplate )
             return false;
 
@@ -585,23 +554,6 @@ namespace OpenNero
             mAniSceneNode->setCurrentFrame(0);
 
 			mSceneNode = mAniSceneNode;
-            
-            // add triangle selector for a mesh node
-            ITriangleSelector_IPtr triangleSelector = GetSceneManager()->createTriangleSelector(mAniSceneNode);
-            AssertMsg(triangleSelector, "Could not create a collision object for id: " << data.GetId());
-            mAniSceneNode->setTriangleSelector(triangleSelector.get());
-
-			if (mSceneObjectTemplate->mCollisionType > 0) {
-				ISceneNodeAnimator* animator = GetSceneManager()->createCollisionResponseAnimator(
-					GetSceneManager()->getRootSceneNode()->getTriangleSelector(),
-					mAniSceneNode,
-					Vector3f(1,1,1),
-					Vector3f(0,0,0));
-				mAniSceneNode->addAnimator(animator);
-				SafeIrrDrop(animator);
-			} else {
-				_addTriangleSelectorToParent(mAniSceneNode, triangleSelector);
-			}
 		}
 
         // are we a terrain?
@@ -610,11 +562,6 @@ namespace OpenNero
             mTerrSceneNode = irrFactory.addTerrainSceneNode( mSceneObjectTemplate->mHeightmap.c_str() );
             mSceneNode     = mTerrSceneNode;
             mTerrSceneNode->scaleTexture( mSceneObjectTemplate->mScaleTexture.X, mSceneObjectTemplate->mScaleTexture.Y );
-            // add triangle selector for a terrain node
-            ITriangleSelector_IPtr triangleSelector = GetSceneManager()->createTerrainTriangleSelector(mTerrSceneNode);
-            AssertMsg(triangleSelector, "Could not create a collision object for id: " << data.GetId());
-            mTerrSceneNode->setTriangleSelector(triangleSelector.get());
-			_addTriangleSelectorToParent(mTerrSceneNode, triangleSelector);
         }
 
         // are we a particle system?
@@ -729,33 +676,39 @@ namespace OpenNero
             }
         }
     }
+    
+    /// do we collide with the other object?
+    bool SceneObject::CheckCollision(const Vector3f& new_pos, const SceneObjectPtr& other)
+    {
+        Assert(other);
+        if (mSceneObjectTemplate->mCollisionType != 
+            other->mSceneObjectTemplate->mCollisionType ||
+            mSceneObjectTemplate->mCollisionType == 0)
+        { // if the collision types don't match or are 0, no collision
+            return false;
+        }
+        BBoxf my_box = mSceneNode->getBoundingBox(); // Irrlicht aabbox
+        BBoxf other_box = other->mSceneNode->getBoundingBox(); // Irrlicht aabbox
+        Vector3f irr_pos(ConvertNeroToIrrlichtPosition(new_pos)); // Irrlicht pos
+        Matrix4 transform;
+        transform.setTranslation(new_pos - mSceneNode->getPosition());
+        transform.transformBox(my_box);
+        return my_box.intersectsWithBox(other_box);
+    }
 
     /// Move forward the simulation of this sim object by a time delta
     /// @param dt the amount of time to simulate forward
     void SceneObject::ProcessTick( float32_t dt )
     {
-        NERO_PERF_EVENT_SCOPED( SceneObject__ProcessTick );
-
         Assert( mSharedData );
 
         // set the position and rotation of our object
-		// NOTE: ikarpov
-		// Objects can now potentially have a collision response animator 
-		// associated with them. If this is the case, the pose will change
-		// to a value different from that we are assigning. This means that
-		// we need to do an additional check after the attempted assignment
-		// and feed the values back into our shared data if they are not 
-		// what we expected.
         if( mSceneNode )
         {
             // Note: jsheblak 28July2007
             // Setting the position of some large meshes in irrlicht every frame
             // causes them to flicker or disappear. Compare the position first and
             // update if necessary.
-			// Note that sometimes we might want to teleport the object regardless
-			// of its collisions. In Irrlicht, we do this by calling setTarget() on
-			// the object's animator after calling setPosition and setRotation().
-			// TODO: implement teleporting in OpenNERO
             if( mSharedData->IsDirty(SimEntityData::kDB_Position) )
             {
                 if (mCamera && mFPSCamera)
@@ -763,10 +716,8 @@ namespace OpenNero
                     mFPSCamera->UpdatePosition(mSharedData, mCamera);
                 }
             
-				Vector3f desiredPosition( ConvertNeroToIrrlichtPosition(mSharedData->GetPosition()) );
-
                 // convert from open nero's coordinate system to irrlicht's
-                mSceneNode->setPosition( desiredPosition );
+                mSceneNode->setPosition( ConvertNeroToIrrlichtPosition(mSharedData->GetPosition()) );
 
                 if (mAniSceneNode && mSceneObjectTemplate->mFootprints)
                 {

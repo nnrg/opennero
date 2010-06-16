@@ -65,6 +65,9 @@ namespace OpenNero
 
         // move the simulation forward by time dt
         void ProcessWorld( float32_t dt );
+        
+        // detect and deal with collisions
+        void DoCollisions();
 
         /** @name AI Functions */
         ///@{
@@ -83,9 +86,6 @@ namespace OpenNero
 
         /// list of simulation IDs to be removed
         typedef std::set<SimId> SimIdSet;
-
-        /// list of SimEntity's to be added
-        typedef std::list<SimEntityPtr> SimEntityList;
 
     protected:
 

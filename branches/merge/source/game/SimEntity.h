@@ -31,6 +31,9 @@ namespace OpenNero
     /// Set of SimEnities
     typedef std::set<SimEntityPtr> SimEntitySet;
     
+    /// List of SimEntities
+    typedef std::list<SimEntityPtr> SimEntityList;
+    
     /// an unique identifier that used to identify objects locally
     typedef uint32_t SimId;
 
@@ -132,6 +135,13 @@ namespace OpenNero
         void SetLabel( const std::string& label );
         void SetColor( const SColor& color );
         /// @}
+        
+    private:
+        /// Will moving the entity to new_pos cause it to collide with others?
+        bool CheckCollision( const SimEntitySet& others);
+        
+        /// Assume that a collision occurred and resolve it (bounce)
+        void ResolveCollision();
 
         /// output human-readable information about this SimEntity
         friend std::ostream& operator<<(std::ostream& stream, const SimEntityPtr&);

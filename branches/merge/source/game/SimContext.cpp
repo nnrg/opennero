@@ -176,34 +176,7 @@ namespace OpenNero
     /// Python interface method for adding a python controlled camera to the context
     CameraPtr SimContext::AddCamera( float32_t rotateSpeed, float32_t moveSpeed, float32_t zoomSpeed )
     {
-        //adziuk
         mpCamera.reset( new Camera( mIrr, rotateSpeed, moveSpeed, zoomSpeed ) );
-        
-        ICameraSceneNode * cam = get_pointer(mpCamera->getCamera());
-
-        if(!GetSceneManager()->getRootSceneNode()->getTriangleSelector())
-        {
-            ISceneNode* root = GetSceneManager()->getRootSceneNode();
-            IMetaTriangleSelector* total = GetSceneManager()->createMetaTriangleSelector();
-            core::list< ISceneNode * > kids = root->getChildren();
-
-            core::list<ISceneNode*>::Iterator i = kids.begin();
-            for(i = kids.begin();i != kids.end(); i++)
-            {
-                total->addTriangleSelector((*(*i)).getTriangleSelector());
-            }
-            root->setTriangleSelector(total);
-			SafeIrrDrop(total);
-        }
-
-        ISceneNodeAnimatorCollisionResponse * arc = 
-			GetSceneManager()->createCollisionResponseAnimator(
-				GetSceneManager()->getRootSceneNode()->getTriangleSelector(),
-				cam);
-        arc->setGravity(vector3df(0,0,0));
-        cam->addAnimator(arc);
-        SafeIrrDrop(arc);
-
         return mpCamera;
     }
 
@@ -299,14 +272,22 @@ namespace OpenNero
     /// @param dt the time to increment by
     void SimContext::ProcessTick(float32_t dt)
     {
+        // TODO: need to combine to speed up
+        
+        // This will look at any input from the user that happened since the 
+        // previous call and run the corresponding (Python) actions. This can
+        // potentially change a lot of things such as which mod we want to run.
         UpdateInputSystem(dt);
+        
+        // This will loop through all the objects in the simulation, calling
+        // their ProcessTick method. In particular, it will run all of the AI
+        // decisions.
         UpdateSimulation(dt);
+        
+        // This will trigger scheduled events in the Python script
         UpdateScriptingSystem(dt);
 
-        // update our local systems
-#if NERO_BUILD_AUDIO
-        UpdateAudioSystem(dt);
-#endif // NERO_BUILD_AUDIO
+        // This will cause Irrlicht to render the updated objects
         UpdateRenderSystem(dt);
     }
 
@@ -386,6 +367,10 @@ namespace OpenNero
         // update the simulation
         if( mpSimulation )
             mpSimulation->ProcessWorld(dt);
+            
+        // after all the decisions have been made, we need to check if there 
+        // were any collisions and undo the motions that caused them
+        mpSimulation->DoCollisions();
     }
 
     /// clear out data stored within the sim context

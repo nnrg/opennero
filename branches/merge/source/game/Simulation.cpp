@@ -35,7 +35,7 @@ namespace OpenNero
         if (ent->GetSimId() >= mMaxId) {
             mMaxId = ent->GetSimId();
         }
-        AssertMsg( ent, "Adding a null antity to the simulation!" );
+        AssertMsg( ent, "Adding a null entity to the simulation!" );
         AssertMsg( !Find( ent->GetSimId() ), "Entity with id " << ent->GetSimId() << " already exists in the simulation" );
         mSimIdHashedEntities[ ent->GetSimId() ] = ent;
         AssertMsg( Find(ent->GetSimId()) == ent, "The entity with id " << ent->GetSimId() << " could not be properly added" );
@@ -128,6 +128,44 @@ namespace OpenNero
         
         // the last step is to remove all the objects that were scheduled during the ticks
         RemoveAllScheduled();
+    }
+    
+    /// @brief Detect and deal with collisions
+    /// At this point, mSharedData has already been set to the new position, but
+    /// mSceneObject has not. So, if any objects collide, we reset them by reverting
+    /// mSharedData's version back to mSceneObject's.
+    void Simulation::DoCollisions() 
+    {
+        SimEntitySet not_colliding;
+        SimEntitySet colliding;
+        SimEntitySet colliding_new;
+
+        // assume no-one is colliding at first
+        {
+            SimIdHashMap::const_iterator itr = mSimIdHashedEntities.begin();
+            SimIdHashMap::const_iterator end = mSimIdHashedEntities.end();
+            
+            for( ; itr != end; ++itr ) {
+                // TODO: check if this object can collide at all
+                not_colliding.insert(itr->second);
+                
+            }
+        }
+
+        
+        SimEntitySet::const_iterator itr;
+        for (itr = not_colliding.begin(); itr != not_colliding.end(); ++itr)
+        {
+            SimEntityPtr ent = *itr;
+            if (ent->CheckCollision(not_colliding)) {
+                LOG_F_DEBUG("ivk", "collision detected for " << ent);
+                //TODO: new_colliding.add(ent);
+                ent->ResolveCollision();
+            }
+        }
+        // TODO:
+        // while there are new collisions, add them to the colliding set, remove
+        // from the non-colliding set and check for additional collisions
     }
 
 } //end OpenNero

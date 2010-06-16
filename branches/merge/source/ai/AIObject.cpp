@@ -53,7 +53,6 @@ namespace OpenNero
     /// get the AI move and apply it to the shared data
     void AIObject::ProcessTick(float32_t dt)
     {
-        NERO_PERF_EVENT_SCOPED( AIObject__ProcessTick );
         Assert(getBrain());
         if (getBrain()->step == 0) // if first step
         {
