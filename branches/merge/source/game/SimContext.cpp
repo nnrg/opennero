@@ -274,6 +274,9 @@ namespace OpenNero
     {
         // TODO: need to combine to speed up
         
+        // This will cause Irrlicht to render the objects
+        UpdateRenderSystem(dt);
+
         // This will look at any input from the user that happened since the 
         // previous call and run the corresponding (Python) actions. This can
         // potentially change a lot of things such as which mod we want to run.
@@ -286,9 +289,6 @@ namespace OpenNero
         
         // This will trigger scheduled events in the Python script
         UpdateScriptingSystem(dt);
-
-        // This will cause Irrlicht to render the updated objects
-        UpdateRenderSystem(dt);
     }
 
 #if NERO_BUILD_AUDIO
@@ -328,8 +328,6 @@ namespace OpenNero
     /// Update the rendering system
     void SimContext::UpdateRenderSystem(float32_t dt)
     {
-        NERO_PERF_EVENT_SCOPED( SimContext__UpdateRenderSystem );
-
         // draw the scene
         Assert( mIrr.mpVideoDriver );
         Assert( mIrr.mpSceneManager );
@@ -364,13 +362,13 @@ namespace OpenNero
     /// update the local simulations
     void SimContext::UpdateSimulation(float32_t dt)
     {
-        // update the simulation
-        if( mpSimulation )
-            mpSimulation->ProcessWorld(dt);
-            
         // after all the decisions have been made, we need to check if there 
         // were any collisions and undo the motions that caused them
         mpSimulation->DoCollisions();
+
+        // update the simulation
+        if( mpSimulation )
+            mpSimulation->ProcessWorld(dt);            
     }
 
     /// clear out data stored within the sim context

@@ -151,14 +151,12 @@ namespace OpenNero
                 
             }
         }
-
         
         SimEntitySet::const_iterator itr;
         for (itr = not_colliding.begin(); itr != not_colliding.end(); ++itr)
         {
             SimEntityPtr ent = *itr;
             if (ent->CheckCollision(not_colliding)) {
-                LOG_F_DEBUG("ivk", "collision detected for " << ent);
                 //TODO: new_colliding.add(ent);
                 ent->ResolveCollision();
             }

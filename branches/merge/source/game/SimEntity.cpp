@@ -240,15 +240,15 @@ namespace OpenNero
     /// Will moving the entity to new_pos cause it to collide with others?
     bool SimEntity::CheckCollision( const SimEntitySet& others)
     {
-        bool result = false; // initially, we have not found any collisions
         SimEntitySet::const_iterator iter; // iterate over the list
         for (iter = others.begin(); iter != others.end(); ++iter)
         {
             SimEntityPtr ent = *iter;
             if (ent.get() == this) continue; // this is us, skip
-            mSceneObject->CheckCollision(mSharedData.GetPosition(), ent->mSceneObject);
+            if (mSceneObject->CheckCollision(mSharedData.GetPosition(), ent->mSceneObject))
+                return true;
         }
-        return result;
+        return false;
     }
     
     /// Assume that a collision occurred and resolve it (bounce)

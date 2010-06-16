@@ -691,9 +691,13 @@ namespace OpenNero
         BBoxf other_box = other->mSceneNode->getBoundingBox(); // Irrlicht aabbox
         Vector3f irr_pos(ConvertNeroToIrrlichtPosition(new_pos)); // Irrlicht pos
         Matrix4 transform;
-        transform.setTranslation(new_pos - mSceneNode->getPosition());
+        transform.setTranslation(irr_pos - mSceneNode->getPosition());
         transform.transformBox(my_box);
-        return my_box.intersectsWithBox(other_box);
+        if (my_box.intersectsWithBox(other_box)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 
     /// Move forward the simulation of this sim object by a time delta
