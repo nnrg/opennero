@@ -66,14 +66,6 @@ namespace OpenNero
         // move the simulation forward by time dt
         void ProcessWorld( float32_t dt );
 
-#if NERO_BUILD_PHYSICS
-        /// find all entities within a sphere
-        /// @param origin the center of the sphere in world coordinate space
-        /// @param radius the radius of the sphere
-        /// @return a set of sim entities that exist in the given sphere
-        SimDataVector findInSphere( const Vector3f& origin, F32 radius ) const;
-#endif // NERO_BUILD_PHYSICS
-
         /** @name AI Functions */
         ///@{
 

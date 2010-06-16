@@ -33,20 +33,7 @@ namespace OpenNero
         , use_stencil_buffer(false)
         , use_vsync(false)
         , seeds("12345")
-#if NERO_BUILD_PHYSICS
-        , physics_config()
-#endif // NERO_BUILD_PHYSICS
     {}
-
-#if NERO_BUILD_PHYSICS
-    /// output PhysicsConfig to stream
-    ostream& operator<<(ostream& output, const PhysicsConfig& config)
-    {
-        xml_oarchive out_archive(output);
-        out_archive << BOOST_SERIALIZATION_NVP(config);
-        return output;
-    }
-#endif // NERO_BUILD_PHYSICS
 
     /// output AppConfig to stream
     ostream& operator<<(ostream& output, const AppConfig& config)

@@ -9,11 +9,6 @@
 #include "game/Simulation.h"
 #include "game/SimEntity.h"
 
-#if NERO_BUILD_PHYSICS
-#include "physics/Physics.h"
-#include "physics/PhysicsObject.h"
-#endif // NERO_BUILD_PHYSICS
-
 #include "render/SceneObject.h"
 
 namespace OpenNero
@@ -134,12 +129,5 @@ namespace OpenNero
         // the last step is to remove all the objects that were scheduled during the ticks
         RemoveAllScheduled();
     }
-
-#if NERO_BUILD_PHYSICS
-    //Find all the SimEntity objects that fall within a sphere
-    SimDataVector Simulation::findInSphere( const Vector3f& origin, F32 radius ) const {
-        return IPhysicsEngine::instance().findInSphere(origin, radius);
-    }
-#endif // NERO_BUILD_PHYSICS
 
 } //end OpenNero

@@ -11,10 +11,6 @@
 #include "game/SimContext.h"
 #include "render/SceneObject.h"
 #include "audio/AudioObject.h"
-#if NERO_BUILD_PHYSICS
-#include "physics/Physics.h"
-#include "physics/PhysicsObject.h"
-#endif // NERO_BUILD_PHYSICS
 #include "ai/AI.h"
 #include "ai/AIObject.h"
 #include "ai/AIManager.h"
@@ -29,9 +25,6 @@ namespace OpenNero
 #if NERO_BUILD_AUDIO
 		mAudioObject(),
 #endif /// NERO_BUILD_AUDIO
-#if NERO_BUILD_PHYSICS
-		mPhysicsObject(),
-#endif // NERO_BUILD_PHYSICS
 		mSceneObject(),
 		mSharedData(data),
 		mCreationTemplate(templateName)
@@ -71,13 +64,6 @@ namespace OpenNero
             {
                 ent->SetSceneObject(sceneObj);
             }
-#if NERO_BUILD_PHYSICS
-			IPhysicsObjectPtr physicsObj = IPhysicsEngine::instance().createObject(ent);
-            if (physicsObj->LoadFromTemplate(objTemp, data))
-            {
-                ent->SetPhysicsObject(physicsObj);
-            }
-#endif // NERO_BUILD_PHYSICS
         }
 #if NERO_BUILD_AUDIO
         // audio template
@@ -112,21 +98,8 @@ namespace OpenNero
     {
         NERO_PERF_EVENT_SCOPED( SimEntity_ProcessTick );
 
-        // go through components and tick them
-        // TODO : If we knew exactly what a client and a server object should
-        // have in terms of components this could be optimized
-
         if (mSceneObject)
         {
-            // perform client-side interpolation based on current velocity
-            // TODO: replace with interpolation between current and future pose
-            //Vector3f vel = GetVelocity();
-            //Vector3f pos = GetPosition();
-            //Vector3f move = incAmt * vel;
-            //if (move.getLengthSQ() > 0) 
-            //{
-            //    SetPosition( pos + move );
-            //}
             mSceneObject->ProcessTick(incAmt);
         }
 
@@ -141,12 +114,6 @@ namespace OpenNero
         {   
             mAIObject->ProcessTick(incAmt);
         }
-#if NERO_BUILD_PHYSICS
-        if (mPhysicsObject && IPhysicsEngine::instance().IsEnabled())
-        {  
-            mPhysicsObject->ProcessTick(incAmt);
-        }
-#endif // NERO_BUILD_PHYSICS
     }
 
 #if NERO_BUILD_AUDIO
@@ -221,17 +188,6 @@ namespace OpenNero
             mAIObject->SetSharedState( &mSharedData );
         }
     }
-
-#if NERO_BUILD_PHYSICS
-    void SimEntity::SetPhysicsObject(IPhysicsObjectPtr obj)
-    {
-        mPhysicsObject = obj;
-        if (mPhysicsObject )
-        {
-            mPhysicsObject->SetSharedState( &mSharedData );
-        }
-    }
-#endif // NERO_BUILD_PHYSICS
 
     /// make sure you explicitly call this method in the assignment operator in
     /// the derived class

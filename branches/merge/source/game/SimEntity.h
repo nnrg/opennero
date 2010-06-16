@@ -26,9 +26,6 @@ namespace OpenNero
     BOOST_PTR_DECL( SceneObject );
     BOOST_PTR_DECL( AIObject );
     BOOST_PTR_DECL( SensorObject );
-#if NERO_BUILD_PHYSICS
-    BOOST_SHARED_STRUCT( IPhysicsObject );
-#endif // NERO_BUILD_PHYSICS
     /// @endcond
 
     /// Set of SimEnities
@@ -90,9 +87,6 @@ namespace OpenNero
         void SetAudioObject( AudioObjectPtr obj );
 #endif // NERO_BUILD_AUDIO
         void SetAIObject( AIObjectPtr obj );
-#if NERO_BUILD_PHYSICS
-        void SetPhysicsObject( IPhysicsObjectPtr obj );
-#endif // NERO_BUILD_PHYSICS
 	/// @}
 
 		/// getters for SimEntity components
@@ -102,9 +96,6 @@ namespace OpenNero
         AudioObjectPtr GetAudioObject() { return mAudioObject; }
 #endif // NERO_BUILD_AUDIO
         AIObjectPtr GetAIObject() { return mAIObject; }
-#if NERO_BUILD_PHYSICS
-        IPhysicsObjectPtr GetPhysicsObject() { return mPhysicsObject; }
-#endif // NERO_BUILD_PHYSICS
 		/// @}
 
         /// make sure you explicitly call this method
