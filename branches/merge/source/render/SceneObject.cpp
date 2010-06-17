@@ -554,6 +554,12 @@ namespace OpenNero
             mAniSceneNode->setCurrentFrame(0);
 
 			mSceneNode = mAniSceneNode;
+            
+            // add triangle selector for a mesh node
+            ITriangleSelector* triangleSelector = GetSceneManager()->createTriangleSelector(mAniSceneNode);
+            AssertMsg(triangleSelector, "Could not create a collision object for id: " << data.GetId());
+            mAniSceneNode->setTriangleSelector(triangleSelector);
+            SafeIrrDrop(triangleSelector);
 		}
 
         // are we a terrain?
@@ -693,7 +699,10 @@ namespace OpenNero
         Matrix4 transform;
         transform.setTranslation(irr_pos - mSceneNode->getPosition());
         transform.transformBox(my_box);
+        LOG_F_DEBUG("ivk", "collision move: " << irr_pos - mSceneNode->getPosition() );
         if (my_box.intersectsWithBox(other_box)) {
+            LOG_F_DEBUG("ivk", "+collision check between: " << GetId() << ", " << my_box
+                << " and " << other->GetId() << ", " << other_box);
             return true;
         } else {
             return false;
