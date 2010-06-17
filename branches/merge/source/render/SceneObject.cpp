@@ -696,10 +696,17 @@ namespace OpenNero
         BBoxf my_box = mSceneNode->getBoundingBox(); // Irrlicht aabbox
         BBoxf other_box = other->mSceneNode->getBoundingBox(); // Irrlicht aabbox
         Vector3f irr_pos(ConvertNeroToIrrlichtPosition(new_pos)); // Irrlicht pos
+        
+        // translate our bounding box over to our future position
         Matrix4 transform;
-        transform.setTranslation(irr_pos - mSceneNode->getPosition());
+        transform.setTranslation(irr_pos);
         transform.transformBox(my_box);
-        LOG_F_DEBUG("ivk", "collision move: " << irr_pos - mSceneNode->getPosition() );
+        
+        // translate their bounding box over to their current position
+        transform.setTranslation(other->mSceneNode->getPosition());
+        transform.transformBox(other_box);
+        
+        // check if the bounding boxes intersect
         if (my_box.intersectsWithBox(other_box)) {
             LOG_F_DEBUG("ivk", "+collision check between: " << GetId() << ", " << my_box
                 << " and " << other->GetId() << ", " << other_box);
