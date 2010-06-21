@@ -3,7 +3,7 @@ import os
 import sys
 import subprocess
 
-WIDTH = 500
+WIDTH = 510
 HEIGHT = 600
 
 class NeroPanel(wx.Panel):
