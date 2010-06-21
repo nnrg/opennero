@@ -3,6 +3,7 @@ from math import *
 from OpenNero import *
 from NERO.module import *
 from copy import copy
+from random import *
 
 MAX_SPEED = 10
 MAX_SD = 100
@@ -132,7 +133,6 @@ class NeroEnvironment(Environment):
         self.MAX_DIST = pow((pow(XDIM, 2) + pow(YDIM, 2)), .5)
         self.states = {}
         self.teams = {}
-        self.flag_loc = getMod().flag_loc
         self.speedup = 0
 
         self.pop_state_1 = {}
@@ -252,9 +252,12 @@ class NeroEnvironment(Environment):
         
         # adziuk: this the best place I can see for doing menu updates. =/
         # Or maybe it should occur nearer the bottom.
-        
+
+
         state = self.get_state(agent)
         if agent.step == 0:
+            temp = getMod().flag_loc
+            getMod().change_flag((temp.x + random()/2, temp.y + random()/2, temp.z + random()/2))
             p = agent.state.position
             r = agent.state.rotation
             state.initial_position = p
@@ -418,17 +421,20 @@ class NeroEnvironment(Environment):
         state = self.get_state(agent)
         
         fd = self.flag_distance(agent)
-        fh = degrees(asin((state.pose[1] - self.flag_loc.y) / fd)) + state.pose[2]
-        
+        if fd != 0:
+            fh = degrees(asin((state.pose[1] - self.flag_loc().y) / fd)) + state.pose[2]
+        else:
+            fh = 0
+
         if fh < 0:
             fh += 360
 
         if fh > 360:
             fh -= 360
 
-        vx.append(max(0,cos(radians(fh-0))))
-        vx.append(max(0,cos(radians(fh-45))))
-        vx.append(max(0,cos(radians(fh-90))))
+        vx.append(max(0,cos(radians(fh-  0))))
+        vx.append(max(0,cos(radians(fh- 45))))
+        vx.append(max(0,cos(radians(fh- 90))))
         vx.append(max(0,cos(radians(fh-135))))
         
         vx.append(max(0,cos(radians(fh-180))))
@@ -452,10 +458,14 @@ class NeroEnvironment(Environment):
         #v[13 + 6] = self.distance(state.pose, ff[1].pose)
         #v[14 + 6] = self.angle(state.pose, ff[1].pose)
         return v
-    
+   
+    def flag_loc(self):
+        from NERO.module import getMod
+        return getMod().flag_loc
+
     def flag_distance(self, agent):
         pos = self.get_state(agent).pose
-        return pow(pow(float(pos[0]) - self.flag_loc.x, 2) + pow(float(pos[1]) - self.flag_loc.y, 2), .5)
+        return pow(pow(float(pos[0]) - self.flag_loc().x, 2) + pow(float(pos[1]) - self.flag_loc().y, 2), .5)
 
     def distance(self, agloc, tgloc):
         return pow(pow(float(agloc[0] - tgloc[0]), 2) + pow(float(agloc[1] - tgloc[1]), 2), .5)
