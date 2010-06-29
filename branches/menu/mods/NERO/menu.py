@@ -256,20 +256,7 @@ class NeroPanel(wx.Panel):
         print "SP", event.Position
         sys.stdout.flush()
 
-read = None
-
-def getReader():
-    print "INITILIZING"
-    global read
-    global subp
-    if not read:
-        print "INITILIZING"
-        subp = subprocess.Popen(['python', 'menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
-        print "Ummm"
-        read = subp.stdout
-        print "STUFF"
-    return read
-
+print "THIS IS. THE FINAL. COUNTDOWN."
 app = wx.App(False)
 frame = wx.Frame(None,title = "NERO Controls",size=(600,250))
 panel = NeroPanel(frame)

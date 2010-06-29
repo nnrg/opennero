@@ -3,6 +3,9 @@ from OpenNero import getSimContext
 from NERO.NeroEnvironment import *
 from NERO.RTNEATAgent import *
 from NERO.Turret import *
+import subprocess
+import os
+import sys
 
 import random
 
@@ -36,7 +39,6 @@ class NeroModule:
         self.hp = 50
         self.currTeam = 1
         self.flag_loc = Vector3f(20,20,0)
-
 
     def setup_map(self):
         """
@@ -139,6 +141,22 @@ class NeroModule:
         print 'Hit points:',value
 
 gMod = None
+
+read = None
+
+def getReader():
+    print "GET READER CALLED!"
+    global read
+    global subp
+    if not read:
+        print "INITILIZING"
+        subp = subprocess.Popen(['python', 'menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
+        print "Ummm"
+        read = subp.stdout
+        print "subp: ", subp
+        print "read: ", read
+        print "STUFF"
+    return read
 
 def delMod():
     global gMod

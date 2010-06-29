@@ -4,8 +4,7 @@ from NeroEnvironment import Fitness
 from common import *
 import common.gui as gui
 from inputConfig import *
-from menu import getReader
-import subp2
+from module import getReader
 
 def toggle_ai_callback():
     global toggleAiButton
@@ -34,9 +33,7 @@ def CreateGui(guiMan):
     global mode
     mode = 0
 
-    print "THIS IS A TEST"
-
-    subp2.me()
+    x = getReader() 
 
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")  
