@@ -145,18 +145,27 @@ gMod = None
 read = None
 
 def getReader():
-    print "GET READER CALLED!"
     global read
     global subp
     if not read:
-        print "INITILIZING"
-        subp = subprocess.Popen(['python', 'menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
-        print "Ummm"
+        subp = subprocess.Popen(['python', 'NERO/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
         read = subp.stdout
-        print "subp: ", subp
-        print "read: ", read
-        print "STUFF"
     return read
+
+def getSubProcess():
+    global read
+    global subp
+    if not read:
+        subp = subprocess.Popen(['python', 'NERO/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
+        read = subp.stdout
+    return subp
+
+def readerData():
+    r = getReader()
+    p = getSubProcess()
+    if not p.poll(): return False
+    import select
+    return select.select([r],[],[],0) == ([r],[],[])
 
 def delMod():
     global gMod

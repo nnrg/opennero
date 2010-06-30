@@ -3,7 +3,7 @@ import os
 import sys
 import subprocess
 
-WIDTH = 510
+WIDTH = 500
 HEIGHT = 600
 
 class NeroPanel(wx.Panel):
@@ -256,7 +256,6 @@ class NeroPanel(wx.Panel):
         print "SP", event.Position
         sys.stdout.flush()
 
-print "THIS IS. THE FINAL. COUNTDOWN."
 app = wx.App(False)
 frame = wx.Frame(None,title = "NERO Controls",size=(600,250))
 panel = NeroPanel(frame)
