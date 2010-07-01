@@ -236,14 +236,14 @@ class NeroEnvironment(Environment):
         """
         A step for an agent
         """
-        from NERO.module import getMod, getReader, readerData
+        from NERO.module import getMod, getReader, readerData, parseInput
 
 
         while readerData():
             r = getReader()
             r.flush()
-            #Replace the following line with a parser call.
-            print r.readline().strip()
+            print "Calling Parse Input"
+            parseInput(r.readline().strip())
 
         # check if the action is valid
         assert(self.agent_info.actions.validate(action))

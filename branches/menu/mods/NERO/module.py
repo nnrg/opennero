@@ -89,18 +89,22 @@ class NeroModule:
                 addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
    
    #The following is run when the Save button is pressed
-    def save_rtneat(self):
-        global rtneat, rtneat2
-        rtneat.save_population("../rtneat.gnm")
-        rtneat2.save_population("../rtneat2.gnm")
-
-    #The following is run when the Load button is pressed
-    def load_rtneat(self):
+    def save_rtneat(self, location = "../rtneat.gnm"):
         import os
         global rtneat, rtneat2
-        if os.path.exists("rtneat.gnm") and os.path.exists("rtneat2.gnm"):
-            rtneat = RTNEAT("rtneat.gnm", "data/ai/neat-params.dat", pop_size)
-            rtneat2= RTNEAT("rtneat2.gnm","data/ai/neat-params.dat", pop_size)
+        location = os.path.relpath("/") + location
+        rtneat.save_population(location)
+        
+        #rtneat2.save_population("../rtneat2.gnm")
+
+    #The following is run when the Load button is pressed
+    def load_rtneat(self, location = "rtneat.gnm"):
+        import os
+        global rtneat, rtneat2
+        location = os.path.relpath("/") + location
+        if os.path.exists(location):
+            rtneat = RTNEAT(location, "data/ai/neat-params.dat", pop_size)
+            #rtneat2= RTNEAT("rtneat2.gnm","data/ai/neat-params.dat", pop_size)
     
     def set_speedup(self, speedup):
         self.speedup = speedup
@@ -163,7 +167,7 @@ def getSubProcess():
 def readerData():
     r = getReader()
     p = getSubProcess()
-    if not p.poll(): return False
+    #if not p.poll(): return False
     import select
     return select.select([r],[],[],0) == ([r],[],[])
 
@@ -177,6 +181,27 @@ def getMod():
         gMod = NeroModule()
     return gMod
 
+def parseInput(strn):
+    print "PARSING:", strn
+    print strn.isupper()
+    mod = getMod()
+    loc,val = strn.split(' ')
+    vali = 1
+    if strn.isupper(): vali = int(val)
+    if loc == "SG": mod.set_weight("sg",vali)
+    if loc == "ST": mod.set_weight("st",vali)
+    if loc == "TD": mod.dtaChange(vali)
+    if loc == "AE": mod.set_weight("ae",vali)
+    if loc == "ED": mod.dtbChange(vali)
+    if loc == "AF": mod.set_weight("af",vali) 
+    if loc == "FD": mod.dtcChange(vali)
+    if loc == "HT": mod.set_weight("ht",vali)
+    if loc == "FF": mod.ffChange(vali)
+    if loc == "EE": mod.eeChange(vali)
+    if loc == "HP": mod.hpChange(vali)
+    if loc == "SP": mod.set_speedup(vali)
+    if loc == "save": mod.save_rtneat(val)
+    if loc == "load": mod.load_rtneat(val)
 
 def ServerMain():
     print "Starting mod NERO"

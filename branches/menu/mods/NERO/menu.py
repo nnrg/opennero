@@ -173,23 +173,23 @@ class NeroPanel(wx.Panel):
         grid.Add(self.spt,pos=(0,0),span=(1,2))
 
     def OnDeploy(self,event):
-        print "Deploy"
+        print "deploy"
 
     def OnSave(self,event):
         dirname = ""
         dlg = wx.FileDialog(self, "Save Population File", dirname, "", "*.*", wx.OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetFilename()
-            dirname = dlg.GetDirectory()
-            print "Save", dirname, filename
+            dirname = dlg.GetPath()#dlg.GetDirectory()
+            print "save", (dirname)#+"/"+ filename)
     
     def OnLoad(self,event):
         dirname = ""
         dlg = wx.FileDialog(self, "Save Population File", dirname, "", "*.*", wx.OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetFilename()
-            dirname = dlg.GetDirectory()
-            print "Load", dirname, filename
+            dirname = dlg.GetPath()#dlg.GetDirectory()
+            print "load", (dirname)# + "/" + filename)
 
     def OnSG(self,event):
         self.sgl.SetLabel(str(event.Position - 100))
