@@ -5,7 +5,7 @@ from NERO.module import *
 from copy import copy
 from random import *
 
-MAX_SPEED = 10
+MAX_SPEED = 12
 MAX_SD = 100
 OBSTACLE = 1#b0001
 AGENT = 2#b0010
@@ -145,9 +145,9 @@ class NeroEnvironment(Environment):
         # actions
         abound.add_continuous(-pi / 2, pi / 2) # direction of motion
         abound.add_continuous(0, 1) # how fast to move
-        abound.add_continuous(-pi / 2, pi / 2) # Firing direction
-        abound.add_continuous(0, 1)
-        abound.add_continuous(0, 1) 
+        #abound.add_continuous(-pi / 2, pi / 2) # Firing direction
+        #abound.add_continuous(0, 1)
+        #abound.add_continuous(0, 1) 
 
         #sensors
         #sbound.add_continuous(0, 1) # -60 deg        
@@ -169,6 +169,8 @@ class NeroEnvironment(Environment):
         sbound.add_continuous(0, 1) # 225 - 270
         sbound.add_continuous(0, 1) # 270 - 315
         sbound.add_continuous(0, 1) # 315 - 360
+        
+        #sbound.add_continuous(0, 1) # Distance
         
         #sbound.add_continuous(0, self.MAX_DIST) # Ally Sensors - Dist
         #sbound.add_continuous(-1 * pi * 2, pi * 2) # Ally Sensors - Heading
@@ -294,7 +296,7 @@ class NeroEnvironment(Environment):
         # get the actions of the agent
         turn_by = degrees(action[0])
         move_by = action[1]
-        fire_by = action[2]
+        #fire_by = action[2]
         # figure out the new heading
         new_heading = wrap_degrees(heading, turn_by)        
         # figure out the new x,y location
@@ -409,20 +411,13 @@ class NeroEnvironment(Environment):
         """ figure out what the agent should sense """
         v = self.agent_info.sensors.get_instance()
         vx = []
-        #vx.append(self.raySense(agent, -60, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, -45, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, -30, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, -15, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, 0, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, 15, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, 30, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, 45, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, 60, MAX_SD, OBSTACLE))
+        
+        
         state = self.get_state(agent)
         
         fd = self.flag_distance(agent)
         if fd != 0:
-            fh = degrees(asin((state.pose[1] - self.flag_loc().y) / fd)) + state.pose[2]
+            fh  = ((degrees(atan2(self.flag_loc().y-state.pose[1],self.flag_loc().x - state.pose[0])) - state.pose[2]) % 360) - 180
         else:
             fh = 0
 
@@ -441,7 +436,9 @@ class NeroEnvironment(Environment):
         vx.append(max(0,cos(radians(fh-225))))
         vx.append(max(0,cos(radians(fh-270))))
         vx.append(max(0,cos(radians(fh-315))))
-        
+       
+        #vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST))) ##CHANGE THIS
+
         for iter in range(len(vx)):
             v[iter] = vx[iter]
         
@@ -457,6 +454,7 @@ class NeroEnvironment(Environment):
         #v[12 + 6] = self.angle(state.pose, ff[0].pose)
         #v[13 + 6] = self.distance(state.pose, ff[1].pose)
         #v[14 + 6] = self.angle(state.pose, ff[1].pose)
+        
         return v
    
     def flag_loc(self):

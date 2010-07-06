@@ -11,7 +11,7 @@ YDIM = 400
 HEIGHT = 20
 OFFSET = -HEIGHT/2
 
-NEAT_ACTIONS = 5
+NEAT_ACTIONS = 2
 NEAT_SENSORS = 8
 pop_size = 40
 DEPLOY_SIZE = 40 * 2
@@ -68,6 +68,7 @@ class NeroModule:
         addObject("data/terrain/NeroWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="NeroWorld")
 
     def change_flag(self, new_loc):
+        if 1 == 1: return
         self.flag_loc = Vector3f(new_loc[0],new_loc[1],new_loc[2])
         print self.flag_id
         removeObject(self.flag_id)
