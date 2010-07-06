@@ -170,7 +170,7 @@ class NeroEnvironment(Environment):
         sbound.add_continuous(0, 1) # 270 - 315
         sbound.add_continuous(0, 1) # 315 - 360
         
-        #sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
         
         #sbound.add_continuous(0, self.MAX_DIST) # Ally Sensors - Dist
         #sbound.add_continuous(-1 * pi * 2, pi * 2) # Ally Sensors - Heading
@@ -343,9 +343,9 @@ class NeroEnvironment(Environment):
         
 	#calculate f
         sg = -action[0]
-        if ff[0] != 1:
+        if ff[0] != 1 and self.distance(ff[0].pose,state.pose) != 0:
             st = distance_st / self.distance(ff[0].pose,state.pose)
-        if ff[1] != 1:
+        if ff[1] != 1 and self.distance(ff[1].pose,state.pose) != 0:
             ae = distance_ae / self.distance(ff[1].pose,state.pose)
         af = (distance_af/self.flag_distance(agent))
         ht = hit
@@ -437,7 +437,7 @@ class NeroEnvironment(Environment):
         vx.append(max(0,cos(radians(fh-270))))
         vx.append(max(0,cos(radians(fh-315))))
        
-        #vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST))) ##CHANGE THIS
+        vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST))) ##CHANGE THIS
 
         for iter in range(len(vx)):
             v[iter] = vx[iter]
