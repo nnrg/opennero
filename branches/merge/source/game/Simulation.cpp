@@ -137,10 +137,7 @@ namespace OpenNero
     void Simulation::DoCollisions() 
     {
         SimEntitySet not_colliding;
-        SimEntitySet colliding;
-        SimEntitySet colliding_new;
-
-        // assume no-one is colliding at first
+        // assume no-one is colliding at first, put everyone in not_colliding
         {
             SimIdHashMap::const_iterator itr = mSimIdHashedEntities.begin();
             SimIdHashMap::const_iterator end = mSimIdHashedEntities.end();
@@ -148,22 +145,51 @@ namespace OpenNero
             for( ; itr != end; ++itr ) {
                 // TODO: check if this object can collide at all
                 not_colliding.insert(itr->second);
-                
             }
         }
-        
-        SimEntitySet::const_iterator itr;
-        for (itr = not_colliding.begin(); itr != not_colliding.end(); ++itr)
-        {
-            SimEntityPtr ent = *itr;
-            if (ent->CheckCollision(not_colliding)) {
-                //TODO: new_colliding.add(ent);
-                ent->ResolveCollision();
+
+		bool anyCollisions = true;
+		SimEntitySet colliding;
+
+		// while there are any potential collisions, check and resolve
+		// TODO: check for collisions with resolved objects?
+		while (anyCollisions) {
+	        SimEntitySet::const_iterator itr;
+			SimEntitySet colliding_new;
+			
+			// add any colliding entities to colliding_new
+		    for (itr = not_colliding.begin(); itr != not_colliding.end(); ++itr)
+			{
+				SimEntityPtr ent = *itr;
+				SimEntitySet my_collisions = ent->GetCollisions(not_colliding);
+				if (my_collisions.size() > 0) {
+					colliding_new.insert(my_collisions.begin(), my_collisions.end());
+				}
             }
+
+			anyCollisions = (colliding_new.size() > 0);
+
+			if (anyCollisions) {
+				LOG_F_DEBUG("collision", colliding_new.size() << " new collisions");
+
+				// move the newly marked entities from not_colliding to colliding
+				for (itr = colliding_new.begin(); itr != colliding_new.end(); ++itr) {
+					not_colliding.erase(*itr);
+					colliding.insert(*itr);
+				}
+			}
         }
-        // TODO:
-        // while there are new collisions, add them to the colliding set, remove
-        // from the non-colliding set and check for additional collisions
+
+		// now all the objects that collided are in the colliding set
+		// we need to resolve all these collisions
+		SimEntitySet::const_iterator itr;
+
+		if (colliding.size() > 0) {
+			LOG_F_DEBUG("collision", colliding.size() << " total collisions");
+			for (itr = colliding.begin(); itr != colliding.end(); ++itr) {
+				(*itr)->ResolveCollision();
+			}
+		}
     }
 
 } //end OpenNero

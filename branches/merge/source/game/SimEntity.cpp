@@ -29,10 +29,10 @@ namespace OpenNero
 		mSharedData(data),
 		mCreationTemplate(templateName)
 	{
-		// do nothing
 	}
 
-    SimEntity::~SimEntity() {}
+    SimEntity::~SimEntity() {
+	}
 
     SimEntityPtr SimEntity::CreateSimEntity(
         SimEntityData& data, 
@@ -112,7 +112,7 @@ namespace OpenNero
 
         if (mAIObject && AIManager::const_instance().IsEnabled())
         {
-            // This call is the meat and potatoes of OpenNERO prope:
+            // This call is the meat and potatoes of OpenNERO proper:
             // if this object has a decision to make will ask the 
             // Environment about what it sees and tell it how it wants to 
             // act.
@@ -236,19 +236,20 @@ namespace OpenNero
     {
         mSharedData.SetPosition(pos);
     }
-    
-    /// Will moving the entity to new_pos cause it to collide with others?
-    bool SimEntity::CheckCollision( const SimEntitySet& others)
+
+	/// Get the set of objects colliding
+    SimEntitySet SimEntity::GetCollisions( const SimEntitySet& others)
     {
         SimEntitySet::const_iterator iter; // iterate over the list
+		SimEntitySet result_set;
         for (iter = others.begin(); iter != others.end(); ++iter)
         {
             SimEntityPtr ent = *iter;
             if (ent.get() == this) continue; // this is us, skip
             if (mSceneObject->CheckCollision(mSharedData.GetPosition(), ent->mSceneObject))
-                return true;
+                result_set.insert(ent);
         }
-        return false;
+        return result_set;
     }
     
     /// Assume that a collision occurred and resolve it (bounce)
@@ -256,7 +257,9 @@ namespace OpenNero
     /// before (which is stored in mSceneObject).
     void SimEntity::ResolveCollision()
     {
-        mSharedData.SetPosition(mSceneObject->getPosition());
+		SetLabel("Bump");
+		LOG_F_DEBUG("collision", "resolved collision on " << this);
+		SetPosition(mSceneObject->getPosition());
     }
 
 

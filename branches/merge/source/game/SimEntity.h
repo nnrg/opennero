@@ -138,7 +138,7 @@ namespace OpenNero
         
     private:
         /// Will moving the entity to new_pos cause it to collide with others?
-        bool CheckCollision( const SimEntitySet& others);
+        SimEntitySet GetCollisions( const SimEntitySet& others);
         
         /// Assume that a collision occurred and resolve it (bounce)
         void ResolveCollision();

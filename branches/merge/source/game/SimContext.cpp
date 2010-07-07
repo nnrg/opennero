@@ -362,14 +362,14 @@ namespace OpenNero
     /// update the local simulations
     void SimContext::UpdateSimulation(float32_t dt)
     {
-        // after all the decisions have been made, we need to check if there 
-        // were any collisions and undo the motions that caused them
-        mpSimulation->DoCollisions();
-
         // update the simulation
         if( mpSimulation )
             mpSimulation->ProcessWorld(dt);            
-    }
+
+		// after all the decisions have been made, we need to check if there 
+		// were any collisions and undo the motions that caused them
+		mpSimulation->DoCollisions();
+	}
 
     /// clear out data stored within the sim context
     void SimContext::FlushContext()
@@ -591,7 +591,7 @@ namespace OpenNero
         ent->SetColor(color);
     }
 
-	/// @breif Sets the animation on the SimEntity specified by id
+	/// @brief Sets the animation on the SimEntity specified by id
 	bool SimContext::SetObjectAnimation( SimId id, const std::string& animation_type )
 	{
         SimEntityPtr ent = mpSimulation->Find(id);
