@@ -523,6 +523,8 @@ OrganismPtr Species::get_champ()
     OrganismPtr thechamp;
     vector<OrganismPtr>::iterator curorg;
 
+    assert(org);
+
     for (curorg=organisms.begin(); curorg!=organisms.end(); ++curorg)
     {
         if (((*curorg)->fitness)>champ_fitness)
@@ -1200,11 +1202,10 @@ bool Species::reproduce(S32 generation, PopulationPtr pop,
 
 bool NEAT::order_species(SpeciesPtr x, SpeciesPtr y)
 {
-    return (((*((x->organisms).begin()))->orig_fitness) > ((*((y->organisms).begin()))->orig_fitness));
+    return x->organisms.front()->orig_fitness > y->organisms.front()->orig_fitness;
 }
 
 bool NEAT::order_new_species(SpeciesPtr x, SpeciesPtr y)
 {
     return (x->compute_max_fitness() > y->compute_max_fitness());
 }
-

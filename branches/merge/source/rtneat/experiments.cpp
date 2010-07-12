@@ -4,6 +4,7 @@
 #include <iomanip>
 #include <sstream>
 #include "experiments.h"
+#include "organism.h"
 #include "network.h"
 
 using namespace NEAT;
@@ -467,7 +468,7 @@ PopulationPtr NEAT::pole2_test(int gens, int velocity)
         {
 
             ostringstream fnamebuf;
-            fnamebuf << "gen_"<< gen << ends; //needs end marker
+            fnamebuf << "gen_"<< gen; //needs end marker
 
             highscore=pole2_epoch_realtime(pop, gen, fnamebuf.str().c_str(), velocity != 0, thecart, champg, champn, winnernum,
                                            oFile);
