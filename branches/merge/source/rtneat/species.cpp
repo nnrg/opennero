@@ -523,8 +523,6 @@ OrganismPtr Species::get_champ()
     OrganismPtr thechamp;
     vector<OrganismPtr>::iterator curorg;
 
-    assert(org);
-
     for (curorg=organisms.begin(); curorg!=organisms.end(); ++curorg)
     {
         if (((*curorg)->fitness)>champ_fitness)

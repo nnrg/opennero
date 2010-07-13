@@ -1602,7 +1602,7 @@ bool Genome::mutate_add_link(vector<InnovationPtr> &innovs, F64 &curinnov,
             if (theinnov==innovs.end())
             {
 
-                Assert(phenotype);
+                Assert(phenotype.lock());
 
                 //Useful for debugging
                 //cout<<"nodep1 id: "<<nodep1->node_id<<endl;
