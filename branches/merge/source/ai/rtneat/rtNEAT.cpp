@@ -193,7 +193,7 @@ namespace OpenNero
         //Notes on current implementation.
         else if (RANDOM.randF() < prob)
         {
-            vector<OrganismPtr>::iterator most = max_element(mPopulation->organisms.begin(), mPopulation->organisms.end());
+            vector<OrganismPtr>::iterator most = max_element(mPopulation->organisms.begin(), mPopulation->organisms.end(), fitness_less);
             org = *most;
         }
         else
