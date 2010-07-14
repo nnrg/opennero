@@ -12,7 +12,7 @@ HEIGHT = 20
 OFFSET = -HEIGHT/2
 
 NEAT_ACTIONS = 2
-NEAT_SENSORS = 9
+NEAT_SENSORS = 18
 pop_size = 40
 DEPLOY_SIZE = 40 * 2
 
@@ -98,6 +98,8 @@ class NeroModule:
    
    #The following is run when the Save button is pressed
     def save_rtneat(self):
+        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/20, YDIM/10, HEIGHT + OFFSET), Vector3f(0, 0, 45), scale=Vector3f(XDIM/8,YDIM/2,HEIGHT), label="World Wall1", type = OBSTACLE )
+        if 1 == 1: return
         global rtneat, rtneat2
         rtneat.save_population("../rtneat.gnm")
         rtneat2.save_population("../rtneat2.gnm")
