@@ -270,11 +270,13 @@ class NeroEnvironment(Environment):
              self.pop_state_1[agent.org.id] = state 
             else:
              self.pop_state_2[agent.org.id] = state 
+        
+        if agent.step == 3:
             if getMod().getNumToAdd() > 0:
                 dx = randrange(getMod().XDIM/20) - getMod().XDIM/40
                 dy = randrange(getMod().XDIM/20) - getMod().XDIM/40
                 getMod().addAgent((getMod().XDIM/2 + dx, getMod().YDIM/3 + dy, 2))
-        
+
         # Update Damage totals
         state.total_damage += state.curr_damage
         damage = state.curr_damage
