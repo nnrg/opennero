@@ -143,8 +143,9 @@ class NeroEnvironment(Environment):
         rbound = FeatureVectorInfo() # rewards
         
         # actions
-        abound.add_continuous(-pi / 2, pi / 2) # direction of motion
+        abound.add_continuous(0, pi / 2) # direction of motion
         abound.add_continuous(0, 1) # how fast to move
+        abound.add_continuous(0, pi / 2) # direction of motion
         #abound.add_continuous(-pi / 2, pi / 2) # Firing direction
         #abound.add_continuous(0, 1)
         #abound.add_continuous(0, 1) 
@@ -160,7 +161,7 @@ class NeroEnvironment(Environment):
         sbound.add_continuous(0, 1) # 45 deg
         sbound.add_continuous(0, 1) # 60 deg
         
-        #Flag Range Sensors
+        #Flag Sensors
         sbound.add_continuous(0, 1) # 0 - 45
         sbound.add_continuous(0, 1) # 45 - 90
         sbound.add_continuous(0, 1) # 90 - 135
@@ -169,7 +170,6 @@ class NeroEnvironment(Environment):
         sbound.add_continuous(0, 1) # 225 - 270
         sbound.add_continuous(0, 1) # 270 - 315
         sbound.add_continuous(0, 1) # 315 - 360
-        
         sbound.add_continuous(0, 1) # Distance
         
         #sbound.add_continuous(0, self.MAX_DIST) # Ally Sensors - Dist
@@ -270,6 +270,10 @@ class NeroEnvironment(Environment):
              self.pop_state_1[agent.org.id] = state 
             else:
              self.pop_state_2[agent.org.id] = state 
+            if getMod().getNumToAdd() > 0:
+                dx = randrange(getMod().XDIM/20) - getMod().XDIM/40
+                dy = randrange(getMod().XDIM/20) - getMod().XDIM/40
+                getMod().addAgent((getMod().XDIM/2 + dx, getMod().YDIM/3 + dy, 2))
         
         # Update Damage totals
         state.total_damage += state.curr_damage
@@ -294,7 +298,7 @@ class NeroEnvironment(Environment):
         # get the current pose of the agent
         (x, y, heading) = state.pose
         # get the actions of the agent
-        turn_by = degrees(action[0])
+        turn_by = degrees(action[0] * 2.0) - degrees(action[2] * 2.0)
         move_by = action[1]
         #fire_by = action[2]
         # figure out the new heading
@@ -411,6 +415,7 @@ class NeroEnvironment(Environment):
         """ figure out what the agent should sense """
         v = self.agent_info.sensors.get_instance()
         vx = []
+        
         
         vx.append(self.raySense(agent, -60, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, -45, MAX_SD, OBSTACLE))

@@ -7,5 +7,6 @@
     <AniMesh>data/shapes/wall/wall.obj</AniMesh>
     <CastsShadow>true</CastsShadow>
     <Scale>20 1 10</Scale>
-  </Render>  
+    <Collsion>1</Collision>
+    </Render>  
 </Template>
