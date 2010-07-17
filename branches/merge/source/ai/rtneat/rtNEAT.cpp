@@ -155,7 +155,9 @@ namespace OpenNero
         /// constructor for a PyOrganism
         PyOrganism(OrganismPtr org) : mOrganism(org) {}
         /// set the fitness of the organism
-        void SetFitness(double fitness) { mOrganism->fitness = fitness; }
+        void SetFitness(double fitness) { 
+            if (mOrganism->fitness == 0)
+            mOrganism->fitness = fitness; }
         /// get the fitness of the organism
         double GetFitness() const { return mOrganism->fitness; }
 		/// get the genome ID of this organism
