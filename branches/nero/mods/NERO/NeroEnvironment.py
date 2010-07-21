@@ -244,6 +244,40 @@ class NeroEnvironment(Environment):
                 foe = self.teams[r] #TODO MAKE THIS VIABLE OVER 3+ TEAMS
         return (friend, foe)
 
+    def target(self, agent):
+        #Get list of all targets
+        ffr = self.getFriendFoe(agent)
+        alt = ffr[0] + ffr[1]
+        if (ffr[0] == []):
+            return None
+        state = self.get_state(agent)
+        
+
+        #sort in order of variance from 0~2 degrees (maybe more)
+        valids = []
+        for curr in alt:
+            fd = self.distance(state.pose,(curr.pose[0],curr.pose[1]))
+            if fd != 0:
+                fh  = ((degrees(atan2(curr.pose[1]-state.pose[1],curr.pose[0] - state.pose[0])) - state.pose[2]) % 360) - 180
+            else:
+                fh = 0
+            fh = abs(fh)
+            if fh <= 2:
+                valids.append((curr,fd,fh))
+             
+        #Valids contains (state,distance,heading to distance) pairs
+        #get one that is nearest based on distance / cos(radians(degrees() * 20))
+        top = None 
+        top_v = 'A'
+
+        for (curr,fd,fh) in valids:
+            if top_v == 'A' or top_v > (fd / cos(radians(fh * 20))):
+                top = curr
+                top_v = (fd/cos(radians(fh * 20)))
+
+        return top
+
+
     def step(self, agent, action):
         """
         A step for an agent
@@ -272,11 +306,12 @@ class NeroEnvironment(Environment):
              self.pop_state_2[agent.org.id] = state 
         
         if agent.step == 3:
+            #This is a test!
             if getMod().getNumToAdd() > 0:
                 dx = randrange(getMod().XDIM/20) - getMod().XDIM/40
                 dy = randrange(getMod().XDIM/20) - getMod().XDIM/40
                 getMod().addAgent((getMod().XDIM/2 + dx, getMod().YDIM/3 + dy, 2))
-
+        
         # Update Damage totals
         state.total_damage += state.curr_damage
         damage = state.curr_damage
@@ -324,11 +359,12 @@ class NeroEnvironment(Environment):
         fire_pos.x, fire_pos.y = fire_x, fire_y
         data = getSimContext().findInRay(position, fire_pos, AGENT + OBSTACLE, True)
         # calculate if we hit anyone
-        string = agent.state.label + str(len(data)) + ": "
+        data = self.target(agent)
+        #string = agent.state.label + str(len(data)) + ": "
         hit = 0
-        if len(data) > 0:
-            sim = data[0]
-            string += str(sim.label) + "," + str(sim.id) + ";"
+        if data != None:#len(data) > 0:
+            sim = data
+            #string += str(sim.label) + "," + str(sim.id) + ";"
             target = self.getStateId(sim.id)
             if target != -1:
                 if target.team == state.team:
@@ -458,19 +494,6 @@ class NeroEnvironment(Environment):
 
         for iter in range(len(vx)):
             v[iter] = vx[iter]
-        
-        #ffr = self.getFriendFoe(agent)
-        #if (ffr[0] == []):
-        #    return v
-        #ff = []
-        #ff.append(self.nearest(state.pose, state.id, ffr[0]))
-        #ff.append(self.nearest(state.pose, state.id, ffr[1]))
-        #if ff[0] == 1:
-        #    return v
-        #v[11 + 6] = self.distance(ff[0].pose, state.pose)
-        #v[12 + 6] = self.angle(state.pose, ff[0].pose)
-        #v[13 + 6] = self.distance(state.pose, ff[1].pose)
-        #v[14 + 6] = self.angle(state.pose, ff[1].pose)
         
         return v
    
