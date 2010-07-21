@@ -6,11 +6,12 @@
 		<MaterialType>solid</MaterialType>
 		<MaterialFlagLighting>true</MaterialFlagLighting>
 		<AniMesh>data/shapes/character/sydney.md2</AniMesh>
-		<CastsShadow>true</CastsShadow>
+		<CastsShadow>false</CastsShadow>
         <Texture0>data/shapes/character/sydney.bmp</Texture0>
 		<Scale>0.2 0.2 0.2</Scale>
 		<DrawLabel>true</DrawLabel>
-	</Render>
+        <!--<Collision>5</Collision>-->
+    </Render>
 	<AI>
 		<Python agent="RTNEATAgent()" />
 	</AI>

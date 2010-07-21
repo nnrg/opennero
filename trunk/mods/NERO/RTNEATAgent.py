@@ -97,7 +97,7 @@ class RTNEATAgent(AgentBrain):
         Activate the network to produce the output
         Collect and interpret the outputs as valid maze actions
         """
-        assert(len(sensors)==15) # make sure we have the right number of sensors
+        assert(len(sensors)==18) # make sure we have the right number of sensors
         sensors = self.sensors.normalize(sensors)
         inputs = [sensor for sensor in sensors] # create the sensor array
         self.net.load_sensors(inputs)

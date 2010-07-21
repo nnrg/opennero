@@ -11,9 +11,10 @@ YDIM = 400
 HEIGHT = 20
 OFFSET = -HEIGHT/2
 
-NEAT_ACTIONS = 5
-NEAT_SENSORS = 15
-pop_size = 50
+NEAT_ACTIONS = 3
+NEAT_SENSORS = 18
+pop_size = 40
+DEPLOY_SIZE = 40 * 2
 
 OBSTACLE = 1 #0b0001
 AGENT = 2 #0b0010
@@ -23,6 +24,8 @@ class NeroModule:
         global rtneat, rtneat2
         rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size, 1.0)
         rtneat2 = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size,1.0)
+        self.XDIM = XDIM
+        self.YDIM = YDIM
         self.environment = None
         self.agent_id = None
         self.agent_map = {}
@@ -35,8 +38,10 @@ class NeroModule:
         self.ee =  0
         self.hp = 50
         self.currTeam = 1
-        self.flag_loc = Vector3f(20,20,0)
-
+        #self.flag_loc = Vector3f(20,20,0)
+        self.flag_loc = Vector3f(0,0,0)
+        self.flag_id = -1
+        self.num_to_add = pop_size
 
     def setup_map(self):
         """
@@ -52,17 +57,25 @@ class NeroModule:
         set_environment(self.environment)
         
         # flag placement
-        addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag")
+        self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag")
+
 
         # world walls
         # addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2,0,HEIGHT+OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall0", type = OBSTACLE )
         # addObject("data/shapes/cube/Cube.xml", Vector3f(0, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall1", type = OBSTACLE )
         # addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall2", type = OBSTACLE )
         # addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM, HEIGHT +OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall3", type = OBSTACLE )
-        # addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1, YDIM,HEIGHT), label="World Wall4", type = OBSTACLE)
+        #addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1, YDIM,HEIGHT), label="World Wall4", type = OBSTACLE)
 
         # Add the surrounding Environment
-        addObject("data/terrain/NeroWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="NeroWorld", type = OBSTACLE)
+        addObject("data/terrain/NeroWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="NeroWorld")
+
+    def change_flag(self, new_loc):
+        if 1 == 1: return
+        self.flag_loc = Vector3f(new_loc[0],new_loc[1],new_loc[2])
+        print self.flag_id
+        removeObject(self.flag_id)
+        self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag")
 
     #The following is run when the Deploy button is pressed
     def start_rtneat(self):
@@ -73,21 +86,28 @@ class NeroModule:
 
         # Create RTNEAT Objects
         set_ai("neat1",rtneat)
-        set_ai("neat2", rtneat2)
+        #set_ai("neat2", rtneat2)
         enable_ai()
-        for i in range(0, 10):
-            self.agent_map[(0,i)] = getNextFreeId()
-            dx = random.randrange(XDIM/20) - XDIM/40
-            dy = random.randrange(XDIM/20) - XDIM/40
-            if i % 2 == 0:
-                self.currTeam = 1
-                addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
-            else:
-                self.currTeam = 2
-                addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
+
+        #while self.getNumToAdd() > 0:
+        dx = random.randrange(XDIM/20) - XDIM/40
+        dy = random.randrange(XDIM/20) - XDIM/40
+        self.addAgent((XDIM/2 + dx, YDIM/3 + dy, 2))
+        #for i in range(0, DEPLOY_SIZE):
+        #    self.agent_map[(0,i)] = getNextFreeId()
+        #    dx = random.randrange(XDIM/20) - XDIM/40
+        #    dy = random.randrange(XDIM/20) - XDIM/40
+        #    if i % 2 == 0:
+        #        self.currTeam = 1
+        #        addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
+        #    else:
+        #        self.currTeam = 2
+        #        #addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
    
    #The following is run when the Save button is pressed
     def save_rtneat(self):
+        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/20, YDIM/10, HEIGHT + OFFSET), Vector3f(0, 0, 45), scale=Vector3f(XDIM/8,YDIM/2,HEIGHT), label="World Wall1", type = OBSTACLE )
+        if 1 == 1: return
         global rtneat, rtneat2
         rtneat.save_population("../rtneat.gnm")
         rtneat2.save_population("../rtneat2.gnm")
@@ -137,6 +157,16 @@ class NeroModule:
     def hpChange(self,value):
         self.hp = value
         print 'Hit points:',value
+
+    def getNumToAdd(self):
+        return self.num_to_add
+
+    def addAgent(self,pos):
+        self.num_to_add -= 1
+        #self.currTeam += 1
+        self.currTeam = 1
+        #if self.currTeam == 3: self.currTeam = 1
+        addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(pos[0],pos[1],pos[2]),type = AGENT)
 
 gMod = None
 
