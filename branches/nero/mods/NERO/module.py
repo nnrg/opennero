@@ -86,7 +86,7 @@ class NeroModule:
 
         # Create RTNEAT Objects
         set_ai("neat1",rtneat)
-        #set_ai("neat2", rtneat2)
+        set_ai("neat2", rtneat2)
         enable_ai()
 
         #while self.getNumToAdd() > 0:
@@ -163,10 +163,10 @@ class NeroModule:
 
     def addAgent(self,pos):
         self.num_to_add -= 1
-        #self.currTeam += 1
-        self.currTeam = 1
-        #if self.currTeam == 3: self.currTeam = 1
-        addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(pos[0],pos[1],pos[2]),type = AGENT)
+        self.currTeam += 1
+        #self.currTeam = 1
+        if self.currTeam == 3: self.currTeam = 1
+        addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(pos[0],pos[1] * self.currTeam,pos[2]),type = AGENT)
 
 gMod = None
 

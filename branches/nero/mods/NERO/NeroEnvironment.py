@@ -250,6 +250,7 @@ class NeroEnvironment(Environment):
         alt = ffr[0] + ffr[1]
         if (ffr[0] == []):
             return None
+
         state = self.get_state(agent)
         
 
@@ -357,7 +358,6 @@ class NeroEnvironment(Environment):
         # draw the line of fire
         fire_pos = copy(position)
         fire_pos.x, fire_pos.y = fire_x, fire_y
-        data = getSimContext().findInRay(position, fire_pos, AGENT + OBSTACLE, True)
         # calculate if we hit anyone
         data = self.target(agent)
         #string = agent.state.label + str(len(data)) + ": "
@@ -370,6 +370,7 @@ class NeroEnvironment(Environment):
                 if target.team == state.team:
                     target.curr_damage += 1 * friendly_fire
                 else:
+                    data = getSimContext().findInRay(position, Vector3f(sim.pose[0],sim.pose[1],2), AGENT + OBSTACLE, True)
                     target.curr_damage += 1
                     hit = 1
         # calculate friend/foe
