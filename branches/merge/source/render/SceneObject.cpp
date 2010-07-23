@@ -693,27 +693,26 @@ namespace OpenNero
         { // if the collision types don't match or are 0, no collision
             return false;
         }
-        BBoxf my_box = mSceneNode->getBoundingBox(); // Irrlicht aabbox
-        BBoxf other_box = other->mSceneNode->getBoundingBox(); // Irrlicht aabbox
-        Vector3f irr_pos(ConvertNeroToIrrlichtPosition(new_pos)); // Irrlicht pos
+        BBoxf my_box = mSceneNode->getBoundingBox(); // our irr box
+        BBoxf other_box = other->mSceneNode->getBoundingBox(); // their irr box
+        Vector3f my_irr_pos(ConvertNeroToIrrlichtPosition(new_pos)); // our irr pos
+		Vector3f other_irr_pos(ConvertNeroToIrrlichtPosition(other->getPosition())); // their irr pos
+		Vector3f my_irr_scale(ConvertNeroToIrrlichtPosition(getScale()));
+		Vector3f their_irr_scale(ConvertNeroToIrrlichtPosition(other->getScale()));
         
         // translate our bounding box over to our future position
         Matrix4 transform;
-        transform.setTranslation(irr_pos);
+        transform.setTranslation(my_irr_pos);
+		transform.setScale(my_irr_scale);
         transform.transformBox(my_box);
         
         // translate their bounding box over to their current position
         transform.setTranslation(other->mSceneNode->getPosition());
+		transform.setScale(their_irr_scale);
         transform.transformBox(other_box);
         
         // check if the bounding boxes intersect
-        if (my_box.intersectsWithBox(other_box)) {
-            LOG_F_DEBUG("ivk", "+collision check between: " << GetId() << ", " << my_box
-                << " and " << other->GetId() << ", " << other_box);
-            return true;
-        } else {
-            return false;
-        }
+        return my_box.intersectsWithBox(other_box);
     }
 
     /// Move forward the simulation of this sim object by a time delta

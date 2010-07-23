@@ -258,7 +258,6 @@ namespace OpenNero
     void SimEntity::ResolveCollision()
     {
 		SetLabel("Bump");
-		LOG_F_DEBUG("collision", "resolved collision on " << this);
 		SetPosition(mSceneObject->getPosition());
     }
 
