@@ -149,8 +149,8 @@ class NeroEnvironment(Environment):
         #abound.add_continuous(-pi / 2, pi / 2) # Firing direction
         #abound.add_continuous(0, 1)
         #abound.add_continuous(0, 1) 
-
-        #sensors
+        
+        #Wall Sensors
         sbound.add_continuous(0, 1) # -60 deg        
         sbound.add_continuous(0, 1) # -45 deg
         sbound.add_continuous(0, 1) # -30 deg
@@ -161,6 +161,18 @@ class NeroEnvironment(Environment):
         sbound.add_continuous(0, 1) # 45 deg
         sbound.add_continuous(0, 1) # 60 deg
         
+        #Foe Sensors
+        sbound.add_continuous(0, 1) # -60 deg        
+        sbound.add_continuous(0, 1) # -45 deg
+        sbound.add_continuous(0, 1) # -30 deg
+        sbound.add_continuous(0, 1) # -15 deg
+        sbound.add_continuous(0, 1) # straight ahead
+        sbound.add_continuous(0, 1) # 15 deg
+        sbound.add_continuous(0, 1) # 30 deg
+        sbound.add_continuous(0, 1) # 45 deg
+        sbound.add_continuous(0, 1) # 60 deg
+        
+
         #Flag Sensors
         sbound.add_continuous(0, 1) # 0 - 45
         sbound.add_continuous(0, 1) # 45 - 90
@@ -456,6 +468,7 @@ class NeroEnvironment(Environment):
         v = self.agent_info.sensors.get_instance()
         vx = []
         
+        state = self.get_state(agent)
         
         vx.append(self.raySense(agent, -60, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, -45, MAX_SD, OBSTACLE))
@@ -467,8 +480,39 @@ class NeroEnvironment(Environment):
         vx.append(self.raySense(agent, 45, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 60, MAX_SD, OBSTACLE))
         
+        ffr = self.getFriendFoe(agent)
+        if (ffr[0] == []) or ffr[1] == []:
+            return v
+        ff = []
+        ff.append(self.nearest(state.pose, state.id, ffr[0]))
+        ff.append(self.nearest(state.pose, state.id, ffr[1]))
+        if ff[0] == 1:
+            return v
         
-        state = self.get_state(agent)
+        fd = self.distance(state.pose,(ff[1].pose[0],ff[1].pose[1]))
+        if fd != 0:
+            fh  = ((degrees(atan2(ff[1].pose[1]-state.pose[1],ff[1].pose[0] - state.pose[0])) - state.pose[2]) % 360) - 180
+        else:
+            fh = 0
+
+        if fh < 0:
+            fh += 360
+
+        if fh > 360:
+            fh -= 360
+        
+
+        vx.append(max(0,cos(radians(fh-  0))))
+        vx.append(max(0,cos(radians(fh- 45))))
+        vx.append(max(0,cos(radians(fh- 90))))
+        vx.append(max(0,cos(radians(fh-135))))
+        
+        vx.append(max(0,cos(radians(fh-180))))
+        vx.append(max(0,cos(radians(fh-225))))
+        vx.append(max(0,cos(radians(fh-270))))
+        vx.append(max(0,cos(radians(fh-315))))
+       
+        vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST))) 
         
         fd = self.flag_distance(agent)
         if fd != 0:
