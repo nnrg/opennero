@@ -247,7 +247,7 @@ class NeroEnvironment(Environment):
     def target(self, agent):
         #Get list of all targets
         ffr = self.getFriendFoe(agent)
-        alt = ffr[0] + ffr[1]
+        alt = ffr[1]#ffr[0] + ffr[1]
         if (ffr[0] == []):
             return None
 
@@ -371,8 +371,9 @@ class NeroEnvironment(Environment):
                     target.curr_damage += 1 * friendly_fire
                 else:
                     data = getSimContext().findInRay(position, Vector3f(sim.pose[0],sim.pose[1],2), AGENT + OBSTACLE, True)
-                    target.curr_damage += 1
-                    hit = 1
+                    if not(len(data) > 0 and data[0] != target):
+                        target.curr_damage += 1
+                        hit = 1
         # calculate friend/foe
         ffr = self.getFriendFoe(agent)
         if ffr[0] == []:
@@ -491,7 +492,7 @@ class NeroEnvironment(Environment):
         vx.append(max(0,cos(radians(fh-270))))
         vx.append(max(0,cos(radians(fh-315))))
        
-        vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST))) ##CHANGE THIS
+        vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST)))
 
         for iter in range(len(vx)):
             v[iter] = vx[iter]
