@@ -97,14 +97,25 @@ class SandboxMod:
             removeObject(id)  # delete id from Registry, not from list
         self.agent_ids = []
 
+    def distribute_bots(self, num_bots, bot_type):
+        """distribute bots so that they don't overlap"""
+        # make a number of tiles to stick bots in
+        N_TILES = 10
+        tiles = [ (r,c) for r in range(N_TILES) for c in range(N_TILES)]
+        random.shuffle(tiles)
+        for i in range(num_bots):
+            (r,c) = tiles.pop() # random tile
+            x, y = r * XDIM / float(N_TILES), c * YDIM / float(N_TILES) # position within tile
+            x, y = x + random.random() * XDIM * 0.5 / N_TILES, y + random.random() * YDIM * 0.5 / N_TILES # random offset
+            agent_id = addObject(bot_type, Vector3f(x, y, 0), Vector3f(0.5, 0.5, 0.5))
+            self.agent_ids.append(agent_id)
+        
+
     def add_bots(self, bot_type, num_bots):
         disable_ai()
         num_bots = int(num_bots)
         if bot_type.lower().find("script") >= 0:
-            for i in range(0, num_bots):
-                agent_id = getNextFreeId()
-                self.agent_ids.append(agent_id)
-                addObject("data/shapes/roomba/Roomba.xml", Vector3f(random.random()*XDIM, random.random()*YDIM,0), Vector3f(0.5, 0.5, 0.5))
+            self.distribute_bots(num_bots, "data/shapes/roomba/Roomba.xml")
             enable_ai()
             return True
         elif bot_type.lower().find("rtneat") >= 0:
@@ -128,9 +139,7 @@ class SandboxMod:
         rtneat = RTNEAT("data/ai/neat-params.dat", 6, 2, pop_size, 1.0)
         set_ai("neat",rtneat) 
         enable_ai()
-        for i in range(0, pop_size):
-            self.agent_ids.append(getNextFreeId())
-            addObject("data/shapes/roomba/RoombaRTNEAT.xml", Vector3f(random.random()*XDIM, random.random()*YDIM,0) )
+        self.distribute_bots(pop_size, "data/shapes/roomba/RoombaRTNEAT.xml")
         
 
 #################################################################################        
