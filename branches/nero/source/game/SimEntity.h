@@ -26,13 +26,13 @@ namespace OpenNero
     BOOST_PTR_DECL( SceneObject );
     BOOST_PTR_DECL( AIObject );
     BOOST_PTR_DECL( SensorObject );
-#if NERO_BUILD_PHYSICS
-    BOOST_SHARED_STRUCT( IPhysicsObject );
-#endif // NERO_BUILD_PHYSICS
     /// @endcond
 
     /// Set of SimEnities
     typedef std::set<SimEntityPtr> SimEntitySet;
+    
+    /// List of SimEntities
+    typedef std::list<SimEntityPtr> SimEntityList;
     
     /// an unique identifier that used to identify objects locally
     typedef uint32_t SimId;
@@ -90,9 +90,6 @@ namespace OpenNero
         void SetAudioObject( AudioObjectPtr obj );
 #endif // NERO_BUILD_AUDIO
         void SetAIObject( AIObjectPtr obj );
-#if NERO_BUILD_PHYSICS
-        void SetPhysicsObject( IPhysicsObjectPtr obj );
-#endif // NERO_BUILD_PHYSICS
 	/// @}
 
 		/// getters for SimEntity components
@@ -102,9 +99,6 @@ namespace OpenNero
         AudioObjectPtr GetAudioObject() { return mAudioObject; }
 #endif // NERO_BUILD_AUDIO
         AIObjectPtr GetAIObject() { return mAIObject; }
-#if NERO_BUILD_PHYSICS
-        IPhysicsObjectPtr GetPhysicsObject() { return mPhysicsObject; }
-#endif // NERO_BUILD_PHYSICS
 		/// @}
 
         /// make sure you explicitly call this method
@@ -113,9 +107,6 @@ namespace OpenNero
 
 		/// Get a constant reference to the shared data for this SimEntity
         const SimEntityData& GetState() const { return mSharedData; }
-
-        /// find the collision point of the ray with the object
-        bool GetCollisionPoint(const Line3f& ray, const IrrHandles& irr, Vector3f& outCollisionPoint) const;
 
         /// get position of the object
         const Vector3f& GetPosition() const;
@@ -144,6 +135,13 @@ namespace OpenNero
         void SetLabel( const std::string& label );
         void SetColor( const SColor& color );
         /// @}
+        
+    private:
+        /// Will moving the entity to new_pos cause it to collide with others?
+        SimEntitySet GetCollisions( const SimEntitySet& others);
+        
+        /// Assume that a collision occurred and resolve it (bounce)
+        void ResolveCollision();
 
         /// output human-readable information about this SimEntity
         friend std::ostream& operator<<(std::ostream& stream, const SimEntityPtr&);
@@ -163,10 +161,6 @@ namespace OpenNero
         AudioObjectPtr      mAudioObject;
 #endif // NERO_BUILD_AUDIO
 
-#if NERO_BUILD_PHYSICS
-		/// hook into physics
-        IPhysicsObjectPtr   mPhysicsObject;
-#endif // NERO_BUILD_PHYSICS
         /// hook into rendering
         SceneObjectPtr      mSceneObject;
 		/// @}

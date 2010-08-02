@@ -84,31 +84,26 @@ namespace OpenNero
         /// set the fog mode
         void SetFog();
 
-        /// Get the SimEntity under the user specified cursor position on screen
-        SimEntityPtr GetEntityUnderMouse(const int32_t& x, const int32_t& y) const;
-
-        /// Get the Id of the SimEntity under the user specified cursor position on screen
-        SimId GetEntityIdUnderMouse(const int32_t& x, const int32_t& y) const;
-
         /// Get the vector from camera origin to the specified cursor position on screen
         Line3f GetRayUnderMouse(const int32_t& x, const int32_t& y) const;
 
-#if NERO_BUILD_PHYSICS
-        /// Find all objects in a sphere
-        SimDataVector FindInSphere( const Vector3f& origin, F32 radius ) const;
-#endif // NERO_BUILD_PHYSICS
-
 		/// Find the first object that intersects the specified ray
-		boost::python::tuple FindInRay( const Vector3f& origin, const Vector3f& target, const uint32_t& type = 0, const bool val = false) const;
+		boost::python::tuple FindInRay( const Vector3f& origin, 
+                                        const Vector3f& target, 
+                                        const uint32_t& type = 0, 
+                                        const bool val = false, 
+                                        const SColor& foundColor = SColor(255,255,0,0),
+                                        const SColor& noneColor = SColor(255,255,255,0)
+                                        ) const;
 
         /// Get (approximate) 3d position of the click
-        Vector3f GetClickPosition(const int32_t& x, const int32_t& y) const;
+        Vector3f GetClickedPosition(const int32_t& x, const int32_t& y) const;
 
-        /// Find the collision point of the specified ray and the object
-        bool GetCollisionPoint(const Vector3f& start, const Vector3f& end, SimId id, Vector3f& outCollisionPoint) const;
+        /// Get the SimEntity under the user specified cursor position on screen
+        SimEntityPtr GetClickedEntity(const int32_t& x, const int32_t& y) const;
 
-        /// Get the point of intersection of the vector from camera origin to the specified cursor position on screen
-        Vector3f GetPointUnderMouse(const int32_t& x, const int32_t& y) const;
+        /// Get the Id of the SimEntity under the user specified cursor position on screen
+        SimId GetClickedEntityId(const int32_t& x, const int32_t& y) const;
 
         /// Get the current position of the mouse on the screen
         Pos2i GetMousePosition() const;
@@ -137,6 +132,15 @@ namespace OpenNero
 
         /// Get override color of the SimEntity specified by the id
         SColor GetObjectColor( SimId id ) const;
+
+        /// Get the bounding box min edge of the SimEntity specified by the netID
+        Vector3f GetObjectBBMinEdge( uint32_t netID ) const;
+
+        /// Get the bounding box max edge of the SimEntity specified by the netID
+        Vector3f GetObjectBBMaxEdge( uint32_t netID ) const;
+
+        /// Transform the given vector by the matrix of the SimEntity specified by the netID
+        Vector3f TransformVector( uint32_t netID, const Vector3f& vect ) const;
 
         /// End the game
         void KillGame();
@@ -169,6 +173,7 @@ namespace OpenNero
 
         /// return the simulation
         SimulationPtr getSimulation() { return mpSimulation; }
+        
         /// return the simulation while changing nothing
         const SimulationPtr getSimulation() const { return mpSimulation; }
 
@@ -181,10 +186,15 @@ namespace OpenNero
 
         /// update the audio system
         void UpdateAudioSystem(float32_t dt);
+		/// act on user inputs
         void UpdateInputSystem(float32_t dt);
+		/// render graphics
         void UpdateRenderSystem(float32_t dt);
+		/// update scripting objects
         void UpdateScriptingSystem(float32_t dt);
+		/// update simulation
         void UpdateSimulation(float32_t dt);
+
     private:
 
         // clear out the context

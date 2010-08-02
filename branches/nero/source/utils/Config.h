@@ -15,54 +15,6 @@
 namespace OpenNero
 {
 
-#if NERO_BUILD_PHYSICS
-    /// Physics engine configuration. See
-    /// <a href="http://opende.sourceforge.net/wiki/index.php/Manual_(Concepts)">ODE Manual</a>
-	/// for meanings of some of these constants.
-    struct PhysicsConfig
-    {
-        F32 tracking_radius;                ///< maximum distance from the origin that the objects are tracked
-        F32 gravity;                        ///< acceleration due to gravity, m/s in -k
-        F32 CFM;                            ///< ODE Constraints Force Mixing
-        F32 ERP;                            ///< ODE Error Reduction Parameter
-        F32 damping;                        ///< Damping force constant (proportional to linear velocity)
-        F32 damping_torque;                 ///< Damping torque constant (proportional to rotational velocity)
-        F32 default_mass;                   ///< default object mass (kg)
-        F32 step_size;                      ///< physics step size in (sec)
-        F32 slip1;                          ///< collision slip parameter
-        F32 slip2;                          ///< collision slip parameter
-        F32 soft_erp;                       ///< collision ERP
-        F32 soft_cfm;                       ///< collision CFM
-        F32 mu;                             ///< collision mu
-        F32 ground_offset;                  ///< level of the floor plane (Z)
-
-        /// Constructor
-        PhysicsConfig();
-
-        /// serialize to stream, file or string
-        template<class Archive> void serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(tracking_radius);
-            ar & BOOST_SERIALIZATION_NVP(gravity);
-            ar & BOOST_SERIALIZATION_NVP(CFM);
-            ar & BOOST_SERIALIZATION_NVP(ERP);
-            ar & BOOST_SERIALIZATION_NVP(damping);
-            ar & BOOST_SERIALIZATION_NVP(damping_torque);
-            ar & BOOST_SERIALIZATION_NVP(default_mass);
-            ar & BOOST_SERIALIZATION_NVP(step_size);
-            ar & BOOST_SERIALIZATION_NVP(slip1);
-            ar & BOOST_SERIALIZATION_NVP(slip2);
-            ar & BOOST_SERIALIZATION_NVP(soft_erp);
-            ar & BOOST_SERIALIZATION_NVP(soft_cfm);
-            ar & BOOST_SERIALIZATION_NVP(mu);
-            ar & BOOST_SERIALIZATION_NVP(ground_offset);
-        }
-    };
-
-    /// output PhysicsConfig to stream
-    std::ostream& operator<<(std::ostream& output, const PhysicsConfig& config);
-#endif // NERO_BUILD_PHYSICS
-
     /// The application config stores a variety of tunable
     /// values that are used at initial startup
     struct AppConfig
@@ -80,10 +32,6 @@ namespace OpenNero
         bool        use_stencil_buffer;  ///< Should we use a stencil buffer for shadows?
         bool        use_vsync;           ///< Should we use vsync?
         std::string seeds;               ///< Random seed buffer
-
-#if NERO_BUILD_PHYSICS
-        PhysicsConfig physics_config;         ///< physics engine configuration
-#endif // NERO_BUILD_PHYSICS
 
         /// Constructor
         AppConfig();
@@ -104,9 +52,6 @@ namespace OpenNero
             ar & BOOST_SERIALIZATION_NVP(use_stencil_buffer);
             ar & BOOST_SERIALIZATION_NVP(use_vsync);
             ar & BOOST_SERIALIZATION_NVP(seeds);
-#if NERO_BUILD_PHYSICS
-            ar & BOOST_SERIALIZATION_NVP(physics_config);
-#endif // NERO_BUILD_PHYSICS
         }
     };
 

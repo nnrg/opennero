@@ -32,18 +32,7 @@ HEIGHT = 20.0
 OFFSET = -HEIGHT/2
 
 class SandboxMod:
-    """
-    every method that expects to be called from a client
-    should be of the required form:
-    def methodName( self, param0, param1, ..., paramN )
-    
-    the 'client' param is implicitly passed by the system to
-    allow the server ot recognize which client is making the
-    request for this method to be called
-    
-    add a set of coordinate axes
-    """
-    
+
     def __init__(self):
         """
         initialize the sandbox server
@@ -101,14 +90,14 @@ class SandboxMod:
         self.agent_ids = []
         reset_ai()
 
-    def clean_bots(self):
+    def remove_bots(self):
         """ remove all existing bots from the environment """
         disable_ai()
         for id in self.agent_ids:
             removeObject(id)  # delete id from Registry, not from list
         self.agent_ids = []
 
-    def add_bot(self, bot_type, num_bots):
+    def add_bots(self, bot_type, num_bots):
         disable_ai()
         num_bots = int(num_bots)
         if bot_type.lower().find("script") >= 0:
@@ -216,12 +205,6 @@ class SandboxEnvironment(Environment):
         # Add Wayne's Roomba room with experimentally-derived vertical offset to match crumbs.
         addObject("data/terrain/RoombaRoom.xml", Vector3f(XDIM/2,YDIM/2, -1), Vector3f(0,0,0), Vector3f(XDIM/245.0, YDIM/245.0, HEIGHT/24.5))
 
-        # corner walls (visualize room limit)
-        #addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, 0, HEIGHT/2 + OFFSET), Vector3f(0, 0, 90), Vector3f(1,XDIM,HEIGHT) )
-        #addObject("data/shapes/cube/Cube.xml", Vector3f(0, YDIM/2, HEIGHT/2 + OFFSET), Vector3f(0, 0, 0), Vector3f(1,XDIM,HEIGHT) )
-        #addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM, YDIM/2, HEIGHT/2 + OFFSET), Vector3f(0, 0, 0), Vector3f(1,XDIM,HEIGHT) )
-        #addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM, HEIGHT/2 + OFFSET), Vector3f(0, 0, 90), Vector3f(1,XDIM,HEIGHT) )
-
         # getSimContext().addAxes()
         self.add_crumbs()
         for crumb in self.crumbs:
@@ -254,7 +237,7 @@ class SandboxEnvironment(Environment):
         for pellet in self.crumbs:
             if not (pellet.x, pellet.y) in getMod().marker_map:
                 getMod().mark_blue(pellet.x, pellet.y)
-	self.crumb_count = len(getMod().marker_map)
+        self.crumb_count = len(getMod().marker_map)
 
     def reset(self, agent):
         """ reset the environment to its initial state """

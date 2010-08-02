@@ -159,19 +159,6 @@ namespace OpenNero
                 itr->second->DoMappedAction();
         }
         
-        if (mIOState.WasMouseButtonPressedLastFrame(MOUSE_LBUTTON))
-        {
-            int32_t x(0), y(0);
-            mIOState.GetMousePosition(x,y);
-            SimEntityPtr clickedObj = Kernel::GetSimContext()->GetEntityUnderMouse(x,y);
-            if (clickedObj)
-            {
-                Line3f ray = Kernel::GetSimContext()->GetRayUnderMouse(x,y);
-                Vector3f click_pos = Kernel::GetSimContext()->GetClickPosition(x,y);
-                LOG_F_DEBUG("core", "User clicked on: " << clickedObj << " intersecting with ray from " << ray.start << " to " << ray.end << " at position " << click_pos);
-            }
-        }
-        
         // clean up the io state for the next frame
         mIOState.PrepareForNextSimFrame();
     }
