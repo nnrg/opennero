@@ -26,3 +26,12 @@ def openWiki(page):
         print 'openWiki:', page
         webbrowser.open('http://code.google.com/p/opennero/wiki/' + page)
     return closure
+
+def wrap_degrees(a, da):
+    """ add da to a, but make sure that the resulting angle stays within the -180 to 180 range """
+    a2 = a + da
+    if a2 > 180:
+        a2 = -180 + (a2 % 180)
+    elif a2 < -180:
+        a2 = 180 - (abs(a2) % 180)
+    return a2
