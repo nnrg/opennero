@@ -282,7 +282,7 @@ class NeroEnvironment(Environment):
         for curr in alt:
             fd = self.distance(state.pose,(curr.pose[0],curr.pose[1]))
             if fd != 0:
-                fh  = ((degrees(atan2(curr.pose[1]-state.pose[1],curr.pose[0] - state.pose[0])) - state.pose[2]) % 360) - 180
+                fh  = ((degrees(atan2(curr.pose[1]-state.pose[1],curr.pose[0] - state.pose[0])) - state.pose[2]) % 360)
             else:
                 fh = 0
             fh = abs(fh)
@@ -408,7 +408,7 @@ class NeroEnvironment(Environment):
         st = 0
         ae = 0
         
-	#calculate f
+	    #calculate f
         sg = -action[0]
         if ff[0] != 1 and self.distance(ff[0].pose,state.pose) != 0:
             st = distance_st / self.distance(ff[0].pose,state.pose)
