@@ -1148,10 +1148,14 @@ void Genome::mutate_toggle_enable(S32 times)
             //We need to make sure that another gene connects out of the in-node
             //Because if not a section of network will break off and become isolated
             checkgene=genes.begin();
-            while ( (checkgene != genes.end() ) &&((*checkgene)->lnk->get_in_node().get() != (*thegene)->lnk->get_in_node().get() )||((*checkgene)->enable == false)||((*checkgene)->innovation_num == (*thegene)->innovation_num))
-            {
-                ++checkgene;
-            }
+            while ( checkgene != genes.end() &&
+                    (*checkgene) &&
+                    ( (*checkgene)->lnk->get_in_node().get() != (*thegene)->lnk->get_in_node().get() 
+                      || (*checkgene)->enable == false 
+                      || (*checkgene)->innovation_num == (*thegene)->innovation_num ) )
+                {
+                    ++checkgene;
+                }
 
             //Disable the gene if it's safe to do so
             if (checkgene!=genes.end())
@@ -1482,7 +1486,7 @@ bool Genome::mutate_add_link(vector<InnovationPtr> &innovs, F64 &curinnov,
             else
             {
                 count=0;
-                recurflag=phenotype->is_recur(nodep1->analogue,
+                recurflag=phenotype.lock()->is_recur(nodep1->analogue,
                                               nodep2->analogue, count, thresh);
 
                 //ADDED: CONSIDER connections out of outputs recurrent
@@ -1550,8 +1554,8 @@ bool Genome::mutate_add_link(vector<InnovationPtr> &innovs, F64 &curinnov,
             {
 
                 count=0;
-                recurflag=phenotype->is_recur(nodep1->analogue,
-                                              nodep2->analogue, count, thresh);
+                recurflag=phenotype.lock()->is_recur(nodep1->analogue,
+                                                     nodep2->analogue, count, thresh);
 
                 //ADDED: CONSIDER connections out of outputs recurrent
                 if (((nodep1->type)==OUTPUT)||((nodep2->type)==OUTPUT))
@@ -1598,13 +1602,7 @@ bool Genome::mutate_add_link(vector<InnovationPtr> &innovs, F64 &curinnov,
             if (theinnov==innovs.end())
             {
 
-                //If the phenotype does not exist, exit on false,print error
-                //Note: This should never happen- if it does there is a bug
-                if (!phenotype)
-                {
-                    cerr<<"ERROR: Attempt to add link to genome with no phenotype"<<endl;
-                    return false;
-                }
+                Assert(phenotype.lock());
 
                 //Useful for debugging
                 //cout<<"nodep1 id: "<<nodep1->node_id<<endl;

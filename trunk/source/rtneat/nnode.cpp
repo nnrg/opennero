@@ -138,6 +138,7 @@ NNode::NNode(istream &args, vector<TraitPtr> &traits) :
     gradient(0), 
     gradient_count(0), //Inactive upon creation
     activation_count(0), //Inactive upon creation
+    ftype(SIGMOID),
     nodetrait(), 
     dup(), 
     analogue(), 
@@ -149,6 +150,7 @@ NNode::NNode(istream &args, vector<TraitPtr> &traits) :
 {
     S32 traitnum;
     vector<TraitPtr>::iterator curtrait;
+    int x;
 
     activesum=0;
     gradientsum=0;
@@ -156,13 +158,8 @@ NNode::NNode(istream &args, vector<TraitPtr> &traits) :
     //Get the node parameters
     args >> node_id;
     args >> traitnum;
-    int x;
-    args >> x;
-    type = (nodetype)x;
-    args >> x;
-    gen_node_label = (nodeplace)x;
-    args >> x;
-    ftype = (functype)x;
+    args >> x; type = (nodetype)x;
+    args >> x; gen_node_label = (nodeplace)x;
     // Get the Sensor Name and Parameter String if the node is an input node
     if (gen_node_label == INPUT)
     {

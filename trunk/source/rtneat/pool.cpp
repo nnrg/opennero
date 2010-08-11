@@ -486,17 +486,11 @@ bool Pool::remove_org(OrganismPtr org)
     while ((curorg!=organisms.end())&&((*curorg)!=org))
         ++curorg;
 
-    if (curorg==organisms.end())
-    {
-        //cout<<"ALERT: Attempt to remove nonexistent Organism from Species"<<endl;
-        return false;
-    }
-    else
-    {
-        organisms.erase(curorg);
-        return true;
-    }
+    assert(curorg != organisms.end());
 
+    organisms.erase(curorg);
+
+    return true;
 }
 
 OrganismPtr Pool::first()

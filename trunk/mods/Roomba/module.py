@@ -32,18 +32,7 @@ HEIGHT = 20.0
 OFFSET = -HEIGHT/2
 
 class SandboxMod:
-    """
-    every method that expects to be called from a client
-    should be of the required form:
-    def methodName( self, param0, param1, ..., paramN )
-    
-    the 'client' param is implicitly passed by the system to
-    allow the server ot recognize which client is making the
-    request for this method to be called
-    
-    add a set of coordinate axes
-    """
-    
+
     def __init__(self):
         """
         initialize the sandbox server
@@ -56,10 +45,11 @@ class SandboxMod:
         """ Mark a position (x, y) with the specified color """
         # remove the previous object, if necessary
         self.unmark(x, y)
-        # remember the ID of the object we are about to create
-        self.marker_map[(x, y)] = getNextFreeId()
         # add a new marker object
-        addObject(marker, Vector3f(x, y, -1), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
+        id = addObject(marker, Vector3f(x, y, -1), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
+        # remember the ID of the object we are about to create
+        self.marker_map[(x, y)] = id
+        
 	    
     def mark_blue(self, x, y):
         self.mark(x, y,"data/shapes/cube/BlueCube.xml")
@@ -101,29 +91,40 @@ class SandboxMod:
         self.agent_ids = []
         reset_ai()
 
-    def clean_bots(self):
+    def remove_bots(self):
         """ remove all existing bots from the environment """
         disable_ai()
         for id in self.agent_ids:
             removeObject(id)  # delete id from Registry, not from list
         self.agent_ids = []
 
-    def add_bot(self, bot_type, num_bots):
+    def distribute_bots(self, num_bots, bot_type):
+        """distribute bots so that they don't overlap"""
+        # make a number of tiles to stick bots in
+        N_TILES = 10
+        tiles = [ (r,c) for r in range(N_TILES) for c in range(N_TILES)]
+        random.shuffle(tiles)
+        for i in range(num_bots):
+            (r,c) = tiles.pop() # random tile
+            x, y = r * XDIM / float(N_TILES), c * YDIM / float(N_TILES) # position within tile
+            x, y = x + random.random() * XDIM * 0.5 / N_TILES, y + random.random() * YDIM * 0.5 / N_TILES # random offset
+            agent_id = addObject(bot_type, Vector3f(x, y, 0), Vector3f(0.5, 0.5, 0.5))
+            self.agent_ids.append(agent_id)
+        
+
+    def add_bots(self, bot_type, num_bots):
         disable_ai()
         num_bots = int(num_bots)
         if bot_type.lower().find("script") >= 0:
-            for i in range(0, num_bots):
-                agent_id = getNextFreeId()
-                self.agent_ids.append(agent_id)
-                addObject("data/shapes/roomba/Roomba.xml", Vector3f(random.random()*XDIM, random.random()*YDIM,0), Vector3f(0.5, 0.5, 0.5))
+            self.distribute_bots(num_bots, "data/shapes/roomba/Roomba.xml")
             enable_ai()
             return True
         elif bot_type.lower().find("rtneat") >= 0:
             self.start_rtneat(num_bots)
             return True
         elif bot_type.lower().find("asuka") >= 0:
-            self.agent_ids.append(getNextFreeId())
-            addObject("data/ai/Asuka.xml", Vector3f(XDIM/2,YDIM/2,0))
+            id = addObject("data/ai/Asuka.xml", Vector3f(XDIM/2,YDIM/2,0))
+            self.agent_ids.append(id)
             enable_ai()
             return True
         else:
@@ -139,9 +140,7 @@ class SandboxMod:
         rtneat = RTNEAT("data/ai/neat-params.dat", 6, 2, pop_size, 1.0)
         set_ai("neat",rtneat) 
         enable_ai()
-        for i in range(0, pop_size):
-            self.agent_ids.append(getNextFreeId())
-            addObject("data/shapes/roomba/RoombaRTNEAT.xml", Vector3f(random.random()*XDIM, random.random()*YDIM,0) )
+        self.distribute_bots(pop_size, "data/shapes/roomba/RoombaRTNEAT.xml")
         
 
 #################################################################################        
@@ -216,12 +215,6 @@ class SandboxEnvironment(Environment):
         # Add Wayne's Roomba room with experimentally-derived vertical offset to match crumbs.
         addObject("data/terrain/RoombaRoom.xml", Vector3f(XDIM/2,YDIM/2, -1), Vector3f(0,0,0), Vector3f(XDIM/245.0, YDIM/245.0, HEIGHT/24.5))
 
-        # corner walls (visualize room limit)
-        #addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, 0, HEIGHT/2 + OFFSET), Vector3f(0, 0, 90), Vector3f(1,XDIM,HEIGHT) )
-        #addObject("data/shapes/cube/Cube.xml", Vector3f(0, YDIM/2, HEIGHT/2 + OFFSET), Vector3f(0, 0, 0), Vector3f(1,XDIM,HEIGHT) )
-        #addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM, YDIM/2, HEIGHT/2 + OFFSET), Vector3f(0, 0, 0), Vector3f(1,XDIM,HEIGHT) )
-        #addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM, HEIGHT/2 + OFFSET), Vector3f(0, 0, 90), Vector3f(1,XDIM,HEIGHT) )
-
         # getSimContext().addAxes()
         self.add_crumbs()
         for crumb in self.crumbs:
@@ -254,7 +247,7 @@ class SandboxEnvironment(Environment):
         for pellet in self.crumbs:
             if not (pellet.x, pellet.y) in getMod().marker_map:
                 getMod().mark_blue(pellet.x, pellet.y)
-	self.crumb_count = len(getMod().marker_map)
+        self.crumb_count = len(getMod().marker_map)
 
     def reset(self, agent):
         """ reset the environment to its initial state """

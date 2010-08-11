@@ -41,9 +41,10 @@ def create_button( guiMan, name, position, extent, imageBase ):
 def create_combo_box( guiMan, name, position, extent ):
     return gui_init_base( guiMan.createElement('combo box'), name, position, extent )
 
-def create_context_menu( guiMan, name ):
+def create_context_menu( guiMan, name, position ):
     e = guiMan.createElement('context menu')
     e.name = name
+    e.position = position
     return e
 
 def create_text( guiMan, name, position, extent, text ):

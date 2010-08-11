@@ -270,22 +270,23 @@ namespace OpenNero
 
     /// copy ctor for scene object template
     SceneObjectTemplate::SceneObjectTemplate( const SceneObjectTemplate& objTempl )
-                                    : ObjectTemplate(objTempl)
+        : ObjectTemplate(objTempl)
+		, mScale(objTempl.mScale)
+		, mScaleTexture(objTempl.mScaleTexture)
+		, mTextures(objTempl.mTextures)
+		, mMaterialType(objTempl.mMaterialType)
+		, mHeightmap(objTempl.mHeightmap)
+		, mParticleSystem(objTempl.mParticleSystem)
+		, mAniMesh(objTempl.mAniMesh)
+		, mCastsShadow(objTempl.mCastsShadow)
+		, mDrawBoundingBox(objTempl.mDrawBoundingBox)
+		, mDrawLabel(objTempl.mDrawLabel)
+		, mFPSCamera(objTempl.mFPSCamera)
+		, mAnimationSpeed(objTempl.mAnimationSpeed)
+		, mFootprints(objTempl.mFootprints)
+		, mCollisionType(objTempl.mCollisionType)
+		, mCollisionMask(objTempl.mCollisionMask)
     {
-        mAniMesh            = objTempl.mAniMesh;
-        mTextures           = objTempl.mTextures;
-        mHeightmap          = objTempl.mHeightmap;
-        mMaterialType       = objTempl.mMaterialType;
-        mScale              = objTempl.mScale;
-        mScaleTexture       = objTempl.mScaleTexture;
-        mParticleSystem     = objTempl.mParticleSystem;
-        mCastsShadow        = objTempl.mCastsShadow;
-        mDrawBoundingBox    = objTempl.mDrawBoundingBox;
-        mDrawLabel          = objTempl.mDrawLabel;
-        mFPSCamera          = objTempl.mFPSCamera;
-        mAnimationSpeed     = objTempl.mAnimationSpeed;
-        mFootprints         = objTempl.mFootprints;
-
         // copy over the textures and the material flags
         std::copy( objTempl.mTextures.begin(), objTempl.mTextures.end(), mTextures.begin() );
         std::copy( objTempl.mMaterialFlags.begin(), objTempl.mMaterialFlags.end(), mMaterialFlags.begin() );
@@ -319,7 +320,9 @@ namespace OpenNero
         mDrawLabel(false),
         mFPSCamera(),
         mAnimationSpeed(25.0f),
-        mFootprints()
+        mFootprints(),
+		mCollisionType(0),
+		mCollisionMask(0)
     {
         AssertMsg( factory, "Invalid sim factory" );
 
@@ -359,6 +362,11 @@ namespace OpenNero
             propMap.getValue( mAnimationSpeed, "Template.Render.AnimationSpeed" );
             LOG_F_DEBUG( "render", "object animation speed: " << mAnimationSpeed );
         }
+
+		if (propMap.hasSection( "Template.Render.Collision" ))
+		{
+			propMap.getValue( mCollisionType, "Template.Render.Collision" );
+		}
 
         static const std::string kFootprints("Template.Render.Footprints");
         if (propMap.hasSection( kFootprints ) )
@@ -551,7 +559,8 @@ namespace OpenNero
             ITriangleSelector* triangleSelector = GetSceneManager()->createTriangleSelector(mAniSceneNode);
             AssertMsg(triangleSelector, "Could not create a collision object for id: " << data.GetId());
             mAniSceneNode->setTriangleSelector(triangleSelector);
-        }
+            SafeIrrDrop(triangleSelector);
+		}
 
         // are we a terrain?
         else if( mSceneObjectTemplate->mHeightmap != "" )
@@ -559,10 +568,6 @@ namespace OpenNero
             mTerrSceneNode = irrFactory.addTerrainSceneNode( mSceneObjectTemplate->mHeightmap.c_str() );
             mSceneNode     = mTerrSceneNode;
             mTerrSceneNode->scaleTexture( mSceneObjectTemplate->mScaleTexture.X, mSceneObjectTemplate->mScaleTexture.Y );
-            // add triangle selector for a terrain node
-            //ITriangleSelector* triangleSelector = GetSceneManager()->createTerrainTriangleSelector(mTerrSceneNode);
-            //AssertMsg(triangleSelector, "Could not create a collision object for id: " << data.GetId());
-            //mTerrSceneNode->setTriangleSelector(triangleSelector);
         }
 
         // are we a particle system?
@@ -677,13 +682,43 @@ namespace OpenNero
             }
         }
     }
+    
+    /// do we collide with the other object?
+    bool SceneObject::CheckCollision(const Vector3f& new_pos, const SceneObjectPtr& other)
+    {
+        Assert(other);
+        if (mSceneObjectTemplate->mCollisionType != 
+            other->mSceneObjectTemplate->mCollisionType ||
+            mSceneObjectTemplate->mCollisionType == 0)
+        { // if the collision types don't match or are 0, no collision
+            return false;
+        }
+        BBoxf my_box = mSceneNode->getBoundingBox(); // our irr box
+        BBoxf other_box = other->mSceneNode->getBoundingBox(); // their irr box
+        Vector3f my_irr_pos(ConvertNeroToIrrlichtPosition(new_pos)); // our irr pos
+		Vector3f other_irr_pos(ConvertNeroToIrrlichtPosition(other->getPosition())); // their irr pos
+		Vector3f my_irr_scale(ConvertNeroToIrrlichtPosition(getScale()));
+		Vector3f their_irr_scale(ConvertNeroToIrrlichtPosition(other->getScale()));
+        
+        // translate our bounding box over to our future position
+        Matrix4 transform;
+        transform.setTranslation(my_irr_pos);
+		transform.setScale(my_irr_scale);
+        transform.transformBox(my_box);
+        
+        // translate their bounding box over to their current position
+        transform.setTranslation(other->mSceneNode->getPosition());
+		transform.setScale(their_irr_scale);
+        transform.transformBox(other_box);
+        
+        // check if the bounding boxes intersect
+        return my_box.intersectsWithBox(other_box);
+    }
 
     /// Move forward the simulation of this sim object by a time delta
     /// @param dt the amount of time to simulate forward
     void SceneObject::ProcessTick( float32_t dt )
     {
-        NERO_PERF_EVENT_SCOPED( SceneObject__ProcessTick );
-
         Assert( mSharedData );
 
         // set the position and rotation of our object
@@ -693,9 +728,6 @@ namespace OpenNero
             // Setting the position of some large meshes in irrlicht every frame
             // causes them to flicker or disappear. Compare the position first and
             // update if necessary.
-            // TODO(ikarpov): currently this is a bit fragile because it assumes ownership of
-            //  the shared SimEntityData's dirty bits - we should really have our own view of the
-            //  shared cache
             if( mSharedData->IsDirty(SimEntityData::kDB_Position) )
             {
                 if (mCamera && mFPSCamera)
@@ -819,6 +851,20 @@ namespace OpenNero
         }
 
         return BBoxf();
+    }
+
+    /// Transform the given vector by applying the object's matrix
+    Vector3f SceneObject::transformVector(const Vector3f& vect) const
+    {
+        if ( mSceneNode )
+        {
+
+            Vector3f result;
+            mSceneNode->getAbsoluteTransformation().transformVect(result, ConvertNeroToIrrlichtPosition(vect));
+            return ConvertIrrlichtToNeroPosition(result);
+        }
+
+        return Vector3f();
     }
 
     // get the scene object id

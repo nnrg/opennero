@@ -42,7 +42,7 @@ namespace NEAT
             std::vector<NNodePtr> nodes; //List of NNodes for the Network
             std::vector<GenePtr> genes; //List of innovation-tracking genes
 
-            NetworkPtr phenotype; //Allows Genome to be matched with its Network
+            NetworkWeakPtr phenotype; //Allows Genome to be matched with its Network
 
             S32 get_last_node_id(); //Return id of final NNode in Genome
             F64 get_last_gene_innovnum(); //Return last innovation number in Genome
@@ -228,7 +228,7 @@ namespace NEAT
     std::ostream& operator<<(std::ostream& out, const GenomePtr& x);
     
     /// read genome from stream
-     std::istream& operator>>(std::istream& in, GenomePtr& x);
+    std::istream& operator>>(std::istream& in, GenomePtr& x);
 } // namespace NEAT
 
 #endif
