@@ -49,7 +49,6 @@ class SandboxMod:
         id = addObject(marker, Vector3f(x, y, -1), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
         # remember the ID of the object we are about to create
         self.marker_map[(x, y)] = id
-        
 	    
     def mark_blue(self, x, y):
         self.mark(x, y,"data/shapes/cube/BlueCube.xml")
@@ -302,7 +301,7 @@ class SandboxEnvironment(Environment):
         rotation = agent.state.rotation
 
         # posteriori collision detection
-        rotation.z += delta_angle
+        rotation.z = wrap_degrees(rotation.z, delta_angle)
         position.x += delta_dist*cos(radians(rotation.z))
         position.y += delta_dist*sin(radians(rotation.z))
 

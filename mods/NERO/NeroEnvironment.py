@@ -581,11 +581,3 @@ class NeroEnvironment(Environment):
     
     def get_delay(self):
         return self.step_delay * (1.0 - self.speedup)
-
-def wrap_degrees(a, da):
-    a2 = a + da
-    if a2 > 180:
-        a2 = -180 + (a2 % 180)
-    elif a2 < -180:
-        a2 = 180 - (abs(a2) % 180)
-    return a2
