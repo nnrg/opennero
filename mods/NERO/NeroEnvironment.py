@@ -393,7 +393,7 @@ class NeroEnvironment(Environment):
 
         return 0
     
-    def raySense (self, agent, heading_mod, dist, types=0, draw=False):
+    def raySense(self, agent, heading_mod, dist, types=0, draw=True, foundColor = Color(255, 0, 128, 128), noneColor = Color(255, 0, 255, 255) ):
         state = self.get_state(agent)
         firing = agent.state.position
         rotation = agent.state.rotation
@@ -402,7 +402,7 @@ class NeroEnvironment(Environment):
         firing.y += dist * sin(heading)
         p0 = agent.state.position
         p1 = firing
-        result = getSimContext().findInRay(p0, p1, types, draw)
+        result = getSimContext().findInRay(p0, p1, types, draw, foundColor, noneColor)
         if len(result) > 0:
             (sim, hit) = result
             ray = p1 - p0

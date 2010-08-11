@@ -462,7 +462,6 @@ bool Population::epoch(S32 generation)
     S32 one_fifth_stolen;
     S32 one_tenth_stolen;
 
-    vector<SpeciesPtr> sorted_species; //Species sorted by max fit org in Species
     S32 stolen_babies; //Babies taken from the bad species and given to the champs
 
     S32 half_pop;
@@ -495,10 +494,7 @@ bool Population::epoch(S32 generation)
     }
 
     //Stick the Species pointers into a new Species list for sorting
-    for (curspecies=species.begin(); curspecies!=species.end(); ++curspecies)
-    {
-        sorted_species.push_back(*curspecies);
-    }
+    vector<SpeciesPtr> sorted_species(species.begin(), species.end());
 
     //Sort the Species by max fitness (Use an extra list to do this)
     //These need to use ORIGINAL fitness
@@ -537,8 +533,7 @@ bool Population::epoch(S32 generation)
         total+=(*curorg)->fitness;
     }
     overall_average=total/total_organisms;
-    cout << "overall_average: " << overall_average << endl;
-    //  cout<<"Generation "<<generation<<": "<<"overall_average = "<<overall_average<<endl;
+    cout<<"Generation "<<generation<<": "<<"overall_average = "<<overall_average<<endl;
 
     //Now compute expected number of offspring for each individual organism
     for (curorg=organisms.begin(); curorg!=organisms.end(); ++curorg)
@@ -604,7 +599,7 @@ bool Population::epoch(S32 generation)
     {
 
         //Print out for Debugging/viewing what's going on 
-        //    cout<<"orig fitness of Species"<<(*curspecies)->id<<"(Size "<<(*curspecies)->organisms.size()<<"): "<<(*((*curspecies)->organisms).begin())->orig_fitness<<" last improved "<<((*curspecies)->age-(*curspecies)->age_of_last_improvement)<<endl;
+        cout<<"orig fitness of Species"<<(*curspecies)->id<<"(Size "<<(*curspecies)->organisms.size()<<"): "<<(*((*curspecies)->organisms).begin())->orig_fitness<<" last improved "<<((*curspecies)->age-(*curspecies)->age_of_last_improvement)<<endl;
     }
 
     //Check for Population-level stagnation
@@ -843,11 +838,11 @@ bool Population::epoch(S32 generation)
 
             //Remember where we are
             deadorg=curorg;
-            ++curorg;
 
             //Remove the organism from the master list
             organisms.erase(deadorg);
 
+            // when removing, we don't need to increment the iterator
         }
         else
         {
@@ -856,13 +851,17 @@ bool Population::epoch(S32 generation)
 
     }
 
+    // create a temporary copy to iterate over because reproduce can change
+    // the species vector while we are iterating over it (IVK)
+    vector<SpeciesPtr> repr_species(species.begin(), species.end());
+
     //Perform reproduction.  Reproduction is done on a per-Species
     //basis.  (So this could be paralellized potentially.)
-    for (curspecies=species.begin(); curspecies!=species.end(); ++curspecies)
-    {
-        (*curspecies)->reproduce(generation, shared_from_this(),
-                                    sorted_species);
-    }
+    for (curspecies=repr_species.begin(); curspecies!=repr_species.end(); ++curspecies)
+     {
+         assert(*curspecies);
+         (*curspecies)->reproduce(generation, shared_from_this(), sorted_species);
+     }
 
     //cout<<"Reproduction Complete"<<endl;
 
@@ -879,12 +878,12 @@ bool Population::epoch(S32 generation)
 
         //Remember where we are
         deadorg=curorg;
+
+        //Advance iterator
         ++curorg;
-
-        //Remove the organism from the master list
-        organisms.erase(deadorg);
-
     }
+
+    organisms.clear();
 
     //Remove all empty Species and age ones that survive
     //As this happens, create master organism list for the new generation
@@ -895,7 +894,6 @@ bool Population::epoch(S32 generation)
         if (((*curspecies)->organisms.size())==0)
         {
             deadspecies=curspecies;
-            ++curspecies;
             species.erase(deadspecies);
         }
         //Age surviving Species and 
@@ -1050,16 +1048,9 @@ bool Population::remove_species(SpeciesPtr spec)
     while ((curspec!=species.end())&&((*curspec)!=spec))
         ++curspec;
 
-    if (curspec==species.end())
-    {
-        //   cout<<"ALERT: Attempt to remove nonexistent Species from Population"<<endl;
-        return false;
-    }
-    else
-    {
-        species.erase(curspec);
-        return true;
-    }
+    assert(curspec != species.end());
+    species.erase(curspec);
+    return true;
 }
 
 OrganismPtr Population::remove_worst()

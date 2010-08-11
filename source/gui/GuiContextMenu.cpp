@@ -78,6 +78,8 @@ namespace OpenNero
 
         typedef void (GuiContextMenu::*AddItemPtr)( const std::string&, GuiBasePtr );
 
+        typedef void (GuiContextMenu::*AddItemPtr)( const std::string&, GuiBasePtr );
+
         class_<GuiContextMenu, noncopyable>( "GuiContextMenu", "A basic gui context menu", no_init )
 
             // Hack in our gui base methods

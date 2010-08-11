@@ -1,7 +1,5 @@
 #include "core/Common.h"
 #include "Environment.h"
-#include "Task.h"
-#include "Run.h"
 
 #include "scripting/scriptIncludes.h"
 
@@ -70,7 +68,6 @@ namespace OpenNero
 
     /// @cond
     BOOST_PTR_DECL(PyEnvironment);
-    BOOST_PTR_DECL(PyTask);
     /// @endcond
 
     /// Export World-specific script components
@@ -87,21 +84,6 @@ namespace OpenNero
             .def("reset", pure_virtual(&Environment::reset), "reset the environment to its initial state");
 
         implicitly_convertible<PyEnvironmentPtr, EnvironmentPtr >();
-
-        class_<PyTask, boost::noncopyable, PyTaskPtr>("Task", "A base class for representing the reward structure of a particular task", init<string>())
-            .def("start", &Task::start, "start the task")
-            .def("step", &Task::step, "step the task")
-            .def("stop", &Task::stop, "stop the task");
-
-        implicitly_convertible<PyTaskPtr, TaskPtr>();
-
-        class_<Run, boost::noncopyable, RunPtr>("Run", "Run is an abstract class that represents an learning experiment or a sequence of episodes", no_init);
-
-        class_<SimpleRun, boost::noncopyable, bases<Run>, SimpleRunPtr>("SimpleRun", "A SimpleRun combines a set of agents with an environment and a task for them to perform", init<EnvironmentPtr, AgentSet, TaskPtr>("update the environment e with agents a during task t"));
-
-        class_<SequenceRun, boost::noncopyable, bases<Run>, SequenceRunPtr>("SequenceRun", "A SequenceRun consits of some number of runs executed in sequence", init<>());
-
-        class_<RepeatRun, boost::noncopyable, bases<Run>, RepeatRunPtr>("RepeatRun", "A RepeatRun allows a Run to be repeated some number of times", init<RunPtr, size_t>("repeat the run for n times"));
     }
 }
 

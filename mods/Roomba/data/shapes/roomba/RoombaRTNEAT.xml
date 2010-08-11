@@ -5,6 +5,8 @@
 		<AniMesh>data/shapes/roomba/roomba_modified.obj</AniMesh>
 		<Scale>2 2 2</Scale>
 		<Rotation>0 0 0</Rotation>
+        <Collision>1</Collision>
+        <DrawBoundingBox>true</DrawBoundingBox>
 	</Render>
 	<AI>
 		<Python agent="RTNEATAgent()" />

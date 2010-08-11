@@ -9,11 +9,6 @@
 #include "game/Simulation.h"
 #include "game/SimEntity.h"
 
-#if NERO_BUILD_PHYSICS
-#include "physics/Physics.h"
-#include "physics/PhysicsObject.h"
-#endif // NERO_BUILD_PHYSICS
-
 #include "render/SceneObject.h"
 
 namespace OpenNero
@@ -40,7 +35,7 @@ namespace OpenNero
         if (ent->GetSimId() >= mMaxId) {
             mMaxId = ent->GetSimId();
         }
-        AssertMsg( ent, "Adding a null antity to the simulation!" );
+        AssertMsg( ent, "Adding a null entity to the simulation!" );
         AssertMsg( !Find( ent->GetSimId() ), "Entity with id " << ent->GetSimId() << " already exists in the simulation" );
         mSimIdHashedEntities[ ent->GetSimId() ] = ent;
         AssertMsg( Find(ent->GetSimId()) == ent, "The entity with id " << ent->GetSimId() << " could not be properly added" );
@@ -134,12 +129,67 @@ namespace OpenNero
         // the last step is to remove all the objects that were scheduled during the ticks
         RemoveAllScheduled();
     }
+    
+    /// @brief Detect and deal with collisions
+    /// At this point, mSharedData has already been set to the new position, but
+    /// mSceneObject has not. So, if any objects collide, we reset them by reverting
+    /// mSharedData's version back to mSceneObject's.
+    void Simulation::DoCollisions() 
+    {
+        SimEntitySet not_colliding;
+        // assume no-one is colliding at first, put everyone in not_colliding
+        {
+            SimIdHashMap::const_iterator itr = mSimIdHashedEntities.begin();
+            SimIdHashMap::const_iterator end = mSimIdHashedEntities.end();
+            
+            for( ; itr != end; ++itr ) {
+                // TODO: check if this object can collide at all
+                not_colliding.insert(itr->second);
+            }
+        }
 
-#if NERO_BUILD_PHYSICS
-    //Find all the SimEntity objects that fall within a sphere
-    SimDataVector Simulation::findInSphere( const Vector3f& origin, F32 radius ) const {
-        return IPhysicsEngine::instance().findInSphere(origin, radius);
+		bool anyCollisions = true;
+		SimEntitySet colliding;
+
+		// while there are any potential collisions, check and resolve
+		// TODO: check for collisions with resolved objects?
+		while (anyCollisions) {
+	        SimEntitySet::const_iterator itr;
+			SimEntitySet colliding_new;
+			
+			// add any colliding entities to colliding_new
+		    for (itr = not_colliding.begin(); itr != not_colliding.end(); ++itr)
+			{
+				SimEntityPtr ent = *itr;
+				SimEntitySet my_collisions = ent->GetCollisions(not_colliding);
+				if (my_collisions.size() > 0) {
+					colliding_new.insert(my_collisions.begin(), my_collisions.end());
+				}
+            }
+
+			anyCollisions = (colliding_new.size() > 0);
+
+			if (anyCollisions) {
+				LOG_F_DEBUG("collision", colliding_new.size() << " new collisions");
+
+				// move the newly marked entities from not_colliding to colliding
+				for (itr = colliding_new.begin(); itr != colliding_new.end(); ++itr) {
+					not_colliding.erase(*itr);
+					colliding.insert(*itr);
+				}
+			}
+        }
+
+		// now all the objects that collided are in the colliding set
+		// we need to resolve all these collisions
+		SimEntitySet::const_iterator itr;
+
+		if (colliding.size() > 0) {
+			LOG_F_DEBUG("collision", colliding.size() << " total collisions");
+			for (itr = colliding.begin(); itr != colliding.end(); ++itr) {
+				(*itr)->ResolveCollision();
+			}
+		}
     }
-#endif // NERO_BUILD_PHYSICS
 
 } //end OpenNero

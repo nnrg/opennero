@@ -11,10 +11,6 @@
 #include "game/SimContext.h"
 #include "render/SceneObject.h"
 #include "audio/AudioObject.h"
-#if NERO_BUILD_PHYSICS
-#include "physics/Physics.h"
-#include "physics/PhysicsObject.h"
-#endif // NERO_BUILD_PHYSICS
 #include "ai/AI.h"
 #include "ai/AIObject.h"
 #include "ai/AIManager.h"
@@ -29,17 +25,14 @@ namespace OpenNero
 #if NERO_BUILD_AUDIO
 		mAudioObject(),
 #endif /// NERO_BUILD_AUDIO
-#if NERO_BUILD_PHYSICS
-		mPhysicsObject(),
-#endif // NERO_BUILD_PHYSICS
 		mSceneObject(),
 		mSharedData(data),
 		mCreationTemplate(templateName)
 	{
-		// do nothing
 	}
 
-    SimEntity::~SimEntity() {}
+    SimEntity::~SimEntity() {
+	}
 
     SimEntityPtr SimEntity::CreateSimEntity(
         SimEntityData& data, 
@@ -71,13 +64,6 @@ namespace OpenNero
             {
                 ent->SetSceneObject(sceneObj);
             }
-#if NERO_BUILD_PHYSICS
-			IPhysicsObjectPtr physicsObj = IPhysicsEngine::instance().createObject(ent);
-            if (physicsObj->LoadFromTemplate(objTemp, data))
-            {
-                ent->SetPhysicsObject(physicsObj);
-            }
-#endif // NERO_BUILD_PHYSICS
         }
 #if NERO_BUILD_AUDIO
         // audio template
@@ -110,23 +96,10 @@ namespace OpenNero
 
     void SimEntity::ProcessTick(float32_t incAmt)
     {
-        NERO_PERF_EVENT_SCOPED( SimEntity_ProcessTick );
-
-        // go through components and tick them
-        // TODO : If we knew exactly what a client and a server object should
-        // have in terms of components this could be optimized
-
         if (mSceneObject)
         {
-            // perform client-side interpolation based on current velocity
-            // TODO: replace with interpolation between current and future pose
-            //Vector3f vel = GetVelocity();
-            //Vector3f pos = GetPosition();
-            //Vector3f move = incAmt * vel;
-            //if (move.getLengthSQ() > 0) 
-            //{
-            //    SetPosition( pos + move );
-            //}
+            // This call will update the pose of the Irrlicht object to 
+            // correspond to our mSharedData
             mSceneObject->ProcessTick(incAmt);
         }
 
@@ -138,15 +111,13 @@ namespace OpenNero
 #endif // NERO_BUILD_AUDIO
 
         if (mAIObject && AIManager::const_instance().IsEnabled())
-        {   
+        {
+            // This call is the meat and potatoes of OpenNERO proper:
+            // if this object has a decision to make will ask the 
+            // Environment about what it sees and tell it how it wants to 
+            // act.
             mAIObject->ProcessTick(incAmt);
         }
-#if NERO_BUILD_PHYSICS
-        if (mPhysicsObject && IPhysicsEngine::instance().IsEnabled())
-        {  
-            mPhysicsObject->ProcessTick(incAmt);
-        }
-#endif // NERO_BUILD_PHYSICS
     }
 
 #if NERO_BUILD_AUDIO
@@ -222,17 +193,6 @@ namespace OpenNero
         }
     }
 
-#if NERO_BUILD_PHYSICS
-    void SimEntity::SetPhysicsObject(IPhysicsObjectPtr obj)
-    {
-        mPhysicsObject = obj;
-        if (mPhysicsObject )
-        {
-            mPhysicsObject->SetSharedState( &mSharedData );
-        }
-    }
-#endif // NERO_BUILD_PHYSICS
-
     /// make sure you explicitly call this method in the assignment operator in
     /// the derived class
     SimEntity& SimEntity::operator=( const SimEntity& obj )
@@ -240,27 +200,6 @@ namespace OpenNero
         mSharedData = obj.GetState();
         SetSceneObject( obj.mSceneObject );
         return *this;
-    }
-
-    /// @param ray The ray that is collided with this entity.
-    /// @param irr Handle to Irrlicht objects.
-    /// @param outCollisionPoint The collision point of the ray with this entity.
-    /// @return true if collision occurs; false otherwise.
-    bool SimEntity::GetCollisionPoint(const Line3f& ray, const IrrHandles& irr, Vector3f& outCollisionPoint) const
-    {
-        // get collider
-        ISceneCollisionManager* collider = irr.mpSceneManager->getSceneCollisionManager();
-        Assert(collider);
-        // get scene node
-        ISceneNode* sceneNode = mSceneObject->mSceneNode;
-        if (!sceneNode)
-        {
-            return false;
-        }
-        Triangle3f resultTriangle; // ignored
-        ISceneNode* node(NULL);
-        node = collider->getSceneNodeAndCollisionPointFromRay(ray, outCollisionPoint, resultTriangle, 0);
-        return (node != NULL);
     }
 
     const Vector3f& SimEntity::GetPosition() const
@@ -297,6 +236,31 @@ namespace OpenNero
     {
         mSharedData.SetPosition(pos);
     }
+
+	/// Get the set of objects colliding
+    SimEntitySet SimEntity::GetCollisions( const SimEntitySet& others)
+    {
+        SimEntitySet::const_iterator iter; // iterate over the list
+		SimEntitySet result_set;
+        for (iter = others.begin(); iter != others.end(); ++iter)
+        {
+            SimEntityPtr ent = *iter;
+            if (ent.get() == this) continue; // this is us, skip
+            if (mSceneObject->CheckCollision(mSharedData.GetPosition(), ent->mSceneObject))
+                result_set.insert(ent);
+        }
+        return result_set;
+    }
+    
+    /// Assume that a collision occurred and resolve it (bounce)
+    /// For now we do this just by setting the position back to what it was 
+    /// before (which is stored in mSceneObject).
+    void SimEntity::ResolveCollision()
+    {
+		SetLabel("Bump");
+		SetPosition(mSceneObject->getPosition());
+    }
+
 
     void SimEntity::SetRotation( const Vector3f& rot )
     {

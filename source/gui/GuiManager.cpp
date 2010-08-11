@@ -333,14 +333,14 @@ namespace OpenNero
             case EGET_FILE_SELECTED:
                 return HandleFileSelect(event);
                 
-            case EGET_FILE_CHOOSE_DIALOG_CANCELLED:
-                return HandleFileChooseDialogCancelled(event);
-
             case EGET_SCROLL_BAR_CHANGED:
                 return HandleScrollBarChanged(event);
                 
             case EGET_CHECKBOX_CHANGED:
                 return HandleCheckBoxChanged(event);
+                
+            case EGET_FILE_CHOOSE_DIALOG_CANCELLED:
+                return HandleFileChooseDialogCancelled(event);
                 
             default:
                 return false;
@@ -492,7 +492,7 @@ namespace OpenNero
 	
     // Open up a file chooser dialog to get a filename from the user
     // @param dialogTitle the title to put in the dialog
-    // @param callbackFunc the python function to call when we get a filename
+    // @param execObj the python function to call when we get a filename
     void GuiManager::openFileChooserDialog( const std::string& dialogTitle, bool modal, PythonExecObject execObj )
     {
         Assert( mIrr.mpGuiEnv );

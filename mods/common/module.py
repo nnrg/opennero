@@ -7,9 +7,7 @@ def getGuiManager():
     return getSimContext().getGuiManager()
 
 def addObject(templateFile, position, rotation = Vector3f(0,0,0), scale = Vector3f(1,1,1), label = "", type = 0):
-    id = getNextFreeId()
-    getSimContext().addObject(templateFile, position, rotation, scale, label, type)
-    return id
+    return getSimContext().addObject(templateFile, position, rotation, scale, label, type)
 
 def removeObject(ID):
     """ remove an object from the simulation """
@@ -22,13 +20,9 @@ def addSkyBox(prefix, extension = None):
     else:
         getSimContext().addSkyBox(prefix)
     
-def getNextFreeId():
-    return getSimContext().getNextFreeId()
-
 def openWiki(page):
     import webbrowser
     def closure():
         print 'openWiki:', page
         webbrowser.open('http://code.google.com/p/opennero/wiki/' + page)
     return closure
-
