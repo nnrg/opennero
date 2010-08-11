@@ -45,10 +45,11 @@ class SandboxMod:
         """ Mark a position (x, y) with the specified color """
         # remove the previous object, if necessary
         self.unmark(x, y)
-        # remember the ID of the object we are about to create
-        self.marker_map[(x, y)] = getNextFreeId()
         # add a new marker object
-        addObject(marker, Vector3f(x, y, -1), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
+        id = addObject(marker, Vector3f(x, y, -1), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
+        # remember the ID of the object we are about to create
+        self.marker_map[(x, y)] = id
+        
 	    
     def mark_blue(self, x, y):
         self.mark(x, y,"data/shapes/cube/BlueCube.xml")
@@ -122,8 +123,8 @@ class SandboxMod:
             self.start_rtneat(num_bots)
             return True
         elif bot_type.lower().find("asuka") >= 0:
-            self.agent_ids.append(getNextFreeId())
-            addObject("data/ai/Asuka.xml", Vector3f(XDIM/2,YDIM/2,0))
+            id = addObject("data/ai/Asuka.xml", Vector3f(XDIM/2,YDIM/2,0))
+            self.agent_ids.append(id)
             enable_ai()
             return True
         else:

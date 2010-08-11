@@ -76,15 +76,16 @@ class NeroModule:
         set_ai("neat2", rtneat2)
         enable_ai()
         for i in range(0, 10):
-            self.agent_map[(0,i)] = getNextFreeId()
             dx = random.randrange(XDIM/20) - XDIM/40
             dy = random.randrange(XDIM/20) - XDIM/40
+            id = None
             if i % 2 == 0:
                 self.currTeam = 1
-                addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
+                id = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
             else:
                 self.currTeam = 2
-                addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
+                id = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
+            self.agent_map[(0,i)] = id
    
    #The following is run when the Save button is pressed
     def save_rtneat(self):
