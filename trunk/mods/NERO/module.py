@@ -86,9 +86,9 @@ class NeroModule:
 
         # Create RTNEAT Objects
         set_ai("neat1",rtneat)
-        #set_ai("neat2", rtneat2)
+        set_ai("neat2", rtneat2)
         enable_ai()
-        for i in range(0, 10):
+        for i in range(0, 1):
             dx = random.randrange(XDIM/20) - XDIM/40
             dy = random.randrange(XDIM/20) - XDIM/40
             id = None
@@ -106,7 +106,7 @@ class NeroModule:
         if 1 == 1: return
         global rtneat, rtneat2
         rtneat.save_population("../rtneat.gnm")
-        rtneat2.save_population("../rtneat2.gnm")
+        #rtneat2.save_population("../rtneat2.gnm")
 
     #The following is run when the Load button is pressed
     def load_rtneat(self):
@@ -159,9 +159,9 @@ class NeroModule:
 
     def addAgent(self,pos):
         self.num_to_add -= 1
-        #self.currTeam += 1
-        self.currTeam = 1
-        #if self.currTeam == 3: self.currTeam = 1
+        self.currTeam += 1
+        #self.currTeam = 1
+        if self.currTeam == 3: self.currTeam = 1
         addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(pos[0],pos[1],pos[2]),type = AGENT)
 
 gMod = None
