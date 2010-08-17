@@ -1,0 +1,19 @@
+/**
+
+@mainpage libkdtree++: a C++ template container for KD-Tree sorting
+
+Author: Martin F. Krafft <libkdtree@pobox.madduck.net>
+
+Source:
+  http://git.debian.org/?p=libkdtree/libkdtree.git;a=summary
+
+  git clone http://git.debian.org/git/libkdtree/libkdtree.git
+
+License: Artistic License 2.0
+
+Homepage: http://libkdtree.alioth.debian.org
+
+This library is still undocumented. If you would like to document it, please
+feel free (but use Doxygen).
+
+*/
