@@ -15,15 +15,17 @@ OpenNERO consists of a the core program and a collection of one or more *mods*. 
 
 The controls can be easily redefined, but in general, the following keys should work:
 
- * *F1* - help (opens the browser to show this page)
- * *A* - move camera left
- * *D* - move camera right
- * *W* - move camera forward
- * *S* - move camera back
- * *Q* - pan camera left
- * *E* - pan camera right
- * *space bar* - recenter camera to origin
- * *ESC* - exit the currently running mod
+  * *F1* - help (opens the browser to show this page)
+  * *A* - move camera left
+  * *D* - move camera right
+  * *W* - move camera forward
+  * *S* - move camera back
+  * *Q* - pan camera left
+  * *E* - pan camera right
+  * *R* - tilt camera up
+  * *F* - tilt camera down
+  * *space bar* - recenter camera to origin
+  * *ESC* - exit the currently running mod
 
 = The Mods in more detail =
 
