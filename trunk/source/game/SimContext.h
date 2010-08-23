@@ -96,6 +96,10 @@ namespace OpenNero
                                         const SColor& noneColor = SColor(255,255,255,0)
                                         ) const;
 
+        /// Find K nearest neighbours to a point
+        boost::python::list FindKNN( const Vector3f& point,
+                                     const uint32_t& K ) const;
+
         /// Get (approximate) 3d position of the click
         Vector3f GetClickedPosition(const int32_t& x, const int32_t& y) const;
 

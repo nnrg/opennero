@@ -1,8 +1,3 @@
-//--------------------------------------------------------
-// OpenNero : World
-//  our physical world
-//--------------------------------------------------------
-
 #include "core/Common.h"
 #include <vector>
 
@@ -10,6 +5,8 @@
 #include "game/SimEntity.h"
 
 #include "render/SceneObject.h"
+
+#include "kdtree++/kdtree.hpp"
 
 namespace OpenNero
 {
