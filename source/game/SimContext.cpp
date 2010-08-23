@@ -488,6 +488,16 @@ namespace OpenNero
         return py::make_tuple();
 	}
 
+    /// Find K nearest neighbours to a point
+    boost::python::list SimContext::FindKNN( const Vector3f& point,
+                                             const uint32_t& K ) const {
+        namespace py = boost::python;
+        py::list result;
+        //result.append();
+        return result;
+    }
+    
+
     /// @param x screen x-coordinate for active camera
     /// @param y screen y-coordinate for active camera
     /// @return Approximate 3d position of the click
@@ -687,7 +697,7 @@ namespace OpenNero
             .def("killGame",             &SimContext::KillGame, "Kill the game")
             .def("setInputMapping",      &SimContext::SetInputMapping, "Set the io map to use" )
             .def("getNextFreeId",        &SimContext::GetNextFreeId, "Get the next available network ID" )
-			.def("findInRay",            &SimContext::FindInRay, findInRay_overloads("Find all the objects within the specified ray (origin:Vector3f, target:Vector3f, [int])") )
+			.def("findInRay",            &SimContext::FindInRay, findInRay_overloads("Find the first object that intersects the specified ray (origin:Vector3f, target:Vector3f, [int])") )
             .def("getClickedPosition",    &SimContext::GetClickedPosition, "Approximate 3d position of the mouse click")
             //.def("getClickedEntity",    &SimContext::GetClickedEntity, "Return the entity that was clicked")
             .def("getClickedEntityId",  &SimContext::GetClickedEntityId, "Return the id of the entity that was clicked")

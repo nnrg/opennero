@@ -1,8 +1,3 @@
-//--------------------------------------------------------
-// OpenNero : Simulation
-//  our physically simulated world
-//--------------------------------------------------------
-
 #ifndef _GAME_SIMULATION_H_
 #define _GAME_SIMULATION_H_
 
@@ -58,6 +53,9 @@ namespace OpenNero
 
         /// find an entity by its SceneObject ID
         SimEntityPtr FindBySceneObjectId( SceneObjectId id ) const;
+
+        /// find K nearest neighbours of a point
+        
 
         SimId GetNextFreeId() const { return mMaxId + 1; }
 

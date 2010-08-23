@@ -64,7 +64,7 @@ const u16 ASCIIArtCharsCount = 32;
 
 //! constructor
 CIrrDeviceConsole::CIrrDeviceConsole(const SIrrlichtCreationParameters& params)
-  : CIrrDeviceStub(params), IsDeviceRunning(true), IsWindowFocused(true), ConsoleFont(0), OutFile(stdout)
+  : CIrrDeviceStub(params), IsWindowFocused(true), ConsoleFont(0), OutFile(stdout)
 {
 	DeviceToClose = this;
 
@@ -305,7 +305,7 @@ bool CIrrDeviceConsole::run()
 	// todo: keyboard input from terminal in raw mode
 #endif
 
-	return IsDeviceRunning;
+	return !Close;
 }
 
 //! Cause the device to temporarily pause execution and let other processes to run
@@ -346,8 +346,7 @@ void CIrrDeviceConsole::sleep(u32 timeMs, bool pauseTimer)
 void CIrrDeviceConsole::setWindowCaption(const wchar_t* text)
 {
 #ifdef _IRR_WINDOWS_NT_CONSOLE_
-	core::stringc txt(text);
-	SetConsoleTitle(txt.c_str());
+	SetConsoleTitleW(text);
 #endif
 }
 
@@ -413,7 +412,7 @@ bool CIrrDeviceConsole::present(video::IImage* surface, void* windowId, core::re
 void CIrrDeviceConsole::closeDevice()
 {
 	// return false next time we run()
-	IsDeviceRunning = false;
+	Close = true;
 }
 
 
