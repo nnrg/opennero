@@ -319,9 +319,12 @@ class NeroEnvironment(Environment):
             temp = getMod().flag_loc
             getMod().change_flag((temp.x + random()/2, temp.y + random()/2, temp.z + random()/2))
             p = agent.state.position
+            agent.state.rotation.z = randrange(360)
             r = agent.state.rotation
+            
             state.initial_position = p
             state.initial_rotation = r
+            
             state.pose = (p.x, p.y, r.z)
             state.prev_pose = (p.x, p.y, r.z)
             if agent.get_team() == 1: 
