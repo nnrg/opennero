@@ -1,14 +1,22 @@
 ADD_LIBRARY(jpeg
-jcomapi.c jutils.c jerror.c jmemmgr.c
-jcapimin.c jcapistd.c jctrans.c jcparam.c jdatadst.c
-jcinit.c jcmaster.c jcmarker.c jcmainct.c jcprepct.c
-jccoefct.c jccolor.c jcsample.c jchuff.c jcphuff.c
-jcdctmgr.c jfdctfst.c jfdctflt.c jfdctint.c
-jdapimin.c jdapistd.c jdtrans.c jdatasrc.c
-jdmaster.c jdinput.c jdmarker.c jdhuff.c jdphuff.c
-jdmainct.c jdcoefct.c jdpostct.c jddctmgr.c jidctfst.c
-jidctflt.c jidctint.c jidctred.c jdsample.c jdcolor.c
-jquant1.c jquant2.c jdmerge.c jmemnobs.c
-cderror.h  jchuff.h   jdct.h    jerror.h    jmemsys.h   jpegint.h  jversion.h
-cdjpeg.h   jconfig.h  jdhuff.h  jinclude.h  jmorecfg.h  jpeglib.h  transupp.h
+  jaricom.c jcapimin.c jcapistd.c jcarith.c jccoefct.c jccolor.c 
+  jcdctmgr.c jchuff.c jcinit.c jcmainct.c jcmarker.c jcmaster.c 
+  jcomapi.c jcparam.c jcprepct.c jcsample.c jctrans.c jdapimin.c 
+  jdapistd.c jdarith.c jdatadst.c jdatasrc.c jdcoefct.c jdcolor.c 
+  jddctmgr.c jdhuff.c jdinput.c jdmainct.c jdmarker.c jdmaster.c 
+  jdmerge.c jdpostct.c jdsample.c jdtrans.c jerror.c jfdctflt.c 
+  jfdctfst.c jfdctint.c jidctflt.c jidctfst.c jidctint.c jquant1.c 
+  jquant2.c jutils.c jmemmgr.c jmemnobs.c
+  cderror.h
+  cdjpeg.h
+  jconfig.h
+  jdct.h
+  jerror.h
+  jinclude.h
+  jmemsys.h
+  jmorecfg.h
+  jpegint.h
+  jpeglib.h
+  jversion.h
+  transupp.h
 )
