@@ -14,6 +14,7 @@
 #include "game/Simulation.h"
 #include "input/IOMapping.h"
 #include "render/SceneObject.h"
+#include "render/FPSCounter.h"
 
 namespace OpenNero
 {
@@ -25,7 +26,7 @@ namespace OpenNero
     BOOST_PTR_DECL( Camera );
     BOOST_PTR_DECL( GuiManager );
     /// @endcond
-
+    
     /**
      * The SimContext is the entire game state. It stores all the objects in 
      * in the simulation.
@@ -226,7 +227,10 @@ namespace OpenNero
         SColor              mClearColor;                ///< Screen Clear Color
 
         PyIOMap             mIOMap;                     ///< The input map for this context
+        
         InputReceiver       mInputReceiver;             ///< The current input receiver
+        
+        FPSCounter          mFPSCounter;                ///< Frames Per Second counter
     };
 
     /**
@@ -267,7 +271,7 @@ namespace OpenNero
         LOG_F_ERROR("game", "Failed to load object template " << modTemplateName );
         return shared_ptr<ObjTemp>();
     }
-
+    
 } //end OpenNero
 
 #endif // _GAME_SIMCONTEXT_H_

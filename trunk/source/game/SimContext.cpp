@@ -337,17 +337,13 @@ namespace OpenNero
         static bool sClearZBuffer    = true;
 
         mIrr.mpVideoDriver->beginScene( sClearBackBuffer, sClearZBuffer, mClearColor );
-
         mIrr.mpSceneManager->drawAll();
         mIrr.mpGuiEnv->drawAll();
 
-        uint32_t y = 35;
-
-        float32_t fps = (dt > 0 )? 1.0f/dt : 1000.0f;
+        mFPSCounter.registerFrame();
         std::stringstream sstr;
-        sstr << "FPS: " << fps;
-        DrawText( Vector2i( 5, y ), SColor(255,255,255,255), sstr.str(), mIrr.mpIrrDevice );
-        y += 20;
+        sstr << mFPSCounter.getFPS();
+        DrawText( Vector2i( 5, 55 ), SColor(255,255,255,255), sstr.str(), mIrr.mpIrrDevice );
 
         mIrr.mpVideoDriver->endScene();
     }
