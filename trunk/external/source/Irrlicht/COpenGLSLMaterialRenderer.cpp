@@ -135,12 +135,12 @@ void COpenGLSLMaterialRenderer::init(s32& outMaterialTypeNr,
 		if (!createShader(GL_GEOMETRY_SHADER_EXT, geometryShaderProgram))
 			return;
 #if defined(GL_ARB_geometry_shader4) || defined(GL_EXT_geometry_shader4) || defined(GL_NV_geometry_shader4)
-		Driver->extGlProgramParameteri((GLuint)Program, GL_GEOMETRY_INPUT_TYPE_EXT, Driver->primitiveTypeToGL(inType));
-		Driver->extGlProgramParameteri((GLuint)Program, GL_GEOMETRY_OUTPUT_TYPE_EXT, Driver->primitiveTypeToGL(outType));
+		Driver->extGlProgramParameteri((long GLuint)Program, GL_GEOMETRY_INPUT_TYPE_EXT, Driver->primitiveTypeToGL(inType));
+		Driver->extGlProgramParameteri((long GLuint)Program, GL_GEOMETRY_OUTPUT_TYPE_EXT, Driver->primitiveTypeToGL(outType));
 		if (verticesOut==0)
-			Driver->extGlProgramParameteri((GLuint)Program, GL_GEOMETRY_VERTICES_OUT_EXT, Driver->MaxGeometryVerticesOut);
+			Driver->extGlProgramParameteri((long GLuint)Program, GL_GEOMETRY_VERTICES_OUT_EXT, Driver->MaxGeometryVerticesOut);
 		else
-			Driver->extGlProgramParameteri((GLuint)Program, GL_GEOMETRY_VERTICES_OUT_EXT, core::min_(verticesOut, Driver->MaxGeometryVerticesOut));
+			Driver->extGlProgramParameteri((long GLuint)Program, GL_GEOMETRY_VERTICES_OUT_EXT, core::min_(verticesOut, Driver->MaxGeometryVerticesOut));
 #elif defined(GL_NV_geometry_program4)
 		if (verticesOut==0)
 			Driver->extGlProgramVertexLimit(GL_GEOMETRY_PROGRAM_NV, Driver->MaxGeometryVerticesOut);
