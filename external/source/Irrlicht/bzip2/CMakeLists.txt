@@ -1,17 +1,11 @@
 ADD_LIBRARY(bz2
 blocksort.c
 bzcompress.c
-bzip2.c
-bzip2recover.c
 bzlib.c
 crctable.c
 decompress.c
-dlltest.c
 huffman.c
-mk251.c
 randtable.c
-spewG.c
-unzcrash.c
 bzlib.h
 bzlib_private.h
 )
