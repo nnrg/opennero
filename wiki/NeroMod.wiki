@@ -4,7 +4,7 @@
 
 The Nero mod provides an interface for users to modify the fitness function live and see the effects of these changes in the behaviour of the agents
 
-http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png
+http://imgur.com/uNHUJ.png
 
 ==Controls==
 
@@ -14,6 +14,8 @@ http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png
   * *D* - Right
   * *Q* - Rotate Left
   * *E* - Rotate Right
+  * *R* - Rotate Up
+  * *F* - Rotate Down
 
 ==What the Display Means==
   * *People* - Agents. Depending on their spawn point they are of one of two populations of agents
@@ -44,11 +46,8 @@ The Button and Slider Panel lists the command and fitness parameter settings for
     * Negative: Rewarded for having hit points reduced
 
   * Lifetime: The number of action steps each agent gets to perform before being removed from the simulation
-  * Friendly Fire: The % of damage which allied units take from being hit by an ally
+  * Friendly Fire: The % of damage which allied units take from being hit by an ally [Currently Broken]
   * Explore/Exploit: The % of generated agents which are the best of previous generations being reevaluated (This tends to be important in coevolution)
   * Hitpoints: The amount of damage a unit can take before dying (Note: being hit by an enemy is 1 point of damage)
 
-  * Train: Use the above settings
-  * Fight: Set Exploit to 100%, reset population, lifetime to infinity, hitpoints to 1. Designed for simulation of battles between coevolved troops.
-
-Please note that the fitness settings are the same for both populations
+Please note that the fitness settings are the same for all rtNEAT Agents.
