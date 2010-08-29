@@ -10,4 +10,4 @@
     * For Maya, I have included a [ExportMD2Example script] that I used to automate this process.  (This script will require some straightforward modification to match your particular animation.)
   # Run obj_to_md2 on these obj files and their texture file.
     * Compile from [ObjToMD2Main main.cpp] and [ObjToMD2Makefile Makefile].
-    * Run obj_to_md2 with no arguments for usage.
+    * Run obj_to_md2 with no arguments to display usage.
