@@ -4,17 +4,8 @@
   </ObjectTemplate>
   <Render>
     <MaterialFlagLighting>true</MaterialFlagLighting>
-    <AniMesh>data/terrain/roomba_room_modified.obj</AniMesh>
+    <AniMesh>data/terrain/roomba_room_modified_02.obj</AniMesh>
     <Scale>1 1 1</Scale>
     <Rotation>0 0 0</Rotation>
-<!--
-    <MaterialType>detail</MaterialType>
-    <MaterialFlagLighting>false</MaterialFlagLighting>
-    <Terrain>data/terrain/terrain-heightmap.bmp</Terrain>
-    <Texture0>data/terrain/terrain-texture.jpg</Texture0>
-    <Texture1>data/terrain/detailmap3.jpg</Texture1>
-    <ScaleTexture>1.0 100.0</ScaleTexture>
-    <Scale>2 2 0.1</Scale>
--->
   </Render>
 </Template>
