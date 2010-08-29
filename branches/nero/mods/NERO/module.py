@@ -3,6 +3,9 @@ from OpenNero import getSimContext
 from NERO.NeroEnvironment import *
 from NERO.RTNEATAgent import *
 from NERO.Turret import *
+import subprocess
+import os
+import sys
 
 import random
 
@@ -41,7 +44,7 @@ class NeroModule:
         #self.flag_loc = Vector3f(20,20,0)
         self.flag_loc = Vector3f(0,0,0)
         self.flag_id = -1
-        self.num_to_add = pop_size
+        self.num_to_add = 0#pop_size
 
     def setup_map(self):
         """
@@ -61,11 +64,11 @@ class NeroModule:
 
 
         # world walls
-        # addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2,0,HEIGHT+OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall0", type = OBSTACLE )
-        # addObject("data/shapes/cube/Cube.xml", Vector3f(0, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall1", type = OBSTACLE )
-        # addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall2", type = OBSTACLE )
-        # addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM, HEIGHT +OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall3", type = OBSTACLE )
-        #addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1, YDIM,HEIGHT), label="World Wall4", type = OBSTACLE)
+        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2,0,HEIGHT+OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall0", type = OBSTACLE )
+        addObject("data/shapes/cube/Cube.xml", Vector3f(0, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall1", type = OBSTACLE )
+        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall2", type = OBSTACLE )
+        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM, HEIGHT +OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall3", type = OBSTACLE )
+        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1, YDIM,HEIGHT), label="World Wall4", type = OBSTACLE)
 
         # Add the surrounding Environment
         addObject("data/terrain/NeroWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="NeroWorld")
@@ -92,33 +95,37 @@ class NeroModule:
         #while self.getNumToAdd() > 0:
         dx = random.randrange(XDIM/20) - XDIM/40
         dy = random.randrange(XDIM/20) - XDIM/40
-        self.addAgent((XDIM/2 + dx, YDIM/3 + dy, 2))
-        #for i in range(0, DEPLOY_SIZE):
-        #    self.agent_map[(0,i)] = getNextFreeId()
-        #    dx = random.randrange(XDIM/20) - XDIM/40
-        #    dy = random.randrange(XDIM/20) - XDIM/40
-        #    if i % 2 == 0:
-        #        self.currTeam = 1
-        #        addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
-        #    else:
-        #        self.currTeam = 2
-        #        #addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
+        #self.addAgent((XDIM/2 + dx, YDIM/3 + dy, 2))
+        for i in range(0, DEPLOY_SIZE):
+            self.agent_map[(0,i)] = getNextFreeId()
+            dx = random.randrange(XDIM/20) - XDIM/40
+            dy = random.randrange(XDIM/20) - XDIM/40
+            if i % 2 == 0:
+                self.currTeam = 1
+                addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
+            else:
+                self.currTeam = 2
+                addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
    
    #The following is run when the Save button is pressed
-    def save_rtneat(self):
+    def save_rtneat(self, location = "../rtneat.gnm"):
+        import os
         addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/20, YDIM/10, HEIGHT + OFFSET), Vector3f(0, 0, 45), scale=Vector3f(XDIM/8,YDIM/2,HEIGHT), label="World Wall1", type = OBSTACLE )
         if 1 == 1: return
         global rtneat, rtneat2
-        rtneat.save_population("../rtneat.gnm")
-        rtneat2.save_population("../rtneat2.gnm")
+        location = os.path.relpath("/") + location
+        rtneat.save_population(location)
+        
+        #rtneat2.save_population("../rtneat2.gnm")
 
     #The following is run when the Load button is pressed
-    def load_rtneat(self):
+    def load_rtneat(self, location = "rtneat.gnm"):
         import os
         global rtneat, rtneat2
-        if os.path.exists("rtneat.gnm") and os.path.exists("rtneat2.gnm"):
-            rtneat = RTNEAT("rtneat.gnm", "data/ai/neat-params.dat", pop_size)
-            rtneat2= RTNEAT("rtneat2.gnm","data/ai/neat-params.dat", pop_size)
+        location = os.path.relpath("/") + location
+        if os.path.exists(location):
+            rtneat = RTNEAT(location, "data/ai/neat-params.dat", pop_size)
+            #rtneat2= RTNEAT("rtneat2.gnm","data/ai/neat-params.dat", pop_size)
     
     def set_speedup(self, speedup):
         self.speedup = speedup
@@ -170,6 +177,31 @@ class NeroModule:
 
 gMod = None
 
+read = None
+
+def getReader():
+    global read
+    global subp
+    if not read:
+        subp = subprocess.Popen(['python', 'NERO/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
+        read = subp.stdout
+    return read
+
+def getSubProcess():
+    global read
+    global subp
+    if not read:
+        subp = subprocess.Popen(['python', 'NERO/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
+        read = subp.stdout
+    return subp
+
+def readerData():
+    r = getReader()
+    p = getSubProcess()
+    #if not p.poll(): return False
+    import select
+    return select.select([r],[],[],0) == ([r],[],[])
+
 def delMod():
     global gMod
     gMod = None
@@ -180,6 +212,27 @@ def getMod():
         gMod = NeroModule()
     return gMod
 
+def parseInput(strn):
+    print "PARSING:", strn
+    print strn.isupper()
+    mod = getMod()
+    loc,val = strn.split(' ')
+    vali = 1
+    if strn.isupper(): vali = int(val)
+    if loc == "SG": mod.set_weight("sg",vali)
+    if loc == "ST": mod.set_weight("st",vali)
+    if loc == "TD": mod.dtaChange(vali)
+    if loc == "AE": mod.set_weight("ae",vali)
+    if loc == "ED": mod.dtbChange(vali)
+    if loc == "AF": mod.set_weight("af",vali) 
+    if loc == "FD": mod.dtcChange(vali)
+    if loc == "HT": mod.set_weight("ht",vali)
+    if loc == "FF": mod.ffChange(vali)
+    if loc == "EE": mod.eeChange(vali)
+    if loc == "HP": mod.hpChange(vali)
+    if loc == "SP": mod.set_speedup(vali)
+    if loc == "save": mod.save_rtneat(val)
+    if loc == "load": mod.load_rtneat(val)
 
 def ServerMain():
     print "Starting mod NERO"

@@ -4,7 +4,8 @@ from NeroEnvironment import Fitness
 from common import *
 import common.gui as gui
 from inputConfig import *
-    
+from module import getReader
+
 def toggle_ai_callback():
     global toggleAiButton
     toggle_ai()
@@ -32,13 +33,17 @@ def CreateGui(guiMan):
     global mode
     mode = 0
 
+    x = getReader() 
+
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")  
+    guiWindow = gui.create_window( guiMan, 'window', Pos2i(20,20),Pos2i(80,100), 'Nero Controls' )
 
     toggleAiButton = gui.create_button( guiMan, 'toggle_ai', Pos2i(0,0),Pos2i(60,80), '' )
     toggleAiButton.text = 'Deploy'
     toggleAiButton.OnMouseLeftClick = toggle_ai_callback
-
+    
+    """
     saveAiButton = gui.create_button(guiMan, 'save_ai', Pos2i(0,80),Pos2i(30,80), '')
     saveAiButton.text = 'Save'
     saveAiButton.OnMouseLeftClick = save_ai_call
@@ -203,9 +208,7 @@ def CreateGui(guiMan):
     modeScroll.setPos(0)
     modeScroll.OnScrollBarChange = mode_adjusted(modeScroll)
 
-    guiWindow = gui.create_window( guiMan, 'window', Pos2i(20,20),Pos2i(600,190), 'Nero Controls' )
 
-    guiWindow.addChild(toggleAiButton)
     guiWindow.addChild(saveAiButton)
     guiWindow.addChild(loadAiButton)
     guiWindow.addChild(sgScroll)
@@ -257,6 +260,8 @@ def CreateGui(guiMan):
     guiWindow.addChild(modeScroll)
     guiWindow.addChild(fightText)
     guiWindow.addChild(trainText)
+    """
+    guiWindow.addChild(toggleAiButton)
 
 def weight_adjusted(scroll, key, value):
     result = scroll.getPos() - 100
