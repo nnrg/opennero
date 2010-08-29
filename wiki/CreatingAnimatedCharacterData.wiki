@@ -7,7 +7,7 @@
     * The md2 format requires that all textures for this model be contained in a single image file.
   # Export one obj file for each frame of each animation you want your character to have
     * Example filenames: run001.obj, run002.obj, ... , stand001.obj, stand002.obj ...
-    * For Maya, I have included a [ExportMD2FromMayaScript script] that I used to automate this process.  (This script will require some straightforward modification to match your particular animation.)
+    * For Maya, I have included a [ExportMD2Example script] that I used to automate this process.  (This script will require some straightforward modification to match your particular animation.)
   # Run obj_to_md2 on these obj files and their texture file.
     * Compile from [ObjToMD2Main main.cpp] and [ObjToMD2Makefile Makefile].
     * Run obj_to_md2 with no arguments for usage.
