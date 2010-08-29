@@ -148,6 +148,7 @@
 #include "CSceneNodeAnimatorFollowSpline.h"
 #include "CSceneNodeAnimatorCameraFPS.h"
 #include "CSceneNodeAnimatorCameraMaya.h"
+#include "CSceneNodeAnimatorCameraNero.h"
 #include "CDefaultSceneNodeAnimatorFactory.h"
 
 #include "CQuake3ShaderSceneNode.h"
@@ -734,17 +735,23 @@ ICameraSceneNode* CSceneManager::addCameraSceneNodeNero(ISceneNode* parent,
                                                         s32 id )
 {
     bool makeActive = true;
-	ICameraSceneNode* node = addCameraSceneNode(parent, core::vector3df(),
-			core::vector3df(0,0,100), id, makeActive);
+	ICameraSceneNode* node = addCameraSceneNode(
+			parent, core::vector3df(),
+			core::vector3df(0,0,100),
+			id,
+			makeActive);
 	if (node)
 	{
-		ISceneNodeAnimator* anm = new CSceneNodeAnimatorCameraMaya(CursorControl,
-			rotateSpeed, zoomSpeed, moveSpeed);
-
+		ISceneNodeAnimator* anm = new CSceneNodeAnimatorCameraNero(
+				CursorControl,
+				edgeScroll,
+				relEdgeSize,
+				rotateSpeed,
+				zoomSpeed,
+				moveSpeed);
 		node->addAnimator(anm);
 		anm->drop();
 	}
-
 	return node;
 }
 
