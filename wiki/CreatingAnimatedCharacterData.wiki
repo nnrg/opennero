@@ -3,7 +3,10 @@
 ==To produce an md2 file containing animated character data that can be used in OpenNERO:==
 
   # Create an animated model in a program that can export the obj format.
-    * Note: The md2 format requires that all textures for this model must be contained in a single image file.
-  # Export one obj file for each frame of each animation you want your character to have (for example: run001.obj, run002.obj, ... , stand001.obj, stand002.obj ...).
-    * For Maya, I have written a script (that can be easily modified) to automate this process.
+    * I've only used Maya, but obj is a simple and common format, so other programs are likely to work as well.
+    * The md2 format requires that all textures for this model be contained in a single image file.
+  # Export one obj file for each frame of each animation you want your character to have
+    * Example filenames: run001.obj, run002.obj, ... , stand001.obj, stand002.obj ...
+    * For Maya, I have written a script to automate this process.  (This script will require some straightforward modification to match your particular animation.)
   # Run obj_to_md2 on these obj files and their texture file.
+    * Run obj_to_md2 with no arguments for usage.
