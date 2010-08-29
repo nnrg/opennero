@@ -49,9 +49,7 @@ namespace scene
                                      bool edgeScroll, 
                                      f32 relEdgeSize, 
                                      f32 rotateSpeed = 100.0f,
-                                     f32 moveSpeed = .5f,
-                                     SKeyMap* keyMapArray=0,
-                                     u32 keyMapSize=0);
+                                     f32 moveSpeed = .5f);
 
 		//! Destructor
 		virtual ~CSceneNodeAnimatorCameraNero();
@@ -77,11 +75,6 @@ namespace scene
 		virtual f32 getZoomSpeed() const;
 
 		virtual void setZoomSpeed(f32 zoomSpeed);
-
-		//! Sets the keyboard mapping for this animator
-		//! \param keymap: an array of keyboard mappings, see SKeyMap
-		//! \param count: the size of the keyboard map array
-		virtual void setKeyMap(SKeyMap *map, u32 count);
 
 		virtual bool isEdgeScroll() const;
 

@@ -19,9 +19,7 @@ CSceneNodeAnimatorCameraNero::CSceneNodeAnimatorCameraNero(
         bool edgeScroll,
         f32 relEdgeSize,
         f32 rotateSpeed,
-        f32 moveSpeed,
-        SKeyMap* keyMapArray,
-        u32 keyMapSize)
+        f32 moveSpeed)
     : CursorControl(cursor),
       MaxVerticalAngle(88.0f),
       MoveSpeed(moveSpeed),
@@ -43,26 +41,17 @@ CSceneNodeAnimatorCameraNero::CSceneNodeAnimatorCameraNero(
 
     allKeysUp();
 
-	// create key map
-	if (!keyMapArray || !keyMapSize)
-	{
-	    // create default key map
-	    KeyMap.push_back(SCamKeyMap(kAction_MoveForward, irr::KEY_KEY_W));
-	    KeyMap.push_back(SCamKeyMap(kAction_MoveBackwards, irr::KEY_KEY_S));
-	    KeyMap.push_back(SCamKeyMap(kAction_StrafeLeft, irr::KEY_KEY_A));
-	    KeyMap.push_back(SCamKeyMap(kAction_StrafeRight, irr::KEY_KEY_D));
-	    KeyMap.push_back(SCamKeyMap(kAction_RotateLeft, irr::KEY_KEY_Q));
-	    KeyMap.push_back(SCamKeyMap(kAction_RotateRight, irr::KEY_KEY_E));
-	    KeyMap.push_back(SCamKeyMap(kAction_ZoomOut, irr::KEY_KEY_Z));
-	    KeyMap.push_back(SCamKeyMap(kAction_ZoomIn, irr::KEY_KEY_C));
-	    KeyMap.push_back(SCamKeyMap(kAction_TiltUp, irr::KEY_KEY_R));
-	    KeyMap.push_back(SCamKeyMap(kAction_TiltDown, irr::KEY_KEY_F));
-	}
-	else
-	{
-		// create custom key map
-		setKeyMap(keyMapArray, keyMapSize);
-	}
+	// create default key map
+	KeyMap.push_back(SCamKeyMap(kAction_MoveForward, irr::KEY_KEY_W));
+	KeyMap.push_back(SCamKeyMap(kAction_MoveBackwards, irr::KEY_KEY_S));
+	KeyMap.push_back(SCamKeyMap(kAction_StrafeLeft, irr::KEY_KEY_A));
+	KeyMap.push_back(SCamKeyMap(kAction_StrafeRight, irr::KEY_KEY_D));
+	KeyMap.push_back(SCamKeyMap(kAction_RotateLeft, irr::KEY_KEY_Q));
+	KeyMap.push_back(SCamKeyMap(kAction_RotateRight, irr::KEY_KEY_E));
+	KeyMap.push_back(SCamKeyMap(kAction_ZoomOut, irr::KEY_KEY_Z));
+	KeyMap.push_back(SCamKeyMap(kAction_ZoomIn, irr::KEY_KEY_C));
+	KeyMap.push_back(SCamKeyMap(kAction_TiltUp, irr::KEY_KEY_R));
+	KeyMap.push_back(SCamKeyMap(kAction_TiltDown, irr::KEY_KEY_F));
 }
 
 //! destructor
@@ -179,6 +168,12 @@ void CSceneNodeAnimatorCameraNero::animateNode(ISceneNode* node, u32 timeMs)
 	// write right target
 	target += pos;
 	camera->setTarget(target);
+}
+
+void CSceneNodeAnimatorCameraNero::allKeysUp()
+{
+	for (u32 i=0; i<6; ++i)
+		CursorKeys[i] = false;
 }
 
 //! Sets the rotation speed

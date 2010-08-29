@@ -43,12 +43,6 @@ namespace scene
 		virtual f32 getRelEdgeSize() const = 0;
 
 		virtual void setRelEdgeSize(f32 relEdgeSize) = 0;
-
-		//! Sets the keyboard mapping for this animator
-		/** \param map Array of keyboard mappings, see irr::SKeyMap
-		\param count Size of the keyboard map array. */
-		virtual void setKeyMap(SKeyMap *map, u32 count) = 0;
-
 	};
 
 } // end namespace scene
