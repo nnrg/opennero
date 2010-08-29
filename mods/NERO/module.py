@@ -94,10 +94,10 @@ class NeroModule:
             id = None
             if i % 2 == 0:
                 self.currTeam = 1
-                id = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
+                id = addObject("data/shapes/character/steve_red_armed.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
             else:
                 self.currTeam = 2
-                id = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
+                id = addObject("data/shapes/character/steve_red_armed.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
             self.agent_map[(0,i)] = id
    
    #The following is run when the Save button is pressed
@@ -162,7 +162,7 @@ class NeroModule:
         self.currTeam += 1
         #self.currTeam = 1
         if self.currTeam == 3: self.currTeam = 1
-        addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(pos[0],pos[1],pos[2]),type = AGENT)
+        addObject("data/shapes/character/steve_red_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = AGENT)
 
 gMod = None
 

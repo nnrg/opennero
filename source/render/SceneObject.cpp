@@ -913,46 +913,25 @@ namespace OpenNero
         }
     }
 
-	bool SceneObject::SetAnimation( const std::string& animation_type, const float32_t& animation_speed )
-	{
-		// convert this string to lowercase
-		std::string lower_animation_type = animation_type;
-		std::transform( lower_animation_type.begin(), lower_animation_type.end(), lower_animation_type.begin(), ::tolower );
+  bool SceneObject::SetAnimation( const std::string& animation_type, const float32_t& animation_speed )
+  {
+    // (Note: As in previous iteration of code, animation_speed is not used here.  Should it be?)
+    if (mAniSceneNode) {
+      // If there is an animation node, tell it which animation to play.
+      bool setMD2Result = mAniSceneNode->setMD2Animation(animation_type.c_str());
+      if (setMD2Result == false) {
+	LOG_F_WARNING("render", "Could not set animation to " << animation_type);
+	return false;
+      }
+      else {
+	return true;
+      }
+    } else {
+      // If there is no animation node, indicate the error.
+      LOG_F_WARNING("render", "Node is not animated when trying to set animation to " << animation_type);
+      return false;
+    }
 
-		if (mAniSceneNode) {
-			// if we have a node to animate
-			// TODO: extend to non-MD2 animations
-			if (lower_animation_type == "stand") mAniSceneNode->setMD2Animation(EMAT_STAND);
-			else if (lower_animation_type == "run") mAniSceneNode->setMD2Animation(EMAT_RUN);
-			else if (lower_animation_type == "attack") mAniSceneNode->setMD2Animation(EMAT_ATTACK);
-			else if (lower_animation_type == "pain_a") mAniSceneNode->setMD2Animation(EMAT_PAIN_A);
-			else if (lower_animation_type == "pain_b") mAniSceneNode->setMD2Animation(EMAT_PAIN_B);
-			else if (lower_animation_type == "pain_c") mAniSceneNode->setMD2Animation(EMAT_PAIN_C);
-			else if (lower_animation_type == "jump") mAniSceneNode->setMD2Animation(EMAT_JUMP);
-			else if (lower_animation_type == "flip") mAniSceneNode->setMD2Animation(EMAT_FLIP);
-			else if (lower_animation_type == "salute") mAniSceneNode->setMD2Animation(EMAT_SALUTE);
-			else if (lower_animation_type == "fallback") mAniSceneNode->setMD2Animation(EMAT_FALLBACK);
-			else if (lower_animation_type == "wave") mAniSceneNode->setMD2Animation(EMAT_WAVE);
-			else if (lower_animation_type == "point") mAniSceneNode->setMD2Animation(EMAT_POINT);
-			else if (lower_animation_type == "crouch_stand") mAniSceneNode->setMD2Animation(EMAT_CROUCH_STAND);
-			else if (lower_animation_type == "crouch_walk") mAniSceneNode->setMD2Animation(EMAT_CROUCH_WALK);
-			else if (lower_animation_type == "crouch_attack") mAniSceneNode->setMD2Animation(EMAT_CROUCH_ATTACK);
-			else if (lower_animation_type == "crouch_pain") mAniSceneNode->setMD2Animation(EMAT_CROUCH_PAIN);
-			else if (lower_animation_type == "crouch_death") mAniSceneNode->setMD2Animation(EMAT_CROUCH_DEATH);
-			else if (lower_animation_type == "death_fallback") mAniSceneNode->setMD2Animation(EMAT_DEATH_FALLBACK);
-			else if (lower_animation_type == "death_fallforward") mAniSceneNode->setMD2Animation(EMAT_DEATH_FALLFORWARD);
-			else if (lower_animation_type == "death_fallbackslow") mAniSceneNode->setMD2Animation(EMAT_DEATH_FALLBACKSLOW);
-			else if (lower_animation_type == "boom") mAniSceneNode->setMD2Animation(EMAT_BOOM);
-			else {
-				LOG_F_WARNING("render", "Could not set animation to " << animation_type);
-				return false;
-			}
-            return true;
-		} else {
-			LOG_F_WARNING("render", "Node is not animated when trying to set animation to " << animation_type);
-			return false;
-		}
-
-	}
+  }
 
 };//end OpenNero
