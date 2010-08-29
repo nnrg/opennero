@@ -19,11 +19,18 @@ CSceneNodeAnimatorCameraNero::CSceneNodeAnimatorCameraNero(
         bool edgeScroll,
         f32 relEdgeSize,
         f32 rotateSpeed,
-        f32 zoomSpeed,
-        f32 translationSpeed)
-    : CursorControl(cursor), Zooming(false), Rotating(false), Moving(false),
-    Translating(false), ZoomSpeed(zoomSpeed), RotateSpeed(rotateSpeed), TranslateSpeed(translationSpeed),
-    CurrentZoom(70.0f), RotX(0.0f), RotY(0.0f), OldCamera(0), MousePos(0.5f, 0.5f)
+        f32 moveSpeed,
+        SKeyMap* keyMapArray,
+        u32 keyMapSize)
+    : CursorControl(cursor),
+      MaxVerticalAngle(88.0f),
+      MoveSpeed(moveSpeed),
+      RotateSpeed(rotateSpeed),
+      LastAnimationTime(0),
+      firstUpdate(true),
+      EdgeScroll(edgeScroll),
+      WheelMovement(0),
+	  EdgeBoundSize(relEdgeSize)
 {
     #ifdef _DEBUG
     setDebugName("CSceneNodeAnimatorCameraNero");
@@ -32,24 +39,31 @@ CSceneNodeAnimatorCameraNero::CSceneNodeAnimatorCameraNero(
     if (CursorControl)
     {
         CursorControl->grab();
-        MousePos = CursorControl->getRelativePosition();
     }
 
     allKeysUp();
 
-    // create default key map
-    KeyMap.push_back(SCamKeyMap(kAction_MoveForward, irr::KEY_KEY_W));
-    KeyMap.push_back(SCamKeyMap(kAction_MoveBackwards, irr::KEY_KEY_S));
-    KeyMap.push_back(SCamKeyMap(kAction_StrafeLeft, irr::KEY_KEY_A));
-    KeyMap.push_back(SCamKeyMap(kAction_StrafeRight, irr::KEY_KEY_D));
-    KeyMap.push_back(SCamKeyMap(kAction_RotateLeft, irr::KEY_KEY_Q));
-    KeyMap.push_back(SCamKeyMap(kAction_RotateRight, irr::KEY_KEY_E));
-    KeyMap.push_back(SCamKeyMap(kAction_ZoomOut, irr::KEY_KEY_Z));
-    KeyMap.push_back(SCamKeyMap(kAction_ZoomIn, irr::KEY_KEY_C));
-    KeyMap.push_back(SCamKeyMap(kAction_TiltUp, irr::KEY_KEY_R));
-    KeyMap.push_back(SCamKeyMap(kAction_TiltDown, irr::KEY_KEY_F));
+	// create key map
+	if (!keyMapArray || !keyMapSize)
+	{
+	    // create default key map
+	    KeyMap.push_back(SCamKeyMap(kAction_MoveForward, irr::KEY_KEY_W));
+	    KeyMap.push_back(SCamKeyMap(kAction_MoveBackwards, irr::KEY_KEY_S));
+	    KeyMap.push_back(SCamKeyMap(kAction_StrafeLeft, irr::KEY_KEY_A));
+	    KeyMap.push_back(SCamKeyMap(kAction_StrafeRight, irr::KEY_KEY_D));
+	    KeyMap.push_back(SCamKeyMap(kAction_RotateLeft, irr::KEY_KEY_Q));
+	    KeyMap.push_back(SCamKeyMap(kAction_RotateRight, irr::KEY_KEY_E));
+	    KeyMap.push_back(SCamKeyMap(kAction_ZoomOut, irr::KEY_KEY_Z));
+	    KeyMap.push_back(SCamKeyMap(kAction_ZoomIn, irr::KEY_KEY_C));
+	    KeyMap.push_back(SCamKeyMap(kAction_TiltUp, irr::KEY_KEY_R));
+	    KeyMap.push_back(SCamKeyMap(kAction_TiltDown, irr::KEY_KEY_F));
+	}
+	else
+	{
+		// create custom key map
+		setKeyMap(keyMapArray, keyMapSize);
+	}
 }
-
 
 //! destructor
 CSceneNodeAnimatorCameraNero::~CSceneNodeAnimatorCameraNero()
@@ -66,224 +80,106 @@ CSceneNodeAnimatorCameraNero::~CSceneNodeAnimatorCameraNero()
 //! for changing their position, look at target or whatever.
 bool CSceneNodeAnimatorCameraNero::OnEvent(const SEvent& event)
 {
-    if (event.EventType != EET_MOUSE_INPUT_EVENT &&
-        event.EventType != EET_KEY_INPUT_EVENT)
-        return false;
+	switch(event.EventType)
+	{
+	case EET_KEY_INPUT_EVENT:
+		for (u32 i=0; i<KeyMap.size(); ++i)
+		{
+			if (KeyMap[i].keycode == event.KeyInput.Key)
+			{
+				CursorKeys[KeyMap[i].action] = event.KeyInput.PressedDown;
+				return true;
+			}
+		}
+		break;
 
-    if (event.EventType == EET_KEY_INPUT_EVENT) {
-        switch (event.KeyInput.Key) {
-
+	case EET_MOUSE_INPUT_EVENT:
+        if( event.MouseInput.Event == EMIE_MOUSE_WHEEL )
+        {
+            WheelMovement += event.MouseInput.Wheel;
+            return true;
         }
-        for (u32 i=0; i<KeyMap.size(); ++i) {
-        	if (KeyMap[i].keycode == event.KeyInput.Key) {
-        		CursorKeys[KeyMap[i].action] = event.KeyInput.PressedDown;
-        	}
-        }
-    }
+		break;
 
-    if (event.EventType == EET_MOUSE_INPUT_EVENT) {
-        switch(event.MouseInput.Event)
-            {
-            case EMIE_LMOUSE_PRESSED_DOWN:
-                MouseKeys[0] = true;
-                break;
-            case EMIE_RMOUSE_PRESSED_DOWN:
-                MouseKeys[2] = true;
-                break;
-            case EMIE_MMOUSE_PRESSED_DOWN:
-                MouseKeys[1] = true;
-                break;
-            case EMIE_LMOUSE_LEFT_UP:
-                MouseKeys[0] = false;
-                break;
-            case EMIE_RMOUSE_LEFT_UP:
-                MouseKeys[2] = false;
-                break;
-            case EMIE_MMOUSE_LEFT_UP:
-                MouseKeys[1] = false;
-                break;
-            case EMIE_MOUSE_MOVED:
-                MousePos = CursorControl->getRelativePosition();
-                break;
-            case EMIE_MOUSE_WHEEL:
-            case EMIE_LMOUSE_DOUBLE_CLICK:
-            case EMIE_RMOUSE_DOUBLE_CLICK:
-            case EMIE_MMOUSE_DOUBLE_CLICK:
-            case EMIE_LMOUSE_TRIPLE_CLICK:
-            case EMIE_RMOUSE_TRIPLE_CLICK:
-            case EMIE_MMOUSE_TRIPLE_CLICK:
-            case EMIE_COUNT:
-                return false;
-            }
-        return true;
-    }
+	default:
+		break;
+	}
+
+	return false;
 }
 
 
-//! OnAnimate() is called just before rendering the whole scene.
-//! nodes may calculate or store animations here, and may do other useful things,
-//! dependent on what they are.
-void CSceneNodeAnimatorCameraNero::animateNode(ISceneNode *node, u32 timeMs)
+void CSceneNodeAnimatorCameraNero::animateNode(ISceneNode* node, u32 timeMs)
 {
-    //Alt + LM = Rotate around camera pivot
-    //Alt + LM + MM = Dolly forth/back in view direction (speed % distance camera pivot - max distance to pivot)
-    //Alt + MM = Move on camera plane (Screen center is about the mouse pointer, depending on move speed)
+	if (!node || node->getType() != ESNT_CAMERA)
+		return;
 
-    if (!node || node->getType() != ESNT_CAMERA)
-        return;
+	ICameraSceneNode* camera = static_cast<ICameraSceneNode*>(node);
 
-    ICameraSceneNode* camera = static_cast<ICameraSceneNode*>(node);
+	if (firstUpdate)
+	{
+		camera->updateAbsolutePosition();
+		LastAnimationTime = timeMs;
+		firstUpdate = false;
+	}
 
-    // If the camera isn't the active camera, and receiving input, then don't process it.
-    if(!camera->isInputReceiverEnabled())
-        return;
+	// If the camera isn't the active camera, and receiving input, then don't process it.
+	if(!camera->isInputReceiverEnabled())
+		return;
 
-    scene::ISceneManager * smgr = camera->getSceneManager();
-    if(smgr && smgr->getActiveCamera() != camera)
-        return;
+	scene::ISceneManager * smgr = camera->getSceneManager();
+	if(smgr && smgr->getActiveCamera() != camera)
+		return;
 
-    if (OldCamera != camera)
-    {
-        OldTarget = camera->getTarget();
-        OldCamera = camera;
-        LastCameraTarget = OldTarget;
-    }
-    else
-    {
-        OldTarget += camera->getTarget() - LastCameraTarget;
-    }
+	// get time
+	f32 timeDiff = (f32) ( timeMs - LastAnimationTime );
+	LastAnimationTime = timeMs;
 
-    core::vector3df target = camera->getTarget();
+	// update position
+	core::vector3df pos = camera->getPosition();
 
-    f32 nRotX = RotX;
-    f32 nRotY = RotY;
-    f32 nZoom = CurrentZoom;
+	// Update rotation
+	core::vector3df target = (camera->getTarget() - camera->getAbsolutePosition());
+	core::vector3df relativeRotation = target.getHorizontalAngle();
 
-    if ( (isMouseKeyDown(0) && isMouseKeyDown(2)) || isMouseKeyDown(1) )
-    {
-        if (!Zooming)
-        {
-            ZoomStart = MousePos;
-            Zooming = true;
-            nZoom = CurrentZoom;
-        }
-        else
-        {
-            const f32 targetMinDistance = 0.1f;
-            nZoom += (ZoomStart.X - MousePos.X) * ZoomSpeed;
+	// set target
+	target.set(0,0, core::max_(1.f, pos.getLength()));
+	core::vector3df movedir = target;
 
-            if (nZoom < targetMinDistance) // jox: fixed bug: bounce back when zooming to close
-                nZoom = targetMinDistance;
-        }
-    }
-    else if (Zooming)
-    {
-        const f32 old = CurrentZoom;
-        CurrentZoom = CurrentZoom + (ZoomStart.X - MousePos.X ) * ZoomSpeed;
-        nZoom = CurrentZoom;
+	core::matrix4 mat;
+	mat.setRotationDegrees(core::vector3df(relativeRotation.X, relativeRotation.Y, 0));
+	mat.transformVect(target);
 
-        if (nZoom < 0)
-            nZoom = CurrentZoom = old;
-        Zooming = false;
-    }
+	movedir = target;
 
-    // Translation ---------------------------------
+	movedir.normalize();
 
-    core::vector3df translate(OldTarget), upVector(camera->getUpVector());
+	if (CursorKeys[EKA_MOVE_FORWARD])
+		pos += movedir * timeDiff * MoveSpeed;
 
-    core::vector3df tvectX = Pos - target;
-    tvectX = tvectX.crossProduct(upVector);
-    tvectX.normalize();
+	if (CursorKeys[EKA_MOVE_BACKWARD])
+		pos -= movedir * timeDiff * MoveSpeed;
 
-    const SViewFrustum* const va = camera->getViewFrustum();
-    core::vector3df tvectY = (va->getFarLeftDown() - va->getFarRightDown());
-    tvectY = tvectY.crossProduct(upVector.Y > 0 ? Pos - target : target - Pos);
-    tvectY.normalize();
+	// strafing
 
-    if (isMouseKeyDown(2) && !Zooming)
-    {
-        if (!Translating)
-        {
-            TranslateStart = MousePos;
-            Translating = true;
-        }
-        else
-        {
-            translate +=  tvectX * (TranslateStart.X - MousePos.X)*TranslateSpeed +
-                          tvectY * (TranslateStart.Y - MousePos.Y)*TranslateSpeed;
-        }
-    }
-    else if (Translating)
-    {
-        translate += tvectX * (TranslateStart.X - MousePos.X)*TranslateSpeed +
-                     tvectY * (TranslateStart.Y - MousePos.Y)*TranslateSpeed;
-        OldTarget = translate;
-        Translating = false;
-    }
+	core::vector3df strafevect = target;
+	strafevect = strafevect.crossProduct(camera->getUpVector());
 
-    // Rotation ------------------------------------
+	strafevect.normalize();
 
-    if (isMouseKeyDown(0) && !Zooming)
-    {
-        if (!Rotating)
-        {
-            RotateStart = MousePos;
-            Rotating = true;
-            nRotX = RotX;
-            nRotY = RotY;
-        }
-        else
-        {
-            nRotX += (RotateStart.X - MousePos.X) * RotateSpeed;
-            nRotY += (RotateStart.Y - MousePos.Y) * RotateSpeed;
-        }
-    }
-    else if (Rotating)
-    {
-        RotX += (RotateStart.X - MousePos.X) * RotateSpeed;
-        RotY += (RotateStart.Y - MousePos.Y) * RotateSpeed;
-        nRotX = RotX;
-        nRotY = RotY;
-        Rotating = false;
-    }
+	if (CursorKeys[EKA_STRAFE_LEFT])
+		pos += strafevect * timeDiff * MoveSpeed;
 
-    // Set Pos ------------------------------------
+	if (CursorKeys[EKA_STRAFE_RIGHT])
+		pos -= strafevect * timeDiff * MoveSpeed;
 
-    target = translate;
+	// write translation
+	camera->setPosition(pos);
 
-    Pos.X = nZoom + target.X;
-    Pos.Y = target.Y;
-    Pos.Z = target.Z;
-
-    Pos.rotateXYBy(nRotY, target);
-    Pos.rotateXZBy(-nRotX, target);
-
-    // Rotation Error ----------------------------
-
-    // jox: fixed bug: jitter when rotating to the top and bottom of y
-    upVector.set(0,1,0);
-    upVector.rotateXYBy(-nRotY);
-    upVector.rotateXZBy(-nRotX+180.f);
-
-    camera->setPosition(Pos);
-    camera->setTarget(target);
-    camera->setUpVector(upVector);
-    LastCameraTarget = camera->getTarget();
+	// write right target
+	target += pos;
+	camera->setTarget(target);
 }
-
-
-bool CSceneNodeAnimatorCameraNero::isMouseKeyDown(s32 key)
-{
-    return MouseKeys[key];
-}
-
-
-void CSceneNodeAnimatorCameraNero::allKeysUp()
-{
-    for (s32 i=0; i<3; ++i)
-        MouseKeys[i] = false;
-}
-
 
 //! Sets the rotation speed
 void CSceneNodeAnimatorCameraNero::setRotateSpeed(f32 speed)
@@ -295,7 +191,7 @@ void CSceneNodeAnimatorCameraNero::setRotateSpeed(f32 speed)
 //! Sets the movement speed
 void CSceneNodeAnimatorCameraNero::setMoveSpeed(f32 speed)
 {
-    TranslateSpeed = speed;
+    MoveSpeed = speed;
 }
 
 
@@ -316,7 +212,7 @@ f32 CSceneNodeAnimatorCameraNero::getRotateSpeed() const
 // Gets the movement speed
 f32 CSceneNodeAnimatorCameraNero::getMoveSpeed() const
 {
-    return TranslateSpeed;
+    return MoveSpeed;
 }
 
 
@@ -326,10 +222,34 @@ f32 CSceneNodeAnimatorCameraNero::getZoomSpeed() const
     return ZoomSpeed;
 }
 
+bool CSceneNodeAnimatorCameraNero::isEdgeScroll() const
+{
+	return EdgeScroll;
+}
+
+void CSceneNodeAnimatorCameraNero::setEdgeScroll(bool value)
+{
+	EdgeScroll = value;
+}
+
+f32 CSceneNodeAnimatorCameraNero::getRelEdgeSize() const
+{
+	return EdgeBoundSize;
+}
+
+void CSceneNodeAnimatorCameraNero::setRelEdgeSize(f32 relEdgeSize)
+{
+	EdgeBoundSize = relEdgeSize;
+}
+
+
 ISceneNodeAnimator* CSceneNodeAnimatorCameraNero::createClone(ISceneNode* node, ISceneManager* newManager)
 {
     CSceneNodeAnimatorCameraNero * newAnimator =
-        new CSceneNodeAnimatorCameraNero(CursorControl, RotateSpeed, ZoomSpeed, TranslateSpeed);
+        new CSceneNodeAnimatorCameraNero(CursorControl,
+        	      MaxVerticalAngle,
+        	      MoveSpeed,
+        	      RotateSpeed);
     return newAnimator;
 }
 

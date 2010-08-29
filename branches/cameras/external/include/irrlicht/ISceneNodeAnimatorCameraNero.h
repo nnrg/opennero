@@ -9,37 +9,45 @@
 
 namespace irr
 {
+struct SKeyMap;
 
 namespace scene
 {
 
 	//! Special scene node animator for Nero-style cameras
-	/** This scene node animator can be attached to a camera to make it act like a 3d
-	modelling tool.
-	The camera is moving relative to the target with the mouse, by pressing either
-	of the three buttons.
+	/**
 	*/
 	class ISceneNodeAnimatorCameraNero : public ISceneNodeAnimator
 	{
 	public:
 
-		//! Returns the speed of movement
+		//! Returns the speed of movement in units per millisecond
 		virtual f32 getMoveSpeed() const = 0;
 
-		//! Sets the speed of movement
+		//! Sets the speed of movement in units per millisecond
 		virtual void setMoveSpeed(f32 moveSpeed) = 0;
 
-		//! Returns the rotation speed
+		//! Returns the rotation speed in degrees
+		/** The degrees are equivalent to a half screen movement of the mouse,
+		i.e. if the mouse cursor had been moved to the border of the screen since
+		the last animation. */
 		virtual f32 getRotateSpeed() const = 0;
 
-		//! Set the rotation speed
+		//! Set the rotation speed in degrees
 		virtual void setRotateSpeed(f32 rotateSpeed) = 0;
 
-		//! Returns the zoom speed
-		virtual f32 getZoomSpeed() const = 0;
+		virtual bool isEdgeScroll() const = 0;
 
-		//! Set the zoom speed
-		virtual void setZoomSpeed(f32 zoomSpeed) = 0;
+		virtual void setEdgeScroll(bool value) = 0;
+
+		virtual f32 getRelEdgeSize() const = 0;
+
+		virtual void setRelEdgeSize(f32 relEdgeSize) = 0;
+
+		//! Sets the keyboard mapping for this animator
+		/** \param map Array of keyboard mappings, see irr::SKeyMap
+		\param count Size of the keyboard map array. */
+		virtual void setKeyMap(SKeyMap *map, u32 count) = 0;
 
 	};
 

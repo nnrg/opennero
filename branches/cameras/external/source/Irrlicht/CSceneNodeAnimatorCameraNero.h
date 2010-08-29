@@ -7,6 +7,7 @@
 
 #include "ISceneNodeAnimatorCameraNero.h"
 #include "ICameraSceneNode.h"
+#include "SKeyMap.h"
 #include "vector2d.h"
 
 namespace irr
@@ -42,12 +43,15 @@ namespace scene
         };
 
 		//! Constructor
+
+		//! Constructor
 		CSceneNodeAnimatorCameraNero(gui::ICursorControl* cursor,
                                      bool edgeScroll, 
                                      f32 relEdgeSize, 
-                                     f32 rotateSpeed = -1500.0f, 
-                                     f32 zoomSpeed = 200.0f, 
-                                     f32 translationSpeed = 1500.0f);
+                                     f32 rotateSpeed = 100.0f,
+                                     f32 moveSpeed = .5f,
+                                     SKeyMap* keyMapArray=0,
+                                     u32 keyMapSize=0);
 
 		//! Destructor
 		virtual ~CSceneNodeAnimatorCameraNero();
@@ -58,10 +62,10 @@ namespace scene
 		//! Event receiver
 		virtual bool OnEvent(const SEvent& event);
 
-		//! Returns the speed of movement in units per millisecond
+		//! Returns the speed of movement in units per second
 		virtual f32 getMoveSpeed() const;
 
-		//! Sets the speed of movement in units per millisecond
+		//! Sets the speed of movement in units per second
 		virtual void setMoveSpeed(f32 moveSpeed);
 
 		//! Returns the rotation speed
@@ -70,11 +74,22 @@ namespace scene
 		//! Set the rotation speed
 		virtual void setRotateSpeed(f32 rotateSpeed);
 
-		//! Returns the zoom speed
 		virtual f32 getZoomSpeed() const;
 
-		//! Set the zoom speed
 		virtual void setZoomSpeed(f32 zoomSpeed);
+
+		//! Sets the keyboard mapping for this animator
+		//! \param keymap: an array of keyboard mappings, see SKeyMap
+		//! \param count: the size of the keyboard map array
+		virtual void setKeyMap(SKeyMap *map, u32 count);
+
+		virtual bool isEdgeScroll() const;
+
+		virtual void setEdgeScroll(bool value);
+
+		virtual f32 getRelEdgeSize() const;
+
+		virtual void setRelEdgeSize(f32 relEdgeSize);
 
 		//! This animator will receive events when attached to the active camera
 		virtual bool isEventReceiverEnabled() const
@@ -82,55 +97,56 @@ namespace scene
 			return true;
 		}
 
-		//! Returns type of the scene node
-		virtual ESCENE_NODE_ANIMATOR_TYPE getType() const 
+		//! Returns the type of this animator
+		virtual ESCENE_NODE_ANIMATOR_TYPE getType() const
 		{
 			return ESNAT_CAMERA_NERO;
 		}
 
 		//! Creates a clone of this animator.
 		/** Please note that you will have to drop
-		(IReferenceCounted::drop()) the returned pointer after calling
-		this. */
+		(IReferenceCounted::drop()) the returned pointer once you're
+		done with it. */
 		virtual ISceneNodeAnimator* createClone(ISceneNode* node, ISceneManager* newManager=0);
+
+		struct SCamKeyMap
+		{
+			SCamKeyMap() {};
+			SCamKeyMap(s32 a, EKEY_CODE k) : action(a), keycode(k) {}
+
+			s32 action;
+			EKEY_CODE keycode;
+		};
+
+		//! Sets the keyboard mapping for this animator
+		/** Helper function for the clone method.
+		\param keymap the new keymap array */
+		void setKeyMap(const core::array<SCamKeyMap>& keymap);
 
 	private:
 
 		void allKeysUp();
-		void animate();
-		bool isMouseKeyDown(s32 key);
-
-        struct SCamKeyMap
-        {
-                SCamKeyMap() {};
-                SCamKeyMap(Actions a, EKEY_CODE k) : action(a), keycode(k) {}
-                Actions action;
-                EKEY_CODE keycode;
-        };
-
-		bool MouseKeys[3];
-		core::array<SCamKeyMap> KeyMap;
-		bool CursorKeys[kActions_MAX];
 
 		gui::ICursorControl *CursorControl;
-		core::vector3df Pos;
-		bool Zooming;
-		bool Rotating;
-		bool Moving;
-		bool Translating;
-		f32 ZoomSpeed;
-		f32 RotateSpeed;
-		f32 TranslateSpeed;
-		core::position2df RotateStart;
-		core::position2df ZoomStart;
-		core::position2df TranslateStart;
-		f32 CurrentZoom;
-		f32 RotX, RotY;
-		core::vector3df OldTarget;
-		core::vector3df LastCameraTarget;	// to find out if the camera target was moved outside this animator
-		scene::ICameraSceneNode* OldCamera;
 
-		core::position2df MousePos;
+		f32 MaxVerticalAngle;
+
+		f32 MoveSpeed;
+		f32 RotateSpeed;
+		f32 ZoomSpeed;
+
+		s32 LastAnimationTime;
+
+		core::array<SCamKeyMap> KeyMap;
+		core::position2d<f32> CenterCursor, CursorPos;
+
+		bool CursorKeys[kActions_MAX];
+
+		bool firstUpdate;
+
+        bool EdgeScroll;
+		f32 WheelMovement;
+        f32 EdgeBoundSize;
 	};
 
 } // end namespace scene
