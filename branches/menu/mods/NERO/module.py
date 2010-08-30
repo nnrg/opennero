@@ -196,6 +196,7 @@ def parseInput(strn):
     if loc == "AF": mod.set_weight("af",vali) 
     if loc == "FD": mod.dtcChange(vali)
     if loc == "HT": mod.set_weight("ht",vali)
+    if loc == "LT": mod.ltChange(vali)
     if loc == "FF": mod.ffChange(vali)
     if loc == "EE": mod.eeChange(vali)
     if loc == "HP": mod.hpChange(vali)
