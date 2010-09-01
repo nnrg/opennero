@@ -40,6 +40,12 @@ namespace scene
 		//! Maya camera animator
 		ESNAT_CAMERA_MAYA,
 
+		//! Nero camera animator
+		ESNAT_CAMERA_NERO,
+
+		//! Nero First Person camera animator
+		ESNAT_CAMERA_NERO_FP,
+
 		//! Amount of built-in scene node animators
 		ESNAT_COUNT,
 

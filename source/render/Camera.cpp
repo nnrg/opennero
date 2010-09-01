@@ -72,9 +72,6 @@ namespace OpenNero
     void Camera::setEdgeScroll( bool enable )
     {
         Assert( mCamera );
-        
-        if( getFunctionality() == kFunc_Nero )
-            mCamera->setInputReceiverEnabled(enable);
     }
      
     /// Set what the camera is looking at
