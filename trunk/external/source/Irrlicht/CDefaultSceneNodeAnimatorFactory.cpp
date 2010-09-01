@@ -4,6 +4,7 @@
 
 #include "CDefaultSceneNodeAnimatorFactory.h"
 #include "CSceneNodeAnimatorCameraFPS.h"
+#include "CSceneNodeAnimatorCameraNero.h"
 #include "CSceneNodeAnimatorCameraMaya.h"
 #include "ICursorControl.h"
 #include "ISceneNodeAnimatorCollisionResponse.h"
@@ -87,6 +88,9 @@ ISceneNodeAnimator* CDefaultSceneNodeAnimatorFactory::createSceneNodeAnimator(ES
 	case ESNAT_CAMERA_FPS:
 		anim = new CSceneNodeAnimatorCameraFPS(CursorControl);
 		break;
+    case ESNAT_CAMERA_NERO:
+        anim = new CSceneNodeAnimatorCameraNero(CursorControl);
+        break;
 	case ESNAT_CAMERA_MAYA:
 		anim = new CSceneNodeAnimatorCameraMaya(CursorControl);
 		break;

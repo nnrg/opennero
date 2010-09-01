@@ -119,10 +119,6 @@
 #include "COctreeSceneNode.h"
 #include "CCameraSceneNode.h"
 
-#include "CCameraMayaSceneNode.h"
-#include "CCameraFPSSceneNode.h"
-#include "CCameraNeroSceneNode.h"
-#include "CCameraNeroFPSceneNode.h"
 #include "CLightSceneNode.h"
 #include "CBillboardSceneNode.h"
 #include "CMeshSceneNode.h"
@@ -152,6 +148,7 @@
 #include "CSceneNodeAnimatorFollowSpline.h"
 #include "CSceneNodeAnimatorCameraFPS.h"
 #include "CSceneNodeAnimatorCameraMaya.h"
+#include "CSceneNodeAnimatorCameraNero.h"
 #include "CDefaultSceneNodeAnimatorFactory.h"
 
 #include "CQuake3ShaderSceneNode.h"
@@ -737,32 +734,51 @@ ICameraSceneNode* CSceneManager::addCameraSceneNodeNero(ISceneNode* parent,
                                                         f32 zoomSpeed,                                                         
                                                         s32 id )
 {
-	if (!parent)
-		parent = this;
-
-	ICameraSceneNode* node = new CCameraNeroSceneNode(parent, this, CursorControl, 
-                                                      edgeScroll, relEdgeSize,
-                                                      id, rotateSpeed, moveSpeed, zoomSpeed );
-	node->drop();
-
-	setActiveCamera(node);
-
+    bool makeActive = true;
+	ICameraSceneNode* node = addCameraSceneNode(
+			parent, core::vector3df(),
+			core::vector3df(0,0,100),
+			id,
+			makeActive);
+	if (node)
+	{
+		ISceneNodeAnimator* anm = new CSceneNodeAnimatorCameraNero(
+				CursorControl,
+				edgeScroll,
+				relEdgeSize,
+				rotateSpeed,
+				moveSpeed,
+                zoomSpeed);
+		node->addAnimator(anm);
+		anm->drop();
+	}
 	return node;
 }
 
 //! Adds a camera scene node which is passive and attached to another scene node
 //! like in most first person shooters (FPS):
-ICameraSceneNode* CSceneManager::addCameraSceneNodeNeroFP(ISceneNode* parent, s32 id )
+ICameraSceneNode* CSceneManager::addCameraSceneNodeNeroFP(ISceneNode* parent, 
+                                                          f32 rotateSpeed, f32 moveSpeed, 
+                                                          s32 id, 
+                                                          SKeyMap* keyMapArray,
+                                                          s32 keyMapSize, bool noVerticalMovement, f32 jumpSpeed,
+                                                          bool invertMouseY, bool makeActive)
 {
-    if (!parent)
-        parent = this;
+	ICameraSceneNode* node = addCameraSceneNode(parent, core::vector3df(),
+			core::vector3df(0,0,100), id, makeActive);
+	if (node)
+	{
+		ISceneNodeAnimator* anm = new CSceneNodeAnimatorCameraFPS(CursorControl,
+				rotateSpeed, moveSpeed, jumpSpeed,
+				keyMapArray, keyMapSize, noVerticalMovement, invertMouseY);
 
-    ICameraSceneNode* node = new CCameraNeroFPSceneNode(parent, this, id);
-    node->drop();
+		// Bind the node's rotation to its target. This is consistent with 1.4.2 and below.
+		node->bindTargetAndRotation(true);
+		node->addAnimator(anm);
+		anm->drop();
+	}
 
-    setActiveCamera(node);
-
-    return node;
+	return node;
 }
 
 //! Adds a dynamic light scene node. The light will cast dynamic light on all
