@@ -7,6 +7,7 @@
 #include "ICameraSceneNode.h"
 #include "SViewFrustum.h"
 #include "ISceneManager.h"
+#include "ISceneNodeAnimatorCollisionResponse.h"
 
 namespace irr
 {
@@ -19,11 +20,12 @@ CSceneNodeAnimatorCameraNero::CSceneNodeAnimatorCameraNero(
         bool edgeScroll,
         f32 relEdgeSize,
         f32 rotateSpeed,
-        f32 moveSpeed)
+        f32 moveSpeed,
+        f32 zoomSpeed)
     : CursorControl(cursor),
-      MaxVerticalAngle(88.0f),
-      MoveSpeed(moveSpeed),
+      MoveSpeed(moveSpeed/100.0f),
       RotateSpeed(rotateSpeed),
+      ZoomSpeed(zoomSpeed),
       LastAnimationTime(0),
       firstUpdate(true),
       EdgeScroll(edgeScroll),
@@ -102,13 +104,20 @@ void CSceneNodeAnimatorCameraNero::animateNode(ISceneNode* node, u32 timeMs)
 {
 	if (!node || node->getType() != ESNT_CAMERA)
 		return;
-
+        
 	ICameraSceneNode* camera = static_cast<ICameraSceneNode*>(node);
 
 	if (firstUpdate)
 	{
 		camera->updateAbsolutePosition();
+		if (CursorControl && camera)
+		{
+			CursorControl->setPosition(0.5f, 0.5f);
+			CursorPos = CenterCursor = CursorControl->getRelativePosition();
+		}
+
 		LastAnimationTime = timeMs;
+
 		firstUpdate = false;
 	}
 
@@ -121,58 +130,124 @@ void CSceneNodeAnimatorCameraNero::animateNode(ISceneNode* node, u32 timeMs)
 		return;
 
 	// get time
-	f32 timeDiff = (f32) ( timeMs - LastAnimationTime );
+	f32 timeDiff = (f32) ( timeMs - LastAnimationTime )/1000.0f;
 	LastAnimationTime = timeMs;
+    if (timeDiff < 0.001f)
+        timeDiff = 0.001f;
 
+    // input state
+    bool moveForward = CursorKeys[kAction_MoveForward];
+    bool moveBack    = CursorKeys[kAction_MoveBackwards];	
+    bool strafeLeft  = CursorKeys[kAction_StrafeLeft];
+    bool strafeRight = CursorKeys[kAction_StrafeRight];
+    bool rotateLeft  = CursorKeys[kAction_RotateLeft];
+    bool rotateRight = CursorKeys[kAction_RotateRight];
+    bool zoomIn      = CursorKeys[kAction_ZoomIn];
+    bool zoomOut     = CursorKeys[kAction_ZoomOut];
+	bool tiltUp      = CursorKeys[kAction_TiltUp];
+	bool tiltDown    = CursorKeys[kAction_TiltDown];
+    
 	// update position
 	core::vector3df pos = camera->getPosition();
 
 	// Update rotation
-	core::vector3df target = (camera->getTarget() - camera->getAbsolutePosition());
-	core::vector3df relativeRotation = target.getHorizontalAngle();
+    core::vector3df Target = camera->getTarget() - camera->getAbsolutePosition();
+    core::vector3df RelativeRotation = Target.getHorizontalAngle();
+    Target.set(0,0,1);
+
+
+	if (CursorControl)
+	{
+        // edge scroll?
+        if (CursorControl && EdgeScroll)
+        {
+            core::position2df mousePos = CursorControl->getRelativePosition();
+            
+            if (mousePos.X < EdgeBoundSize)
+            {
+                strafeLeft = true;
+            }
+            if (mousePos.X > 1.0f - EdgeBoundSize)
+            {
+                strafeRight = true;
+            }
+            if (mousePos.Y < EdgeBoundSize)
+            {
+                moveForward = true;
+            }
+            if (mousePos.Y > 1.0f - EdgeBoundSize)
+            {
+                moveBack = true;
+            }
+        }
+        
+        if( rotateLeft )
+            RelativeRotation.Y -= RotateSpeed * timeDiff;
+
+        if( rotateRight )
+            RelativeRotation.Y += RotateSpeed * timeDiff;
+
+        if( zoomOut )
+            WheelMovement += ZoomSpeed/50 * timeDiff;
+
+        if( zoomIn )
+            WheelMovement -= ZoomSpeed/50 * timeDiff;
+
+		if (tiltUp)
+			RelativeRotation.X -= RotateSpeed * timeDiff;
+
+		if (tiltDown)
+			RelativeRotation.X += RotateSpeed * timeDiff;
+    }            
 
 	// set target
-	target.set(0,0, core::max_(1.f, pos.getLength()));
-	core::vector3df movedir = target;
-
+    
 	core::matrix4 mat;
-	mat.setRotationDegrees(core::vector3df(relativeRotation.X, relativeRotation.Y, 0));
-	mat.transformVect(target);
+	mat.setRotationDegrees(core::vector3df(RelativeRotation.X, RelativeRotation.Y, 0));
+	mat.transformVect(Target);
 
-	movedir = target;
-
+    core::vector3df movedir = Target;
+    core::vector3df zoomdir = Target;
+    movedir.Y = 0.0f;
 	movedir.normalize();
 
-	if (CursorKeys[EKA_MOVE_FORWARD])
+	if (moveForward)
 		pos += movedir * timeDiff * MoveSpeed;
 
-	if (CursorKeys[EKA_MOVE_BACKWARD])
+	if (moveBack)
 		pos -= movedir * timeDiff * MoveSpeed;
 
 	// strafing
 
-	core::vector3df strafevect = target;
+	core::vector3df strafevect = Target;
 	strafevect = strafevect.crossProduct(camera->getUpVector());
+    strafevect.Y = 0.0f;
 
 	strafevect.normalize();
 
-	if (CursorKeys[EKA_STRAFE_LEFT])
+	if (strafeLeft)
 		pos += strafevect * timeDiff * MoveSpeed;
 
-	if (CursorKeys[EKA_STRAFE_RIGHT])
+	if (strafeRight)
 		pos -= strafevect * timeDiff * MoveSpeed;
+        
+    if (WheelMovement)
+    {
+        pos += ZoomSpeed * WheelMovement * zoomdir * timeDiff;
+        WheelMovement = 0;
+    }
 
 	// write translation
 	camera->setPosition(pos);
 
 	// write right target
-	target += pos;
-	camera->setTarget(target);
+	Target += pos;
+	camera->setTarget(Target);
 }
 
 void CSceneNodeAnimatorCameraNero::allKeysUp()
 {
-	for (u32 i=0; i<6; ++i)
+	for (u32 i=0; i<kActions_MAX; ++i)
 		CursorKeys[i] = false;
 }
 
@@ -242,9 +317,11 @@ ISceneNodeAnimator* CSceneNodeAnimatorCameraNero::createClone(ISceneNode* node, 
 {
     CSceneNodeAnimatorCameraNero * newAnimator =
         new CSceneNodeAnimatorCameraNero(CursorControl,
-        	      MaxVerticalAngle,
-        	      MoveSpeed,
-        	      RotateSpeed);
+                                        EdgeScroll,
+                                        EdgeBoundSize,
+                                        RotateSpeed,
+                                        MoveSpeed,
+                                        ZoomSpeed);
     return newAnimator;
 }
 

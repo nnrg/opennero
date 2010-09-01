@@ -46,10 +46,11 @@ namespace scene
 
 		//! Constructor
 		CSceneNodeAnimatorCameraNero(gui::ICursorControl* cursor,
-                                     bool edgeScroll, 
-                                     f32 relEdgeSize, 
+                                     bool edgeScroll = false, 
+                                     f32 relEdgeSize = 0.0f, 
                                      f32 rotateSpeed = 100.0f,
-                                     f32 moveSpeed = .5f);
+                                     f32 moveSpeed = .5f,
+                                     f32 zoomSpeed = 70.0f);
 
 		//! Destructor
 		virtual ~CSceneNodeAnimatorCameraNero();
@@ -121,8 +122,6 @@ namespace scene
 		void allKeysUp();
 
 		gui::ICursorControl *CursorControl;
-
-		f32 MaxVerticalAngle;
 
 		f32 MoveSpeed;
 		f32 RotateSpeed;

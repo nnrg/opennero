@@ -747,8 +747,8 @@ ICameraSceneNode* CSceneManager::addCameraSceneNodeNero(ISceneNode* parent,
 				edgeScroll,
 				relEdgeSize,
 				rotateSpeed,
-				zoomSpeed,
-				moveSpeed);
+				moveSpeed,
+                zoomSpeed);
 		node->addAnimator(anm);
 		anm->drop();
 	}
