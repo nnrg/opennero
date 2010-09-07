@@ -304,15 +304,18 @@ class NeroEnvironment(Environment):
 
     def step(self, agent, action):
         """
-        A step for an agent
+        2A step for an agent
         """
-        from NERO.module import getMod
+        from NERO.module import getMod, getReader, readerData, parseInput
         # check if the action is valid
         assert(self.agent_info.actions.validate(action))
         
-        # adziuk: this the best place I can see for doing menu updates. =/
-        # Or maybe it should occur nearer the bottom.
-
+        while readerData():
+            r = getReader()
+            r.flush()
+            print "Calling Parse Input"
+            parseInput(r.readline().strip())
+        
 
         state = self.get_state(agent)
         if agent.step == 0:

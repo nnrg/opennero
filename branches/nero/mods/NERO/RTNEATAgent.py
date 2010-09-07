@@ -83,7 +83,6 @@ class RTNEATAgent(AgentBrain):
         """
         return True
         
-    #TODO: REPLACE THIS WITH get_team
     def getTeam(self):
         return self.team
    
@@ -91,6 +90,8 @@ class RTNEATAgent(AgentBrain):
         return self.team
 
     def network_action(self, sensors):
+        from NERO.module import getMod
+        print "a brand new organism"
         """
         Take the current network
         Feed the sensors into it

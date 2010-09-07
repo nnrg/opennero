@@ -156,7 +156,7 @@ class NeroPanel(wx.Panel):
         #Hitpoint Slider
         self.hpt = wx.StaticText(self,label = "Hitpoints", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.hps = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.hps.SetScrollbar(wx.HORIZONTAL,0,50,100)
+        self.hps.SetScrollbar(wx.HORIZONTAL,0,100,100)
         self.hps.SetThumbPosition(5)
         self.hpl = wx.StaticText(self,label = str(self.hps.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
         grid.Add(self.hpl,pos=(9,1))
@@ -167,7 +167,7 @@ class NeroPanel(wx.Panel):
         #Speedup Slider
         self.spt = wx.StaticText(self,label = "Speedup", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.sps = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.sps.SetScrollbar(wx.HORIZONTAL,0,50,100)
+        self.sps.SetScrollbar(wx.HORIZONTAL,0,100,100)
         self.sps.SetThumbPosition(5)
         self.spl = wx.StaticText(self,label = str(self.sps.GetThumbPosition()), size=wx.DefaultSize)
         grid.Add(self.spl,pos=(10,1))
@@ -188,6 +188,7 @@ class NeroPanel(wx.Panel):
             filename = dlg.GetFilename()
             dirname = dlg.GetPath()#dlg.GetDirectory()
             print "save", (dirname)#+"/"+ filename)
+        sys.stdout.flush()
     
     def OnLoad(self,event):
         dirname = ""
@@ -196,6 +197,7 @@ class NeroPanel(wx.Panel):
             filename = dlg.GetFilename()
             dirname = dlg.GetPath()#dlg.GetDirectory()
             print "load", (dirname)# + "/" + filename)
+        sys.stdout.flush()
 
     def OnSG(self,event):
         self.sgl.SetLabel(str(event.Position - 100))

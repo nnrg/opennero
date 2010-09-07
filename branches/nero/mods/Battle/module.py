@@ -1,8 +1,8 @@
 from common import *
 from OpenNero import getSimContext
-from NERO.NeroEnvironment import *
-from NERO.RTNEATAgent import *
-from NERO.Turret import *
+from Battle.NeroEnvironment import *
+from Battle.RTNEATAgent import *
+from Battle.Turret import *
 import subprocess
 import os
 import sys
@@ -29,22 +29,24 @@ class NeroModule:
         rtneat2 = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size,1.0)
         self.XDIM = XDIM
         self.YDIM = YDIM
+        self.NEAT_ACTIONS = NEAT_ACTIONS
+        self.NEAT_SENSORS = NEAT_SENSORS
         self.environment = None
         self.agent_id = None
         self.agent_map = {}
         self.weights = Fitness()
-        self.lt = 10
+        self.lt = 0
         self.dta = 50
         self.dtb = 50
         self.dtc = 50
         self.ff =  0
-        self.ee =  0
-        self.hp = 50
+        self.ee =  50
+        self.hp = 1
         self.currTeam = 1
         #self.flag_loc = Vector3f(20,20,0)
         self.flag_loc = Vector3f(0,0,0)
         self.flag_id = -1
-        self.num_to_add = 0#pop_size
+        self.num_to_add = 0 #pop_size
 
     def setup_map(self):
         """
@@ -108,24 +110,22 @@ class NeroModule:
                 addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
    
    #The following is run when the Save button is pressed
-    def save_rtneat(self, location = "../rtneat.gnm"):
+    def save_rtneat(self, val, location = "../rtneat.gnm"):
         import os
         addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/20, YDIM/10, HEIGHT + OFFSET), Vector3f(0, 0, 45), scale=Vector3f(XDIM/8,YDIM/2,HEIGHT), label="World Wall1", type = OBSTACLE )
-        if 1 == 1: return
         global rtneat, rtneat2
         location = os.path.relpath("/") + location
-        rtneat.save_population(location)
-        
-        #rtneat2.save_population("../rtneat2.gnm")
+        if val == 1: rtneat.save_population(location)
+        if val == 2: rtneat2.save_population(location)
 
     #The following is run when the Load button is pressed
-    def load_rtneat(self, location = "rtneat.gnm"):
+    def load_rtneat(self, val, location = "rtneat.gnm"):
         import os
         global rtneat, rtneat2
         location = os.path.relpath("/") + location
         if os.path.exists(location):
-            rtneat = RTNEAT(location, "data/ai/neat-params.dat", pop_size)
-            #rtneat2= RTNEAT("rtneat2.gnm","data/ai/neat-params.dat", pop_size)
+            if val ==  1: rtneat = RTNEAT(location, "data/ai/neat-params.dat", pop_size)
+            if val ==  2: rtneat2= RTNEAT(location, "data/ai/neat-params.dat", pop_size)
     
     def set_speedup(self, speedup):
         self.speedup = speedup
@@ -183,7 +183,7 @@ def getReader():
     global read
     global subp
     if not read:
-        subp = subprocess.Popen(['python', 'NERO/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
+        subp = subprocess.Popen(['python', 'Battle/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
         read = subp.stdout
     return read
 
@@ -191,7 +191,7 @@ def getSubProcess():
     global read
     global subp
     if not read:
-        subp = subprocess.Popen(['python', 'NERO/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
+        subp = subprocess.Popen(['python', 'Battle/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
         read = subp.stdout
     return subp
 
@@ -231,8 +231,9 @@ def parseInput(strn):
     if loc == "EE": mod.eeChange(vali)
     if loc == "HP": mod.hpChange(vali)
     if loc == "SP": mod.set_speedup(vali)
-    if loc == "save": mod.save_rtneat(val)
-    if loc == "load": mod.load_rtneat(val)
-
+    if loc == "save1": mod.save_rtneat(1,val)
+    if loc == "load1": mod.load_rtneat(1,val)
+    if loc == "save2": mod.save_rtneat(2,val)
+    if loc == "load2": mod.load_rtneat(2,val)
 def ServerMain():
     print "Starting mod NERO"

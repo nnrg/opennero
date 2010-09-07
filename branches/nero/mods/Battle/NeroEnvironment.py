@@ -1,7 +1,7 @@
 import time
 from math import *
 from OpenNero import *
-from NERO.module import *
+from Battle.module import *
 from copy import copy
 from random import *
 
@@ -117,7 +117,7 @@ class NeroEnvironment(Environment):
     Environment for the Nero
     """
     def __init__(self, XDIM, YDIM):
-        from NERO.module import getMod
+        from Battle.module import getMod
         """
         Create the environment
         """
@@ -306,14 +306,18 @@ class NeroEnvironment(Environment):
         """
         A step for an agent
         """
-        from NERO.module import getMod
+        from Battle.module import getMod, getReader, readerData, parseInput
+
+
+        while readerData():
+            r = getReader()
+            r.flush()
+            print "Calling Parse Input"
+            parseInput(r.readline().strip())
+
         # check if the action is valid
         assert(self.agent_info.actions.validate(action))
         
-        # adziuk: this the best place I can see for doing menu updates. =/
-        # Or maybe it should occur nearer the bottom.
-
-
         state = self.get_state(agent)
         if agent.step == 0:
             temp = getMod().flag_loc
@@ -338,6 +342,11 @@ class NeroEnvironment(Environment):
                 dx = randrange(getMod().XDIM/20) - getMod().XDIM/40
                 dy = randrange(getMod().XDIM/20) - getMod().XDIM/40
                 getMod().addAgent((getMod().XDIM/2 + dx, getMod().YDIM/3 + dy, 2))
+        
+        if getMod().hp != 0 and state.total_damage >= getMod().hp:
+           agent.state.position.x, agent.state.position.y = -100,-100 
+           print "AGENT IS DEAD!"
+           return 0
         
         # Update Damage totals
         state.total_damage += state.curr_damage
@@ -479,10 +488,15 @@ class NeroEnvironment(Environment):
 
     def sense(self, agent):
         """ figure out what the agent should sense """
+        from module import getMod
         v = self.agent_info.sensors.get_instance()
         vx = []
         
         state = self.get_state(agent)
+        
+        if getMod().hp != 0 and state.total_damage >= getMod().hp:
+            return v
+
         
         vx.append(self.raySense(agent, -60, MAX_SD, OBSTACLE))
         #vx.append(self.raySense(agent, -45, MAX_SD, OBSTACLE))
@@ -583,7 +597,7 @@ class NeroEnvironment(Environment):
         return v
    
     def flag_loc(self):
-        from NERO.module import getMod
+        from Battle.module import getMod
         return getMod().flag_loc
 
     def flag_distance(self, agent):
@@ -647,13 +661,15 @@ class NeroEnvironment(Environment):
         """
         is the current episode over for the agent?
         """
-        from NERO.module import getMod
+        from Battle.module import getMod
         self.max_steps = getMod().lt
         state = self.get_state(agent)
         if self.max_steps != 0 and agent.step >= self.max_steps:
+            #return True
             return True
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
-            return True
+            #return True
+            return False
         else:
             return False
     

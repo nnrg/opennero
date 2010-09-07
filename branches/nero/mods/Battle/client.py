@@ -9,7 +9,7 @@ from module import getReader
 def toggle_ai_callback():
     global toggleAiButton
     toggle_ai()
-    if toggleAiButton.text == 'Deploy':
+    if toggleAiButton.text == 'Begin Battle':
      getMod().start_rtneat()
      reset_ai()
      toggleAiButton.text = 'Toggle AI'
@@ -40,7 +40,7 @@ def CreateGui(guiMan):
     guiWindow = gui.create_window( guiMan, 'window', Pos2i(20,20),Pos2i(80,100), 'Nero Controls' )
 
     toggleAiButton = gui.create_button( guiMan, 'toggle_ai', Pos2i(0,0),Pos2i(60,80), '' )
-    toggleAiButton.text = 'Deploy'
+    toggleAiButton.text = 'Begin Battle'
     toggleAiButton.OnMouseLeftClick = toggle_ai_callback
     
     """

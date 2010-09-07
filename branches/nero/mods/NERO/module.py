@@ -29,6 +29,8 @@ class NeroModule:
         rtneat2 = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size,1.0)
         self.XDIM = XDIM
         self.YDIM = YDIM
+        self.NEAT_ACTIONS = NEAT_ACTIONS
+        self.NEAT_SENSORS = NEAT_SENSORS
         self.environment = None
         self.agent_id = None
         self.agent_map = {}
@@ -110,10 +112,8 @@ class NeroModule:
    #The following is run when the Save button is pressed
     def save_rtneat(self, location = "../rtneat.gnm"):
         import os
-        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/20, YDIM/10, HEIGHT + OFFSET), Vector3f(0, 0, 45), scale=Vector3f(XDIM/8,YDIM/2,HEIGHT), label="World Wall1", type = OBSTACLE )
-        if 1 == 1: return
         global rtneat, rtneat2
-        location = os.path.relpath("/") + location
+        #location = os.path.relpath("/") + location
         rtneat.save_population(location)
         
         #rtneat2.save_population("../rtneat2.gnm")
@@ -122,7 +122,7 @@ class NeroModule:
     def load_rtneat(self, location = "rtneat.gnm"):
         import os
         global rtneat, rtneat2
-        location = os.path.relpath("/") + location
+        #location = os.path.relpath("/") + location
         if os.path.exists(location):
             rtneat = RTNEAT(location, "data/ai/neat-params.dat", pop_size)
             #rtneat2= RTNEAT("rtneat2.gnm","data/ai/neat-params.dat", pop_size)
@@ -227,6 +227,7 @@ def parseInput(strn):
     if loc == "AF": mod.set_weight("af",vali) 
     if loc == "FD": mod.dtcChange(vali)
     if loc == "HT": mod.set_weight("ht",vali)
+    if loc == "LT": mod.ltChange(vali)
     if loc == "FF": mod.ffChange(vali)
     if loc == "EE": mod.eeChange(vali)
     if loc == "HP": mod.hpChange(vali)
