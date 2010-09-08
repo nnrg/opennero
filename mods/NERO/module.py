@@ -13,8 +13,8 @@ OFFSET = -HEIGHT/2
 
 NEAT_ACTIONS = 3
 NEAT_SENSORS = 18
-pop_size = 40
-DEPLOY_SIZE = 40 * 2
+pop_size = 40 #Individual population size
+DEPLOY_SIZE = pop_size * 2 #total population size for both rtneats.
 
 OBSTACLE = 1 #0b0001
 AGENT = 2 #0b0010
@@ -24,6 +24,8 @@ class NeroModule:
         global rtneat, rtneat2
         rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size, 1.0)
         rtneat2 = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size,1.0)
+        self.NEAT_ACTIONS = NEAT_ACTIONS
+        self.NEAT_SENSORS = NEAT_SENSORS
         self.XDIM = XDIM
         self.YDIM = YDIM
         self.environment = None
@@ -41,7 +43,8 @@ class NeroModule:
         #self.flag_loc = Vector3f(20,20,0)
         self.flag_loc = Vector3f(0,0,0)
         self.flag_id = -1
-        self.num_to_add = pop_size
+        self.initial_population = 1
+        self.num_to_add = DEPLOY_SIZE - self.initial_population
 
     def setup_map(self):
         """
@@ -88,7 +91,8 @@ class NeroModule:
         set_ai("neat1",rtneat)
         set_ai("neat2", rtneat2)
         enable_ai()
-        for i in range(0, 1):
+        # Generate all initial rtNEAT Agents
+        for i in range(0, self.initial_population):
             dx = random.randrange(XDIM/20) - XDIM/40
             dy = random.randrange(XDIM/20) - XDIM/40
             id = None
@@ -102,11 +106,9 @@ class NeroModule:
    
    #The following is run when the Save button is pressed
     def save_rtneat(self):
-        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/20, YDIM/10, HEIGHT + OFFSET), Vector3f(0, 0, 45), scale=Vector3f(XDIM/8,YDIM/2,HEIGHT), label="World Wall1", type = OBSTACLE )
-        if 1 == 1: return
         global rtneat, rtneat2
-        rtneat.save_population("../rtneat.gnm")
-        #rtneat2.save_population("../rtneat2.gnm")
+        rtneat.save_population("rtneat.gnm")
+        rtneat2.save_population("rtneat2.gnm")
 
     #The following is run when the Load button is pressed
     def load_rtneat(self):
@@ -157,10 +159,10 @@ class NeroModule:
     def getNumToAdd(self):
         return self.num_to_add
 
+    #This is the function ran when an agent already in the field causes the generation of a new agent
     def addAgent(self,pos):
         self.num_to_add -= 1
         self.currTeam += 1
-        #self.currTeam = 1
         if self.currTeam == 3: self.currTeam = 1
         addObject("data/shapes/character/steve_red_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = AGENT)
 
