@@ -89,6 +89,13 @@ class NeroModule:
         disable_ai()
         from NeroEnvironment import NeroEnvironment
 
+
+        while readerData():
+            r = getReader()
+            r.flush()
+            print "Calling Parse Input"
+            parseInput(r.readline().strip())
+
         # Create RTNEAT Objects
         set_ai("neat1",rtneat)
         set_ai("neat2", rtneat2)
