@@ -265,6 +265,9 @@ class SandboxEnvironment(Environment):
         return self.init_list.get_info(str(type(agent)))
 
     def num_sensors(self):
+        """
+        Return total number of sensors
+        """
         return (len(getMod().marker_map)*4 + N_FIXED_SENSORS)
     
     def step(self, agent, action):
@@ -294,6 +297,9 @@ class SandboxEnvironment(Environment):
     # delta_angle (degrees) is change in angle
     # delta_dist is change in distance (or velocity, since unit of time unchanged)
     def update_position(self, agent, delta_dist, delta_angle):
+        """
+        Updates position of the agent and collects pellets.
+        """
         state = self.get_state(agent)
         state.step_count += 1
 
@@ -426,6 +432,9 @@ class SandboxEnvironment(Environment):
         return sensors
 
     def sense_crumbs(self, sensors, num_sensors, start_sensor):
+        """
+        Sensor sub-routine for crumbs
+        """
         i = start_sensor
         for pellet in self.crumbs:
             sensors[i] = pellet.x
