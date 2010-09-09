@@ -149,6 +149,7 @@
 #include "CSceneNodeAnimatorCameraFPS.h"
 #include "CSceneNodeAnimatorCameraMaya.h"
 #include "CSceneNodeAnimatorCameraNero.h"
+#include "CSceneNodeAnimatorCameraNeroFP.h"
 #include "CDefaultSceneNodeAnimatorFactory.h"
 
 #include "CQuake3ShaderSceneNode.h"
@@ -765,12 +766,10 @@ ICameraSceneNode* CSceneManager::addCameraSceneNodeNeroFP(ISceneNode* parent,
                                                           bool invertMouseY, bool makeActive)
 {
 	ICameraSceneNode* node = addCameraSceneNode(parent, core::vector3df(),
-			core::vector3df(0,0,100), id, makeActive);
+			core::vector3df(100,0,0), id, makeActive);
 	if (node)
 	{
-		ISceneNodeAnimator* anm = new CSceneNodeAnimatorCameraFPS(CursorControl,
-				rotateSpeed, moveSpeed, jumpSpeed,
-				keyMapArray, keyMapSize, noVerticalMovement, invertMouseY);
+		ISceneNodeAnimator* anm = new CSceneNodeAnimatorCameraNeroFP(CursorControl);
 
 		// Bind the node's rotation to its target. This is consistent with 1.4.2 and below.
 		node->bindTargetAndRotation(true);
