@@ -5,7 +5,7 @@
 #ifndef __C_SCENE_NODE_ANIMATOR_CAMERA_NERO_FP_H_INCLUDED__
 #define __C_SCENE_NODE_ANIMATOR_CAMERA_NERO_FP_H_INCLUDED__
 
-#include "ISceneNodeAnimatorCameraNeroFP.h"
+#include "ISceneNodeAnimator.h"
 #include "vector2d.h"
 #include "SKeyMap.h"
 #include "irrArray.h"
