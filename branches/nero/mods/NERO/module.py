@@ -110,22 +110,22 @@ class NeroModule:
                 addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
    
    #The following is run when the Save button is pressed
-    def save_rtneat(self, location = "../rtneat.gnm"):
+    def save_rtneat(self, location, pop):
         import os
+        location = os.path.relpath("/") + location
+        print location
         global rtneat, rtneat2
-        #location = os.path.relpath("/") + location
-        rtneat.save_population(location)
-        
-        #rtneat2.save_population("../rtneat2.gnm")
+        if pop == 1: rtneat.save_population(location)
+        if pop == 2: rtneat2.save_population(location)
 
     #The following is run when the Load button is pressed
-    def load_rtneat(self, location = "rtneat.gnm"):
+    def load_rtneat(self, location , pop):
         import os
         global rtneat, rtneat2
-        #location = os.path.relpath("/") + location
+        location = os.path.relpath("/") + location
         if os.path.exists(location):
-            rtneat = RTNEAT(location, "data/ai/neat-params.dat", pop_size)
-            #rtneat2= RTNEAT("rtneat2.gnm","data/ai/neat-params.dat", pop_size)
+            if pop == 1: rtneat = RTNEAT(location, "data/ai/neat-params.dat", pop_size)
+            if pop == 2: rtneat2= RTNEAT(location, "data/ai/neat-params.dat", pop_size)
     
     def set_speedup(self, speedup):
         self.speedup = speedup
@@ -232,8 +232,10 @@ def parseInput(strn):
     if loc == "EE": mod.eeChange(vali)
     if loc == "HP": mod.hpChange(vali)
     if loc == "SP": mod.set_speedup(vali)
-    if loc == "save": mod.save_rtneat(val)
-    if loc == "load": mod.load_rtneat(val)
+    if loc == "save1": mod.save_rtneat(val,1)
+    if loc == "load1": mod.load_rtneat(val,1)
+    if loc == "save2": mod.save_rtneat(val,2)
+    if loc == "load2": mod.load_rtneat(val,2)
 
 def ServerMain():
     print "Starting mod NERO"

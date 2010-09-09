@@ -213,6 +213,7 @@ class NeroEnvironment(Environment):
         """
         reset the environment to its initial state
         """
+        if 1 == 1: return True
         state = self.get_state(agent)
         agent.state.position = copy(state.initial_position)
         agent.state.rotation = copy(state.initial_rotation)
@@ -308,6 +309,7 @@ class NeroEnvironment(Environment):
         """
         from Battle.module import getMod, getReader, readerData, parseInput
 
+        state = self.get_state(agent)
 
         while readerData():
             r = getReader()
@@ -315,10 +317,17 @@ class NeroEnvironment(Environment):
             print "Calling Parse Input"
             parseInput(r.readline().strip())
 
+        if getMod().hp != 0 and state.total_damage >= getMod().hp:
+           agent.state.position.x, agent.state.position.y = -100,-100 
+           state.prev_pose = state.pose
+           state.pose = (-100,-100,0)
+           state.time = time.time()
+           print "AGENT IS DEAD!"
+           return 0
+        
         # check if the action is valid
         assert(self.agent_info.actions.validate(action))
         
-        state = self.get_state(agent)
         if agent.step == 0:
             temp = getMod().flag_loc
             getMod().change_flag((temp.x + random()/2, temp.y + random()/2, temp.z + random()/2))
@@ -343,10 +352,6 @@ class NeroEnvironment(Environment):
                 dy = randrange(getMod().XDIM/20) - getMod().XDIM/40
                 getMod().addAgent((getMod().XDIM/2 + dx, getMod().YDIM/3 + dy, 2))
         
-        if getMod().hp != 0 and state.total_damage >= getMod().hp:
-           agent.state.position.x, agent.state.position.y = -100,-100 
-           print "AGENT IS DEAD!"
-           return 0
         
         # Update Damage totals
         state.total_damage += state.curr_damage

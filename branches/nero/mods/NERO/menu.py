@@ -18,16 +18,26 @@ class NeroPanel(wx.Panel):
         buttonGrid.Add(self.deploy, pos = (0,0) )
         self.Bind(wx.EVT_BUTTON, self.OnDeploy, self.deploy)
 
-        #Save Button
-        self.save = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Save')
+        #Save1 Button
+        self.save = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Save Pop 1')
         buttonGrid.Add(self.save,pos=(0,1) )
-        self.Bind(wx.EVT_BUTTON, self.OnSave, self.save)
+        self.Bind(wx.EVT_BUTTON, self.OnSave1, self.save)
         
-        #Load Button
-        self.load = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Load')
+        #Load1 Button
+        self.load = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Load Pop 1')
         buttonGrid.Add(self.load, pos = (0,2) )
-        self.Bind(wx.EVT_BUTTON, self.OnLoad, self.load)
+        self.Bind(wx.EVT_BUTTON, self.OnLoad1, self.load)
 
+        #Save2 Button
+        self.save2 = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Save Pop 2')
+        buttonGrid.Add(self.save2,pos=(0,3) )
+        self.Bind(wx.EVT_BUTTON, self.OnSave2, self.save2)
+        
+        #Load2 Button
+        self.load2 = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Load Pop 2')
+        buttonGrid.Add(self.load2, pos = (0,4) )
+        self.Bind(wx.EVT_BUTTON, self.OnLoad2, self.load2)
+        
         self.buttonPanel.SetSizer(buttonGrid)
 
         grid.Add(self.buttonPanel, pos=(0,0), span=(1,6))
@@ -181,22 +191,40 @@ class NeroPanel(wx.Panel):
     def OnDeploy(self,event):
         print "deploy"
 
-    def OnSave(self,event):
+    def OnSave1(self,event):
         dirname = ""
         dlg = wx.FileDialog(self, "Save Population File", dirname, "", "*.*", wx.FD_SAVE)
         if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetFilename()
             dirname = dlg.GetPath()#dlg.GetDirectory()
-            print "save", (dirname)#+"/"+ filename)
+            print "save1", (dirname)#+"/"+ filename)
         sys.stdout.flush()
     
-    def OnLoad(self,event):
+    def OnLoad1(self,event):
         dirname = ""
         dlg = wx.FileDialog(self, "Load Population File", dirname, "", "*.*", wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetFilename()
             dirname = dlg.GetPath()#dlg.GetDirectory()
-            print "load", (dirname)# + "/" + filename)
+            print "load1", (dirname)# + "/" + filename)
+        sys.stdout.flush()
+
+    def OnSave2(self,event):
+        dirname = ""
+        dlg = wx.FileDialog(self, "Save Population File", dirname, "", "*.*", wx.FD_SAVE)
+        if dlg.ShowModal() == wx.ID_OK:
+            filename = dlg.GetFilename()
+            dirname = dlg.GetPath()#dlg.GetDirectory()
+            print "save2", (dirname)#+"/"+ filename)
+        sys.stdout.flush()
+    
+    def OnLoad2(self,event):
+        dirname = ""
+        dlg = wx.FileDialog(self, "Load Population File", dirname, "", "*.*", wx.FD_OPEN)
+        if dlg.ShowModal() == wx.ID_OK:
+            filename = dlg.GetFilename()
+            dirname = dlg.GetPath()#dlg.GetDirectory()
+            print "load2", (dirname)# + "/" + filename)
         sys.stdout.flush()
 
     def OnSG(self,event):
