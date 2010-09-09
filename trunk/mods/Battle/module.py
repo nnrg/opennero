@@ -1,8 +1,8 @@
 from common import *
 from OpenNero import getSimContext
-from NERO.NeroEnvironment import *
-from NERO.RTNEATAgent import *
-from NERO.Turret import *
+from Battle.NeroEnvironment import *
+from Battle.RTNEATAgent import *
+from Battle.Turret import *
 import subprocess
 import os
 import sys
@@ -16,8 +16,8 @@ OFFSET = -HEIGHT/2
 
 NEAT_ACTIONS = 3
 NEAT_SENSORS = 20
-pop_size = 40 #Individual population size
-DEPLOY_SIZE = pop_size * 2 #total population size for both rtneats.
+pop_size = 40
+DEPLOY_SIZE = 40 * 2
 
 OBSTACLE = 1 #0b0001
 AGENT = 2 #0b0010
@@ -27,8 +27,6 @@ class NeroModule:
         global rtneat, rtneat2
         rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size, 1.0)
         rtneat2 = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size,1.0)
-        self.NEAT_ACTIONS = NEAT_ACTIONS
-        self.NEAT_SENSORS = NEAT_SENSORS
         self.XDIM = XDIM
         self.YDIM = YDIM
         self.NEAT_ACTIONS = NEAT_ACTIONS
@@ -37,18 +35,18 @@ class NeroModule:
         self.agent_id = None
         self.agent_map = {}
         self.weights = Fitness()
-        self.lt = 10
+        self.lt = 0
         self.dta = 50
         self.dtb = 50
         self.dtc = 50
         self.ff =  0
-        self.ee =  0
-        self.hp = 50
+        self.ee =  50
+        self.hp = 1
         self.currTeam = 1
         #self.flag_loc = Vector3f(20,20,0)
         self.flag_loc = Vector3f(0,0,0)
         self.flag_id = -1
-        self.num_to_add = 0#pop_size
+        self.num_to_add = 0 #pop_size
 
     def setup_map(self):
         """
@@ -91,43 +89,50 @@ class NeroModule:
         disable_ai()
         from NeroEnvironment import NeroEnvironment
 
+
+        while readerData():
+            r = getReader()
+            r.flush()
+            print "Calling Parse Input"
+            parseInput(r.readline().strip())
+
         # Create RTNEAT Objects
         set_ai("neat1",rtneat)
         set_ai("neat2", rtneat2)
         enable_ai()
-        # Generate all initial rtNEAT Agents
+
+        #while self.getNumToAdd() > 0:
         dx = random.randrange(XDIM/20) - XDIM/40
         dy = random.randrange(XDIM/20) - XDIM/40
+        #self.addAgent((XDIM/2 + dx, YDIM/3 + dy, 2))
         for i in range(0, DEPLOY_SIZE):
+            self.agent_map[(0,i)] = getNextFreeId()
             dx = random.randrange(XDIM/20) - XDIM/40
             dy = random.randrange(XDIM/20) - XDIM/40
-            id = None
             if i % 2 == 0:
                 self.currTeam = 1
-                id = addObject("data/shapes/character/steve_red_armed.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
+                addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
             else:
                 self.currTeam = 2
-                id = addObject("data/shapes/character/steve_red_armed.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
-            self.agent_map[(0,i)] = id
-
+                addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
+   
    #The following is run when the Save button is pressed
-
-    def save_rtneat(self, location, pop):
+    def save_rtneat(self, val, location = "../rtneat.gnm"):
         import os
-        location = os.path.relpath("/") + location
-        print location
+        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/20, YDIM/10, HEIGHT + OFFSET), Vector3f(0, 0, 45), scale=Vector3f(XDIM/8,YDIM/2,HEIGHT), label="World Wall1", type = OBSTACLE )
         global rtneat, rtneat2
-        if pop == 1: rtneat.save_population(location)
-        if pop == 2: rtneat2.save_population(location)
+        location = os.path.relpath("/") + location
+        if val == 1: rtneat.save_population(location)
+        if val == 2: rtneat2.save_population(location)
 
     #The following is run when the Load button is pressed
-    def load_rtneat(self, location , pop):
+    def load_rtneat(self, val, location = "rtneat.gnm"):
         import os
         global rtneat, rtneat2
         location = os.path.relpath("/") + location
         if os.path.exists(location):
-            if pop == 1: rtneat = RTNEAT(location, "data/ai/neat-params.dat", pop_size)
-            if pop == 2: rtneat2= RTNEAT(location, "data/ai/neat-params.dat", pop_size)
+            if val ==  1: rtneat = RTNEAT(location, "data/ai/neat-params.dat", pop_size)
+            if val ==  2: rtneat2= RTNEAT(location, "data/ai/neat-params.dat", pop_size)
     
     def set_speedup(self, speedup):
         self.speedup = speedup
@@ -170,12 +175,12 @@ class NeroModule:
     def getNumToAdd(self):
         return self.num_to_add
 
-    #This is the function ran when an agent already in the field causes the generation of a new agent
     def addAgent(self,pos):
         self.num_to_add -= 1
         self.currTeam += 1
+        #self.currTeam = 1
         if self.currTeam == 3: self.currTeam = 1
-        addObject("data/shapes/character/steve_red_armed.xml",Vector3f(pos[0],pos[1] * self.currTeam,pos[2]),type = AGENT)
+        addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(pos[0],pos[1] * self.currTeam,pos[2]),type = AGENT)
 
 gMod = None
 
@@ -185,7 +190,7 @@ def getReader():
     global read
     global subp
     if not read:
-        subp = subprocess.Popen(['python', 'NERO/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
+        subp = subprocess.Popen(['python', 'Battle/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
         read = subp.stdout
     return read
 
@@ -193,7 +198,7 @@ def getSubProcess():
     global read
     global subp
     if not read:
-        subp = subprocess.Popen(['python', 'NERO/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
+        subp = subprocess.Popen(['python', 'Battle/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
         read = subp.stdout
     return subp
 
@@ -229,15 +234,13 @@ def parseInput(strn):
     if loc == "AF": mod.set_weight("af",vali) 
     if loc == "FD": mod.dtcChange(vali)
     if loc == "HT": mod.set_weight("ht",vali)
-    if loc == "LT": mod.ltChange(vali)
     if loc == "FF": mod.ffChange(vali)
     if loc == "EE": mod.eeChange(vali)
     if loc == "HP": mod.hpChange(vali)
     if loc == "SP": mod.set_speedup(vali)
-    if loc == "save1": mod.save_rtneat(val,1)
-    if loc == "load1": mod.load_rtneat(val,1)
-    if loc == "save2": mod.save_rtneat(val,2)
-    if loc == "load2": mod.load_rtneat(val,2)
-
+    if loc == "save1": mod.save_rtneat(1,val)
+    if loc == "load1": mod.load_rtneat(1,val)
+    if loc == "save2": mod.save_rtneat(2,val)
+    if loc == "load2": mod.load_rtneat(2,val)
 def ServerMain():
     print "Starting mod NERO"
