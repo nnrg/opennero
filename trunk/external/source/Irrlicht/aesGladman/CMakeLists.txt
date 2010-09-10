@@ -1,4 +1,4 @@
-ADD_LIBRARY(aes SHARED
+ADD_LIBRARY(aes
 aescrypt.cpp
 aeskey.cpp
 aestab.cpp
