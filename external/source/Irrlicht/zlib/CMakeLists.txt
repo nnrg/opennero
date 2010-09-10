@@ -1,4 +1,4 @@
-ADD_LIBRARY(z SHARED
+ADD_LIBRARY(z
 adler32.c
 compress.c
 crc32.c

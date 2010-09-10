@@ -1,4 +1,4 @@
-ADD_LIBRARY(lzma SHARED
+ADD_LIBRARY(lzma
 Types.h
 LzmaDec.c
 LzmaDec.h

@@ -1,4 +1,4 @@
-ADD_LIBRARY(jpeg SHARED
+ADD_LIBRARY(jpeg
   jaricom.c jcapimin.c jcapistd.c jcarith.c jccoefct.c jccolor.c 
   jcdctmgr.c jchuff.c jcinit.c jcmainct.c jcmarker.c jcmaster.c 
   jcomapi.c jcparam.c jcprepct.c jcsample.c jctrans.c jdapimin.c 
