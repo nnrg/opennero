@@ -189,7 +189,7 @@ namespace OpenNero
     
     bool SimEntityData::IsDirty(SimEntityData::DataBits bits) const
     {
-        return (mDirtyBits & bits);
+        return (mDirtyBits & bits) != 0;
     }
 
     /// output a SimEntityData object to the Bitstream for packet transmission
