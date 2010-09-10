@@ -72,7 +72,7 @@ namespace OpenNero
 			{
 				logging_object.attr("write")(msg);
 			}
-			catch (const boost::python::error_already_set& err)
+			catch (const boost::python::error_already_set&)
 			{
 				ScriptingEngine::instance().LogError();
 			}
