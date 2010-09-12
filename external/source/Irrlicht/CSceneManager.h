@@ -153,7 +153,7 @@ namespace scene
 			bool invertMouseY=false, bool makeActive=true);
         //! Add a camera for OpenNERO
 		virtual ICameraSceneNode* addCameraSceneNodeNero(ISceneNode* parent = 0,
-            bool edgeScroll = true, f32 relEdgeSize = 0.1f,
+            bool edgeScroll = false, f32 relEdgeSize = 0.1f,
 			f32 rotateSpeed = 1500.0f, f32 moveSpeed = 200.0f, f32 zoomSpeed = 20.0f, s32 id=-1 );
 
         //! Add a first person camera for OpenNERO
