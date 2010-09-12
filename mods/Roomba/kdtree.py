@@ -52,7 +52,6 @@ def kdremove(here, point, depth = 0):
     else:
         here.right = kdremove(here.right, point, depth+1)
     return here
-        
 
 def kddistance(point1, point2):
     return sum([(x-y)**2 for x,y in zip(point1, point2)])

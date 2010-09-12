@@ -7,11 +7,11 @@ world = "world_config.txt"  # the file we're operating on
 class Pellet:
     def __init__(self, reward, mode = "manual", other_info = None):
         self.reward = reward
-        self.mode = mode        
         self.info = other_info
-        self.placement()
-    def placement(self):
-        if (self.mode == "manual"):
+        self.mode = mode
+        self.placement(mode)
+    def placement(self, mode):
+        if (mode == "manual"):
             # requires 2 values: x and y
             if (self.info == None or len(self.info) == 0):
                 self.x = 0
@@ -21,12 +21,12 @@ class Pellet:
                 if (len(self.info) >= 1):
                     self.y = self.info[1]
                 else:
-                    self.y = self.x             
-        if (self.mode == "random"):
+                    self.y = self.x
+        if (mode == "random"):
             # requires 4 values: size_x, size_y, offset_x, offset_y
             #if self.info == None or len(self.info) == 0:
-             #   size_x, size_y = 100, 100
-             #   offset_x, offset_y = 0, 0
+            #   size_x, size_y = 100, 100
+            #   offset_x, offset_y = 0, 0
             #else:
             size_x = self.info[0]
             size_y = self.info[1]
@@ -34,15 +34,25 @@ class Pellet:
             offset_y = self.info[3]
             self.x = random.random()*size_x + offset_x
             self.y = random.random()*size_y + offset_y
-        
-        if (self.mode == "cluster"):
+        if (mode == "cluster"):
             # requires 4 values: center_x, center_y, spread_x, spread_y
             center_x = self.info[0]
             center_y = self.info[1]
             spread_x = self.info[2]
             spread_y = self.info[3]
             self.x = random.normalvariate(center_x, spread_x) 
-            self.y = random.normalvariate(center_y, spread_y)                                
+            self.y = random.normalvariate(center_y, spread_y)
+    def __len__(self):
+        return 2 # number of dimensions for kdtree
+    def __getitem__(self, key):
+        if key == 0:
+            return self.x
+        elif key == 1:
+            return self.y
+        else:
+            raise IndexError
+    def __str__(self):
+        return 'Pellet(%d, %d, reward = %f)' % (self.x, self.y, self.reward)
 
 def add_random_pellets(num_pellets, file_name = world):
     "Add a specified number of random pellets into the world"

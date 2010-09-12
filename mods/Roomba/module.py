@@ -10,6 +10,7 @@ from OpenNero import *
 from common import *
 import world_handler
 from agent_handler import AgentState, AgentInit
+from kdtree import *
 
 # load agent script
 from roomba import RoombaBrain
@@ -166,6 +167,7 @@ class SandboxEnvironment(Environment):
         self.crumb_count = 0
         self.states = {} # dictionary of agent states
         self.crumbs = world_handler.pattern_cluster(500, "Roomba/world_config.txt")
+        self.kdcrumbs = kdtree(self.crumbs)
 
         self.init_list = AgentInit()
         self.init_list.add_type("<class 'Roomba.roomba.RoombaBrain'>")
@@ -335,19 +337,21 @@ class SandboxEnvironment(Environment):
         
         reward = 0
         
-        for pellet in self.crumbs:
-            if ((pellet.x, pellet.y) in getMod().marker_map):
-                dist = sqrt((pellet.x - position.x)**2 + (pellet.y - position.y)**2)
-                if (dist <= 4):  # if agent gets close enough to a crumb
-                    getMod().unmark(pellet.x, pellet.y)
-                    self.crumb_count -= 1  # decrement crumb count
-                    if (self.crumb_count <= 0):  # final Reward (no crumb left behind)
-                        if  (self.max_steps != 0):  # for yes step limit
-                            reward += pellet.reward + self.max_steps - state.step_count
-                        else:                       # for no step limit
-                            reward += pellet.reward + (1/agent.state_count) * 10000
-                    else:
-                        reward += pellet.reward     # normal reward for picking up a pellet
+        # closest crumb (nearest neighbor search over the KD-tree)
+        pos = (position.x, position.y)
+        closest = kdsearchnn(self.kdcrumbs, pos)
+        dist = kddistance(closest, pos)
+        if (dist <= 4):  # if agent gets close enough to a crumb
+            getMod().unmark(closest.x, closest.y) # remove marker on map
+            self.crumb_count -= 1  # decrement crumb count
+            kdremove(self.kdcrumbs, closest) # remove from the kd-tree
+            if (self.crumb_count <= 0):  # final Reward (no crumb left behind)
+                if  (self.max_steps != 0):  # for yes step limit
+                    reward += closest.reward + self.max_steps - state.step_count
+                else:                       # for no step limit
+                    reward += closest.reward + (1/agent.state_count) * 10000
+            else:
+                reward += closest.reward # normal reward for picking up a pellet
                 
         # check if agent has expended its step allowance
         if (self.max_steps != 0) and (state.step_count >= self.max_steps):
