@@ -30,7 +30,7 @@ namespace OpenNero
 
         // create our functionality cameras
         mFuncCameras[ kFunc_Maya ] = ICameraSceneNode_IPtr( handles.mpSceneManager->addCameraSceneNodeMaya( 0, rotateSpeed, zoomSpeed, moveSpeed ) );
-        mFuncCameras[ kFunc_Nero ] = ICameraSceneNode_IPtr( handles.mpSceneManager->addCameraSceneNodeNero( 0, true, 0.05f, rotateSpeed, moveSpeed, zoomSpeed ) );
+        mFuncCameras[ kFunc_Nero ] = ICameraSceneNode_IPtr( handles.mpSceneManager->addCameraSceneNodeNero( 0, false, 0.05f, rotateSpeed, moveSpeed, zoomSpeed ) );
 
         // start out with the NERO camera
         mCamera = mFuncCameras[ kFunc_Nero ];
