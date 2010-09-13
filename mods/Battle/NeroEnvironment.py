@@ -307,14 +307,13 @@ class NeroEnvironment(Environment):
         """
         A step for an agent
         """
-        from Battle.module import getMod, getReader, readerData, parseInput
+        from Battle.module import getMod, parseInput
 
         state = self.get_state(agent)
 
-        while readerData():
-            r = getReader()
+        while getScriptData("Battle/menu.py"):
+            r = getScriptOutput("Battle/menu.py")
             r.flush()
-            print "Calling Parse Input"
             parseInput(r.readline().strip())
 
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
