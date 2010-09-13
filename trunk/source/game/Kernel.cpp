@@ -8,7 +8,6 @@
 #include "game/SimContext.h"
 #include "game/Mod.h"
 #include "scripting/scriptIncludes.h"
-#include "utils/Performance.h"
 #include "gui/GuiEditBox.h"
 #include "gui/GuiManager.h"
 #include "core/Preprocessor.h"
@@ -154,8 +153,6 @@ namespace OpenNero
         {
             Assert( mIrrDevice );
 
-            NERO_PERF_BEGIN_SIMFRAME();
-
             // get the current time
             static uint32_t prevTime = GetStaticTimer().getMilliseconds();
             uint32_t        curTime  = GetStaticTimer().getMilliseconds();
@@ -163,8 +160,6 @@ namespace OpenNero
 	        mCurMod->context->ProcessTick( (curTime - prevTime)/1000.0f );
 
             prevTime = curTime;
-
-            NERO_PERF_END_SIMFRAME();
 
             // yield to other processes
             mIrrDevice->yield();
