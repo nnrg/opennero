@@ -14,7 +14,6 @@
 #include "ai/AI.h"
 #include "ai/AIObject.h"
 #include "ai/AIManager.h"
-#include "utils/Performance.h"
 
 namespace OpenNero
 {

@@ -9,7 +9,6 @@
 #include "core/IrrUtil.h"
 #include "game/SimEntityData.h"
 #include "math/Random.h"
-#include "utils/Performance.h"
 #include "scripting/scriptIncludes.h"
 
 namespace OpenNero
