@@ -87,13 +87,10 @@ class NeroModule:
         """ start the rtneat learning stuff"""
         global rtneat, rtneat2
         disable_ai()
-        from NeroEnvironment import NeroEnvironment
-
-
-        while readerData():
-            r = getReader()
+        while getScriptData('Battle/menu.py'):
+            r = getScriptOutput('Battle/menu.py')
+            print "Calling Parse Input",r
             r.flush()
-            print "Calling Parse Input"
             parseInput(r.readline().strip())
 
         # Create RTNEAT Objects
@@ -184,31 +181,6 @@ class NeroModule:
         addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(pos[0],pos[1] * self.currTeam,pos[2]),type = AGENT)
 
 gMod = None
-
-read = None
-
-def getReader():
-    global read
-    global subp
-    if not read:
-        subp = subprocess.Popen(['python', 'Battle/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
-        read = subp.stdout
-    return read
-
-def getSubProcess():
-    global read
-    global subp
-    if not read:
-        subp = subprocess.Popen(['python', 'Battle/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
-        read = subp.stdout
-    return subp
-
-def readerData():
-    r = getReader()
-    p = getSubProcess()
-    #if not p.poll(): return False
-    import select
-    return select.select([r],[],[],0) == ([r],[],[])
 
 def delMod():
     global gMod

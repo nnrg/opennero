@@ -179,31 +179,6 @@ class NeroModule:
 
 gMod = None
 
-read = None
-
-def getReader():
-    global read
-    global subp
-    if not read:
-        subp = subprocess.Popen(['python', 'NERO/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
-        read = subp.stdout
-    return read
-
-def getSubProcess():
-    global read
-    global subp
-    if not read:
-        subp = subprocess.Popen(['python', 'NERO/menu.py'],stdout=subprocess.PIPE, stdin=subprocess.PIPE,stderr=subprocess.PIPE)
-        read = subp.stdout
-    return subp
-
-def readerData():
-    r = getReader()
-    p = getSubProcess()
-    #if not p.poll(): return False
-    import select
-    return select.select([r],[],[],0) == ([r],[],[])
-
 def delMod():
     global gMod
     gMod = None

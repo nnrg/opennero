@@ -4,7 +4,6 @@ from NeroEnvironment import Fitness
 from common import *
 import common.gui as gui
 from inputConfig import *
-from module import getReader
 
 def toggle_ai_callback():
     global toggleAiButton
@@ -33,7 +32,7 @@ def CreateGui(guiMan):
     global mode
     mode = 0
 
-    x = getReader() 
+    x = getScriptOutput('Battle/menu.py') 
 
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")  
