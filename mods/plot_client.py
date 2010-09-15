@@ -14,9 +14,19 @@ BUFSIZE = 4096
 class NetworkLogWriter:
     def __init__(self, host = HOST, port = PORT):
         self.addr = (host, port)
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.connect(self.addr)
+        self.connected = False
+        self.connect()
+    def connect(self):
+        if self.connected:
+            return
+        try:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.connect(self.addr)
+            self.connected = True
+        except:
+            self.connected = False
     def write(self, msg):
+        self.connect()
         self.sock.send(msg)
     def flush(self):
         pass
