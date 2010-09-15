@@ -12,7 +12,6 @@
 #include "game/factories/SimFactory.h"
 #include "game/factories/IrrFactory.h"
 #include "game/SimEntityData.h"
-#include "utils/Performance.h"
 #include "game/Kernel.h"
 #include "game/SimContext.h"
 #include "math/Random.h"

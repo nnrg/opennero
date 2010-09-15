@@ -11,7 +11,6 @@
 #include "scripting/scripting.h"
 
 #include "audio/AudioManager.h"
-#include "utils/Performance.h"
 #include "utils/Config.h"
 
 namespace OpenNero
@@ -22,11 +21,6 @@ namespace OpenNero
 
     /// command line parameters
     typedef std::map<std::string, std::string> CommandLineParams;
-
-    /// text file to output performance report to
-    static const char8_t*    kDefaultPerformanceTxt = "performanceReport.txt";
-    /// CSV file to output performance report to
-    static const char8_t*    kDefaultPerformanceCsv = "performanceReport.csv";
 
     /// value returned on error
     static const int32_t     kErrorReturn           = -1;
@@ -103,10 +97,6 @@ namespace OpenNero
     #if NERO_DEBUG
         OpenNero::AssertExt::ReleaseDevice();
     #endif
-
-        // write out performance report if we have flag set
-        OpenNero::PerformanceMetricManager::instance().WriteReport( kDefaultPerformanceTxt, OpenNero::PerformanceMetricManager::kFormat_Report );
-        OpenNero::PerformanceMetricManager::instance().WriteReport( kDefaultPerformanceCsv, OpenNero::PerformanceMetricManager::kFormat_CSV );
 
         // shut down the logger
         OpenNero::Log::LogSystemShutdown();

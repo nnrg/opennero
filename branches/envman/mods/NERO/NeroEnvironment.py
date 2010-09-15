@@ -309,15 +309,14 @@ class NeroEnvironment(Environment):
         """
         2A step for an agent
         """
-        from NERO.module import getMod, getReader, readerData, parseInput
+        from NERO.module import getMod, parseInput
         # check if the action is valid
         assert(self.agent_info.actions.validate(action))
         
         #Menu updates go here
-        while readerData():
-            r = getReader()
+        while getScriptData("NERO/menu.py"):
+            r = getScriptOutput("NERO/menu.py")
             r.flush()
-            print "Calling Parse Input"
             parseInput(r.readline().strip())
         
 

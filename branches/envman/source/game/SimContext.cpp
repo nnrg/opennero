@@ -28,7 +28,6 @@
 
 #include "scripting/scriptIncludes.h"
 
-#include "utils/Performance.h"
 #include "input/IOMapping.h"
 
 #include <sstream>
@@ -295,8 +294,6 @@ namespace OpenNero
     /// Update the audio manager system
     void SimContext::UpdateAudioSystem(float32_t dt)
     {
-        NERO_PERF_EVENT_SCOPED( SimContext__UpdateAudioSystem );
-
         // update the audio system
         AudioManager& audioMan = AudioManager::instance();
 
@@ -316,8 +313,6 @@ namespace OpenNero
     /// Update the input system
     void SimContext::UpdateInputSystem(float32_t dt)
     {
-        NERO_PERF_EVENT_SCOPED( SimContext__UpdateInputSystem );
-
         if( mInputReceiver == kIR_Game )
         {
             // act on any user input

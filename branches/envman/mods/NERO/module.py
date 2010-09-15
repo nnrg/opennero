@@ -179,6 +179,7 @@ class NeroModule:
 
 gMod = None
 
+
 read = None
 
 def getReader():
@@ -203,6 +204,7 @@ def readerData():
     #if not p.poll(): return False
     import select
     return select.select([r],[],[],0) == ([r],[],[])
+
 
 def delMod():
     global gMod

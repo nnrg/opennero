@@ -1,4 +1,6 @@
 import sys
+import subprocess
+import select
 
 # OpenNero imports
 from OpenNero import getSimContext, Vector3f
@@ -35,3 +37,19 @@ def wrap_degrees(a, da):
     elif a2 < -180:
         a2 = 180 - (abs(a2) % 180)
     return a2
+
+opennero_sub_procs = {}
+
+def getScriptOutput(script):
+    global opennero_sub_procs
+    if script not in opennero_sub_procs:
+        subproc = subprocess.Popen(['python', script],stdout=subprocess.PIPE)
+        out = subproc.stdout
+        opennero_sub_procs[script] = (out, subproc)
+        return out
+    else:
+        return opennero_sub_procs[script][0]
+
+def getScriptData(script):
+    out = getScriptOutput(script)
+    return select.select([out],[],[],0) == ([out],[],[])

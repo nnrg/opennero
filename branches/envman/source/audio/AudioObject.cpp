@@ -11,7 +11,6 @@
 #include "audio/AudioManager.h"
 #include "game/SimEntityData.h"
 #include "game/factories/SimFactory.h"
-#include "utils/Performance.h"
 
 namespace OpenNero
 {
@@ -117,7 +116,6 @@ namespace OpenNero
     /// Move the component forward a given amount
     void AudioObject::ProcessTick( float32_t dt )
     {
-        NERO_PERF_EVENT_SCOPED( AudioObject__ProcessTick );
         Assert( mSharedData );
 
         static int i = 0;
