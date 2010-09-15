@@ -12,7 +12,7 @@ ADDR = (HOST, PORT)
 BUFSIZE = 4096
 
 class NetworkLogWriter:
-    def __init__(self, host = 'localhost', port = 9999):
+    def __init__(self, host = HOST, port = PORT):
         self.addr = (host, port)
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect(self.addr)
