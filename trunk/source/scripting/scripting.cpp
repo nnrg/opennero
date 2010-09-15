@@ -25,19 +25,21 @@ BOOST_PYTHON_MODULE( OpenNero )
 namespace OpenNero
 {
     using namespace std;
+    
+    namespace py = boost::python;
 
-    void PrintDebuggingInfo(boost::python::object globals, 
-                            boost::python::object locals)
+    void PrintDebuggingInfo(py::object globals, 
+                            py::object locals)
     {
 #if NERO_DEBUG
         try {
-            boost::python::exec("import sys\n"
-                                "import os\n"
-                                "print 'System path: ', ':'.join(sys.path)\n"
-                                "print 'Current directory: ', os.getcwd()\n"
-                                "print 'Current namespace: ', dir()\n",
-                                globals, locals);
-        } catch (boost::python::error_already_set const&) {
+            py::exec("import sys\n"
+                     "import os\n"
+                     "print 'System path: ', ':'.join(sys.path)\n"
+                     "print 'Current directory: ', os.getcwd()\n"
+                     "print 'Current namespace: ', dir()\n",
+                     globals, locals);
+        } catch (py::error_already_set const&) {
             LOG_F_ERROR("scripting", "could not print post-error information");
         }
 #endif // NERO_DEBUG
@@ -113,9 +115,6 @@ namespace OpenNero
     ScriptingEngine::~ScriptingEngine()
     {
         destroy();
-
-        // TODO: Boost.Python does not support Py_Finalize(), so this may cause a leak
-        Py_Finalize();
     }
     
     void ScriptingEngine::init(int argc, char** argv)
@@ -154,6 +153,20 @@ namespace OpenNero
                  "import sys\n"
                  "sys.stderr = ErrLogWriter()\n"
                  "sys.stdout = StdLogWriter()\n");
+            
+            // check if everything we need for the external plotter is there
+            Exec("from subprocess import Popen\n"
+                 "try:\n"
+                 "  import wx, matplotlib, numpy, pylab\n"
+                 "  Popen(['python','plot_server.py'])\n"
+                 "  print 'plot server started!'\n"
+                 "except:\n"
+                 "  print 'Could not start plot server!'\n");
+                 
+            Exec("from plot_client import NetworkLogWriter\n"
+                 "network_log_writer = NetworkLogWriter()\n");
+                 
+            Extract("network_log_writer", _network_log_writer);
 
             _initialized = true;
 
@@ -163,13 +176,11 @@ namespace OpenNero
 
     void ScriptingEngine::destroy()
     {
-        //if( _initialized )
-        //{
-        // TODO : Should this do more to reset the python state?
-        // Boost.Python warns not to call this when embedding Python using Boost
-        // Py_Finalize(); 
-        //_initialized = false;
-        //}
+        if( _initialized )
+        {
+            _initialized = false;
+            _network_log_writer.attr("close")();
+        }
     }
 
     ScriptingEngine& ScriptingEngine::instance()
@@ -303,6 +314,11 @@ namespace OpenNero
         PyErr_Print();
         PrintDebuggingInfo(_globals, _globals);
         AssertMsg(false, "Python error");
+    }
+    
+    void ScriptingEngine::NetworkWrite(const std::string& message)
+    {
+        _network_log_writer.attr("write")(message);
     }
 
     /// export scripting engine to Python

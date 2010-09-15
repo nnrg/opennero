@@ -35,6 +35,7 @@ namespace OpenNero
         python::object _main_module;     ///< main module
         python::object _globals;  ///< global namespace
         python::object _locals;   ///< local namespace
+        python::object _network_log_writer; ///< network log writer object
         bool _initialized; ///< flag to mark if this scripting engine is initialized
         Scheduler _scheduler; ///< the event scheduler for scripts
 
@@ -73,6 +74,11 @@ namespace OpenNero
          * Log the last Python error to the OpenNERO log
          */
         void LogError();
+        
+        /**
+         * Write a string message to a socket over the network
+         */
+        void NetworkWrite(const std::string& message);
 
         /// Import a Python module currently in path
         bool ImportModule(const std::string& moduleName);

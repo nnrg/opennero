@@ -88,7 +88,6 @@ namespace OpenNero
                 // get the app config defined in the file
                 se.Extract<AppConfig>("app_config", appConfig);
             }
-            se.destroy();
         }
 
         return appConfig;
@@ -132,9 +131,6 @@ namespace OpenNero
                 // set the receiver list in the log
                 OpenNero::Log::LogSystemSpecifyFilters( filterList );
             }
-
-            // destroy the scripting context again
-            se.destroy();
         }
 
         else
