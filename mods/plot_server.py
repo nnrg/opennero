@@ -1,4 +1,4 @@
-#!/usr/bin/env pythonw
+#!/usr/bin/env python
 """
 Plot the performance of AI algorithms in OpenNERO.
 
@@ -30,7 +30,8 @@ from matplotlib.backends.backend_wxagg import \
 
 __author__ = "Igor Karpov (ikarpov@cs.utexas.edu)"
 
-HOST, PORT = "localhost", 9999
+from plot_client import HOST, PORT
+
 ADDR = (HOST, PORT)
 BUFSIZE = 4086
 SAVE_EVERY = 5
