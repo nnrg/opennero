@@ -4,7 +4,7 @@
 
 ==Overview==
 
-In this exercise, you will implement a maze generation algorithm from a class of [[http://www.astrolog.org/labyrnth/algrithm.htm#perfect perfect maze generation algorithms]]. Pick an algorithm for generating a maze from this page: http://www.astrolog.org/labyrnth/algrithm.htm#perfect and implement it. 
+In this exercise, you will implement a maze generation algorithm from a class of [http://www.astrolog.org/labyrnth/algrithm.htm#perfect perfect maze generation algorithms]. Pick an algorithm for generating a maze from this page: http://www.astrolog.org/labyrnth/algrithm.htm#perfect and implement it. 
 
 We are aiming for a variety of different algorithms, so once  you decide on something you think you want to do, feel free to send us your solution to be included in the code.
 
