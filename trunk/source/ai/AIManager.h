@@ -45,6 +45,9 @@ namespace OpenNero
         /// set the named AI instance
         void SetAI(const std::string& name, AIPtr ai);
 
+        /// log the performance of AI agents
+        void Log(SimId id, size_t episode, size_t step, double reward, double fitness);
+
         /// Shutdown and clean-up the AI subsystem
         void destroy();
 

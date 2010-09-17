@@ -18,7 +18,7 @@ class NetworkLogWriter:
         self.connect()
     def connect(self):
         if self.connected:
-            return true
+            return True
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.connect(self.addr)

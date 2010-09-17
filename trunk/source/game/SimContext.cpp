@@ -228,9 +228,6 @@ namespace OpenNero
         // --- clear out our stuff
         FlushContext();
 
-        // clear the old scripts
-        ScriptingEngine::instance().destroy();
-
         // shut down the AI system
         AIManager::instance().destroy();
 

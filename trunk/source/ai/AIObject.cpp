@@ -89,12 +89,12 @@ namespace OpenNero
     {
         mReward = reward;
         getBrain()->fitness += reward;
-        LOG_F_MSG("ai.tick",
-        	GetSharedState()->GetId() <<
-            "\t" << getBrain()->episode <<
-            "\t" << getBrain()->step <<
-            "\t" << getReward() <<
-            "\t" << getBrain()->fitness);
+        AIManager::instance().Log
+            (GetSharedState()->GetId(),
+             getBrain()->episode,
+             getBrain()->step,
+             getReward(),
+             getBrain()->fitness);
     }
 
     /// sense the agent's environment
