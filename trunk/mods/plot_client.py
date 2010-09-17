@@ -18,21 +18,23 @@ class NetworkLogWriter:
         self.connect()
     def connect(self):
         if self.connected:
-            return
+            return true
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.connect(self.addr)
             self.connected = True
         except:
             self.connected = False
+        return self.connected
     def write(self, msg):
-        self.connect()
-        self.sock.send(msg)
+        if self.connect():
+            self.sock.send(msg)
     def flush(self):
         pass
     def close(self):
-        self.sock.sendto('', self.addr)
-        self.sock.close()
+        if self.connected:
+            self.sock.sendto('', self.addr)
+            self.sock.close()
 
 def main():
     # open input
