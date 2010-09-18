@@ -1,4 +1,4 @@
-ADD_LIBRARY(aes
+SET(AES_SOURCES
 aescrypt.cpp
 aeskey.cpp
 aestab.cpp
@@ -17,3 +17,6 @@ pwd2key.h
 sha1.h
 sha2.h
 )
+
+SET_SOURCE_FILES_PROPERTIES(${AES_SOURCES} PROPERTIES COMPILE_FLAGS -fPIC)
+ADD_LIBRARY(aes ${AES_SOURCES})
