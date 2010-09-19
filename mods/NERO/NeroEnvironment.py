@@ -325,7 +325,6 @@ class NeroEnvironment(Environment):
         #Initilize Agent state
         if agent.step == 0:
             temp = getMod().flag_loc
-            getMod().change_flag((temp.x + random()/2, temp.y + random()/2, temp.z + random()/2))
             p = agent.state.position
             agent.state.rotation.z = randrange(360)
             r = agent.state.rotation
