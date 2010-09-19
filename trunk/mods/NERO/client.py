@@ -76,11 +76,15 @@ def show_context_menu():
         scaleButton = gui.create_button(guiMan, 'scale', Pos2i(0,0), Pos2i(0,0), '')
         scaleButton.OnMouseLeftClick = lambda: scale_object()
         contextMenu.addItem('Scale Object', scaleButton)
-
+        
         moveButton = gui.create_button(guiMan, 'move', Pos2i(0,0), Pos2i(0,0), '')
         moveButton.OnMouseLeftClick = lambda: move_object()
         contextMenu.addItem('Move Object', moveButton)
-        
+
+        removeButton = gui.create_button(guiMan, 'remove', Pos2i(0,0), Pos2i(0,0), '')
+        removeButton.OnMouseLeftClick = lambda: remove_wall()
+        contextMenu.addItem('Remove Object', removeButton)
+
     else:
         wallButton = gui.create_button(guiMan, 'wall', Pos2i(0,0), Pos2i(0,0), '')
         wallButton.OnMouseLeftClick = lambda: add_wall()
