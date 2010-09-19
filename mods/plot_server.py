@@ -8,6 +8,7 @@ Otherwise, the program will start in server mode and listen for a
 connection from plot_client.
 """
 
+from __future__ import with_statement
 import sys
 import os
 import re
@@ -79,36 +80,38 @@ class AgentHistory:
     def __init__(self):
         self.reward = XYData()
         self.fitness = XYData()
+        self.lock = threading.Lock()
 
     def append(self, ms, fitness):
-        self.reward.append(ms, fitness)
+        with self.lock:
+            self.reward.append(ms, fitness)
 
     def episode(self):
-        if len(self.reward) > 0:
-            self.fitness.append(self.reward.x[-1], self.reward.y[-1])
-        #self.reward = XYData()
-        pass
+        with self.lock:
+            if len(self.reward) > 0:
+                self.fitness.append(self.reward.x[-1], self.reward.y[-1])
 
     def plot(self, axes, tmin):
-        # figure out starting time
-        if len(self.reward) > 0:
-            # plot the within-episode reward
-            t = np.array(self.reward.x) - tmin
-            f = np.array(self.reward.y)
-            if self.reward.handle:
-                self.reward.handle.set_xdata(t)
-                self.reward.handle.set_ydata(f)
-            else:
-                self.reward.handle = axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
-        if len(self.fitness) > 0:
-            # plot the between-episodes fitness
-            t = np.array(self.fitness.x) - tmin
-            f = np.array(self.fitness.y)
-            if self.fitness.handle:
-                self.fitness.handle.set_xdata(t)
-                self.fitness.handle.set_ydata(f)
-            else:
-                self.fitness.handle = axes.plot(t, f, 'co', linewidth=0)[0]
+        with self.lock:
+            # figure out starting time
+            if len(self.reward) > 0:
+                # plot the within-episode reward
+                t = np.array(self.reward.x) - tmin
+                f = np.array(self.reward.y)
+                if self.reward.handle:
+                    self.reward.handle.set_xdata(t)
+                    self.reward.handle.set_ydata(f)
+                else:
+                    self.reward.handle = axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
+            if len(self.fitness) > 0:
+                # plot the between-episodes fitness
+                t = np.array(self.fitness.x) - tmin
+                f = np.array(self.fitness.y)
+                if self.fitness.handle:
+                    self.fitness.handle.set_xdata(t)
+                    self.fitness.handle.set_ydata(f)
+                else:
+                    self.fitness.handle = axes.plot(t, f, 'co', linewidth=0)[0]
 
 class LearningCurve:
     """ The learning curve of a group of agents """
