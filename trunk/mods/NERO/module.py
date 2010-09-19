@@ -17,7 +17,7 @@ OFFSET = -HEIGHT/2
 NEAT_ACTIONS = 3
 NEAT_SENSORS = 20
 pop_size = 40 #Individual population size
-DEPLOY_SIZE = pop_size * 2 #total population size for both rtneats.
+DEPLOY_SIZE = 2#pop_size * 2 #total population size for both rtneats.
 
 OBSTACLE = 1 #0b0001
 AGENT = 2 #0b0010
@@ -48,7 +48,7 @@ class NeroModule:
         #self.flag_loc = Vector3f(20,20,0)
         self.flag_loc = Vector3f(0,0,0)
         self.flag_id = -1
-        self.num_to_add = 0#pop_size
+        self.num_to_add = pop_size
 
     def setup_map(self):
         """
@@ -78,10 +78,10 @@ class NeroModule:
         addObject("data/terrain/NeroWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="NeroWorld")
 
     def change_flag(self, new_loc):
-        if 1 == 1: return
         self.flag_loc = Vector3f(new_loc[0],new_loc[1],new_loc[2])
-        print self.flag_id
+        
         removeObject(self.flag_id)
+        
         self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag")
 
     #The following is run when the Deploy button is pressed
