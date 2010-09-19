@@ -77,29 +77,29 @@ class AgentHistory:
     """ The history of a particular agent """
 
     def __init__(self):
-        self.episode_fitness = XYData()
+        self.reward = XYData()
         self.fitness = XYData()
 
     def append(self, ms, fitness):
-        self.episode_fitness.append(ms, fitness)
+        self.reward.append(ms, fitness)
 
     def episode(self):
-        if len(self.episode_fitness) > 0:
-            self.fitness.append(self.episode_fitness.x[-1], self.episode_fitness.y[-1])
-        #self.episode_fitness = XYData()
+        if len(self.reward) > 0:
+            self.fitness.append(self.reward.x[-1], self.reward.y[-1])
+        #self.reward = XYData()
         pass
 
     def plot(self, axes, tmin):
         # figure out starting time
-        if len(self.episode_fitness) > 0:
+        if len(self.reward) > 0:
             # plot the within-episode reward
-            t = np.array(self.episode_fitness.x) - tmin
-            f = np.array(self.episode_fitness.y)
-            if self.episode_fitness.handle:
-                self.episode_fitness.handle.set_xdata(t)
-                self.episode_fitness.handle.set_ydata(f)
+            t = np.array(self.reward.x) - tmin
+            f = np.array(self.reward.y)
+            if self.reward.handle:
+                self.reward.handle.set_xdata(t)
+                self.reward.handle.set_ydata(f)
             else:
-                self.episode_fitness.handle = axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
+                self.reward.handle = axes.plot(t, f, linewidth=1, color=(1, 1, 0))[0]
         if len(self.fitness) > 0:
             # plot the between-episodes fitness
             t = np.array(self.fitness.x) - tmin
@@ -116,19 +116,19 @@ class LearningCurve:
     def __init__(self):
         self.histories = {}
         self.total = XYData()
-        
+
     def tmin(self):
         return 0
-    
+
     def tmax(self):
         return self.total.xmax - self.total.xmin if len(self.total) > 1 else 1
-        
+
     def fmin(self):
         return self.total.ymin if len(self.total) > 0 else 0
-    
+
     def fmax(self):
         return self.total.ymax if len(self.total) > 0 else 1
-    
+
     def append(self, id, ms, episode, step, reward, fitness):
         record = None
         if id in self.histories:
@@ -175,7 +175,7 @@ class GraphFrame(wx.Frame):
     """ The main frame of the application
     """
     title = 'OpenNERO performance plot'
-    
+
     def __init__(self, learning_curve):
         wx.Frame.__init__(self, None, -1, self.title)
 
@@ -185,10 +185,15 @@ class GraphFrame(wx.Frame):
         self.create_menu()
         self.create_main_panel()
         self.create_status_bar()
-        
+
         self.redraw_timer = wx.Timer(self)
-        self.Bind(wx.EVT_TIMER, self.on_redraw_timer, self.redraw_timer)        
+        self.Bind(wx.EVT_TIMER, self.on_redraw_timer, self.redraw_timer)
+        wx.EVT_CLOSE(self, self.on_close)
         self.redraw_timer.Start(100)
+        
+    def on_close(self, event):
+        self.redraw_timer.Stop()
+        self.Destroy()
 
     def create_menu(self):
         self.menubar = wx.MenuBar()        
@@ -203,17 +208,17 @@ class GraphFrame(wx.Frame):
 
     def create_main_panel(self):
         self.panel = wx.Panel(self)
-        
+
         self.init_plot()
         self.canvas = FigCanvas(self.panel, -1, self.fig)
-        
+
         #self.pause_button = wx.Button(self.panel, -1, "Pause")
         #self.Bind(wx.EVT_BUTTON, self.on_pause_button, self.pause_button)
         #self.Bind(wx.EVT_UPDATE_UI, self.on_update_pause_button, self.pause_button)
-        
+
         self.vbox = wx.BoxSizer(wx.VERTICAL)
         self.vbox.Add(self.canvas, 2, wx.EXPAND)
-        
+
         self.panel.SetSizer(self.vbox)
         self.vbox.Fit(self)
 
@@ -229,7 +234,7 @@ class GraphFrame(wx.Frame):
         self.axes.set_ylabel('Reward')
         self.axes.set_axis_bgcolor('black')
         self.axes.set_title('Agent fitness over time', size=12)
-        
+
         pylab.setp(self.axes.get_xticklabels(), fontsize=8)
         pylab.setp(self.axes.get_yticklabels(), fontsize=8)
 
@@ -245,31 +250,31 @@ class GraphFrame(wx.Frame):
         xmax = self.learning_curve.tmax()
         ymin = self.learning_curve.fmin()
         ymax = self.learning_curve.fmax()
-        
+
         self.axes.set_xbound(lower=xmin, upper=xmax)
         self.axes.set_ybound(lower=ymin, upper=ymax)
-        
+
         self.axes.grid(True, color='gray')
-        
+
         pylab.setp(self.axes.get_xticklabels(), visible=True)
-        
+
         self.learning_curve.plot(self.axes)
-        
+
         self.canvas.draw()
-    
+
     def on_pause_button(self, event):
         self.paused = not self.paused
-    
+
     def on_update_pause_button(self, event):
         label = "Resume" if self.paused else "Pause"
         self.pause_button.SetLabel(label)
-    
+
     def on_cb_grid(self, event):
         self.draw_plot()
-    
+
     def on_cb_xlab(self, event):
         self.draw_plot()
-    
+
     def on_save_plot(self, event):
         file_choices = "PNG (*.png)|*.png"
         dlg = wx.FileDialog(
@@ -283,17 +288,17 @@ class GraphFrame(wx.Frame):
             path = dlg.GetPath()
             self.canvas.print_figure(path, dpi=self.dpi)
             self.flash_status_message("Saved to %s" % path)
-    
+
     def on_redraw_timer(self, event):
         # if paused do not add data, but still redraw the plot
         # (to respond to scale modifications, grid change, etc.)
         #if not self.paused:
         #    self.data.append(self.source.next())
         self.draw_plot()
-    
+
     def on_exit(self, event):
         self.Destroy()
-    
+
     def flash_status_message(self, msg, flash_len_ms=1500):
         self.statusbar.SetStatusText(msg)
         self.timeroff = wx.Timer(self)
@@ -302,7 +307,7 @@ class GraphFrame(wx.Frame):
             self.on_flash_status_off, 
             self.timeroff)
         self.timeroff.Start(flash_len_ms, oneShot=True)
-    
+
     def on_flash_status_off(self, event):
         self.statusbar.SetStatusText('')
 
