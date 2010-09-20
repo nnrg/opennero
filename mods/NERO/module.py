@@ -192,6 +192,7 @@ def getMod():
 def parseInput(strn):
     print "PARSING:", strn
     print strn.isupper()
+    if len(strn) < 2: return
     mod = getMod()
     loc,val = strn.split(' ')
     vali = 1

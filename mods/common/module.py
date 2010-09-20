@@ -41,8 +41,14 @@ def wrap_degrees(a, da):
 opennero_sub_procs = {}
 
 def getScriptOutput(script):
-    global opennero_sub_procs
+    global opennero_sub_procs    
     if script not in opennero_sub_procs:
+        subproc = subprocess.Popen(['python', script],stdout=subprocess.PIPE)
+        out = subproc.stdout
+        opennero_sub_procs[script] = (out, subproc)
+        return out
+    elif opennero_sub_procs[script][1].poll() != None :
+        opennero_sub_procs.pop(script)
         subproc = subprocess.Popen(['python', script],stdout=subprocess.PIPE)
         out = subproc.stdout
         opennero_sub_procs[script] = (out, subproc)
@@ -52,4 +58,5 @@ def getScriptOutput(script):
 
 def getScriptData(script):
     out = getScriptOutput(script)
+    if out == "NULL": return False
     return select.select([out],[],[],0) == ([out],[],[])
