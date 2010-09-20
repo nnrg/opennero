@@ -303,7 +303,9 @@ def ClientMain():
     #disable_physics()
     disable_ai()
 
-    getMod().setup_map()
+    if not getMod().setup_map():
+        switchToHub()
+        return
 
     # add a light source
     getSimContext().addLightSource(Vector3f(500,-500,1000), 1500)
