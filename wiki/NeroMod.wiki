@@ -4,7 +4,7 @@
 
 The Nero mod provides an interface for users to modify the fitness function live and see the effects of these changes in the behaviour of the agents
 
-http://imgur.com/uNHUJ.png
+http://imgur.com/JzFXr.png
 
 ==Controls==
 
@@ -49,5 +49,23 @@ The Button and Slider Panel lists the command and fitness parameter settings for
   * Friendly Fire: The % of damage which allied units take from being hit by an ally [Currently Broken]
   * Explore/Exploit: The % of generated agents which are the best of previous generations being reevaluated (This tends to be important in coevolution)
   * Hitpoints: The amount of damage a unit can take before dying (Note: being hit by an enemy is 1 point of damage)
+
+===Right Click Menus===
+http://imgur.com/lNssY.png
+
+When clicking on empty space:
+  * Add Wall: Generates a standard wall where you clicked
+  * Place Flag: Moves the flag to the place where you clicked
+
+http://imgur.com/DfVDF.png
+
+When clicking on a wall you placed:
+  * Rotate Object: Rotates the object around the z-axis
+  * Scale Object: Scales the object
+  * Move Object: Lets you move the wall
+  * Remove Object: Removes the wall
+
+The above effects will continue until the user left clicks.
+
 
 Please note that the fitness settings are the same for all rtNEAT Agents.
