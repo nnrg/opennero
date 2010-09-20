@@ -59,6 +59,16 @@ class NeroModule:
             error("Environment already created")
             return
         
+        #Test for wx python
+        try:
+            import wx
+        except ImportError:
+            print "Please install wx"
+            openWiki('wx')
+            from inputConfig import switchToHub
+            switchToHub()
+
+
         self.environment = NeroEnvironment(XDIM, YDIM)
 
         set_environment(self.environment)
