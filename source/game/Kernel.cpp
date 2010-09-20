@@ -144,8 +144,8 @@ namespace OpenNero
         // do we need to perform a transition?
         if( mTransitionInfo.mActive )
         {
-            switchMod( mTransitionInfo.mDevice, mTransitionInfo.mNewModName, mTransitionInfo.mNewModDir );
             mTransitionInfo.mActive = false;
+            switchMod( mTransitionInfo.mDevice, mTransitionInfo.mNewModName, mTransitionInfo.mNewModDir );
         }
 
         // tick the current context

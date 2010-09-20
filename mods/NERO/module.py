@@ -64,10 +64,8 @@ class NeroModule:
             import wx
         except ImportError:
             print "Please install wx"
-            openWiki('wx')
-            from inputConfig import switchToHub
-            switchToHub()
-
+            openWiki('wx')()
+            return False
 
         self.environment = NeroEnvironment(XDIM, YDIM)
 
@@ -93,6 +91,8 @@ class NeroModule:
         removeObject(self.flag_id)
         
         self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag")
+
+        return True
 
     #The following is run when the Deploy button is pressed
     def start_rtneat(self):
