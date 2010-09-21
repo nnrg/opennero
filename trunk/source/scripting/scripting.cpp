@@ -154,15 +154,6 @@ namespace OpenNero
                  "sys.stderr = ErrLogWriter()\n"
                  "sys.stdout = StdLogWriter()\n");
             
-            // check if everything we need for the external plotter is there
-            Exec("from subprocess import Popen\n"
-                 "try:\n"
-                 "  import wx, matplotlib, numpy, pylab\n"
-                 "  Popen(['python','plot_server.py'])\n"
-                 "  print 'plot server started!'\n"
-                 "except:\n"
-                 "  print 'Could not start plot server!'\n");
-                 
             Exec("from plot_client import NetworkLogWriter\n"
                  "network_log_writer = NetworkLogWriter()\n");
                  

@@ -6,16 +6,25 @@ plot_client reads a file and sends it over the network for plot_server to proces
 
 import sys
 import socket
+from subprocess import Popen
 
 HOST, PORT = "localhost", 9999
 ADDR = (HOST, PORT)
 BUFSIZE = 4096
 
 class NetworkLogWriter:
-    def __init__(self, host = HOST, port = PORT):
+    def __init__(self, host = HOST, port = PORT, start_server = True):
         self.addr = (host, port)
         self.connected = False
-        self.connect()
+        self.server_process = None
+        if start_server:
+            try:
+                import wx, matplotlib, numpy, pylab
+                self.server_process = Popen(['python','plot_server.py'])
+                print 'plot server started!'
+            except:
+                print 'Could not start plot server!'
+
     def connect(self):
         if self.connected:
             return True
@@ -26,15 +35,24 @@ class NetworkLogWriter:
         except:
             self.connected = False
         return self.connected
+
     def write(self, msg):
         if self.connect():
             self.sock.send(msg)
+
     def flush(self):
         pass
+
     def close(self):
         if self.connected:
             self.sock.sendto('', self.addr)
             self.sock.close()
+            self.connected = False
+        if self.server_process:
+            self.server_process.kill()
+
+    def __del__(self):
+        self.close()
 
 def main():
     # open input
@@ -46,7 +64,6 @@ def main():
     # Send messages
     for line in f.xreadlines():
         print >>output, line,
-    output.close()
     f.close()
 
 if __name__ == "__main__":

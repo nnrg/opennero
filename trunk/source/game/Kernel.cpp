@@ -101,6 +101,7 @@ namespace OpenNero
 	Kernel::~Kernel()
 	{
 		flushCurrentMod();
+        ScriptingEngine::instance().destroy();
 	}
 
     // handle an event
