@@ -74,7 +74,6 @@ class NeroModule:
         # flag placement
         self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag")
 
-
         # world walls
         addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2,0,HEIGHT+OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall0", type = OBSTACLE )
         addObject("data/shapes/cube/Cube.xml", Vector3f(0, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall1", type = OBSTACLE )
@@ -84,6 +83,8 @@ class NeroModule:
 
         # Add the surrounding Environment
         addObject("data/terrain/NeroWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="NeroWorld")
+        
+        return True
 
     def change_flag(self, new_loc):
         self.flag_loc = Vector3f(new_loc[0],new_loc[1],new_loc[2])
@@ -91,8 +92,6 @@ class NeroModule:
         removeObject(self.flag_id)
         
         self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag")
-
-        return True
 
     #The following is run when the Deploy button is pressed
     def start_rtneat(self):
