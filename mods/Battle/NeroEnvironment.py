@@ -681,6 +681,7 @@ class NeroEnvironment(Environment):
         """
         cleanup the world
         """
+        closeScript('Battle/menu.py')
         return True
 
     def generate_averages(self,agent):

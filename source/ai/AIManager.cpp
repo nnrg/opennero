@@ -38,7 +38,10 @@ namespace OpenNero
     void AIManager::destroy()
     {
         SetEnabled(false);
-        mEnvironment.reset();
+        if (mEnvironment) {
+            mEnvironment->cleanup();
+            mEnvironment.reset();
+        }
     }
 
     AIPtr AIManager::GetAI(const std::string& name) const
