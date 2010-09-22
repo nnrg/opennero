@@ -34,7 +34,6 @@ class NeroModule:
         self.environment = None
         self.agent_id = None
         self.agent_map = {}
-        self.weights = Fitness()
         self.lt = 0
         self.dta = 50
         self.dtb = 50
@@ -114,15 +113,6 @@ class NeroModule:
                 id = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
             self.agent_map[(0,i)] = id
 
-   #The following is run when the Save button is pressed
-    def save_rtneat(self, val, location = "../rtneat.gnm"):
-        import os
-        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/20, YDIM/10, HEIGHT + OFFSET), Vector3f(0, 0, 45), scale=Vector3f(XDIM/8,YDIM/2,HEIGHT), label="World Wall1", type = OBSTACLE )
-        global rtneat, rtneat2
-        location = os.path.relpath("/") + location
-        if val == 1: rtneat.save_population(location)
-        if val == 2: rtneat2.save_population(location)
-
     #The following is run when the Load button is pressed
     def load_rtneat(self, val, location = "rtneat.gnm"):
         import os
@@ -136,39 +126,10 @@ class NeroModule:
         self.speedup = speedup
         if self.environment:
             self.environment.speedup = speedup
-    
-    #The following functions are used to let the client update the fitness function
-    def set_weight(self, key, value):
-        self.weights[key] = value
-        print key, value
-        
-    def ltChange(self,value):
-        self.lt = value
-        print 'lifetime:',value
-
-    def dtaChange(self,value):
-        self.dta = value
-        print 'Distance to approach A:',value
-
-    def dtbChange(self,value):
-        self.dtb = value
-        print 'Distance to approach B:',value
-
-    def dtcChange(self,value):
-        self.dtc = value
-        print 'Distance to approach C:',value
-
-    def ffChange(self,value):
-        self.ff = value
-        print 'Friendly fire:',value
-
+            
     def eeChange(self,value):
         self.ee = value
         print 'Explore/exploit:',value
-
-    def hpChange(self,value):
-        self.hp = value
-        print 'Hit points:',value
 
     def getNumToAdd(self):
         return self.num_to_add
@@ -199,21 +160,9 @@ def parseInput(strn):
     loc,val = strn.split(' ')
     vali = 1
     if strn.isupper(): vali = int(val)
-    if loc == "SG": mod.set_weight("sg",vali)
-    if loc == "ST": mod.set_weight("st",vali)
-    if loc == "TD": mod.dtaChange(vali)
-    if loc == "AE": mod.set_weight("ae",vali)
-    if loc == "ED": mod.dtbChange(vali)
-    if loc == "AF": mod.set_weight("af",vali) 
-    if loc == "FD": mod.dtcChange(vali)
-    if loc == "HT": mod.set_weight("ht",vali)
-    if loc == "FF": mod.ffChange(vali)
     if loc == "EE": mod.eeChange(vali)
-    if loc == "HP": mod.hpChange(vali)
     if loc == "SP": mod.set_speedup(vali)
-    if loc == "save1": mod.save_rtneat(1,val)
     if loc == "load1": mod.load_rtneat(1,val)
-    if loc == "save2": mod.save_rtneat(2,val)
     if loc == "load2": mod.load_rtneat(2,val)
 def ServerMain():
     print "Starting mod NERO"

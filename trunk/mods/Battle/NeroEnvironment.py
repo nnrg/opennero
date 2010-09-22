@@ -10,84 +10,6 @@ MAX_SD = 100
 OBSTACLE = 1#b0001
 AGENT = 2#b0010
 
-def is_number(x):
-    return isinstance(x, (int, long, float, complex))
-
-class Fitness:
-    """
-    The multi-objective fitness for each agent
-    """
-    STAND_GROUND = "Stand ground"
-    STICK_TOGETHER = "Stick together"
-    APPROACH_ENEMY = "Approach enemy"
-    APPROACH_FLAG = "Approach flag"
-    HIT_TARGET = "Hit target"
-    AVOID_FIRE = "Avoid fire"
-    dimensions = [STAND_GROUND, STICK_TOGETHER, APPROACH_ENEMY, APPROACH_FLAG, \
-                  HIT_TARGET, AVOID_FIRE]
-    def __init__(self):
-        self.data = {}
-        for d in Fitness.dimensions:
-            self.data[d] = 0
-    def __repr__(self): return repr(self.data)
-    def __str__(self): return ' '.join([str(self.data[k]) for k in Fitness.dimensions])
-    def __len__(self): return self.data
-    def __getitem__(self, key): return self.data[key]
-    def __setitem__(self, key, value): self.data[key] = value
-    def __contains__(self, item): return item in self.data
-    def __iter__(self): return Fitness.dimensions.__iter__()
-    def sum(self): return sum(self.data.values())
-    def __add__(self, other):
-        result = Fitness()
-        if is_number(other):
-            for d in Fitness.dimensions:
-                result[d] = self[d] + other
-        else:
-            for d in Fitness.dimensions:
-                result[d] = self[d] + other[d]
-        return result
-    def __sub__(self, other):
-        result = Fitness()
-        if is_number(other):
-            for d in Fitness.dimensions:
-                result[d] = self[d] - other
-        else:
-            for d in Fitness.dimensions:
-                result[d] = self[d] - other[d]
-        return result
-    def __mul__(self, other):
-        result = Fitness()
-        if is_number(other):
-            for d in Fitness.dimensions:
-                result[d] = self[d] * other
-        else:
-            for d in Fitness.dimensions:
-                result[d] = self[d] * other[d]
-        return result
-    def __div__(self, other):
-        result = Fitness()
-        if is_number(other) and other != 0:
-            for d in Fitness.dimensions:
-                result[d] = self[d] / other
-        else:
-            for d in Fitness.dimensions:
-                if other[d] != 0:
-                    result[d] = self[d] / other[d]
-        return result
-    def __pow__(self, other):
-        result = Fitness()
-        if is_number(other):
-            for d in Fitness.dimensions:
-                if self[d] >= 0:
-                    result[d] = self[d] ** other
-                else:
-                    result[d] = self[d] #mention this to Igor later.
-        else:
-            for d in Fitness.dimensions:
-                result[d] = self[d] ** other[d]
-        return result
-
-
 class AgentState:
     """
     State that we keep for each agent
@@ -107,9 +29,6 @@ class AgentState:
         self.total_damage = 0
         self.curr_damage = 0
         self.team = 0
-        self.fitness = Fitness()
-        self.prev_fitness = Fitness()
-        self.final_fitness = 0
         self.animation = 'stand'
         
 class NeroEnvironment(Environment):
@@ -222,9 +141,6 @@ class NeroEnvironment(Environment):
         state.total_damage = 0
         state.curr_damage = 0
         state.team = agent.getTeam()
-        state.prev_fitness = state.fitness
-        state.fitness = Fitness()
-        #update client fitness
         from client import set_stat
         ff = self.getFriendFoe(agent)
         print "Episode %d complete" % agent.episode 
@@ -321,7 +237,6 @@ class NeroEnvironment(Environment):
            state.prev_pose = state.pose
            state.pose = (-100,-100,0)
            state.time = time.time()
-           print "AGENT IS DEAD!"
            return 0
         
         # check if the action is valid
@@ -363,12 +278,6 @@ class NeroEnvironment(Environment):
         else:
              self.pop_state_2[agent.org.id] = state 
         
-        #Fitness Function Parameters
-        fitness = getMod().weights
-        distance_st = getMod().dta
-        distance_ae = getMod().dtb
-        distance_af = getMod().dtc
-        friendly_fire = getMod().ff
         # the position and the rotation of the agent on-screen
         position = agent.state.position
         rotation = agent.state.rotation
@@ -421,27 +330,6 @@ class NeroEnvironment(Environment):
         ff.append(self.nearest(state.pose, state.id, ffr[0]))
         ff.append(self.nearest(state.pose, state.id, ffr[1]))
         
-        st = 0
-        ae = 0
-        
-	    #calculate f
-        sg = -action[0]
-        if ff[0] != 1 and self.distance(ff[0].pose,state.pose) != 0:
-            st = distance_st / self.distance(ff[0].pose,state.pose)
-        if ff[1] != 1 and self.distance(ff[1].pose,state.pose) != 0:
-            ae = distance_ae / self.distance(ff[1].pose,state.pose)
-        af = (distance_af/self.flag_distance(agent))
-        ht = hit
-        vf = -damage        
-        
-        #update current state data with f's
-        state.fitness[Fitness.STAND_GROUND] += sg
-        state.fitness[Fitness.STICK_TOGETHER] += st
-        state.fitness[Fitness.APPROACH_ENEMY] += ae
-        state.fitness[Fitness.APPROACH_FLAG] += af
-        state.fitness[Fitness.HIT_TARGET] += ht
-        state.fitness[Fitness.AVOID_FIRE] += vf
-        
         # make the calculated motion
         position.x, position.y = state.pose[0], state.pose[1]
         agent.state.position = position
@@ -450,24 +338,6 @@ class NeroEnvironment(Environment):
         state.prev_pose = state.pose
         state.pose = (new_position.x, new_position.y, rotation.z)
         state.time = time.time()
-        
-        if agent.step >= self.max_steps - 1:
-            rtneat = agent.get_rtneat()
-            pop = rtneat.get_population_ids()
-            if len(pop) == 0:
-                return 0
-            avg,sig = self.generate_averages(agent)
-            sums = Fitness()
-            print 'FITNESS:', state.fitness
-            sums = getMod().weights * (state.fitness - avg) / sig
-            #Add current unit to pop_state
-            if agent.get_team() == 1: 
-                self.pop_state_1[agent.org.id] = state
-            else:
-                self.pop_state_2[agent.org.id] = state
-            state.final_fitness = sums.sum()
-            return state.final_fitness
-
         return 0
     
     def raySense(self, agent, heading_mod, dist, types=0, draw=True, foundColor = Color(255, 0, 128, 128), noneColor = Color(255, 0, 255, 255) ):
@@ -669,10 +539,8 @@ class NeroEnvironment(Environment):
         self.max_steps = getMod().lt
         state = self.get_state(agent)
         if self.max_steps != 0 and agent.step >= self.max_steps:
-            #return True
             return True
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
-            #return True
             return False
         else:
             return False
@@ -684,30 +552,6 @@ class NeroEnvironment(Environment):
         closeScript('Battle/menu.py')
         return True
 
-    def generate_averages(self,agent):
-        rtneat = agent.get_rtneat()
-        pop = rtneat.get_population_ids()
-        #Add current unit to pop_state
-        if agent.get_team() == 1: 
-             pop_state = self.pop_state_1
-        else:
-             pop_state = self.pop_state_2
-        curr_dict = {}
-        for x in pop:
-            curr_dict[x] = pop_state[x]
-        curr_dict[agent.org.id] = pop_state[agent.org.id]
-        pop_state = curr_dict
-        # calculate population average
-        # calculate population standard deviation
-        average = Fitness()
-        sigma = Fitness()
-        for x in pop_state:
-            average = average + pop_state[x].prev_fitness # sum of fitnesses
-            sigma = sigma + pop_state[x].prev_fitness ** 2 # sum of squares
-        average = average / float(len(pop_state))
-        sigma = (sigma / float(len(pop_state)) - average ** 2) ** 0.5
-        return average,sigma
-    
     def get_delay(self):
         return self.step_delay * (1.0 - self.speedup)
 
