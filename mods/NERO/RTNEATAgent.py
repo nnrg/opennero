@@ -39,7 +39,7 @@ class RTNEATAgent(AgentBrain):
         start of an episode
         """
         from NERO.module import getMod
-        print "a brand new organism"
+        print 'a brand new organism'
         EXPLOIT_PROB = getMod().ee
         rtneat = get_ai("neat%d" % self.team)
         self.org = rtneat.next_organism(EXPLOIT_PROB)
@@ -99,8 +99,6 @@ class RTNEATAgent(AgentBrain):
         return self.team
 
     def network_action(self, sensors):
-        from NERO.module import getMod
-        print "a brand new organism"
         """
         Take the current network
         Feed the sensors into it
