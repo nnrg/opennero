@@ -30,7 +30,7 @@ class Fitness:
         for d in Fitness.dimensions:
             self.data[d] = 0
     def __repr__(self): return repr(self.data)
-    def __str__(self): return ' '.join([str(self.data[k]) for k in Fitness.dimensions])
+    def __str__(self): return '('+ ', '.join(['"%s": %s' % (k, str(self.data[k])) for k in Fitness.dimensions]) + ')'
     def __len__(self): return self.data
     def __getitem__(self, key): return self.data[key]
     def __setitem__(self, key, value): self.data[key] = value
@@ -78,13 +78,15 @@ class Fitness:
         result = Fitness()
         if is_number(other):
             for d in Fitness.dimensions:
-                if self[d] >= 0:
-                    result[d] = self[d] ** other
-                else:
-                    result[d] = self[d] #mention this to Igor later.
+                result[d] = self[d] ** other
         else:
             for d in Fitness.dimensions:
                 result[d] = self[d] ** other[d]
+        return result
+    def __abs__(self):
+        result = Fitness()
+        for d in Fitness.dimensions:
+            result[d] = abs(self[d])
         return result
 
 class AgentState:
@@ -461,7 +463,6 @@ class NeroEnvironment(Environment):
                 return 0
             avg,sig = self.generate_averages(agent)
             sums = Fitness()
-            print 'FITNESS:', state.fitness
             sums = getMod().weights * (state.fitness - avg) / sig
             #Add current unit to pop_state
             if agent.get_team() == 1: 
@@ -726,10 +727,12 @@ class NeroEnvironment(Environment):
         average = Fitness()
         sigma = Fitness()
         for x in pop_state:
-            average = average + pop_state[x].prev_fitness # sum of fitnesses
-            sigma = sigma + pop_state[x].prev_fitness ** 2 # sum of squares
-        average = average / float(len(pop_state))
-        sigma = (sigma / float(len(pop_state)) - average ** 2) ** 0.5
+            f = pop_state[x].prev_fitness
+            average = average + f # sum of fitnesses
+            sigma = sigma + f ** 2 # sum of squares
+        n = float(len(pop_state))
+        average = average / n
+        sigma = abs(sigma / n - average ** 2) ** 0.5
         return average,sigma
     
     def get_delay(self):

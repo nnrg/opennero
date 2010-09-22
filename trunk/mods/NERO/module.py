@@ -145,7 +145,7 @@ class NeroModule:
     
     #The following functions are used to let the client update the fitness function
     def set_weight(self, key, value):
-        self.weights[key] = value
+        self.weights[key] = (value-100.0)/100.0
         print key, value
         
     def ltChange(self,value):
