@@ -7,8 +7,8 @@ from random import *
 
 MAX_SPEED = 12
 MAX_SD = 100
-OBSTACLE = 1#b0001
-AGENT = 2#b0010
+OBSTACLE = (1 << 0)
+AGENT = (1 << 0)
 
 def is_number(x):
     return isinstance(x, (int, long, float, complex))
@@ -87,7 +87,6 @@ class Fitness:
                 result[d] = self[d] ** other[d]
         return result
 
-
 class AgentState:
     """
     State that we keep for each agent
@@ -111,7 +110,7 @@ class AgentState:
         self.prev_fitness = Fitness()
         self.final_fitness = 0
         self.animation = 'stand'
-        
+
 class NeroEnvironment(Environment):
     """
     Environment for the Nero
@@ -318,7 +317,6 @@ class NeroEnvironment(Environment):
             r = getScriptOutput("NERO/menu.py")
             r.flush()
             parseInput(r.readline().strip())
-        
 
         state = self.get_state(agent)
         
@@ -704,6 +702,7 @@ class NeroEnvironment(Environment):
         """
         cleanup the world
         """
+        closeScript('NERO/menu.py')
         return True
 
     def generate_averages(self,agent):

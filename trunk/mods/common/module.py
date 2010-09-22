@@ -41,6 +41,11 @@ def wrap_degrees(a, da):
 opennero_sub_procs = {}
 
 def getScriptOutput(script):
+    """
+    If the named script was started, return its ouput stream. If 
+    the named script was not started, start it and return its output
+    stream.
+    """
     global opennero_sub_procs    
     if script not in opennero_sub_procs:
         subproc = subprocess.Popen(['python', script],stdout=subprocess.PIPE)
@@ -56,7 +61,21 @@ def getScriptOutput(script):
     else:
         return opennero_sub_procs[script][0]
 
+def closeScript(script):
+    """
+    If the named script was started, kill it and cleanup the handle
+    """
+    global opennero_sub_procs
+    if script in opennero_sub_procs:
+        (out, subproc) = opennero_sub_procs[script]
+        del opennero_sub_procs[script]
+        subproc.kill()
+
 def getScriptData(script):
+    """
+    Get the output stream of the named script (starting it if needed)
+    and return true if data is waiting on the stream.
+    """
     out = getScriptOutput(script)
     if out == "NULL": return False
     return select.select([out],[],[],0) == ([out],[],[])

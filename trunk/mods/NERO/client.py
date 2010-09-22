@@ -34,8 +34,6 @@ def show_context_menu():
     if len(modify_object_id) > 0:
         return
 
-    x = getScriptOutput('NERO/menu.py') 
-
     guiMan.setTransparency(1.0)
     
     sim_context = getSimContext()
