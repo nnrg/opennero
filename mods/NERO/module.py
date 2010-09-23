@@ -127,8 +127,8 @@ class NeroModule:
         location = os.path.relpath("/") + location
         print location
         global rtneat, rtneat2
-        if pop == 1: rtneat.save_population(location)
-        if pop == 2: rtneat2.save_population(location)
+        if pop == 1: rtneat.save_population(str(location))
+        if pop == 2: rtneat2.save_population(str(location))
 
     #The following is run when the Load button is pressed
     def load_rtneat(self, location , pop):
@@ -200,6 +200,7 @@ def getMod():
     return gMod
 
 def parseInput(strn):
+    if strn == "deploy": return
     if len(strn) < 2: return
     mod = getMod()
     loc,val = strn.split(' ')
