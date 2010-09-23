@@ -1,11 +1,12 @@
 import wx
 import os
 import sys
-import subprocess
+from menu_utils import ScriptClient
 
-class NeroPanel(wx.Panel):
+class NeroPanel(wx.Panel, ScriptClient):
     def __init__(self,parent):
         wx.Panel.__init__(self,parent)
+        ScriptClient.__init__(self)
         
         grid = wx.GridBagSizer(hgap = 5, vgap = 5)
 
@@ -189,108 +190,91 @@ class NeroPanel(wx.Panel):
         grid.Fit(parent)
 
     def OnDeploy(self,event):
-        print "deploy"
+        self.send("deploy")
 
     def OnSave1(self,event):
         dirname = ""
         dlg = wx.FileDialog(self, "Save Population File", dirname, "", "*.*", wx.FD_SAVE)
         if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetFilename()
-            dirname = dlg.GetPath()#dlg.GetDirectory()
-            print "save1", (dirname)#+"/"+ filename)
-        sys.stdout.flush()
+            dirname = dlg.GetPath()
+            self.send("save1 %s" % dirname)
     
     def OnLoad1(self,event):
         dirname = ""
         dlg = wx.FileDialog(self, "Load Population File", dirname, "", "*.*", wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetFilename()
-            dirname = dlg.GetPath()#dlg.GetDirectory()
-            print "load1", (dirname)# + "/" + filename)
-        sys.stdout.flush()
+            dirname = dlg.GetPath()
+            self.send("load1 %s" % dirname)
 
     def OnSave2(self,event):
         dirname = ""
         dlg = wx.FileDialog(self, "Save Population File", dirname, "", "*.*", wx.FD_SAVE)
         if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetFilename()
-            dirname = dlg.GetPath()#dlg.GetDirectory()
-            print "save2", (dirname)#+"/"+ filename)
-        sys.stdout.flush()
+            dirname = dlg.GetPath()
+            self.send("save2 %s" % dirname)
     
     def OnLoad2(self,event):
         dirname = ""
         dlg = wx.FileDialog(self, "Load Population File", dirname, "", "*.*", wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetFilename()
-            dirname = dlg.GetPath()#dlg.GetDirectory()
-            print "load2", (dirname)# + "/" + filename)
-        sys.stdout.flush()
+            dirname = dlg.GetPath()
+            self.send("load2 %s" % dirname)
 
     def OnSG(self,event):
         self.sgl.SetLabel(str(event.Position - 100))
-        print "SG", event.Position
-        sys.stdout.flush()
+        self.send("SG %d" % event.Position)
 
     def OnST(self,event):
         self.stl.SetLabel(str(event.Position - 100))
-        print "ST", event.Position
-        sys.stdout.flush()
+        self.send("ST %d" % event.Position)
 
     def OnTD(self,event):
         self.tdl.SetLabel(str(event.Position))
-        print "TD", event.Position
-        sys.stdout.flush()
+        self.send("TD %d" % event.Position)
 
     def OnAE(self,event):
         self.ael.SetLabel(str(event.Position - 100))
-        print "AE", event.Position
-        sys.stdout.flush()
+        self.send("AE %d" % event.Position)
 
     def OnED(self,event):
         self.edl.SetLabel(str(event.Position))
-        print "ED", event.Position
-        sys.stdout.flush()
+        self.send("ED %d" % event.Position)
 
     def OnAF(self,event):
         self.afl.SetLabel(str(event.Position - 100))
-        print "AF", event.Position
-        sys.stdout.flush()
+        self.send("AF %d" % event.Position)
 
     def OnFD(self,event):
         self.fdl.SetLabel(str(event.Position))
-        print "FD", event.Position
-        sys.stdout.flush()
+        self.send("FD %d" % event.Position)
 
     def OnHT(self,event):
         self.htl.SetLabel(str(event.Position - 100))
-        print "HT", event.Position
-        sys.stdout.flush()
+        self.send("HT %d" % event.Position)
 
     def OnLT(self,event):
         self.ltl.SetLabel(str(event.Position))
-        print "LT", event.Position
-        sys.stdout.flush()
+        self.send("LT %d" % event.Position)
 
     def OnFF(self,event):
         self.ffl.SetLabel(str(event.Position))
-        print "FF", event.Position
-        sys.stdout.flush()
+        self.send("FF %d" % event.Position)
 
     def OnEE(self,event):
         self.eel.SetLabel(str(event.Position))
-        print "EE", event.Position
-        sys.stdout.flush()
+        self.send("EE %d" % event.Position)
 
     def OnHP(self,event):
         self.hpl.SetLabel(str(event.Position))
-        print "HP", event.Position
-        sys.stdout.flush()
+        self.send("HP %d" % event.Position)
 
     def OnSP(self,event):
         self.spl.SetLabel(str(event.Position))
-        print "SP", event.Position
-        sys.stdout.flush()
+        self.send("SP %d" % event.Position)
 
 app = wx.App(False)
 frame = wx.Frame(None,title = "NERO Controls",size=(600,250))

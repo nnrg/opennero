@@ -86,11 +86,6 @@ class NeroModule:
         """ start the rtneat learning stuff"""
         global rtneat, rtneat2
         disable_ai()
-        while getScriptData('Battle/menu.py'):
-            r = getScriptOutput('Battle/menu.py')
-            print "Calling Parse Input",r
-            r.flush()
-            parseInput(r.readline().strip())
 
         # Create RTNEAT Objects
         set_ai("neat1",rtneat)

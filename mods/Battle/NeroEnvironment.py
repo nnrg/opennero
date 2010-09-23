@@ -227,10 +227,10 @@ class NeroEnvironment(Environment):
 
         state = self.get_state(agent)
 
-        while getScriptData("Battle/menu.py"):
-            r = getScriptOutput("Battle/menu.py")
-            r.flush()
-            parseInput(r.readline().strip())
+        startScript("Battle/menu.py")
+        data = script_server.read_data()
+        if data:
+            parseInput(data.strip())
 
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
            agent.state.position.x, agent.state.position.y = -100,-100 
@@ -549,7 +549,7 @@ class NeroEnvironment(Environment):
         """
         cleanup the world
         """
-        closeScript('Battle/menu.py')
+        killScript('Battle/menu.py')
         return True
 
     def get_delay(self):
