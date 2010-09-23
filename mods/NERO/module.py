@@ -67,6 +67,8 @@ class NeroModule:
             openWiki('wx')()
             return False
 
+        startScript('NERO/menu.py')
+        
         self.environment = NeroEnvironment(XDIM, YDIM)
 
         set_environment(self.environment)
@@ -134,8 +136,8 @@ class NeroModule:
         global rtneat, rtneat2
         location = os.path.relpath("/") + location
         if os.path.exists(location):
-            if pop == 1: rtneat = RTNEAT(location, "data/ai/neat-params.dat", pop_size)
-            if pop == 2: rtneat2= RTNEAT(location, "data/ai/neat-params.dat", pop_size)
+            if pop == 1: rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)
+            if pop == 2: rtneat2= RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)
     
     def set_speedup(self, speedup):
         self.speedup = speedup
@@ -198,8 +200,6 @@ def getMod():
     return gMod
 
 def parseInput(strn):
-    print "PARSING:", strn
-    print strn.isupper()
     if len(strn) < 2: return
     mod = getMod()
     loc,val = strn.split(' ')
