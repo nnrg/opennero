@@ -31,8 +31,6 @@ def CreateGui(guiMan):
     global mode
     mode = 0
 
-    x = getScriptOutput('Battle/menu.py') 
-
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")  
     guiWindow = gui.create_window( guiMan, 'window', Pos2i(20,20),Pos2i(80,100), 'Nero Controls' )

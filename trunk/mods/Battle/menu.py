@@ -1,23 +1,24 @@
 import wx
 import os
 import sys
-import subprocess
+from ..common.menu import ScriptClient
 
-class NeroPanel(wx.Panel):
+class NeroPanel(wx.Panel, ScriptClient):
     def __init__(self,parent):
         wx.Panel.__init__(self,parent)
+        ScriptClient.__init__(self)
         
         grid = wx.GridBagSizer(hgap = 5, vgap = 5)
-
+        
         # Panel for the buttons
         self.buttonPanel = wx.Panel(self, wx.ID_ANY)
         buttonGrid = wx.GridBagSizer(hgap = 5, vgap = 5)
-
+        
         #Deploy Button
         self.deploy = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize,label='Deploy')
         buttonGrid.Add(self.deploy, pos = (0,0) )
         self.Bind(wx.EVT_BUTTON, self.OnDeploy, self.deploy)
-
+        
         #Load Pop 1 Button
         self.load1= wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Load Pop 1')
         buttonGrid.Add(self.load1,pos=(0,1) )
@@ -29,28 +30,8 @@ class NeroPanel(wx.Panel):
         self.Bind(wx.EVT_BUTTON, self.OnLoad2, self.load2)
         
         self.buttonPanel.SetSizer(buttonGrid)
-
-        grid.Add(self.buttonPanel, pos=(0,0), span=(1,6))
-
-        #Stand Ground Slider
-
-        #Stick Together Slider
-
-        #Together Distance Slider
-       
-        #Approach Enemy Slider
-
-        #Enemy Distance Slider
-
-        #Approach Flag Slider
-
-        #Flag Distance Slider
         
-        #Hit Target Slider
-
-        #Lifetime Slider
-
-        #Friendly Fire Slider
+        grid.Add(self.buttonPanel, pos=(0,0), span=(1,6))
         
         #Explore/Exploit Slider
         self.eet = wx.StaticText(self,label = "Explore/Exploit", pos=wx.DefaultPosition, size=wx.DefaultSize)
@@ -62,8 +43,6 @@ class NeroPanel(wx.Panel):
         self.Bind(wx.EVT_SCROLL, self.OnEE,self.ees)
         grid.Add(self.ees,pos=(1,2))
         grid.Add(self.eet,pos=(1,0))
-
-        #Hitpoint Slider
 
         #Speedup Slider
         self.spt = wx.StaticText(self,label = "Speedup", pos=wx.DefaultPosition, size=wx.DefaultSize)
@@ -80,96 +59,39 @@ class NeroPanel(wx.Panel):
         grid.Fit(parent)
 
     def OnDeploy(self,event):
-        print "deploy"
+        self.send("deploy")
 
     def OnSave(self,event):
         dirname = ""
         dlg = wx.FileDialog(self, "Save Population File", dirname, "", "*.*", wx.FD_SAVE)
         if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetFilename()
-            dirname = dlg.GetPath()#dlg.GetDirectory()
-            print "save", (dirname)#+"/"+ filename)
+            dirname = dlg.GetPath()
+            self.send("save %s" % dirname)
     
     def OnLoad1(self,event):
         dirname = ""
         dlg = wx.FileDialog(self, "Load Population File", dirname, "", "*.*", wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetFilename()
-            dirname = dlg.GetPath()#dlg.GetDirectory()
-            print "load1", (dirname)# + "/" + filename)
+            dirname = dlg.GetPath()
+            self.send("load1 %s" % dirname)
 
     def OnLoad2(self,event):
         dirname = ""
         dlg = wx.FileDialog(self, "Load Population File", dirname, "", "*.*", wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetFilename()
-            dirname = dlg.GetPath()#dlg.GetDirectory()
-            print "load2", (dirname)# + "/" + filename)
+            dirname = dlg.GetPath()
+            self.send("load2 %s" % dirname)
     
-    def OnSG(self,event):
-        self.sgl.SetLabel(str(event.Position - 100))
-        print "SG", event.Position
-        sys.stdout.flush()
-
-    def OnST(self,event):
-        self.stl.SetLabel(str(event.Position - 100))
-        print "ST", event.Position
-        sys.stdout.flush()
-
-    def OnTD(self,event):
-        self.tdl.SetLabel(str(event.Position))
-        print "TD", event.Position
-        sys.stdout.flush()
-
-    def OnAE(self,event):
-        self.ael.SetLabel(str(event.Position - 100))
-        print "AE", event.Position
-        sys.stdout.flush()
-
-    def OnED(self,event):
-        self.edl.SetLabel(str(event.Position))
-        print "ED", event.Position
-        sys.stdout.flush()
-
-    def OnAF(self,event):
-        self.afl.SetLabel(str(event.Position - 100))
-        print "AF", event.Position
-        sys.stdout.flush()
-
-    def OnFD(self,event):
-        self.fdl.SetLabel(str(event.Position))
-        print "FD", event.Position
-        sys.stdout.flush()
-
-    def OnHT(self,event):
-        self.htl.SetLabel(str(event.Position - 100))
-        print "HT", event.Position
-        sys.stdout.flush()
-
-    def OnLT(self,event):
-        self.ltl.SetLabel(str(event.Position))
-        print "LT", event.Position
-        sys.stdout.flush()
-
-    def OnFF(self,event):
-        self.ffl.SetLabel(str(event.Position))
-        print "FF", event.Position
-        sys.stdout.flush()
-
     def OnEE(self,event):
         self.eel.SetLabel(str(event.Position))
-        print "EE", event.Position
-        sys.stdout.flush()
-
-    def OnHP(self,event):
-        self.hpl.SetLabel(str(event.Position))
-        print "HP", event.Position
-        sys.stdout.flush()
-
+        self.send("EE %d" % event.Position)
+    
     def OnSP(self,event):
         self.spl.SetLabel(str(event.Position))
-        print "SP", event.Position
-        sys.stdout.flush()
+        self.send("SP %d" % event.Position)
 
 app = wx.App(False)
 frame = wx.Frame(None,title = "NERO Controls",size=(600,250))

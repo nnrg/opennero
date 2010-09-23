@@ -1,6 +1,6 @@
 import sys
 import subprocess
-import select
+from menu_utils import ScriptServer
 
 # OpenNero imports
 from OpenNero import getSimContext, Vector3f
@@ -40,42 +40,27 @@ def wrap_degrees(a, da):
 
 opennero_sub_procs = {}
 
-def getScriptOutput(script):
+script_server = ScriptServer()
+
+def startScript(script):
     """
-    If the named script was started, return its ouput stream. If 
-    the named script was not started, start it and return its output
-    stream.
+    start the named script unless it is already running
     """
     global opennero_sub_procs    
     if script not in opennero_sub_procs:
-        subproc = subprocess.Popen(['python', script],stdout=subprocess.PIPE)
-        out = subproc.stdout
-        opennero_sub_procs[script] = (out, subproc)
-        return out
-    elif opennero_sub_procs[script][1].poll() != None :
-        opennero_sub_procs.pop(script)
-        subproc = subprocess.Popen(['python', script],stdout=subprocess.PIPE)
-        out = subproc.stdout
-        opennero_sub_procs[script] = (out, subproc)
-        return out
-    else:
-        return opennero_sub_procs[script][0]
+        subproc = subprocess.Popen(['python', script])
+        opennero_sub_procs[script] = subproc
+    elif opennero_sub_procs[script].poll():
+        del opennero_sub_procs[script]
+        subproc = subprocess.Popen(['python', script])
+        opennero_sub_procs[script] = subproc
 
-def closeScript(script):
+def killScript(script):
     """
     If the named script was started, kill it and cleanup the handle
     """
     global opennero_sub_procs
     if script in opennero_sub_procs:
-        (out, subproc) = opennero_sub_procs[script]
+        subproc = opennero_sub_procs[script]
         del opennero_sub_procs[script]
         subproc.kill()
-
-def getScriptData(script):
-    """
-    Get the output stream of the named script (starting it if needed)
-    and return true if data is waiting on the stream.
-    """
-    out = getScriptOutput(script)
-    if out == "NULL": return False
-    return select.select([out],[],[],0) == ([out],[],[])

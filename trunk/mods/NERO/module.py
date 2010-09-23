@@ -98,7 +98,6 @@ class NeroModule:
         """ start the rtneat learning stuff"""
         global rtneat, rtneat2
         disable_ai()
-        from NeroEnvironment import NeroEnvironment
 
         # Create RTNEAT Objects
         set_ai("neat1",rtneat)

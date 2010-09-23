@@ -314,11 +314,10 @@ class NeroEnvironment(Environment):
         # check if the action is valid
         assert(self.agent_info.actions.validate(action))
         
-        #Menu updates go here
-        while getScriptData("NERO/menu.py"):
-            r = getScriptOutput("NERO/menu.py")
-            r.flush()
-            parseInput(r.readline().strip())
+        startScript('NERO/menu.py')
+        data = script_server.read_data()
+        if data:
+            parseInput(data.strip())
 
         state = self.get_state(agent)
         
@@ -703,7 +702,7 @@ class NeroEnvironment(Environment):
         """
         cleanup the world
         """
-        closeScript('NERO/menu.py')
+        killScript('NERO/menu.py')
         return True
 
     def generate_averages(self,agent):
