@@ -229,8 +229,9 @@ class NeroEnvironment(Environment):
 
         startScript("Battle/menu.py")
         data = script_server.read_data()
-        if data:
+        while data:
             parseInput(data.strip())
+            data = script_server.read_data()
 
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
            agent.state.position.x, agent.state.position.y = -100,-100 

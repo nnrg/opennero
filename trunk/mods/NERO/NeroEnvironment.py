@@ -183,7 +183,6 @@ class NeroEnvironment(Environment):
         sbound.add_continuous(0, 1) # 30 deg
         #sbound.add_continuous(0, 1) # 45 deg
         sbound.add_continuous(0, 1) # 60 deg
-        
 
         #Flag Sensors
         sbound.add_continuous(0, 1) # 0 - 45
@@ -316,8 +315,9 @@ class NeroEnvironment(Environment):
         
         startScript('NERO/menu.py')
         data = script_server.read_data()
-        if data:
+        while data:
             parseInput(data.strip())
+            data = script_server.read_data()
 
         state = self.get_state(agent)
         
