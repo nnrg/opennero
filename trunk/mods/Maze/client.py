@@ -91,12 +91,6 @@ def CreateGui(guiMan):
     getMod().set_speedup(0)
     speedupScroll.OnScrollBarChange = speedup_adjusted(speedupScroll, speedupValue)
     
-    shortcircuitLabel = gui.create_text(guiMan, 'shortcircuitLabel', Pos2i(10, 60), Pos2i(100,30), 'Short-Circuit:')
-    
-    shortcircuitCheck = gui.create_check_box(guiMan, 'shortcircuitCheck', Pos2i(100, 60), Pos2i(20, 20))
-    shortcircuitCheck.checked = True
-    shortcircuitCheck.OnCheckBoxChange = shortcircuit_changed(shortcircuitCheck)
-    
     paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 500), Pos2i(300,100), 'Parameters')
     paramWindow.addChild(epsilonLabel)
     paramWindow.addChild(epsilonScroll)
@@ -104,8 +98,6 @@ def CreateGui(guiMan):
     paramWindow.addChild(speedupLabel)
     paramWindow.addChild(speedupScroll)
     paramWindow.addChild(speedupValue)
-    paramWindow.addChild(shortcircuitLabel)
-    paramWindow.addChild(shortcircuitCheck)
 
 def epsilon_adjusted(scroll, value):
     # generate a closure that will be called whenever the epsilon slider is adjusted
@@ -123,13 +115,6 @@ def speedup_adjusted(scroll, value):
     def closure():
         value.text = str(scroll.getPos())
         getMod().set_speedup(float(scroll.getPos())/100)
-    return closure
-
-def shortcircuit_changed(checkbox):
-    # generate a closure that will be called when the short-circuit check box is checked or un-checked
-    getMod().set_shortcircuit(checkbox.checked)
-    def closure():
-        getMod().set_shortcircuit(checkbox.checked)
     return closure
 
 def recenter(cam):
