@@ -16,6 +16,7 @@ class NetworkLogWriter:
     def __init__(self, host = HOST, port = PORT, start_server = True):
         self.addr = (host, port)
         self.connected = False
+        self.failed = False
         self.server_process = None
         if start_server:
             try:
@@ -28,6 +29,8 @@ class NetworkLogWriter:
     def connect(self):
         if self.connected:
             return True
+        if self.failed:
+            return False
         try:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.connect(self.addr)
@@ -38,13 +41,16 @@ class NetworkLogWriter:
 
     def write(self, msg):
         if self.connect():
-            self.sock.send(msg)
+            try:
+                self.sock.send(msg)
+            except socket.error, e:
+                self.failed = True
 
     def flush(self):
         pass
 
     def close(self):
-        if self.connected:
+        if self.connected and not self.failed:
             self.sock.sendto('', self.addr)
             self.sock.close()
             self.connected = False
