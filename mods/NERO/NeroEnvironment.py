@@ -2,7 +2,7 @@ import time
 from math import *
 from OpenNero import *
 from NERO.module import *
-from common.fitness import Fitness
+from common.fitness import Fitness, FitnessStats
 from copy import copy
 from random import *
 
@@ -60,7 +60,7 @@ class NeroEnvironment(Environment):
 
         self.pop_state_1 = {}
         self.pop_state_2 = {}
-
+        
         abound = FeatureVectorInfo() # actions
         sbound = FeatureVectorInfo() # sensors
         rbound = FeatureVectorInfo() # rewards
@@ -142,7 +142,6 @@ class NeroEnvironment(Environment):
         #update client fitness
         from client import set_stat
         ff = self.getFriendFoe(agent)
-        print "Episode %d complete" % agent.episode 
         return True
     
     def get_agent_info(self, agent):
@@ -391,6 +390,7 @@ class NeroEnvironment(Environment):
             else:
                 self.pop_state_2[agent.org.id] = state
             state.final_fitness = sums.sum()
+            print 'FITNESS:',getMod().weights * state.fitness,'=> Z-SCORE:', state.final_fitness
             return state.final_fitness
 
         return 0
@@ -642,16 +642,11 @@ class NeroEnvironment(Environment):
         pop_state = curr_dict
         # calculate population average
         # calculate population standard deviation
-        average = Fitness()
-        sigma = Fitness()
+        stats = FitnessStats()
         for x in pop_state:
             f = pop_state[x].prev_fitness
-            average = average + f # sum of fitnesses
-            sigma = sigma + f ** 2 # sum of squares
-        n = float(len(pop_state))
-        average = average / n
-        sigma = abs(sigma / n - average ** 2) ** 0.5
-        return average,sigma
+            stats.add(f)
+        return stats.mean, stats.stddev()
     
     def get_delay(self):
         """

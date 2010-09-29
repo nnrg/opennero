@@ -39,7 +39,6 @@ class RTNEATAgent(AgentBrain):
         start of an episode
         """
         from NERO.module import getMod
-        print 'a brand new organism'
         EXPLOIT_PROB = getMod().ee
         rtneat = get_ai("neat%d" % self.team)
         self.org = rtneat.next_organism(EXPLOIT_PROB)
@@ -76,8 +75,6 @@ class RTNEATAgent(AgentBrain):
             strn = "".join(self.file_out)
             f = open('output.out' + str(self.team),'a')
             f.write(strn)
-        #assert(self.org.fitness >= 0) # we have to have a non-negative fitness for rtNEAT to work
-        print  "Final reward: %f, cumulative: %f" % (reward, self.reward)
         return True
 
     def destroy(self):
