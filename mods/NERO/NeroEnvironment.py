@@ -241,7 +241,7 @@ class NeroEnvironment(Environment):
             data = script_server.read_data()
 
         state = self.get_state(agent)
-        
+
         #Initilize Agent state
         if agent.step == 0:
             temp = getMod().flag_loc
@@ -258,7 +258,7 @@ class NeroEnvironment(Environment):
              self.pop_state_1[agent.org.id] = state 
             else:
              self.pop_state_2[agent.org.id] = state 
-        
+
         #Spawn more agents if there are more to spawn (Staggered spawning times tend to yeild better behavior)
         if agent.step == 3:
             if getMod().getNumToAdd() > 0:
@@ -648,6 +648,12 @@ class NeroEnvironment(Environment):
             stats.add(f)
         return stats.mean, stats.stddev()
     
+    def clear_averages(self):
+        for x in self.pop_state_1:
+            self.pop_state_1[x].prev_fitness = Fitness()
+        for x in self.pop_state_2:
+            self.pop_state_2[x].prev_fitness = Fitness()
+
     def get_delay(self):
         """
         Set simulation delay

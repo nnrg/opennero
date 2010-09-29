@@ -146,10 +146,12 @@ class NeroModule:
     #The following functions are used to let the client update the fitness function
     def set_weight(self, key, value):
         self.weights[key] = (value-100.0)/100.0
+        self.environment.clear_averages()
         print key, value
         
     def ltChange(self,value):
         self.lt = value
+        self.environment.clear_averages()
         print 'lifetime:',value
 
     def dtaChange(self,value):
@@ -174,6 +176,7 @@ class NeroModule:
 
     def hpChange(self,value):
         self.hp = value
+        self.environment.clear_averages()
         print 'Hit points:',value
 
     def getNumToAdd(self):
