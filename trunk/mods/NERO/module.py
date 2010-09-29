@@ -9,11 +9,6 @@ import sys
 
 import random
 
-XDIM = 800
-YDIM = 400
-HEIGHT = 20
-OFFSET = -HEIGHT/2
-
 NEAT_ACTIONS = 3
 NEAT_SENSORS = 20
 pop_size = 40 #Individual population size
@@ -27,12 +22,6 @@ class NeroModule:
         global rtneat, rtneat2
         rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size, 1.0)
         rtneat2 = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size,1.0)
-        self.NEAT_ACTIONS = NEAT_ACTIONS
-        self.NEAT_SENSORS = NEAT_SENSORS
-        self.XDIM = XDIM
-        self.YDIM = YDIM
-        self.NEAT_ACTIONS = NEAT_ACTIONS
-        self.NEAT_SENSORS = NEAT_SENSORS
         self.environment = None
         self.agent_id = None
         self.agent_map = {}
