@@ -2,6 +2,7 @@ import time
 from math import *
 from OpenNero import *
 from NERO.module import *
+from common.fitness import Fitness
 from copy import copy
 from random import *
 
@@ -9,85 +10,6 @@ MAX_SPEED = 12
 MAX_SD = 100
 OBSTACLE = (1 << 0)
 AGENT = (1 << 0)
-
-def is_number(x):
-    return isinstance(x, (int, long, float, complex))
-
-class Fitness:
-    """
-    The multi-objective fitness for each agent
-    """
-    STAND_GROUND = "Stand ground"
-    STICK_TOGETHER = "Stick together"
-    APPROACH_ENEMY = "Approach enemy"
-    APPROACH_FLAG = "Approach flag"
-    HIT_TARGET = "Hit target"
-    AVOID_FIRE = "Avoid fire"
-    dimensions = [STAND_GROUND, STICK_TOGETHER, APPROACH_ENEMY, APPROACH_FLAG, \
-                  HIT_TARGET, AVOID_FIRE]
-    def __init__(self):
-        self.data = {}
-        for d in Fitness.dimensions:
-            self.data[d] = 0
-    def __repr__(self): return repr(self.data)
-    def __str__(self): return '('+ ', '.join(['"%s": %s' % (k, str(self.data[k])) for k in Fitness.dimensions]) + ')'
-    def __len__(self): return self.data
-    def __getitem__(self, key): return self.data[key]
-    def __setitem__(self, key, value): self.data[key] = value
-    def __contains__(self, item): return item in self.data
-    def __iter__(self): return Fitness.dimensions.__iter__()
-    def sum(self): return sum(self.data.values())
-    def __add__(self, other):
-        result = Fitness()
-        if is_number(other):
-            for d in Fitness.dimensions:
-                result[d] = self[d] + other
-        else:
-            for d in Fitness.dimensions:
-                result[d] = self[d] + other[d]
-        return result
-    def __sub__(self, other):
-        result = Fitness()
-        if is_number(other):
-            for d in Fitness.dimensions:
-                result[d] = self[d] - other
-        else:
-            for d in Fitness.dimensions:
-                result[d] = self[d] - other[d]
-        return result
-    def __mul__(self, other):
-        result = Fitness()
-        if is_number(other):
-            for d in Fitness.dimensions:
-                result[d] = self[d] * other
-        else:
-            for d in Fitness.dimensions:
-                result[d] = self[d] * other[d]
-        return result
-    def __div__(self, other):
-        result = Fitness()
-        if is_number(other) and other != 0:
-            for d in Fitness.dimensions:
-                result[d] = self[d] / other
-        else:
-            for d in Fitness.dimensions:
-                if other[d] != 0:
-                    result[d] = self[d] / other[d]
-        return result
-    def __pow__(self, other):
-        result = Fitness()
-        if is_number(other):
-            for d in Fitness.dimensions:
-                result[d] = self[d] ** other
-        else:
-            for d in Fitness.dimensions:
-                result[d] = self[d] ** other[d]
-        return result
-    def __abs__(self):
-        result = Fitness()
-        for d in Fitness.dimensions:
-            result[d] = abs(self[d])
-        return result
 
 class AgentState:
     """
@@ -555,14 +477,11 @@ class NeroEnvironment(Environment):
             fh  = ((degrees(atan2(ff[0].pose[1]-state.pose[1],ff[0].pose[0] - state.pose[0])) - state.pose[2]) % 360) - 180
         else:
             fh = 0
-
         if fh < 0:
             fh += 360
-
         if fh > 360:
             fh -= 360
         
-
         vx.append(max(0,cos(radians(fh-  0))))
         #vx.append(max(0,cos(radians(fh- 45))))
         vx.append(max(0,cos(radians(fh- 90))))
