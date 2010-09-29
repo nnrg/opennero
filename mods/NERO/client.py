@@ -5,6 +5,7 @@ from common import *
 import common.gui as gui
 from inputConfig import *
 from constants import *
+from math import *
 
 def toggle_ai_callback():
     global toggleAiButton
@@ -122,20 +123,21 @@ def mouse_action():
     if 'scale' in modify_object_id:
         position = sim_context.getObjectPosition(modify_object_id['scale'])
         rotation = sim_context.getObjectRotation(modify_object_id['scale'])
-        theta = math.radians(rotation.z)
+        theta = radians(rotation.z)
 
         # calculate mouse location in the frame of reference of the object
         localx = (location.x-position.x)*math.cos(theta) + (location.y-position.y)*math.sin(theta)
         localy = -(location.x-position.x)*math.sin(theta) + (location.y-position.y)*math.cos(theta)
 
         # scale < 1 if local coordinate is -ve and scale > 1 otherwise
-        scalex = 1 + math.fabs(localx)/10
-        scaley = 1 + math.fabs(localy)/10
-
+        scalex = 1 + math.fabs(localx)
+        scaley = 1 + math.fabs(localy)
+        
         if localx < 0: scalex = 1/scalex
         if localy < 0: scaley = 1/scaley
 
-        sim_context.setObjectScale(modify_object_id['scale'],Vector3f(scalex,scaley,20))
+        prev_scale = sim_context.getObjectScale(modify_object_id['scale'])
+        sim_context.setObjectScale(modify_object_id['scale'],Vector3f(scalex, scaley, prev_scale.z))
 
 #########################################################
 
