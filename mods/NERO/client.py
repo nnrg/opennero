@@ -1,9 +1,10 @@
 from OpenNero import *
 from module import getMod, delMod
-from NeroEnvironment import Fitness
+from common.fitness import Fitness
 from common import *
 import common.gui as gui
 from inputConfig import *
+from constants import *
 
 def toggle_ai_callback():
     global toggleAiButton
@@ -48,7 +49,7 @@ def show_context_menu():
     contextMenu = gui.create_context_menu(guiMan, 'context', cursor)
 
     def add_wall():
-        object_ids.append(addObject("data/shapes/cube/Cube.xml", Vector3f(location.x,location.y,0), Vector3f(0, 0, 90), scale=Vector3f(1,30,5), label="World Wall0", type = 1 ))
+        object_ids.append(addObject("data/shapes/cube/Cube.xml", Vector3f(location.x,location.y,HEIGHT+OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,30,HEIGHT), type = 1 ))
 
     def rotate_object():
         modify_object_id['rot'] = selected_object_id
