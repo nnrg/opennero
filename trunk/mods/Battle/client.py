@@ -8,6 +8,11 @@ def toggle_ai_callback():
     global toggleAiButton
     toggle_ai()
     if toggleAiButton.text == 'Begin Battle':
+     from Battle.module import parseInput
+     data = script_server.read_data()
+     while data:
+         parseInput(data.strip())
+         data = script_server.read_data()
      getMod().start_rtneat()
      reset_ai()
      toggleAiButton.text = 'Toggle AI'

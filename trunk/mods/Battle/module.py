@@ -56,6 +56,7 @@ class NeroModule:
             error("Environment already created")
             return
         
+        startScript("Battle/menu.py")
         self.environment = NeroEnvironment(XDIM, YDIM)
 
         set_environment(self.environment)
@@ -112,7 +113,7 @@ class NeroModule:
     def load_rtneat(self, val, location = "rtneat.gnm"):
         import os
         global rtneat, rtneat2
-        location = os.path.relpath("/") + location
+        location = str(os.path.relpath("/") + location)
         if os.path.exists(location):
             if val ==  1: rtneat = RTNEAT(location, "data/ai/neat-params.dat", pop_size)
             if val ==  2: rtneat2= RTNEAT(location, "data/ai/neat-params.dat", pop_size)
@@ -149,8 +150,7 @@ def getMod():
     return gMod
 
 def parseInput(strn):
-    print "PARSING:", strn
-    print strn.isupper()
+    strn = str(strn)
     mod = getMod()
     loc,val = strn.split(' ')
     vali = 1
