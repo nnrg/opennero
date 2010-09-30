@@ -23,7 +23,7 @@ class RTNEATAgent(AgentBrain):
         """
         Initialize an agent brain with sensor information
         """
-        from NERO.module import getMod;
+        from NERO.module import getMod
         self.actions = init_info.actions # constraints for actions
         self.sensors = init_info.sensors # constraints for sensors
         self.team = getMod().currTeam #Team ID

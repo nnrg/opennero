@@ -3,19 +3,12 @@ from OpenNero import getSimContext
 from NERO.NeroEnvironment import *
 from NERO.RTNEATAgent import *
 from NERO.Turret import *
+from constants import *
 import subprocess
 import os
 import sys
 
 import random
-
-NEAT_ACTIONS = 3
-NEAT_SENSORS = 20
-pop_size = 40 #Individual population size
-DEPLOY_SIZE = 2#pop_size * 2 #total population size for both rtneats.
-
-OBSTACLE = 1 #0b0001
-AGENT = 2 #0b0010
 
 class NeroModule:
     def __init__(self):
@@ -58,7 +51,7 @@ class NeroModule:
 
         startScript('NERO/menu.py')
         
-        self.environment = NeroEnvironment(XDIM, YDIM)
+        self.environment = NeroEnvironment()
 
         set_environment(self.environment)
         
