@@ -2,6 +2,7 @@ import time
 from math import *
 from OpenNero import *
 from NERO.module import *
+from constants import *
 from common.fitness import Fitness, FitnessStats
 from copy import copy
 from random import *
@@ -39,7 +40,7 @@ class NeroEnvironment(Environment):
     """
     Environment for the Nero
     """
-    def __init__(self, XDIM, YDIM):
+    def __init__(self):
         from NERO.module import getMod
         """
         Create the environment
@@ -51,8 +52,6 @@ class NeroEnvironment(Environment):
         self.step_delay = 0.25 # time between steps in seconds
         self.max_steps = 20
         self.time = time.time()
-        self.XDIM = XDIM
-        self.YDIM = YDIM
         self.MAX_DIST = pow((pow(XDIM, 2) + pow(YDIM, 2)), .5)
         self.states = {}
         self.teams = {}
@@ -123,7 +122,7 @@ class NeroEnvironment(Environment):
         """
         Checks if a given position is in bounds
         """
-        return pos.x < 0 or pos.y < 0 or pos.x > self.XDIM or pos.y > self.YDIM
+        return pos.x < 0 or pos.y < 0 or pos.x > XDIM or pos.y > YDIM
     
     def reset(self, agent):
         """
@@ -262,9 +261,9 @@ class NeroEnvironment(Environment):
         #Spawn more agents if there are more to spawn (Staggered spawning times tend to yeild better behavior)
         if agent.step == 3:
             if getMod().getNumToAdd() > 0:
-                dx = randrange(getMod().XDIM/20) - getMod().XDIM/40
-                dy = randrange(getMod().XDIM/20) - getMod().XDIM/40
-                getMod().addAgent((getMod().XDIM/2 + dx, getMod().YDIM/3 + dy, 2))
+                dx = randrange(XDIM/20) - XDIM/40
+                dy = randrange(XDIM/20) - XDIM/40
+                getMod().addAgent((XDIM/2 + dx, YDIM/3 + dy, 2))
 
         # Update Damage totals
         state.total_damage += state.curr_damage
