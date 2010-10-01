@@ -9,5 +9,5 @@
     * Example filenames: run001.obj, run002.obj, ... , stand001.obj, stand002.obj ...
     * For Maya, I have included a [ExportMD2Example script] that I used to automate this process.  (This script will require some straightforward modification to match your particular animation.)
   # Run obj_to_md2 on these obj files and their texture file.
-    * Compile from [ObjToMD2Main main.cpp] and [ObjToMD2Makefile Makefile].
+    * Compile from [http://code.google.com/p/opennero/source/browse/trunk/misc/3d/obj_to_md2/obj_to_md2.cpp obj_to_md2.cpp] and [http://code.google.com/p/opennero/source/browse/trunk/misc/3d/obj_to_md2/Makefile Makefile].
     * Run obj_to_md2 with no arguments to display usage.
