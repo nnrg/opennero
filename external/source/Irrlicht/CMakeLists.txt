@@ -4,7 +4,7 @@
 FILE(GLOB Irrlicht_SOURCES *.cpp)
 
 # header files
-FILE(GLOB Irrlicht_HEADERS *.h)
+FILE(GLOB Irrlicht_HEADERS *.h lzma/*.c)
 
 # exported header files
 FILE(GLOB Irrlicht_PUBLIC_HEADERS ${OpenNERO_SOURCE_DIR}/external/include/irrlicht/*.h )
@@ -62,9 +62,6 @@ ENDIF(BZIP2_FOUND)
 
 # Irrlicht needs lzma
 INCLUDE_DIRECTORIES(lzma)
-ADD_SUBDIRECTORY(lzma)
-LINK_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/lzma)
-LIST(APPEND EXTRA_LIBS lzma)
 
 # settings for the Irrlicht compile configuration file
 SET(_IRR_COMPILE_WITH_SOFTWARE_ 1)
