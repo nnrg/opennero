@@ -1,0 +1,13 @@
+<Template>
+  <Audio>
+    <Rocket>sandbox/data/sounds/rocket_launcher.ogg</Rocket>
+  </Audio>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <AniMesh>data/shapes/character/sydney.md2</AniMesh>
+    <Texture0>data/shapes/character/sydney.bmp</Texture0>
+    <Scale>.083 .083 .083</Scale>
+    <Rotation>0 0 0</Rotation>
+  </Render>
+</Template>
