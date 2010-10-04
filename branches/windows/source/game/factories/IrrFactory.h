@@ -19,7 +19,7 @@ namespace OpenNero
     namespace Log
     {
         class ILogConnection;
-        typedef boost::shared_ptr<ILogConnection> ILogConnectionPtr;
+        BOOST_SHARED_DECL(ILogConnection);
     }
 
     /// Loads resources from Irrlicht

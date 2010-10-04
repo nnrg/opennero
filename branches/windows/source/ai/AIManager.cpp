@@ -123,8 +123,10 @@ namespace OpenNero
         return AIManager::const_instance().GetEnvironment();
     }
 
+	BOOST_SHARED_DECL(PyEnvironment);
+
     /// set the environment
-    void set_environment(shared_ptr<PyEnvironment> env)
+    void set_environment(PyEnvironmentPtr env)
     {
         AIManager::instance().SetEnvironment(env);
     }
