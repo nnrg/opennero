@@ -31,7 +31,7 @@ namespace OpenNero
      * The SimContext is the entire game state. It stores all the objects in 
      * in the simulation.
      */
-    class SimContext : public enable_shared_from_this<SimContext>
+    class SimContext : public BOOST_SHARED_THIS(SimContext)
     {
     public:
 
@@ -171,7 +171,7 @@ namespace OpenNero
         CameraPtr getActiveCamera() const;
 
         // get an object template from a file
-        template<typename ObjTemp> shared_ptr<ObjTemp> getObjectTemplate( const std::string& templateName) const;
+        template<typename ObjTemp> boost::shared_ptr<ObjTemp> getObjectTemplate( const std::string& templateName) const;
 
         // move the world forward by time dt
         void ProcessTick(float32_t dt);
@@ -238,7 +238,7 @@ namespace OpenNero
      * @param templateName the name of the file to get the template from
      * @return ptr to the loaded object template or NULL if failed to load
      */
-    template<typename ObjTemp> shared_ptr<ObjTemp> SimContext::getObjectTemplate(
+    template<typename ObjTemp> boost::shared_ptr<ObjTemp> SimContext::getObjectTemplate(
             const std::string& templateName) const
     {
         // make the mod path
@@ -261,7 +261,7 @@ namespace OpenNero
         PropertyMap pmap;
         if (pmap.constructPropertyMap(modTemplateName ) )
         {
-            shared_ptr<ObjTemp> temp = ObjTemp::createTemplate( mpFactory, pmap ); // allows some degree of polymorphism
+            boost::shared_ptr<ObjTemp> temp = ObjTemp::createTemplate( mpFactory, pmap ); // allows some degree of polymorphism
             mObjectTemplates[lookupPath] = temp;
             LOG_F_MSG( "game", "Successfully loaded object template " << modTemplateName );
             return temp;
@@ -269,7 +269,7 @@ namespace OpenNero
 
         // fail
         LOG_F_ERROR("game", "Failed to load object template " << modTemplateName );
-        return shared_ptr<ObjTemp>();
+        return boost::shared_ptr<ObjTemp>();
     }
     
 } //end OpenNero
