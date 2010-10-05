@@ -19,7 +19,7 @@ namespace OpenNero
     class SimEntityData;
 
     /// interface for objects connecting an AgentBrain to a SimEntity body
-    class AIObject : public enable_shared_from_this<AIObject>, public SimEntityComponent, public TemplatedObject
+    class AIObject : public BOOST_SHARED_THIS(AIObject), public SimEntityComponent, public TemplatedObject
     {
     public:
         /// create an AIObject for the specified world

@@ -63,9 +63,6 @@ namespace OpenNero
         EventInfo info( sEventId++, execTime, command );
         mEvents.insert( std::lower_bound( mEvents.begin(), mEvents.end(), info, CompareEventExecTime() ), info );
 
-        // make sure the events are sorted
-        AssertMsg( is_sorted( mEvents.begin(), mEvents.end(), CompareEventExecTime() ), "Events are not sorted properly!" );
-
         return info.mEventId;
     }
 
@@ -89,9 +86,6 @@ namespace OpenNero
             ExecEvent(*itr);
 
         mEvents.erase( start, itr );
-
-        // make sure the events are sorted
-        AssertMsg( is_sorted( mEvents.begin(), mEvents.end(), CompareEventExecTime() ), "Events are not sorted properly!" );
 
         return c;
     }

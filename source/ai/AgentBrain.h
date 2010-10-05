@@ -70,7 +70,7 @@ namespace OpenNero
     };
 
     /// shared pointer to an AgentBrain
-    typedef shared_ptr<AgentBrain> AgentBrainPtr;
+    BOOST_SHARED_DECL(AgentBrain);
 
     /// C++ interface for Python-side AgentBrain
     class PyAgentBrain : public AgentBrain, public TryWrapper<AgentBrain>
@@ -97,7 +97,7 @@ namespace OpenNero
     };
 
     /// shared pointer to a PyAgentBrain
-    typedef shared_ptr<PyAgentBrain> PyAgentBrainPtr;
+    BOOST_SHARED_DECL(PyAgentBrain);
 }
 
 #endif

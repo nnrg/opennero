@@ -111,7 +111,7 @@ ELSEIF (WIN32)
   # the executable on Windows depends on a few more libraries
   TARGET_LINK_LIBRARIES(OpenNERO Ws2_32)
   # on Windows, we need to copy various DLLs used by the executable into the directory where it is
-  SET(OpenNERO_APP_RESOURCES "${CMAKE_RUNTIME_OUTPUT_PATH}/$(OutDir)")
+  SET(OpenNERO_APP_RESOURCES "${CMAKE_RUNTIME_OUTPUT_PATH}/$(Configuration)")
   FILE(TO_NATIVE_PATH "${OpenNERO_SOURCE_DIR}/mods/" OpenNERO_RESOURCES_DIR)
   FILE(TO_NATIVE_PATH "${OpenNERO_APP_RESOURCES}" OpenNERO_APP_RESOURCES)
   # CopyStuff will always get run - it uses xcopy to update only those files that are newer
