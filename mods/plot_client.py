@@ -19,12 +19,33 @@ class NetworkLogWriter:
         self.failed = False
         self.server_process = None
         if start_server:
+            missing = set([])
             try:
-                import wx, matplotlib, numpy, pylab
-                self.server_process = Popen(['python','plot_server.py'])
-                print 'plot server started!'
+                import wx
             except:
-                print 'Could not start plot server!'
+                missing.add('wx')
+            try:
+                import matplotlib
+            except:
+                missing.add('matplotlib')
+            try:
+                import numpy
+            except:
+                missing.add('numpy')
+            try:
+                import scipy
+            except:
+                missing.add('scipy')
+            if len(missing) == 0:
+                try:
+                    self.server_process = Popen(['python','plot_server.py'])
+                    print 'plot server started!'
+                except:
+                    print 'Could not start plot server!'
+            else:
+                import tkMessageBox
+                tkMessageBox.showwarning('Warning!', 'Could not start plot window because the following module(s) are missing: ' + ', '.join(missing))
+                
 
     def connect(self):
         if self.connected:
