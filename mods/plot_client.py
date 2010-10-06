@@ -8,7 +8,7 @@ import sys
 import socket
 from subprocess import Popen
 
-HOST, PORT = "localhost", 9999
+HOST, PORT = "127.0.0.1", 9999
 ADDR = (HOST, PORT)
 BUFSIZE = 4096
 
