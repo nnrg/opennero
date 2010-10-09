@@ -12,7 +12,6 @@ namespace OpenNero
 {
 	/// @cond
     BOOST_SHARED_DECL(AgentBrain);
-    BOOST_SHARED_DECL(SensorArray);
     BOOST_SHARED_DECL(PythonAITemplate);
     BOOST_SHARED_DECL(PythonAIObject);
     /// @endcond

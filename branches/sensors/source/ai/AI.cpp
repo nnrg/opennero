@@ -1,6 +1,5 @@
 #include "core/Common.h"
 #include "AI.h"
-#include "SensorArray.h"
 #include "scripting/scriptIncludes.h"
 #include "core/Log.h"
 #include "game/SimEntityData.h"

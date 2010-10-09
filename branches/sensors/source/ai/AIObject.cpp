@@ -3,7 +3,6 @@
 #include "ai/AIObject.h"
 #include "ai/AIManager.h"
 #include "ai/Environment.h"
-#include "ai/SensorArray.h"
 #include "ai/AgentBrain.h"
 #include "ai/PythonAI.h"
 #include "ai/random/RandomAI.h"

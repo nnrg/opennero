@@ -2,7 +2,6 @@
 #define _OPENNERO_AI_RANDOM_RANDOMENVIRONMENT_H_
 
 #include "ai/AI.h"
-#include "ai/SensorArray.h"
 #include "ai/AgentBrain.h"
 #include "ai/AIObject.h"
 #include "ai/Environment.h"
@@ -11,7 +10,6 @@ namespace OpenNero
 {
 
 	/// @cond
-    BOOST_SHARED_DECL(RandomSensors);
     BOOST_SHARED_DECL(RandomAITemplate);
     BOOST_SHARED_DECL(RandomAgent);
     /// @endcond
