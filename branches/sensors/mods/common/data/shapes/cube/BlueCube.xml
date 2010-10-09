@@ -1,0 +1,11 @@
+<Template>
+  <Audio>    
+  </Audio>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <AniMesh>data/shapes/cube/blue_cube.obj</AniMesh>
+    <Scale>1 1 1</Scale>
+    <Rotation>0 0 0</Rotation>
+  </Render>  
+</Template>
