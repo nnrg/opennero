@@ -27,10 +27,9 @@ namespace OpenNero {
         return types_;
     }
 
-    //! Decide if this sensor is interested in a particular object
-    bool RaySensor::filter(SimEntityPtr ent)
+    //! Process an object of interest
+    bool RaySensor::process(SimEntityPtr ent)
     {
-        // TODO: implement
         return true;
     }
     
@@ -49,7 +48,7 @@ namespace OpenNero {
     }
 
     //! Get the value computed for this sensor given the filtered objects
-    double RaySensor::getObservation(SimEntitySet subset)
+    double RaySensor::getObservation()
     {
         // TODO: implement
         return 0.5;

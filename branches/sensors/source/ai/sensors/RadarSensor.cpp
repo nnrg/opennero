@@ -46,7 +46,7 @@ namespace OpenNero
     }
 
     //! Decide if this sensor is interested in a particular object
-    bool RadarSensor::filter(SimEntityPtr ent)
+    bool RadarSensor::process(SimEntityPtr ent)
     {
         // TODO: implement
         return true;
@@ -67,7 +67,7 @@ namespace OpenNero
     }
 
     //! Get the value computed for this sensor given the filtered objects
-    double RadarSensor::getObservation(SimEntitySet subset)
+    double RadarSensor::getObservation()
     {
         // TODO: implement
         return 0.5;

@@ -33,17 +33,17 @@ namespace OpenNero
         //! Get the types of objects this sensor needs to look at
         virtual U32 getTypesOfInterest();
 
-        //! Decide if this sensor is interested in a particular object
-        virtual bool filter(SimEntityPtr ent);
-        
         //! get the minimal possible observation
         virtual double getMin();
         
         //! get the maximum possible observation
         virtual double getMax();
 
-        //! Get the value computed for this sensor given the filtered objects
-        virtual double getObservation(SimEntitySet subset);
+        //! Process an object of interest
+        virtual bool process(SimEntityPtr ent);
+        
+        //! Get the value computed for this sensor
+        virtual double getObservation();
     };
 }
 
