@@ -1,16 +1,181 @@
-# find the source folders
-FILE(GLOB OpenNERO_folders *)
-FOREACH(f ${OpenNERO_folders})
-  IF (IS_DIRECTORY ${f})
-    FILE(RELATIVE_PATH folder ${CMAKE_CURRENT_SOURCE_DIR} ${f})
-    FILE(GLOB_RECURSE sources_${folder} RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} ${folder}/*.cpp ${f}/*.h)
-    SOURCE_GROUP(${folder} FILES ${sources_${folder}})
-  ENDIF (IS_DIRECTORY ${f})
-ENDFOREACH(f ${OpenNERO_folders})
-
 # find all the source files
-FILE(GLOB_RECURSE OpenNERO_sources *.cpp)
-FILE(GLOB_RECURSE OpenNERO_headers *.h)
+SET(OpenNERO_sources
+core/BitVector.cpp
+core/Bitstream.cpp
+core/Time.cpp
+core/LogConnections.cpp
+core/File.cpp
+core/IrrSerialize.cpp
+core/Log.cpp
+core/LookupTable.cpp
+core/IrrUtil.cpp
+core/AssertExt.cpp
+gui/GuiButton.cpp
+gui/GuiEditBox.cpp
+gui/GuiText.cpp
+gui/GuiManager.cpp
+gui/GuiCheckBox.cpp
+gui/GuiScrollBar.cpp
+gui/GuiImage.cpp
+gui/GuiComboBox.cpp
+gui/GuiWindow.cpp
+gui/GuiContextMenu.cpp
+gui/GuiBase.cpp
+app.cpp
+scripting/Scheduler.cpp
+scripting/scripting.cpp
+game/objects/TemplatedObject.cpp
+game/objects/PropertyMap.cpp
+game/Kernel.cpp
+game/Simulation.cpp
+game/SimEntityData.cpp
+game/factories/SimFactory.cpp
+game/factories/IrrFactory.cpp
+game/SimEntity.cpp
+game/SimContext.cpp
+game/Mod.cpp
+audio/AudioObject.cpp
+audio/Ale.cpp
+audio/AudioManager.cpp
+input/IOMapping.cpp
+input/IOState.cpp
+utils/Config.cpp
+ai/Environment.cpp
+ai/sensors/RadarSensor.cpp
+ai/sensors/Sensor.cpp
+ai/sensors/RaySensor.cpp
+ai/rl/tiles2.cpp
+ai/rl/Sarsa.cpp
+ai/rl/Approximator.cpp
+ai/rl/QLearning.cpp
+ai/rl/TD.cpp
+ai/random/RandomAgent.cpp
+ai/random/RandomAI.cpp
+ai/random/RandomEnvironment.cpp
+ai/AgentBrain.cpp
+ai/AIObject.cpp
+ai/AI.cpp
+ai/PythonAI.cpp
+ai/rtneat/rtNEAT.cpp
+ai/AIManager.cpp
+rtneat/XMLSerializable.cpp
+rtneat/species.cpp
+rtneat/innovation.cpp
+rtneat/trait.cpp
+rtneat/gene.cpp
+rtneat/network.cpp
+rtneat/organism.cpp
+rtneat/pool.cpp
+rtneat/neat.cpp
+rtneat/experiments.cpp
+rtneat/nnode.cpp
+rtneat/link.cpp
+rtneat/genome.cpp
+rtneat/population.cpp
+math/Random.cpp
+render/Shader.cpp
+render/NeroDrawNode.cpp
+render/LineSet.cpp
+render/FPSCounter.cpp
+render/Camera.cpp
+render/SceneObject.cpp
+)
+
+SET(OpenNERO_headers
+core/IrrUtil.h
+core/IdNameRegistry.h
+core/File.h
+core/Algorithm.h
+core/LookupTable.h
+core/IrrSerialize.h
+core/Bitstream.h
+core/Common.h
+core/BoostCommon.h
+core/ONTime.h
+core/ONTypes.h
+core/Error.h
+core/Log.h
+core/Preprocessor.h
+core/TimeImpl.h
+core/HashMap.h
+core/LogConnections.h
+core/AssertExt.h
+core/BitVector.h
+gui/GuiBase.h
+gui/GuiContextMenu.h
+gui/GuiCheckBox.h
+gui/GuiText.h
+gui/GuiComboBox.h
+gui/GuiScrollBar.h
+gui/GuiManager.h
+gui/GuiWindow.h
+gui/GuiEditBox.h
+gui/GuiButton.h
+gui/GuiImage.h
+scripting/Scheduler.h
+scripting/scriptIncludes.h
+scripting/scripting.h
+game/objects/PropertyMap.h
+game/objects/TemplatedObject.h
+game/objects/SimEntityComponent.h
+game/factories/IrrFactory.h
+game/factories/SimFactory.h
+game/SimEntity.h
+game/Mod.h
+game/Kernel.h
+game/SimEntityData.h
+game/SimContext.h
+game/Simulation.h
+audio/AudioObject.h
+audio/AudioManager.h
+audio/Ale.h
+input/IOState.h
+input/IOEnums.h
+input/IOMapping.h
+utils/Config.h
+mainpage.h
+ai/AI.h
+ai/AIObject.h
+ai/sensors/RaySensor.h
+ai/sensors/RadarSensor.h
+ai/sensors/Sensor.h
+ai/rl/TD.h
+ai/rl/tiles2.h
+ai/rl/Approximator.h
+ai/rl/Sarsa.h
+ai/rl/BackpropApproximator.h
+ai/rl/QLearning.h
+ai/random/RandomAI.h
+ai/random/RandomEnvironment.h
+ai/random/RandomAgent.h
+ai/Environment.h
+ai/AIManager.h
+ai/rtneat/rtNEAT.h
+ai/PythonAI.h
+ai/AgentBrain.h
+rtneat/neat.h
+rtneat/innovation.h
+rtneat/experiments.h
+rtneat/species.h
+rtneat/nnode.h
+rtneat/trait.h
+rtneat/genome.h
+rtneat/population.h
+rtneat/link.h
+rtneat/network.h
+rtneat/XMLSerializable.h
+rtneat/pool.h
+rtneat/organism.h
+rtneat/mersennetwister.h
+rtneat/gene.h
+math/Random.h
+render/FPSCounter.h
+render/LineSet.h
+render/Camera.h
+render/NeroDrawNode.h
+render/SceneObject.h
+render/Shader.h
+)
 
 # find the Boost C++ libraries
 SET(Boost_ADDITIONAL_VERSIONS 1.45.0 1.45 1.44.0 1.44 1.43.0 1.43 1.42.0 1.42 1.41.0 1.41 1.40.0 1.40 1.39.0 1.39 1.38.0 1.38 1.37.0 1.37)
@@ -49,7 +214,6 @@ IF (EXISTS "/p/include")
   INCLUDE_DIRECTORIES ("/p/include")
 ENDIF (EXISTS "/p/include")
 INCLUDE_DIRECTORIES ( ${OpenNERO_SOURCE_DIR}/external/include/irrlicht )
-# INCLUDE_DIRECTORIES ( ${OpenNERO_SOURCE_DIR}/external/source/ode-0.10.0/include )
 INCLUDE_DIRECTORIES ( ${OpenNERO_SOURCE_DIR}/external/include )
 INCLUDE_DIRECTORIES ( ${OpenNERO_SOURCE_DIR}/external/source/tiny )
 INCLUDE_DIRECTORIES ( ${OpenNERO_SOURCE_DIR}/source )
@@ -72,7 +236,7 @@ IF (APPLE)
   SET(MACOSX_BUNDLE_COPYRIGHT "(c) 2007-2008 The University of Texas at Austin")
   SET(MACOSX_BUNDLE_NIB_FILE "MainMenu")
   CONFIGURE_FILE(${CMAKE_MODULE_PATH}/OpenNERO-Info.plist ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
-  ADD_EXECUTABLE(OpenNERO MACOSX_BUNDLE ${OpenNERO_sources} ${OpenNERO_headers})
+  ADD_EXECUTABLE(OpenNERO MACOSX_BUNDLE ${OpenNERO_sources} ${OpenNERO_headers} main.cpp)
   GET_TARGET_PROPERTY(OpenNERO_LOCATION OpenNERO LOCATION)
   STRING(REGEX REPLACE "\\.app/Contents/MacOS/OpenNERO" "" OpenNERO_LOCATION "${OpenNERO_LOCATION}")
   SET(OpenNERO_APP_RESOURCES "${OpenNERO_LOCATION}.app/Contents/Resources")
@@ -85,20 +249,18 @@ IF (APPLE)
     COMMAND ${CMAKE_MODULE_PATH}/bundle.py ${OpenNERO_LOCATION}.app OpenNERO)
   ADD_DEPENDENCIES(BundleStuff OpenNERO)
 ELSEIF (UNIX)
-  ADD_EXECUTABLE(OpenNERO ${OpenNERO_sources} ${OpenNERO_headers})
+  ADD_EXECUTABLE(OpenNERO ${OpenNERO_sources} ${OpenNERO_headers} main.cpp)
   SET(OpenNERO_APP_RESOURCES "${EXECUTABLE_OUTPUT_PATH}")
   # CopyStuff will always run - it copies any updated resources from the source tree into the runtime directory
   ADD_CUSTOM_TARGET(CopyStuff ALL
     COMMAND rsync -auv --delete-excluded --exclude='.svn' ${OpenNERO_SOURCE_DIR}/mods/* ${OpenNERO_APP_RESOURCES})
 ELSE (APPLE)
-  ADD_EXECUTABLE(OpenNERO ${OpenNERO_sources} ${OpenNERO_headers})
+  ADD_EXECUTABLE(OpenNERO ${OpenNERO_sources} ${OpenNERO_headers} main.cpp)
 ENDIF(APPLE)
 
 ADD_DEPENDENCIES(OpenNERO Irrlicht tinyxml)
-# ADD_DEPENDENCIES(OpenNERO ode)
 
 TARGET_LINK_LIBRARIES (OpenNERO Irrlicht tinyxml)
-# TARGET_LINK_LIBRARIES (OpenNERO ode)
 TARGET_LINK_LIBRARIES (OpenNERO ${PYTHON_LIBRARIES})
 TARGET_LINK_LIBRARIES (OpenNERO ${Boost_LIBRARIES})
 
@@ -158,3 +320,11 @@ INSTALL(DIRECTORY ${OpenNERO_SOURCE_DIR}/mods/
         USE_SOURCE_PERMISSIONS
         PATTERN ".svn" EXCLUDE
     )
+
+ADD_EXECUTABLE(opennero_test ${OpenNERO_sources} ${OpenNERO_headers} test.cpp)
+ADD_DEPENDENCIES(opennero_test Irrlicht tinyxml)
+TARGET_LINK_LIBRARIES (opennero_test Irrlicht tinyxml)
+TARGET_LINK_LIBRARIES (opennero_test ${PYTHON_LIBRARIES})
+TARGET_LINK_LIBRARIES (opennero_test ${Boost_LIBRARIES})
+FIND_PACKAGE (Boost COMPONENTS unit_test_framework)
+TARGET_LINK_LIBRARIES (opennero_test ${Boost_LIBRARIES})
