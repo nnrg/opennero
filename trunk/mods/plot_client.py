@@ -32,10 +32,6 @@ class NetworkLogWriter:
                 import numpy
             except:
                 missing.add('numpy')
-            try:
-                import scipy
-            except:
-                missing.add('scipy')
             if len(missing) == 0:
                 try:
                     self.server_process = Popen(['python','plot_server.py'])
