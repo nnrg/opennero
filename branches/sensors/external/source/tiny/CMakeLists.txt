@@ -10,4 +10,4 @@ tinystr.h
 tinyxml.h
 )
 
-ADD_LIBRARY (tinyxml ${tinyxml_SOURCES} ${tinyxml_HEADERS})
+ADD_LIBRARY (tinyxml SHARED ${tinyxml_SOURCES} ${tinyxml_HEADERS})
