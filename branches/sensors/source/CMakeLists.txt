@@ -59,13 +59,14 @@ INCLUDE_DIRECTORIES ( ${OpenNERO_SOURCE_DIR}/source )
 INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIR} )
 INCLUDE_DIRECTORIES ( ${PYTHON_INCLUDE_PATH} )
 INCLUDE_DIRECTORIES ( ${OpenNERO_BINARY_DIR}/external/source/Irrlicht ) # irrlicht IrrCompileConfig.h generated
+LINK_DIRECTORIES (${OpenNERO_BINARY_DIR}/external/source/tiny)
 
 # library linking directories
 IF (Boost_LIBRARY_DIRS)
   LINK_DIRECTORIES ( ${Boost_LIBRARY_DIRS} )
 ENDIF (Boost_LIBRARY_DIRS)
 
-ADD_LIBRARY(opennero ${OpenNERO_sources} ${OpenNERO_includes})
+ADD_LIBRARY(OpenNEROLib ${OpenNERO_sources} ${OpenNERO_includes})
 
 IF (APPLE)
   SET(MACOSX_BUNDLE_BUNDLE_NAME OpenNERO)
@@ -99,13 +100,14 @@ ELSE (APPLE)
   ADD_EXECUTABLE(OpenNERO main.cpp)
 ENDIF(APPLE)
 
-ADD_DEPENDENCIES(OpenNERO Irrlicht tinyxml opennero)
+ADD_DEPENDENCIES(OpenNEROLib Irrlicht tinyxml)
+ADD_DEPENDENCIES(OpenNERO OpenNEROLib)
 
-TARGET_LINK_LIBRARIES (OpenNERO Irrlicht)
-TARGET_LINK_LIBRARIES (OpenNERO tinyxml)
-TARGET_LINK_LIBRARIES (OpenNERO opennero)
-TARGET_LINK_LIBRARIES (OpenNERO ${PYTHON_LIBRARIES})
-TARGET_LINK_LIBRARIES (OpenNERO ${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES (OpenNEROLib Irrlicht)
+TARGET_LINK_LIBRARIES (OpenNEROLib tinyxml)
+TARGET_LINK_LIBRARIES (OpenNEROLib ${PYTHON_LIBRARIES})
+TARGET_LINK_LIBRARIES (OpenNEROLib ${Boost_LIBRARIES})
+TARGET_LINK_LIBRARIES (OpenNERO OpenNEROLib)
 
 IF (APPLE)
   FIND_LIBRARY(FOUNDATION_LIB Foundation)
@@ -116,7 +118,8 @@ ELSEIF (WIN32)
   # the executable on Windows depends on a few more libraries
   TARGET_LINK_LIBRARIES(OpenNERO Ws2_32)
   # on Windows, we need to copy various DLLs used by the executable into the directory where it is
-  SET(OpenNERO_APP_RESOURCES "${CMAKE_RUNTIME_OUTPUT_PATH}/$(Configuration)")
+  GET_TARGET_PROPERTY(OpenNERO_APP_RESOURCES OpenNERO LOCATION)
+  GET_FILENAME_COMPONENT(OpenNERO_APP_RESOURCES "${OpenNERO_APP_RESOURCES}" PATH)
   FILE(TO_NATIVE_PATH "${OpenNERO_SOURCE_DIR}/mods/" OpenNERO_RESOURCES_DIR)
   FILE(TO_NATIVE_PATH "${OpenNERO_APP_RESOURCES}" OpenNERO_APP_RESOURCES)
   # CopyStuff will always get run - it uses xcopy to update only those files that are newer
