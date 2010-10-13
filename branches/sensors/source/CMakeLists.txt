@@ -168,7 +168,7 @@ IF (Boost_FOUND)
     TARGET_LINK_LIBRARIES (testOpenNERO ${PYTHON_LIBRARIES})
     TARGET_LINK_LIBRARIES (testOpenNERO ${Boost_LIBRARIES})
     ENABLE_TESTING()
-    ADD_TEST("test opennero" testOpenNERO)
+    ADD_TEST(RunBoostUnitTests ${EXECUTABLE_OUTPUT_PATH}/testOpenNERO)
 ENDIF (Boost_FOUND)
 
 # install targets
