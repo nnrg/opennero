@@ -1022,6 +1022,7 @@ namespace OpenNero {
             ExportIOMappingScripts();
             ExportConfigScripts();
             ExportCameraScripts();
+            ExportScriptingEngineScripts();
         }
      }
  }
