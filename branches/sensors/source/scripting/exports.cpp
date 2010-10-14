@@ -1,8 +1,15 @@
+/**
+   @file exports.cpp
+   @brief export OpenNERO scripts into Python
+   In order to export more Python classes and/or functions, add your own 
+   ExportXXXScripts method *AND* call it from ExportScripts
+*/
+
 #include "core/Common.h"
 #include "core/BoostCommon.h"
 #include "scripting/scriptIncludes.h"
 
-// this section has one include for each ExportXXXScript function
+// this section has one include for each ExportXXXScripts function
 #include "ai/AI.h"
 #include "ai/AIManager.h"
 #include "ai/AgentBrain.h"
@@ -14,7 +21,17 @@
 #include "core/IrrUtil.h"
 #include "game/Kernel.h"
 #include "game/objects/PropertyMap.h"
-
+#include "gui/GuiButton.h"
+#include "gui/GuiEditBox.h"
+#include "gui/GuiText.h"
+#include "gui/GuiManager.h"
+#include "gui/GuiCheckBox.h"
+#include "gui/GuiScrollBar.h"
+#include "gui/GuiImage.h"
+#include "gui/GuiComboBox.h"
+#include "gui/GuiWindow.h"
+#include "gui/GuiContextMenu.h"
+#include "gui/GuiBase.h"
 
 namespace b = boost;
 namespace py = boost::python;
@@ -23,9 +40,9 @@ namespace OpenNero {
 	namespace scripting {
 
 		/**
-		* Export Agent-specific script components
-		*/
-		void RegisterAgentBrainScripts()
+         * Export Agent-specific script components
+         */
+		void ExportAgentBrainScripts()
 		{
 			// export the interface to python so that we can override its methods there
 			py::class_<PyAgentBrain, b::noncopyable, PyAgentBrainPtr>("AgentBrain", "Abstract brain for an AI agent")
@@ -94,7 +111,7 @@ namespace OpenNero {
 		{ return v1 == v2; }
 
 		/// @brief export the OpenNERO AI script interface
-		void RegisterAIScrips()
+		void ExportAIScripts()
 		{
 			// export bound info
 			py::class_<Bound>("Bound", "Bounds on a single feature (real or discrete)", init<double, double, bool>())
@@ -131,7 +148,7 @@ namespace OpenNero {
 				;
 
 			py::class_<AgentInitInfo>("AgentInitInfo", "Initialization information given to the agent", 
-				init<const FeatureVectorInfo&, const FeatureVectorInfo&, const FeatureVectorInfo&>())
+                                      init<const FeatureVectorInfo&, const FeatureVectorInfo&, const FeatureVectorInfo&>())
 				.def_readonly("sensors", &AgentInitInfo::sensors, "Constraints on the agent's sensor feature vector")
 				.def_readonly("actions", &AgentInitInfo::actions, "Constraints on the agent's action feature vector")
 				.def_readonly("reward", &AgentInitInfo::reward, "Constraints on the agent's reward")
@@ -192,7 +209,7 @@ namespace OpenNero {
 
 
 		/// export AI on/off toggle functions
-		void RegisterAIManagerScripts()
+		void ExportAIManagerScripts()
 		{
 			// TODO: make these methods more organized
 			py::def("switch_ai", &switch_ai, "switch AI");
@@ -208,7 +225,7 @@ namespace OpenNero {
 		}
 
 		/// Export World-specific script components
-		void RegisterEnvironmentScripts()
+		void ExportEnvironmentScripts()
 		{
 			// export the interface to python so that we can override its methods there
 			py::class_<PyEnvironment, noncopyable, PyEnvironmentPtr >("Environment", "Abstract base class for implementing an environment")
@@ -224,7 +241,7 @@ namespace OpenNero {
 		}
 
 		/// Export RTNEAT related classes and functions to Python
-		void RegisterRTNEATScripts()
+		void ExportRTNEATScripts()
 		{
 			// export Network
 			py::class_<PyNetwork, PyNetworkPtr>("Network", "an artificial neural network", no_init )
@@ -287,10 +304,10 @@ namespace OpenNero {
 
 				// make sure the tuple is proper format            
 				if (py::len(state) != 4)
-				{
-					PyErr_SetObject(PyExc_ValueError, ("expected 2-item tuple in call to __setstate__; got %s" % state).ptr() );
-					py::throw_error_already_set();
-				}
+                    {
+                        PyErr_SetObject(PyExc_ValueError, ("expected 2-item tuple in call to __setstate__; got %s" % state).ptr() );
+                        py::throw_error_already_set();
+                    }
 
 				// restore the object's __dict__
 				py::dict d = py::extract<py::dict>(obj.attr("__dict__"))();
@@ -330,10 +347,10 @@ namespace OpenNero {
 
 				// make sure the tuple is proper format            
 				if (py::len(state) != 5)
-				{
-					PyErr_SetObject(PyExc_ValueError, ("expected 4-item tuple in call to __setstate__; got %s" % state).ptr() );
-					py::throw_error_already_set();
-				}
+                    {
+                        PyErr_SetObject(PyExc_ValueError, ("expected 4-item tuple in call to __setstate__; got %s" % state).ptr() );
+                        py::throw_error_already_set();
+                    }
 
 				// restore the object's __dict__
 				py::dict d = py::extract<py::dict>(obj.attr("__dict__"))();
@@ -378,7 +395,7 @@ namespace OpenNero {
 		}
 
 		/// export the Irrlicht utilities to python
-		void RegisterIrrUtilScripts()
+		void ExportIrrUtilScripts()
 		{
 			// a vector class
 			py::class_<Vector3f>("Vector3f", "A three-dimensional vector", init<float32_t, float32_t, float32_t>())
@@ -423,28 +440,28 @@ namespace OpenNero {
 				;
 		}
 
-    /// request a switch to a new mod with the specified mod path
-    void switchMod( const std::string& modName, const std::string& modDir )
-    {
-        Kernel::instance().RequestModSwitch(modName,modDir);
-    }
-
-    /// convert mod-relative path to filesystem path
-    std::string findResource(const std::string& path)
-    {
-        return Kernel::instance().findResource(path);
-    }
-
-    std::string getModPath()
-    {
-        return Kernel::instance().getModPath();
-    }
-
-    void setModPath(const std::string& path)
-    {
-        Kernel::instance().setModPath(path);
-    }
-
+        /// request a switch to a new mod with the specified mod path
+        void switchMod( const std::string& modName, const std::string& modDir )
+        {
+            Kernel::instance().RequestModSwitch(modName,modDir);
+        }
+        
+        /// convert mod-relative path to filesystem path
+        std::string findResource(const std::string& path)
+        {
+            return Kernel::instance().findResource(path);
+        }
+        
+        std::string getModPath()
+        {
+            return Kernel::instance().getModPath();
+        }
+        
+        void setModPath(const std::string& path)
+        {
+            Kernel::instance().setModPath(path);
+        }
+        
 		void ExportKernelScripts()
 		{
 			py::def( "switchMod", &switchMod, "Switch the kernel to a new mod");
@@ -452,28 +469,253 @@ namespace OpenNero {
 			py::def( "getModPath", &getModPath, "get the resource search path of the current mod ( separated by ':' )");
 			py::def( "setModPath", &setModPath, "set the resource search path of the current mod ( separated by ':' )");
 		}
+        
+        void ExportPropertyMapScripts()
+        {
+            // export the map
+            typedef std::map< std::string, std::string > StringToStringMap;
 
-    void ExportPropertyMapScripts()
-    {
-        using namespace boost::python;
+            py::class_< StringToStringMap >( "StringToStringMap", "A mapping of strings to strings" )
+                .def(map_indexing_suite< StringToStringMap >() )
+                ;
+            
+            // export property map
+            py::class_<PropertyMap>("PropertyMap", "A quick utility for polling an xml file")
+                .def("construct",   &PropertyMap::constructPropertyMap, "Creating a property map from an xml file path")            
+                .def("get_value", &PropertyMap::PyGetStringValue,       "Get a string value from a property spec" )
+                .def("get_attributes", &PropertyMap::getAttributes,     "Get the attributes at a given property spec")            
+                .def("has_attributes", &PropertyMap::hasAttributes,     "Check if the given property map spec contains attributes")
+                .def("has_value", &PropertyMap::hasValue,               "Check if the given property map spec contains a value")            
+                .def("has_section", &PropertyMap::hasSection,           "Check if the given property map spec exists")
+                ;         
+        }
 
-        // export the map
-        typedef std::map< std::string, std::string > StringToStringMap;
-        class_< StringToStringMap >( "StringToStringMap", "A mapping of strings to strings" )
-            .def(map_indexing_suite< StringToStringMap >() )
-        ;
+        void ExportGuiButtonScripts()
+        {
+            // ptrs to special overloaded member methods
+            _GUI_BASE_PRE_HACK_(GuiButton);
+            
+            py::class_<GuiButton, noncopyable>( "GuiButton", "A basic gui button", no_init )
+                
+                // Hack in our gui base methods
+                _GUI_BASE_HACK_(GuiButton)
+                
+                // export our button methods
+                .def("setImages", &GuiButton::setImages,"Set the images to use for the button" )            
+                ;
+        }
+        
+        void ExportGuiEditBoxScripts()
+        {
+            // ptrs to special overloaded member methods
+            _GUI_BASE_PRE_HACK_(GuiEditBox);
+            
+            py::class_<GuiEditBox, noncopyable>( "GuiEditBox", "A basic gui edit box", no_init )
+                
+                // Hack in our gui base methods
+                _GUI_BASE_HACK_(GuiEditBox)
+                
+                .def( "setText", &GuiEditBox::setText, "Set text of an edit box")
+                ;
+        }
 
-        // export property map
-        class_<PropertyMap>("PropertyMap", "A quick utility for polling an xml file")
-            .def("construct",   &PropertyMap::constructPropertyMap, "Creating a property map from an xml file path")            
-            .def("get_value", &PropertyMap::PyGetStringValue,       "Get a string value from a property spec" )
-            .def("get_attributes", &PropertyMap::getAttributes,     "Get the attributes at a given property spec")            
-            .def("has_attributes", &PropertyMap::hasAttributes,     "Check if the given property map spec contains attributes")
-            .def("has_value", &PropertyMap::hasValue,               "Check if the given property map spec contains a value")            
-            .def("has_section", &PropertyMap::hasSection,           "Check if the given property map spec exists")
-        ;         
-    }
+        void ExportGuiTextScripts()
+        {
+            // ptrs to special overloaded member methods
+            _GUI_BASE_PRE_HACK_(GuiText);
+            
+            class_<GuiText, noncopyable>( "GuiText", "A basic gui text object.", no_init )
+                
+                // Hack in our gui base methods
+                _GUI_BASE_HACK_(GuiText)
+                
+                // export our button methods
+                .add_property( "color", &GuiText::GetColor, &GuiText::SetColor )
+                .add_property("wordWrap", &GuiText::GetWordWrap, &GuiText::SetWordWrap )
+                ;
+        }
+
+        void ExportGuiManagerScripts()
+        {
+            typedef GuiBasePtr (GuiManager::*GetElementPtr)( const std::string& );
+            typedef void (GuiManager::*RemovePtr)( const std::string& );
+            
+            /// export the gui manager class
+            class_<GuiManager,GuiManagerPtr>("GuiManager", "Manager of the gui elements", no_init)
+                .def("removeAll",       
+                     &GuiManager::RemoveAll,
+                     "Remove all gui elements from the manager", "removeAll()")
+                .def("remove",
+                     (RemovePtr)&GuiManager::Remove,
+                     "Remove an individual element from the manager", "remove(guiName)")
+                .def("getNumElements",
+                     &GuiManager::getNumElements,
+                     "Gets the number of elements managed", "getNumElements()")                
+                .def("setTransparency",
+                     &GuiManager::setGuiTransparency,
+                     "Sets the transparency of the gui elements", "setTransparency(floatVal_0_1)")
+                .def("setFont",
+                     &GuiManager::setFont,
+                     "Sets the font file to use for text", "setFont(myFont.imageExt)")
+                .def("getElement",
+                     (GetElementPtr)&GuiManager::getElement,
+                     "Get an element by its name.",
+                     "getElement(elemNameStr)" )                
+                .def("createElement", 
+                     &GuiManager::createElement, 
+                     "Create a gui element", "createElement('type')" )
+                .def("openFileChooserDialog",
+                     &GuiManager::openFileChooserDialog,
+                     "Open a dialog to choose a file.", "openFileChooserDialog('myDialog',modal?,python callback function)" )
+                .def("isOpenFileChooserDialog",
+                     &GuiManager::isOpenFileChooserDialog, 
+                     "Checks if a file chooser dialog is open.", "isOpenFileChooserDialog()" )
+                ;
+        }
+
+        void ExportGuiCheckBoxScripts()
+        {
+            // ptrs to special overloaded member methods
+            _GUI_BASE_PRE_HACK_(GuiCheckBox);
+            
+            py::class_<GuiCheckBox, noncopyable>( "GuiCheckBox", "A basic gui Check box", no_init )                
+                // Hack in our gui base methods
+                _GUI_BASE_HACK_(GuiCheckBox)
+                .add_property( "checked", 
+                               &GuiCheckBox::isChecked, &GuiCheckBox::setChecked, 
+                               "Whether or not the checkbox is checked" )
+                ;
+        }
+        
+
+        void ExportGuiScrollBarScripts()
+        {
+            // ptrs to special overloaded member methods
+            _GUI_BASE_PRE_HACK_(GuiScrollBar);
+
+            class_<GuiScrollBar, noncopyable>( "GuiScrollBar", "A basic scroll bar", no_init )
+
+                // Hack in our gui base methods
+                _GUI_BASE_HACK_(GuiScrollBar)
+
+                // export our scroll bar methods
+                .def("setLargeStep",&GuiScrollBar::setLargeStep, "Sets the large step")
+                .def("setMax",&GuiScrollBar::setMax, "Sets the max value of the slider")
+                .def("setPos",&GuiScrollBar::setPos, "Sets the position of the slider")
+                .def("getPos",&GuiScrollBar::getPos, "Gets the position of the slider")
+                .def("setSmallStep",&GuiScrollBar::setSmallStep, "Sets the small step")
+                ;
+        }
+
+        void ExportGuiImageScripts()
+        {
+            // ptrs to special overloaded member methods
+            _GUI_BASE_PRE_HACK_(GuiImage);
+
+            class_<GuiImage, noncopyable>( "GuiImage", "A basic gui image", no_init )
+
+                // Hack in our gui base methods
+                _GUI_BASE_HACK_(GuiImage)
+
+                // export our button methods
+                .def("setImage",                &GuiImage::setImage,"Set the image to use" )
+                .def("setEnableAlphaChannel",   &GuiImage::setEnableAlphaChannel, "Set whether or not to use the alpha channel")
+                ;
+        }
+
+        void ExportGuiComboBoxScripts()
+        {
+            // ptrs to special overloaded member methods
+            _GUI_BASE_PRE_HACK_(GuiComboBox);
+            typedef int32_t (GuiComboBox::*AddItemPtr)( const std::string& );
+
+            // export the combo box to python
+            class_<GuiComboBox, noncopyable>( "GuiComboBox", "A basic gui combo box", no_init )
+
+                // Hack in our gui base methods
+                _GUI_BASE_HACK_(GuiComboBox)
+
+                .def("addItem", (AddItemPtr)&GuiComboBox::addItem, "Add an item to the combo box", "addItem(myItemDescString)" )
+                ;
+        }
+
+        void ExportGuiWindowScripts()
+        {
+
+            // ptrs to special overloaded member methods
+            _GUI_BASE_PRE_HACK_(GuiWindow);
+
+            class_<GuiWindow, noncopyable>( "GuiWindow", "A basic gui window", no_init )
+
+                // Hack in our gui base methods
+                _GUI_BASE_HACK_(GuiWindow)
+
+                // Additional methods
+                .def("setVisible", 
+                     &GuiWindow::setVisible, 
+                     "Set the visibility of this window" )
+                .def("setVisibleCloseButton", 
+                     &GuiWindow::setVisibleCloseButton, 
+                     "Set the visibility of the close button" )
+                ;
+        }
+
+        void ExportGuiContextMenuScripts()
+        {
+            // ptrs to special overloaded member methods
+            _GUI_BASE_PRE_HACK_(GuiContextMenu);
+
+            typedef void (GuiContextMenu::*AddSubItemPtr)( const std::string&, GuiBasePtr );
+
+            typedef void (GuiContextMenu::*AddItemPtr)( const std::string&, GuiBasePtr );
+
+            typedef void (GuiContextMenu::*AddItemPtr)( const std::string&, GuiBasePtr );
+
+            class_<GuiContextMenu, noncopyable>( "GuiContextMenu", "A basic gui context menu", no_init )
+
+                // Hack in our gui base methods
+                _GUI_BASE_HACK_(GuiContextMenu)
+
+                // export our button methods
+                .def("addSeparator", &GuiContextMenu::addSeparator, "Add a separator to the menu.")
+                .def("addSubItem", (AddSubItemPtr)&GuiContextMenu::AddSubItem, "Add a sub item to the menu.")            
+                .def("addItem", (AddItemPtr)&GuiContextMenu::AddItem, "Add an item to the menu.")            
+                ;
+        }
 
 
-	}
-}
+        void ExportGuiBaseScripts()
+        {
+            // ptrs to special overloaded member methods
+            _GUI_BASE_PRE_HACK_(PyGuiBase);
+
+            // exprt the PyGuiBase class
+            class_<PyGuiBase, noncopyable, GuiBasePtr>( "PyGuiBase", "A basic python gui element", no_init )
+                _GUI_BASE_HACK_(PyGuiBase)
+                ;
+        }
+        
+        void ExportScripts() 
+        {
+            ExportAIScripts();
+            ExportAIManagerScripts();
+            ExportAgentBrainScripts();
+            ExportEnvironmentScripts();
+            ExportRTNEATScripts();
+            ExportIrrUtilScripts();
+            ExportKernelScripts();
+            ExportPropertyMapScripts();
+            ExportGuiButtonScripts();
+            ExportGuiEditBoxScripts();
+            ExportGuiTextScripts();
+            ExportGuiManagerScripts();
+            ExportGuiCheckBoxScripts();
+            ExportGuiScrollBarScripts();
+            ExportGuiImageScripts();
+            ExportGuiComboBoxScripts();
+            ExportGuiWindowScripts();
+            ExportGuiContextMenuScripts();
+            ExportGuiBaseScripts();
+        }
+     }
+ }
