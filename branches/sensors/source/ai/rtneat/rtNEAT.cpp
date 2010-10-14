@@ -186,4 +186,16 @@ namespace OpenNero
             return true;
         }
     }
+
+    std::ostream& operator<<(std::ostream& output, const PyNetwork& net)
+    {
+        output << net.mNetwork;
+        return output;
+    }
+
+    std::ostream& operator<<(std::ostream& output, const PyOrganism& org)
+    {
+        output << org.mOrganism;
+        return output;
+    }
 }

@@ -107,12 +107,6 @@ namespace OpenNero
         friend std::ostream& operator<<(std::ostream& output, const PyNetwork& net);
     };
 
-    std::ostream& operator<<(std::ostream& output, const PyNetwork& net)
-    {
-        output << net.mNetwork;
-        return output;
-    }
-
     /// A Python wrapper for the Organism class with a simple interface for fitness and network
     class PyOrganism
     {
@@ -139,12 +133,6 @@ namespace OpenNero
         /// operator to push to an output stream
         friend std::ostream& operator<<(std::ostream& output, const PyOrganism& net);
     };
-
-    std::ostream& operator<<(std::ostream& output, const PyOrganism& org)
-    {
-        output << org.mOrganism;
-        return output;
-    }
 
 }
 
