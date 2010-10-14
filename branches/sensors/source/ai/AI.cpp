@@ -118,7 +118,7 @@ namespace OpenNero
     FeatureVector FeatureVectorInfo::getInstance() const
     {
         FeatureVector result;
-        vector<double>::const_iterator iter;
+        FeatureVector::const_iterator iter;
         for (iter = lower.begin(); iter != lower.end(); ++iter)
         {
             result.push_back(*iter);

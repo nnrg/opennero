@@ -1,6 +1,8 @@
 #include "core/Common.h"
 #include "core/BoostCommon.h"
 #include "scripting/scriptIncludes.h"
+
+// this section has one include for each ExportXXXScript function
 #include "ai/AI.h"
 #include "ai/AIManager.h"
 #include "ai/AgentBrain.h"
@@ -11,6 +13,8 @@
 #include "ai/rtneat/rtNEAT.h"
 #include "core/IrrUtil.h"
 #include "game/Kernel.h"
+#include "game/objects/PropertyMap.h"
+
 
 namespace b = boost;
 namespace py = boost::python;
@@ -448,6 +452,28 @@ namespace OpenNero {
 			py::def( "getModPath", &getModPath, "get the resource search path of the current mod ( separated by ':' )");
 			py::def( "setModPath", &setModPath, "set the resource search path of the current mod ( separated by ':' )");
 		}
+
+    void ExportPropertyMapScripts()
+    {
+        using namespace boost::python;
+
+        // export the map
+        typedef std::map< std::string, std::string > StringToStringMap;
+        class_< StringToStringMap >( "StringToStringMap", "A mapping of strings to strings" )
+            .def(map_indexing_suite< StringToStringMap >() )
+        ;
+
+        // export property map
+        class_<PropertyMap>("PropertyMap", "A quick utility for polling an xml file")
+            .def("construct",   &PropertyMap::constructPropertyMap, "Creating a property map from an xml file path")            
+            .def("get_value", &PropertyMap::PyGetStringValue,       "Get a string value from a property spec" )
+            .def("get_attributes", &PropertyMap::getAttributes,     "Get the attributes at a given property spec")            
+            .def("has_attributes", &PropertyMap::hasAttributes,     "Check if the given property map spec contains attributes")
+            .def("has_value", &PropertyMap::hasValue,               "Check if the given property map spec contains a value")            
+            .def("has_section", &PropertyMap::hasSection,           "Check if the given property map spec exists")
+        ;         
+    }
+
 
 	}
 }
