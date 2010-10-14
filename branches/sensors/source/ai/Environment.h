@@ -16,6 +16,7 @@ namespace OpenNero
 
 	/// @cond
     BOOST_PTR_DECL(Environment);
+	BOOST_PTR_DECL(PyEnvironment);
 	/// @endcond
 
     /// An abstract interface that represents the simulated world
@@ -79,13 +80,6 @@ namespace OpenNero
         void reset(AgentBrainPtr agent);
     };
 
-    /**
-     * The current state of the environment
-     */
-    class EnvState
-    {
-
-    };
 }
 
 #endif
