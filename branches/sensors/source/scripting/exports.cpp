@@ -32,6 +32,12 @@
 #include "gui/GuiWindow.h"
 #include "gui/GuiContextMenu.h"
 #include "gui/GuiBase.h"
+#include "scripting/Scheduler.h"
+#include "scripting/scripting.h"
+#include "game/SimEntityData.h"
+#include "game/SimContext.h"
+#include "input/IOMapping.h"
+#include "render/Camera.h"
 
 namespace b = boost;
 namespace py = boost::python;
@@ -593,7 +599,7 @@ namespace OpenNero {
             // ptrs to special overloaded member methods
             _GUI_BASE_PRE_HACK_(GuiScrollBar);
 
-            class_<GuiScrollBar, noncopyable>( "GuiScrollBar", "A basic scroll bar", no_init )
+            py::class_<GuiScrollBar, noncopyable>( "GuiScrollBar", "A basic scroll bar", no_init )
 
                 // Hack in our gui base methods
                 _GUI_BASE_HACK_(GuiScrollBar)
@@ -612,7 +618,7 @@ namespace OpenNero {
             // ptrs to special overloaded member methods
             _GUI_BASE_PRE_HACK_(GuiImage);
 
-            class_<GuiImage, noncopyable>( "GuiImage", "A basic gui image", no_init )
+            py::class_<GuiImage, noncopyable>( "GuiImage", "A basic gui image", no_init )
 
                 // Hack in our gui base methods
                 _GUI_BASE_HACK_(GuiImage)
@@ -630,7 +636,7 @@ namespace OpenNero {
             typedef int32_t (GuiComboBox::*AddItemPtr)( const std::string& );
 
             // export the combo box to python
-            class_<GuiComboBox, noncopyable>( "GuiComboBox", "A basic gui combo box", no_init )
+            py::class_<GuiComboBox, noncopyable>( "GuiComboBox", "A basic gui combo box", no_init )
 
                 // Hack in our gui base methods
                 _GUI_BASE_HACK_(GuiComboBox)
@@ -645,7 +651,7 @@ namespace OpenNero {
             // ptrs to special overloaded member methods
             _GUI_BASE_PRE_HACK_(GuiWindow);
 
-            class_<GuiWindow, noncopyable>( "GuiWindow", "A basic gui window", no_init )
+            py::class_<GuiWindow, noncopyable>( "GuiWindow", "A basic gui window", no_init )
 
                 // Hack in our gui base methods
                 _GUI_BASE_HACK_(GuiWindow)
@@ -671,7 +677,7 @@ namespace OpenNero {
 
             typedef void (GuiContextMenu::*AddItemPtr)( const std::string&, GuiBasePtr );
 
-            class_<GuiContextMenu, noncopyable>( "GuiContextMenu", "A basic gui context menu", no_init )
+            py::class_<GuiContextMenu, noncopyable>( "GuiContextMenu", "A basic gui context menu", no_init )
 
                 // Hack in our gui base methods
                 _GUI_BASE_HACK_(GuiContextMenu)
@@ -690,8 +696,302 @@ namespace OpenNero {
             _GUI_BASE_PRE_HACK_(PyGuiBase);
 
             // exprt the PyGuiBase class
-            class_<PyGuiBase, noncopyable, GuiBasePtr>( "PyGuiBase", "A basic python gui element", no_init )
+            py::class_<PyGuiBase, noncopyable, GuiBasePtr>( "PyGuiBase", "A basic python gui element", no_init )
                 _GUI_BASE_HACK_(PyGuiBase)
+                ;
+        }
+
+        Scheduler::EventId schedule( uint32_t timeOffset, const Scheduler::ScriptCommand& command )
+        {
+            Scheduler& scheduler = ScriptingEngine::instance().GetScheduler();
+            return scheduler.ScheduleEvent( timeOffset, command );
+        }
+        
+        bool cancel( const Scheduler::EventId& id )
+        {
+            Scheduler& scheduler = ScriptingEngine::instance().GetScheduler();
+            return scheduler.CancelEvent(id);
+        }
+
+
+        /// export scheduler methods into Python API
+        void ExportSchedulerScripts()
+        {
+            py::def( "schedule", 
+                 &schedule, 
+                 "Schedule an event to execute in some time offset. schedule(offset,command)");
+            py::def( "cancel", 
+                 &cancel, 
+                 "Cancel an event from executing. cancel( eventId )" );
+        }
+        
+        /// redirect standard output to message-level logging
+        class PyStdLogWriter {
+            std::string s;
+        public:
+            PyStdLogWriter() : s() {}
+            /// write messge to log
+            void write(std::string msg)
+            {
+                if (msg == "\n")
+                    {
+                        LOG_F_MSG( "python", s );
+                        s = "";
+                    }
+                else
+                    {
+                        s += msg;
+                    }
+            }
+            /// flush log to final destination
+            void flush() {}
+            /// close log
+            void close() {}
+        };
+        
+        /// redirect standard error to error-level logging
+        class PyErrLogWriter {
+            std::string s;
+        public:
+            PyErrLogWriter() : s() {}
+            /// write a message to log
+            void write(std::string msg)
+            {
+                if (msg == "\n")
+                    {
+                        LOG_F_MSG( "python", s );
+                        s = "";
+                    }
+                else
+                    {
+                        s += msg;
+                    }
+            }
+            /// flush log to final destination
+            void flush() {}
+            /// close log
+            void close() {}
+        };
+
+        /// export scripting engine to Python
+        void ExportScriptingEngineScripts()
+        {
+            py::class_<ScriptingEngine>("ScriptingEngine");
+            py::class_<PyStdLogWriter>("StdLogWriter")
+                .def("write", &PyStdLogWriter::write, "write message to the OpenNERO log")
+                .def("close", &PyStdLogWriter::close, "close the python log writer")
+                .def("flush", &PyStdLogWriter::flush, "flush the OpenNERO log");
+            py::class_<PyErrLogWriter>("ErrLogWriter")
+                .def("write", &PyErrLogWriter::write, "write message to the OpenNERO log")
+                .def("close", &PyErrLogWriter::close, "close the python log writer")
+                .def("flush", &PyErrLogWriter::flush, "flush the OpenNERO log");
+        }
+
+        void ExportSimEntityDataScripts()
+        {
+            py::class_<SimEntityData>("SimEntityData", no_init)
+                .add_property("position", 
+                              make_function(&SimEntityData::GetPosition, return_value_policy<copy_const_reference>()), 
+                              &SimEntityData::SetPosition)
+                .add_property("velocity", 
+                              make_function(&SimEntityData::GetVelocity, return_value_policy<copy_const_reference>()), 
+                              &SimEntityData::SetVelocity)
+                .add_property("rotation", 
+                              make_function(&SimEntityData::GetRotation, return_value_policy<copy_const_reference>()), 
+                              &SimEntityData::SetRotation)
+                .add_property("acceleration",
+                              make_function(&SimEntityData::GetAcceleration, return_value_policy<copy_const_reference>()), 
+                              &SimEntityData::SetAcceleration)
+                .add_property("label",
+                              make_function(&SimEntityData::GetLabel, return_value_policy<copy_const_reference>()),
+                              &SimEntityData::SetLabel)
+                .add_property("color",
+                              make_function(&SimEntityData::GetColor, return_value_policy<copy_const_reference>()),
+                              &SimEntityData::SetColor)
+                .add_property("type",
+                              &SimEntityData::GetType,
+                              &SimEntityData::SetType)
+                .add_property("id", &SimEntityData::GetId)
+                .def("setAnimation", &SimEntityData::SetAnimation, "set the animation of the object")
+                ;
+            
+            py::class_<SimDataVector>("SimDataVector", "A vector of SimEntityData")
+                .def(vector_indexing_suite<SimDataVector>())
+                ;
+        }
+
+        /// get the current simulation context
+        SimContext& GetSimContext()
+        {
+            return *(Kernel::GetSimContext());
+        }
+        
+        BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addObject_overloads, AddObject, 2, 6)
+        
+        BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addSkyBox_overloads, AddSkyBox, 1, 2)
+        
+        BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addLightSource_overloads, AddLightSource, 2, 3)
+        
+        BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(findInRay_overloads, FindInRay, 2, 6)
+        
+        void ExportSimContextScripts()
+        {
+            py::class_<SimContext>("SimContext", "The simulation context from an XML file", no_init )
+                .def("addAxes",
+                     &SimContext::AddAxes, 
+                     "Add a set of Cartesian axes from an XML file")
+                .def("setFog", 
+                     &SimContext::SetFog, 
+                     "Set the fog mode")
+                .def("addCamera", 
+                     &SimContext::AddCamera, 
+                     "Create and add a camera to the context and return camera")
+                .def("addLightSource", 
+                     &SimContext::AddLightSource, 
+                     addLightSource_overloads("Add a light source to the scene"))
+                .def("addSkyBox", 
+                     &SimContext::AddSkyBox, 
+                     addSkyBox_overloads("Add a sky box consisting of 6 images starting with arg0 and ending with arg1"))
+                .def("addObject", 
+                     &SimContext::AddObject, 
+                     "Create an object on the server and broadcast to clients")
+                .def("removeObject", 
+                     &SimContext::RemoveObject, 
+                     "Remove an object from the server and broadcast to clients")
+                .def("getGuiManager", 
+                     &SimContext::GetGuiManager, 
+                     "Return the gui manager for the context")
+                .def("killGame", 
+                     &SimContext::KillGame, 
+                     "Kill the game")
+                .def("setInputMapping", 
+                     &SimContext::SetInputMapping, 
+                     "Set the io map to use" )
+                .def("getNextFreeId", 
+                     &SimContext::GetNextFreeId, 
+                     "Get the next available network ID" )
+                .def("findInRay", 
+                     &SimContext::FindInRay, 
+                     findInRay_overloads("Find the first object that intersects the specified ray (origin:Vector3f, target:Vector3f, [int])") )
+                .def("getClickedPosition", 
+                     &SimContext::GetClickedPosition, 
+                     "Approximate 3d position of the mouse click")
+                .def("getClickedEntityId", 
+                     &SimContext::GetClickedEntityId, 
+                     "Return the id of the entity that was clicked")
+                .def("getMousePosition", 
+                     &SimContext::GetMousePosition, 
+                     "Get the current position of the mouse")
+                .def("setObjectPosition", 
+                     &SimContext::SetObjectPosition, 
+                     "Set the position of an object specified by its id")
+                .def("setObjectRotation", 
+                     &SimContext::SetObjectRotation, 
+                     "Set the rotation of an object specified by its id")
+                .def("setObjectScale", 
+                     &SimContext::SetObjectScale, 
+                     "Set the scale of an object specified by its id")
+                .def("setObjectLabel", 
+                     &SimContext::SetObjectLabel, 
+                     "Set the label of an object specified by its id")
+                .def("setObjectColor", 
+                     &SimContext::SetObjectColor, 
+                     "Set the color of an object specified by its id")
+                .def("setObjectAnimation", 
+                     &SimContext::SetObjectAnimation, 
+                     "Set the animation of the object specified by its id")
+                .def("getObjectPosition", 
+                     &SimContext::GetObjectPosition, 
+                     "Get the position of an object specified by its id")
+                .def("getObjectRotation", 
+                     &SimContext::GetObjectRotation, 
+                     "Get the rotation of an object specified by its id")
+                .def("getObjectScale", 
+                     &SimContext::GetObjectScale, 
+                     "Get the scale of an object specified by its id")
+                .def("getObjectLabel", 
+                     &SimContext::GetObjectLabel, 
+                     "Get the label of an object specified by its id")
+                .def("getObjectColor", 
+                     &SimContext::GetObjectColor, 
+                     "Get the color of an object specified by its id")
+                .def("getObjectBBMinEdge", 
+                     &SimContext::GetObjectBBMinEdge, 
+                     "Get the bounding box min edge of an object specified by its id")
+                .def("getObjectBBMaxEdge", 
+                     &SimContext::GetObjectBBMaxEdge, 
+                     "Get the bounding box max edge of an object specified by its id")
+                .def("transformVector", 
+                     &SimContext::TransformVector, 
+                     "Transform the given vector by the matrix of the object specified by id")
+                ;
+            
+            // this is how Python can access the C++ reference to SimContext
+            py::def("getSimContext", &GetSimContext, return_value_policy<reference_existing_object>());
+        }
+
+        /// Python Binder Method for the IOMap
+        void ExportIOMappingScripts()
+        {
+            py::class_<PyIOMap>("PyIOMap", "The python input mappings", init<>() )
+                .def("BindKey", &PyIOMap::BindKey, "Bind a keyboard key to a python action" )
+                .def("BindMouseButton", &PyIOMap::BindMouseButton, "Bind a mouse button to a python action" )
+                .def("BindMouseAction", &PyIOMap::BindMouseAction, "Bind a mouse button to a python action" )
+                .def("ClearMappings", &PyIOMap::ClearMappings, "Clear all python mappings" )
+                ;
+        }
+
+        /// Get the current application config
+        const AppConfig& GetAppConfig()
+        {
+            return Kernel::const_instance().getAppConfig();
+        }
+
+        /// Exports AppConfig classes to Python
+        void ExportConfigScripts()
+        {            
+            py::class_<AppConfig>("AppConfig", "A configuration of the application.")
+                .def_readwrite("window_title", &AppConfig::window_title)
+                .def_readwrite("log_config_file", &AppConfig::log_config_file)
+                .def_readwrite("renderer", &AppConfig::render_type)
+                .def_readwrite("start_mod_name", &AppConfig::start_mod_name)
+                .def_readwrite("start_mod_dir", &AppConfig::start_mod_dir)
+                .def_readwrite("start_command", &AppConfig::start_command)
+                .def_readwrite("window_width", &AppConfig::window_width)
+                .def_readwrite("window_height", &AppConfig::window_height)
+                .def_readwrite("window_bpp", &AppConfig::window_BPP)
+                .def_readwrite("fullscreen", &AppConfig::full_screen)
+                .def_readwrite("use_stencil_buffer", &AppConfig::use_stencil_buffer)
+                .def_readwrite("use_vsync", &AppConfig::use_vsync)
+                .def_readwrite("seeds", &AppConfig::seeds)
+                .def(self_ns::str(self_ns::self))
+                ;
+
+            py::def("get_app_config", &GetAppConfig, return_value_policy<copy_const_reference>());
+        }
+
+        /// export camera API to script
+        void ExportCameraScripts()
+        {
+            py::class_<Camera,CameraPtr>("Camera", "A camera in a sim context", no_init)
+                .def("setPosition", 
+                     &Camera::setPosition, 
+                     "Set the current position of the camera" )
+                .def("setRotation", 
+                     &Camera::setRotation, 
+                     "Set the euler rotation angles of the camera" )
+                .def("setTarget", 
+                     &Camera::setTarget, 
+                     "Set the point the camera is looking at" )
+                .def("setFarPlane", 
+                     &Camera::setFarPlane, 
+                     "Set the far plane of the perspective projection of the camera" )
+                .def("setEdgeScroll", 
+                     &Camera::setEdgeScroll, 
+                     "Set whether or not the camera edge scrolls" )
+                .def("attach", 
+                     &Camera::attach, 
+                     "Attach to sim object by id" )
                 ;
         }
         
@@ -716,6 +1016,12 @@ namespace OpenNero {
             ExportGuiWindowScripts();
             ExportGuiContextMenuScripts();
             ExportGuiBaseScripts();
+            ExportSchedulerScripts();
+            ExportSimEntityDataScripts();
+            ExportSimContextScripts();
+            ExportIOMappingScripts();
+            ExportConfigScripts();
+            ExportCameraScripts();
         }
      }
  }

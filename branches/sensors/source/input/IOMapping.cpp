@@ -13,7 +13,6 @@
 #include "core/HashMap.h"
 #include "game/Kernel.h"
 #include "game/SimContext.h"
-#include "scripting/scriptIncludes.h"
 #include <Keycodes.h>
 
 namespace OpenNero 
@@ -576,16 +575,4 @@ namespace OpenNero
             AddIOMapping( key, IOMappingPtr( new PythonIOMapping( source, req, pyAction ) ) );
         }
     }
-
-    /// Python Binder Method for the IOMap
-    PYTHON_BINDER(IOMapping)
-    {
-        class_<PyIOMap>("PyIOMap", "The python input mappings", init<>() )
-            .def("BindKey", &PyIOMap::BindKey, "Bind a keyboard key to a python action" )
-            .def("BindMouseButton", &PyIOMap::BindMouseButton, "Bind a mouse button to a python action" )
-            .def("BindMouseAction", &PyIOMap::BindMouseAction, "Bind a mouse button to a python action" )
-            .def("ClearMappings", &PyIOMap::ClearMappings, "Clear all python mappings" )
-            ;
-    }
-
 } //end OpenNero
