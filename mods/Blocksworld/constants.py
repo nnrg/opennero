@@ -1,0 +1,15 @@
+XDIM = 800
+YDIM = 400
+HEIGHT = 20
+OFFSET = -HEIGHT/2
+NEAT_ACTIONS = 3
+NEAT_SENSORS = 12
+pop_size = 40 #Individual population size
+DEPLOY_SIZE = 2#pop_size * 2 #total population size for both rtneats.
+OBSTACLE = 1 #0b0001
+AGENT = 2 #0b0010
+TEAM_1_SL_X = XDIM/20.0
+TEAM_1_SL_Y = YDIM/2
+TEAM_2_SL_X = 19.0/20.0 * XDIM
+TEAM_2_SL_Y = YDIM/2
+CRANGE = 10
