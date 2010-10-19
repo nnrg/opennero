@@ -1,7 +1,7 @@
 import time
 from math import *
 from OpenNero import *
-from NERO.module import *
+from Blocksworld.module import *
 from constants import *
 from common.fitness import Fitness, FitnessStats
 from copy import copy
@@ -35,13 +35,14 @@ class AgentState:
         self.prev_fitness = Fitness()
         self.final_fitness = 0
         self.animation = 'stand'
+        self.prev_collected = []
 
-class NeroEnvironment(Environment):
+class BlocksEnvironment(Environment):
     """
     Environment for the Nero
     """
     def __init__(self):
-        from NERO.module import getMod
+        from Blocksworld.module import getMod
         """
         Create the environment
         """
@@ -68,54 +69,34 @@ class NeroEnvironment(Environment):
         abound.add_continuous(0, pi / 2) # direction of motion
         abound.add_continuous(0, 1) # how fast to move
         abound.add_continuous(0, pi / 2) # direction of motion
-        #abound.add_continuous(-pi / 2, pi / 2) # Firing direction
-        #abound.add_continuous(0, 1)
-        #abound.add_continuous(0, 1) 
         
-        #Wall Sensors
-        sbound.add_continuous(0, 1) # -60 deg        
-        #sbound.add_continuous(0, 1) # -45 deg
-        sbound.add_continuous(0, 1) # -30 deg
-        #sbound.add_continuous(0, 1) # -15 deg
-        sbound.add_continuous(0, 1) # straight ahead
-        #sbound.add_continuous(0, 1) # 15 deg
-        sbound.add_continuous(0, 1) # 30 deg
-        #sbound.add_continuous(0, 1) # 45 deg
-        sbound.add_continuous(0, 1) # 60 deg
-        
-        #Foe Sensors
-        sbound.add_continuous(0, 1) # -60 deg        
-        #sbound.add_continuous(0, 1) # -45 deg
-        sbound.add_continuous(0, 1) # -30 deg
-        #sbound.add_continuous(0, 1) # -15 deg
-        sbound.add_continuous(0, 1) # straight ahead
-        #sbound.add_continuous(0, 1) # 15 deg
-        sbound.add_continuous(0, 1) # 30 deg
-        #sbound.add_continuous(0, 1) # 45 deg
-        sbound.add_continuous(0, 1) # 60 deg
-        
-        #Friend Sensors
-        sbound.add_continuous(0, 1) # -60 deg        
-        #sbound.add_continuous(0, 1) # -45 deg
-        sbound.add_continuous(0, 1) # -30 deg
-        #sbound.add_continuous(0, 1) # -15 deg
-        sbound.add_continuous(0, 1) # straight ahead
-        #sbound.add_continuous(0, 1) # 15 deg
-        sbound.add_continuous(0, 1) # 30 deg
-        #sbound.add_continuous(0, 1) # 45 deg
-        sbound.add_continuous(0, 1) # 60 deg
-
         #Flag Sensors
-        sbound.add_continuous(0, 1) # 0 - 45
-        #sbound.add_continuous(0, 1) # 45 - 90
-        sbound.add_continuous(0, 1) # 90 - 135
-        #sbound.add_continuous(0, 1) # 135 - 180
-        sbound.add_continuous(0, 1) # 180 - 225
-        #sbound.add_continuous(0, 1) # 225 - 270
-        sbound.add_continuous(0, 1) # 270 - 315
-        #sbound.add_continuous(0, 1) # 315 - 360
         sbound.add_continuous(0, 1) # Distance
-        
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        """
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        sbound.add_continuous(0, 1) # Distance
+        """
         self.agent_info = AgentInitInfo(sbound, abound, rbound)
     
     def out_of_bounds(self, pos):
@@ -128,14 +109,18 @@ class NeroEnvironment(Environment):
         """
         reset the environment to its initial state
         """
+        dx = randrange(XDIM/20) - XDIM/40
+        dy = randrange(XDIM/20) - XDIM/40
+                
         state = self.get_state(agent)
-        agent.state.position = copy(state.initial_position)
+        state.team = agent.getTeam()
+        if state.team == 1: agent.state.position = Vector3f(TEAM_1_SL_X + dx, TEAM_1_SL_Y + dy,2)
+        if state.team == 2: agent.state.position = Vector3f(TEAM_2_SL_X + dx, TEAM_2_SL_Y + dy,2)
         agent.state.rotation = copy(state.initial_rotation)
         state.pose = (state.initial_position.x, state.initial_position.y, state.initial_rotation.z)
         state.prev_pose = state.pose
         state.total_damage = 0
         state.curr_damage = 0
-        state.team = agent.getTeam()
         state.prev_fitness = state.fitness
         state.fitness = Fitness()
         #update client fitness
@@ -229,11 +214,11 @@ class NeroEnvironment(Environment):
         """
         2A step for an agent
         """
-        from NERO.module import getMod, parseInput
+        from Blocksworld.module import getMod, parseInput
         # check if the action is valid
         assert(self.agent_info.actions.validate(action))
         
-        startScript('NERO/menu.py')
+        startScript('Blocksworld/menu.py')
         data = script_server.read_data()
         while data:
             parseInput(data.strip())
@@ -243,7 +228,6 @@ class NeroEnvironment(Environment):
 
         #Initilize Agent state
         if agent.step == 0:
-            temp = getMod().flag_loc
             p = agent.state.position
             agent.state.rotation.z = randrange(360)
             r = agent.state.rotation
@@ -263,7 +247,13 @@ class NeroEnvironment(Environment):
             if getMod().getNumToAdd() > 0:
                 dx = randrange(XDIM/20) - XDIM/40
                 dy = randrange(XDIM/20) - XDIM/40
-                getMod().addAgent((XDIM/2 + dx, YDIM/3 + dy, 2))
+                if getMod().currTeam == 2:
+                    XSL = TEAM_1_SL_X
+                    YSL = TEAM_1_SL_Y
+                else:
+                    XSL = TEAM_2_SL_X
+                    YSL = TEAM_2_SL_Y
+                getMod().addAgent((XSL + dx, YSL + dy, 2))
 
         # Update Damage totals
         state.total_damage += state.curr_damage
@@ -314,56 +304,6 @@ class NeroEnvironment(Environment):
             # keep the position the same if we cannot move
             new_position = agent.state.position
         
-        # draw the line of fire
-        fire_pos = copy(position)
-        fire_pos.x, fire_pos.y = fire_x, fire_y
-        
-        # calculate if we hit anyone
-        data = self.target(agent)
-        #string = agent.state.label + str(len(data)) + ": "
-        hit = 0
-        if data != None:#len(data) > 0:
-            sim = data
-            #string += str(sim.label) + "," + str(sim.id) + ";"
-            target = self.getStateId(sim.id)
-            if target != -1:
-                if target.team == state.team:
-                    target.curr_damage += 1 * friendly_fire
-                else:
-                    data = getSimContext().findInRay(position, Vector3f(sim.pose[0],sim.pose[1],2), AGENT + OBSTACLE, True)
-                    if not(len(data) > 0 and data[0] != target):
-                        target.curr_damage += 1
-                        hit = 1
-        
-        # calculate friend/foe
-        ffr = self.getFriendFoe(agent)
-        if ffr[0] == []:
-            return 0 #Corner Case
-        ff = []
-        ff.append(self.nearest(state.pose, state.id, ffr[0]))
-        ff.append(self.nearest(state.pose, state.id, ffr[1]))
-        
-        st = 0
-        ae = 0
-        
-        #calculate fitness
-        sg = -action[0]
-        if ff[0] != 1 and self.distance(ff[0].pose,state.pose) != 0:
-            st = distance_st / self.distance(ff[0].pose,state.pose)
-        if ff[1] != 1 and self.distance(ff[1].pose,state.pose) != 0:
-            ae = distance_ae / self.distance(ff[1].pose,state.pose)
-        af = (distance_af/self.flag_distance(agent))
-        ht = hit
-        vf = -damage        
-        
-        #update current state data with fitness values
-        state.fitness[Fitness.STAND_GROUND] += sg
-        state.fitness[Fitness.STICK_TOGETHER] += st
-        state.fitness[Fitness.APPROACH_ENEMY] += ae
-        state.fitness[Fitness.APPROACH_FLAG] += af
-        state.fitness[Fitness.HIT_TARGET] += ht
-        state.fitness[Fitness.AVOID_FIRE] += vf
-        
         # make the calculated motion
         position.x, position.y = state.pose[0], state.pose[1]
         agent.state.position = position
@@ -372,25 +312,31 @@ class NeroEnvironment(Environment):
         state.prev_pose = state.pose
         state.pose = (new_position.x, new_position.y, rotation.z)
         state.time = time.time()
-        
+
+        x = 0
+
+        #Check distance to all flags, collect as necessary
+        for id in self.flag_locs():
+            if id not in self.flag_teams()[agent.get_team()] and self.flag_distance(agent, id) <= CRANGE:
+                loc = self.flag_locs()[id]
+                for team in self.flag_teams():
+                    if id in team: team.remove(id)
+                self.flag_teams()[agent.get_team()].append(id)
+                x += 1    
+                print "FLAG GRAB: TEAM:", agent.get_team(), "ID:", id, "DISTANCE: ", self.flag_distance(agent,id)
+                if agent.get_team() == 1: getMod().change_flag((TEAM_1_SL_X + 80,loc.y,0),id)
+                if agent.get_team() == 2: getMod().change_flag((TEAM_2_SL_X - 80,loc.y,0),id)
+
+        if len(self.flag_teams()[agent.get_team()]) - len(state.prev_collected) > 0:
+            x -= len(self.flag_teams()[agent.get_team()]) - len(state.prev_collected)
+
+        state.prev_collected = self.flag_teams()[agent.get_team()]
+
         #If it's the final state, handle clean up behaviors
         #You may get better behavior if you move this to epsiode_over
         if agent.step >= self.max_steps - 1:
-            rtneat = agent.get_rtneat()
-            pop = rtneat.get_population_ids()
-            if len(pop) == 0:
-                return 0
-            avg,sig = self.generate_averages(agent)
-            sums = Fitness()
-            sums = getMod().weights * (state.fitness - avg) / sig
-            #Add current unit to pop_state
-            if agent.get_team() == 1: 
-                self.pop_state_1[agent.org.id] = state
-            else:
-                self.pop_state_2[agent.org.id] = state
-            state.final_fitness = sums.sum()
-            print 'FITNESS:',getMod().weights * state.fitness,'=> Z-SCORE:', state.final_fitness
-            return state.final_fitness
+            print "FITNESS:", len(self.flag_teams()[agent.get_team()])
+            return len(self.flag_teams()[agent.get_team()])
 
         return 0
     
@@ -426,116 +372,58 @@ class NeroEnvironment(Environment):
         v = self.agent_info.sensors.get_instance()
         vx = []
         
-        state = self.get_state(agent)
-        
-        vx.append(self.raySense(agent, -60, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, -45, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, -30, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, -15, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 0, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, 15, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 30, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, 45, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 60, MAX_SD, OBSTACLE))
-        
-        ffr = self.getFriendFoe(agent)
-        if (ffr[0] == []) or ffr[1] == []:
-            return v
-        ff = []
-        ff.append(self.nearest(state.pose, state.id, ffr[0]))
-        ff.append(self.nearest(state.pose, state.id, ffr[1]))
-        if ff[0] == 1:
-            return v
-        fd = self.distance(state.pose,(ff[1].pose[0],ff[1].pose[1]))
-        if fd != 0:
-            fh  = ((degrees(atan2(ff[1].pose[1]-state.pose[1],ff[1].pose[0] - state.pose[0])) - state.pose[2]) % 360) - 180
-        else:
-            fh = 0
+        if len(self.flag_teams()[agent.get_team()]) == len(self.flag_locs()): return v
 
-        if fh < 0:
-            fh += 360
+        r = {}
+        for val in range(0,180,30): r[val] = [0,0]
 
-        if fh > 360:
-            fh -= 360
-        
 
-        vx.append(max(0,cos(radians(fh-  0))))
-        #vx.append(max(0,cos(radians(fh- 45))))
-        vx.append(max(0,cos(radians(fh- 90))))
-        #vx.append(max(0,cos(radians(fh-135))))
-        
-        vx.append(max(0,cos(radians(fh-180))))
-        #vx.append(max(0,cos(radians(fh-225))))
-        vx.append(max(0,cos(radians(fh-270))))
-        #vx.append(max(0,cos(radians(fh-315))))
+        for flag in self.flag_locs():
+         if flag in self.flag_teams()[agent.get_team()]: continue
+         fd = self.flag_distance(agent, 0)
+         if fd != 0:
+             fh  = ((degrees(atan2(self.flag_locs()[flag].y-state.pose[1],self.flag_locs()[flag].x - state.pose[0])) - state.pose[2]) % 360) - 180
+         else:
+             fh = 0
+ 
+         if fh < 0:
+             fh += 360
+ 
+         if fh > 360:
+             fh -= 360
+      
+         for val in r:
+             if (fh - val) > 0 and (fh - val) <= 30 and (r[val][0] == 0 or r[val][0] > fd):
+                 r[val][0] = fd
+             if cos(radians(fh-val)) > r[val][1]:
+                 r[val][1] = max(0,cos(radians(fh-val)))
        
-        vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST))) 
-        
-        fd = self.distance(state.pose,(ff[0].pose[0],ff[0].pose[1]))
-        if fd != 0:
-            fh  = ((degrees(atan2(ff[0].pose[1]-state.pose[1],ff[0].pose[0] - state.pose[0])) - state.pose[2]) % 360) - 180
-        else:
-            fh = 0
-        if fh < 0:
-            fh += 360
-        if fh > 360:
-            fh -= 360
-        
-        vx.append(max(0,cos(radians(fh-  0))))
-        #vx.append(max(0,cos(radians(fh- 45))))
-        vx.append(max(0,cos(radians(fh- 90))))
-        #vx.append(max(0,cos(radians(fh-135))))
-        
-        vx.append(max(0,cos(radians(fh-180))))
-        #vx.append(max(0,cos(radians(fh-225))))
-        vx.append(max(0,cos(radians(fh-270))))
-        #vx.append(max(0,cos(radians(fh-315))))
-       
-        vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST))) 
-        
-        
-        fd = self.flag_distance(agent)
-        if fd != 0:
-            fh  = ((degrees(atan2(self.flag_loc().y-state.pose[1],self.flag_loc().x - state.pose[0])) - state.pose[2]) % 360) - 180
-        else:
-            fh = 0
-
-        if fh < 0:
-            fh += 360
-
-        if fh > 360:
-            fh -= 360
-
-        vx.append(max(0,cos(radians(fh-  0))))
-        #vx.append(max(0,cos(radians(fh- 45))))
-        vx.append(max(0,cos(radians(fh- 90))))
-        #vx.append(max(0,cos(radians(fh-135))))
-        
-        vx.append(max(0,cos(radians(fh-180))))
-        #vx.append(max(0,cos(radians(fh-225))))
-        vx.append(max(0,cos(radians(fh-270))))
-        #vx.append(max(0,cos(radians(fh-315))))
-       
-        vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST)))
+        for val in r:
+            vx.append(min(1,max(0,(self.MAX_DIST-r[val][0])/self.MAX_DIST)))
+            vx.append(r[val][1])
 
         for iter in range(len(vx)):
             v[iter] = vx[iter]
         
         return v
    
-    def flag_loc(self):
+    def flag_locs(self):
         """
         Returns the current location of the flag
         """
-        from NERO.module import getMod
-        return getMod().flag_loc
+        from Blocksworld.module import getMod
+        return getMod().flag_locs
 
-    def flag_distance(self, agent):
+    def flag_teams(self):
+        from Blocksworld.module import getMod
+        return getMod().flags
+
+    def flag_distance(self, agent, id):
         """
         Returns the distance of the current agent from the flag
         """
         pos = self.get_state(agent).pose
-        return pow(pow(float(pos[0]) - self.flag_loc().x, 2) + pow(float(pos[1]) - self.flag_loc().y, 2), .5)
+        return pow(pow(float(pos[0]) - self.flag_locs()[id].x, 2) + pow(float(pos[1]) - self.flag_locs()[id].y, 2), .5)
 
     def distance(self, agloc, tgloc):
         """
@@ -606,7 +494,7 @@ class NeroEnvironment(Environment):
         """
         is the current episode over for the agent?
         """
-        from NERO.module import getMod
+        from Blocksworld.module import getMod
         self.max_steps = getMod().lt
         state = self.get_state(agent)
         if self.max_steps != 0 and agent.step >= self.max_steps:
@@ -620,38 +508,8 @@ class NeroEnvironment(Environment):
         """
         cleanup the world
         """
-        killScript('NERO/menu.py')
+        killScript('Blocksworld/menu.py')
         return True
-
-    def generate_averages(self,agent):
-        """
-        Generates averages for using Z-Fitness
-        """
-        rtneat = agent.get_rtneat()
-        pop = rtneat.get_population_ids()
-        #Add current unit to pop_state
-        if agent.get_team() == 1: 
-             pop_state = self.pop_state_1
-        else:
-             pop_state = self.pop_state_2
-        curr_dict = {}
-        for x in pop:
-            curr_dict[x] = pop_state[x]
-        curr_dict[agent.org.id] = pop_state[agent.org.id]
-        pop_state = curr_dict
-        # calculate population average
-        # calculate population standard deviation
-        stats = FitnessStats()
-        for x in pop_state:
-            f = pop_state[x].prev_fitness
-            stats.add(f)
-        return stats.mean, stats.stddev()
-    
-    def clear_averages(self):
-        for x in self.pop_state_1:
-            self.pop_state_1[x].prev_fitness = Fitness()
-        for x in self.pop_state_2:
-            self.pop_state_2[x].prev_fitness = Fitness()
 
     def get_delay(self):
         """
