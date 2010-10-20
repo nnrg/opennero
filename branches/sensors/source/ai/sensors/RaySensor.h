@@ -6,6 +6,8 @@
 
 namespace OpenNero
 {
+    BOOST_SHARED_DECL(RaySensor);
+
     class RaySensor : public Sensor {
     private:
         //! direction vector of the ray (in agent's system where the heading is (1,0,0))

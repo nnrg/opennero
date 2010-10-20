@@ -6,6 +6,8 @@
 
 namespace OpenNero
 {
+    BOOST_SHARED_DECL(RadarSensor);
+
     class RadarSensor : public Sensor {
     private:
         //! least relative yaw (degrees) of objects to include
