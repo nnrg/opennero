@@ -35,7 +35,7 @@ namespace OpenNero
         virtual SensorInfo GetSensorInfo() { return SensorInfo(); }
 
         /// sense the agent's environment
-        virtual Sensors Sense();
+        virtual Observations Sense();
 
         /// display this AI object as a string
         virtual std::ostream& stream(std::ostream& out) const;

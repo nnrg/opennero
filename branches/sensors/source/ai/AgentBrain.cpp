@@ -18,18 +18,18 @@ namespace OpenNero
     }
 
     /// called for agent to take its first step
-    Actions PyAgentBrain::start(const TimeType& time, const Sensors& sensors)
+    Actions PyAgentBrain::start(const TimeType& time, const Observations& observations)
     {
         Actions result;
-        TryOverride("start", result, time, sensors);
+        TryOverride("start", result, time, observations);
         return result;
     }
 
     /// act based on time, sensor arrays, and last reward
-    Actions PyAgentBrain::act(const TimeType& time, const Sensors& sensors, const Reward& reward)
+    Actions PyAgentBrain::act(const TimeType& time, const Observations& observations, const Reward& reward)
     {
         Actions result;
-        TryOverride("act", result, time, sensors, reward);
+        TryOverride("act", result, time, observations, reward);
         return result;
     }
 

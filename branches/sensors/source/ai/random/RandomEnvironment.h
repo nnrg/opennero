@@ -22,7 +22,7 @@ namespace OpenNero
 
     protected:
         /// get a random sensor in compiance with the environmental constraints
-        Sensors get_random_sensors() const;
+        Observations get_random_sensors() const;
 
     public:
 
@@ -47,7 +47,7 @@ namespace OpenNero
         bool is_active(AgentBrainPtr agent);
 
         /// @brief passively sense the agent's environment
-        Sensors sense(AgentBrainPtr agent);
+        Observations sense(AgentBrainPtr agent);
 
         /// @brief cleanup the world on close
         void cleanup();

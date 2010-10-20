@@ -158,7 +158,7 @@ namespace OpenNero {
         friend std::ostream& operator<<(std::ostream& out, const AgentInitInfo& obj);
     };
 
-    typedef FeatureVector Sensors; ///< Sensors type
+    typedef FeatureVector Observations; ///< Observations coming from sensors
 
     typedef FeatureVector Actions; ///< Actions type
 
@@ -167,7 +167,7 @@ namespace OpenNero {
     /// set of agents
     typedef std::set<AgentBrainPtr> AgentSet;
     
-    typedef std::pair<Sensors, Actions> StateActionPair;
+    typedef std::pair<Observations, Actions> StateActionPair;
 
     /// hash value of a feature vector
     size_t hash_value(const FeatureVector& fv);

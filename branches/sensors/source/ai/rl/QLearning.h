@@ -15,7 +15,7 @@ namespace OpenNero
     {
     protected:
     	// predicts reinforcement for current round
-    	virtual double predict(const Sensors& new_state);
+    	virtual double predict(const Observations& new_state);
 	public:
 		/// constructor
 		/// @param gamma reward discount factor (between 0 and 1)
