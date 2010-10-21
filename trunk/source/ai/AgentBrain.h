@@ -48,10 +48,10 @@ namespace OpenNero
             virtual bool initialize(const AgentInitInfo& init) = 0;
 
             /// called for agent to take its first step
-            virtual Actions start(const TimeType& time, const Sensors& sensors) = 0;
+            virtual Actions start(const TimeType& time, const Observations& observations) = 0;
 
             /// act based on time, sensor arrays, and last reward
-            virtual Actions act(const TimeType& time, const Sensors& sensors, const Reward& reward) = 0;
+            virtual Actions act(const TimeType& time, const Observations& observations, const Reward& reward) = 0;
 
             /// called to tell agent about its last reward
             virtual bool end(const TimeType& time, const Reward& reward) = 0;
@@ -80,10 +80,10 @@ namespace OpenNero
             bool initialize(const AgentInitInfo& init);
 
             /// called for agent to take its first step
-            Actions start(const TimeType& time, const Sensors& sensors);
+            Actions start(const TimeType& time, const Observations& observations);
 
             /// act based on time, sensor arrays, and last reward
-            Actions act(const TimeType& time, const Sensors& sensors,
+            Actions act(const TimeType& time, const Observations& observations,
                         const Reward& reward);
 
             /// called to tell agent about its last reward

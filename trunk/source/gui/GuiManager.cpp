@@ -28,8 +28,6 @@
 #include "gui/GuiContextMenu.h"
 #include "gui/GuiButton.h"
 
-#include "scripting/scripting.h"
-
 namespace OpenNero
 {
     GuiElementFactoryResources::GuiElementFactoryResources()
@@ -1043,31 +1041,6 @@ namespace OpenNero
         return -1;
     }
 
-
-
-    PYTHON_BINDER(GuiManager)
-    {
-        using namespace boost;
-        using namespace boost::python;
-
-        typedef GuiBasePtr (GuiManager::*GetElementPtr)( const std::string& );
-        typedef void (GuiManager::*RemovePtr)( const std::string& );
-
-        /// export the gui manager class
-        class_<GuiManager,GuiManagerPtr>("GuiManager", "Manager of the gui elements", no_init)
-            .def("removeAll",       &GuiManager::RemoveAll, "Remove all gui elements from the manager", "removeAll()")
-            .def("remove",          (RemovePtr)&GuiManager::Remove, "Remove an individual element from the manager", "remove(guiName)")
-            .def("getNumElements",  &GuiManager::getNumElements, "Gets the number of elements managed", "getNumElements()")
-            
-            .def("setTransparency", &GuiManager::setGuiTransparency, "Sets the transparency of the gui elements", "setTransparency(floatVal_0_1)")
-            .def("setFont",         &GuiManager::setFont, "Sets the font file to use for text", "setFont(myFont.imageExt)")
-            .def("getElement",      (GetElementPtr)&GuiManager::getElement, "Get an element by its name.", "getElement(elemNameStr)" )
-            
-            .def("createElement", &GuiManager::createElement, "Create a gui element", "createElement('type')" )
-            .def("openFileChooserDialog", &GuiManager::openFileChooserDialog, "Open a dialog to choose a file.", "openFileChooserDialog('myDialog',modal?,python callback function)" )
-            .def("isOpenFileChooserDialog", &GuiManager::isOpenFileChooserDialog, "Checks if a file chooser dialog is open.", "isOpenFileChooserDialog()" )
-        ;
-    }
 
 } //end OpenNero
 

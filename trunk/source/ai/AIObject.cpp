@@ -3,7 +3,6 @@
 #include "ai/AIObject.h"
 #include "ai/AIManager.h"
 #include "ai/Environment.h"
-#include "ai/SensorArray.h"
 #include "ai/AgentBrain.h"
 #include "ai/PythonAI.h"
 #include "ai/random/RandomAI.h"
@@ -55,8 +54,8 @@ namespace OpenNero
         Assert(getBrain());
         if (getBrain()->step == 0) // if first step
         {
-            Sensors sensors = getWorld()->sense(getBrain());
-            setActions(getBrain()->start(dt, sensors));
+            Observations observations = getWorld()->sense(getBrain());
+            setActions(getBrain()->start(dt, observations));
             setReward(getWorld()->step(getBrain(), getActions()));
             getBrain()->step++;
             if (mSharedData && mSharedData->GetLabel().empty() && !getBrain()->name.empty())
@@ -76,8 +75,8 @@ namespace OpenNero
                     getBrain()->step = 0;
                     getBrain()->fitness = 0;
                 } else {
-                    Sensors sensors = getWorld()->sense(getBrain());
-                    setActions(getBrain()->act(dt, sensors, getReward()));
+                    Observations observations = getWorld()->sense(getBrain());
+                    setActions(getBrain()->act(dt, observations, getReward()));
                     setReward(getWorld()->step(getBrain(), getActions()));
                     getBrain()->step++;
                 }
@@ -98,9 +97,9 @@ namespace OpenNero
     }
 
     /// sense the agent's environment
-    Sensors AIObject::Sense()
+    Observations AIObject::Sense()
     {
-        return Sensors();
+        return Observations();
     }
 
     inline std::ostream& operator<<(std::ostream& out, AIObject& obj)

@@ -34,7 +34,7 @@ namespace OpenNero
         virtual void ProcessTick(float32_t dt);
 
         /// sense the agent's environment
-        virtual Sensors Sense();
+        virtual Observations Sense();
 
         /// get initialization information for the agent
         virtual SensorInfo GetSensorInfo() = 0;

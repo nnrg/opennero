@@ -8,7 +8,6 @@
 #include "core/ONTime.h"
 #include "core/Algorithm.h"
 #include "scripting/Scheduler.h"
-#include "scripting/scriptIncludes.h"
 #include "scripting/scripting.h"
 
 namespace OpenNero
@@ -114,27 +113,5 @@ namespace OpenNero
     {
         ScriptingEngine& se = ScriptingEngine::instance();
         return se.Exec(event.mCommand);
-    }
-
-    namespace ScriptEventScheduling
-    {
-        Scheduler::EventId schedule( uint32_t timeOffset, const Scheduler::ScriptCommand& command )
-        {
-            Scheduler& scheduler = ScriptingEngine::instance().GetScheduler();
-            return scheduler.ScheduleEvent( timeOffset, command );
-        }
-
-        bool cancel( const Scheduler::EventId& id )
-        {
-            Scheduler& scheduler = ScriptingEngine::instance().GetScheduler();
-            return scheduler.CancelEvent(id);
-        }
-    }
-
-    /// export scheduler methods into Python API
-    PYTHON_BINDER( Scheduler )
-    {
-        def( "schedule", &ScriptEventScheduling::schedule, "Schedule an event to execute in some time offset. schedule(offset,command)");
-        def( "cancel",   &ScriptEventScheduling::cancel,   "Cancel an event from executing. cancel( eventId )" );
     }
 }

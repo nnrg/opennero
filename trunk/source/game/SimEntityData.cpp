@@ -7,7 +7,6 @@
 #include "game/SimEntityData.h"
 #include "game/Kernel.h"
 #include "game/SimContext.h"
-#include "scripting/scriptIncludes.h"
 #include "core/IrrSerialize.h"
 
 #if NERO_ENABLE_UNIT_TESTS
@@ -298,39 +297,6 @@ namespace OpenNero
 	{
 		return Kernel::instance().GetSimContext()->SetObjectAnimation(mId, animation);
 	}
-
-    PYTHON_BINDER(SimEntityData)
-    {
-        class_<SimEntityData>("SimEntityData", no_init)
-            .add_property("position", 
-                          make_function(&SimEntityData::GetPosition, return_value_policy<copy_const_reference>()), 
-                          &SimEntityData::SetPosition)
-            .add_property("velocity", 
-                          make_function(&SimEntityData::GetVelocity, return_value_policy<copy_const_reference>()), 
-                          &SimEntityData::SetVelocity)
-            .add_property("rotation", 
-                          make_function(&SimEntityData::GetRotation, return_value_policy<copy_const_reference>()), 
-                          &SimEntityData::SetRotation)
-            .add_property("acceleration",
-                          make_function(&SimEntityData::GetAcceleration, return_value_policy<copy_const_reference>()), 
-                          &SimEntityData::SetAcceleration)
-            .add_property("label",
-                          make_function(&SimEntityData::GetLabel, return_value_policy<copy_const_reference>()),
-                          &SimEntityData::SetLabel)
-            .add_property("color",
-                          make_function(&SimEntityData::GetColor, return_value_policy<copy_const_reference>()),
-                          &SimEntityData::SetColor)
-            .add_property("type",
-                          &SimEntityData::GetType,
-                          &SimEntityData::SetType)
-            .add_property("id", &SimEntityData::GetId)
-			.def("setAnimation", &SimEntityData::SetAnimation, "set the animation of the object")
-            ;
-        
-        class_<SimDataVector>("SimDataVector", "A vector of SimEntityData")
-            .def(vector_indexing_suite<SimDataVector>())
-        ;
-    }
 
 	/// output sim entity data to stream
 	std::ostream& operator<<(std::ostream& stream, const SimEntityData& data)

@@ -1,13 +1,9 @@
 #include "core/Common.h"
 #include "AI.h"
-#include "SensorArray.h"
-#include "scripting/scriptIncludes.h"
-#include "core/Log.h"
 #include "game/SimEntityData.h"
 #include "math/Random.h"
 #include <vector>
 #include <list>
-#include <boost/functional/hash.hpp>
 
 namespace OpenNero
 {
@@ -122,7 +118,7 @@ namespace OpenNero
     FeatureVector FeatureVectorInfo::getInstance() const
     {
         FeatureVector result;
-        vector<double>::const_iterator iter;
+        FeatureVector::const_iterator iter;
         for (iter = lower.begin(); iter != lower.end(); ++iter)
         {
             result.push_back(*iter);
@@ -215,12 +211,6 @@ namespace OpenNero
         for (size_t i = 0; i < nRewards; ++i) reward.setContinuous(i,0,1);
     }
 
-    /// return an action array for python to use
-    template<typename T> Actions get_vector(size_t size)
-    {
-        return std::vector<T>(size);
-    }
-
     /// print the bounded array info to stream
     std::ostream& operator<<(std::ostream& out, const FeatureVectorInfo& obj)
     {
@@ -239,64 +229,6 @@ namespace OpenNero
             << "\" actions=\"" << obj.actions
             << "\" reward=\"" << obj.reward << "\" />";
         return out;
-    }
-
-    size_t hash_value(const FeatureVector& v)
-    {
-        return boost::hash_value(v);
-    }
-
-    size_t hash_value(const StateActionPair& sa_pair)
-    {
-        return boost::hash_value(sa_pair);
-    }
-    
-    static bool eq_fv(const FeatureVector& v1, const FeatureVector& v2)
-    { return v1 == v2; }
-
-
-    /// @brief export the OpenNERO AI script interface
-    PYTHON_BINDER( AI )
-    {
-        // export bound info
-        class_<Bound>("Bound", "Bounds on a single feature (real or discrete)", init<double, double, bool>())
-            .def_readonly("min", &Bound::min, "minimum value")
-            .def_readonly("max", &Bound::max, "maximum value")
-            .def_readonly("discrete", &Bound::discrete, "values discrete?")
-            .def(self_ns::str(self_ns::self));
-        
-        // export bounded array info
-        class_<FeatureVectorInfo>("FeatureVectorInfo", "Describe constraints of a feature vector")
-            .def("__len__", &FeatureVectorInfo::size, "Length of the feature vector")
-            .def(self_ns::str(self_ns::self))
-            .def("min", &FeatureVectorInfo::getMin, "Minimal value for an element")
-            .def("max", &FeatureVectorInfo::getMax, "Maximal value for an element")
-            .def("discrete", &FeatureVectorInfo::isDiscrete, "Is the element discrete or continuous?")
-            .def("bound", &FeatureVectorInfo::getBound, "Spec for a particular feature")
-            .def("set_discrete", &FeatureVectorInfo::setDiscrete, "Create a discrete element")
-            .def("set_continuous", &FeatureVectorInfo::setContinuous, "Create a continuous element")
-            .def("add_discrete", &FeatureVectorInfo::addDiscrete, "Add a discrete element")
-            .def("add_continuous", &FeatureVectorInfo::addContinuous, "Add a continuous element")
-            .def("add", &FeatureVectorInfo::add, "Add an element")
-            .def("validate", &FeatureVectorInfo::validate, "Check whether a feature vector is valid")
-            .def("normalize", &FeatureVectorInfo::normalize, "Normalize the feature vector given this info")
-            .def("denormalize", &FeatureVectorInfo::denormalize, "Create an instance of a feature vector from a vector of values between 0 and 1")
-            .def("get_instance", &FeatureVectorInfo::getInstance, "Create a feature vector based on this information")
-            .def("random", &FeatureVectorInfo::getRandom, "Create a random feature vector uniformly distributed within bounds");
-
-        // export std::vector<double>
-        class_< std::vector<double> > ("DoubleVector", "A vector of real values")
-            .def(self_ns::str(self_ns::self))
-            .def("__eq__", &eq_fv)
-            .def(python::vector_indexing_suite< std::vector<double> >());
-
-        class_<AgentInitInfo>("AgentInitInfo", "Initialization information given to the agent", 
-            init<const FeatureVectorInfo&, const FeatureVectorInfo&, const FeatureVectorInfo&>())
-            .def_readonly("sensors", &AgentInitInfo::sensors, "Constraints on the agent's sensor feature vector")
-            .def_readonly("actions", &AgentInitInfo::actions, "Constraints on the agent's action feature vector")
-            .def_readonly("reward", &AgentInitInfo::reward, "Constraints on the agent's reward")
-            .def(self_ns::str(self_ns::self));
-
     }
 
 } // namespace OpenNero

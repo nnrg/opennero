@@ -26,8 +26,6 @@
 
 #include "ai/AIManager.h"
 
-#include "scripting/scriptIncludes.h"
-
 #include "input/IOMapping.h"
 
 #include <sstream>
@@ -650,64 +648,6 @@ namespace OpenNero
     /// @brief Transform the given vector by the matrix of the SimEntity specified by id
     Vector3f SimContext::TransformVector( uint32_t id, const Vector3f& vect ) const {
         return mpSimulation->Find(id)->GetSceneObject()->transformVector(vect);
-    }
-
-    // --------------------------------------------------------------------
-    //  Python Binding Procedures
-
-    /// get the current simulation context
-    SimContext& GetSimContext()
-    {
-        return *(Kernel::GetSimContext());
-    }
-
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addObject_overloads, AddObject, 2, 6)
-
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addSkyBox_overloads, AddSkyBox, 1, 2)
-
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addLightSource_overloads, AddLightSource, 2, 3)
-    
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(findInRay_overloads, FindInRay, 2, 6)
-
-    PYTHON_BINDER( SimContext )
-    {
-        using namespace boost::python;            
-
-        class_<SimContext>("SimContext", "The simulation context from an XML file", no_init )
-            .def("addAxes",              &SimContext::AddAxes, "Add a set of Cartesian axes from an XML file")
-            .def("setFog",               &SimContext::SetFog, "Set the fog mode")
-            .def("addCamera",            &SimContext::AddCamera, "Create and add a camera to the context and return camera")
-            .def("addLightSource",       &SimContext::AddLightSource, addLightSource_overloads("Add a light source to the scene"))
-            .def("addSkyBox",            &SimContext::AddSkyBox, addSkyBox_overloads("Add a sky box consisting of 6 images starting with arg0 and ending with arg1"))
-            .def("addObject",            &SimContext::AddObject, "Create an object on the server and broadcast to clients")
-            .def("removeObject",         &SimContext::RemoveObject, "Remove an object from the server and broadcast to clients")
-            .def("getGuiManager",        &SimContext::GetGuiManager, "Return the gui manager for the context")
-            .def("killGame",             &SimContext::KillGame, "Kill the game")
-            .def("setInputMapping",      &SimContext::SetInputMapping, "Set the io map to use" )
-            .def("getNextFreeId",        &SimContext::GetNextFreeId, "Get the next available network ID" )
-			.def("findInRay",            &SimContext::FindInRay, findInRay_overloads("Find the first object that intersects the specified ray (origin:Vector3f, target:Vector3f, [int])") )
-            .def("getClickedPosition",    &SimContext::GetClickedPosition, "Approximate 3d position of the mouse click")
-            //.def("getClickedEntity",    &SimContext::GetClickedEntity, "Return the entity that was clicked")
-            .def("getClickedEntityId",  &SimContext::GetClickedEntityId, "Return the id of the entity that was clicked")
-            .def("getMousePosition",    &SimContext::GetMousePosition, "Get the current position of the mouse")
-            .def("setObjectPosition",   &SimContext::SetObjectPosition, "Set the position of an object specified by its id")
-            .def("setObjectRotation",   &SimContext::SetObjectRotation, "Set the rotation of an object specified by its id")
-            .def("setObjectScale",      &SimContext::SetObjectScale, "Set the scale of an object specified by its id")
-            .def("setObjectLabel",      &SimContext::SetObjectLabel, "Set the label of an object specified by its id")
-            .def("setObjectColor",      &SimContext::SetObjectColor, "Set the color of an object specified by its id")
-			.def("setObjectAnimation",  &SimContext::SetObjectAnimation, "Set the animation of the object specified by its id")
-            .def("getObjectPosition",   &SimContext::GetObjectPosition, "Get the position of an object specified by its id")
-            .def("getObjectRotation",   &SimContext::GetObjectRotation, "Get the rotation of an object specified by its id")
-            .def("getObjectScale",      &SimContext::GetObjectScale, "Get the scale of an object specified by its id")
-            .def("getObjectLabel",      &SimContext::GetObjectLabel, "Get the label of an object specified by its id")
-            .def("getObjectColor",      &SimContext::GetObjectColor, "Get the color of an object specified by its id")
-            .def("getObjectBBMinEdge",  &SimContext::GetObjectBBMinEdge, "Get the bounding box min edge of an object specified by its id")
-            .def("getObjectBBMaxEdge",  &SimContext::GetObjectBBMaxEdge, "Get the bounding box max edge of an object specified by its id")
-            .def("transformVector",     &SimContext::TransformVector, "Transform the given vector by the matrix of the object specified by id")
-        ;
-
-        // this is how Python can access the C++ reference to SimContext
-        def("getSimContext", &GetSimContext, return_value_policy<reference_existing_object>());
     }
 
 } //end OpenNero

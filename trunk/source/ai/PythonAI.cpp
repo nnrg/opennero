@@ -4,7 +4,6 @@
 #include "ai/AIObject.h"
 #include "ai/AIManager.h"
 #include "ai/Environment.h"
-#include "ai/SensorArray.h"
 #include "ai/AgentBrain.h"
 #include "core/IrrUtil.h"
 #include "game/SimEntityData.h"
@@ -52,9 +51,9 @@ namespace OpenNero
     }
     
     /// sense the agent's environment
-    Sensors PythonAIObject::Sense()
+    Observations PythonAIObject::Sense()
     {
-        return Sensors();
+        return Observations();
     }
     
     PythonAITemplate::PythonAITemplate(SimFactoryPtr factory, const PropertyMap& propMap, const std::string& prefix)
