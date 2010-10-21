@@ -5,7 +5,6 @@
 
 #include "core/Common.h"
 #include "gui/GuiContextMenu.h"
-#include "scripting/scripting.h"
 
 namespace OpenNero
 {
@@ -66,29 +65,4 @@ namespace OpenNero
         context_menu->addItem( title.c_str(), actionContainer->getId() );
     }
 
-    PYTHON_BINDER( GuiContextMenu )
-    {
-        using namespace boost;
-        using namespace boost::python;
-
-        // ptrs to special overloaded member methods
-        _GUI_BASE_PRE_HACK_(GuiContextMenu);
-
-        typedef void (GuiContextMenu::*AddSubItemPtr)( const std::string&, GuiBasePtr );
-
-        typedef void (GuiContextMenu::*AddItemPtr)( const std::string&, GuiBasePtr );
-
-        typedef void (GuiContextMenu::*AddItemPtr)( const std::string&, GuiBasePtr );
-
-        class_<GuiContextMenu, noncopyable>( "GuiContextMenu", "A basic gui context menu", no_init )
-
-            // Hack in our gui base methods
-            _GUI_BASE_HACK_(GuiContextMenu)
-
-            // export our button methods
-            .def("addSeparator", &GuiContextMenu::addSeparator, "Add a separator to the menu.")
-            .def("addSubItem", (AddSubItemPtr)&GuiContextMenu::AddSubItem, "Add a sub item to the menu.")            
-            .def("addItem", (AddItemPtr)&GuiContextMenu::AddItem, "Add an item to the menu.")            
-        ;
-    }
 }

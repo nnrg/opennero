@@ -9,9 +9,9 @@
 namespace OpenNero
 {
 
-    Sensors RandomEnvironment::get_random_sensors() const
+    Observations RandomEnvironment::get_random_sensors() const
     {
-        Sensors result(mInitInfo.sensors.size());
+        Observations result(mInitInfo.sensors.size());
         for (size_t i = 0; i < result.size(); ++i)
         {
             if (mInitInfo.sensors.isDiscrete(i))
@@ -45,7 +45,7 @@ namespace OpenNero
     }
 
     /// @brief passively sense the agent's environment
-    Sensors RandomEnvironment::sense(AgentBrainPtr agent)
+    Observations RandomEnvironment::sense(AgentBrainPtr agent)
     {
         return get_random_sensors();
     }

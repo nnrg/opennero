@@ -62,6 +62,9 @@ ADD_SUBDIRECTORY (${CMAKE_CURRENT_SOURCE_DIR}/external/source)
 # compile source
 ADD_SUBDIRECTORY (${CMAKE_CURRENT_SOURCE_DIR}/source)
 
+# TESTING
+ENABLE_TESTING()
+
 # INSTALL
 
 # we want to create packages for the platforms using CMake and CPack

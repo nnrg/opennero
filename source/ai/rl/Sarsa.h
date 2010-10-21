@@ -18,7 +18,7 @@ namespace OpenNero
             size_t n_episodes;              ///< number of episodes
 		protected:
 			// predicts reinforcement for current round
-			virtual double predict(const Sensors& new_state);
+			virtual double predict(const Observations& new_state);
         public:
             /// constructor
             /// @param gamma reward discount factor (between 0 and 1)
@@ -44,10 +44,10 @@ namespace OpenNero
             virtual ~SarsaBrain() {}
 
             /// called for agent to take its first step
-            virtual Actions start(const TimeType& time, const Sensors& sensors);
+            virtual Actions start(const TimeType& time, const Observations& o);
 
             /// act based on time, sensor arrays, and last reward
-            virtual Actions act(const TimeType& time, const Sensors& sensors, const Reward& reward);
+            virtual Actions act(const TimeType& time, const Observations& o, const Reward& reward);
 
             /// called to tell agent about its last reward
             virtual bool end(const TimeType& time, const Reward& reward);

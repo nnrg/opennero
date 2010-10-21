@@ -18,7 +18,6 @@ namespace OpenNero
     /// @endcond
 
     using namespace NEAT;
-    namespace py = boost::python;
 
     namespace {
         const size_t kNumSpeciesTarget = 5; ///< target number of species in the population
@@ -99,85 +98,6 @@ namespace OpenNero
     RTNEAT::~RTNEAT()
     {
 
-    }
-
-    /// A Python wrapper for the Network class with a simple interface for forward prop
-    class PyNetwork
-    {
-        NetworkPtr mNetwork;
-    public:
-        /// Constructor
-        PyNetwork(NetworkPtr net) : mNetwork(net) {}
-
-        /// flush the network by clearing its internal state
-        void flush() { mNetwork->flush(); }
-
-        /// load sensor values into the network
-        void load_sensors(py::list l)
-        {
-            std::vector<double> sensors;
-            for (py::ssize_t i = 0; i < py::len(l); ++i)
-            {
-                sensors.push_back(py::extract<double>(l[i]));
-            }
-            mNetwork->load_sensors(sensors);
-        }
-
-        /// activate the network for one or more steps until signal reaches output
-        bool activate() { return mNetwork->activate(); }
-
-        /// get output values from the network
-        py::list get_outputs()
-        {
-            py::list l;
-            std::vector<NNodePtr>::const_iterator iter;
-            for (iter = mNetwork->outputs.begin(); iter != mNetwork->outputs.end(); ++iter)
-            {
-                l.append((*iter)->get_active_out());
-            }
-            return l;
-        }
-        /// operator to push to an output stream
-        friend std::ostream& operator<<(std::ostream& output, const PyNetwork& net);
-    };
-
-    std::ostream& operator<<(std::ostream& output, const PyNetwork& net)
-    {
-        output << net.mNetwork;
-        return output;
-    }
-
-    /// A Python wrapper for the Organism class with a simple interface for fitness and network
-    class PyOrganism
-    {
-        OrganismPtr mOrganism;
-    public:
-        /// constructor for a PyOrganism
-        PyOrganism(OrganismPtr org) : mOrganism(org) {}
-        /// set the fitness of the organism
-        void SetFitness(double fitness) { 
-            if (mOrganism->fitness == 0)
-            mOrganism->fitness = fitness; }
-        /// get the fitness of the organism
-        double GetFitness() const { return mOrganism->fitness; }
-		/// get the genome ID of this organism
-        int GetId() const { return mOrganism->gnome->genome_id; }
-        /// set the amount of time the organism has to live
-    	void SetTimeAlive(int time_alive) { mOrganism->time_alive = time_alive; }
-        /// get the amount of time that the organism has to live
-        int GetTimeAlive() const { return mOrganism->time_alive; }
-        /// get network of the organism
-        PyNetworkPtr GetNetwork() const { return PyNetworkPtr(new PyNetwork(mOrganism->net)); }
-        /// save this organism to a file
-        bool Save(const std::string& fname) const { return mOrganism->print_to_file(fname); }
-        /// operator to push to an output stream
-        friend std::ostream& operator<<(std::ostream& output, const PyOrganism& net);
-    };
-
-    std::ostream& operator<<(std::ostream& output, const PyOrganism& org)
-    {
-        output << org.mOrganism;
-        return output;
     }
 
     PyOrganismPtr RTNEAT::next_organism(float prob)
@@ -267,36 +187,15 @@ namespace OpenNero
         }
     }
 
-    using namespace boost::python;
-
-    /// Export RTNEAT related classes and functions to Python
-    PYTHON_BINDER(RTNEAT)
+    std::ostream& operator<<(std::ostream& output, const PyNetwork& net)
     {
-        // export Network
-        class_<PyNetwork, PyNetworkPtr>("Network", "an artificial neural network", no_init )
-            .def("load_sensors", &PyNetwork::load_sensors, "load sensor values into the network")
-            .def("activate", &PyNetwork::activate, "activate the network for one or more steps until signal reaches output")
-            .def("flush", &PyNetwork::flush, "flush the network by clearing its internal state")
-            .def("get_outputs", &PyNetwork::get_outputs, "get output values from the network")
-            .def(self_ns::str(self_ns::self));
+        output << net.mNetwork;
+        return output;
+    }
 
-        // export Organism
-        class_<PyOrganism, PyOrganismPtr>("Organism", "a phenotype and a genotype for a neural network", no_init)
-            .add_property("net", &PyOrganism::GetNetwork, "neural network (phenotype)")
-            .add_property("id", &PyOrganism::GetId, "evolution-wide unique id of the organism")
-            .add_property("fitness", &PyOrganism::GetFitness, &PyOrganism::SetFitness, "organism fitness (non-negative real)")
-			.add_property("time_alive", &PyOrganism::GetTimeAlive, &PyOrganism::SetTimeAlive, "organism time alive (integer, non negative)")
-            .def("save", &PyOrganism::Save, "save the organism to file")
-            .def(self_ns::str(self_ns::self));
-
-        // export AI base class
-        class_<AI, AIPtr, noncopyable>("AI", "AI algorithm", no_init);
-            
-        // export RTNEAT interface
-        class_<RTNEAT, bases<AI>, RTNEATPtr>("RTNEAT", init<const std::string&, const std::string&, S32>())
-            .def(init<const std::string&, S32, S32, S32, F32>())
-            .def("next_organism", &RTNEAT::next_organism, "evolve a new organism and return it")
-            .def("get_population_ids", &RTNEAT::get_population_ids, "get a list of the current genome ids")
-            .def("save_population", &RTNEAT::save_population, "save the population to a file");
+    std::ostream& operator<<(std::ostream& output, const PyOrganism& org)
+    {
+        output << org.mOrganism;
+        return output;
     }
 }
