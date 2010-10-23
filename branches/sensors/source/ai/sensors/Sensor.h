@@ -28,24 +28,24 @@ namespace OpenNero
         U32 ticks;
 
         //! the bitmask which is used to filter objects by type
-        U32 types_;
+        U32 types;
 
         friend class boost::serialization::access;        
         template<class Archive> void serialize(Archive & ar, const unsigned int version)
         {
             ar & BOOST_SERIALIZATION_NVP(ticks);
-            ar & BOOST_SERIALIZATION_NVP(types_);
+            ar & BOOST_SERIALIZATION_NVP(types);
         }
     public:
-        Sensor() : ticks(1), types_(0) {}
+        Sensor() : ticks(1), types(0) {}
 
-        Sensor(U32 ticks, U32 types) : ticks(ticks), types_(types) {}
+        Sensor(U32 ticks, U32 types) : ticks(ticks), types(types) {}
 
         //! Get the region of interest for this sensor
         virtual BBoxf getRegionOfInterest() = 0;
         
         //! Get the types of objects this sensor needs to look at
-        virtual U32 getTypesOfInterest() { return types_; }
+        virtual U32 getTypesOfInterest() { return types; }
 
         //! get the minimal possible observation
         virtual double getMin() = 0;
@@ -63,6 +63,6 @@ namespace OpenNero
     std::ostream& operator<<(std::ostream& output, const Sensor& sensor);
 }
 
-BOOST_CLASS_EXPORT_KEY(Sensor)
+BOOST_CLASS_EXPORT_KEY(OpenNero::Sensor);
 
 #endif /* _OPENNERO_AI_SENSORS_SENSOR_H_ */

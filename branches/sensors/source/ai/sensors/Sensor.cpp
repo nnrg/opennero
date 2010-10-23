@@ -8,7 +8,7 @@ namespace OpenNero
         out_archive << BOOST_SERIALIZATION_NVP(sensor);
         return output;
     }
-
-    BOOST_CLASS_EXPORT_IMPLEMENT(Sensor)
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(OpenNero::Sensor);
 

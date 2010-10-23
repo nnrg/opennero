@@ -11,4 +11,4 @@ namespace OpenNero
 
 }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(SensorArray)
+BOOST_CLASS_EXPORT_IMPLEMENT(OpenNero::SensorArray);

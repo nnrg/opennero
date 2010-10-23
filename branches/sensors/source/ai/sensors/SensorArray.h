@@ -40,6 +40,6 @@ namespace OpenNero {
     std::ostream& operator<<(std::ostream& output, const SensorArray& sensor_array);
 }
 
-BOOST_EXPORT_CLASS_KEY(SensorArray)
+BOOST_CLASS_EXPORT_KEY(OpenNero::SensorArray);
 
 #endif // _OPENNERO_AI_SENSORS_SENSOR_ARRAY_H_

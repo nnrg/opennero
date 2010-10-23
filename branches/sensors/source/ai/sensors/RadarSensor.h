@@ -39,6 +39,13 @@ namespace OpenNero
             ar & BOOST_SERIALIZATION_NVP(radius);
         }
     public:
+        RadarSensor()
+            : Sensor()
+            , leftbound(0), rightbound(0)
+            , bottombound(0), topbound(0)
+            , radius(0)
+        {}
+    
         //! Create a new RadarSensor
         //! @param leftbound least relative yaw (degrees) of objects to include
         //! @param rightbound greatest relative yaw (degrees) of objects to include
@@ -69,9 +76,9 @@ namespace OpenNero
         virtual double getObservation();
     };
 
-    BOOST_EXPORT_CLASS_KEY(RadarSensor)
-
     std::ostream& operator<<(std::ostream& output, const RadarSensor& radar_sensor);
 }
+
+BOOST_CLASS_EXPORT_KEY(OpenNero::RadarSensor);
 
 #endif /* _OPENNERO_AI_SENSOR_RADARSENSOR_H_ */

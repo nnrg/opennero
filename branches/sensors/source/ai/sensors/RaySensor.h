@@ -35,6 +35,8 @@ namespace OpenNero
             ar & BOOST_SERIALIZATION_NVP(radius);
         }
     public:
+        RaySensor() : Sensor(1,0), x(0), y(0), z(0), radius(0) {}
+    
         //! Create a new RaySensor
         //! @param x x-direction of the ray
         //! @param y y-direction of the ray
@@ -60,9 +62,9 @@ namespace OpenNero
         virtual double getObservation();
     };
 
-    BOOST_CLASS_EXPORT_KEY(RaySensor)
-
     std::ostream& operator<<(std::ostream& output, const RaySensor& ray_sensor);
 }
+
+BOOST_CLASS_EXPORT_KEY(OpenNero::RaySensor);
 
 #endif /* _OPENNERO_AI_SENSOR_RAYSENSOR_H_ */

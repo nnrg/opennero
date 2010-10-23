@@ -72,6 +72,6 @@ namespace OpenNero
         out_archive << BOOST_SERIALIZATION_NVP(radar_sensor);
         return output;
     }
-
-    BOOST_CLASS_EXPORT_IMPLEMENT(RadarSensor)
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(OpenNero::RadarSensor)

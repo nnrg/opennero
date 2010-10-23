@@ -36,6 +36,6 @@ namespace OpenNero {
         out_archive << BOOST_SERIALIZATION_NVP(ray_sensor);
         return output;
     }
-
-    BOOST_CLASS_EXPORT_IMPLEMENT(RaySensor)
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(OpenNero::RaySensor)
