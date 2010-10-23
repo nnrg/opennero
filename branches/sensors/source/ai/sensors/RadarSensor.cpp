@@ -14,20 +14,19 @@ namespace OpenNero
         double leftbound, double rightbound, 
         double bottombound, double topbound, 
         double radius, U32 types )
-        : leftbound_(leftbound)
-        , rightbound_(rightbound)
-        , bottombound_(bottombound)
-        , topbound_(topbound)
-        , radius_(radius)
-        , types_(types)
+        : Sensor(1, types)
+        , leftbound(leftbound)
+        , rightbound(rightbound)
+        , bottombound(bottombound)
+        , topbound(topbound)
+        , radius(radius)
     {
         LOG_F_DEBUG("sensors", "new RadarSensor(" 
-            << leftbound_ << ", " 
-            << rightbound_ << ", "
-            << bottombound_ << ", "
-            << topbound_ << ", "
-            << radius_ << ", " 
-            << types_ << ")");
+                    << leftbound << ", " 
+                    << rightbound << ", "
+                    << bottombound << ", "
+                    << topbound << ", "
+                    << radius << ")");
     }
     
     RadarSensor::~RadarSensor() {}
@@ -39,12 +38,6 @@ namespace OpenNero
         return BBoxf(0,0,0,10,10,10);
     }
     
-    //! Get the types of objects this sensor needs to look at
-    U32 RadarSensor::getTypesOfInterest() 
-    {
-        return types_;
-    }
-
     //! Decide if this sensor is interested in a particular object
     bool RadarSensor::process(SimEntityPtr ent)
     {
@@ -72,4 +65,13 @@ namespace OpenNero
         // TODO: implement
         return 0.5;
     }
+    
+    std::ostream& operator<<(std::ostream& output, const RadarSensor& radar_sensor)
+    {
+        boost::archive::xml_oarchive out_archive(output);
+        out_archive << BOOST_SERIALIZATION_NVP(radar_sensor);
+        return output;
+    }
+
+    BOOST_CLASS_EXPORT_IMPLEMENT(RadarSensor)
 }

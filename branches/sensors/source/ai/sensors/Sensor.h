@@ -1,6 +1,9 @@
 #ifndef _OPENNERO_AI_SENSORS_SENSOR_H_
 #define _OPENNERO_AI_SENSORS_SENSOR_H_
 
+#include <boost/serialization/export.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
 #include "core/Common.h"
 #include "core/IrrUtil.h"
 #include "game/SimEntity.h"
@@ -20,12 +23,29 @@ namespace OpenNero
      * method.
      */
     class Sensor {
+    private:
+        //! every how-many ticks should this sensor be refreshed
+        U32 ticks;
+
+        //! the bitmask which is used to filter objects by type
+        U32 types_;
+
+        friend class boost::serialization::access;        
+        template<class Archive> void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(ticks);
+            ar & BOOST_SERIALIZATION_NVP(types_);
+        }
     public:
+        Sensor() : ticks(1), types_(0) {}
+
+        Sensor(U32 ticks, U32 types) : ticks(ticks), types_(types) {}
+
         //! Get the region of interest for this sensor
         virtual BBoxf getRegionOfInterest() = 0;
         
         //! Get the types of objects this sensor needs to look at
-        virtual U32 getTypesOfInterest() = 0;
+        virtual U32 getTypesOfInterest() { return types_; }
 
         //! get the minimal possible observation
         virtual double getMin() = 0;
@@ -39,6 +59,10 @@ namespace OpenNero
         //! Get the value computed for this sensor
         virtual double getObservation() = 0;
     };
+
+    std::ostream& operator<<(std::ostream& output, const Sensor& sensor);
 }
+
+BOOST_CLASS_EXPORT_KEY(Sensor)
 
 #endif /* _OPENNERO_AI_SENSORS_SENSOR_H_ */

@@ -1,54 +1,45 @@
 #ifndef _OPENNERO_AI_SENSORS_SENSOR_ARRAY_H_
 #define _OPENNERO_AI_SENSORS_SENSOR_ARRAY_H_
 
+#include <boost/serialization/export.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/shared_ptr.hpp>
+#include "ai/sensors/Sensor.h"
 #include "core/Common.h"
 #include "game/SimEntity.h"
 #include "game/objects/TemplatedObject.h"
 #include "game/objects/SimEntityComponent.h"
 #include "ai/AI.h"
-#include "ai/sensors/Sensor.h"
-
 
 namespace OpenNero {
 
     BOOST_SHARED_DECL(SensorArray);
-    BOOST_SHARED_DECL(SensorArrayTemplate);
     
-    class SensorArray : 
-        public SimEntityComponent,
-        public TemplatedObject
+    class SensorArray 
+        : public SimEntityComponent
     {
+        friend class boost::serialization::access;
         std::vector<SensorPtr> sensors;
+
+        /// serialize to/from stream, file or string
+        template<class Archive> void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(sensors);
+        }        
     public:
+        SensorArray() : SimEntityComponent(SimEntityPtr()) {};
         SensorArray(SimEntityPtr parent) : SimEntityComponent(parent) {}
         virtual bool LoadFromTemplate(ObjectTemplatePtr t, const SimEntityData& data) { return true; }
         size_t getNumSensors() { return sensors.size(); }
         void addSensor(SensorPtr sensor) { sensors.push_back(sensor); }
         Observations getObservations();
     };
-    
-    class SensorArrayTemplate :
-        public ObjectTemplate
-    {
-    public:
-        /// copy constructor
-        SensorArrayTemplate(const SensorArrayTemplate& t) : ObjectTemplate(t) {}
-        
-        /// constructor
-        SensorArrayTemplate(SimFactoryPtr f, const PropertyMap& props) : ObjectTemplate(f,props) {}
-        
-        /// destructor
-        virtual ~SensorArrayTemplate() {}
 
-        /// create a SensorArray from this template for the specified entity
-        SensorArrayPtr CreateObject(SimEntityPtr ent);
-
-        /// return the string representation of this type
-        static const std::string TemplateType()
-        {
-            return "SensorArray";
-        }
-    };
+    std::ostream& operator<<(std::ostream& output, const SensorArray& sensor_array);
 }
+
+BOOST_EXPORT_CLASS_KEY(SensorArray)
 
 #endif // _OPENNERO_AI_SENSORS_SENSOR_ARRAY_H_

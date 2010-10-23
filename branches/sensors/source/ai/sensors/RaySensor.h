@@ -1,6 +1,9 @@
 #ifndef _OPENNERO_AI_SENSOR_RAYSENSOR_H_
 #define _OPENNERO_AI_SENSOR_RAYSENSOR_H_
 
+#include <boost/serialization/export.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
 #include "core/Common.h"
 #include "ai/sensors/Sensor.h"
 
@@ -10,36 +13,45 @@ namespace OpenNero
 
     class RaySensor : public Sensor {
     private:
-        //! direction vector of the ray (in agent's system where the heading is (1,0,0))
-        Vector3f direction_;
+        //! x-direction of the ray
+        double x;
+
+        //! y-direction of the ray
+        double y;
+
+        //! z-direction of the ray
+        double z;
         
         //! the radius of the ray (how far it extends)
-        double radius_;
+        double radius;
         
-        //! the bitmask which is used to filter objects to be intersected by type
-        U32 types_;
-        
-        
+        friend class boost::serialization::access;        
+        template<class Archive> void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Sensor);
+            ar & BOOST_SERIALIZATION_NVP(x);
+            ar & BOOST_SERIALIZATION_NVP(y);
+            ar & BOOST_SERIALIZATION_NVP(z);
+            ar & BOOST_SERIALIZATION_NVP(radius);
+        }
     public:
         //! Create a new RaySensor
-        //! @param direction direction vector of the ray (in agent's system where the heading is (1,0,0))
+        //! @param x x-direction of the ray
+        //! @param y y-direction of the ray
+        //! @param z z-direction of the ray
         //! @param radius the radius of the ray (how far it extends)
-        //! @param types the bitmask which is used to filter objects to be intersected by type
-        RaySensor(Vector3f direction, double radius, U32 types = 0);
+        RaySensor(double x, double y, double z, double radius, U32 types = 0);
         
         virtual ~RaySensor();
-    
+        
         //! Get the region of interest for this sensor
         virtual BBoxf getRegionOfInterest();
-        
-        //! Get the types of objects this sensor needs to look at
-        virtual U32 getTypesOfInterest();
 
         //! get the minimal possible observation
-        virtual double getMin();
+        virtual double getMin() { return 0.0; }
         
         //! get the maximum possible observation
-        virtual double getMax();
+        virtual double getMax() { return radius; }
 
         //! Process an object of interest
         virtual bool process(SimEntityPtr ent);
@@ -47,6 +59,10 @@ namespace OpenNero
         //! Get the value computed for this sensor
         virtual double getObservation();
     };
+
+    BOOST_CLASS_EXPORT_KEY(RaySensor)
+
+    std::ostream& operator<<(std::ostream& output, const RaySensor& ray_sensor);
 }
 
 #endif /* _OPENNERO_AI_SENSOR_RAYSENSOR_H_ */

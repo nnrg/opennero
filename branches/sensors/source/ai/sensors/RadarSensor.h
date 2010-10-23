@@ -1,6 +1,9 @@
 #ifndef _OPENNERO_AI_SENSOR_RADARSENSOR_H_
 #define _OPENNERO_AI_SENSOR_RADARSENSOR_H_
 
+#include <boost/serialization/export.hpp>
+#include <boost/archive/xml_oarchive.hpp>
+#include <boost/archive/xml_iarchive.hpp>
 #include "core/Common.h"
 #include "ai/sensors/Sensor.h"
 
@@ -11,23 +14,30 @@ namespace OpenNero
     class RadarSensor : public Sensor {
     private:
         //! least relative yaw (degrees) of objects to include
-        double leftbound_;
+        double leftbound;
         
         //! greatest relative yaw (degrees) of objects to include
-        double rightbound_;
+        double rightbound;
         
         //! least relative pitch (degrees) of objects to include
-        double bottombound_;
+        double bottombound;
         
         //! greatest relative pitch (degrees) of objects to include
-        double topbound_;
+        double topbound;
 
         //! the radius of the radar sector (how far it extends)
-        double radius_;
+        double radius;
         
-        //! the bitmask which is used to filter objects by type
-        U32 types_;
-                
+        friend class boost::serialization::access;
+        template<class Archive> void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Sensor);
+            ar & BOOST_SERIALIZATION_NVP(leftbound);
+            ar & BOOST_SERIALIZATION_NVP(rightbound);
+            ar & BOOST_SERIALIZATION_NVP(bottombound);
+            ar & BOOST_SERIALIZATION_NVP(topbound);
+            ar & BOOST_SERIALIZATION_NVP(radius);
+        }
     public:
         //! Create a new RadarSensor
         //! @param leftbound least relative yaw (degrees) of objects to include
@@ -35,7 +45,6 @@ namespace OpenNero
         //! @param bottombound least relative pitch (degrees) of objects to include
         //! @param topbound greatest relative pitch (degrees) of objects to include
         //! @param radius the radius of the radar sector (how far it extends)
-        //! @param types the bitmask which is used to filter objects by type
         RadarSensor(
             double leftbound, double rightbound, 
             double bottombound, double topbound, 
@@ -47,9 +56,6 @@ namespace OpenNero
         //! Get the region of interest for this sensor
         virtual BBoxf getRegionOfInterest();
         
-        //! Get the types of objects this sensor needs to look at
-        virtual U32 getTypesOfInterest();
-
         //! get the minimal possible observation
         virtual double getMin();
         
@@ -62,6 +68,10 @@ namespace OpenNero
         //! Get the value computed for this sensor
         virtual double getObservation();
     };
+
+    BOOST_EXPORT_CLASS_KEY(RadarSensor)
+
+    std::ostream& operator<<(std::ostream& output, const RadarSensor& radar_sensor);
 }
 
 #endif /* _OPENNERO_AI_SENSOR_RADARSENSOR_H_ */
