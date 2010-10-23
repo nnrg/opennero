@@ -2,11 +2,11 @@
 #include "ai/sensors/RadarSensor.h"
 #include "ai/sensors/RaySensor.h"
 #include "ai/sensors/SensorArray.h"
-#define BOOST_TEST_DYN_LINK
-#define BOOST_TEST_MODULE SensorTest
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_CASE( sensor_test )
+BOOST_AUTO_TEST_SUITE( test_opennero )
+
+BOOST_AUTO_TEST_CASE( test_sensors )
 {
     using namespace OpenNero;
     RadarSensorPtr sensor1(new RadarSensor(-30,30,-45,45,100));
@@ -29,3 +29,5 @@ BOOST_AUTO_TEST_CASE( sensor_test )
     BOOST_CHECK(sensor_array);
     BOOST_CHECK_EQUAL(sensor_array->getNumSensors(), 5);
 }
+
+BOOST_AUTO_TEST_SUITE_END()
