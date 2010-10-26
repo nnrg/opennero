@@ -18,6 +18,9 @@
 #include "ai/rl/QLearning.h"
 #include "ai/Environment.h"
 #include "ai/rtneat/rtNEAT.h"
+#include "ai/sensors/Sensor.h"
+#include "ai/sensors/RaySensor.h"
+#include "ai/sensors/RadarSensor.h"
 #include "core/IrrUtil.h"
 #include "game/Kernel.h"
 #include "game/objects/PropertyMap.h"
@@ -96,6 +99,19 @@ namespace OpenNero {
 				.add_property("state", make_function(&QLearningBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
 			;
 		}
+        
+        void ExportSensorScripts()
+        {
+            py::class_<RaySensor, bases<Sensor>, RaySensorPtr>(
+                "RaySensor", 
+                "A ray sensor that returns the distance to the closest object it intersects",
+                init<double, double, double, double, U32>());
+            py::class_<RadarSensor, bases<Sensor>, RadarSensorPtr>(
+                "RadarSensor",
+                "A radar sensor that returns a value based on the number and \
+                distance of objects within a sector of space.",
+                init<double, double, double, double, double, U32>());
+        }
 
 		/// return an action array for python to use
 		template<typename T> Actions get_vector(size_t size)
@@ -536,7 +552,7 @@ namespace OpenNero {
                 _GUI_BASE_HACK_(GuiText)
                 
                 // export our button methods
-                .add_property( "color", &GuiText::GetColor, &GuiText::SetColor )
+                .add_property("color", &GuiText::GetColor, &GuiText::SetColor )
                 .add_property("wordWrap", &GuiText::GetWordWrap, &GuiText::SetWordWrap )
                 ;
         }
@@ -642,6 +658,7 @@ namespace OpenNero {
                 _GUI_BASE_HACK_(GuiComboBox)
 
                 .def("addItem", (AddItemPtr)&GuiComboBox::addItem, "Add an item to the combo box", "addItem(myItemDescString)" )
+                .def("getSelected", &GuiComboBox::getSelected, "Get the currently selected item index", "getSelected()")
                 ;
         }
 

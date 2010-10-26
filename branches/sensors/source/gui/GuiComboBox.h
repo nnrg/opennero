@@ -24,16 +24,18 @@ namespace OpenNero
     {
     public:
 
-        /// An a text item to the box
+        /// Add a text item to the box
         /// @param text the string to add to the box
         /// @return the index of the newly added string
         int32_t addItem( const std::string&  text );
 
-        /// An a text item to the box
+        /// Add a text item to the box
         /// @param text the wide string to add to the box
         /// @return the index of the newly added string
         int32_t addItem( const std::wstring& text );
-
+        
+        int32_t getSelected(); 
+        
     private:
 
         typedef std::vector<std::wstring> EntryVector;
