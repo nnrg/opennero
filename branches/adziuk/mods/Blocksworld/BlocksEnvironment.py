@@ -83,20 +83,12 @@ class BlocksEnvironment(Environment):
         sbound.add_continuous(0, 1) # Distance
         sbound.add_continuous(0, 1) # Distance
         sbound.add_continuous(0, 1) # Distance
-        """
+        
         sbound.add_continuous(0, 1) # Distance
         sbound.add_continuous(0, 1) # Distance
         sbound.add_continuous(0, 1) # Distance
         sbound.add_continuous(0, 1) # Distance
-        sbound.add_continuous(0, 1) # Distance
-        sbound.add_continuous(0, 1) # Distance
-        sbound.add_continuous(0, 1) # Distance
-        sbound.add_continuous(0, 1) # Distance
-        sbound.add_continuous(0, 1) # Distance
-        sbound.add_continuous(0, 1) # Distance
-        sbound.add_continuous(0, 1) # Distance
-        sbound.add_continuous(0, 1) # Distance
-        """
+        
         self.agent_info = AgentInitInfo(sbound, abound, rbound)
     
     def out_of_bounds(self, pos):
@@ -327,8 +319,8 @@ class BlocksEnvironment(Environment):
                 if agent.get_team() == 1: getMod().change_flag((TEAM_1_SL_X + 80,loc.y,0),id)
                 if agent.get_team() == 2: getMod().change_flag((TEAM_2_SL_X - 80,loc.y,0),id)
 
-        if len(self.flag_teams()[agent.get_team()]) - len(state.prev_collected) > 0:
-            x -= len(self.flag_teams()[agent.get_team()]) - len(state.prev_collected)
+        #if len(self.flag_teams()[agent.get_team()]) - len(state.prev_collected) > 0:
+        #    x -= len(self.flag_teams()[agent.get_team()]) - len(state.prev_collected)
 
         state.prev_collected = self.flag_teams()[agent.get_team()]
 
@@ -338,7 +330,7 @@ class BlocksEnvironment(Environment):
             print "FITNESS:", len(self.flag_teams()[agent.get_team()])
             return len(self.flag_teams()[agent.get_team()])
 
-        return 0
+        return x
     
     def raySense(self, agent, heading_mod, dist, types=0, draw=True, foundColor = Color(255, 0, 128, 128), noneColor = Color(255, 0, 255, 255) ):
         """
@@ -371,15 +363,29 @@ class BlocksEnvironment(Environment):
         state = self.get_state(agent)
         v = self.agent_info.sensors.get_instance()
         vx = []
-        
-        if len(self.flag_teams()[agent.get_team()]) == len(self.flag_locs()): return v
 
-        r = {}
-        for val in range(0,180,30): r[val] = [0,0]
+        friend = {}
+        foe = {}
+        cap = {}
+        for val in range(0,180,30):
+            cap[val] = [0,0]
+
+        for val in range(0,180,90): 
+            friend[val] = [0,0]
 
 
         for flag in self.flag_locs():
-         if flag in self.flag_teams()[agent.get_team()]: continue
+         tv = {}
+         if flag in self.flag_teams()[0]:
+             tv = cap
+         elif flag in self.flag_teams()[agent.get_team()]:
+             tv = friend
+         else:
+             tv = cap
+         
+         delta = 30
+         if tv == friend: delta = 90
+
          fd = self.flag_distance(agent, 0)
          if fd != 0:
              fh  = ((degrees(atan2(self.flag_locs()[flag].y-state.pose[1],self.flag_locs()[flag].x - state.pose[0])) - state.pose[2]) % 360) - 180
@@ -392,15 +398,19 @@ class BlocksEnvironment(Environment):
          if fh > 360:
              fh -= 360
       
-         for val in r:
-             if (fh - val) > 0 and (fh - val) <= 30 and (r[val][0] == 0 or r[val][0] > fd):
-                 r[val][0] = fd
-             if cos(radians(fh-val)) > r[val][1]:
-                 r[val][1] = max(0,cos(radians(fh-val)))
+         for val in tv:
+             if ((fh - val) > 0) and ((fh - val) <= (tv == delta)) and (tv[val][0] == 0 or tv[val][0] > fd):
+                 tv[val][0] = fd
+             if cos(radians(fh-val)) > tv[val][1]:
+                 tv[val][1] = max(0,cos(radians(fh-val)))
        
-        for val in r:
-            vx.append(min(1,max(0,(self.MAX_DIST-r[val][0])/self.MAX_DIST)))
-            vx.append(r[val][1])
+        for val in cap:
+            vx.append(min(1,max(0,(self.MAX_DIST-cap[val][0])/self.MAX_DIST)))
+            vx.append(cap[val][1])
+
+        for val in friend:
+            vx.append(min(1,max(0,(self.MAX_DIST-friend[val][0])/self.MAX_DIST)))
+            vx.append(friend[val][1])
 
         for iter in range(len(vx)):
             v[iter] = vx[iter]
