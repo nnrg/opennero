@@ -26,14 +26,13 @@ class RTNEATAgent(AgentBrain):
         from NERO.module import getMod
         self.actions = init_info.actions # constraints for actions
         self.sensors = init_info.sensors # constraints for sensors
-        self.team = getMod().currTeam #Team ID
         return True
 
     def get_rtneat(self):
         """
         Returns the rtNEAT object for this agent
         """
-        return get_ai("neat%d" % self.team)
+        return get_ai("rtneat")
 
     def start(self, time, sensors):
         """
@@ -41,7 +40,7 @@ class RTNEATAgent(AgentBrain):
         """
         from NERO.module import getMod
         EXPLOIT_PROB = getMod().ee
-        rtneat = get_ai("neat%d" % self.team)
+        rtneat = self.get_rtneat()
         self.org = rtneat.next_organism(EXPLOIT_PROB)
         self.state.label = "%.02f" % self.org.fitness
         if FITNESS_OUT:    
@@ -74,7 +73,7 @@ class RTNEATAgent(AgentBrain):
             self.file_out.append(str(self.reward))
             self.file_out.append('\n')
             strn = "".join(self.file_out)
-            f = open('output.out' + str(self.team),'a')
+            f = open('output.out','a')
             f.write(strn)
         return True
 
@@ -84,18 +83,6 @@ class RTNEATAgent(AgentBrain):
         """
         return True
         
-    def getTeam(self):
-        """
-        Returns this teams information (depricated)
-        """
-        return self.team
-   
-    def get_team(self):
-        """
-        Returns this teams information
-        """
-        return self.team
-
     def network_action(self, sensors):
         """
         Take the current network

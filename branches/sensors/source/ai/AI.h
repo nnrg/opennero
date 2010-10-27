@@ -122,7 +122,6 @@ namespace OpenNero {
     typedef FeatureVectorInfo SensorInfo; ///< Sensor/feature vector descriptor
     typedef FeatureVectorInfo ActionInfo; ///< Action vector descriptor
     typedef FeatureVectorInfo RewardInfo; ///< Reward descriptor (currently discarded)
-    // TODO: do we really need multi-objective rewards at this level?
 
     /// Initial information given to an agent
     struct AgentInitInfo
@@ -135,10 +134,8 @@ namespace OpenNero {
         * @param a action description
         * @param r reward description
         */
-        AgentInitInfo(const SensorInfo& s,
-            const ActionInfo& a,
-            const RewardInfo& r) :
-        sensors(s), actions(a), reward(r)
+        AgentInitInfo(const SensorInfo& s, const ActionInfo& a, const RewardInfo& r)
+        : sensors(s), actions(a), reward(r)
         {
         }
 

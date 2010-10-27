@@ -1,0 +1,223 @@
+[1mdiff --git a/mods/NERO/NeroEnvironment.py b/mods/NERO/NeroEnvironment.py[m
+[1mindex 2c58e0d..7f75bc8 100644[m
+[1m--- a/mods/NERO/NeroEnvironment.py[m
+[1m+++ b/mods/NERO/NeroEnvironment.py[m
+[36m@@ -30,7 +30,6 @@[m [mclass AgentState:[m
+         self.start_time = self.time[m
+         self.total_damage = 0[m
+         self.curr_damage = 0[m
+[31m-        self.team = 0[m
+         self.fitness = Fitness()[m
+         self.prev_fitness = Fitness()[m
+         self.final_fitness = 0[m
+[36m@@ -54,11 +53,9 @@[m [mclass NeroEnvironment(Environment):[m
+         self.time = time.time()[m
+         self.MAX_DIST = pow((pow(XDIM, 2) + pow(YDIM, 2)), .5)[m
+         self.states = {}[m
+[31m-        self.teams = {}[m
+         self.speedup = 0[m
+ [m
+[31m-        self.pop_state_1 = {}[m
+[31m-        self.pop_state_2 = {}[m
+[32m+[m[32m        self.pop_state = {}[m
+         [m
+         abound = FeatureVectorInfo() # actions[m
+         sbound = FeatureVectorInfo() # sensors[m
+[36m@@ -68,52 +65,33 @@[m [mclass NeroEnvironment(Environment):[m
+         abound.add_continuous(0, pi / 2) # direction of motion[m
+         abound.add_continuous(0, 1) # how fast to move[m
+         abound.add_continuous(0, pi / 2) # direction of motion[m
+[31m-        #abound.add_continuous(-pi / 2, pi / 2) # Firing direction[m
+[31m-        #abound.add_continuous(0, 1)[m
+[31m-        #abound.add_continuous(0, 1) [m
+         [m
+         #Wall Sensors[m
+         sbound.add_continuous(0, 1) # -60 deg        [m
+[31m-        #sbound.add_continuous(0, 1) # -45 deg[m
+         sbound.add_continuous(0, 1) # -30 deg[m
+[31m-        #sbound.add_continuous(0, 1) # -15 deg[m
+         sbound.add_continuous(0, 1) # straight ahead[m
+[31m-        #sbound.add_continuous(0, 1) # 15 deg[m
+         sbound.add_continuous(0, 1) # 30 deg[m
+[31m-        #sbound.add_continuous(0, 1) # 45 deg[m
+         sbound.add_continuous(0, 1) # 60 deg[m
+         [m
+         #Foe Sensors[m
+         sbound.add_continuous(0, 1) # -60 deg        [m
+[31m-        #sbound.add_continuous(0, 1) # -45 deg[m
+         sbound.add_continuous(0, 1) # -30 deg[m
+[31m-        #sbound.add_continuous(0, 1) # -15 deg[m
+         sbound.add_continuous(0, 1) # straight ahead[m
+[31m-        #sbound.add_continuous(0, 1) # 15 deg[m
+         sbound.add_continuous(0, 1) # 30 deg[m
+[31m-        #sbound.add_continuous(0, 1) # 45 deg[m
+         sbound.add_continuous(0, 1) # 60 deg[m
+         [m
+         #Friend Sensors[m
+         sbound.add_continuous(0, 1) # -60 deg        [m
+[31m-        #sbound.add_continuous(0, 1) # -45 deg[m
+         sbound.add_continuous(0, 1) # -30 deg[m
+[31m-        #sbound.add_continuous(0, 1) # -15 deg[m
+         sbound.add_continuous(0, 1) # straight ahead[m
+[31m-        #sbound.add_continuous(0, 1) # 15 deg[m
+         sbound.add_continuous(0, 1) # 30 deg[m
+[31m-        #sbound.add_continuous(0, 1) # 45 deg[m
+         sbound.add_continuous(0, 1) # 60 deg[m
+ [m
+         #Flag Sensors[m
+         sbound.add_continuous(0, 1) # 0 - 45[m
+[31m-        #sbound.add_continuous(0, 1) # 45 - 90[m
+         sbound.add_continuous(0, 1) # 90 - 135[m
+[31m-        #sbound.add_continuous(0, 1) # 135 - 180[m
+         sbound.add_continuous(0, 1) # 180 - 225[m
+[31m-        #sbound.add_continuous(0, 1) # 225 - 270[m
+         sbound.add_continuous(0, 1) # 270 - 315[m
+[31m-        #sbound.add_continuous(0, 1) # 315 - 360[m
+         sbound.add_continuous(0, 1) # Distance[m
+         [m
+         self.agent_info = AgentInitInfo(sbound, abound, rbound)[m
+[36m@@ -135,7 +113,6 @@[m [mclass NeroEnvironment(Environment):[m
+         state.prev_pose = state.pose[m
+         state.total_damage = 0[m
+         state.curr_damage = 0[m
+[31m-        state.team = agent.getTeam()[m
+         state.prev_fitness = state.fitness[m
+         state.fitness = Fitness()[m
+         #update client fitness[m
+[36m@@ -147,6 +124,15 @@[m [mclass NeroEnvironment(Environment):[m
+         """[m
+         return a blueprint for a new agent[m
+         """[m
+[32m+[m[32m        # adding wall sensors[m
+[32m+[m[32m        #for angle in [-60, -30, 0, 30, 60]:[m
+[32m+[m[32m        #    ray_sensor = RaySensor(cos(radians(-60)),[m
+[32m+[m[32m        #                           sin(radians(-60)),[m
+[32m+[m[32m        #                           0,[m
+[32m+[m[32m        #                           MAX_SD,[m
+[32m+[m[32m        #                           OBSTACLE)[m
+[32m+[m[32m        #    print ray_sensor[m
+[32m+[m[32m        #    agent.add_sensor(ray_sensor)[m
+         return self.agent_info[m
+    [m
+     def get_state(self, agent):[m
+[36m@@ -158,12 +144,6 @@[m [mclass NeroEnvironment(Environment):[m
+         else:[m
+             self.states[agent] = AgentState()[m
+             self.states[agent].id = agent.state.id[m
+[31m-            myTeam = agent.getTeam()[m
+[31m-            self.states[agent].team = myTeam[m
+[31m-            if myTeam in self.teams:[m
+[31m-                self.teams[myTeam].append(self.states[agent])[m
+[31m-            else:[m
+[31m-                self.teams[myTeam] = [][m
+             return self.states[agent][m
+ [m
+     def getStateId(self, id):[m
+[36m@@ -183,11 +163,8 @@[m [mclass NeroEnvironment(Environment):[m
+         friend = [][m
+         foe = [][m
+         astate = self.get_state(agent)[m
+[31m-        myTeam = astate.team[m
+[31m-        friend = self.teams[myTeam][m
+[31m-        for r in self.teams:[m
+[31m-            if r != myTeam:[m
+[31m-                foe = self.teams[r] #TODO MAKE THIS VIABLE OVER 3+ TEAMS[m
+[32m+[m[32m        friends = self.states.values()[m
+[32m+[m[32m        foe = [][m
+         return (friend, foe)[m
+ [m
+     def target(self, agent):[m
+[36m@@ -199,7 +176,6 @@[m [mclass NeroEnvironment(Environment):[m
+ [m
+         state = self.get_state(agent)[m
+         [m
+[31m-[m
+         #sort in order of variance from 0~2 degrees (maybe more)[m
+         valids = [][m
+         for curr in alt:[m
+[36m@@ -253,10 +229,7 @@[m [mclass NeroEnvironment(Environment):[m
+             [m
+             state.pose = (p.x, p.y, r.z)[m
+             state.prev_pose = (p.x, p.y, r.z)[m
+[31m-            if agent.get_team() == 1: [m
+[31m-             self.pop_state_1[agent.org.id] = state [m
+[31m-            else:[m
+[31m-             self.pop_state_2[agent.org.id] = state [m
+[32m+[m[32m            self.pop_state[agent.org.id] = state[m
+ [m
+         #Spawn more agents if there are more to spawn (Staggered spawning times tend to yeild better behavior)[m
+         if agent.step == 3:[m
+[36m@@ -271,10 +244,7 @@[m [mclass NeroEnvironment(Environment):[m
+         state.curr_damage = 0[m
+         [m
+         #Add current unit to pop_state[m
+[31m-        if agent.get_team() == 1: [m
+[31m-             self.pop_state_1[agent.org.id] = state [m
+[31m-        else:[m
+[31m-             self.pop_state_2[agent.org.id] = state [m
+[32m+[m[32m        self.pop_state[agent.org.id] = state[m[41m [m
+         [m
+         #Fitness Function Parameters[m
+         fitness = getMod().weights[m
+[36m@@ -327,13 +297,7 @@[m [mclass NeroEnvironment(Environment):[m
+             #string += str(sim.label) + "," + str(sim.id) + ";"[m
+             target = self.getStateId(sim.id)[m
+             if target != -1:[m
+[31m-                if target.team == state.team:[m
+[31m-                    target.curr_damage += 1 * friendly_fire[m
+[31m-                else:[m
+[31m-                    data = getSimContext().findInRay(position, Vector3f(sim.pose[0],sim.pose[1],2), AGENT + OBSTACLE, True)[m
+[31m-                    if not(len(data) > 0 and data[0] != target):[m
+[31m-                        target.curr_damage += 1[m
+[31m-                        hit = 1[m
+[32m+[m[32m                target.curr_damage += 1 * friendly_fire[m
+         [m
+         # calculate friend/foe[m
+         ffr = self.getFriendFoe(agent)[m
+[36m@@ -384,10 +348,7 @@[m [mclass NeroEnvironment(Environment):[m
+             sums = Fitness()[m
+             sums = getMod().weights * (state.fitness - avg) / sig[m
+             #Add current unit to pop_state[m
+[31m-            if agent.get_team() == 1: [m
+[31m-                self.pop_state_1[agent.org.id] = state[m
+[31m-            else:[m
+[31m-                self.pop_state_2[agent.org.id] = state[m
+[32m+[m[32m            self.pop_state[agent.org.id] = state[m
+             state.final_fitness = sums.sum()[m
+             print 'FITNESS:',getMod().weights * state.fitness,'=> Z-SCORE:', state.final_fitness[m
+             return state.final_fitness[m
+[36m@@ -629,29 +590,18 @@[m [mclass NeroEnvironment(Environment):[m
+         """[m
+         rtneat = agent.get_rtneat()[m
+         pop = rtneat.get_population_ids()[m
+[31m-        #Add current unit to pop_state[m
+[31m-        if agent.get_team() == 1: [m
+[31m-             pop_state = self.pop_state_1[m
+[31m-        else:[m
+[31m-             pop_state = self.pop_state_2[m
+[31m-        curr_dict = {}[m
+[31m-        for x in pop:[m
+[31m-            curr_dict[x] = pop_state[x][m
+[31m-        curr_dict[agent.org.id] = pop_state[agent.org.id][m
+[31m-        pop_state = curr_dict[m
+         # calculate population average[m
+         # calculate population standard deviation[m
+         stats = FitnessStats()[m
+[31m-        for x in pop_state:[m
+[31m-            f = pop_state[x].prev_fitness[m
+[32m+[m[32m        for x in pop:[m
+[32m+[m[32m            f = self.pop_state[x].prev_fitness[m
+             stats.add(f)[m
+[32m+[m[32m        stats.add(self.pop_state[agent.org.id].prev_fitness)[m
+         return stats.mean, stats.stddev()[m
+     [m
+     def clear_averages(self):[m
+[31m-        for x in self.pop_state_1:[m
+[31m-            self.pop_state_1[x].prev_fitness = Fitness()[m
+[31m-        for x in self.pop_state_2:[m
+[31m-            self.pop_state_2[x].prev_fitness = Fitness()[m
+[32m+[m[32m        for x in self.pop_state:[m
+[32m+[m[32m            self.pop_state[x].prev_fitness = Fitness()[m
+ [m
+     def get_delay(self):[m
+         """[m
