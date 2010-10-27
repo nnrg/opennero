@@ -102,7 +102,11 @@ namespace OpenNero {
         
         void ExportSensorScripts()
         {
-            py::class_<RaySensor, bases<Sensor>, RaySensorPtr>(
+			py::class_<PySensor, noncopyable, PySensorPtr>(
+                "Sensor", 
+                "Abstract sensor base class", 
+                no_init);
+            py::class_<RaySensor, noncopyable, bases<Sensor>, RaySensorPtr>(
                 "RaySensor", 
                 "A ray sensor that returns the distance to the closest object it intersects",
                 init<double, double, double, double, U32>());
@@ -1017,6 +1021,7 @@ namespace OpenNero {
             ExportAIScripts();
             ExportAIManagerScripts();
             ExportAgentBrainScripts();
+            ExportSensorScripts();
             ExportEnvironmentScripts();
             ExportRTNEATScripts();
             ExportIrrUtilScripts();

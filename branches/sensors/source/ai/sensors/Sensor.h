@@ -7,11 +7,16 @@
 #include "core/Common.h"
 #include "core/IrrUtil.h"
 #include "game/SimEntity.h"
+#include "scripting/scriptIncludes.h"
+#include "scripting/scripting.h"
 
 namespace OpenNero
 {
     
+    /// @cond
     BOOST_SHARED_DECL(Sensor);
+    BOOST_SHARED_DECL(PySensor);
+    /// @endcond
 
     /**
      * An abstract sensor class for predefined sensor types. The job of such 
@@ -61,6 +66,22 @@ namespace OpenNero
     };
 
     std::ostream& operator<<(std::ostream& output, const Sensor& sensor);
+    
+    class PySensor : public Sensor, public TryWrapper<Sensor>
+    {
+    public:
+        PySensor() : Sensor() {}
+        
+        BBoxf getRegionOfInterest();
+        
+        double getMin();
+        
+        double getMax();
+        
+        bool process(SimEntityPtr ent);
+        
+        double getObservation();
+    };
 }
 
 BOOST_CLASS_EXPORT_KEY(OpenNero::Sensor);
