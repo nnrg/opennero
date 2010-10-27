@@ -2,13 +2,14 @@
 
 namespace OpenNero
 {
-    std::ostream& operator<<(std::ostream& output, const SensorArray& sensor_array)
+    std::ostream& operator<<(std::ostream& out, const SensorArray& sa)
     {
-        boost::archive::xml_oarchive out_archive(output);
-        out_archive << BOOST_SERIALIZATION_NVP(sensor_array);
-        return output;
+        out << "<SensorArray>";
+        std::vector<SensorPtr>::const_iterator iter;
+        for (iter = sa.sensors.begin(); iter != sa.sensors.end(); ++iter) {
+            out << "  " << **iter << std::endl;
+        }
+        out << "</SensorArray>";
     }
 
 }
-
-BOOST_CLASS_EXPORT_IMPLEMENT(OpenNero::SensorArray);

@@ -2,11 +2,18 @@
 
 namespace OpenNero
 {
-    std::ostream& operator<<(std::ostream& output, const Sensor& sensor)
+    void Sensor::toXMLParams(std::ostream& out) const
     {
-        boost::archive::xml_oarchive out_archive(output);
-        out_archive << BOOST_SERIALIZATION_NVP(sensor);
-        return output;
+        out << "ticks=\"" << ticks << "\" "
+            << "types=\"" << types << "\" ";
+    }
+    
+    std::ostream& operator<<(std::ostream& out, const Sensor& sensor)
+    {
+        out << "<Sensor ";
+        sensor.toXMLParams(out);
+        out << "/>";
+        return out;
     }
     
     BBoxf PySensor::getRegionOfInterest()
@@ -45,6 +52,3 @@ namespace OpenNero
     }
 
 }
-
-BOOST_CLASS_EXPORT_IMPLEMENT(OpenNero::Sensor);
-

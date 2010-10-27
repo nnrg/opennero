@@ -32,7 +32,7 @@ namespace OpenNero
     RadarSensor::~RadarSensor() {}
 
     //! Get the region of interest for this sensor
-    BBoxf RadarSensor::getRegionOfInterest()
+    BBoxf RadarSensor::getBoundingBox()
     {
         // TODO: implement
         return BBoxf(0,0,0,10,10,10);
@@ -66,12 +66,21 @@ namespace OpenNero
         return 0.5;
     }
     
-    std::ostream& operator<<(std::ostream& output, const RadarSensor& radar_sensor)
+    void RadarSensor::toXMLParams(std::ostream& out) const
     {
-        boost::archive::xml_oarchive out_archive(output);
-        out_archive << BOOST_SERIALIZATION_NVP(radar_sensor);
-        return output;
+        Sensor::toXMLParams(out);
+        out << "leftbound=\"" << leftbound << "\" "
+            << "rightbound=\"" << rightbound << "\" "
+            << "topbound=\"" << topbound << "\" "
+            << "bottombound=\"" << bottombound << "\" "
+            << "radius=\"" << radius << "\" ";
+    }
+
+    std::ostream& operator<<(std::ostream& out, const RadarSensor& rs)
+    {
+        out << "<RadarSensor ";
+        rs.toXMLParams(out);
+        out << " />";
+        return out;
     }
 }
-
-BOOST_CLASS_EXPORT_IMPLEMENT(OpenNero::RadarSensor)

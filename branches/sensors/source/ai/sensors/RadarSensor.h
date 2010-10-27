@@ -1,9 +1,6 @@
 #ifndef _OPENNERO_AI_SENSOR_RADARSENSOR_H_
 #define _OPENNERO_AI_SENSOR_RADARSENSOR_H_
 
-#include <boost/serialization/export.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
 #include "core/Common.h"
 #include "ai/sensors/Sensor.h"
 
@@ -28,16 +25,6 @@ namespace OpenNero
         //! the radius of the radar sector (how far it extends)
         double radius;
         
-        friend class boost::serialization::access;
-        template<class Archive> void serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(Sensor);
-            ar & BOOST_SERIALIZATION_NVP(leftbound);
-            ar & BOOST_SERIALIZATION_NVP(rightbound);
-            ar & BOOST_SERIALIZATION_NVP(bottombound);
-            ar & BOOST_SERIALIZATION_NVP(topbound);
-            ar & BOOST_SERIALIZATION_NVP(radius);
-        }
     public:
         RadarSensor()
             : Sensor()
@@ -61,7 +48,7 @@ namespace OpenNero
         virtual ~RadarSensor();
     
         //! Get the region of interest for this sensor
-        virtual BBoxf getRegionOfInterest();
+        virtual BBoxf getBoundingBox();
         
         //! get the minimal possible observation
         virtual double getMin();
@@ -74,11 +61,14 @@ namespace OpenNero
         
         //! Get the value computed for this sensor
         virtual double getObservation();
+
+        friend std::ostream& operator<<(std::ostream& in, const RadarSensor& rs);
+
+    protected:
+
+        void toXMLParams(std::ostream& out) const;
+
     };
-
-    std::ostream& operator<<(std::ostream& output, const RadarSensor& radar_sensor);
 }
-
-BOOST_CLASS_EXPORT_KEY(OpenNero::RadarSensor);
 
 #endif /* _OPENNERO_AI_SENSOR_RADARSENSOR_H_ */

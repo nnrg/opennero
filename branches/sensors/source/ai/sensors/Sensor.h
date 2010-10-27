@@ -1,14 +1,12 @@
 #ifndef _OPENNERO_AI_SENSORS_SENSOR_H_
 #define _OPENNERO_AI_SENSORS_SENSOR_H_
 
-#include <boost/serialization/export.hpp>
-#include <boost/archive/xml_oarchive.hpp>
-#include <boost/archive/xml_iarchive.hpp>
 #include "core/Common.h"
 #include "core/IrrUtil.h"
 #include "game/SimEntity.h"
 #include "scripting/scriptIncludes.h"
 #include "scripting/scripting.h"
+#include <iostream>
 
 namespace OpenNero
 {
@@ -35,23 +33,24 @@ namespace OpenNero
         //! the bitmask which is used to filter objects by type
         U32 types;
 
-        friend class boost::serialization::access;        
-        template<class Archive> void serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(ticks);
-            ar & BOOST_SERIALIZATION_NVP(types);
-        }
+    protected:
+        //! Write out XML parameters for this sensor
+        virtual void toXMLParams(std::ostream& out) const;
+
     public:
         Sensor() : ticks(1), types(0) {}
 
         Sensor(U32 ticks, U32 types) : ticks(ticks), types(types) {}
 
-        //! Get the region of interest for this sensor
-        virtual BBoxf getRegionOfInterest() = 0;
-        
-        //! Get the types of objects this sensor needs to look at
-        virtual U32 getTypesOfInterest() { return types; }
+        //! Get the tick count on which this sensor will process
+        U32 getTicks() const { return ticks; }
 
+        //! Get the types of objects this sensor needs to look at
+        U32 getTypes() const { return types; }
+
+        //! Get the region of interest for this sensor
+        virtual BBoxf getBoundingBox() = 0;
+        
         //! get the minimal possible observation
         virtual double getMin() = 0;
         
@@ -63,10 +62,11 @@ namespace OpenNero
         
         //! Get the value computed for this sensor
         virtual double getObservation() = 0;
+
+        friend std::ostream& operator<<(std::ostream&, const Sensor&);
+
     };
 
-    std::ostream& operator<<(std::ostream& output, const Sensor& sensor);
-    
     class PySensor : public Sensor, public TryWrapper<Sensor>
     {
     public:
@@ -83,7 +83,5 @@ namespace OpenNero
         double getObservation();
     };
 }
-
-BOOST_CLASS_EXPORT_KEY(OpenNero::Sensor);
 
 #endif /* _OPENNERO_AI_SENSORS_SENSOR_H_ */

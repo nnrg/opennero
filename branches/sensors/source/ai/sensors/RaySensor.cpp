@@ -5,13 +5,12 @@ namespace OpenNero {
     RaySensor::RaySensor(double x, double y, double z, double radius, U32 types) :
         Sensor(1, types), x(x), y(y), z(z), radius(radius)
     {
-        LOG_F_DEBUG("sensors", "new RaySensor(" << x << ", " << y << ", " << z << ", " << radius << ")");
     }
     
     RaySensor::~RaySensor() {}
 
     //! Get the region of interest for this sensor
-    BBoxf RaySensor::getRegionOfInterest()
+    BBoxf RaySensor::getBoundingBox()
     {
         // TODO: implement
         return BBoxf(0,0,0,10,10,10);
@@ -30,12 +29,20 @@ namespace OpenNero {
         return 0.5;
     }
 
-    std::ostream& operator<<(std::ostream& output, const RaySensor& ray_sensor)
+    void RaySensor::toXMLParams(std::ostream& out) const
     {
-        boost::archive::xml_oarchive out_archive(output);
-        out_archive << BOOST_SERIALIZATION_NVP(ray_sensor);
-        return output;
+        Sensor::toXMLParams(out);
+        out << "x=\"" << x << "\" "
+            << "y=\"" << y << "\" "
+            << "z=\"" << z << "\" "
+            << "radius=\"" << radius << "\" ";
+    }
+
+    std::ostream& operator<<(std::ostream& out, const RaySensor& rs)
+    {
+        out << "<RaySensor ";
+        rs.toXMLParams(out);
+        out << " />";
+        return out;
     }
 }
-
-BOOST_CLASS_EXPORT_IMPLEMENT(OpenNero::RaySensor)

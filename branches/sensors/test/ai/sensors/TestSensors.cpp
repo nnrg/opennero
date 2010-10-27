@@ -24,12 +24,12 @@ BOOST_AUTO_TEST_CASE( test_sensors )
     BOOST_CHECK(sensor3);
     BOOST_CHECK(sensor4);
     BOOST_CHECK(sensor5);
-    std::stringstream ss(std::stringstream::in | std::stringstream::out);    
-    ss << (*sensor1);
-    ss << (*sensor2);
-    ss << (*sensor3);
-    ss << (*sensor4);
-    ss << (*sensor5);
+    //std::ostream os(std::stringstream(std::stringstream::in | std::stringstream::out));
+    std::cout << (*sensor1) << std::endl;
+    std::cout << (*sensor2) << std::endl;
+    std::cout << (*sensor3) << std::endl;
+    std::cout << (*sensor4) << std::endl;
+    std::cout << (*sensor5) << std::endl;
     SimEntityPtr ent;
     SensorArrayPtr sensor_array(new SensorArray(ent));
     sensor_array->addSensor(sensor1);
@@ -39,7 +39,7 @@ BOOST_AUTO_TEST_CASE( test_sensors )
     sensor_array->addSensor(sensor5);
     BOOST_CHECK(sensor_array);
     BOOST_CHECK_EQUAL(sensor_array->getNumSensors(), 5);
-    ss << (*sensor_array) << std::endl;
+    std::cout << (*sensor_array) << std::endl;
 }
 
 BOOST_AUTO_TEST_SUITE_END()
