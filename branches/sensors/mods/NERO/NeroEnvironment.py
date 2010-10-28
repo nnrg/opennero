@@ -46,7 +46,7 @@ class NeroEnvironment(Environment):
         """
         print "CREATING NERO ENVIRONMENT: " + str(dir(module))
         Environment.__init__(self) 
-
+        
         self.curr_id = 0
         self.step_delay = 0.25 # time between steps in seconds
         self.max_steps = 20
@@ -54,7 +54,7 @@ class NeroEnvironment(Environment):
         self.MAX_DIST = pow((pow(XDIM, 2) + pow(YDIM, 2)), .5)
         self.states = {}
         self.speedup = 0
-
+        
         self.pop_state = {}
         
         abound = FeatureVectorInfo() # actions
@@ -74,19 +74,19 @@ class NeroEnvironment(Environment):
         sbound.add_continuous(0, 1) # 60 deg
         
         #Foe Sensors
-        sbound.add_continuous(0, 1) # -60 deg        
-        sbound.add_continuous(0, 1) # -30 deg
-        sbound.add_continuous(0, 1) # straight ahead
-        sbound.add_continuous(0, 1) # 30 deg
-        sbound.add_continuous(0, 1) # 60 deg
+        #sbound.add_continuous(0, 1) # -60 deg        
+        #sbound.add_continuous(0, 1) # -30 deg
+        #sbound.add_continuous(0, 1) # straight ahead
+        #sbound.add_continuous(0, 1) # 30 deg
+        #sbound.add_continuous(0, 1) # 60 deg
         
         #Friend Sensors
-        sbound.add_continuous(0, 1) # -60 deg        
-        sbound.add_continuous(0, 1) # -30 deg
-        sbound.add_continuous(0, 1) # straight ahead
-        sbound.add_continuous(0, 1) # 30 deg
-        sbound.add_continuous(0, 1) # 60 deg
-
+        #sbound.add_continuous(0, 1) # -60 deg        
+        #sbound.add_continuous(0, 1) # -30 deg
+        #sbound.add_continuous(0, 1) # straight ahead
+        #sbound.add_continuous(0, 1) # 30 deg
+        #sbound.add_continuous(0, 1) # 60 deg
+        
         #Flag Sensors
         sbound.add_continuous(0, 1) # 0 - 45
         sbound.add_continuous(0, 1) # 90 - 135
@@ -389,95 +389,29 @@ class NeroEnvironment(Environment):
         state = self.get_state(agent)
         
         vx.append(self.raySense(agent, -60, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, -45, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, -30, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, -15, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 0, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, 15, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 30, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, 45, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 60, MAX_SD, OBSTACLE))
-        
-        ffr = self.getFriendFoe(agent)
-        if (ffr[0] == []) or ffr[1] == []:
-            return v
-        ff = []
-        ff.append(self.nearest(state.pose, state.id, ffr[0]))
-        ff.append(self.nearest(state.pose, state.id, ffr[1]))
-        if ff[0] == 1:
-            return v
-        fd = self.distance(state.pose,(ff[1].pose[0],ff[1].pose[1]))
-        if fd != 0:
-            fh  = ((degrees(atan2(ff[1].pose[1]-state.pose[1],ff[1].pose[0] - state.pose[0])) - state.pose[2]) % 360) - 180
-        else:
-            fh = 0
-
-        if fh < 0:
-            fh += 360
-
-        if fh > 360:
-            fh -= 360
-        
-
-        vx.append(max(0,cos(radians(fh-  0))))
-        #vx.append(max(0,cos(radians(fh- 45))))
-        vx.append(max(0,cos(radians(fh- 90))))
-        #vx.append(max(0,cos(radians(fh-135))))
-        
-        vx.append(max(0,cos(radians(fh-180))))
-        #vx.append(max(0,cos(radians(fh-225))))
-        vx.append(max(0,cos(radians(fh-270))))
-        #vx.append(max(0,cos(radians(fh-315))))
-       
-        vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST))) 
-        
-        fd = self.distance(state.pose,(ff[0].pose[0],ff[0].pose[1]))
-        if fd != 0:
-            fh  = ((degrees(atan2(ff[0].pose[1]-state.pose[1],ff[0].pose[0] - state.pose[0])) - state.pose[2]) % 360) - 180
-        else:
-            fh = 0
-        if fh < 0:
-            fh += 360
-        if fh > 360:
-            fh -= 360
-        
-        vx.append(max(0,cos(radians(fh-  0))))
-        #vx.append(max(0,cos(radians(fh- 45))))
-        vx.append(max(0,cos(radians(fh- 90))))
-        #vx.append(max(0,cos(radians(fh-135))))
-        
-        vx.append(max(0,cos(radians(fh-180))))
-        #vx.append(max(0,cos(radians(fh-225))))
-        vx.append(max(0,cos(radians(fh-270))))
-        #vx.append(max(0,cos(radians(fh-315))))
-       
-        vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST))) 
-        
         
         fd = self.flag_distance(agent)
         if fd != 0:
             fh  = ((degrees(atan2(self.flag_loc().y-state.pose[1],self.flag_loc().x - state.pose[0])) - state.pose[2]) % 360) - 180
         else:
             fh = 0
-
         if fh < 0:
             fh += 360
-
         if fh > 360:
             fh -= 360
-
+        
         vx.append(max(0,cos(radians(fh-  0))))
-        #vx.append(max(0,cos(radians(fh- 45))))
         vx.append(max(0,cos(radians(fh- 90))))
-        #vx.append(max(0,cos(radians(fh-135))))
         
         vx.append(max(0,cos(radians(fh-180))))
-        #vx.append(max(0,cos(radians(fh-225))))
         vx.append(max(0,cos(radians(fh-270))))
-        #vx.append(max(0,cos(radians(fh-315))))
-       
+        
         vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST)))
-
+        
         for iter in range(len(vx)):
             v[iter] = vx[iter]
         
