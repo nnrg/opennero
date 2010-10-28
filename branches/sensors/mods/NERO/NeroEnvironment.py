@@ -218,7 +218,6 @@ class NeroEnvironment(Environment):
 
         #Initilize Agent state
         if agent.step == 0:
-            temp = getMod().flag_loc
             p = agent.state.position
             agent.state.rotation.z = randrange(360)
             r = agent.state.rotation
@@ -260,11 +259,11 @@ class NeroEnvironment(Environment):
         (x, y, heading) = state.pose
         
         # get the actions of the agent
-        turn_by = degrees(action[0] * 2.0) - degrees(action[2] * 2.0)
+        turn_by = degrees(action[0]) - degrees(action[2])
         move_by = action[1]
         
         # figure out the new heading
-        new_heading = wrap_degrees(heading, turn_by)        
+        new_heading = wrap_degrees(heading, turn_by)
         
         # figure out the new x,y location
         new_x = x + MAX_SPEED * cos(radians(new_heading)) * move_by

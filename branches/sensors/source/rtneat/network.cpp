@@ -431,21 +431,20 @@ void Network::add_output(NNodePtr out_node)
     all_nodes.push_back(out_node);
 }
 
-// Takes an array of sensor values and loads it into SENSOR inputs ONLY
+/**
+   BIASes are also SENSORS.  See definition of enums nodetype and
+   nodeplace in nnode.h, and Genome constructors in genome.cpp where
+   SENSOR NNodes are created.  According to the NEAT documentation,
+   nodetype of NNode is used inside Networks and nodeplace of NNode is
+   used inside Genomes. The consequence of BIASes also being SENSORS
+   is that bias values must also be passed in sensvals.
+*/
 void Network::load_sensors(const F64 *sensvals)
 {
-    //S32 counter=0;  //counter to move through array
     vector<NNodePtr>::iterator sensPtr;
 
     for (sensPtr=inputs.begin(); sensPtr!=inputs.end(); ++sensPtr)
     {
-        //only load values into SENSORS (not BIASes)
-        // ??? BIASes are also SENSORS.  See definition of enums nodetype and
-        // nodeplace in nnode.h, and Genome constructors in genome.cpp where
-        // SENSOR NNodes are created.  According to the NEAT documentation,
-        // nodetype of NNode is used inside Networks and nodeplace of NNode is
-        // used inside Genomes. The consequence of BIASes also being SENSORS
-        // is that bias values must also be passed in sensvals. -- Vinod
         if (((*sensPtr)->type)==SENSOR)
         {
             (*sensPtr)->sensor_load(*sensvals);
@@ -454,26 +453,25 @@ void Network::load_sensors(const F64 *sensvals)
     }
 }
 
+/**
+   BIASes are also SENSORS.  See definition of enums nodetype and
+   nodeplace in nnode.h, and Genome constructors in genome.cpp where
+   SENSOR NNodes are created.  According to the NEAT documentation,
+   nodetype of NNode is used inside Networks and nodeplace of NNode is
+   used inside Genomes. The consequence of BIASes also being SENSORS
+   is that bias values must also be passed in sensvals.
+*/
 void Network::load_sensors(const vector<F64> &sensvals)
 {
-    //S32 counter=0;  //counter to move through array
     vector<NNodePtr>::iterator sensPtr;
     vector<F64>::const_iterator valPtr;
 
     for (valPtr = sensvals.begin(), sensPtr = inputs.begin(); sensPtr
         != inputs.end() && valPtr != sensvals.end(); ++sensPtr, ++valPtr)
     {
-        //only load values into SENSORS (not BIASes)
-        // ??? BIASes are also SENSORS.  See definition of enums nodetype and
-        // nodeplace in nnode.h, and Genome constructors in genome.cpp where
-        // SENSOR NNodes are created.  According to the NEAT documentation,
-        // nodetype of NNode is used inside Networks and nodeplace of NNode is
-        // used inside Genomes. The consequence of BIASes also being SENSORS
-        // is that bias values must also be passed in sensvals. -- Vinod
         if (((*sensPtr)->type)==SENSOR)
         {
             (*sensPtr)->sensor_load(*valPtr);
-            //sensvals++;
         }
     }
 }

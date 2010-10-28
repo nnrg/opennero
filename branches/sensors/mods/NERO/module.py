@@ -13,7 +13,12 @@ import random
 class NeroModule:
     def __init__(self):
         global rtneat
-        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size, 1.0)
+        # initialize the rtNEAT algorithm parameters
+        # input layer has enough nodes for all the observations plus a bias
+        # output layer has enough values for all the actions
+        # population size matches ours
+        # 1.0 is the weight initialization noise
+        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS + 1, NEAT_ACTIONS, pop_size, 1.0)
         self.environment = None
         self.agent_id = None
         self.weights = Fitness()
