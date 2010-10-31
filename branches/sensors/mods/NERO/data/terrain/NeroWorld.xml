@@ -1,0 +1,11 @@
+<Template>
+  <Audio>    
+  </Audio>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <AniMesh>data/terrain/new_nero_environment_35.obj</AniMesh>
+    <Scale>0.5 0.5 0.5</Scale>
+    <Rotation>0 0 0</Rotation>
+  </Render>  
+</Template>

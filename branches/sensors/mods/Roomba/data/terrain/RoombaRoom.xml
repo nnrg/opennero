@@ -1,0 +1,11 @@
+<Template>
+  <ObjectTemplate>
+    <Name>RoombaRoom</Name>
+  </ObjectTemplate>
+  <Render>
+    <MaterialFlagLighting>true</MaterialFlagLighting>
+    <AniMesh>data/terrain/roomba_room_modified_02.obj</AniMesh>
+    <Scale>1 1 1</Scale>
+    <Rotation>0 0 0</Rotation>
+  </Render>
+</Template>
