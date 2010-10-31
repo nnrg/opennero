@@ -12,12 +12,15 @@ import random
 
 class NeroModule:
     def __init__(self):
-        global rtneat, rtneat2
-        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size, 1.0)
-        rtneat2 = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size,1.0)
+        global rtneat
+        # initialize the rtNEAT algorithm parameters
+        # input layer has enough nodes for all the observations plus a bias
+        # output layer has enough values for all the actions
+        # population size matches ours
+        # 1.0 is the weight initialization noise
+        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS + 1, NEAT_ACTIONS, pop_size, 1.0)
         self.environment = None
         self.agent_id = None
-        self.agent_map = {}
         self.weights = Fitness()
         self.lt = 10
         self.dta = 50
@@ -26,8 +29,6 @@ class NeroModule:
         self.ff =  0
         self.ee =  0
         self.hp = 50
-        self.currTeam = 1
-        #self.flag_loc = Vector3f(20,20,0)
         self.flag_loc = Vector3f(0,0,0)
         self.flag_id = -1
         self.num_to_add = pop_size
@@ -80,45 +81,34 @@ class NeroModule:
     #The following is run when the Deploy button is pressed
     def start_rtneat(self):
         """ start the rtneat learning stuff"""
-        global rtneat, rtneat2
+        global rtneat
         disable_ai()
-
         # Create RTNEAT Objects
-        set_ai("neat1",rtneat)
-        set_ai("neat2", rtneat2)
+        set_ai("rtneat",rtneat)
         enable_ai()
         # Generate all initial rtNEAT Agents
         dx = random.randrange(XDIM/20) - XDIM/40
         dy = random.randrange(XDIM/20) - XDIM/40
-        for i in range(0, DEPLOY_SIZE):
-            dx = random.randrange(XDIM/20) - XDIM/40
-            dy = random.randrange(XDIM/20) - XDIM/40
-            id = None
-            if i % 2 == 0:
-                self.currTeam = 1
-                id = addObject("data/shapes/character/steve_red_armed.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
-            else:
-                self.currTeam = 2
-                id = addObject("data/shapes/character/steve_red_armed.xml",Vector3f(XDIM/2 + dx,2*YDIM/3 + dy ,2),type = AGENT)
-            self.agent_map[(0,i)] = id
+        dx = random.randrange(XDIM/20) - XDIM/40
+        dy = random.randrange(XDIM/20) - XDIM/40
+        id = addObject("data/shapes/character/steve_red_armed.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
+        self.num_to_add -= 1
 
    #The following is run when the Save button is pressed
 
     def save_rtneat(self, location, pop):
         import os
         location = os.path.relpath("/") + location
-        global rtneat, rtneat2
-        if pop == 1: rtneat.save_population(str(location))
-        if pop == 2: rtneat2.save_population(str(location))
+        global rtneat
+        rtneat.save_population(str(location))
 
     #The following is run when the Load button is pressed
     def load_rtneat(self, location , pop):
         import os
-        global rtneat, rtneat2
+        global rtneat
         location = os.path.relpath("/") + location
         if os.path.exists(location):
-            if pop == 1: rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)
-            if pop == 2: rtneat2= RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)
+            rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)
     
     def set_speedup(self, speedup):
         self.speedup = speedup
@@ -167,9 +157,7 @@ class NeroModule:
     #This is the function ran when an agent already in the field causes the generation of a new agent
     def addAgent(self,pos):
         self.num_to_add -= 1
-        self.currTeam += 1
-        if self.currTeam == 3: self.currTeam = 1
-        addObject("data/shapes/character/steve_red_armed.xml",Vector3f(pos[0],pos[1] * self.currTeam,pos[2]),type = AGENT)
+        addObject("data/shapes/character/steve_red_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = AGENT)
 
 gMod = None
 

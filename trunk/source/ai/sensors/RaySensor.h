@@ -3,6 +3,7 @@
 
 #include "core/Common.h"
 #include "ai/sensors/Sensor.h"
+#include <iostream>
 
 namespace OpenNero
 {
@@ -10,42 +11,51 @@ namespace OpenNero
 
     class RaySensor : public Sensor {
     private:
-        //! direction vector of the ray (in agent's system where the heading is (1,0,0))
-        Vector3f direction_;
+        //! x-direction of the ray
+        double x;
+
+        //! y-direction of the ray
+        double y;
+
+        //! z-direction of the ray
+        double z;
         
         //! the radius of the ray (how far it extends)
-        double radius_;
-        
-        //! the bitmask which is used to filter objects to be intersected by type
-        U32 types_;
-        
+        double radius;
         
     public:
+        RaySensor() : Sensor(1,0), x(0), y(0), z(0), radius(0) {}
+    
         //! Create a new RaySensor
-        //! @param direction direction vector of the ray (in agent's system where the heading is (1,0,0))
+        //! @param x x-direction of the ray
+        //! @param y y-direction of the ray
+        //! @param z z-direction of the ray
         //! @param radius the radius of the ray (how far it extends)
-        //! @param types the bitmask which is used to filter objects to be intersected by type
-        RaySensor(Vector3f direction, double radius, U32 types = 0);
+        RaySensor(double x, double y, double z, double radius, U32 types = 0);
         
         virtual ~RaySensor();
-    
-        //! Get the region of interest for this sensor
-        virtual BBoxf getRegionOfInterest();
         
-        //! Get the types of objects this sensor needs to look at
-        virtual U32 getTypesOfInterest();
+        //! Get the region of interest for this sensor
+        virtual BBoxf getBoundingBox();
 
         //! get the minimal possible observation
-        virtual double getMin();
+        virtual double getMin() { return 0.0; }
         
         //! get the maximum possible observation
-        virtual double getMax();
+        virtual double getMax() { return radius; }
 
         //! Process an object of interest
         virtual bool process(SimEntityPtr ent);
         
         //! Get the value computed for this sensor
         virtual double getObservation();
+
+        friend std::ostream& operator<<(std::ostream& in, const RaySensor& rs);
+
+    protected:
+        
+        void toXMLParams(std::ostream& out) const;
+
     };
 }
 

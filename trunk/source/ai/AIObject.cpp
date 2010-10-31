@@ -40,6 +40,7 @@ namespace OpenNero
         , mAgentBrain()
         , mWorld(world)
         , mReward()
+        , mSensors()
     {
     }
 

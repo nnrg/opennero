@@ -25,8 +25,8 @@ AGENT = 2 #0b0010
 class NeroModule:
     def __init__(self):
         global rtneat, rtneat2
-        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size, 1.0)
-        rtneat2 = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size,1.0)
+        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS + 1, NEAT_ACTIONS, pop_size, 1.0)
+        rtneat2 = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS + 1, NEAT_ACTIONS, pop_size,1.0)
         self.XDIM = XDIM
         self.YDIM = YDIM
         self.NEAT_ACTIONS = NEAT_ACTIONS

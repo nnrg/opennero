@@ -18,6 +18,10 @@
 #include "ai/rl/QLearning.h"
 #include "ai/Environment.h"
 #include "ai/rtneat/rtNEAT.h"
+#include "ai/sensors/Sensor.h"
+#include "ai/sensors/RaySensor.h"
+#include "ai/sensors/RadarSensor.h"
+#include "ai/sensors/SensorArray.h"
 #include "core/IrrUtil.h"
 #include "game/Kernel.h"
 #include "game/objects/PropertyMap.h"
@@ -57,12 +61,13 @@ namespace OpenNero {
 				.def("act", pure_virtual(&AgentBrain::act), "Called for every step of the state-action loop")
 				.def("end", pure_virtual(&AgentBrain::end), "Called at the end of a learning episode")
 				.def("destroy", pure_virtual(&AgentBrain::destroy), "Called after learning ends")
+                .def("add_sensor", &AgentBrain::AddSensor, "Add a sensor for this agent")
 				.def_readonly("step", &AgentBrain::step, "Current step count")
 				.def_readonly("episode", &AgentBrain::episode, "Current episode count")
 				.def_readonly("fitness", &AgentBrain::fitness, "Cumulative reward for this episode")
 				.add_property("state", make_function(&AgentBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
 			// export the interface to python so that we can override its methods there
-			py::class_<TDBrain, noncopyable, bases<AgentBrain>, TDBrainPtr >("TDBrain", "CMAC tile coding SARSA agent", no_init )
+			py::class_<TDBrain, noncopyable, bases<AgentBrain>, TDBrainPtr >("TDBrain", "CMAC tile coding Time-Difference RL agent", no_init )
 				.def("initialize", &TDBrain::initialize, "Called before learning starts")
 				.def("start", &TDBrain::start, "Called at the beginning of a learning episode")
 				.def("act", &TDBrain::act, "Called for every step of the state-action loop")
@@ -73,7 +78,7 @@ namespace OpenNero {
 				.add_property("gamma", &TDBrain::getGamma, &TDBrain::setGamma)
 				.add_property("state", make_function(&TDBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
 			// export the interface to python so that we can override its methods there
-			py::class_<SarsaBrain, bases<TDBrain>, SarsaBrainPtr >("SarsaBrain", "CMAC tile coding SARSA agent", init<double, double, double, double>() )
+			py::class_<SarsaBrain, bases<TDBrain>, SarsaBrainPtr >("SarsaBrain", "CMAC tile coding SARSA RL agent", init<double, double, double, double>() )
 				.def("initialize", &SarsaBrain::initialize, "Called before learning starts")
 				.def("start", &SarsaBrain::start, "Called at the beginning of a learning episode")
 				.def("act", &SarsaBrain::act, "Called for every step of the state-action loop")
@@ -84,7 +89,7 @@ namespace OpenNero {
 				.add_property("gamma", &TDBrain::getGamma, &TDBrain::setGamma)
 				.add_property("state", make_function(&SarsaBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
 			// export the interface to python so that we can override its methods there
-			py::class_<QLearningBrain, bases<TDBrain>, QLearningBrainPtr >("QLearningBrain", "CMAC tile coding SARSA agent", init<double, double, double>() )
+			py::class_<QLearningBrain, bases<TDBrain>, QLearningBrainPtr >("QLearningBrain", "CMAC tile coding Q-Learning RL agent", init<double, double, double>() )
 				.def("initialize", &QLearningBrain::initialize, "Called before learning starts")
 				.def("start", &QLearningBrain::start, "Called at the beginning of a learning episode")
 				.def("act", &QLearningBrain::act, "Called for every step of the state-action loop")
@@ -96,6 +101,38 @@ namespace OpenNero {
 				.add_property("state", make_function(&QLearningBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
 			;
 		}
+        
+        void ExportSensorScripts()
+        {
+			py::class_<PySensor, noncopyable, SensorPtr>(
+                "Sensor", 
+                "Abstract sensor base class", 
+                no_init)
+				.def(self_ns::str(self_ns::self))
+                ;
+            py::class_<RaySensor, noncopyable, bases<Sensor>, RaySensorPtr>(
+                "RaySensor", 
+                "A ray sensor that returns the distance to the closest object it intersects",
+                init<double, double, double, double, U32>())
+				.def(self_ns::str(self_ns::self))
+                ;
+            py::implicitly_convertible<RaySensorPtr, SensorPtr>();
+            py::class_<RadarSensor, bases<Sensor>, RadarSensorPtr>(
+                "RadarSensor",
+                "A radar sensor that returns a value based on the number and \
+                distance of objects within a sector of space.",
+                init<double, double, double, double, double, U32>())
+				.def(self_ns::str(self_ns::self))
+                ;
+            py::implicitly_convertible<RadarSensorPtr, SensorPtr>();
+            py::class_<SensorArray, noncopyable, SensorArrayPtr>(
+                "SensorArray",
+                "An array of sensors")
+                .def("getNumSensors", &SensorArray::getNumSensors)
+                .def("addSensor", &SensorArray::addSensor)
+				.def(self_ns::str(self_ns::self))
+                ;
+        }
 
 		/// return an action array for python to use
 		template<typename T> Actions get_vector(size_t size)
@@ -536,7 +573,7 @@ namespace OpenNero {
                 _GUI_BASE_HACK_(GuiText)
                 
                 // export our button methods
-                .add_property( "color", &GuiText::GetColor, &GuiText::SetColor )
+                .add_property("color", &GuiText::GetColor, &GuiText::SetColor )
                 .add_property("wordWrap", &GuiText::GetWordWrap, &GuiText::SetWordWrap )
                 ;
         }
@@ -642,6 +679,7 @@ namespace OpenNero {
                 _GUI_BASE_HACK_(GuiComboBox)
 
                 .def("addItem", (AddItemPtr)&GuiComboBox::addItem, "Add an item to the combo box", "addItem(myItemDescString)" )
+                .def("getSelected", &GuiComboBox::getSelected, "Get the currently selected item index", "getSelected()")
                 ;
         }
 
@@ -1000,6 +1038,7 @@ namespace OpenNero {
             ExportAIScripts();
             ExportAIManagerScripts();
             ExportAgentBrainScripts();
+            ExportSensorScripts();
             ExportEnvironmentScripts();
             ExportRTNEATScripts();
             ExportIrrUtilScripts();

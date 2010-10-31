@@ -31,9 +31,6 @@ namespace OpenNero
         /// load this AI object from template
         virtual bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data );
 
-        /// get sensor information for the agent
-        virtual SensorInfo GetSensorInfo() { return SensorInfo(); }
-
         /// sense the agent's environment
         virtual Observations Sense();
 
