@@ -26,5 +26,12 @@ namespace OpenNero
         IGuiComboBox_IPtr cbox = boost::static_pointer_cast<IGUIComboBox>( getGuiElement() );
         return cbox->addItem( mEntries.back().c_str() );
     }
+    
+    int32_t GuiComboBox::getSelected()
+    {
+        Assert( getGuiElement() );
+        
+        return (boost::static_pointer_cast<IGUIComboBox>(getGuiElement()))->getSelected();
+    }
 
 }

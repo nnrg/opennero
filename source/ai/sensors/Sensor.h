@@ -4,11 +4,17 @@
 #include "core/Common.h"
 #include "core/IrrUtil.h"
 #include "game/SimEntity.h"
+#include "scripting/scriptIncludes.h"
+#include "scripting/scripting.h"
+#include <iostream>
 
 namespace OpenNero
 {
     
+    /// @cond
     BOOST_SHARED_DECL(Sensor);
+    BOOST_SHARED_DECL(PySensor);
+    /// @endcond
 
     /**
      * An abstract sensor class for predefined sensor types. The job of such 
@@ -20,13 +26,31 @@ namespace OpenNero
      * method.
      */
     class Sensor {
-    public:
-        //! Get the region of interest for this sensor
-        virtual BBoxf getRegionOfInterest() = 0;
-        
-        //! Get the types of objects this sensor needs to look at
-        virtual U32 getTypesOfInterest() = 0;
+    private:
+        //! every how-many ticks should this sensor be refreshed
+        U32 ticks;
 
+        //! the bitmask which is used to filter objects by type
+        U32 types;
+
+    protected:
+        //! Write out XML parameters for this sensor
+        virtual void toXMLParams(std::ostream& out) const;
+
+    public:
+        Sensor() : ticks(1), types(0) {}
+
+        Sensor(U32 ticks, U32 types) : ticks(ticks), types(types) {}
+
+        //! Get the tick count on which this sensor will process
+        U32 getTicks() const { return ticks; }
+
+        //! Get the types of objects this sensor needs to look at
+        U32 getTypes() const { return types; }
+
+        //! Get the region of interest for this sensor
+        virtual BBoxf getBoundingBox() = 0;
+        
         //! get the minimal possible observation
         virtual double getMin() = 0;
         
@@ -38,6 +62,25 @@ namespace OpenNero
         
         //! Get the value computed for this sensor
         virtual double getObservation() = 0;
+
+        friend std::ostream& operator<<(std::ostream&, const Sensor&);
+
+    };
+
+    class PySensor : public Sensor, public TryWrapper<Sensor>
+    {
+    public:
+        PySensor() : Sensor() {}
+        
+        BBoxf getRegionOfInterest();
+        
+        double getMin();
+        
+        double getMax();
+        
+        bool process(SimEntityPtr ent);
+        
+        double getObservation();
     };
 }
 

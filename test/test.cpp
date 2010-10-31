@@ -8,11 +8,13 @@ the unit test framework. See other source files under test/, the
 testOpenNERO target, and <a href="http://www.boost.org/libs/test/doc/html">Boost.Test documentation</a>
 for additional information. These tests should be run with the ctest command.
 */
-
 #define BOOST_TEST_MODULE TestOpenNERO
+#define BOOST_TEST_DYN_LINK
 #include <boost/test/unit_test.hpp>
 
-BOOST_AUTO_TEST_CASE( test_opennero  )
+BOOST_AUTO_TEST_SUITE( test_opennero )
+
+BOOST_AUTO_TEST_CASE( test_example  )
 {
     // this is just an example
     BOOST_TEST_MESSAGE("Testing OpenNERO...");
@@ -40,3 +42,5 @@ BOOST_AUTO_TEST_CASE( test_opennero  )
     // report and continue, preferred method
     BOOST_CHECK_EQUAL(2*2,4);
 }
+
+BOOST_AUTO_TEST_SUITE_END()

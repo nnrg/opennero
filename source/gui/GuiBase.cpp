@@ -257,7 +257,7 @@ namespace OpenNero
     {
         return mpGuiElement;
     }
-
+    
     /**
      * Convert a 2D position in the absolute frame to a 2D position in my relative frame
      * @param pos2D the absolute position

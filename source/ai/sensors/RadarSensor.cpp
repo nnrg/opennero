@@ -14,37 +14,30 @@ namespace OpenNero
         double leftbound, double rightbound, 
         double bottombound, double topbound, 
         double radius, U32 types )
-        : leftbound_(leftbound)
-        , rightbound_(rightbound)
-        , bottombound_(bottombound)
-        , topbound_(topbound)
-        , radius_(radius)
-        , types_(types)
+        : Sensor(1, types)
+        , leftbound(leftbound)
+        , rightbound(rightbound)
+        , bottombound(bottombound)
+        , topbound(topbound)
+        , radius(radius)
     {
         LOG_F_DEBUG("sensors", "new RadarSensor(" 
-            << leftbound_ << ", " 
-            << rightbound_ << ", "
-            << bottombound_ << ", "
-            << topbound_ << ", "
-            << radius_ << ", " 
-            << types_ << ")");
+                    << leftbound << ", " 
+                    << rightbound << ", "
+                    << bottombound << ", "
+                    << topbound << ", "
+                    << radius << ")");
     }
     
     RadarSensor::~RadarSensor() {}
 
     //! Get the region of interest for this sensor
-    BBoxf RadarSensor::getRegionOfInterest()
+    BBoxf RadarSensor::getBoundingBox()
     {
         // TODO: implement
         return BBoxf(0,0,0,10,10,10);
     }
     
-    //! Get the types of objects this sensor needs to look at
-    U32 RadarSensor::getTypesOfInterest() 
-    {
-        return types_;
-    }
-
     //! Decide if this sensor is interested in a particular object
     bool RadarSensor::process(SimEntityPtr ent)
     {
@@ -71,5 +64,23 @@ namespace OpenNero
     {
         // TODO: implement
         return 0.5;
+    }
+    
+    void RadarSensor::toXMLParams(std::ostream& out) const
+    {
+        Sensor::toXMLParams(out);
+        out << "leftbound=\"" << leftbound << "\" "
+            << "rightbound=\"" << rightbound << "\" "
+            << "topbound=\"" << topbound << "\" "
+            << "bottombound=\"" << bottombound << "\" "
+            << "radius=\"" << radius << "\" ";
+    }
+
+    std::ostream& operator<<(std::ostream& out, const RadarSensor& rs)
+    {
+        out << "<RadarSensor ";
+        rs.toXMLParams(out);
+        out << " />";
+        return out;
     }
 }

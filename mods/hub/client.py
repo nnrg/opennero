@@ -4,12 +4,15 @@ from inputConfig import *
 
 from common import gui, getGuiManager, openWiki
 
-class SwitchMod:
-    def __init__(self, mod, path):
-        self.mod = mod
-        self.path = path
-    def __call__(self):
-        switchMod(self.mod, self.path)
+mods = list_mods()
+
+def SwitchToSelectedMod(combo_box):
+    def closure():
+        i = combo_box.getSelected()
+        modname = mods[i]
+        modpath = modname + ":common"
+        switchMod(modname, modpath)
+    return closure
 
 def ClientMain():
     # set up the gui
@@ -19,17 +22,18 @@ def ClientMain():
 
     neroImg = gui.create_image( guiMan, 'nero_background', Pos2i(0,0), Pos2i(0,0), 'data/gui/nero_background.jpg' )
 
-    mods = list_mods()
+    combo_box = gui.create_combo_box(guiMan, "mod_selector", Pos2i(325, 100), Pos2i(200, 25))
     for i, modname in enumerate(mods):
-        button = gui.create_button(guiMan, modname, Pos2i(325, 100 + i * 100), Pos2i(100, 50), '')
-        button.text = modname
-        print 'Adding module: ' + modname
-        button.OnMouseLeftClick = SwitchMod(modname, modname + ':common')
+        combo_box.addItem(modname)
 
-    killButton = gui.create_button( guiMan, 'kill', Pos2i(125,100), Pos2i(100,50), '' )
-    killButton.text = 'Exit'
-    killButton.OnMouseLeftClick = lambda: getSimContext().killGame()
+    startButton = gui.create_button( guiMan, 'start', Pos2i(125,100), Pos2i(100,50), '' )
+    startButton.text = 'Start:'
+    startButton.OnMouseLeftClick = SwitchToSelectedMod(combo_box)
 
     helpButton = gui.create_button( guiMan, 'help', Pos2i(125,175), Pos2i(100,50), '' )
     helpButton.text = 'Help'
     helpButton.OnMouseLeftClick = openWiki('RunningOpenNero')
+
+    killButton = gui.create_button( guiMan, 'kill', Pos2i(125,250), Pos2i(100,50), '' )
+    killButton.text = 'Exit'
+    killButton.OnMouseLeftClick = lambda: getSimContext().killGame()

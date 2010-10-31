@@ -14,6 +14,9 @@ namespace OpenNero
     BOOST_SHARED_DECL(AIObjectTemplate);
     BOOST_SHARED_DECL(Environment);
     BOOST_SHARED_DECL(SimEntity);
+    namespace sensors {
+        BOOST_SHARED_DECL(Sensor);
+    }
     /// @endcond
 
     class SimEntityData;
@@ -35,9 +38,6 @@ namespace OpenNero
 
         /// sense the agent's environment
         virtual Observations Sense();
-
-        /// get initialization information for the agent
-        virtual SensorInfo GetSensorInfo() = 0;
 
         /// display this AI object as a string
         virtual std::ostream& stream(std::ostream& out) const = 0;
@@ -64,12 +64,16 @@ namespace OpenNero
         /// get the most recent reward for this AIObject
         Reward getReward() const { return mReward; }
 
+        size_t AddSensor(sensors::SensorPtr sensor) { mSensors.push_back(sensor); return mSensors.size() - 1; }
+
     private:
 
         Actions mActions; ///< last performed action
         AgentBrainPtr mAgentBrain; ///< the brain whose actions we are applying
         EnvironmentWPtr mWorld; ///< world we are acting in
         Reward mReward; ///< the reward received by the agent after performing the previous action
+        std::vector<sensors::SensorPtr> mSensors; ///< Built-in sensors for this agent
+
     };
 
     /// print an AI object to stream
