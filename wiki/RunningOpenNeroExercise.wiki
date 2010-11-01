@@ -2,4 +2,38 @@
 #labels Exercise
 #sidebar TableOfContents
 
-_UNDER CONSTRUCTION_
+==Introduction==
+
+In this exercise, you will go through the steps necessary to run the out of the box OpenNERO program, and try some of the basic demos included with the program. 
+
+==Running OpenNERO==
+
+After starting up the program, you will find yourself at the mod-selection screen. Avaliable are
+
+  *Battle - A Battle Mode for testing teams of NERO agents
+  *Maze - A mod for trying out various search and reinforcement learning algorithms relevant to solving a procedurally generated maze.
+  *NERO - A mod for running the NERO2.0-inspired mode of OpenNERO, in it you can try experimenting with the fitness function and environment for agent evolution.
+  *Roomba - A mod for agents that try to collect as much "dirt" as possible.
+
+In general the ones of interest are Maze, NERO, and Roomba.
+
+==Maze Mod==
+
+The Maze Mod contains several different methods by which to solve a maze, including A*, a random baseline, SARSA, Q-Learning, and rtNEAT. 
+
+Run several of these methods and watch how quickly each of the search methods solves the maze. Similarly, compare the 4 reinforcement learning methods, the random baseline, SARSA, Q-Learning and rtNEAT. Look up these methods if you're not familiar with them, and try to understand why they are or are not good at solving the maze task.
+
+==NERO Mod==
+
+The NERO Mod lets you experiment with a method known as shaping, where you modify the environment dynamically with the evolution of agents in order to encourage the evolution of the desired behavior. 
+
+In a pop up menu, you will see several sliders for modifying the fitness function or other aspects of the simulation, and by right clicking in the environment, you can change the environment, by manipulating the flag or walls. 
+
+Experiment with various ways you can train the agents to go around walls to get to flags.
+Start by putting a flag in the environment via the right-click menu, then sliding "Approach Flag" to full.
+
+Once most of the population is reaching the flag, try putting a wall, via the right click menu, in their path and watching how they react.
+
+==Roomba Mod==
+
+The Roomba Mod is a mod where agents try to collect as many cubes as possible, try watching the difference between the scripted agents and the evolving agents. Keep in mind that the scripted agents were hand optimized, while the evolved agents have no idea about how the environment works. Keep in mind how you would script a roomba agent, as it will be a later exercise.
