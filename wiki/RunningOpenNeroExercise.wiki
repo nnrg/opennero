@@ -10,10 +10,10 @@ In this exercise, you will go through the steps necessary to run the out of the 
 
 After starting up the program, you will find yourself at the mod-selection screen. Avaliable are
 
-  *Battle - A Battle Mode for testing teams of NERO agents
-  *Maze - A mod for trying out various search and reinforcement learning algorithms relevant to solving a procedurally generated maze.
-  *NERO - A mod for running the NERO2.0-inspired mode of OpenNERO, in it you can try experimenting with the fitness function and environment for agent evolution.
-  *Roomba - A mod for agents that try to collect as much "dirt" as possible.
+  * Battle - A Battle Mode for testing teams of NERO agents
+  * Maze - A mod for trying out various search and reinforcement learning algorithms relevant to solving a procedurally generated maze.
+  * NERO - A mod for running the NERO2.0-inspired mode of OpenNERO, in it you can try experimenting with the fitness function and environment for agent evolution.
+  * Roomba - A mod for agents that try to collect as much "dirt" as possible.
 
 In general the ones of interest are Maze, NERO, and Roomba.
 
