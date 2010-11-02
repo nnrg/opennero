@@ -54,6 +54,8 @@ namespace OpenNero
         /// find an entity by its SceneObject ID
         SimEntityPtr FindBySceneObjectId( SceneObjectId id ) const;
 
+        const SimEntitySet GetEntities() const;
+
         ///@}
 
         // move the simulation forward by time dt
@@ -74,10 +76,10 @@ namespace OpenNero
         ///@}
     protected:
 
-        /// hash by simulation ID
+        /// hash map of SimEntities indexed by SimId
         typedef hash_map< SimId, SimEntityPtr > SimIdHashMap;
 
-        /// list of simulation IDs to be removed
+        /// a set of simulation IDs
         typedef std::set<SimId> SimIdSet;
 
     protected:
@@ -85,6 +87,8 @@ namespace OpenNero
         IrrHandles          mIrr;                   ///< Copy of Irrlicht handles
 
         SimIdHashMap        mSimIdHashedEntities;   ///< Our entities hashed by SimId
+
+        SimEntitySet        mEntities;             ///< Set of all the sim entities
 
         SimIdSet            mRemoveSet;             ///< SimId's to remove after next ProcessWorld
 
