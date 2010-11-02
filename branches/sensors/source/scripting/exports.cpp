@@ -905,9 +905,6 @@ namespace OpenNero {
                 .def("setInputMapping", 
                      &SimContext::SetInputMapping, 
                      "Set the io map to use" )
-                .def("getNextFreeId", 
-                     &SimContext::GetNextFreeId, 
-                     "Get the next available network ID" )
                 .def("findInRay", 
                      &SimContext::FindInRay, 
                      findInRay_overloads("Find the first object that intersects the specified ray (origin:Vector3f, target:Vector3f, [int])") )

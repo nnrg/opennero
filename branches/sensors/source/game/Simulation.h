@@ -54,11 +54,6 @@ namespace OpenNero
         /// find an entity by its SceneObject ID
         SimEntityPtr FindBySceneObjectId( SceneObjectId id ) const;
 
-        /// find K nearest neighbours of a point
-        
-
-        SimId GetNextFreeId() const { return mMaxId + 1; }
-
         ///@}
 
         // move the simulation forward by time dt
