@@ -45,22 +45,22 @@ namespace OpenNero
             double radius, 
             U32 types = 0);
         
-        virtual ~RadarSensor();
+        ~RadarSensor();
     
         //! Get the region of interest for this sensor
-        virtual BBoxf getBoundingBox();
+        BBoxf getBoundingBox();
         
         //! get the minimal possible observation
-        virtual double getMin();
+        double getMin();
         
         //! get the maximum possible observation
-        virtual double getMax();
+        double getMax();
 
         //! Process an object of interest
-        virtual bool process(SimEntityPtr ent);
+        bool process(SimEntityPtr source, SimEntityPtr target);
         
         //! Get the value computed for this sensor
-        virtual double getObservation();
+        double getObservation();
 
         friend std::ostream& operator<<(std::ostream& in, const RadarSensor& rs);
 

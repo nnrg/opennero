@@ -39,9 +39,11 @@ namespace OpenNero
     }
     
     //! Decide if this sensor is interested in a particular object
-    bool RadarSensor::process(SimEntityPtr ent)
+    bool RadarSensor::process(SimEntityPtr source, SimEntityPtr target)
     {
-        // TODO: implement
+        Vector3f vecToTarget = source->GetPosition() - target->GetPosition();
+        Vector3f angleToTarget = vecToTarget.getHorizontalAngle();
+        LOG_F_DEBUG("sensors", "target at " << angleToTarget.X << ", " << angleToTarget.Y);
         return true;
     }
     

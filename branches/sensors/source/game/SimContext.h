@@ -182,6 +182,9 @@ namespace OpenNero
         /// return the simulation while changing nothing
         const SimulationPtr getSimulation() const { return mpSimulation; }
 
+        /// return the next free Id
+        SimId GetNextFreeId() const { return mpSimulation->GetNextFreeId(); }
+
     protected:
 
         // update the various systems

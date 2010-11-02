@@ -54,7 +54,11 @@ namespace OpenNero
         /// find an entity by its SceneObject ID
         SimEntityPtr FindBySceneObjectId( SceneObjectId id ) const;
 
-        const SimEntitySet GetEntities() const;
+        /// Get the set of all the entities in the simulation
+        const SimEntitySet GetEntities() const { return mEntities; }
+
+        /// Get the next free SimId
+        SimId GetNextFreeId() const { return mMaxId + 1; }
 
         ///@}
 

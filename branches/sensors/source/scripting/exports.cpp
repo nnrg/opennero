@@ -125,13 +125,6 @@ namespace OpenNero {
 				.def(self_ns::str(self_ns::self))
                 ;
             py::implicitly_convertible<RadarSensorPtr, SensorPtr>();
-            py::class_<SensorArray, noncopyable, SensorArrayPtr>(
-                "SensorArray",
-                "An array of sensors")
-                .def("getNumSensors", &SensorArray::getNumSensors)
-                .def("addSensor", &SensorArray::addSensor)
-				.def(self_ns::str(self_ns::self))
-                ;
         }
 
 		/// return an action array for python to use

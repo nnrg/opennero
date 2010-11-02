@@ -6,6 +6,7 @@
 #include "game/objects/TemplatedObject.h"
 #include "game/objects/SimEntityComponent.h"
 #include "ai/AI.h"
+#include "ai/sensors/SensorArray.h"
 
 namespace OpenNero
 {
@@ -14,9 +15,7 @@ namespace OpenNero
     BOOST_SHARED_DECL(AIObjectTemplate);
     BOOST_SHARED_DECL(Environment);
     BOOST_SHARED_DECL(SimEntity);
-    namespace sensors {
-        BOOST_SHARED_DECL(Sensor);
-    }
+    BOOST_SHARED_DECL(Sensor);
     /// @endcond
 
     class SimEntityData;
@@ -64,7 +63,9 @@ namespace OpenNero
         /// get the most recent reward for this AIObject
         Reward getReward() const { return mReward; }
 
-        size_t AddSensor(sensors::SensorPtr sensor) { mSensors.push_back(sensor); return mSensors.size() - 1; }
+        size_t AddSensor(SensorPtr sensor) { return mSensors.addSensor(sensor); }
+
+        Observations sense();
 
     private:
 
@@ -72,7 +73,7 @@ namespace OpenNero
         AgentBrainPtr mAgentBrain; ///< the brain whose actions we are applying
         EnvironmentWPtr mWorld; ///< world we are acting in
         Reward mReward; ///< the reward received by the agent after performing the previous action
-        std::vector<sensors::SensorPtr> mSensors; ///< Built-in sensors for this agent
+        SensorArray mSensors; ///< Built-in sensors for this agent
 
     };
 

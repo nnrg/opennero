@@ -58,7 +58,7 @@ namespace OpenNero
         virtual double getMax() = 0;
 
         //! Process an object of interest
-        virtual bool process(SimEntityPtr ent) = 0;
+        virtual bool process(SimEntityPtr source, SimEntityPtr target) = 0;
         
         //! Get the value computed for this sensor
         virtual double getObservation() = 0;

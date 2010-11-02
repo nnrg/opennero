@@ -17,7 +17,7 @@ namespace OpenNero {
     }
     
     //! Process an object of interest
-    bool RaySensor::process(SimEntityPtr ent)
+    bool RaySensor::process(SimEntityPtr source, SimEntityPtr target)
     {
         return true;
     }

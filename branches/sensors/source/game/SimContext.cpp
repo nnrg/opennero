@@ -376,12 +376,6 @@ namespace OpenNero
             mpGuiManager->RemoveAll();
     }
     
-    SimId SimContext::GetNextFreeId() const
-    {
-        SimId result = mpSimulation->GetNextFreeId();
-        return result;
-    }
-        
     /// @param x screen x-coordinate for active camera
     /// @param y screen y-coordinate for active camera
     /// @return the SimEntity intersected first by the ray from the camera origin through the view plane
