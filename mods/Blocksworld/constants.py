@@ -13,3 +13,4 @@ TEAM_1_SL_Y = YDIM/2
 TEAM_2_SL_X = 19.0/20.0 * XDIM
 TEAM_2_SL_Y = YDIM/2
 CRANGE = 10
+CAP_RATIO = 3.0/4.0# Attackers/Defenders

@@ -43,126 +43,50 @@ class BlocksworldPanel(wx.Panel, ScriptClient):
 
         grid.Add(self.buttonPanel, pos=(0,0), span=(1,6))
 
-        #Stand Ground Slider
-        self.sgt = wx.StaticText(self,label = "Stand Ground", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.sgs = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.sgs.SetScrollbar(wx.HORIZONTAL,0,200,200)
-        self.sgs.SetThumbPosition(100)
-        self.sgl = wx.StaticText(self,label = str(self.sgs.GetThumbPosition() - 100), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.sgl, pos=(1,1))
-        self.Bind(wx.EVT_SCROLL, self.OnSG,self.sgs)
-        grid.Add(self.sgs, pos=(1,2))
-        grid.Add(self.sgt, pos=(1,0))
+        #Team 1 - Team/Individual Fitness Slifer
+        self.f1t = wx.StaticText(self,label = "Team 1 - Team/Individual", pos = wx.DefaultPosition, size=wx.DefaultSize)
+        self.f1s = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
+        self.f1s.SetScrollbar(wx.HORIZONTAL,0,100,100)
+        self.f1s.SetThumbPosition(5)
+        self.f1l = wx.StaticText(self,label = str(self.f1s.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
+        grid.Add(self.f1l,pos=(2,1))
+        self.Bind(wx.EVT_SCROLL, self.OnF1, self.f1s)
+        grid.Add(self.f1s,pos=(2,2))
+        grid.Add(self.f1t,pos=(2,0))
 
-        #Stick Together Slider
-        self.stt = wx.StaticText(self,label = "Stick Together", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.sts = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.sts.SetScrollbar(wx.HORIZONTAL,0,200,200)
-        self.sts.SetThumbPosition(100)
-        self.stl = wx.StaticText(self,label = str(self.sts.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.stl,pos=(2,1))
-        self.Bind(wx.EVT_SCROLL, self.OnST,self.sts)
-        grid.Add(self.sts,pos=(2,2))
-        grid.Add(self.stt,pos=(2,0))
+        #Team 2 - Team/Individual Fitness Slifer
+        self.f2t = wx.StaticText(self,label = "Team 2 - Team/Individual", pos = wx.DefaultPosition, size=wx.DefaultSize)
+        self.f2s = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
+        self.f2s.SetScrollbar(wx.HORIZONTAL,0,100,100)
+        self.f2s.SetThumbPosition(5)
+        self.f2l = wx.StaticText(self,label = str(self.f2s.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
+        grid.Add(self.f2l,pos=(3,1))
+        self.Bind(wx.EVT_SCROLL, self.OnF2, self.f2s)
+        grid.Add(self.f2s,pos=(3,2))
+        grid.Add(self.f2t,pos=(3,0))
 
-        #Together Distance Slider
-        self.tdt = wx.StaticText(self,label = "Distance", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.tds = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.tds.SetScrollbar(wx.HORIZONTAL,0,100,100)
-        self.tds.SetThumbPosition(50)
-        self.tdl = wx.StaticText(self,label = str(self.tds.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.tdl,pos=(2,5))
-        self.Bind(wx.EVT_SCROLL, self.OnTD,self.tds)
-        grid.Add(self.tds,pos=(2,6))
-        grid.Add(self.tdt,pos=(2,4))
+        #Team 1 - Offense/Defense Capturing Slider for THEIR FLAGS
+        self.c1t = wx.StaticText(self,label = "Team 1 -cap- flags O/D", pos = wx.DefaultPosition, size=wx.DefaultSize)
+        self.c1s = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
+        self.c1s.SetScrollbar(wx.HORIZONTAL,0,100,100)
+        self.c1s.SetThumbPosition(5)
+        self.c1l = wx.StaticText(self,label = str(self.c1s.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
+        grid.Add(self.c1l,pos=(4,1))
+        self.Bind(wx.EVT_SCROLL, self.OnC1, self.c1s)
+        grid.Add(self.c1s,pos=(4,2))
+        grid.Add(self.c1t,pos=(4,0))
+        
+        #Team 2 - Offense/Defense Captureing Silder for THEIR FLAGS
+        self.c2t = wx.StaticText(self,label = "Team 2 -cap- flags O/D", pos = wx.DefaultPosition, size=wx.DefaultSize)
+        self.c2s = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
+        self.c2s.SetScrollbar(wx.HORIZONTAL,0,100,100)
+        self.c2s.SetThumbPosition(5)
+        self.c2l = wx.StaticText(self,label = str(self.c2s.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
+        grid.Add(self.c2l,pos=(5,1))
+        self.Bind(wx.EVT_SCROLL, self.OnC2, self.c2s)
+        grid.Add(self.c2s,pos=(5,2))
+        grid.Add(self.c2t,pos=(5,0))
 
-        #Approach Enemy Slider
-        self.aet = wx.StaticText(self,label = "Approach Enemy", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.aes = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.aes.SetScrollbar(wx.HORIZONTAL,0,200,200)
-        self.aes.SetThumbPosition(100)
-        self.ael = wx.StaticText(self,label = str(self.aes.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.ael,pos=(3,1))
-        self.Bind(wx.EVT_SCROLL, self.OnAE,self.aes)
-        grid.Add(self.aes,pos=(3,2))
-        grid.Add(self.aet,pos=(3,0))
-
-        #Enemy Distance Slider
-        self.edt = wx.StaticText(self,label = "Distance", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.eds = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.eds.SetScrollbar(wx.HORIZONTAL,0,100,100)
-        self.eds.SetThumbPosition(50)
-        self.edl = wx.StaticText(self,label = str(self.eds.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.edl,pos=(3,5))
-        self.Bind(wx.EVT_SCROLL, self.OnED,self.eds)
-        grid.Add(self.eds,pos=(3,6))
-        grid.Add(self.edt,pos=(3,4))
-
-        #Approach Flag Slider
-        self.aft = wx.StaticText(self,label = "Approach Flag", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.afs = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.afs.SetScrollbar(wx.HORIZONTAL,0,200,200)
-        self.afs.SetThumbPosition(100)
-        self.afl = wx.StaticText(self,label = str(self.afs.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.afl,pos=(4,1))
-        self.Bind(wx.EVT_SCROLL, self.OnAF,self.afs)
-        grid.Add(self.afs,pos=(4,2))
-        grid.Add(self.aft,pos=(4,0))
-
-        #Flag Distance Slider
-        self.fdt = wx.StaticText(self,label = "Distance", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.fds = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.fds.SetScrollbar(wx.HORIZONTAL,0,100,100)
-        self.fds.SetThumbPosition(50)
-        self.fdl = wx.StaticText(self,label = str(self.fds.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.fdl,pos=(4,5))
-        self.Bind(wx.EVT_SCROLL, self.OnFD,self.fds)
-        grid.Add(self.fds,pos=(4,6))
-        grid.Add(self.fdt,pos=(4,4))
-
-        #Hit Target Slider
-        self.htt = wx.StaticText(self,label = "Hit Target", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.hts = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.hts.SetScrollbar(wx.HORIZONTAL,0,200,200)
-        self.hts.SetThumbPosition(100)
-        self.htl = wx.StaticText(self,label = str(self.hts.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.htl,pos=(5,1))
-        self.Bind(wx.EVT_SCROLL, self.OnHT,self.hts)
-        grid.Add(self.hts,pos=(5,2))
-        grid.Add(self.htt,pos=(5,0))
-
-        #Lifetime Slider
-        self.ltt = wx.StaticText(self,label = "Lifetime", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.lts = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.lts.SetScrollbar(wx.HORIZONTAL,0,100,100)
-        self.lts.SetThumbPosition(10)
-        self.ltl = wx.StaticText(self,label = str(self.lts.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.ltl,pos=(6,1))
-        self.Bind(wx.EVT_SCROLL, self.OnLT,self.lts)
-        grid.Add(self.lts,pos=(6,2))
-        grid.Add(self.ltt,pos=(6,0))
-
-        #Friendly Fire Slider
-        self.fft = wx.StaticText(self,label = "Friendly Fire", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.ffs = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.ffs.SetScrollbar(wx.HORIZONTAL,0,200,200)
-        self.ffs.SetThumbPosition(100)
-        self.ffl = wx.StaticText(self,label = str(self.sgs.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.ffl,pos=(7,1))
-        self.Bind(wx.EVT_SCROLL, self.OnFF,self.ffs)
-        grid.Add(self.ffs,pos=(7,2))
-        grid.Add(self.fft,pos=(7,0))
-
-        #Explore/Exploit Slider
-        self.eet = wx.StaticText(self,label = "Explore/Exploit", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.ees = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.ees.SetScrollbar(wx.HORIZONTAL,0,100,100)
-        self.ees.SetThumbPosition(50)
-        self.eel = wx.StaticText(self,label = str(self.ees.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.eel,pos=(8,1))
-        self.Bind(wx.EVT_SCROLL, self.OnEE,self.ees)
-        grid.Add(self.ees,pos=(8,2))
-        grid.Add(self.eet,pos=(8,0))
 
         #Hitpoint Slider
         self.hpt = wx.StaticText(self,label = "Hitpoints", pos=wx.DefaultPosition, size=wx.DefaultSize)
@@ -170,10 +94,10 @@ class BlocksworldPanel(wx.Panel, ScriptClient):
         self.hps.SetScrollbar(wx.HORIZONTAL,0,100,100)
         self.hps.SetThumbPosition(5)
         self.hpl = wx.StaticText(self,label = str(self.hps.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.hpl,pos=(9,1))
+        grid.Add(self.hpl,pos=(6,1))
         self.Bind(wx.EVT_SCROLL, self.OnHP,self.hps)
-        grid.Add(self.hps,pos=(9,2))
-        grid.Add(self.hpt,pos=(9,0))
+        grid.Add(self.hps,pos=(6,2))
+        grid.Add(self.hpt,pos=(6,0))
 
         #Speedup Slider
         self.spt = wx.StaticText(self,label = "Speedup", pos=wx.DefaultPosition, size=wx.DefaultSize)
@@ -181,10 +105,10 @@ class BlocksworldPanel(wx.Panel, ScriptClient):
         self.sps.SetScrollbar(wx.HORIZONTAL,0,100,100)
         self.sps.SetThumbPosition(5)
         self.spl = wx.StaticText(self,label = str(self.sps.GetThumbPosition()), size=wx.DefaultSize)
-        grid.Add(self.spl,pos=(10,1))
+        grid.Add(self.spl,pos=(7,1))
         self.Bind(wx.EVT_SCROLL, self.OnSP,self.sps)
-        grid.Add(self.sps,pos=(10,2))
-        grid.Add(self.spt,pos=(10,0))
+        grid.Add(self.sps,pos=(7,2))
+        grid.Add(self.spt,pos=(7,0))
 
         self.SetSizer(grid)
         grid.Fit(parent)
@@ -224,46 +148,22 @@ class BlocksworldPanel(wx.Panel, ScriptClient):
             dirname = dlg.GetPath()
             self.send("load2 %s" % dirname)
 
-    def OnSG(self,event):
-        self.sgl.SetLabel(str(event.Position - 100))
-        self.send("SG %d" % event.Position)
+    def OnF1(self,event):
+        self.f1l.SetLabel(str(event.Position))
+        self.send("F1 %d" % event.Position)
 
-    def OnST(self,event):
-        self.stl.SetLabel(str(event.Position - 100))
-        self.send("ST %d" % event.Position)
+    def OnF2(self,event):
+        self.f2l.SetLabel(str(event.Position))
+        self.send("F2 %d" % event.Position)
+    
+    def OnC1(self,event):
+        self.c1l.SetLabel(str(event.Position))
+        self.send("C1 %d" % event.Position)
 
-    def OnTD(self,event):
-        self.tdl.SetLabel(str(event.Position))
-        self.send("TD %d" % event.Position)
-
-    def OnAE(self,event):
-        self.ael.SetLabel(str(event.Position - 100))
-        self.send("AE %d" % event.Position)
-
-    def OnED(self,event):
-        self.edl.SetLabel(str(event.Position))
-        self.send("ED %d" % event.Position)
-
-    def OnAF(self,event):
-        self.afl.SetLabel(str(event.Position - 100))
-        self.send("AF %d" % event.Position)
-
-    def OnFD(self,event):
-        self.fdl.SetLabel(str(event.Position))
-        self.send("FD %d" % event.Position)
-
-    def OnHT(self,event):
-        self.htl.SetLabel(str(event.Position - 100))
-        self.send("HT %d" % event.Position)
-
-    def OnLT(self,event):
-        self.ltl.SetLabel(str(event.Position))
-        self.send("LT %d" % event.Position)
-
-    def OnFF(self,event):
-        self.ffl.SetLabel(str(event.Position))
-        self.send("FF %d" % event.Position)
-
+    def OnC2(self,event):
+        self.c2l.SetLabel(str(event.Position))
+        self.send("C2 %d" % event.Position)
+    
     def OnEE(self,event):
         self.eel.SetLabel(str(event.Position))
         self.send("EE %d" % event.Position)
