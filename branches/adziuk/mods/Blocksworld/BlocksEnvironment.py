@@ -35,7 +35,7 @@ class AgentState:
         self.prev_fitness = Fitness()
         self.final_fitness = 0
         self.animation = 'stand'
-        self.prev_collected = []
+        self.prev_collected = 0
 
 class BlocksEnvironment(Environment):
     """
@@ -218,6 +218,8 @@ class BlocksEnvironment(Environment):
 
         state = self.get_state(agent)
 
+        CAP_RATIO = getMod().capture[agent.get_team()]
+
         #Initilize Agent state
         if agent.step == 0:
             p = agent.state.position
@@ -233,6 +235,12 @@ class BlocksEnvironment(Environment):
              self.pop_state_1[agent.org.id] = state 
             else:
              self.pop_state_2[agent.org.id] = state 
+
+        for flag in self.flag_locs():
+            if self.flag_distance(agent, flag) <= CRANGE:
+                getMod().flag_nears[agent.get_team() -1][flag] -= 1
+            if getMod().flag_nears[agent.get_team() -1][flag] < 0: getMod().flag_nears[agent.get_team()-1][flag] = 0
+
 
         #Spawn more agents if there are more to spawn (Staggered spawning times tend to yeild better behavior)
         if agent.step == 3:
@@ -309,26 +317,32 @@ class BlocksEnvironment(Environment):
 
         #Check distance to all flags, collect as necessary
         for id in self.flag_locs():
-            if id not in self.flag_teams()[agent.get_team()] and self.flag_distance(agent, id) <= CRANGE:
+            other = agent.get_team() + 1
+            if other == 3: other = 1
+            if id not in self.flag_teams()[agent.get_team()] and self.flag_distance(agent, id) <= CRANGE and (getMod().flag_nears[other-1][id] == 0 or (float(getMod().flag_nears[agent.get_team()-1][id]) / float(getMod().flag_nears[other-1][id])) >= CAP_RATIO ):
                 loc = self.flag_locs()[id]
                 for team in self.flag_teams():
                     if id in team: team.remove(id)
                 self.flag_teams()[agent.get_team()].append(id)
-                x += 1    
+                x += 1  * (1-getMod().fitness[agent.get_team()])
                 print "FLAG GRAB: TEAM:", agent.get_team(), "ID:", id, "DISTANCE: ", self.flag_distance(agent,id)
                 if agent.get_team() == 1: getMod().change_flag((TEAM_1_SL_X + 80,loc.y,0),id)
                 if agent.get_team() == 2: getMod().change_flag((TEAM_2_SL_X - 80,loc.y,0),id)
 
-        #if len(self.flag_teams()[agent.get_team()]) - len(state.prev_collected) > 0:
-        #    x -= len(self.flag_teams()[agent.get_team()]) - len(state.prev_collected)
+        if len(self.flag_teams()[agent.get_team()]) - state.prev_collected > 0:
+            x -= (len(self.flag_teams()[agent.get_team()]) - (state.prev_collected)) * getMod().fitness[agent.get_team()]
+        
+        state.prev_collected = len(self.flag_teams()[agent.get_team()])
 
-        state.prev_collected = self.flag_teams()[agent.get_team()]
+        for flag in self.flag_locs():
+            if self.flag_distance(agent, flag) <= CRANGE:
+                getMod().flag_nears[agent.get_team()-1][flag] += 1
 
         #If it's the final state, handle clean up behaviors
         #You may get better behavior if you move this to epsiode_over
         if agent.step >= self.max_steps - 1:
             print "FITNESS:", len(self.flag_teams()[agent.get_team()])
-            return len(self.flag_teams()[agent.get_team()])
+            return len(self.flag_teams()[agent.get_team()]) * getMod().fitness[agent.get_team()]
 
         return x
     
@@ -368,10 +382,10 @@ class BlocksEnvironment(Environment):
         foe = {}
         cap = {}
         for val in range(0,180,30):
-            cap[val] = [0,0]
+            cap[val] = [0,0,0]
 
         for val in range(0,180,90): 
-            friend[val] = [0,0]
+            friend[val] = [0,0,0]
 
 
         for flag in self.flag_locs():

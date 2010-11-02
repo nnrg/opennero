@@ -28,10 +28,13 @@ class BlocksworldModule:
         self.ee =  0
         self.hp = 50
         self.currTeam = 1
+        self.flag_nears = [{0:0, 1:0, 2:0},{0:0,1:0,2:0}]
         self.flag_locs = {0:Vector3f(XDIM/2,YDIM/2,0), 1:Vector3f(XDIM/2,YDIM/3,0), 2:Vector3f(XDIM/2,2*YDIM/3,0)}
         self.flag_ids = {}
         self.flags = [[0,1,2],[],[]]
-        
+        self.fitness = {1:.05,2:.05}
+        self.capture = {1:.05,2:.05}
+        self.curr_id = 3
         self.num_to_add = pop_size
 
     def setup_map(self):
@@ -71,13 +74,26 @@ class BlocksworldModule:
         addObject("data/terrain/NeroWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="NeroWorld")
         
         return True
-
+    
     def change_flag(self, new_loc, id):
         self.flag_locs[id] = Vector3f(new_loc[0],new_loc[1],new_loc[2])
         
         removeObject(self.flag_ids[id])
-        
+
         self.flag_ids[id] = addObject("data/shapes/cube/BlueCube.xml", self.flag_locs[id], label="Flag")
+
+    def add_flag(self, new_loc):
+        
+        self.flag_locs[self.curr_id] = (Vector3f(new_loc[0],new_loc[1],new_loc[2]))
+        
+        self.flag_ids[self.curr_id] = addObject("data/shapes/cube/BlueCube.xml", self.flag_locs[self.curr_id], label="Flag")
+
+        self.flag_nears[0][self.curr_id] = 0
+        self.flag_nears[1][self.curr_id] = 0
+
+        self.flags[0].append(self.curr_id)
+
+        self.curr_id += 1
 
     #The following is run when the Deploy button is pressed
     def start_rtneat(self):
@@ -160,6 +176,17 @@ class BlocksworldModule:
         self.hp = value
         print 'Hit points:',value
 
+    def fitChange(self,team,value):
+        value = value/100.0
+        self.fitness[team] = value
+        print 'Team:', team, "fitness =",value
+
+    def capChange(self,team,value):
+        value = value/100.0
+        self.capture[team] = value
+        print 'Team:', team, "fitness =",value
+
+
     def getNumToAdd(self):
         return self.num_to_add
 
@@ -189,16 +216,10 @@ def parseInput(strn):
     loc,val = strn.split(' ')
     vali = 1
     if strn.isupper(): vali = int(val)
-    if loc == "SG": mod.set_weight(Fitness.STAND_GROUND,vali)
-    if loc == "ST": mod.set_weight(Fitness.STICK_TOGETHER,vali)
-    if loc == "TD": mod.dtaChange(vali)
-    if loc == "AE": mod.set_weight(Fitness.APPROACH_ENEMY,vali)
-    if loc == "ED": mod.dtbChange(vali)
-    if loc == "AF": mod.set_weight(Fitness.APPROACH_FLAG,vali) 
-    if loc == "FD": mod.dtcChange(vali)
-    if loc == "HT": mod.set_weight(Fitness.HIT_TARGET,vali)
-    if loc == "LT": mod.ltChange(vali)
-    if loc == "FF": mod.ffChange(vali)
+    if loc == "F1": mod.fitChange(1,vali)
+    if loc == "F2": mod.fitChange(2,vali)
+    if loc == "C1": mod.capChange(1,vali)
+    if loc == "C2": mod.capChange(2,vali)
     if loc == "EE": mod.eeChange(vali)
     if loc == "HP": mod.hpChange(vali)
     if loc == "SP": mod.set_speedup(vali)

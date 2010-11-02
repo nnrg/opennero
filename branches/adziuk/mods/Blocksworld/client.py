@@ -63,7 +63,7 @@ def show_context_menu():
 
     def place_flag():
         from module import getMod
-        getMod().change_flag([location.x,location.y,0],0)
+        getMod().add_flag([location.x,location.y,0])
 
     def remove_wall():
         removeObject(selected_object_id)
