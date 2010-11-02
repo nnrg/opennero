@@ -1,8 +1,8 @@
 from OpenNero import *
 
-class NSAgent(AgentBrain):
+class EmptyAgent(AgentBrain):
     """
-    NeroSociety agent
+    An empty agent
     """
     def __init__(self):
         """
@@ -15,18 +15,22 @@ class NSAgent(AgentBrain):
         """
         Initialize an agent brain with sensor information
         """
+        print 'initialize:',init_info
 
     def start(self, time, sensors):
         """
         start of an episode
         """
+        print 'start:',time,sensors
 
     def act(self, time, sensors, reward):
         """
         a state transition
         """
+        print 'act:',time,sensors,reward
 
     def end(self, time, reward):
         """
         end of an episode
         """
+        print 'end:',time,reward
