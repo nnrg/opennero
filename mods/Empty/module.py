@@ -1,7 +1,7 @@
-from NeroSociety.NSEnvironment import *
-from NeroSociety.NSAgent import *
+from Empty.EmptyEnvironment import *
+from Empty.EmptyAgent import *
 
-class NSModule:
+class EmptyModule:
     def __init__(self):
         pass
 
@@ -14,8 +14,8 @@ def delMod():
 def getMod():
     global gMod
     if not gMod:
-        gMod = NSModule()
+        gMod = EmptyModule()
     return gMod
 
 def ServerMain():
-    print "Starting mod nerosociety"
+    print "Starting mod Empty"

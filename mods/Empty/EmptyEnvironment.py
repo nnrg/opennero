@@ -1,7 +1,7 @@
 from OpenNero import *
-from NeroSociety.module import *
+from Empty.module import *
 
-class NSEnvironment(Environment):
+class EmptyEnvironment(Environment):
     """
     Environment for the Nero
     """
