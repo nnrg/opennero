@@ -1,4 +1,5 @@
 #include "core/Common.h"
+#include "core/IrrSerialize.h"
 #include "ai/sensors/RadarSensor.h"
 
 namespace OpenNero
@@ -34,16 +35,26 @@ namespace OpenNero
     //! Get the region of interest for this sensor
     BBoxf RadarSensor::getBoundingBox()
     {
-        // TODO: implement
-        return BBoxf(0,0,0,10,10,10);
+        return BBoxf(0,0,0,0,0,0);
     }
     
     //! Decide if this sensor is interested in a particular object
     bool RadarSensor::process(SimEntityPtr source, SimEntityPtr target)
     {
         Vector3f vecToTarget = source->GetPosition() - target->GetPosition();
-        Vector3f angleToTarget = vecToTarget.getHorizontalAngle();
-        LOG_F_DEBUG("sensors", "target at " << angleToTarget.X << ", " << angleToTarget.Y);
+        Vector3f angleToTarget = 
+            ConvertIrrlichtToNeroRotation(
+                ConvertNeroToIrrlichtPosition(vecToTarget).getHorizontalAngle());
+        double yawToTarget = LockAngleToCircle(angleToTarget.Z);
+        double pitchToTarget = angleToTarget.X;
+        if (((leftbound >= yawToTarget && yawToTarget >= rightbound) || 
+            (leftbound < rightbound && (leftbound >= yawToTarget || yawToTarget >= rightbound))) &&
+			(bottombound <= pitchToTarget && pitchToTarget <= topbound) )
+		{
+            LOG_F_DEBUG("sensors", "accept radar target: " << yawToTarget << ", " << pitchToTarget);
+        } else {
+            LOG_F_DEBUG("sensors", "reject radar target: " << yawToTarget << ", " << pitchToTarget);
+        }
         return true;
     }
     
@@ -78,11 +89,10 @@ namespace OpenNero
             << "radius=\"" << radius << "\" ";
     }
 
-    std::ostream& operator<<(std::ostream& out, const RadarSensor& rs)
+    void RadarSensor::toStream(std::ostream& out) const
     {
         out << "<RadarSensor ";
-        rs.toXMLParams(out);
+        toXMLParams(out);
         out << " />";
-        return out;
     }
 }

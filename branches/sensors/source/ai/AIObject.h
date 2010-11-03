@@ -65,8 +65,6 @@ namespace OpenNero
 
         size_t AddSensor(SensorPtr sensor) { return mSensors.addSensor(sensor); }
 
-        Observations sense();
-
     private:
 
         Actions mActions; ///< last performed action

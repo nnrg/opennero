@@ -49,21 +49,13 @@ namespace OpenNero
         // nada
     }
 
-    Observations AIObject::sense()
-    {
-        Observations observations = getWorld()->sense(getBrain());
-        // TODO: calculate built-in sensor array values
-        Observations observations2 = mSensors.getObservations();
-        return observations;
-    }
-
     /// get the AI move and apply it to the shared data
     void AIObject::ProcessTick(float32_t dt)
     {
         Assert(getBrain());
         if (getBrain()->step == 0) // if first step
         {
-            Observations observations = sense();
+            Observations observations = Sense();
             setActions(getBrain()->start(dt, observations));
             setReward(getWorld()->step(getBrain(), getActions()));
             getBrain()->step++;
@@ -84,7 +76,7 @@ namespace OpenNero
                     getBrain()->step = 0;
                     getBrain()->fitness = 0;
                 } else {
-                    Observations observations = sense();
+                    Observations observations = Sense();
                     setActions(getBrain()->act(dt, observations, getReward()));
                     setReward(getWorld()->step(getBrain(), getActions()));
                     getBrain()->step++;
@@ -108,7 +100,10 @@ namespace OpenNero
     /// sense the agent's environment
     Observations AIObject::Sense()
     {
-        return Observations();
+        Observations observations = getWorld()->sense(getBrain());
+        // TODO: calculate built-in sensor array values
+        Observations observations2 = mSensors.getObservations();
+        return observations;
     }
 
     inline std::ostream& operator<<(std::ostream& out, AIObject& obj)

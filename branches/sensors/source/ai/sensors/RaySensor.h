@@ -51,7 +51,8 @@ namespace OpenNero
         //! Get the value computed for this sensor
         double getObservation();
 
-        friend std::ostream& operator<<(std::ostream& in, const RaySensor& rs);
+        //! Output this sensor in a human-readable form
+        virtual void toStream(std::ostream& out) const;
 
     protected:
         

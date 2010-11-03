@@ -12,7 +12,6 @@ namespace OpenNero {
     //! Get the region of interest for this sensor
     BBoxf RaySensor::getBoundingBox()
     {
-        // TODO: implement
         return BBoxf(0,0,0,10,10,10);
     }
     
@@ -38,11 +37,11 @@ namespace OpenNero {
             << "radius=\"" << radius << "\" ";
     }
 
-    std::ostream& operator<<(std::ostream& out, const RaySensor& rs)
+    //! Output this sensor in a human-readable form
+    void RaySensor::toStream(std::ostream& out) const
     {
         out << "<RaySensor ";
-        rs.toXMLParams(out);
+        toXMLParams(out);
         out << " />";
-        return out;
     }
 }

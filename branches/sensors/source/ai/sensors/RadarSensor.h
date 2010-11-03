@@ -62,7 +62,7 @@ namespace OpenNero
         //! Get the value computed for this sensor
         double getObservation();
 
-        friend std::ostream& operator<<(std::ostream& in, const RadarSensor& rs);
+        void toStream(std::ostream& out) const;
 
     protected:
 

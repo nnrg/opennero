@@ -50,12 +50,6 @@ namespace OpenNero
         }
     }
     
-    /// sense the agent's environment
-    Observations PythonAIObject::Sense()
-    {
-        return Observations();
-    }
-    
     PythonAITemplate::PythonAITemplate(SimFactoryPtr factory, const PropertyMap& propMap, const std::string& prefix)
         : AIObjectTemplate(factory, propMap), mBrainExpr(), mEnvironmentExpr()
     {

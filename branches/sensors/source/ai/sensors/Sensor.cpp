@@ -8,14 +8,6 @@ namespace OpenNero
             << "types=\"" << types << "\" ";
     }
     
-    std::ostream& operator<<(std::ostream& out, const Sensor& sensor)
-    {
-        out << "<Sensor ";
-        sensor.toXMLParams(out);
-        out << "/>";
-        return out;
-    }
-    
     BBoxf PySensor::getRegionOfInterest()
     {
         BBoxf result;
