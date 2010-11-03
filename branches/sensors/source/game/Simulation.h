@@ -56,6 +56,9 @@ namespace OpenNero
 
         /// Get the set of all the entities in the simulation
         const SimEntitySet GetEntities() const { return mEntities; }
+        
+        /// Get the set of all the entities of the specified type
+        const SimEntitySet GetEntities( size_t types ) const;
 
         /// Get the next free SimId
         SimId GetNextFreeId() const { return mMaxId + 1; }

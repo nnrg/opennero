@@ -12,7 +12,7 @@ namespace OpenNero {
     //! Get the region of interest for this sensor
     BBoxf RaySensor::getBoundingBox()
     {
-        return BBoxf(0,0,0,10,10,10);
+        return BBoxf(0,0,0,0,0,0);
     }
     
     //! Process an object of interest

@@ -196,5 +196,16 @@ namespace OpenNero
 			}
 		}
     }
+    
+    const SimEntitySet Simulation::GetEntities(size_t types) const
+    {
+        SimEntitySet result;
+        SimEntitySet::const_iterator entIter;
+        for (entIter = mEntities.begin(); entIter != mEntities.end(); ++entIter)
+        {
+            if ((*entIter)->GetType() & types) result.insert(*entIter);
+        }
+        return result;
+    }
 
 } //end OpenNero

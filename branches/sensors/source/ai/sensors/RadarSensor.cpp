@@ -22,12 +22,6 @@ namespace OpenNero
         , topbound(topbound)
         , radius(radius)
     {
-        LOG_F_DEBUG("sensors", "new RadarSensor(" 
-                    << leftbound << ", " 
-                    << rightbound << ", "
-                    << bottombound << ", "
-                    << topbound << ", "
-                    << radius << ")");
     }
     
     RadarSensor::~RadarSensor() {}

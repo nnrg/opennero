@@ -7,7 +7,6 @@ namespace OpenNero
 {
     size_t SensorArray::addSensor(SensorPtr sensor)
     {
-        LOG_F_DEBUG("sensors", "AddSensor:" << sensor);
         sensors.push_back(sensor);
         return sensors.size() - 1;
     }
@@ -16,11 +15,9 @@ namespace OpenNero
     {
         std::vector<SensorPtr>::iterator sensIter;
         Observations obs;
-        LOG_F_DEBUG("sensors", "SensorArray::getObservations");
         for (sensIter = sensors.begin(); sensIter != sensors.end(); ++sensIter) {
-            LOG_F_DEBUG("sensors", "SensorArray::getObservations sensor" << (*sensIter));
             SimEntitySet::const_iterator entIter;
-            const SimEntitySet entSet = Kernel::instance().GetSimContext()->getSimulation()->GetEntities();
+            const SimEntitySet entSet = Kernel::instance().GetSimContext()->getSimulation()->GetEntities((*sensIter)->getTypes());
             for (entIter = entSet.begin(); entIter != entSet.end(); ++entIter) {
                 (*sensIter)->process(GetEntity(), (*entIter));
             }
