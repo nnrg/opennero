@@ -11,6 +11,7 @@ MAX_SPEED = 12
 MAX_SD = 100
 OBSTACLE = (1 << 0)
 AGENT = (1 << 0)
+FLAG_SENSORS = [(-180,-90), (-90,-60), (-60,-30), (-30,-15), (-15, 0), (-5, 5), (0, 15), (15, 30), (30, 60), (60, 90), (90, 180)]
 
 class AgentState:
     """
@@ -62,37 +63,33 @@ class NeroEnvironment(Environment):
         rbound = FeatureVectorInfo() # rewards
         
         # actions
-        abound.add_continuous(0, pi / 2) # direction of motion
-        abound.add_continuous(0, 1) # how fast to move
-        abound.add_continuous(0, pi / 2) # direction of motion
+        abound.add_continuous(-1,1) # forward/backward speed
+        abound.add_continuous(-0.2, 0.2) # left/right turn (in radians)
         
-        #Wall Sensors
+        # 5 x Wall Sensors
         sbound.add_continuous(0, 1) # -60 deg        
         sbound.add_continuous(0, 1) # -30 deg
         sbound.add_continuous(0, 1) # straight ahead
         sbound.add_continuous(0, 1) # 30 deg
         sbound.add_continuous(0, 1) # 60 deg
         
-        #Foe Sensors
+        # 5 x Foe Sensors
         #sbound.add_continuous(0, 1) # -60 deg        
         #sbound.add_continuous(0, 1) # -30 deg
         #sbound.add_continuous(0, 1) # straight ahead
         #sbound.add_continuous(0, 1) # 30 deg
         #sbound.add_continuous(0, 1) # 60 deg
         
-        #Friend Sensors
+        # 5 x Friend Sensors
         #sbound.add_continuous(0, 1) # -60 deg        
         #sbound.add_continuous(0, 1) # -30 deg
         #sbound.add_continuous(0, 1) # straight ahead
         #sbound.add_continuous(0, 1) # 30 deg
         #sbound.add_continuous(0, 1) # 60 deg
         
-        #Flag Sensors
-        sbound.add_continuous(0, 1) # 0 - 45
-        sbound.add_continuous(0, 1) # 90 - 135
-        sbound.add_continuous(0, 1) # 180 - 225
-        sbound.add_continuous(0, 1) # 270 - 315
-        sbound.add_continuous(0, 1) # Distance
+        # 11 x Flag Sensors
+        for fs in FLAG_SENSORS:
+            sbound.add_continuous(0,1)
         
         self.agent_info = AgentInitInfo(sbound, abound, rbound)
     
@@ -259,8 +256,8 @@ class NeroEnvironment(Environment):
         (x, y, heading) = state.pose
         
         # get the actions of the agent
-        turn_by = degrees(action[0]) - degrees(action[2])
-        move_by = action[1]
+        move_by = action[0]
+        turn_by = degrees(action[1])
         
         # figure out the new heading
         new_heading = wrap_degrees(heading, turn_by)
@@ -380,41 +377,40 @@ class NeroEnvironment(Environment):
         """ 
         figure out what the agent should sense 
         """
-        
         state = self.get_state(agent)
-        v = self.agent_info.sensors.get_instance()
+        observations = self.agent_info.sensors.get_instance()
         vx = []
         
         state = self.get_state(agent)
-        
         vx.append(self.raySense(agent, -60, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, -30, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 0, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 30, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 60, MAX_SD, OBSTACLE))
         
-        fd = self.flag_distance(agent)
+        flag_loc = self.flag_loc()
+        fx, fy = flag_loc.x, flag_loc.y
+        (x, y, h) = state.pose
+        fd = hypot(fx - x, fy - y)
+        fh = 0
         if fd != 0:
-            fh  = ((degrees(atan2(self.flag_loc().y-state.pose[1],self.flag_loc().x - state.pose[0])) - state.pose[2]) % 360) - 180
+            atan2
+        if fd != 0:
+            fh = degrees(atan2(fy-y,fx-x)) - h
         else:
             fh = 0
-        if fh < 0:
+        while fh < 180:
             fh += 360
-        if fh > 360:
+        while fh > 180:
             fh -= 360
-        
-        vx.append(max(0,cos(radians(fh-  0))))
-        vx.append(max(0,cos(radians(fh- 90))))
-        
-        vx.append(max(0,cos(radians(fh-180))))
-        vx.append(max(0,cos(radians(fh-270))))
-        
-        vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST)))
-        
+        for (th1, th2) in FLAG_SENSORS:
+            if fh > th1 and fh <= th2:
+                vx.append(min(1.0, max(0, (self.MAX_DIST - fd)/self.MAX_DIST)))
+            else:
+                vx.append(0)
         for iter in range(len(vx)):
-            v[iter] = vx[iter]
-        
-        return v
+            observations[iter] = vx[iter]
+        return observations
    
     def flag_loc(self):
         """
