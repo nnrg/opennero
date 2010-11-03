@@ -394,8 +394,6 @@ class NeroEnvironment(Environment):
         fd = hypot(fx - x, fy - y)
         fh = 0
         if fd != 0:
-            atan2
-        if fd != 0:
             fh = degrees(atan2(fy-y,fx-x)) - h
         else:
             fh = 0
