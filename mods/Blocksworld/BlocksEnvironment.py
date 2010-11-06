@@ -89,6 +89,9 @@ class BlocksEnvironment(Environment):
         sbound.add_continuous(0, 1) # Distance
         sbound.add_continuous(0, 1) # Distance
         
+        #BIAS
+        sbound.add_continuous(0,1) # Bias
+
         self.agent_info = AgentInitInfo(sbound, abound, rbound)
     
     def out_of_bounds(self, pos):
@@ -426,9 +429,11 @@ class BlocksEnvironment(Environment):
             vx.append(min(1,max(0,(self.MAX_DIST-friend[val][0])/self.MAX_DIST)))
             vx.append(friend[val][1])
 
+        vx.append(1)
+
         for iter in range(len(vx)):
             v[iter] = vx[iter]
-        
+
         return v
    
     def flag_locs(self):
