@@ -1,0 +1,4 @@
+#summary Write an Adaptive Agent for the Maze, this time with your favorite implementation.
+#sidebar TableOfContents
+
+_UNDER CONSTRUCTION_
