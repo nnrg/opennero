@@ -14,7 +14,7 @@
     * MazeGeneratorExercise
     * MazeSolverExercise
     * MazeLearnerExercise
-    * MazeLearnerExerciseII
+    * AdvancedMazeExercise
     * NEROSensorExercise
  * [RunningOpenNero Running]
    * [MazeMod The Maze mod]
