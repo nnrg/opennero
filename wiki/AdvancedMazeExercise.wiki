@@ -1,4 +1,4 @@
-#summary Write an Adaptive Agent for the Maze.
+#summary Write a creative algorithm for maze solving.
 #sidebar TableOfContents
 
 ==Overview==
