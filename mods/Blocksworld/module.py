@@ -28,10 +28,10 @@ class BlocksworldModule:
         self.ee =  0
         self.hp = 50
         self.currTeam = 1
-        self.flag_nears = [{0:0, 1:0, 2:0},{0:0,1:0,2:0}]
-        self.flag_locs = {0:Vector3f(XDIM/2,YDIM/2,0), 1:Vector3f(XDIM/2,YDIM/3,0), 2:Vector3f(XDIM/2,2*YDIM/3,0)}
-        self.flag_ids = {}
-        self.flags = [[0,1,2],[],[]]
+        self.coin_nears = [{0:0, 1:0, 2:0},{0:0,1:0,2:0}]
+        self.coin_locs = {0:Vector3f(XDIM/2,YDIM/2,0), 1:Vector3f(XDIM/2,YDIM/3,0), 2:Vector3f(XDIM/2,2*YDIM/3,0)}
+        self.coin_ids = {}
+        self.coins = [[0,1,2],[],[]]
         self.fitness = {1:.05,2:.05}
         self.capture = {1:.05,2:.05}
         self.curr_id = 3
@@ -60,9 +60,9 @@ class BlocksworldModule:
 
         set_environment(self.environment)
         
-        # flag placement
-        for flag in self.flag_locs:
-         self.flag_ids[flag] = addObject("data/shapes/cube/BlueCube.xml", self.flag_locs[flag], label="Flag")
+        # coin placement
+        for coin in self.coin_locs:
+         self.coin_ids[coin] = addObject("data/shapes/cube/BlueCube.xml", self.coin_locs[coin], label="Coin")
 
         # world walls
         addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2,0,HEIGHT+OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall0", type = OBSTACLE )
@@ -75,23 +75,23 @@ class BlocksworldModule:
         
         return True
     
-    def change_flag(self, new_loc, id):
-        self.flag_locs[id] = Vector3f(new_loc[0],new_loc[1],new_loc[2])
+    def change_coin(self, new_loc, id):
+        self.coin_locs[id] = Vector3f(new_loc[0],new_loc[1],new_loc[2])
         
-        removeObject(self.flag_ids[id])
+        removeObject(self.coin_ids[id])
 
-        self.flag_ids[id] = addObject("data/shapes/cube/BlueCube.xml", self.flag_locs[id], label="Flag")
+        self.coin_ids[id] = addObject("data/shapes/cube/BlueCube.xml", self.coin_locs[id], label="Coin")
 
-    def add_flag(self, new_loc):
+    def add_coin(self, new_loc):
         
-        self.flag_locs[self.curr_id] = (Vector3f(new_loc[0],new_loc[1],new_loc[2]))
+        self.coin_locs[self.curr_id] = (Vector3f(new_loc[0],new_loc[1],new_loc[2]))
         
-        self.flag_ids[self.curr_id] = addObject("data/shapes/cube/BlueCube.xml", self.flag_locs[self.curr_id], label="Flag")
+        self.coin_ids[self.curr_id] = addObject("data/shapes/cube/BlueCube.xml", self.coin_locs[self.curr_id], label="Coin")
 
-        self.flag_nears[0][self.curr_id] = 0
-        self.flag_nears[1][self.curr_id] = 0
+        self.coin_nears[0][self.curr_id] = 0
+        self.coin_nears[1][self.curr_id] = 0
 
-        self.flags[0].append(self.curr_id)
+        self.coins[0].append(self.curr_id)
 
         self.curr_id += 1
 

@@ -61,9 +61,9 @@ def show_context_menu():
     def move_object():
         modify_object_id['move'] = selected_object_id
 
-    def place_flag():
+    def place_coin():
         from module import getMod
-        getMod().add_flag([location.x,location.y,0])
+        getMod().add_coin([location.x,location.y,0])
 
     def remove_wall():
         removeObject(selected_object_id)
@@ -90,9 +90,9 @@ def show_context_menu():
         wallButton.OnMouseLeftClick = lambda: add_wall()
         contextMenu.addItem('Add wall', wallButton)
 
-        flagButton = gui.create_button(guiMan, 'flag', Pos2i(0,0), Pos2i(0,0), '')
-        flagButton.OnMouseLeftClick = lambda: place_flag()
-        contextMenu.addItem('Place Flag', flagButton)
+        coinButton = gui.create_button(guiMan, 'coin', Pos2i(0,0), Pos2i(0,0), '')
+        coinButton.OnMouseLeftClick = lambda: place_coin()
+        contextMenu.addItem('Place Coin', coinButton)
 
 def reset_mouse_action():
     global modify_object_id

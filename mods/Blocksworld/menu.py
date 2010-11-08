@@ -65,8 +65,8 @@ class BlocksworldPanel(wx.Panel, ScriptClient):
         grid.Add(self.f2s,pos=(3,2))
         grid.Add(self.f2t,pos=(3,0))
 
-        #Team 1 - Offense/Defense Capturing Slider for THEIR FLAGS
-        self.c1t = wx.StaticText(self,label = "Team 1 -cap- flags O/D", pos = wx.DefaultPosition, size=wx.DefaultSize)
+        #Team 1 - Offense/Defense Capturing Slider for THEIR COINS
+        self.c1t = wx.StaticText(self,label = "Team 1 -cap- coins O/D", pos = wx.DefaultPosition, size=wx.DefaultSize)
         self.c1s = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
         self.c1s.SetScrollbar(wx.HORIZONTAL,0,100,100)
         self.c1s.SetThumbPosition(5)
@@ -76,8 +76,8 @@ class BlocksworldPanel(wx.Panel, ScriptClient):
         grid.Add(self.c1s,pos=(4,2))
         grid.Add(self.c1t,pos=(4,0))
         
-        #Team 2 - Offense/Defense Captureing Silder for THEIR FLAGS
-        self.c2t = wx.StaticText(self,label = "Team 2 -cap- flags O/D", pos = wx.DefaultPosition, size=wx.DefaultSize)
+        #Team 2 - Offense/Defense Captureing Silder for THEIR COINS
+        self.c2t = wx.StaticText(self,label = "Team 2 -cap- coins O/D", pos = wx.DefaultPosition, size=wx.DefaultSize)
         self.c2s = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
         self.c2s.SetScrollbar(wx.HORIZONTAL,0,100,100)
         self.c2s.SetThumbPosition(5)
