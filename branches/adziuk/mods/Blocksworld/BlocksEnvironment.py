@@ -70,7 +70,7 @@ class BlocksEnvironment(Environment):
         abound.add_continuous(0, 1) # how fast to move
         abound.add_continuous(0, pi / 2) # direction of motion
         
-        #Flag Sensors
+        #Coin Sensors
         sbound.add_continuous(0, 1) # Distance
         sbound.add_continuous(0, 1) # Distance
         sbound.add_continuous(0, 1) # Distance
@@ -239,10 +239,10 @@ class BlocksEnvironment(Environment):
             else:
              self.pop_state_2[agent.org.id] = state 
 
-        for flag in self.flag_locs():
-            if self.flag_distance(agent, flag) <= CRANGE:
-                getMod().flag_nears[agent.get_team() -1][flag] -= 1
-            if getMod().flag_nears[agent.get_team() -1][flag] < 0: getMod().flag_nears[agent.get_team()-1][flag] = 0
+        for coin in self.coin_locs():
+            if self.coin_distance(agent, coin) <= CRANGE:
+                getMod().coin_nears[agent.get_team() -1][coin] -= 1
+            if getMod().coin_nears[agent.get_team() -1][coin] < 0: getMod().coin_nears[agent.get_team()-1][coin] = 0
 
 
         #Spawn more agents if there are more to spawn (Staggered spawning times tend to yeild better behavior)
@@ -318,34 +318,34 @@ class BlocksEnvironment(Environment):
 
         x = 0
 
-        #Check distance to all flags, collect as necessary
-        for id in self.flag_locs():
+        #Check distance to all coins, collect as necessary
+        for id in self.coin_locs():
             other = agent.get_team() + 1
             if other == 3: other = 1
-            if id not in self.flag_teams()[agent.get_team()] and self.flag_distance(agent, id) <= CRANGE and (getMod().flag_nears[other-1][id] == 0 or (float(getMod().flag_nears[agent.get_team()-1][id]) / float(getMod().flag_nears[other-1][id])) >= CAP_RATIO ):
-                loc = self.flag_locs()[id]
-                for team in self.flag_teams():
+            if id not in self.coin_teams()[agent.get_team()] and self.coin_distance(agent, id) <= CRANGE and (getMod().coin_nears[other-1][id] == 0 or (float(getMod().coin_nears[agent.get_team()-1][id]) / float(getMod().coin_nears[other-1][id])) >= CAP_RATIO ):
+                loc = self.coin_locs()[id]
+                for team in self.coin_teams():
                     if id in team: team.remove(id)
-                self.flag_teams()[agent.get_team()].append(id)
+                self.coin_teams()[agent.get_team()].append(id)
                 x += 1  * (1-getMod().fitness[agent.get_team()])
-                print "FLAG GRAB: TEAM:", agent.get_team(), "ID:", id, "DISTANCE: ", self.flag_distance(agent,id)
-                if agent.get_team() == 1: getMod().change_flag((TEAM_1_SL_X + 80,loc.y,0),id)
-                if agent.get_team() == 2: getMod().change_flag((TEAM_2_SL_X - 80,loc.y,0),id)
+                #print "COIN GRAB: TEAM:", agent.get_team(), "ID:", id, "DISTANCE: ", self.coin_distance(agent,id)
+                if agent.get_team() == 1: getMod().change_coin((TEAM_1_SL_X + 80,loc.y,0),id)
+                if agent.get_team() == 2: getMod().change_coin((TEAM_2_SL_X - 80,loc.y,0),id)
 
-        if len(self.flag_teams()[agent.get_team()]) - state.prev_collected > 0:
-            x -= (len(self.flag_teams()[agent.get_team()]) - (state.prev_collected)) * getMod().fitness[agent.get_team()]
+        if len(self.coin_teams()[agent.get_team()]) - state.prev_collected > 0:
+            x -= (len(self.coin_teams()[agent.get_team()]) - (state.prev_collected)) * getMod().fitness[agent.get_team()]
         
-        state.prev_collected = len(self.flag_teams()[agent.get_team()])
+        state.prev_collected = len(self.coin_teams()[agent.get_team()])
 
-        for flag in self.flag_locs():
-            if self.flag_distance(agent, flag) <= CRANGE:
-                getMod().flag_nears[agent.get_team()-1][flag] += 1
+        for coin in self.coin_locs():
+            if self.coin_distance(agent, coin) <= CRANGE:
+                getMod().coin_nears[agent.get_team()-1][coin] += 1
 
         #If it's the final state, handle clean up behaviors
         #You may get better behavior if you move this to epsiode_over
         if agent.step >= self.max_steps - 1:
-            print "FITNESS:", len(self.flag_teams()[agent.get_team()])
-            return len(self.flag_teams()[agent.get_team()]) * getMod().fitness[agent.get_team()]
+            #print "FITNESS:", len(self.coin_teams()[agent.get_team()])
+            return len(self.coin_teams()[agent.get_team()]) * getMod().fitness[agent.get_team()]
 
         return x
     
@@ -391,11 +391,11 @@ class BlocksEnvironment(Environment):
             friend[val] = [0,0,0]
 
 
-        for flag in self.flag_locs():
+        for coin in self.coin_locs():
          tv = {}
-         if flag in self.flag_teams()[0]:
+         if coin in self.coin_teams()[0]:
              tv = cap
-         elif flag in self.flag_teams()[agent.get_team()]:
+         elif coin in self.coin_teams()[agent.get_team()]:
              tv = friend
          else:
              tv = cap
@@ -403,9 +403,9 @@ class BlocksEnvironment(Environment):
          delta = 30
          if tv == friend: delta = 90
 
-         fd = self.flag_distance(agent, 0)
+         fd = self.coin_distance(agent, 0)
          if fd != 0:
-             fh  = ((degrees(atan2(self.flag_locs()[flag].y-state.pose[1],self.flag_locs()[flag].x - state.pose[0])) - state.pose[2]) % 360) - 180
+             fh  = ((degrees(atan2(self.coin_locs()[coin].y-state.pose[1],self.coin_locs()[coin].x - state.pose[0])) - state.pose[2]) % 360) - 180
          else:
              fh = 0
  
@@ -436,23 +436,23 @@ class BlocksEnvironment(Environment):
 
         return v
    
-    def flag_locs(self):
+    def coin_locs(self):
         """
-        Returns the current location of the flag
+        Returns the current location of the coin
         """
         from Blocksworld.module import getMod
-        return getMod().flag_locs
+        return getMod().coin_locs
 
-    def flag_teams(self):
+    def coin_teams(self):
         from Blocksworld.module import getMod
-        return getMod().flags
+        return getMod().coins
 
-    def flag_distance(self, agent, id):
+    def coin_distance(self, agent, id):
         """
-        Returns the distance of the current agent from the flag
+        Returns the distance of the current agent from the coin
         """
         pos = self.get_state(agent).pose
-        return pow(pow(float(pos[0]) - self.flag_locs()[id].x, 2) + pow(float(pos[1]) - self.flag_locs()[id].y, 2), .5)
+        return pow(pow(float(pos[0]) - self.coin_locs()[id].x, 2) + pow(float(pos[1]) - self.coin_locs()[id].y, 2), .5)
 
     def distance(self, agloc, tgloc):
         """
