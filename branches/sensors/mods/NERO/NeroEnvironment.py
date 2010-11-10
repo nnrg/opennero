@@ -11,6 +11,7 @@ MAX_SPEED = 12
 MAX_SD = 100
 OBSTACLE = (1 << 0)
 AGENT = (1 << 0)
+WALL_SENSORS = [-60,-30,0,30,60]
 FLAG_SENSORS = [(-180,-90), (-90,-60), (-60,-30), (-30,-15), (-15, 0), (-5, 5), (0, 15), (15, 30), (30, 60), (60, 90), (90, 180)]
 
 class AgentState:
@@ -67,11 +68,8 @@ class NeroEnvironment(Environment):
         abound.add_continuous(-0.2, 0.2) # left/right turn (in radians)
         
         # 5 x Wall Sensors
-        sbound.add_continuous(0, 1) # -60 deg        
-        sbound.add_continuous(0, 1) # -30 deg
-        sbound.add_continuous(0, 1) # straight ahead
-        sbound.add_continuous(0, 1) # 30 deg
-        sbound.add_continuous(0, 1) # 60 deg
+        for a in WALL_SENSORS:
+            sbound.add_continuous(0,1)
         
         # 5 x Foe Sensors
         #sbound.add_continuous(0, 1) # -60 deg        
@@ -121,15 +119,8 @@ class NeroEnvironment(Environment):
         """
         return a blueprint for a new agent
         """
-        # adding wall sensors
-        #for angle in [-60, -30, 0, 30, 60]:
-        #    ray_sensor = RaySensor(cos(radians(-60)),
-        #                           sin(radians(-60)),
-        #                           0,
-        #                           MAX_SD,
-        #                           OBSTACLE)
-        #    print ray_sensor
-        #    agent.add_sensor(ray_sensor)
+        for a in WALL_SENSORS:
+            agent.add_sensor(RaySensor(cos(radians(a)),sin(radians(a)),0,MAX_SD,OBSTACLE))
         return self.agent_info
    
     def get_state(self, agent):
@@ -350,7 +341,7 @@ class NeroEnvironment(Environment):
 
         return 0
     
-    def raySense(self, agent, heading_mod, dist, types=0, draw=True, foundColor = Color(255, 0, 128, 128), noneColor = Color(255, 0, 255, 255) ):
+    def raySense(self, agent, heading_mod, dist, types=0, draw=False, foundColor = Color(255, 0, 128, 128), noneColor = Color(255, 0, 255, 255) ):
         """
         Sends out a ray to find objects via line of sight, using irrlicht.
         """
@@ -382,11 +373,9 @@ class NeroEnvironment(Environment):
         vx = []
         
         state = self.get_state(agent)
-        vx.append(self.raySense(agent, -60, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, -30, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 0, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 30, MAX_SD, OBSTACLE))
-        vx.append(self.raySense(agent, 60, MAX_SD, OBSTACLE))
+        for a in [-60, -30, 0, 30, 60]:
+            vx.append(self.raySense(agent, a, MAX_SD, OBSTACLE))
+        print vx
         
         flag_loc = self.flag_loc()
         fx, fy = flag_loc.x, flag_loc.y

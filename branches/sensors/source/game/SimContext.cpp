@@ -445,12 +445,11 @@ namespace OpenNero
         ISceneCollisionManager* collider = mIrr.mpSceneManager->getSceneCollisionManager();
         Assert(collider);
         Line3f ray(ConvertNeroToIrrlichtPosition(origin), ConvertNeroToIrrlichtPosition(target));
-        Vector3f outPosition;
         Triangle3f outTriangle;
         ISceneNode* node = collider->getSceneNodeAndCollisionPointFromRay
-            (ray, outPosition, outTriangle, type);
+            (ray, hitPos, outTriangle, type);
         // convert back into our coord system
-        hitPos = ConvertIrrlichtToNeroPosition(outPosition);
+        hitPos = ConvertIrrlichtToNeroPosition(hitPos);
         if (node && node->getID() >= kFirstSimId)
         {
             // we found a sim node, so return its data
@@ -461,7 +460,7 @@ namespace OpenNero
                 // draw a ray if requested
                 if (vis)
                 {
-                    LineSet::instance().AddSegment(origin, outPosition, foundColor);
+                    LineSet::instance().AddSegment(origin, hitPos, foundColor);
                 }
                 // return the result: (sim, hit)
                 hitEntity = ent->GetState();

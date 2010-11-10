@@ -1,5 +1,6 @@
 #include "ai/sensors/RaySensor.h"
 #include "core/IrrSerialize.h"
+#include "game/SimContext.h"
 
 namespace OpenNero {
     RaySensor::RaySensor(double x, double y, double z, double radius, U32 types) :
@@ -18,7 +19,22 @@ namespace OpenNero {
     //! Get the value computed for this sensor given the filtered objects
     double RaySensor::getObservation(SimEntityPtr source)
     {
-        return 0;
+        SimEntityData hitEntity;
+        Vector3f hitPos;
+        Vector3f sourcePos(source->GetPosition());
+        Vector3f toTarget(x,y,z);
+        toTarget.setLength(radius);
+        Vector3f targetPos = sourcePos + toTarget;
+        if (Kernel::GetSimContext()->FindInRay(hitEntity, hitPos, sourcePos, targetPos, getTypes()))
+        {
+            Vector3f toHit = hitPos - sourcePos;
+            LOG_F_DEBUG("sensors", "RaySensor from " << sourcePos << " via " << toTarget << " to " << targetPos << " : " << hitPos << " : " << hitEntity.GetLabel());
+            return toHit.getLength()/radius;
+        }
+        else
+        {
+            return 1.0;
+        }        
     }
 
     void RaySensor::toXMLParams(std::ostream& out) const

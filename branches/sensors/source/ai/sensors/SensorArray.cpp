@@ -23,6 +23,7 @@ namespace OpenNero
             }
             obs.push_back((*sensIter)->getObservation(GetEntity()));
         }
+        LOG_F_DEBUG("sensors",obs);
         return obs;
     }
 
