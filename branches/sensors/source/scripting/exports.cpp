@@ -863,7 +863,7 @@ namespace OpenNero {
         
         BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addLightSource_overloads, AddLightSource, 2, 3)
         
-        BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(findInRay_overloads, FindInRay, 2, 6)
+        BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(findInRay_overloads, PyFindInRay, 2, 6)
         
         void ExportSimContextScripts()
         {
@@ -899,7 +899,7 @@ namespace OpenNero {
                      &SimContext::SetInputMapping, 
                      "Set the io map to use" )
                 .def("findInRay", 
-                     &SimContext::FindInRay, 
+                     &SimContext::PyFindInRay, 
                      findInRay_overloads("Find the first object that intersects the specified ray (origin:Vector3f, target:Vector3f, [int])") )
                 .def("getClickedPosition", 
                      &SimContext::GetClickedPosition, 

@@ -9,12 +9,6 @@ namespace OpenNero {
     
     RaySensor::~RaySensor() {}
 
-    //! Get the region of interest for this sensor
-    BBoxf RaySensor::getBoundingBox()
-    {
-        return BBoxf(0,0,0,0,0,0);
-    }
-    
     //! Process an object of interest
     bool RaySensor::process(SimEntityPtr source, SimEntityPtr target)
     {
@@ -22,10 +16,9 @@ namespace OpenNero {
     }
     
     //! Get the value computed for this sensor given the filtered objects
-    double RaySensor::getObservation()
+    double RaySensor::getObservation(SimEntityPtr source)
     {
-        // TODO: implement
-        return 0.5;
+        return 0;
     }
 
     void RaySensor::toXMLParams(std::ostream& out) const

@@ -48,9 +48,6 @@ namespace OpenNero
         //! Get the types of objects this sensor needs to look at
         U32 getTypes() const { return types; }
 
-        //! Get the region of interest for this sensor
-        virtual BBoxf getBoundingBox() = 0;
-        
         //! get the minimal possible observation
         virtual double getMin() = 0;
         
@@ -61,7 +58,7 @@ namespace OpenNero
         virtual bool process(SimEntityPtr source, SimEntityPtr target) = 0;
         
         //! Get the value computed for this sensor
-        virtual double getObservation() = 0;
+        virtual double getObservation(SimEntityPtr source) = 0;
 
         //! Output this sensor in a human-readable form
         virtual void toStream(std::ostream& out) const = 0;
@@ -94,15 +91,13 @@ namespace OpenNero
     public:
         PySensor() : Sensor() {}
         
-        BBoxf getRegionOfInterest();
-        
         double getMin();
         
         double getMax();
         
-        bool process(SimEntityPtr ent);
+        bool process(SimEntityPtr source, SimEntityPtr target);
         
-        double getObservation();
+        double getObservation(SimEntityPtr source);
     };
 }
 

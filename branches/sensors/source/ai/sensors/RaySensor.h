@@ -36,9 +36,6 @@ namespace OpenNero
         //! non-virtual destructor (final class)
         ~RaySensor();
         
-        //! Get the region of interest for this sensor
-        BBoxf getBoundingBox();
-
         //! get the minimal possible observation
         double getMin() { return 0.0; }
         
@@ -49,7 +46,7 @@ namespace OpenNero
         bool process(SimEntityPtr source, SimEntityPtr target);
         
         //! Get the value computed for this sensor
-        double getObservation();
+        double getObservation(SimEntityPtr source);
 
         //! Output this sensor in a human-readable form
         virtual void toStream(std::ostream& out) const;

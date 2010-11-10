@@ -26,12 +26,6 @@ namespace OpenNero
     
     RadarSensor::~RadarSensor() {}
 
-    //! Get the region of interest for this sensor
-    BBoxf RadarSensor::getBoundingBox()
-    {
-        return BBoxf(0,0,0,0,0,0);
-    }
-    
     //! Decide if this sensor is interested in a particular object
     bool RadarSensor::process(SimEntityPtr source, SimEntityPtr target)
     {
@@ -41,10 +35,11 @@ namespace OpenNero
                 ConvertNeroToIrrlichtPosition(vecToTarget).getHorizontalAngle());
         double yawToTarget = LockAngleToCircle(angleToTarget.Z);
         double pitchToTarget = angleToTarget.X;
-        if (((leftbound >= yawToTarget && yawToTarget >= rightbound) || 
+        if (vecToTarget.getLength() <= radius &&
+            ((leftbound >= yawToTarget && yawToTarget >= rightbound) || 
             (leftbound < rightbound && (leftbound >= yawToTarget || yawToTarget >= rightbound))) &&
 			(bottombound <= pitchToTarget && pitchToTarget <= topbound) )
-		{
+        {
             LOG_F_DEBUG("sensors", "accept radar target: " << yawToTarget << ", " << pitchToTarget);
         } else {
             LOG_F_DEBUG("sensors", "reject radar target: " << yawToTarget << ", " << pitchToTarget);
@@ -67,10 +62,10 @@ namespace OpenNero
     }
 
     //! Get the value computed for this sensor given the filtered objects
-    double RadarSensor::getObservation()
+    double RadarSensor::getObservation(SimEntityPtr source)
     {
         // TODO: implement
-        return 0.5;
+        return 0;
     }
     
     void RadarSensor::toXMLParams(std::ostream& out) const

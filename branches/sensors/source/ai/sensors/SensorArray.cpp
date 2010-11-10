@@ -21,7 +21,7 @@ namespace OpenNero
             for (entIter = entSet.begin(); entIter != entSet.end(); ++entIter) {
                 (*sensIter)->process(GetEntity(), (*entIter));
             }
-            obs.push_back((*sensIter)->getObservation());
+            obs.push_back((*sensIter)->getObservation(GetEntity()));
         }
         return obs;
     }
