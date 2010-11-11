@@ -337,7 +337,7 @@ class NeroEnvironment(Environment):
         
         #If it's the final state, handle clean up behaviors
         #You may get better behavior if you move this to epsiode_over
-        if agent.step >= self.max_steps - 1:
+        if agent.step >= self.max_steps - 1 or (getMod().hp != 0 and state.total_damage >= getMod().hp):
             rtneat = agent.get_rtneat()
             pop = rtneat.get_population_ids()
             if len(pop) == 0:
