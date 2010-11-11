@@ -23,9 +23,14 @@ namespace OpenNero {
         Vector3f hitPos;
         Vector3f sourcePos(source->GetPosition());
         Vector3f toTarget(x,y,z);
+        toTarget = ConvertNeroToIrrlichtPosition(toTarget);
+        Matrix4 rotation;
+        rotation.setRotationDegrees(ConvertNeroToIrrlichtRotation(source->GetRotation()));
+        rotation.rotateVect(toTarget);
+        toTarget = ConvertIrrlichtToNeroPosition(toTarget);
         toTarget.setLength(radius);
         Vector3f targetPos = sourcePos + toTarget;
-        if (Kernel::GetSimContext()->FindInRay(hitEntity, hitPos, sourcePos, targetPos, getTypes()))
+        if (Kernel::GetSimContext()->FindInRay(hitEntity, hitPos, sourcePos, targetPos, getTypes(), true))
         {
             Vector3f toHit = hitPos - sourcePos;
             LOG_F_DEBUG("sensors", "RaySensor from " << sourcePos << " via " << toTarget << " to " << targetPos << " : " << hitPos << " : " << hitEntity.GetLabel());
