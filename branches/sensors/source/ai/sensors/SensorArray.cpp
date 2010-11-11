@@ -11,20 +11,20 @@ namespace OpenNero
         return sensors.size() - 1;
     }
 
-    Observations SensorArray::getObservations()
+    void SensorArray::getObservations(Observations& observations)
     {
         std::vector<SensorPtr>::iterator sensIter;
-        Observations obs;
+        size_t i = 0;
         for (sensIter = sensors.begin(); sensIter != sensors.end(); ++sensIter) {
             SimEntitySet::const_iterator entIter;
             const SimEntitySet entSet = Kernel::instance().GetSimContext()->getSimulation()->GetEntities((*sensIter)->getTypes());
             for (entIter = entSet.begin(); entIter != entSet.end(); ++entIter) {
                 (*sensIter)->process(GetEntity(), (*entIter));
             }
-            obs.push_back((*sensIter)->getObservation(GetEntity()));
+            observations[i] = (*sensIter)->getObservation(GetEntity());
+            i++;
+            AssertMsg(i < observations.size(), "There are more built-in sensors than observations in AgentInitInfo");
         }
-        LOG_F_DEBUG("sensors",obs);
-        return obs;
     }
 
     std::ostream& operator<<(std::ostream& out, const SensorArray& sa)

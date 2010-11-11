@@ -1,6 +1,8 @@
 /**
    @file exports.cpp
+   
    @brief export OpenNERO scripts into Python
+   
    In order to export more Python classes and/or functions, add your own 
    ExportXXXScripts method *AND* call it from ExportScripts
 */
@@ -61,7 +63,7 @@ namespace OpenNero {
 				.def("act", pure_virtual(&AgentBrain::act), "Called for every step of the state-action loop")
 				.def("end", pure_virtual(&AgentBrain::end), "Called at the end of a learning episode")
 				.def("destroy", pure_virtual(&AgentBrain::destroy), "Called after learning ends")
-                .def("add_sensor", &AgentBrain::AddSensor, "Add a sensor for this agent")
+                .def("add_sensor", &AgentBrain::add_sensor, "Add a sensor for this agent")
 				.def_readonly("step", &AgentBrain::step, "Current step count")
 				.def_readonly("episode", &AgentBrain::episode, "Current episode count")
 				.def_readonly("fitness", &AgentBrain::fitness, "Cumulative reward for this episode")

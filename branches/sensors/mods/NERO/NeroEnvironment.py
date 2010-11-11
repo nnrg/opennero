@@ -364,12 +364,11 @@ class NeroEnvironment(Environment):
                 return len_data / len_ray
         return 1
 
-    def sense(self, agent):
+    def sense(self, agent, observations):
         """ 
         figure out what the agent should sense 
         """
         state = self.get_state(agent)
-        observations = self.agent_info.sensors.get_instance()
         vx = []
         
         state = self.get_state(agent)

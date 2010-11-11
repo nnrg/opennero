@@ -45,7 +45,8 @@ namespace OpenNero
             return false;
         } else {
             brain->SetBody(shared_from_this());
-            brain->initialize(getWorld()->get_agent_info(brain));
+            setInitInfo(getWorld()->get_agent_info(brain));
+            brain->initialize(getInitInfo());
             return true;
         }
     }
