@@ -12,29 +12,41 @@ class SensorTestEnvironment(Environment):
 
     def get_agent_info(self, agent):
         print 'SensorTestEnvironment.get_agent_info()'
-        for i in N_OBJECTS:
+        sensor_info = FeatureVectorInfo()
+        for i in xrange(N_OBJECTS):
             a = radians(i * 360.0 / N_OBJECTS)
             cosa, sina = cos(a), sin(a)
             a0 = radians((i-0.5) * 360.0 / N_OBJECTS)
             a1 = radians((i+0.5) * 360.0 / N_OBJECTS)
             # N ray sensors that should be hitting the boxes
             agent.add_sensor(RaySensor(cosa, sina, 0, 2 * RADIUS, OBJECT_TYPE_SENSED))
+            sensor_info.add_continuous(0,1)
             # N ray sensors that should be too short
             agent.add_sensor(RaySensor(cosa, sina, 0, 0.5 * RADIUS, OBJECT_TYPE_SENSED))
+            sensor_info.add_continuous(0,1)
             # N ray sensors that should miss
-            agent.add_sensor(RaySensor(cos(a0), sin(a0), 2 * RADIUS, OBJECT_TYPE_SENSED))
+            agent.add_sensor(RaySensor(cos(a0), sin(a0), 0, 2 * RADIUS, OBJECT_TYPE_SENSED))
+            sensor_info.add_continuous(0,1)
             # N radar sensors that should have 1 object each
             agent.add_sensor(RadarSensor(a0 - 180.0, a1 - 180.0, -90, 90, 2 * RADIUS, OBJECT_TYPE_SENSED))
+            sensor_info.add_continuous(0,1)
             # N radar sensors that should be too short
             agent.add_sensor(RadarSensor(a0 - 180.0, a1 - 180.0, -90, 90, 0.5 * RADIUS, OBJECT_TYPE_SENSED))
+            sensor_info.add_continuous(0,1)
         # a radar sensors that should have all the objects
         agent.add_sensor(RadarSensor(-180.0, 180.0, -90, 90, 0.5 * RADIUS, OBJECT_TYPE_SENSED))
+        sensor_info.add_continuous(0,1)
+        reward_info = FeatureVectorInfo()
+        reward_info.add_continuous(0,1)
+        return AgentInitInfo(sensor_info, sensor_info, reward_info)
 
     def sense(self, agent, observations):
         print 'SensorTestEnvironment.sense()', observations
+        return observations
         
     def step(self, agent, actions):
-        print 'SensorTestEnvironment.step()', actions
+        print 'SensorTestEnvironment.step()'
+        return 1.0
         
     def is_active(self, agent):
         return True
@@ -46,6 +58,7 @@ class SensorTestEnvironment(Environment):
             return True
         else:
             self.counter += 1
+        return False
 
     def reset(self, agent):
         print 'SensorTestEnvironment.reset()'

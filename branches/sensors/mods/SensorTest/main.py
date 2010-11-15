@@ -9,6 +9,7 @@ from math import *
 # module specific imports
 from SensorTest.environment import SensorTestEnvironment
 from SensorTest.constants import *
+from SensorTest import agent
 
 def ModMain():
     """
@@ -35,7 +36,7 @@ def ModMain():
     set_environment(SensorTestEnvironment())
     
     # add the agent
-    # addObject("agent.xml", Vector3f(0,0,0), type = OBJECT_TYPE_AGENT)
+    addObject("agent.xml", Vector3f(0,0,0), type = OBJECT_TYPE_AGENT)
     
     # TESTING: add the sensed objects
     for i in xrange(N_OBJECTS):
@@ -49,4 +50,4 @@ def ModMain():
         addObject("data/shapes/cube/BlueCube.xml", xyz, type = OBJECT_TYPE_OTHER)
     
     # start the ai loop
-    #enable_ai()
+    enable_ai()

@@ -7,6 +7,6 @@
     <Scale>0.2 0.2 0.2</Scale>
   </Render>
   <AI>
-    <Python agent="SensorTest.agent.TestAgent()" />
+    <Python agent="agent.NoopAgent()" />
   </AI>
 </Template>
