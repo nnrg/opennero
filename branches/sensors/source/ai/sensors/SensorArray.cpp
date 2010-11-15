@@ -15,15 +15,18 @@ namespace OpenNero
     {
         std::vector<SensorPtr>::iterator sensIter;
         size_t i = 0;
-        for (sensIter = sensors.begin(); sensIter != sensors.end(); ++sensIter) {
+        for (sensIter = sensors.begin(); sensIter != sensors.end(); ++sensIter) 
+        {
+            LOG_F_DEBUG("sensors", (*sensIter));
+            AssertMsg(i < observations.size(), "There are more built-in sensors than observations in AgentInitInfo");
             SimEntitySet::const_iterator entIter;
             const SimEntitySet entSet = Kernel::instance().GetSimContext()->getSimulation()->GetEntities((*sensIter)->getTypes());
-            for (entIter = entSet.begin(); entIter != entSet.end(); ++entIter) {
+            for (entIter = entSet.begin(); entIter != entSet.end(); ++entIter) 
+            {
                 (*sensIter)->process(GetEntity(), (*entIter));
             }
             observations[i] = (*sensIter)->getObservation(GetEntity());
             i++;
-            AssertMsg(i < observations.size(), "There are more built-in sensors than observations in AgentInitInfo");
         }
     }
 

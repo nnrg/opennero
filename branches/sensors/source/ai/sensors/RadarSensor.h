@@ -25,6 +25,9 @@ namespace OpenNero
         //! the radius of the radar sector (how far it extends)
         double radius;
         
+        //! the distances to the objects found to match this sensor's constraints
+        std::vector<double> distances;
+        
     public:
         RadarSensor()
             : Sensor()
@@ -39,6 +42,7 @@ namespace OpenNero
         //! @param bottombound least relative pitch (degrees) of objects to include
         //! @param topbound greatest relative pitch (degrees) of objects to include
         //! @param radius the radius of the radar sector (how far it extends)
+        //! @param types the type mask for the objects that the radar will count
         RadarSensor(
             double leftbound, double rightbound, 
             double bottombound, double topbound, 
@@ -59,10 +63,16 @@ namespace OpenNero
         //! Get the value computed for this sensor
         double getObservation(SimEntityPtr source);
 
+        /// send a string representation of this sensor to the stream
         void toStream(std::ostream& out) const;
+        
+        /// Attenuation factor for the sensor values. Value is calculated as
+        /// kDistanceScalar * radius / distanceToObject
+        static const double kDistanceScalar;
 
     protected:
 
+        /// print the XML parameters associated with this sensor to the stream.
         void toXMLParams(std::ostream& out) const;
 
     };

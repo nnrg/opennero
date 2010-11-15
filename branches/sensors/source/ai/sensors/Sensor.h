@@ -78,11 +78,11 @@ namespace OpenNero
         return out;
     }
     
-    inline double LockAngleToCircle(double a)
+    inline double LockDegreesTo180(double a)
     {
         if (a == 0) return a;
-        while (a < 0) a += 360.0;
-        while (a > 360) a -= 360.0;
+        while (a < -180.0) a += 360.0;
+        while (a > 180.0) a -= 360.0;
         return a;
     }
 

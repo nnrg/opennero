@@ -201,10 +201,13 @@ namespace OpenNero
     {
         SimEntitySet result;
         SimEntitySet::const_iterator entIter;
+        std::cout << "GetEntities(" << types << "): ";
         for (entIter = mEntities.begin(); entIter != mEntities.end(); ++entIter)
         {
             if ((*entIter)->GetType() & types) result.insert(*entIter);
+            std::cout << (*entIter)->GetType() << " ";
         }
+        std::cout << std::endl;
         return result;
     }
 

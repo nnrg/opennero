@@ -7,13 +7,6 @@ from common.fitness import Fitness, FitnessStats
 from copy import copy
 from random import *
 
-MAX_SPEED = 12
-MAX_SD = 100
-OBSTACLE = (1 << 0)
-AGENT = (1 << 0)
-WALL_SENSORS = [-60,-30,0,30,60]
-FLAG_SENSORS = [(-180,-90), (-90,-60), (-60,-30), (-30,-15), (-15, 0), (-5, 5), (0, 15), (15, 30), (30, 60), (60, 90), (90, 180)]
-
 class AgentState:
     """
     State that we keep for each agent
@@ -67,25 +60,11 @@ class NeroEnvironment(Environment):
         abound.add_continuous(-1,1) # forward/backward speed
         abound.add_continuous(-0.2, 0.2) # left/right turn (in radians)
         
-        # 5 x Wall Sensors
+        # Wall sensors
         for a in WALL_SENSORS:
             sbound.add_continuous(0,1)
-        
-        # 5 x Foe Sensors
-        #sbound.add_continuous(0, 1) # -60 deg        
-        #sbound.add_continuous(0, 1) # -30 deg
-        #sbound.add_continuous(0, 1) # straight ahead
-        #sbound.add_continuous(0, 1) # 30 deg
-        #sbound.add_continuous(0, 1) # 60 deg
-        
-        # 5 x Friend Sensors
-        #sbound.add_continuous(0, 1) # -60 deg        
-        #sbound.add_continuous(0, 1) # -30 deg
-        #sbound.add_continuous(0, 1) # straight ahead
-        #sbound.add_continuous(0, 1) # 30 deg
-        #sbound.add_continuous(0, 1) # 60 deg
-        
-        # 11 x Flag Sensors
+                
+        # Flag sensors
         for fs in FLAG_SENSORS:
             sbound.add_continuous(0,1)
         
@@ -118,9 +97,11 @@ class NeroEnvironment(Environment):
     def get_agent_info(self, agent):
         """
         return a blueprint for a new agent
-        """
+        """ 
         for a in WALL_SENSORS:
-            agent.add_sensor(RaySensor(cos(radians(a)),sin(radians(a)),0,MAX_SD,OBSTACLE))
+            agent.add_sensor(RaySensor(cos(radians(a)), sin(radians(a)), 0, MAX_VISION_RADIUS, OBJECT_TYPE_OBSTACLE))
+        for (a0, a1) in FLAG_SENSORS:
+            agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS * 5, OBJECT_TYPE_FLAG))
         return self.agent_info
    
     def get_state(self, agent):
@@ -254,22 +235,13 @@ class NeroEnvironment(Environment):
         new_heading = wrap_degrees(heading, turn_by)
         
         # figure out the new x,y location
-        new_x = x + MAX_SPEED * cos(radians(new_heading)) * move_by
-        new_y = y + MAX_SPEED * sin(radians(new_heading)) * move_by
+        new_x = x + MAX_MOVEMENT_SPEED * cos(radians(new_heading)) * move_by
+        new_y = y + MAX_MOVEMENT_SPEED * sin(radians(new_heading)) * move_by
         
         # figure out the firing location
         fire_x = x + self.MAX_DIST * cos(radians(new_heading))
         fire_y = y + self.MAX_DIST * sin(radians(new_heading))
-        
-        # see if we can move forward
-        new_position = copy(position)
-        new_position.x, new_position.y = new_x, new_y
-        distance_ahead = self.raySense(agent, turn_by, MAX_SPEED * move_by, OBSTACLE)
-        safe = (distance_ahead >= 1)
-        if not safe:
-            # keep the position the same if we cannot move
-            new_position = agent.state.position
-        
+
         # draw the line of fire
         fire_pos = copy(position)
         fire_pos.x, fire_pos.y = fire_x, fire_y
@@ -313,6 +285,10 @@ class NeroEnvironment(Environment):
         state.fitness[Fitness.APPROACH_FLAG] += af
         state.fitness[Fitness.HIT_TARGET] += ht
         state.fitness[Fitness.AVOID_FIRE] += vf
+
+        # calculate the motion
+        new_position = copy(position)
+        new_position.x, new_position.y = new_x, new_y
         
         # make the calculated motion
         position.x, position.y = state.pose[0], state.pose[1]
@@ -340,62 +316,13 @@ class NeroEnvironment(Environment):
             return state.final_fitness
 
         return 0
-    
-    def raySense(self, agent, heading_mod, dist, types=0, draw=False, foundColor = Color(255, 0, 128, 128), noneColor = Color(255, 0, 255, 255) ):
-        """
-        Sends out a ray to find objects via line of sight, using irrlicht.
-        """
-        state = self.get_state(agent)
-        firing = agent.state.position
-        rotation = agent.state.rotation
-        heading = radians(rotation.z + heading_mod)
-        firing.x += dist * cos(heading)
-        firing.y += dist * sin(heading)
-        p0 = agent.state.position
-        p1 = firing
-        result = getSimContext().findInRay(p0, p1, types, draw, foundColor, noneColor)
-        if len(result) > 0:
-            (sim, hit) = result
-            ray = p1 - p0
-            len_ray = ray.getLength()
-            data = hit - p0
-            len_data = data.getLength()
-            if len_ray != 0:
-                return len_data / len_ray
-        return 1
 
     def sense(self, agent, observations):
         """ 
-        figure out what the agent should sense 
+        figure out what the agent should sense
         """
-        state = self.get_state(agent)
-        vx = []
-        
-        state = self.get_state(agent)
-        for a in [-60, -30, 0, 30, 60]:
-            vx.append(self.raySense(agent, a, MAX_SD, OBSTACLE))
-        print vx
-        
-        flag_loc = self.flag_loc()
-        fx, fy = flag_loc.x, flag_loc.y
-        (x, y, h) = state.pose
-        fd = hypot(fx - x, fy - y)
-        fh = 0
-        if fd != 0:
-            fh = degrees(atan2(fy-y,fx-x)) - h
-        else:
-            fh = 0
-        while fh < 180:
-            fh += 360
-        while fh > 180:
-            fh -= 360
-        for (th1, th2) in FLAG_SENSORS:
-            if fh > th1 and fh <= th2:
-                vx.append(min(1.0, max(0, (self.MAX_DIST - fd)/self.MAX_DIST)))
-            else:
-                vx.append(0)
-        for iter in range(len(vx)):
-            observations[iter] = vx[iter]
+        # we only use the built-in sensors defined in get_agent_info
+        print 'observations:', observations
         return observations
    
     def flag_loc(self):

@@ -33,7 +33,6 @@ namespace OpenNero {
         if (Kernel::GetSimContext()->FindInRay(hitEntity, hitPos, sourcePos, targetPos, getTypes(), true))
         {
             Vector3f toHit = hitPos - sourcePos;
-            LOG_F_DEBUG("sensors", "RaySensor from " << sourcePos << " via " << toTarget << " to " << targetPos << " : " << hitPos << " : " << hitEntity.GetLabel());
             return toHit.getLength()/radius;
         }
         else
