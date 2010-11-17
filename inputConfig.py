@@ -1,7 +1,7 @@
 from OpenNero import *
 
 from common.module import openWiki
-from Maze.module import getMod, delMod
+from TeamAdapt.module import getMod, delMod
 
 # functions bound to key/mouse events
 def switchToHub():

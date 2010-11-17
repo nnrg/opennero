@@ -43,23 +43,23 @@ class Maze:
         Randomized Kruskal's algorithm for automatic maze generation
         """
         walls = set([]) # a list of walls, where each wall is ((r1,c1),(r2,c2))
-        cells = Grouper() # disjoint sets of cells
-        for r in xrange(rows):
-            for c in xrange(cols):
-                # for each cell, add west and north walls
-                walls.add(((r - 1, c), (r, c))) # north wall
-                walls.add(((r, c - 1), (r, c))) # west wall
-                cells.join((r, c)) # add the cell
-        for r in xrange(rows):
-            walls.add(((r, cols - 1), (r, cols))) # east wall
-        for c in xrange(cols):
-            walls.add(((rows - 1, c), (rows, c))) # south wall
-        wall_list = list(walls) 
-        random.shuffle(wall_list) # randomly order the walls
-        for (cell1, cell2) in wall_list:
-            if not cells.joined(cell1, cell2):
-                walls.remove((cell1, cell2))
-                cells.join(cell1, cell2)
+#        cells = Grouper() # disjoint sets of cells
+#        for r in xrange(rows):
+#            for c in xrange(cols):
+#                # for each cell, add west and north walls
+#                walls.add(((r - 1, c), (r, c))) # north wall
+#                walls.add(((r, c - 1), (r, c))) # west wall
+#                cells.join((r, c)) # add the cell
+#        for r in xrange(rows):
+#            walls.add(((r, cols - 1), (r, cols))) # east wall
+#        for c in xrange(cols):
+#            walls.add(((rows - 1, c), (rows, c))) # south wall
+#        wall_list = list(walls)
+#        random.shuffle(wall_list) # randomly order the walls
+#        for (cell1, cell2) in wall_list:
+#            if not cells.joined(cell1, cell2):
+#                walls.remove((cell1, cell2))
+#                cells.join(cell1, cell2)
         return Maze(rows, cols, walls, dx, dy)
 
     def rc_goal(self, r, c):

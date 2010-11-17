@@ -205,14 +205,18 @@ class MazeEnvironment(Environment):
         (r,c) = state.rc
         a = int(round(action[0]))
         state.prev_rc = state.rc
+
         if a == len(MazeEnvironment.MOVES): # null action
             return state.record_reward(self.rewards.valid_move(state))
         (dr,dc) = MazeEnvironment.MOVES[a]
         new_r, new_c = r + dr, c + dc
+
         if not self.maze.rc_bounds(new_r, new_c):
             return state.record_reward(self.rewards.out_of_bounds(state))
+
         elif self.maze.is_wall(r,c,dr,dc):
             return state.record_reward(self.rewards.hit_wall(state))
+
         state.rc = (new_r, new_c)
         (old_r,old_c) = state.prev_rc
         (old_x,old_y) = self.maze.rc2xy(old_r, old_c)
@@ -225,6 +229,7 @@ class MazeEnvironment(Environment):
         if new_r == ROWS - 1 and new_c == COLS - 1:
             state.goal_reached = True
             return state.record_reward(self.rewards.goal_reached(state))
+          
         elif agent.step >= self.max_steps - 1:
             return state.record_reward(self.rewards.last_reward(state))
         return state.record_reward(self.rewards.valid_move(state))

@@ -1,8 +1,8 @@
 from OpenNero import *
 from common import *
-import Maze
-from Maze.environment import MazeEnvironment, ContMazeEnvironment
-from Maze.constants import *
+import TeamAdapt
+from TeamAdapt.environment import MazeEnvironment, ContMazeEnvironment
+from TeamAdapt.constants import *
 
 import random
 from heapq import heappush, heappop
@@ -465,7 +465,7 @@ class RTNEATAgent(AgentBrain):
         start of an episode
         """
         global rtneat
-        epsilon = Maze.module.getMod().epsilon
+        epsilon = TeamAdapt.module.getMod().epsilon
         self.org = rtneat.next_organism(epsilon)
         self.net = self.org.net
         return self.network_action(sensors)
@@ -474,6 +474,7 @@ class RTNEATAgent(AgentBrain):
         """
         a state transition
         """
+
         # return action
         return self.network_action(sensors)
 
@@ -501,11 +502,35 @@ class RTNEATAgent(AgentBrain):
         Collect and interpret the outputs as valid maze actions
         """
         assert(self.sensors.validate(sensors))
-        inputs = Maze.module.input_to_neurons(self.sensors, sensors)
+        inputs = TeamAdapt.module.input_to_neurons(self.sensors, sensors)
         self.net.load_sensors(inputs)
         self.net.activate()
         outputs = self.net.get_outputs()
-        actions = Maze.module.neurons_to_output(self.actions, outputs)
+        actions = self.actions.get_instance()
+
+        #sensors
+
+#        0-7 direction
+#        (N->Nw clockwise)
+#        8 - move
+#        9 - stay
+
+        #if move>stay
+        if outputs[8] > outputs[9]:
+          best = -1
+          index = 0
+          for i in outputs[0-7]:
+            if outputs[i] > best:
+              best = outputs[i]
+              index = i
+
+        else:
+          index = 0
+
+        #map to
+        actions = index
+
+#        actions = TeamAdapt.module.neurons_to_output(self.actions, outputs)
         # debugging output
         #print 'obs -> net:', sensors, inputs
         #print '    -> org -> out:', self.org.id, outputs

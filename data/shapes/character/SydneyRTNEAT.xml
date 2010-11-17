@@ -17,6 +17,6 @@
 		<Scale>0.2 0.2 0.2</Scale>
 	</Render>
 	<AI>
-		<Python agent="Maze.agent.RTNEATAgent()" />
+		<Python agent="TeamAdapt.agent.RTNEATAgent()" />
 	</AI>
 </Template>

@@ -1,9 +1,11 @@
+import random
 from math import *
 from OpenNero import *
 from common import *
+from random import *
 from constants import *
-from Maze.environment import MazeEnvironment, ContMazeEnvironment
-from Maze.agent import FirstPersonAgent
+from TeamAdapt.environment import MazeEnvironment, ContMazeEnvironment
+from TeamAdapt.agent import FirstPersonAgent
 
 def count_neurons(constraints):
     """
@@ -258,8 +260,27 @@ class MazeMod:
         rtneat = RTNEAT("data/ai/neat-params.dat", n_inputs, n_outputs, pop_size, 1.0)
         set_ai("neat",rtneat)
         enable_ai()
-        for i in range(0, pop_on_field_size):
-            self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK)
+        self.place_legions(pop_on_field_size)
+
+    def place_legions(self, number):
+
+      for i in range(0, number):
+        placed = False
+        #pick random cells, test if valid, repeat if not
+        while(placed == False):
+
+          r = randint(0,self.environment.maze.rows)
+          dx = r * self.environment.maze.dx
+          c = randint(0,self.environment.maze.cols)
+          dy = c * self.environment.maze.dy
+          #is the cell occupied by a legion?
+          self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
+          self.environment.agentList[self.agent_map[(0,i)]] = (r,c,0)
+          placed = True
+          print "done"
+        
+
+
 
     def start_sarsa(self):
         """ start the rtneat learning demo """
