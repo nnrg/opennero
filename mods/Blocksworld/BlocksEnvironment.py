@@ -31,11 +31,13 @@ class AgentState:
         self.total_damage = 0
         self.curr_damage = 0
         self.team = 0
+        self.new_fitness = 0
         self.fitness = Fitness()
         self.prev_fitness = Fitness()
         self.final_fitness = 0
         self.animation = 'stand'
         self.prev_collected = 0
+        self.p_coin_collect = {}
 
 class BlocksEnvironment(Environment):
     """
@@ -89,6 +91,18 @@ class BlocksEnvironment(Environment):
         sbound.add_continuous(0, 1) # Distance
         sbound.add_continuous(0, 1) # Distance
         
+        #sbound.add_continuous(0, 1) # Distance
+        #sbound.add_continuous(0, 1) # Distance
+        #sbound.add_continuous(0, 1) # Distance
+        #sbound.add_continuous(0, 1) # Distance
+        
+        #sbound.add_continuous(0, 1) # Distance
+        #sbound.add_continuous(0, 1) # Distance
+        #sbound.add_continuous(0, 1) # Distance
+        #sbound.add_continuous(0, 1) # Distance
+        #CRANGE SENSOR
+        sbound.add_continuous(0,1)
+
         #BIAS
         sbound.add_continuous(0,1) # Bias
 
@@ -118,6 +132,15 @@ class BlocksEnvironment(Environment):
         state.curr_damage = 0
         state.prev_fitness = state.fitness
         state.fitness = Fitness()
+        state.p_coin_collect = {}
+        state.animation = 0
+        state.time = time.time()
+        state.start_time = state.time
+        state.fitness = Fitness()
+        state.prev_fitness = Fitness()
+        state.final_fitness = 0
+        state.animation = 'stand'
+        state.prev_collected = 0
         #update client fitness
         from client import set_stat
         ff = self.getFriendFoe(agent)
@@ -228,22 +251,26 @@ class BlocksEnvironment(Environment):
             p = agent.state.position
             agent.state.rotation.z = randrange(360)
             r = agent.state.rotation
-            
+
             state.initial_position = p
             state.initial_rotation = r
             
+            r.z = randrange(0,360)
+
             state.pose = (p.x, p.y, r.z)
             state.prev_pose = (p.x, p.y, r.z)
+            state.team = agent.get_team()
             if agent.get_team() == 1: 
              self.pop_state_1[agent.org.id] = state 
             else:
              self.pop_state_2[agent.org.id] = state 
 
-        for coin in self.coin_locs():
-            if self.coin_distance(agent, coin) <= CRANGE:
-                getMod().coin_nears[agent.get_team() -1][coin] -= 1
-            if getMod().coin_nears[agent.get_team() -1][coin] < 0: getMod().coin_nears[agent.get_team()-1][coin] = 0
 
+        for coin in self.coin_locs():
+            if self.coin_distance(agent, coin) <= CRANGE and state.id in getMod().coin_nears_ids[agent.get_team()-1][coin]:
+                getMod().coin_nears[agent.get_team() -1][coin] -= 1
+                getMod().coin_nears_ids[agent.get_team() -1][coin].remove(state.id)
+            if getMod().coin_nears[agent.get_team() -1][coin] < 0: getMod().coin_nears[agent.get_team()-1][coin] = 0
 
         #Spawn more agents if there are more to spawn (Staggered spawning times tend to yeild better behavior)
         if agent.step == 3:
@@ -317,34 +344,61 @@ class BlocksEnvironment(Environment):
         state.time = time.time()
 
         x = 0
+        
+        for coin in self.coin_locs():
+            if self.coin_distance(agent, coin) <= CRANGE:
+                getMod().coin_nears[agent.get_team()-1][coin] += 1
+                getMod().coin_nears_ids[agent.get_team()-1][coin].append(state.id)
+
+        #Check all perma-coins
+        for id in self.p_coin_locs():
+            if id not in state.p_coin_collect and self.p_coin_distance(agent,id) <= CRANGE:
+                state.p_coin_collect[id] = 1
+                x += 1
+                print "Team:", state.team, " PERM. COIN COLLECTED"
 
         #Check distance to all coins, collect as necessary
         for id in self.coin_locs():
             other = agent.get_team() + 1
             if other == 3: other = 1
-            if id not in self.coin_teams()[agent.get_team()] and self.coin_distance(agent, id) <= CRANGE and (getMod().coin_nears[other-1][id] == 0 or (float(getMod().coin_nears[agent.get_team()-1][id]) / float(getMod().coin_nears[other-1][id])) >= CAP_RATIO ):
+            if (id not in self.coin_teams()[agent.get_team()]) and (self.coin_distance(agent, id) <= CRANGE) and ((getMod().coin_nears[other-1][id] == 0) or ( (float(getMod().coin_nears[agent.get_team()-1][id]) / ( float(getMod().coin_nears[other-1][id]) + float(getMod().coin_nears[agent.get_team()-1][id]))) > CAP_RATIO )):
+                if getMod().coin_nears[other-1][id] > 0:
+                    print "Coin Captured with", getMod().coin_nears[other-1][id], " Defenders and", getMod().coin_nears[agent.get_team()-1][id], " Attackers cap ratio =", CAP_RATIO
                 loc = self.coin_locs()[id]
                 for team in self.coin_teams():
                     if id in team: team.remove(id)
                 self.coin_teams()[agent.get_team()].append(id)
-                x += 1  * (1-getMod().fitness[agent.get_team()])
+                for nid in getMod().coin_nears_ids[agent.get_team()-1][id]:
+                    self.getStateId(nid).new_fitness += 1  * (1-getMod().fitness[agent.get_team()]) / float(getMod().coin_nears[agent.get_team()-1][id])
                 #print "COIN GRAB: TEAM:", agent.get_team(), "ID:", id, "DISTANCE: ", self.coin_distance(agent,id)
-                if agent.get_team() == 1: getMod().change_coin((TEAM_1_SL_X + 80,loc.y,0),id)
-                if agent.get_team() == 2: getMod().change_coin((TEAM_2_SL_X - 80,loc.y,0),id)
+                X_CH = randrange(80,160)
+                Y_CH = randrange(40,YDIM-40)
+                if agent.get_team() == 1: getMod().change_coin((TEAM_1_SL_X + X_CH,Y_CH,0),id,1)
+                if agent.get_team() == 2: getMod().change_coin((TEAM_2_SL_X - X_CH,Y_CH,0),id,2)
+                getMod().coin_nears[other-1][id] = 0
+                getMod().coin_nears_ids[other-1][id] = []
+                getMod().coin_nears[agent.get_team()-1][id] = 0
+                getMod().coin_nears_ids[agent.get_team()-1][id] = []
+            if id in self.coin_teams()[agent.get_team()] and self.coin_distance(agent, id) <= CRANGE and getMod().coin_nears[other-1][id] > 0:
+                x += (float(getMod().coin_nears[other-1][id]) / getMod().coin_nears[agent.get_team()-1][id])
 
         if len(self.coin_teams()[agent.get_team()]) - state.prev_collected > 0:
             x -= (len(self.coin_teams()[agent.get_team()]) - (state.prev_collected)) * getMod().fitness[agent.get_team()]
         
         state.prev_collected = len(self.coin_teams()[agent.get_team()])
 
-        for coin in self.coin_locs():
-            if self.coin_distance(agent, coin) <= CRANGE:
-                getMod().coin_nears[agent.get_team()-1][coin] += 1
+        x += state.new_fitness
+        state.new_fitness = 0
 
         #If it's the final state, handle clean up behaviors
         #You may get better behavior if you move this to epsiode_over
         if agent.step >= self.max_steps - 1:
             #print "FITNESS:", len(self.coin_teams()[agent.get_team()])
+            for coin in self.coin_locs():
+             if self.coin_distance(agent, coin) <= CRANGE and state.id in getMod().coin_nears_ids[agent.get_team()-1][coin]:
+                getMod().coin_nears[agent.get_team() -1][coin] -= 1
+                getMod().coin_nears_ids[agent.get_team() -1][coin].remove(state.id)
+             if getMod().coin_nears[agent.get_team() -1][coin] < 0: getMod().coin_nears[agent.get_team()-1][coin] = 0
             return len(self.coin_teams()[agent.get_team()]) * getMod().fitness[agent.get_team()]
 
         return x
@@ -384,11 +438,35 @@ class BlocksEnvironment(Environment):
         friend = {}
         foe = {}
         cap = {}
+        friend_sense = {}
+        foe_sense = {}
         for val in range(0,180,30):
             cap[val] = [0,0,0]
 
         for val in range(0,180,90): 
             friend[val] = [0,0,0]
+
+        for val in range(0,360,90):
+            friend_sense[val] = 0
+            foe_sense[val] = 0
+
+        for tstate in self.states:
+            ostate = self.states[tstate]
+            fd = self.distance(state.pose,(ostate.pose[0],ostate.pose[2]))
+            fh = 0
+            if fd > SRANGE:
+                continue
+            if fd != 0:
+                fh = ((degrees(atan2(ostate.pose[1]-state.pose[1],ostate.pose[0]-state.pose[0])) - state.pose[2])%360)
+            else:
+                continue
+            qual = 0
+            if fh >= 0 and fh < 90: qual = 0
+            if fh >= 90 and fh < 180: qual = 90
+            if fh >= 180 and fh < 270: qual = 180
+            if fh >= 270 and fh < 360: qual = 270
+            if ostate.team == agent.get_team(): friend_sense[qual] += 1
+            else: foe_sense[qual] += 1
 
 
         for coin in self.coin_locs():
@@ -403,7 +481,7 @@ class BlocksEnvironment(Environment):
          delta = 30
          if tv == friend: delta = 90
 
-         fd = self.coin_distance(agent, 0)
+         fd = self.coin_distance(agent, coin)
          if fd != 0:
              fh  = ((degrees(atan2(self.coin_locs()[coin].y-state.pose[1],self.coin_locs()[coin].x - state.pose[0])) - state.pose[2]) % 360) - 180
          else:
@@ -420,15 +498,55 @@ class BlocksEnvironment(Environment):
                  tv[val][0] = fd
              if cos(radians(fh-val)) > tv[val][1]:
                  tv[val][1] = max(0,cos(radians(fh-val)))
-       
+        
+        for coin in self.p_coin_locs():
+          if coin  in state.p_coin_collect: continue
+          tv = cap
+         
+          delta = 30
+
+          fd = self.p_coin_distance(agent, 0)
+          if fd != 0:
+             fh  = ((degrees(atan2(self.coin_locs()[coin].y-state.pose[1],self.coin_locs()[coin].x - state.pose[0])) - state.pose[2]) % 360) - 180
+          else:
+             fh = 0
+ 
+          if fh < 0:
+             fh += 360
+ 
+          if fh > 360:
+             fh -= 360
+      
+          for val in tv:
+             if ((fh - val) > 0) and ((fh - val) <= (tv == delta)) and (tv[val][0] == 0 or tv[val][0] > fd):
+                 tv[val][0] = fd
+             if cos(radians(fh-val)) > tv[val][1]:
+                 tv[val][1] = max(0,cos(radians(fh-val)))
+        
         for val in cap:
             vx.append(min(1,max(0,(self.MAX_DIST-cap[val][0])/self.MAX_DIST)))
             vx.append(cap[val][1])
-
+        
         for val in friend:
             vx.append(min(1,max(0,(self.MAX_DIST-friend[val][0])/self.MAX_DIST)))
             vx.append(friend[val][1])
+        
+        #CRANGE indicator
+        r = 0
+        for coin in self.coin_locs():
+            if self.coin_distance(agent, coin) <= CRANGE:
+                r = 1
+                break
 
+        vx.append(r)
+
+        #for val in friend_sense:
+        #    vx.append(friend_sense[val]/pop_size)
+        
+        #for val in foe_sense:
+        #    vx.append(foe_sense[val]/pop_size)
+
+        #Bias
         vx.append(1)
 
         for iter in range(len(vx)):
@@ -443,9 +561,14 @@ class BlocksEnvironment(Environment):
         from Blocksworld.module import getMod
         return getMod().coin_locs
 
+    def p_coin_locs(self):
+        from Blocksworld.module import getMod
+        return getMod().p_coin_locs
+
     def coin_teams(self):
         from Blocksworld.module import getMod
         return getMod().coins
+
 
     def coin_distance(self, agent, id):
         """
@@ -453,6 +576,11 @@ class BlocksEnvironment(Environment):
         """
         pos = self.get_state(agent).pose
         return pow(pow(float(pos[0]) - self.coin_locs()[id].x, 2) + pow(float(pos[1]) - self.coin_locs()[id].y, 2), .5)
+
+    def p_coin_distance(self, agent, id):
+        pos = self.get_state(agent).pose
+        return pow(pow(float(pos[0]) - self.p_coin_locs()[id].x, 2) + pow(float(pos[1]) - self.p_coin_locs()[id].y, 2), .5)
+
 
     def distance(self, agloc, tgloc):
         """
