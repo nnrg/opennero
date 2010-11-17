@@ -336,69 +336,46 @@ class MazeEnvironment(Environment):
 
         #legions
         #local [0]
-        v[0] = state.
+        v[0] = cell_occupied(r,c,0)
         #adjacent [1-8]
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
+        v[1] = cell_occupied(r-1,c-1,0)
+        v[2] = cell_occupied(r,c-1,0)
+        v[3] = cell_occupied(r+1,c-1,0)
+        v[4] = cell_occupied(r+1,c,0)
+        v[5] = cell_occupied(r+1,c+1,0)
+        v[6] = cell_occupied(r,c+1,0)
+        v[7] = cell_occupied(r-1,c+1,0)
+        v[8] = cell_occupied(r-1,c,0)
         #radar [9-16]
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
 
         #warbands
         #local [17]
-        observation_info.add_discrete(0,1)
+        v[17] = cell_occupied(r,c,0)
         #adjacent [18-25]
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
+        v[18] = cell_occupied(r-1,c-1,0)
+        v[19] = cell_occupied(r,c-1,0)
+        v[20] = cell_occupied(r+1,c-1,0)
+        v[21] = cell_occupied(r+1,c,0)
+        v[22] = cell_occupied(r+1,c+1,0)
+        v[23] = cell_occupied(r,c+1,0)
+        v[24] = cell_occupied(r-1,c+1,0)
+        v[25] = cell_occupied(r-1,c,0)
         #radar [26-33]
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
 
         #cities
         #local [34]
-        observation_info.add_discrete(0,1)
+        v[34] = cell_occupied(r,c,0)
         #adjacent [35-42]
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
+        v[35] = cell_occupied(r-1,c-1,0)
+        v[36] = cell_occupied(r,c-1,0)
+        v[37] = cell_occupied(r+1,c-1,0)
+        v[38] = cell_occupied(r+1,c,0)
+        v[39] = cell_occupied(r+1,c+1,0)
+        v[40] = cell_occupied(r,c+1,0)
+        v[41] = cell_occupied(r-1,c+1,0)
+        v[42] = cell_occupied(r-1,c,0)
         #radar [43-50]
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
+
 
 #        offset = GRID_DX/10.0
 #        p0 = agent.state.position
