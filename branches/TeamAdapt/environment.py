@@ -131,10 +131,74 @@ class MazeEnvironment(Environment):
         action_info.add_discrete(0, len(MazeEnvironment.MOVES)-1) # select from the moves we can make
         observation_info.add_discrete(0, ROWS-1)
         observation_info.add_discrete(0, COLS-1)
+
+        #legions
+        #local [0]
+        observation_info.add_discrete(0,1)
+        #adjacent [1-8]
         observation_info.add_discrete(0,1)
         observation_info.add_discrete(0,1)
         observation_info.add_discrete(0,1)
         observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        #radar [9-16]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+
+        #warbands
+        #local [17]
+        observation_info.add_discrete(0,1)
+        #adjacent [18-25]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        #radar [26-33]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+
+        #cities
+        #local [34]
+        observation_info.add_discrete(0,1)
+        #adjacent [35-42]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        #radar [43-50]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+
+
         reward_info.add_continuous(-100,100)
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
         self.max_steps = MAX_STEPS
@@ -182,6 +246,19 @@ class MazeEnvironment(Environment):
         agent.state.position = copy(state.initial_position)
         agent.state.rotation = copy(state.initial_rotation)
         return True
+
+    def cell_occupied(self,r,c,agentType):
+      for key in agentList.iterkeys():
+        if agentList[key][0] == r and agentList[key][1] == c and agentList[key][2] == agentType:
+          return 1
+      return 0
+
+    def get_agent_in_cell(self,r,c,agentType):
+      for key in agentList.iterkeys():
+        if agentList[key][0] == r and agentList[key][1] == c and agentList[key][2] == agentType:
+          return key
+      return -1
+    
 
     def get_agent_info(self, agent):
         return self.agent_info
@@ -254,16 +331,83 @@ class MazeEnvironment(Environment):
         """
         state = self.get_state(agent)
         v = self.agent_info.sensors.get_instance()
-        v[0] = state.rc[0]
-        v[1] = state.rc[1]
-        offset = GRID_DX/10.0
-        p0 = agent.state.position
-        for i, (dr, dc) in enumerate(MazeEnvironment.MOVES):
-            direction = Vector3f(dr, dc, 0)
-            ray = (p0 + direction * offset, p0 + direction * GRID_DX)
-            # we only look for objects of type 1, which means walls
-            objects = getSimContext().findInRay(ray[0], ray[1], 1, True)
-            v[2 + i] = int(len(objects) > 0)
+        r = state.rc[0]
+        c = state.rc[1]
+
+        #legions
+        #local [0]
+        v[0] = state.
+        #adjacent [1-8]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        #radar [9-16]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+
+        #warbands
+        #local [17]
+        observation_info.add_discrete(0,1)
+        #adjacent [18-25]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        #radar [26-33]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+
+        #cities
+        #local [34]
+        observation_info.add_discrete(0,1)
+        #adjacent [35-42]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        #radar [43-50]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+
+#        offset = GRID_DX/10.0
+#        p0 = agent.state.position
+#        for i, (dr, dc) in enumerate(MazeEnvironment.MOVES):
+#            direction = Vector3f(dr, dc, 0)
+#            ray = (p0 + direction * offset, p0 + direction * GRID_DX)
+#            # we only look for objects of type 1, which means walls
+#            objects = getSimContext().findInRay(ray[0], ray[1], 1, True)
+#            v[2 + i] = int(len(objects) > 0)
         state.record_observation(v)
         return v
 
