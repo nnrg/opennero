@@ -141,6 +141,7 @@ class MazeEnvironment(Environment):
         self.step_delay = STEP_DELAY
         self.speedup = 0
         self.shortcircuit = False
+        self.agentList = {}
         print 'Initialized MazeEnvironment'
         
     def get_delay(self):
