@@ -45,6 +45,8 @@ def show_context_menu():
     location = sim_context.getClickedPosition(cursor.x, cursor.y)
     selected_object_id = sim_context.getClickedEntityId(cursor.x, cursor.y)
 
+    if abs(location.z) > 1: return
+
     print "location:", location
 
     contextMenu = gui.create_context_menu(guiMan, 'context', cursor)
