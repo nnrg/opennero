@@ -29,11 +29,14 @@ class BlocksworldModule:
         self.hp = 50
         self.currTeam = 1
         self.coin_nears = [{0:0, 1:0, 2:0},{0:0,1:0,2:0}]
+        self.coin_nears_ids = [{0:[], 1:[], 2:[]},{0:[],1:[],2:[]}]
         self.coin_locs = {0:Vector3f(XDIM/2,YDIM/2,0), 1:Vector3f(XDIM/2,YDIM/3,0), 2:Vector3f(XDIM/2,2*YDIM/3,0)}
         self.coin_ids = {}
         self.coins = [[0,1,2],[],[]]
-        self.fitness = {1:.05,2:.05}
-        self.capture = {1:.05,2:.05}
+        self.fitness = {1:.5,2:.5}
+        self.capture = {1:.5,2:.5}
+        self.p_coin_ids = {}
+        self.p_coin_locs = {0:Vector3f(XDIM/2, YDIM/2,0)}
         self.curr_id = 3
         self.num_to_add = pop_size
 
@@ -63,6 +66,8 @@ class BlocksworldModule:
         # coin placement
         for coin in self.coin_locs:
          self.coin_ids[coin] = addObject("data/shapes/cube/BlueCube.xml", self.coin_locs[coin], label="Coin")
+        for coin in self.p_coin_locs:
+         self.p_coin_ids[coin] = addObject("data/shapes/cube/RedCube.xml", self.p_coin_locs[coin], label = "Coin")
 
         # world walls
         addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2,0,HEIGHT+OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall0", type = OBSTACLE )
@@ -75,13 +80,15 @@ class BlocksworldModule:
         
         return True
     
-    def change_coin(self, new_loc, id):
+    def change_coin(self, new_loc, id, team):
         self.coin_locs[id] = Vector3f(new_loc[0],new_loc[1],new_loc[2])
         
         removeObject(self.coin_ids[id])
 
-        self.coin_ids[id] = addObject("data/shapes/cube/BlueCube.xml", self.coin_locs[id], label="Coin")
+        if team == 1: self.coin_ids[id] = addObject("data/shapes/cube/YellowCube.xml", self.coin_locs[id], label="Coin")
 
+        if team == 2: self.coin_ids[id] = addObject("data/shapes/cube/GreenCube.xml", self.coin_locs[id], label="Coin")
+    
     def add_coin(self, new_loc):
         
         self.coin_locs[self.curr_id] = (Vector3f(new_loc[0],new_loc[1],new_loc[2]))
@@ -90,6 +97,8 @@ class BlocksworldModule:
 
         self.coin_nears[0][self.curr_id] = 0
         self.coin_nears[1][self.curr_id] = 0
+        self.coin_nears_ids[0][self.curr_id] = []
+        self.coin_nears_ids[1][self.curr_id] = []
 
         self.coins[0].append(self.curr_id)
 
@@ -117,7 +126,7 @@ class BlocksworldModule:
                 id = addObject("data/shapes/character/steve_red_armed.xml",Vector3f(TEAM_1_SL_X + dx,TEAM_1_SL_Y + dy,2),type = AGENT)
             else:
                 self.currTeam = 2
-                id = addObject("data/shapes/character/steve_red_armed.xml",Vector3f(TEAM_2_SL_X + dx,TEAM_2_SL_Y + dy ,2),type = AGENT)
+                id = addObject("data/shapes/character/steve_blue_armed.xml",Vector3f(TEAM_2_SL_X + dx,TEAM_2_SL_Y + dy ,2),type = AGENT)
             self.agent_map[(0,i)] = id
 
    #The following is run when the Save button is pressed
@@ -179,12 +188,12 @@ class BlocksworldModule:
     def fitChange(self,team,value):
         value = value/100.0
         self.fitness[team] = value
-        print 'Team:', team, "fitness =",value
+        print 'Team:', team, "Fitness Ratio =",value
 
     def capChange(self,team,value):
         value = value/100.0
         self.capture[team] = value
-        print 'Team:', team, "fitness =",value
+        print 'Team:', team, "Capture Ratio =",value
 
 
     def getNumToAdd(self):
@@ -195,7 +204,8 @@ class BlocksworldModule:
         self.num_to_add -= 1
         self.currTeam += 1
         if self.currTeam == 3: self.currTeam = 1
-        addObject("data/shapes/character/steve_red_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = AGENT)
+        if self.currTeam == 1: addObject("data/shapes/character/steve_red_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = AGENT)
+        if self.currTeam == 2: addObject("data/shapes/character/steve_blue_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = AGENT)
 
 gMod = None
 
