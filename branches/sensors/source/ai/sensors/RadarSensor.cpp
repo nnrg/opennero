@@ -38,10 +38,9 @@ namespace OpenNero
         double yawToTarget = LockDegreesTo180(angleToTarget.Z);
         double pitchToTarget = LockDegreesTo180(angleToTarget.X);
         double distToTarget = vecToTarget.getLength();
-        if (distToTarget <= radius &&
-            ((leftbound >= yawToTarget && yawToTarget >= rightbound) || 
-            (leftbound < rightbound && (leftbound >= yawToTarget || yawToTarget >= rightbound))) &&
-			(bottombound <= pitchToTarget && pitchToTarget <= topbound) )
+        if (distToTarget <= radius &&                                       // within radius
+            (leftbound <= yawToTarget && yawToTarget <= rightbound) &&      // yaw within L-R angle bounds
+			(bottombound <= pitchToTarget && pitchToTarget <= topbound) )   // pitch within B-T angle bounds
         {
             distances.push_back(vecToTarget.getLength());
             LOG_F_DEBUG("sensors", "accept radar target: " << distToTarget << ", " << yawToTarget << ", " << pitchToTarget);
@@ -74,7 +73,7 @@ namespace OpenNero
         {
             double distance = distances[i];
             if (distance != 0) {
-                value += radius / (distance * 10);
+                value += kDistanceScalar * (radius - distance) / radius;
             }
         }
         if (value > 1) {
