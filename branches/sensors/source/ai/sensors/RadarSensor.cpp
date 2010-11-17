@@ -1,27 +1,25 @@
 #include "core/Common.h"
 #include "core/IrrSerialize.h"
 #include "ai/sensors/RadarSensor.h"
+#include <iostream>
+#include <algorithm>
 
 namespace OpenNero
 {
-    const double kDistanceScalar = 1.0/10.0;
+    const double RadarSensor::kDistanceScalar = 1.0/10.0;
 
     //! Create a new RadarSensor
-    //! @param leftbound least relative yaw (degrees) of objects to include
-    //! @param rightbound greatest relative yaw (degrees) of objects to include
-    //! @param bottombound least relative pitch (degrees) of objects to include
-    //! @param topbound greatest relative pitch (degrees) of objects to include
     //! @param radius the radius of the radar sector (how far it extends)
     //! @param types the bitmask which is used to filter objects by type
     RadarSensor::RadarSensor(
-        double leftbound, double rightbound, 
-        double bottombound, double topbound, 
+        double lb, double rb, 
+        double bb, double tb, 
         double radius, U32 types )
         : Sensor(1, types)
-        , leftbound(leftbound)
-        , rightbound(rightbound)
-        , bottombound(bottombound)
-        , topbound(topbound)
+        , leftbound(LockDegreesTo180(lb))
+        , rightbound(LockDegreesTo180(rb))
+        , bottombound(LockDegreesTo180(bb))
+        , topbound(LockDegreesTo180(tb))
         , radius(radius)
     {
     }
@@ -31,21 +29,32 @@ namespace OpenNero
     //! Decide if this sensor is interested in a particular object
     bool RadarSensor::process(SimEntityPtr source, SimEntityPtr target)
     {
-        Vector3f vecToTarget = source->GetPosition() - target->GetPosition();
-        Vector3f angleToTarget = 
-            ConvertIrrlichtToNeroRotation(
-                ConvertNeroToIrrlichtPosition(vecToTarget).getHorizontalAngle());
-        double yawToTarget = LockDegreesTo180(angleToTarget.Z);
-        double pitchToTarget = LockDegreesTo180(angleToTarget.X);
+        if (observed)
+        {
+            observed = false;
+            value = 0;
+        }
+        Vector3f sourcePos = source->GetPosition();
+        Vector3f targetPos = target->GetPosition();
+        Vector3f vecToTarget = targetPos - sourcePos;
         double distToTarget = vecToTarget.getLength();
+        Matrix4 rotation;
+        rotation.setRotationDegrees(source->GetRotation());
+        rotation.rotateVect(vecToTarget);
+        rotation = rotation.buildRotateFromTo(Vector3f(1,0,0), vecToTarget);
+        Vector3f angleToTarget = rotation.getRotationDegrees();
+        double yawToTarget = LockDegreesTo180(angleToTarget.Z);
+        double pitchToTarget = LockDegreesTo180(angleToTarget.Y);
         if (distToTarget <= radius &&                                       // within radius
-            (leftbound <= yawToTarget && yawToTarget <= rightbound) &&      // yaw within L-R angle bounds
+            ((leftbound <= yawToTarget && yawToTarget <= rightbound) ||     // yaw within L-R angle bounds
+             (rightbound < leftbound) && (leftbound <= yawToTarget || yawToTarget <= rightbound)) && // possibly wrapping around
 			(bottombound <= pitchToTarget && pitchToTarget <= topbound) )   // pitch within B-T angle bounds
         {
-            distances.push_back(vecToTarget.getLength());
-            LOG_F_DEBUG("sensors", "accept radar target: " << distToTarget << ", " << yawToTarget << ", " << pitchToTarget);
-        } else {
-            LOG_F_DEBUG("sensors", "reject radar target: " << distToTarget << ", " << yawToTarget << ", " << pitchToTarget);
+            if (distToTarget > 0) {
+                value += kDistanceScalar * radius / distToTarget;
+            } else {
+                value += 1;
+            }
         }
         return true;
     }
@@ -65,21 +74,8 @@ namespace OpenNero
     //! Get the value computed for this sensor given the filtered objects
     double RadarSensor::getObservation(SimEntityPtr source)
     {
-        double value = 0;
-        // Iterate over all objects within the sensor's bounds, and for each, increase the value of the sensor by
-        // radius_of_sensor / (distance_to_the_object * 10)
-        // (i.e., the closer the object is to the sensor's origin, the more it adds to the value)
-        for (size_t i = 0; i < distances.size(); ++i)
-        {
-            double distance = distances[i];
-            if (distance != 0) {
-                value += kDistanceScalar * (radius - distance) / radius;
-            }
-        }
-        if (value > 1) {
-            value = 1.0;
-        }
-        return value;
+        observed = true;
+        return std::min(value,1.0);
     }
     
     void RadarSensor::toXMLParams(std::ostream& out) const

@@ -43,9 +43,12 @@ def ModMain():
         a = radians(360.0 * i / N_OBJECTS)
         xyz = Vector3f(RADIUS * cos(a), RADIUS * sin(a), 0)
         addObject("data/shapes/cube/RedCube.xml", xyz, type = OBJECT_TYPE_SENSED)
+
+    # TESTING: an object in front of the agent
+    addObject("data/shapes/cube/GreenCube.xml", Vector3f(0.5 * RADIUS, 0, 0), type = OBJECT_TYPE_FORWARD)
     
-    # TESTING: add other objects
-    for i in xrange(N_OBJECTS):
+    # TESTING: add other random objects
+    for i in xrange(N_OBJECTS * 5):
         xyz = Vector3f(uniform(-RADIUS, RADIUS), uniform(-RADIUS, RADIUS), 0)
         addObject("data/shapes/cube/BlueCube.xml", xyz, type = OBJECT_TYPE_OTHER)
     

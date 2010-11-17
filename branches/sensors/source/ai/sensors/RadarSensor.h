@@ -24,9 +24,12 @@ namespace OpenNero
 
         //! the radius of the radar sector (how far it extends)
         double radius;
-        
-        //! the distances to the objects found to match this sensor's constraints
-        std::vector<double> distances;
+
+        //! cumulative value for the observation
+        double value;
+
+        //! bookkeeping for resetting the value
+        bool observed;
         
     public:
         RadarSensor()
@@ -34,6 +37,8 @@ namespace OpenNero
             , leftbound(0), rightbound(0)
             , bottombound(0), topbound(0)
             , radius(0)
+            , value(0)
+            , observed(false)
         {}
     
         //! Create a new RadarSensor
