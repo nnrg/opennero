@@ -75,7 +75,7 @@ namespace OpenNero
     double RadarSensor::getObservation(SimEntityPtr source)
     {
         observed = true;
-        return std::min(value,1.0);
+        return std::max(0.0, std::min(value,1.0));
     }
     
     void RadarSensor::toXMLParams(std::ostream& out) const
