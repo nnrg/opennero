@@ -1,5 +1,5 @@
 # OpenNero will execute ModMain when this mod is loaded
-from Maze.client import ClientMain
+from TeamAdapt.client import ClientMain
 
 def ModMain():
     ClientMain()

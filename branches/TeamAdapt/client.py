@@ -7,8 +7,8 @@ from inputConfig import createInputMapping
 from common import *
 import common.gui as gui
 
-from Maze.module import getMod, delMod
-from Maze.constants import *
+from TeamAdapt.module import getMod, delMod
+from TeamAdapt.constants import *
 
 #########################################################
 
@@ -16,52 +16,52 @@ def CreateGui(guiMan):
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")  
     
-    dfsButton = gui.create_button(guiMan, 'dfs', Pos2i(0, 0), Pos2i(100, 30), '')
-    dfsButton.text = 'Depth First Search'
-    dfsButton.OnMouseLeftClick = lambda: getMod().start_dfs()
+#    dfsButton = gui.create_button(guiMan, 'dfs', Pos2i(0, 0), Pos2i(100, 30), '')
+#    dfsButton.text = 'Depth First Search'
+#    dfsButton.OnMouseLeftClick = lambda: getMod().start_dfs()
+#
+#    aStarButton = gui.create_button(guiMan, 'astar', Pos2i(0, 30), Pos2i(100, 30), '')
+#    aStarButton.text = 'Single Agent A*'
+#    aStarButton.OnMouseLeftClick = lambda: getMod().start_astar()
+#
+#    aStarButton2 = gui.create_button(guiMan, 'astar2', Pos2i(0, 60), Pos2i(100, 30), '')
+#    aStarButton2.text = 'Teleporting A*'
+#    aStarButton2.OnMouseLeftClick = lambda: getMod().start_astar2()
+#
+#    aStarButton3 = gui.create_button(guiMan, 'astar3', Pos2i(0, 90), Pos2i(100, 30), '')
+#    aStarButton3.text = 'Front A*'
+#    aStarButton3.OnMouseLeftClick = lambda: getMod().start_astar3()
+#
+#    fpsButton = gui.create_button(guiMan, 'fps', Pos2i(0,120), Pos2i(100,30), '')
+#    fpsButton.text = 'First Person Control'
+#    fpsButton.OnMouseLeftClick = lambda: getMod().start_fps()
 
-    aStarButton = gui.create_button(guiMan, 'astar', Pos2i(0, 30), Pos2i(100, 30), '')
-    aStarButton.text = 'Single Agent A*'
-    aStarButton.OnMouseLeftClick = lambda: getMod().start_astar()
-    
-    aStarButton2 = gui.create_button(guiMan, 'astar2', Pos2i(0, 60), Pos2i(100, 30), '')
-    aStarButton2.text = 'Teleporting A*'
-    aStarButton2.OnMouseLeftClick = lambda: getMod().start_astar2()
-
-    aStarButton3 = gui.create_button(guiMan, 'astar3', Pos2i(0, 90), Pos2i(100, 30), '')
-    aStarButton3.text = 'Front A*'
-    aStarButton3.OnMouseLeftClick = lambda: getMod().start_astar3()
-    
-    fpsButton = gui.create_button(guiMan, 'fps', Pos2i(0,120), Pos2i(100,30), '')
-    fpsButton.text = 'First Person Control'
-    fpsButton.OnMouseLeftClick = lambda: getMod().start_fps()
-
-    randomButton = gui.create_button(guiMan, 'random', Pos2i(0,150), Pos2i(100,30), '')
+    randomButton = gui.create_button(guiMan, 'random', Pos2i(0,0), Pos2i(100,30), '')
     randomButton.text = 'Random Baseline'
     randomButton.OnMouseLeftClick = lambda: getMod().start_random()
 
-    rtneatButton = gui.create_button(guiMan, 'rtneat', Pos2i(0,180), Pos2i(100,30), '')
+    rtneatButton = gui.create_button(guiMan, 'rtneat', Pos2i(0,30), Pos2i(100,30), '')
     rtneatButton.text = 'Neuroevolution'
     rtneatButton.OnMouseLeftClick = lambda: getMod().start_rtneat()
 
-    sarsaButton = gui.create_button(guiMan, 'sarsa', Pos2i(0,210), Pos2i(100,30), '')
-    sarsaButton.text = 'Sarsa'
-    sarsaButton.OnMouseLeftClick = lambda: getMod().start_sarsa()
-
-    qlearningButton = gui.create_button(guiMan, 'qlearning', Pos2i(0,240), Pos2i(100,30), '')
-    qlearningButton.text = 'Q-Learning'
-    qlearningButton.OnMouseLeftClick = lambda: getMod().start_qlearning()
+#    sarsaButton = gui.create_button(guiMan, 'sarsa', Pos2i(0,210), Pos2i(100,30), '')
+#    sarsaButton.text = 'Sarsa'
+#    sarsaButton.OnMouseLeftClick = lambda: getMod().start_sarsa()
+#
+#    qlearningButton = gui.create_button(guiMan, 'qlearning', Pos2i(0,240), Pos2i(100,30), '')
+#    qlearningButton.text = 'Q-Learning'
+#    qlearningButton.OnMouseLeftClick = lambda: getMod().start_qlearning()
 
     agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(100, 400), 'Agent')
-    agentWindow.addChild(dfsButton)
-    agentWindow.addChild(aStarButton)
-    agentWindow.addChild(aStarButton2)
-    agentWindow.addChild(aStarButton3)
-    agentWindow.addChild(fpsButton)
+#    agentWindow.addChild(dfsButton)
+#    agentWindow.addChild(aStarButton)
+#    agentWindow.addChild(aStarButton2)
+#    agentWindow.addChild(aStarButton3)
+#    agentWindow.addChild(fpsButton)
     agentWindow.addChild(randomButton)
     agentWindow.addChild(rtneatButton)
-    agentWindow.addChild(sarsaButton)
-    agentWindow.addChild(qlearningButton)
+#    agentWindow.addChild(sarsaButton)
+#    agentWindow.addChild(qlearningButton)
 
     epsilon_percent = int(INITIAL_EPSILON * 100)
     epsilonValue = gui.create_text(guiMan, 'epsilonEditBox', Pos2i(260,0), Pos2i(100,30), str(epsilon_percent))

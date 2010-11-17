@@ -13,6 +13,6 @@
 		<Scale>0.2 0.2 0.1</Scale>
 	</Render>
 	<AI>
-		<Python agent="Maze.agent.FirstPersonAgent()" />
+		<Python agent="TeamAdapt.agent.FirstPersonAgent()" />
 	</AI>
 </Template>
