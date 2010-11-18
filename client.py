@@ -141,8 +141,8 @@ def ClientMain():
     recenter_cam() # call the recenter function
 
     # load the background
-    addObject("data/terrain/Sea.xml", Vector3f(-3000 + NUDGE_X,-3000 + NUDGE_Y,-20))
-    addObject("data/terrain/IslandTerrain.xml", Vector3f(-1100 + NUDGE_X, -2400 + NUDGE_Y, -17), Vector3f(0,0,-45))
+#    addObject("data/terrain/Terrain.xml", Vector3f(-3000 + NUDGE_X,-3000 + NUDGE_Y,-20))
+    addObject("data/terrain/Terrain.xml", Vector3f(-1100 + NUDGE_X, -2400 + NUDGE_Y, -17), Vector3f(0,0,-45))
     addSkyBox("data/sky/irrlicht2")
 
     # load the maze
