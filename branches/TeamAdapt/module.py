@@ -240,19 +240,29 @@ class MazeMod:
             self.set_environment(MazeEnvironment())
         agent_info = get_environment().agent_info
 
+
+        self.environment.agentList = {}
         # Create an rtNEAT object appropriate for the environment
         pop_size = 50
-        pop_on_field_size = 10
+        pop_on_field_size = 1
 
         # Establish the number of inputs and outputs
         # We use 1 neuron for each continuous value, and N neurons for 1-of-N
         # coding for discrete variables
 
         # For inputs, the number of neurons depends on the sensor constraints
-        n_inputs = count_neurons(agent_info.sensors)
+        n_inputs = len(agent_info.sensors)+1
+        
+        #for standard mapping
+        #count_neurons(agent_info.sensors)
 
         # For outputs, the number of neurons depends on the action constraints
-        n_outputs = count_neurons(agent_info.actions)
+
+
+        n_outputs = 10
+
+        #for standard mapping
+        #count_neurons(agent_info.actions)
         
         print 'RTNEAT, inputs: %d, outputs: %d' % (n_inputs, n_outputs)
 
@@ -269,10 +279,10 @@ class MazeMod:
         #pick random cells, test if valid, repeat if not
         while(placed == False):
 
-          r = randint(0,self.environment.maze.rows)
-          dx = r * self.environment.maze.dx
-          c = randint(0,self.environment.maze.cols)
-          dy = c * self.environment.maze.dy
+          r = randint(1,ROWS)
+          dx = r * GRID_DX
+          c = randint(1,COLS)
+          dy = c * GRID_DY
           #is the cell occupied by a legion?
           self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
           self.environment.agentList[self.agent_map[(0,i)]] = (r,c,0)

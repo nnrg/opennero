@@ -98,17 +98,22 @@ class AgentState:
         return r0
 
 class MazeEnvironment(Environment):
-    MOVES = [(1,0), (-1,0), (0,1), (0,-1)]
+    MOVES = [(-1,-1), (0,-1), (1,-1), (1,0), (1,1), (0,1), (-1,1), (0,-1)]
 
     """
     The environment is a 2-D maze.
     In the discrete version, the agent moves from cell to cell.
      * Actions (1 discrete action)
-        * 0 - move in the +r direction
-        * 1 - move in the -r direction
-        * 2 - move in the +c direction
-        * 3 - move in the -c direction
-        * 4 - do nothing
+        * 0 - NW
+        * 1 - N
+        * 2 - NE
+        * 3 - E
+        * 4 - SE
+        * 5 - S
+        * 6 - SW
+        * 7 - W
+
+        * 8 - no move
      * Observations (6 discrete observations)
         * o[0] - the current row position
         * o[1] - the current col position
@@ -128,9 +133,7 @@ class MazeEnvironment(Environment):
         action_info = FeatureVectorInfo()
         observation_info = FeatureVectorInfo()
         reward_info = FeatureVectorInfo()
-        action_info.add_discrete(0, len(MazeEnvironment.MOVES)-1) # select from the moves we can make
-        observation_info.add_discrete(0, ROWS-1)
-        observation_info.add_discrete(0, COLS-1)
+        action_info.add_discrete(0, len(MazeEnvironment.MOVES)) # select from the moves we can make
 
         #legions
         #local [0]
@@ -144,60 +147,77 @@ class MazeEnvironment(Environment):
         observation_info.add_discrete(0,1)
         observation_info.add_discrete(0,1)
         observation_info.add_discrete(0,1)
-        #radar [9-16]
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
+        
+#        #radar [9-16]
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#
+#        #warbands
+#        #local [17]
+#        observation_info.add_discrete(0,1)
+#        #adjacent [18-25]
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        #radar [26-33]
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#
+#        #cities
+#        #local [34]
+#        observation_info.add_discrete(0,1)
+#        #adjacent [35-42]
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        #radar [43-50]
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
 
-        #warbands
-        #local [17]
-        observation_info.add_discrete(0,1)
-        #adjacent [18-25]
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        #radar [26-33]
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
+        '''
+         OUTPUTS
+        #directions NW -> W
+        action_info.add_continuous(0,1)
+        action_info.add_continuous(0,1)
+        action_info.add_continuous(0,1)
+        action_info.add_continuous(0,1)
+        action_info.add_continuous(0,1)
+        action_info.add_continuous(0,1)
+        action_info.add_continuous(0,1)
+        action_info.add_continuous(0,1)
 
-        #cities
-        #local [34]
-        observation_info.add_discrete(0,1)
-        #adjacent [35-42]
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        #radar [43-50]
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-
+        #go/stay
+        action_info.add_continuous(0,1)
+        action_info.add_continuous(0,1)
+        '''
 
         reward_info.add_continuous(-100,100)
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
@@ -248,14 +268,16 @@ class MazeEnvironment(Environment):
         return True
 
     def cell_occupied(self,r,c,agentType):
-      for key in agentList.iterkeys():
-        if agentList[key][0] == r and agentList[key][1] == c and agentList[key][2] == agentType:
+      for key in self.agentList.iterkeys():
+        if self.agentList[key][0] == r and self.agentList[key][1] == c and self.agentList[key][2] == agentType:
+          print "occupied: " + "(" + str(r) + "," + str(c) + ") " + str(agentType)
           return 1
+      print "NOT occupied: " + "(" + str(r) + "," + str(c) + ") " + str(agentType)
       return 0
 
     def get_agent_in_cell(self,r,c,agentType):
-      for key in agentList.iterkeys():
-        if agentList[key][0] == r and agentList[key][1] == c and agentList[key][2] == agentType:
+      for key in self.agentList.iterkeys():
+        if self.agentList[key][0] == r and self.agentList[key][1] == c and self.agentList[key][2] == agentType:
           return key
       return -1
     
@@ -287,6 +309,8 @@ class MazeEnvironment(Environment):
         if a == len(MazeEnvironment.MOVES): # null action
             return state.record_reward(self.rewards.valid_move(state))
         (dr,dc) = MazeEnvironment.MOVES[a]
+        print "agent action:" + str(a)
+        print "agent moving:" + str(MazeEnvironment.MOVES[a])
         new_r, new_c = r + dr, c + dc
 
         if not self.maze.rc_bounds(new_r, new_c):
@@ -294,6 +318,15 @@ class MazeEnvironment(Environment):
 
         elif self.maze.is_wall(r,c,dr,dc):
             return state.record_reward(self.rewards.hit_wall(state))
+
+
+        #update agentList to new coords
+
+        #if 
+        if len(agentList) > 0:
+
+          agentList[state.id][0] = new_r
+          agentList[state.id][1] = new_c
 
         state.rc = (new_r, new_c)
         (old_r,old_c) = state.prev_rc
@@ -336,45 +369,45 @@ class MazeEnvironment(Environment):
 
         #legions
         #local [0]
-        v[0] = cell_occupied(r,c,0)
+        v[0] = self.cell_occupied(r,c,0)
         #adjacent [1-8]
-        v[1] = cell_occupied(r-1,c-1,0)
-        v[2] = cell_occupied(r,c-1,0)
-        v[3] = cell_occupied(r+1,c-1,0)
-        v[4] = cell_occupied(r+1,c,0)
-        v[5] = cell_occupied(r+1,c+1,0)
-        v[6] = cell_occupied(r,c+1,0)
-        v[7] = cell_occupied(r-1,c+1,0)
-        v[8] = cell_occupied(r-1,c,0)
+        v[1] = self.cell_occupied(r-1,c-1,0)
+        v[2] = self.cell_occupied(r,c-1,0)
+        v[3] = self.cell_occupied(r+1,c-1,0)
+        v[4] = self.cell_occupied(r+1,c,0)
+        v[5] = self.cell_occupied(r+1,c+1,0)
+        v[6] = self.cell_occupied(r,c+1,0)
+        v[7] = self.cell_occupied(r-1,c+1,0)
+        v[8] = self.cell_occupied(r-1,c,0)
         #radar [9-16]
-
-        #warbands
-        #local [17]
-        v[17] = cell_occupied(r,c,0)
-        #adjacent [18-25]
-        v[18] = cell_occupied(r-1,c-1,0)
-        v[19] = cell_occupied(r,c-1,0)
-        v[20] = cell_occupied(r+1,c-1,0)
-        v[21] = cell_occupied(r+1,c,0)
-        v[22] = cell_occupied(r+1,c+1,0)
-        v[23] = cell_occupied(r,c+1,0)
-        v[24] = cell_occupied(r-1,c+1,0)
-        v[25] = cell_occupied(r-1,c,0)
-        #radar [26-33]
-
-        #cities
-        #local [34]
-        v[34] = cell_occupied(r,c,0)
-        #adjacent [35-42]
-        v[35] = cell_occupied(r-1,c-1,0)
-        v[36] = cell_occupied(r,c-1,0)
-        v[37] = cell_occupied(r+1,c-1,0)
-        v[38] = cell_occupied(r+1,c,0)
-        v[39] = cell_occupied(r+1,c+1,0)
-        v[40] = cell_occupied(r,c+1,0)
-        v[41] = cell_occupied(r-1,c+1,0)
-        v[42] = cell_occupied(r-1,c,0)
-        #radar [43-50]
+#
+#        #warbands
+#        #local [17]
+#        v[17] = self.cell_occupied(r,c,0)
+#        #adjacent [18-25]
+#        v[18] = self.cell_occupied(r-1,c-1,0)
+#        v[19] = self.cell_occupied(r,c-1,0)
+#        v[20] = self.cell_occupied(r+1,c-1,0)
+#        v[21] = self.cell_occupied(r+1,c,0)
+#        v[22] = self.cell_occupied(r+1,c+1,0)
+#        v[23] = self.cell_occupied(r,c+1,0)
+#        v[24] = self.cell_occupied(r-1,c+1,0)
+#        v[25] = self.cell_occupied(r-1,c,0)
+#        #radar [26-33]
+#
+#        #cities
+#        #local [34]
+#        v[34] = self.cell_occupied(r,c,0)
+#        #adjacent [35-42]
+#        v[35] = self.cell_occupied(r-1,c-1,0)
+#        v[36] = self.cell_occupied(r,c-1,0)
+#        v[37] = self.cell_occupied(r+1,c-1,0)
+#        v[38] = self.cell_occupied(r+1,c,0)
+#        v[39] = self.cell_occupied(r+1,c+1,0)
+#        v[40] = self.cell_occupied(r,c+1,0)
+#        v[41] = self.cell_occupied(r-1,c+1,0)
+#        v[42] = self.cell_occupied(r-1,c,0)
+#        #radar [43-50]
 
 
 #        offset = GRID_DX/10.0
