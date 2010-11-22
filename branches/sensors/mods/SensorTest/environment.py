@@ -8,11 +8,27 @@ class SensorTestEnvironment(Environment):
     def __init__(self):
         Environment.__init__(self)
         self.counter = 0
+        self.sensor_info = FeatureVectorInfo()
+        self.expected = []
+        self.sensor_names = []
         print 'SensorTestEnvironment()'
+
+    def add_ray(self, agent, x, y, z, radius, type_mask, expected):
+        sensor = RaySensor(x,y,z,radius,type_mask)
+        agent.add_sensor(sensor)
+        self.sensor_info.add_continuous(0,1)
+        self.expected.append(expected)
+        self.sensor_names.append(str(sensor))
+
+    def add_radar(self, agent, left_bound, right_bound, bottom_bound, top_bound, radius, type_mask, expected):
+        sensor = RadarSensor(left_bound, right_bound, bottom_bound, top_bound, radius,type_mask)
+        agent.add_sensor(sensor)
+        self.sensor_info.add_continuous(0,1)
+        self.expected.append(expected)
+        self.sensor_names.append(str(sensor))
 
     def get_agent_info(self, agent):
         print 'SensorTestEnvironment.get_agent_info()'
-        sensor_info = FeatureVectorInfo()
         self.expected = []
         for i in xrange(N_OBJECTS):
             a = radians(i * 360.0 / N_OBJECTS)
@@ -23,48 +39,32 @@ class SensorTestEnvironment(Environment):
             a1 = radians(da1)
 
             # N ray sensors that should be hitting the boxes
-            agent.add_sensor(RaySensor(cosa, sina, 0, 2 * RADIUS, OBJECT_TYPE_SENSED))
-            sensor_info.add_continuous(0,1)
-            self.expected.append(0.5)
+            self.add_ray(agent, cosa, sina, 0, 2*RADIUS, OBJECT_TYPE_SENSED, 0.5)
 
             # N ray sensors that should be too short
-            agent.add_sensor(RaySensor(cosa, sina, 0, 0.5 * RADIUS, OBJECT_TYPE_SENSED))
-            sensor_info.add_continuous(0,1)
-            self.expected.append(1.0)
+            self.add_ray(agent, cosa, sina, 0, 0.5 * RADIUS, OBJECT_TYPE_SENSED, 1.0)
 
             # N ray sensors that should miss
-            agent.add_sensor(RaySensor(cos(a0), sin(a0), 0, 2 * RADIUS, OBJECT_TYPE_SENSED))
-            sensor_info.add_continuous(0,1)
-            self.expected.append(1.0)
+            self.add_ray(agent, cos(a0), sin(a0), 0, 2 * RADIUS, OBJECT_TYPE_SENSED, 1.0)
 
             # N radar sensors that should have 1 object each
-            agent.add_sensor(RadarSensor(da0, da1, -90, 90, 1.1 * RADIUS, OBJECT_TYPE_SENSED))
-            sensor_info.add_continuous(0,1)
-            self.expected.append(0.5)
+            self.add_radar(agent, da0, da1, -90, 90, 1.1 * RADIUS, OBJECT_TYPE_SENSED, 0.5)
 
             # N radar sensors that should be too short
-            agent.add_sensor(RadarSensor(da0, da1, -90, 90, 0.5 * RADIUS, OBJECT_TYPE_SENSED))
-            sensor_info.add_continuous(0,1)
-            self.expected.append(0)
+            self.add_radar(agent, da0, da1, -90, 90, 0.5 * RADIUS, OBJECT_TYPE_SENSED, 0.0)
 
         # a radar sensors that should have all the objects
-        agent.add_sensor(RadarSensor(-180.0, 180.0, -90, 90, 2 * RADIUS, OBJECT_TYPE_SENSED))
-        sensor_info.add_continuous(0,1)
-        self.expected.append(1)
+        self.add_radar(agent, -180.0, 180.0, -90, 90, 2 * RADIUS, OBJECT_TYPE_SENSED, 1.0)
 
         # this is a special ray sensor that should see the forward object
-        agent.add_sensor(RaySensor(1, 0, 0, 0.67 * RADIUS, OBJECT_TYPE_FORWARD))
-        sensor_info.add_continuous(0,1)
-        self.expected.append(0.5)
+        self.add_ray(agent, 1, 0, 0, 0.67 * RADIUS, OBJECT_TYPE_FORWARD, 0.5)
 
         # this is a special radar sensor that should see the forward object
-        agent.add_sensor(RadarSensor(-5, 5, -90, 90, 0.67 * RADIUS, OBJECT_TYPE_FORWARD))
-        sensor_info.add_continuous(0,1)
-        self.expected.append(0.5)
+        self.add_radar(agent, -5, 5, -90, 90, 0.67 * RADIUS, OBJECT_TYPE_FORWARD, 0.5)
 
         reward_info = FeatureVectorInfo()
         reward_info.add_continuous(0,1)
-        return AgentInitInfo(sensor_info, sensor_info, reward_info)
+        return AgentInitInfo(self.sensor_info, self.sensor_info, reward_info)
 
     def sense(self, agent, observations):
         print 'SensorTestEnvironment.sense()'
@@ -78,9 +78,9 @@ class SensorTestEnvironment(Environment):
         correct = reduce(lambda x,y: x and y, correct_list)
         if not correct:
             print 'SENSOR ERROR:'
-            print ' ', ' '.join([str(c) for c in correct_list])
-            print ' ', ' '.join([str(o) for o in observations])
-            print ' ', ' '.join([str(e) for e in self.expected])
+        for i in xrange(len(correct_list)):
+            if not correct_list[i]:
+                print self.sensor_names[i], ', expected:', self.expected[i], ', observed:', observations[i]
         return observations
         
     def step(self, agent, actions):
