@@ -1,10 +1,10 @@
 from OpenNero import *
-from module import getMod, delMod
+from CaptureTheFlag.module import getMod, delMod
 from common.fitness import Fitness
 from common import *
 import common.gui as gui
-from inputConfig import *
-from constants import *
+from CaptureTheFlag.inputConfig import *
+from CaptureTheFlag.constants import *
 from math import *
 
 def toggle_ai_callback():
@@ -44,8 +44,6 @@ def show_context_menu():
     cursor = sim_context.getMousePosition()
     location = sim_context.getClickedPosition(cursor.x, cursor.y)
     selected_object_id = sim_context.getClickedEntityId(cursor.x, cursor.y)
-
-    if abs(location.z) > 1: return
 
     print "location:", location
 

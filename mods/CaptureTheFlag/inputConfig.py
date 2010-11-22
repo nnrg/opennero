@@ -1,7 +1,7 @@
 from OpenNero import *
 
 from common.module import openWiki
-from module import delMod
+from CaptureTheFlag.module import delMod
 
 def switchToHub():
     delMod()
