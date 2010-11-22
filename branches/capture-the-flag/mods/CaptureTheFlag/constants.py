@@ -3,8 +3,9 @@ YDIM = 400
 HEIGHT = 20
 OFFSET = -HEIGHT/2
 NEAT_ACTIONS = 3
-NEAT_SENSORS = 10
-NEAT_BIAS = 0.3
+NEAT_SENSORS = 20
 pop_size = 40 #Individual population size
+DEPLOY_SIZE = 2#pop_size * 2 #total population size for both rtneats.
 OBSTACLE = 1 #0b0001
 AGENT = 2 #0b0010
+
