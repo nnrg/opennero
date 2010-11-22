@@ -26,7 +26,7 @@ class AgentState:
         self.initial_position = Vector3f(0, 0, 0)
         # starting orientation
         self.initial_rotation = Vector3f(0, 0, 0)        
-        self.time = time.time()
+        self.time = time()
         self.start_time = self.time
         self.total_damage = 0
         self.curr_damage = 0

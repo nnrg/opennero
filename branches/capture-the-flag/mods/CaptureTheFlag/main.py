@@ -65,13 +65,13 @@ def ModMain():
 	addObject("data/shapes/wall/BrickWall.xml", Vector3f(-8, -49.5, 0), Vector3f(0, 0, 90), Vector3f(1.05, 1, 1))
 	
 	#add a cube in center
-	addObject("data/cube/GreenCube.xml", Vector3f(-3, -49.5, 0))
+	addObject("data/shapes/cube/GreenCube.xml", Vector3f(-3, -49.5, 0))
 	
 	#add a cube on blue teams side
-	addObject("data/cube/BlueCube.xml", Vector3f(-3, -135, 0))
+	addObject("data/shapes/cube/BlueCube.xml", Vector3f(-3, -135, 0))
 	
 	#add a cube on red teams side
-	addObject("data/cube/RedCube.xml", Vector3f(-3, 36, 0))
+	addObject("data/shapes/cube/RedCube.xml", Vector3f(-3, 36, 0))
 	
 	#add sky and background
 	addSkyBox("data/sky/irrlicht2")
