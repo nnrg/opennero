@@ -245,6 +245,7 @@ class MazeMod:
         # Create an rtNEAT object appropriate for the environment
         pop_size = 50
         pop_on_field_size = 1
+        barb_on_field_size = 1
 
         # Establish the number of inputs and outputs
         # We use 1 neuron for each continuous value, and N neurons for 1-of-N
@@ -271,6 +272,7 @@ class MazeMod:
         set_ai("neat",rtneat)
         enable_ai()
         self.place_legions(pop_on_field_size)
+        self.place_barbarians(barb_on_field_size)
 
     def place_legions(self, number):
 
@@ -283,8 +285,25 @@ class MazeMod:
           dx = r * GRID_DX
           c = randint(1,COLS)
           dy = c * GRID_DY
-          #is the cell occupied by a legion?
+          #is the cell occupied by a barbarian/legion?
           self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
+          self.environment.agentList[self.agent_map[(0,i)]] = (r,c,0)
+          placed = True
+          print "done"
+
+    def place_barbarians(self, number):
+
+      for i in range(0, number):
+        placed = False
+        #pick random cells, test if valid, repeat if not
+        while(placed == False):
+
+          r = randint(1,ROWS)
+          dx = r * GRID_DX
+          c = randint(1,COLS)
+          dy = c * GRID_DY
+          #is the cell occupied by a barbarian/legion?
+          self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
           self.environment.agentList[self.agent_map[(0,i)]] = (r,c,0)
           placed = True
           print "done"

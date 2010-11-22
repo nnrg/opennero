@@ -158,18 +158,18 @@ class MazeEnvironment(Environment):
 #        observation_info.add_discrete(0,1)
 #        observation_info.add_discrete(0,1)
 #
-#        #warbands
-#        #local [17]
-#        observation_info.add_discrete(0,1)
-#        #adjacent [18-25]
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
+        #warbands
+        #local [17]
+        observation_info.add_discrete(0,1)
+        #adjacent [18-25]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
 #        #radar [26-33]
 #        observation_info.add_discrete(0,1)
 #        observation_info.add_discrete(0,1)
@@ -363,6 +363,7 @@ class MazeEnvironment(Environment):
         Discrete version
         """
         state = self.get_state(agent)
+        print(agent)
         v = self.agent_info.sensors.get_instance()
         r = state.rc[0]
         c = state.rc[1]
