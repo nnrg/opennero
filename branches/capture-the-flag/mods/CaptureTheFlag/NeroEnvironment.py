@@ -371,7 +371,7 @@ class NeroEnvironment(Environment):
         agent.state.rotation = rotation
         state.prev_pose = state.pose
         state.pose = (new_position.x, new_position.y, rotation.z)
-        state.time = time.time()
+        state.time = time()
         
         #If it's the final state, handle clean up behaviors
         #You may get better behavior if you move this to epsiode_over
@@ -588,7 +588,7 @@ class NeroEnvironment(Environment):
         if x1 != x2 or y1 != y2:
             fraction = 1.0
             if self.get_delay() != 0:
-                fraction = min(1.0, float(time.time() - state.time) / self.get_delay())
+                fraction = min(1.0, float(time() - state.time) / self.get_delay())
             pos = agent.state.position
             pos.x = x1 * (1 - fraction) + x2 * fraction
             pos.y = y1 * (1 - fraction) + y2 * fraction
@@ -596,8 +596,8 @@ class NeroEnvironment(Environment):
             self.set_animation(agent, state, 'run')
         else:
             self.set_animation(agent, state, 'stand')
-        if time.time() - state.time > self.get_delay():
-            state.time = time.time()
+        if time() - state.time > self.get_delay():
+            state.time = time()
             return True
         else:
             return False

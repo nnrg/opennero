@@ -1,7 +1,7 @@
 import wx
 import os
 import sys
-from CaptureTheFlag.menu_utils import ScriptClient
+from menu_utils import ScriptClient
 
 class NeroPanel(wx.Panel, ScriptClient):
     def __init__(self,parent):
