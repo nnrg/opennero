@@ -23,7 +23,7 @@ class RTNEATAgent(AgentBrain):
         """
         Initialize an agent brain with sensor information
         """
-        from NERO.module import getMod
+        from CaptureTheFlag.module import getMod
         self.actions = init_info.actions # constraints for actions
         self.sensors = init_info.sensors # constraints for sensors
         self.team = getMod().currTeam #Team ID
@@ -39,7 +39,7 @@ class RTNEATAgent(AgentBrain):
         """
         start of an episode
         """
-        from NERO.module import getMod
+        from CaptureTheFlag.module import getMod
         EXPLOIT_PROB = getMod().ee
         rtneat = get_ai("neat%d" % self.team)
         self.org = rtneat.next_organism(EXPLOIT_PROB)
@@ -103,7 +103,7 @@ class RTNEATAgent(AgentBrain):
         Activate the network to produce the output
         Collect and interpret the outputs as valid maze actions
         """
-        from NERO.module import getMod
+        from CaptureTheFlag.module import getMod
         assert(len(sensors)==NEAT_SENSORS) # make sure we have the right number of sensors
         sensors = self.sensors.normalize(sensors)
         inputs = [sensor for sensor in sensors] # create the sensor array
