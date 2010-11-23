@@ -272,7 +272,7 @@ class MazeMod:
         set_ai("neat",rtneat)
         enable_ai()
         self.place_legions(pop_on_field_size)
-        self.place_barbarians(barb_on_field_size)
+#        self.place_barbarians(barb_on_field_size)
 
     def place_legions(self, number):
 
@@ -285,11 +285,21 @@ class MazeMod:
           dx = r * GRID_DX
           c = randint(1,COLS)
           dy = c * GRID_DY
+
           #is the cell occupied by a barbarian/legion?
-          self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
-          self.environment.agentList[self.agent_map[(0,i)]] = (r,c,0)
-          placed = True
-          print "done"
+          print "creating legion"
+          if self.environment.cell_occupied(r,c,0) == 0 and self.environment.cell_occupied(r,c,1) == 0:
+            self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
+            
+            
+            state = self.environment.get_state(self.agent_map[(0,i)])
+            state.rc = (r,c)
+            state.agentType = 0
+            print str(self.environment.states[self.agent_map[(0,i)]].rc)
+#            self.environment.agentList[self.agent_map[(0,i)]] = (r,c,0)
+#            self.environment.states[agent]
+            placed = True
+            print "done creating legion"
 
     def place_barbarians(self, number):
 
@@ -303,10 +313,15 @@ class MazeMod:
           c = randint(1,COLS)
           dy = c * GRID_DY
           #is the cell occupied by a barbarian/legion?
-          self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
-          self.environment.agentList[self.agent_map[(0,i)]] = (r,c,0)
-          placed = True
-          print "done"
+          if self.environment.cell_occupied(r,c,0) == 0 and self.environment.cell_occupied(r,c,1) == 0:
+            self.agent_map[(1,i)] = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
+            state = self.environment.get_state(self.agent_map[(1,i)])
+            state.rc = (r,c)
+            state.agentType = 1
+            print str(self.environment.states[self.agent_map[(1,i)]].rc)
+#            self.environment.agentList[self.agent_map[(0,i)]] = (r,c,0)
+            placed = True
+            print "done"
         
 
 

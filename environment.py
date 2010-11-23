@@ -50,6 +50,7 @@ class AgentState:
         self.observation_history = deque([ [x] for x in range(HISTORY_LENGTH)])
         self.action_history = deque([ [x] for x in range(HISTORY_LENGTH)])
         self.reward_history = deque([ 0 for x in range(HISTORY_LENGTH)])
+        self.agentType = 0
         
     def reset(self):
         self.rc = (0,0)
@@ -233,9 +234,12 @@ class MazeEnvironment(Environment):
 
     def get_state(self, agent):
         if agent in self.states:
+            
             return self.states[agent]
+            
         else:
             self.states[agent] = AgentState(self.maze)
+            print str(agent) + " state created"
             assert(self.states[agent].sensors)
             if hasattr(agent, 'epsilon'):
                 print 'epsilon:', self.epsilon
@@ -260,7 +264,7 @@ class MazeEnvironment(Environment):
         """
         reset the environment to its initial state
         """
-        state = self.get_state(agent)
+        state = self.get_state(agent.state.id)
         print 'Episode %d complete' % agent.episode
         state.reset()
         agent.state.position = copy(state.initial_position)
@@ -268,16 +272,16 @@ class MazeEnvironment(Environment):
         return True
 
     def cell_occupied(self,r,c,agentType):
-      for key in self.agentList.iterkeys():
-        if self.agentList[key][0] == r and self.agentList[key][1] == c and self.agentList[key][2] == agentType:
+      for key in self.states.iterkeys():
+        if self.states[key].rc == (r,c) and self.states[key].agentType == agentType:
           print "occupied: " + "(" + str(r) + "," + str(c) + ") " + str(agentType)
           return 1
       print "NOT occupied: " + "(" + str(r) + "," + str(c) + ") " + str(agentType)
       return 0
 
     def get_agent_in_cell(self,r,c,agentType):
-      for key in self.agentList.iterkeys():
-        if self.agentList[key][0] == r and self.agentList[key][1] == c and self.agentList[key][2] == agentType:
+      for key in self.states.iterkeys():
+        if self.states[key].rc == (r,c) and self.states[key].agentType == agentType:
           return key
       return -1
     
@@ -294,7 +298,7 @@ class MazeEnvironment(Environment):
         """
         Discrete version
         """
-        state = self.get_state(agent)
+        state = self.get_state(agent.state.id)
         state.record_action(action)
         if not self.agent_info.actions.validate(action):
             state.prev_rc = state.rc
@@ -303,6 +307,10 @@ class MazeEnvironment(Environment):
             state.initial_position = agent.state.position
             state.initial_rotation = agent.state.rotation
         (r,c) = state.rc
+
+        print "prevPos :" + str(state.prev_rc)
+        print "pos: " + str(state.rc)
+        
         a = int(round(action[0]))
         state.prev_rc = state.rc
 
@@ -314,21 +322,24 @@ class MazeEnvironment(Environment):
         new_r, new_c = r + dr, c + dc
 
         if not self.maze.rc_bounds(new_r, new_c):
+            print "out of bounds"
             return state.record_reward(self.rewards.out_of_bounds(state))
 
-        elif self.maze.is_wall(r,c,dr,dc):
-            return state.record_reward(self.rewards.hit_wall(state))
+#        elif self.maze.is_wall(r,c,dr,dc):
+#            print "hitting wall"
+#            return state.record_reward(self.rewards.hit_wall(state))
 
 
         #update agentList to new coords
 
-        #if 
-        if len(agentList) > 0:
-
-          agentList[state.id][0] = new_r
-          agentList[state.id][1] = new_c
+#        #if
+#        if len(agentList) > 0:
+#
+#          agentList[state.id][0] = new_r
+#          agentList[state.id][1] = new_c
 
         state.rc = (new_r, new_c)
+        print "newPos :" + str(state.rc)
         (old_r,old_c) = state.prev_rc
         (old_x,old_y) = self.maze.rc2xy(old_r, old_c)
         pos0 = agent.state.position
@@ -349,7 +360,7 @@ class MazeEnvironment(Environment):
         """
         move the agent to a new location
         """
-        state = self.get_state(agent)
+        state = self.get_state(agent.state.id)
         state.prev_rc = (r,c)
         state.rc = (r,c)
         (x,y) = self.maze.rc2xy(r,c)
@@ -362,7 +373,8 @@ class MazeEnvironment(Environment):
         """
         Discrete version
         """
-        state = self.get_state(agent)
+        state = self.get_state(agent.state.id)
+
         print(agent)
         v = self.agent_info.sensors.get_instance()
         r = state.rc[0]
@@ -423,7 +435,7 @@ class MazeEnvironment(Environment):
         return v
 
     def is_active(self, agent):
-        state = self.get_state(agent)
+        state = self.get_state(agent.state.id)
         # here, we interpolate between state.prev_rc and state.rc
         (r0,c0) = state.prev_rc
         (r1,c1) = state.rc
@@ -448,7 +460,7 @@ class MazeEnvironment(Environment):
             return False
 
     def is_episode_over(self, agent):
-        state = self.get_state(agent)
+        state = self.get_state(agent.state.id)
         if self.max_steps != 0 and agent.step >= self.max_steps:
             return True
         elif state.goal_reached:
@@ -516,7 +528,7 @@ class ContMazeEnvironment(MazeEnvironment):
         """
         reset the environment to its initial state
         """
-        state = self.get_state(agent)
+        state = self.get_state(agent.state.id)
         state.pose = (state.initial_position.x, state.initial_position.y, state.initial_rotation.z)
         agent.state.position = copy(state.initial_position)
         agent.state.rotation = copy(state.initial_rotation)
@@ -528,7 +540,7 @@ class ContMazeEnvironment(MazeEnvironment):
         """
         Continuous version
         """
-        state = self.get_state(agent)
+        state = self.get_state(agent.state.id)
         state.record_action(action)
         if not self.agent_info.actions.validate(action):
             return 0
@@ -582,7 +594,7 @@ class ContMazeEnvironment(MazeEnvironment):
         """
         Continuous version
         """
-        state = self.get_state(agent)
+        state = self.get_state(agent.state.id)
         v = self.agent_info.sensors.get_instance()
         (x,y,heading) = state.pose # current agent pose
         v[0] = x # the agent can observe its position
@@ -619,7 +631,7 @@ class ContMazeEnvironment(MazeEnvironment):
         return v
 
     def is_active(self, agent):
-        state = self.get_state(agent)
+        state = self.get_state(agent.state.id)
         # TODO: interpolate
         fraction = min(1.0,float(time.time() - state.time)/self.get_delay())
         if time.time() - state.time > self.get_delay():
