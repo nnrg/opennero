@@ -257,7 +257,7 @@ class MazeEnvironment(Environment):
             # we only look for objects of type 1, which means walls
             objects = getSimContext().findInRay(ray[0], ray[1], 1, True)
             obs[2 + i] = int(len(objects) > 0)
-        state.record_observation(v)
+        state.record_observation(obs)
         return obs
 
     def is_active(self, agent):
@@ -449,11 +449,11 @@ class ContMazeEnvironment(MazeEnvironment):
                     obs[4+i] = 0
             else:
                 obs[4+i] = 1
-        if not self.agent_info.sensors.validate(v):
-            print 'ERROR: incorect observation!', v
+        if not self.agent_info.sensors.validate(obs):
+            print 'ERROR: incorect observation!', obs
             print '       should be:', self.agent_info.sensors
-        state.record_observation(v)
-        return v
+        state.record_observation(obs)
+        return obs
 
     def is_active(self, agent):
         state = self.get_state(agent)
