@@ -45,7 +45,7 @@ namespace OpenNero
     }
 
     /// @brief passively sense the agent's environment
-    Observations RandomEnvironment::sense(AgentBrainPtr agent)
+    Observations RandomEnvironment::sense(AgentBrainPtr agent, Observations& observations)
     {
         return get_random_sensors();
     }

@@ -35,6 +35,7 @@ namespace OpenNero
         AssertMsg( ent, "Adding a null entity to the simulation!" );
         AssertMsg( !Find( ent->GetSimId() ), "Entity with id " << ent->GetSimId() << " already exists in the simulation" );
         mSimIdHashedEntities[ ent->GetSimId() ] = ent;
+        mEntities.insert(ent);
         AssertMsg( Find(ent->GetSimId()) == ent, "The entity with id " << ent->GetSimId() << " could not be properly added" );
     }
 
@@ -60,12 +61,18 @@ namespace OpenNero
             SimId id = *removeItr;
 
             SimIdHashMap::iterator simItr = mSimIdHashedEntities.find(id);
-
+            
             if( simItr != mSimIdHashedEntities.end() ) {
                 SimEntityPtr simE = simItr->second;
                 AssertMsg( simE, "Invalid SimEntity stored in our simulation!" );
+                // remove also from entities set
+                SimEntitySet::iterator simInSet = mEntities.find(simE);
+                if (simInSet != mEntities.end()) {
+                    mEntities.erase(simInSet);
+                }
+
                 mSimIdHashedEntities.erase(simItr);
-            }
+            }            
 
             AssertMsg( !Find(id), "Did not properly remove entity from simulation!" );
         }
@@ -76,8 +83,9 @@ namespace OpenNero
     /// Remove all sim entities from our simulation
     void Simulation::clear()
     {
-        // clear our sim id
+        // clear our internal containers
         mSimIdHashedEntities.clear();
+        mEntities.clear();
     }
 
     /**
@@ -187,6 +195,17 @@ namespace OpenNero
 				(*itr)->ResolveCollision();
 			}
 		}
+    }
+    
+    const SimEntitySet Simulation::GetEntities(size_t types) const
+    {
+        SimEntitySet result;
+        SimEntitySet::const_iterator entIter;
+        for (entIter = mEntities.begin(); entIter != mEntities.end(); ++entIter)
+        {
+            if ((*entIter)->GetType() & types) result.insert(*entIter);
+        }
+        return result;
     }
 
 } //end OpenNero

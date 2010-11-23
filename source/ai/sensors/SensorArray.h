@@ -16,11 +16,10 @@ namespace OpenNero {
     {
         std::vector<SensorPtr> sensors;
     public:
-        SensorArray() : SimEntityComponent(SimEntityPtr()) {};
-        SensorArray(SimEntityPtr parent) : SimEntityComponent(parent) {}
+        explicit SensorArray(SimEntityPtr parent) : SimEntityComponent(parent) {}
         size_t getNumSensors() { return sensors.size(); }
-        void addSensor(SensorPtr sensor) { sensors.push_back(sensor); }
-        Observations getObservations();
+        size_t addSensor(SensorPtr sensor);
+        void getObservations(Observations& observations);
         friend std::ostream& operator<<(std::ostream& out, const SensorArray& sa);
     };
 

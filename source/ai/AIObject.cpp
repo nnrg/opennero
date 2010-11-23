@@ -40,7 +40,7 @@ namespace OpenNero
         , mAgentBrain()
         , mWorld(world)
         , mReward()
-        , mSensors()
+        , mSensors(parent)
     {
     }
 
@@ -55,7 +55,7 @@ namespace OpenNero
         Assert(getBrain());
         if (getBrain()->step == 0) // if first step
         {
-            Observations observations = getWorld()->sense(getBrain());
+            Observations observations = sense();
             setActions(getBrain()->start(dt, observations));
             setReward(getWorld()->step(getBrain(), getActions()));
             getBrain()->step++;
@@ -76,7 +76,7 @@ namespace OpenNero
                     getBrain()->step = 0;
                     getBrain()->fitness = 0;
                 } else {
-                    Observations observations = getWorld()->sense(getBrain());
+                    Observations observations = sense();
                     setActions(getBrain()->act(dt, observations, getReward()));
                     setReward(getWorld()->step(getBrain(), getActions()));
                     getBrain()->step++;
@@ -98,9 +98,15 @@ namespace OpenNero
     }
 
     /// sense the agent's environment
-    Observations AIObject::Sense()
+    Observations AIObject::sense()
     {
-        return Observations();
+        // create a new observation vector
+        Observations o = getInitInfo().sensors.getInstance();
+        // first, pass it along to the built-in sensors so that they can set some of the values
+        mSensors.getObservations(o);
+        // then, pass it to the environment and let it compute the final sensor vector
+        Observations observations = getWorld()->sense(getBrain(), o);
+        return observations;
     }
 
     inline std::ostream& operator<<(std::ostream& out, AIObject& obj)

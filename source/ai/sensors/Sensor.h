@@ -36,7 +36,7 @@ namespace OpenNero
     protected:
         //! Write out XML parameters for this sensor
         virtual void toXMLParams(std::ostream& out) const;
-
+        
     public:
         Sensor() : ticks(1), types(0) {}
 
@@ -48,9 +48,6 @@ namespace OpenNero
         //! Get the types of objects this sensor needs to look at
         U32 getTypes() const { return types; }
 
-        //! Get the region of interest for this sensor
-        virtual BBoxf getBoundingBox() = 0;
-        
         //! get the minimal possible observation
         virtual double getMin() = 0;
         
@@ -58,29 +55,49 @@ namespace OpenNero
         virtual double getMax() = 0;
 
         //! Process an object of interest
-        virtual bool process(SimEntityPtr ent) = 0;
+        virtual bool process(SimEntityPtr source, SimEntityPtr target) = 0;
         
         //! Get the value computed for this sensor
-        virtual double getObservation() = 0;
+        virtual double getObservation(SimEntityPtr source) = 0;
 
-        friend std::ostream& operator<<(std::ostream&, const Sensor&);
+        //! Output this sensor in a human-readable form
+        virtual void toStream(std::ostream& out) const = 0;
 
     };
+    
+    inline std::ostream& operator<<(std::ostream& out, const Sensor& s)
+    {
+        s.toStream(out);
+        return out;
+    }
+    
+    inline std::ostream& operator<<(std::ostream& out, const SensorPtr& s)
+    {
+        if (s) s->toStream(out);
+        else out << "Sensor()";
+        return out;
+    }
+    
+    inline double LockDegreesTo180(double a)
+    {
+        if (a == 0) return a;
+        while (a < -180.0) a += 360.0;
+        while (a > 180.0) a -= 360.0;
+        return a;
+    }
 
     class PySensor : public Sensor, public TryWrapper<Sensor>
     {
     public:
         PySensor() : Sensor() {}
         
-        BBoxf getRegionOfInterest();
-        
         double getMin();
         
         double getMax();
         
-        bool process(SimEntityPtr ent);
+        bool process(SimEntityPtr source, SimEntityPtr target);
         
-        double getObservation();
+        double getObservation(SimEntityPtr source);
     };
 }
 
