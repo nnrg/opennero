@@ -230,6 +230,11 @@ namespace OpenNero
     {
         return mSharedData.GetColor();
     }
+    
+    uint32_t SimEntity::GetType() const
+    {
+        return mSharedData.GetType();
+    }
 
     void SimEntity::SetPosition( const Vector3f& pos )
     {

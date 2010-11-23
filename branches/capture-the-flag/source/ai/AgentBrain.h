@@ -18,9 +18,7 @@ namespace OpenNero
 
 	/// @cond
     BOOST_PTR_DECL(AIObject);
-    namespace sensors {
-        BOOST_PTR_DECL(Sensor);
-    }
+    BOOST_PTR_DECL(Sensor);
     /// @endcond
 
     using namespace boost;
@@ -63,12 +61,12 @@ namespace OpenNero
             virtual bool destroy() = 0;
 
             /// set the body associated with this agent
+            size_t add_sensor(SensorPtr s) { return GetBody()->add_sensor(s); }
+
             virtual void SetBody(AIObjectPtr body) { mBody = body; }
 
             /// get the body associated with this agent
             virtual AIObjectPtr GetBody() { return mBody.lock(); }
-
-            size_t AddSensor(sensors::SensorPtr s) { return GetBody()->AddSensor(s); }
 
             /// get the shared simulation data for adjusting pose
             SimEntityData* GetSharedState() { return GetBody()->GetSharedState(); }

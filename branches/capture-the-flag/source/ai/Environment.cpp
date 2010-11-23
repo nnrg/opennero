@@ -37,10 +37,10 @@ namespace OpenNero
     }
 
     /// sense the agent's current environment
-    Observations PyEnvironment::sense(AgentBrainPtr agent)
+    Observations PyEnvironment::sense(AgentBrainPtr agent, Observations& observations)
     {
         Observations result;
-        TryOverride("sense", result, agent);
+        TryOverride("sense", result, agent, observations);
         return result;
     }
 

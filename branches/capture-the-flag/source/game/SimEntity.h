@@ -125,6 +125,9 @@ namespace OpenNero
 
         /// get override color of the object
         const SColor& GetColor() const;
+        
+        /// get the type flag of the object
+        uint32_t GetType() const;
 
 		/// Setters for properties
         /// @{
