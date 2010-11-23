@@ -637,12 +637,12 @@ class RTNEATAgent(AgentBrain):
         8 - move
         9 - stay
         '''
-        print "go? " + str(outputs[8]) + "stay? " + str(outputs[8])
+        print "go? " + str(outputs[8]) + "stay? " + str(outputs[9])
 
 
 
         #if move>stay
-        if outputs[8] > outputs[9]:
+        if outputs[8] >= outputs[9]:
           print "NETWORKACT: agent moving"
           best = -1
           index = 0
@@ -656,7 +656,7 @@ class RTNEATAgent(AgentBrain):
           index = 8 #dont move
 
         #map to actions
-        actions[0] = index
+        actions[0] = 1
 
         print str(actions)
 #        actions = TeamAdapt.module.neurons_to_output(self.actions, outputs)
