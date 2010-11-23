@@ -8,6 +8,21 @@ namespace OpenNero
             << "types=\"" << types << "\" ";
     }
     
+    std::ostream& operator<<(std::ostream& out, const Sensor& sensor)
+    {
+        out << "<Sensor ";
+        sensor.toXMLParams(out);
+        out << "/>";
+        return out;
+    }
+    
+    BBoxf PySensor::getRegionOfInterest()
+    {
+        BBoxf result;
+        TryOverride("getRegionOfInterest", result);
+        return result;
+    }
+    
     double PySensor::getMin()
     {
         double result;
@@ -22,17 +37,17 @@ namespace OpenNero
         return result;
     }
     
-    bool PySensor::process(SimEntityPtr source, SimEntityPtr target)
+    bool PySensor::process(SimEntityPtr ent)
     {
         bool result;
-        TryOverride("process", result, source, target);
+        TryOverride("process", result, ent);
         return result;
     }
     
-    double PySensor::getObservation(SimEntityPtr source)
+    double PySensor::getObservation()
     {
         double result;
-        TryOverride("getObservation", result, source);
+        TryOverride("getObservation", result);
         return result;
     }
 

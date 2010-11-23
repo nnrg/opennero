@@ -54,13 +54,9 @@ namespace OpenNero
         /// find an entity by its SceneObject ID
         SimEntityPtr FindBySceneObjectId( SceneObjectId id ) const;
 
-        /// Get the set of all the entities in the simulation
-        const SimEntitySet GetEntities() const { return mEntities; }
+        /// find K nearest neighbours of a point
         
-        /// Get the set of all the entities of the specified type
-        const SimEntitySet GetEntities( size_t types ) const;
 
-        /// Get the next free SimId
         SimId GetNextFreeId() const { return mMaxId + 1; }
 
         ///@}
@@ -83,10 +79,10 @@ namespace OpenNero
         ///@}
     protected:
 
-        /// hash map of SimEntities indexed by SimId
+        /// hash by simulation ID
         typedef hash_map< SimId, SimEntityPtr > SimIdHashMap;
 
-        /// a set of simulation IDs
+        /// list of simulation IDs to be removed
         typedef std::set<SimId> SimIdSet;
 
     protected:
@@ -94,8 +90,6 @@ namespace OpenNero
         IrrHandles          mIrr;                   ///< Copy of Irrlicht handles
 
         SimIdHashMap        mSimIdHashedEntities;   ///< Our entities hashed by SimId
-
-        SimEntitySet        mEntities;             ///< Set of all the sim entities
 
         SimIdSet            mRemoveSet;             ///< SimId's to remove after next ProcessWorld
 

@@ -33,23 +33,24 @@ namespace OpenNero
         //! @param radius the radius of the ray (how far it extends)
         RaySensor(double x, double y, double z, double radius, U32 types = 0);
         
-        //! non-virtual destructor (final class)
-        ~RaySensor();
+        virtual ~RaySensor();
         
+        //! Get the region of interest for this sensor
+        virtual BBoxf getBoundingBox();
+
         //! get the minimal possible observation
-        double getMin() { return 0.0; }
+        virtual double getMin() { return 0.0; }
         
         //! get the maximum possible observation
-        double getMax() { return radius; }
+        virtual double getMax() { return radius; }
 
         //! Process an object of interest
-        bool process(SimEntityPtr source, SimEntityPtr target);
+        virtual bool process(SimEntityPtr ent);
         
         //! Get the value computed for this sensor
-        double getObservation(SimEntityPtr source);
+        virtual double getObservation();
 
-        //! Output this sensor in a human-readable form
-        virtual void toStream(std::ostream& out) const;
+        friend std::ostream& operator<<(std::ostream& in, const RaySensor& rs);
 
     protected:
         

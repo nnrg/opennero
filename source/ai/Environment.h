@@ -41,9 +41,7 @@ namespace OpenNero
         virtual bool is_episode_over(AgentBrainPtr agent) = 0;
 
         /// @brief passively sense the agent's environment
-        /// @param agent the agent for which the environment observations should be computed
-        /// @param observations the observations vector already initialized with pre-defined sensor values (added via add_sensor)
-        virtual Observations sense(AgentBrainPtr agent, Observations& observations) = 0;
+        virtual Observations sense(AgentBrainPtr agent) = 0;
 
         /// cleanup the world on close
         virtual void cleanup() = 0;
@@ -70,7 +68,7 @@ namespace OpenNero
         bool is_active(AgentBrainPtr agent);
 
         /// sense the agent's current environment
-        Observations sense(AgentBrainPtr agent, Observations& observations);
+        Observations sense(AgentBrainPtr agent);
 
         /// is the episode over for the specified agent?
         bool is_episode_over(AgentBrainPtr agent);

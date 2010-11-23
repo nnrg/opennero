@@ -358,8 +358,9 @@ class SandboxEnvironment(Environment):
             state.is_out = True    # if yes, mark it to be removed
         return reward            
     
-    def sense(self, agent, sensors):
+    def sense(self, agent):
         """ figure out what the agent should sense """
+        sensors = self.get_agent_info(agent).sensors.get_instance()
         state = self.get_state(agent)
         if (str(type(agent)) == "<class 'Roomba.roomba.RoombaBrain'>"):
             if state.bumped:

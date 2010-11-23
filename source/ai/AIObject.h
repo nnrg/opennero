@@ -6,7 +6,6 @@
 #include "game/objects/TemplatedObject.h"
 #include "game/objects/SimEntityComponent.h"
 #include "ai/AI.h"
-#include "ai/sensors/SensorArray.h"
 
 namespace OpenNero
 {
@@ -15,7 +14,9 @@ namespace OpenNero
     BOOST_SHARED_DECL(AIObjectTemplate);
     BOOST_SHARED_DECL(Environment);
     BOOST_SHARED_DECL(SimEntity);
-    BOOST_SHARED_DECL(Sensor);
+    namespace sensors {
+        BOOST_SHARED_DECL(Sensor);
+    }
     /// @endcond
 
     class SimEntityData;
@@ -36,23 +37,18 @@ namespace OpenNero
         virtual void ProcessTick(float32_t dt);
 
         /// sense the agent's environment
-        virtual Observations sense();
-
-        /// add a new sensor to the built-in sensor collection for this AIObject
-        size_t add_sensor(SensorPtr sensor) { return mSensors.addSensor(sensor); }
+        virtual Observations Sense();
 
         /// display this AI object as a string
         virtual std::ostream& stream(std::ostream& out) const = 0;
 
         /// set the currently selected actions for this AI object
         void setActions(Actions actions) { mActions = actions; }
-        
         /// get the most recently set actions
         Actions getActions() const { return mActions; }
 
         /// set the brain of this AIObject
         void setBrain(AgentBrainPtr brain) { mAgentBrain = brain; }
-        
         /// get the current brain of this AIObject
         AgentBrainPtr getBrain() const { return mAgentBrain; }
 
@@ -68,11 +64,7 @@ namespace OpenNero
         /// get the most recent reward for this AIObject
         Reward getReward() const { return mReward; }
 
-        /// set the AgentInitInfo of the agent describing its state and action space
-        void setInitInfo(const AgentInitInfo& init_info) { mInitInfo = init_info; }
-
-        /// get the AgentInitInfo of the agent describing its state and action space
-        const AgentInitInfo& getInitInfo() const { return mInitInfo; }
+        size_t AddSensor(sensors::SensorPtr sensor) { mSensors.push_back(sensor); return mSensors.size() - 1; }
 
     private:
 
@@ -80,8 +72,8 @@ namespace OpenNero
         AgentBrainPtr mAgentBrain; ///< the brain whose actions we are applying
         EnvironmentWPtr mWorld; ///< world we are acting in
         Reward mReward; ///< the reward received by the agent after performing the previous action
-        SensorArray mSensors; ///< Built-in sensors for this agent
-        AgentInitInfo mInitInfo; ///< the init info for the agent
+        std::vector<sensors::SensorPtr> mSensors; ///< Built-in sensors for this agent
+
     };
 
     /// print an AI object to stream

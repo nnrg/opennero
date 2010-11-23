@@ -24,12 +24,6 @@ namespace OpenNero
 
         //! the radius of the radar sector (how far it extends)
         double radius;
-
-        //! cumulative value for the observation
-        double value;
-
-        //! bookkeeping for resetting the value
-        bool observed;
         
     public:
         RadarSensor()
@@ -37,8 +31,6 @@ namespace OpenNero
             , leftbound(0), rightbound(0)
             , bottombound(0), topbound(0)
             , radius(0)
-            , value(0)
-            , observed(false)
         {}
     
         //! Create a new RadarSensor
@@ -47,37 +39,33 @@ namespace OpenNero
         //! @param bottombound least relative pitch (degrees) of objects to include
         //! @param topbound greatest relative pitch (degrees) of objects to include
         //! @param radius the radius of the radar sector (how far it extends)
-        //! @param types the type mask for the objects that the radar will count
         RadarSensor(
             double leftbound, double rightbound, 
             double bottombound, double topbound, 
             double radius, 
             U32 types = 0);
         
-        ~RadarSensor();
+        virtual ~RadarSensor();
     
+        //! Get the region of interest for this sensor
+        virtual BBoxf getBoundingBox();
+        
         //! get the minimal possible observation
-        double getMin();
+        virtual double getMin();
         
         //! get the maximum possible observation
-        double getMax();
+        virtual double getMax();
 
         //! Process an object of interest
-        bool process(SimEntityPtr source, SimEntityPtr target);
+        virtual bool process(SimEntityPtr ent);
         
         //! Get the value computed for this sensor
-        double getObservation(SimEntityPtr source);
+        virtual double getObservation();
 
-        /// send a string representation of this sensor to the stream
-        void toStream(std::ostream& out) const;
-        
-        /// Attenuation factor for the sensor values. Value is calculated as
-        /// kDistanceScalar * radius / distanceToObject
-        static const double kDistanceScalar;
+        friend std::ostream& operator<<(std::ostream& in, const RadarSensor& rs);
 
     protected:
 
-        /// print the XML parameters associated with this sensor to the stream.
         void toXMLParams(std::ostream& out) const;
 
     };
