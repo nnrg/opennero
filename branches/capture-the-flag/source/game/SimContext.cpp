@@ -376,6 +376,12 @@ namespace OpenNero
             mpGuiManager->RemoveAll();
     }
     
+    SimId SimContext::GetNextFreeId() const
+    {
+        SimId result = mpSimulation->GetNextFreeId();
+        return result;
+    }
+        
     /// @param x screen x-coordinate for active camera
     /// @param y screen y-coordinate for active camera
     /// @return the SimEntity intersected first by the ray from the camera origin through the view plane
@@ -422,34 +428,28 @@ namespace OpenNero
         return line;
     }
 
-    /// @param hitEntity the entity intersected by the ray
-    /// @param hitPos the position of the intersection
     /// @param origin origin of the ray to cast
     /// @param target target of the ray to cast
     /// @param type bitmask of the objects to care about or 0 for 'check all'
     /// @param vis show rays?
-    /// @param foundColor the color to use if vis is true and an intersection is found
-    /// @param noneColor the color to use if vis is true 
     /// @return first intersection info tuple(sim, hit) with SimEntityData sim and Vector3f hit (hit location) or ()
-    /// Find the first object that intersects the specified ray
-    bool SimContext::FindInRay( SimEntityData& hitEntity,
-                                Vector3f& hitPos,
-                                const Vector3f& origin, 
-                                const Vector3f& target, 
-                                const uint32_t& type, 
-                                const bool vis, 
-                                const SColor& foundColor,
-                                const SColor& noneColor
-                              ) const
+    boost::python::tuple SimContext::FindInRay(const Vector3f& origin, 
+                                               const Vector3f& target,
+                                               const uint32_t& type,
+                                               const bool vis,
+                                               const SColor& foundColor,
+                                               const SColor& noneColor) const
 	{
+        namespace py = boost::python;
         ISceneCollisionManager* collider = mIrr.mpSceneManager->getSceneCollisionManager();
         Assert(collider);
         Line3f ray(ConvertNeroToIrrlichtPosition(origin), ConvertNeroToIrrlichtPosition(target));
+        Vector3f outPosition;
         Triangle3f outTriangle;
         ISceneNode* node = collider->getSceneNodeAndCollisionPointFromRay
-            (ray, hitPos, outTriangle, type);
+            (ray, outPosition, outTriangle, type);
         // convert back into our coord system
-        hitPos = ConvertIrrlichtToNeroPosition(hitPos);
+        outPosition = ConvertIrrlichtToNeroPosition(outPosition);
         if (node && node->getID() >= kFirstSimId)
         {
             // we found a sim node, so return its data
@@ -458,13 +458,12 @@ namespace OpenNero
             if (ent)
             {
                 // draw a ray if requested
-                if (vis)
+                if(vis)
                 {
-                    LineSet::instance().AddSegment(origin, hitPos, foundColor);
+                    LineSet::instance().AddSegment(origin, outPosition, foundColor);
                 }
                 // return the result: (sim, hit)
-                hitEntity = ent->GetState();
-                return true;
+                return py::make_tuple(ent->GetState(), outPosition);
             }
         } else {
             if (vis)
@@ -472,29 +471,18 @@ namespace OpenNero
                 LineSet::instance().AddSegment(origin, target, noneColor);
             }
         }
-        return false;
+        return py::make_tuple();
 	}
-    
-    /// Find the first object that intersects the specified ray
-    boost::python::tuple SimContext::PyFindInRay( const Vector3f& origin, 
-                                      const Vector3f& target, 
-                                      const uint32_t& type, 
-                                      const bool val, 
-                                      const SColor& foundColor,
-                                      const SColor& noneColor
-                                    ) const
-    {
-        SimEntityData hitEntity;
-        Vector3f hitPos;
-        if (FindInRay(hitEntity, hitPos, origin, target, type, val, foundColor, noneColor))
-        {
-            return boost::python::make_tuple(hitEntity, hitPos);
-        }
-        else
-        {
-            return boost::python::make_tuple();
-        }        
+
+    /// Find K nearest neighbours to a point
+    boost::python::list SimContext::FindKNN( const Vector3f& point,
+                                             const uint32_t& K ) const {
+        namespace py = boost::python;
+        py::list result;
+        //result.append();
+        return result;
     }
+    
 
     /// @param x screen x-coordinate for active camera
     /// @param y screen y-coordinate for active camera

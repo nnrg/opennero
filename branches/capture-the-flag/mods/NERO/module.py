@@ -57,17 +57,17 @@ class NeroModule:
         set_environment(self.environment)
         
         # flag placement
-        self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag", type = OBJECT_TYPE_FLAG)
+        self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag")
 
         # world walls
-        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2,0,HEIGHT+OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall0", type = OBJECT_TYPE_OBSTACLE  )
-        addObject("data/shapes/cube/Cube.xml", Vector3f(0, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall1", type = OBJECT_TYPE_OBSTACLE  )
-        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall2", type = OBJECT_TYPE_OBSTACLE  )
-        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM, HEIGHT +OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall3", type = OBJECT_TYPE_OBSTACLE  )
-        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1, YDIM,HEIGHT), label="World Wall4", type = OBJECT_TYPE_OBSTACLE )
+        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2,0,HEIGHT+OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall0", type = OBSTACLE )
+        addObject("data/shapes/cube/Cube.xml", Vector3f(0, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall1", type = OBSTACLE )
+        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall2", type = OBSTACLE )
+        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM, HEIGHT +OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall3", type = OBSTACLE )
+        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1, YDIM,HEIGHT), label="World Wall4", type = OBSTACLE)
 
         # Add the surrounding Environment
-        addObject("data/terrain/NeroWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="NeroWorld", type = OBJECT_TYPE_LEVEL_GEOM)
+        addObject("data/terrain/NeroWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="NeroWorld")
         
         return True
 
@@ -76,7 +76,7 @@ class NeroModule:
         
         removeObject(self.flag_id)
         
-        self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag", type = OBJECT_TYPE_FLAG)
+        self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag")
 
     #The following is run when the Deploy button is pressed
     def start_rtneat(self):
@@ -91,7 +91,7 @@ class NeroModule:
         dy = random.randrange(XDIM/20) - XDIM/40
         dx = random.randrange(XDIM/20) - XDIM/40
         dy = random.randrange(XDIM/20) - XDIM/40
-        id = addObject("data/shapes/character/steve_red_armed.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = OBJECT_TYPE_AGENT)
+        id = addObject("data/shapes/character/steve_red_armed.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = AGENT)
         self.num_to_add -= 1
 
    #The following is run when the Save button is pressed
@@ -157,7 +157,7 @@ class NeroModule:
     #This is the function ran when an agent already in the field causes the generation of a new agent
     def addAgent(self,pos):
         self.num_to_add -= 1
-        addObject("data/shapes/character/steve_red_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = OBJECT_TYPE_AGENT)
+        addObject("data/shapes/character/steve_red_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = AGENT)
 
 gMod = None
 

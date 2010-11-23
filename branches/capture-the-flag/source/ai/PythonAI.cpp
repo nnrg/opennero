@@ -45,10 +45,15 @@ namespace OpenNero
             return false;
         } else {
             brain->SetBody(shared_from_this());
-            setInitInfo(getWorld()->get_agent_info(brain));
-            brain->initialize(getInitInfo());
+            brain->initialize(getWorld()->get_agent_info(brain));
             return true;
         }
+    }
+    
+    /// sense the agent's environment
+    Observations PythonAIObject::Sense()
+    {
+        return Observations();
     }
     
     PythonAITemplate::PythonAITemplate(SimFactoryPtr factory, const PropertyMap& propMap, const std::string& prefix)

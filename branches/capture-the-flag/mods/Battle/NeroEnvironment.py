@@ -361,22 +361,26 @@ class NeroEnvironment(Environment):
                 return len_data / len_ray
         return 1
 
-    def sense(self, agent, observations):
+    def sense(self, agent):
         """ figure out what the agent should sense """
         from module import getMod
-        observations = self.agent_info.sensors.get_instance()
+        v = self.agent_info.sensors.get_instance()
         vx = []
         
         state = self.get_state(agent)
         
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
-            return observations
+            return v
 
         
         vx.append(self.raySense(agent, -60, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, -45, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, -30, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, -15, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 0, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, 15, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 30, MAX_SD, OBSTACLE))
+        #vx.append(self.raySense(agent, 45, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 60, MAX_SD, OBSTACLE))
         
         ffr = self.getFriendFoe(agent)
@@ -401,10 +405,14 @@ class NeroEnvironment(Environment):
         
 
         vx.append(max(0,cos(radians(fh-  0))))
+        #vx.append(max(0,cos(radians(fh- 45))))
         vx.append(max(0,cos(radians(fh- 90))))
+        #vx.append(max(0,cos(radians(fh-135))))
         
         vx.append(max(0,cos(radians(fh-180))))
+        #vx.append(max(0,cos(radians(fh-225))))
         vx.append(max(0,cos(radians(fh-270))))
+        #vx.append(max(0,cos(radians(fh-315))))
        
         vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST))) 
         
@@ -422,12 +430,17 @@ class NeroEnvironment(Environment):
         
 
         vx.append(max(0,cos(radians(fh-  0))))
+        #vx.append(max(0,cos(radians(fh- 45))))
         vx.append(max(0,cos(radians(fh- 90))))
+        #vx.append(max(0,cos(radians(fh-135))))
         
         vx.append(max(0,cos(radians(fh-180))))
+        #vx.append(max(0,cos(radians(fh-225))))
         vx.append(max(0,cos(radians(fh-270))))
+        #vx.append(max(0,cos(radians(fh-315))))
        
         vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST))) 
+        
         
         fd = self.flag_distance(agent)
         if fd != 0:
@@ -442,10 +455,14 @@ class NeroEnvironment(Environment):
             fh -= 360
 
         vx.append(max(0,cos(radians(fh-  0))))
+        #vx.append(max(0,cos(radians(fh- 45))))
         vx.append(max(0,cos(radians(fh- 90))))
+        #vx.append(max(0,cos(radians(fh-135))))
         
         vx.append(max(0,cos(radians(fh-180))))
+        #vx.append(max(0,cos(radians(fh-225))))
         vx.append(max(0,cos(radians(fh-270))))
+        #vx.append(max(0,cos(radians(fh-315))))
        
         vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST)))
 
