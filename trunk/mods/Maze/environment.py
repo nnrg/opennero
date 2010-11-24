@@ -458,7 +458,9 @@ class ContMazeEnvironment(MazeEnvironment):
     def is_active(self, agent):
         state = self.get_state(agent)
         # TODO: interpolate
-        fraction = min(1.0,float(time.time() - state.time)/self.get_delay())
+        fraction = 1.0
+        if self.get_delay() != 0:
+            fraction = min(1.0,float(time.time() - state.time)/self.get_delay())
         if time.time() - state.time > self.get_delay():
             state.time = time.time()
             return True # call the sense/act/step loop
