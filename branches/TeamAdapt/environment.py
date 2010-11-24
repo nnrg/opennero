@@ -5,6 +5,7 @@ from mazer import Maze
 from constants import *
 from OpenNero import *
 from collections import deque
+import TeamAdapt
 
 import observer
 
@@ -152,6 +153,7 @@ class MazeEnvironment(Environment):
 #        observation_info.add_continuous(0,1)
 #
         #legions
+        
         #local [0]
         observation_info.add_discrete(0,1)
         #adjacent [1-8]
@@ -163,7 +165,30 @@ class MazeEnvironment(Environment):
         observation_info.add_discrete(0,1)
         observation_info.add_discrete(0,1)
         observation_info.add_discrete(0,1)
-        
+
+        #radar [9-16]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+
+#        #legions
+#        #local [0]
+#        observation_info.add_discrete(0,1)
+#        #adjacent [1-8]
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#
 #        #radar [9-16]
 #        observation_info.add_discrete(0,1)
 #        observation_info.add_discrete(0,1)
@@ -498,16 +523,50 @@ class MazeEnvironment(Environment):
         pos0.y = y
         agent.state.position = pos0
 
+    # returns which direction the agent is relative to self
+    def inAngle(self, r, c, agent_r, agent_c ):
+        angle = self.getAngle( r, c, agent_r, agent_c )
+        if 337.5 >= angle and 292.5 < angle:
+            return 0
+        if 22.5 >= angle or 337.5 < angle:
+            return 1
+        if 67.5 >= angle and 22.5 < angle:
+            return 2
+        if 112.5 >= angle and 67.5 < angle:
+            return 3
+        if 157.5 >= angle and 112.5 < angle:
+            return 4
+        if 202.5 >= angle and 157.5 < angle:
+            return 5
+        if 247.5 >= angle and 202.5 < angle:
+            return 6
+        if 292.5 >= angle and 247.5 < angle:
+            return 7
+
+    # return 0-259
+    def getAngle(self, r, c, agent_r, agent_c ) :
+
+        x = agent_r - r
+        y = agent_c - c
+
+        angle = atan2(x,y)*(360/(2*pi))
+
+        if angle < 0 :
+            return 360 + angle
+        return angle
+
     def sense(self, agent):
         """
         Discrete version
         """
         state = self.get_state(agent.state.id)
-
-        print(agent)
+        mod = TeamAdapt.module.getMod()
         v = self.agent_info.sensors.get_instance()
         r = state.rc[0]
         c = state.rc[1]
+
+
+        # sharing sensors #
 
 #        (r,c) = state.rc
 #        print str(r) + str(c)
@@ -530,6 +589,7 @@ class MazeEnvironment(Environment):
 
 
         #legions
+
         #local [0]
         v[0] = self.cell_occupied(r,c,0)
         #adjacent [1-8]
@@ -542,35 +602,68 @@ class MazeEnvironment(Environment):
         v[7] = self.cell_occupied(r-1,c+1,0)
         v[8] = self.cell_occupied(r-1,c,0)
 #        radar [9-16]s
-#
-#        #warbands
-#        #local [17]
-#        v[17] = self.cell_occupied(r,c,0)
-#        #adjacent [18-25]
-#        v[18] = self.cell_occupied(r-1,c-1,0)
-#        v[19] = self.cell_occupied(r,c-1,0)
-#        v[20] = self.cell_occupied(r+1,c-1,0)
-#        v[21] = self.cell_occupied(r+1,c,0)
-#        v[22] = self.cell_occupied(r+1,c+1,0)
-#        v[23] = self.cell_occupied(r,c+1,0)
-#        v[24] = self.cell_occupied(r-1,c+1,0)
-#        v[25] = self.cell_occupied(r-1,c,0)
-#        #radar [26-33]
-#
-#        #cities
-#        #local [34]
-#        v[34] = self.cell_occupied(r,c,0)
-#        #adjacent [35-42]
-#        v[35] = self.cell_occupied(r-1,c-1,0)
-#        v[36] = self.cell_occupied(r,c-1,0)
-#        v[37] = self.cell_occupied(r+1,c-1,0)
-#        v[38] = self.cell_occupied(r+1,c,0)
-#        v[39] = self.cell_occupied(r+1,c+1,0)
-#        v[40] = self.cell_occupied(r,c+1,0)
-#        v[41] = self.cell_occupied(r-1,c+1,0)
-#        v[42] = self.cell_occupied(r-1,c,0)
-#        #radar [43-50]
+        #loop through all
 
+        directions = [[]]*8
+        for agent_id in mod.agent_map.values():
+            if agent_id != agent.state.id:
+                agent_r, agent_c = self.get_state(agent_id).rc
+                dir_i = self.inAngle( r, c, agent_r, agent_c )
+                directions[dir_i].append((agent_r,agent_c))
+
+        distances = [0]*8
+        for i in range(len(directions)):
+            for point in directions[i]:
+                dist = sqrt(pow(r-point[0],2)+pow(c-point[1],2))
+                distances[i] += float(1)/dist
+
+        for i in range(len(distances)):
+            v[i+9] = distances[i]
+
+
+
+#        if state.agentType == 0:
+#            #legions
+#            #local [0]
+#            v[0] = self.cell_occupied(r,c,0)
+#            #adjacent [1-8]
+#            v[1] = self.cell_occupied(r-1,c-1,0)
+#            v[2] = self.cell_occupied(r,c-1,0)
+#            v[3] = self.cell_occupied(r+1,c-1,0)
+#            v[4] = self.cell_occupied(r+1,c,0)
+#            v[5] = self.cell_occupied(r+1,c+1,0)
+#            v[6] = self.cell_occupied(r,c+1,0)
+#            v[7] = self.cell_occupied(r-1,c+1,0)
+#            v[8] = self.cell_occupied(r-1,c,0)
+#            #radar [9-16]
+#        elif state.agentType == 1:
+#            #warbands
+#            #local [17]
+#            v[0] = 1#self.cell_occupied(r,c,0)
+#            #adjacent [18-25]
+#            v[1] = self.cell_occupied(r-1,c-1,0)
+#            v[2] = self.cell_occupied(r,c-1,0)
+#            v[3] = self.cell_occupied(r+1,c-1,0)
+#            v[4] = self.cell_occupied(r+1,c,0)
+#            v[5] = self.cell_occupied(r+1,c+1,0)
+#            v[6] = self.cell_occupied(r,c+1,0)
+#            v[7] = self.cell_occupied(r-1,c+1,0)
+#            v[8] = self.cell_occupied(r-1,c,0)
+#            #radar [26-33]
+#        elif state.agentType == 2:
+#            #cities
+#            #local [34]
+#            v[34] = self.cell_occupied(r,c,0)
+#            #adjacent [35-42]
+#            v[35] = self.cell_occupied(r-1,c-1,0)
+#            v[36] = self.cell_occupied(r,c-1,0)
+#            v[37] = self.cell_occupied(r+1,c-1,0)
+#            v[38] = self.cell_occupied(r+1,c,0)
+#            v[39] = self.cell_occupied(r+1,c+1,0)
+#            v[40] = self.cell_occupied(r,c+1,0)
+#            v[41] = self.cell_occupied(r-1,c+1,0)
+#            v[42] = self.cell_occupied(r-1,c,0)
+#            #radar [43-50]
 
 #        offset = GRID_DX/10.0
 #        p0 = agent.state.position
