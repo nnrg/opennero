@@ -62,6 +62,8 @@ class NetworkLogWriter:
                 self.sock.send(msg)
             except socket.error, e:
                 self.failed = True
+        if self.failed:
+            print msg
 
     def flush(self):
         pass

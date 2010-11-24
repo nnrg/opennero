@@ -89,17 +89,24 @@ namespace OpenNero
         Line3f GetRayUnderMouse(const int32_t& x, const int32_t& y) const;
 
 		/// Find the first object that intersects the specified ray
-		boost::python::tuple FindInRay( const Vector3f& origin, 
-                                        const Vector3f& target, 
-                                        const uint32_t& type = 0, 
-                                        const bool val = false, 
-                                        const SColor& foundColor = SColor(255,255,0,0),
-                                        const SColor& noneColor = SColor(255,255,255,0)
-                                        ) const;
+		bool FindInRay( SimEntityData& hitEntity,
+                        Vector3f& hitPos,
+                        const Vector3f& origin, 
+                        const Vector3f& target, 
+                        const uint32_t& type = 0, 
+                        const bool val = false, 
+                        const SColor& foundColor = SColor(255,255,0,0),
+                        const SColor& noneColor = SColor(255,255,255,0)
+                      ) const;
 
-        /// Find K nearest neighbours to a point
-        boost::python::list FindKNN( const Vector3f& point,
-                                     const uint32_t& K ) const;
+		/// Find the first object that intersects the specified ray
+		boost::python::tuple PyFindInRay( const Vector3f& origin, 
+                                          const Vector3f& target, 
+                                          const uint32_t& type = 0, 
+                                          const bool val = false, 
+                                          const SColor& foundColor = SColor(255,255,0,0),
+                                          const SColor& noneColor = SColor(255,255,255,0)
+                                        ) const;
 
         /// Get (approximate) 3d position of the click
         Vector3f GetClickedPosition(const int32_t& x, const int32_t& y) const;
@@ -183,7 +190,7 @@ namespace OpenNero
         const SimulationPtr getSimulation() const { return mpSimulation; }
 
         /// return the next free Id
-        SimId GetNextFreeId() const;
+        SimId GetNextFreeId() const { return mpSimulation->GetNextFreeId(); }
 
     protected:
 

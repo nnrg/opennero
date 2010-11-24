@@ -56,7 +56,6 @@ namespace OpenNero
             stringstream ss;
             ss << "import " << moduleName << endl;
             python::exec(ss.str().c_str(), _globals, _globals);
-            PrintDebuggingInfo(_globals, _globals);
         }
         catch (error_already_set const&)
         {
@@ -92,7 +91,7 @@ namespace OpenNero
         try {
             python::exec(snippet.c_str(), _globals, _globals);
         }
-        catch (error_already_set)
+        catch (py::error_already_set const&)
         {
             if( !supressErrors )
             {
@@ -171,7 +170,13 @@ namespace OpenNero
         if( _initialized )
         {
             _initialized = false;
-            _network_log_writer.attr("close")();
+            if (_network_log_writer) {
+                try {
+                    _network_log_writer.attr("close")();
+                } catch (py::error_already_set const&) {
+                    // ignore errors on close
+                }
+            }
         }
     }
 
@@ -222,6 +227,15 @@ namespace OpenNero
     
     void ScriptingEngine::NetworkWrite(const std::string& message)
     {
-        _network_log_writer.attr("write")(message);
+        if (_network_log_writer) {
+            try {
+                _network_log_writer.attr("write")(message);
+            } catch (py::error_already_set const&) {
+                LogError();
+                _network_log_writer = py::object();
+            }
+        } else {
+            Log::LogMsg(NULL, NULL, message.c_str());
+        }
     }
 }

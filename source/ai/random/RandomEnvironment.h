@@ -47,7 +47,7 @@ namespace OpenNero
         bool is_active(AgentBrainPtr agent);
 
         /// @brief passively sense the agent's environment
-        Observations sense(AgentBrainPtr agent);
+        Observations sense(AgentBrainPtr agent, Observations& observations);
 
         /// @brief cleanup the world on close
         void cleanup();

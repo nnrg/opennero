@@ -1,6 +1,8 @@
 /**
    @file exports.cpp
+   
    @brief export OpenNERO scripts into Python
+   
    In order to export more Python classes and/or functions, add your own 
    ExportXXXScripts method *AND* call it from ExportScripts
 */
@@ -61,7 +63,7 @@ namespace OpenNero {
 				.def("act", pure_virtual(&AgentBrain::act), "Called for every step of the state-action loop")
 				.def("end", pure_virtual(&AgentBrain::end), "Called at the end of a learning episode")
 				.def("destroy", pure_virtual(&AgentBrain::destroy), "Called after learning ends")
-                .def("add_sensor", &AgentBrain::AddSensor, "Add a sensor for this agent")
+                .def("add_sensor", &AgentBrain::add_sensor, "Add a sensor for this agent")
 				.def_readonly("step", &AgentBrain::step, "Current step count")
 				.def_readonly("episode", &AgentBrain::episode, "Current episode count")
 				.def_readonly("fitness", &AgentBrain::fitness, "Cumulative reward for this episode")
@@ -125,13 +127,6 @@ namespace OpenNero {
 				.def(self_ns::str(self_ns::self))
                 ;
             py::implicitly_convertible<RadarSensorPtr, SensorPtr>();
-            py::class_<SensorArray, noncopyable, SensorArrayPtr>(
-                "SensorArray",
-                "An array of sensors")
-                .def("getNumSensors", &SensorArray::getNumSensors)
-                .def("addSensor", &SensorArray::addSensor)
-				.def(self_ns::str(self_ns::self))
-                ;
         }
 
 		/// return an action array for python to use
@@ -870,7 +865,7 @@ namespace OpenNero {
         
         BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addLightSource_overloads, AddLightSource, 2, 3)
         
-        BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(findInRay_overloads, FindInRay, 2, 6)
+        BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(findInRay_overloads, PyFindInRay, 2, 6)
         
         void ExportSimContextScripts()
         {
@@ -905,11 +900,8 @@ namespace OpenNero {
                 .def("setInputMapping", 
                      &SimContext::SetInputMapping, 
                      "Set the io map to use" )
-                .def("getNextFreeId", 
-                     &SimContext::GetNextFreeId, 
-                     "Get the next available network ID" )
                 .def("findInRay", 
-                     &SimContext::FindInRay, 
+                     &SimContext::PyFindInRay, 
                      findInRay_overloads("Find the first object that intersects the specified ray (origin:Vector3f, target:Vector3f, [int])") )
                 .def("getClickedPosition", 
                      &SimContext::GetClickedPosition, 
