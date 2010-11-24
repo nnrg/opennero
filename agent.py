@@ -667,4 +667,130 @@ class RTNEATAgent(AgentBrain):
         assert(self.actions.validate(actions))
         return actions
 
+class AvoiderAgent(AgentBrain):
+    """
+    rtNEAT agent
+    """
+    def __init__(self):
+        """
+        Create an agent brain
+        """
+        # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
+        AgentBrain.__init__(self)
+        global rtneat
+        rtneat = get_ai("neat")
+
+    def initialize(self, init_info):
+        """
+        Initialize an agent brain with sensor information
+        """
+        self.actions = init_info.actions # constraints for actions
+        self.sensors = init_info.sensors # constraints for sensors
+        return True
+
+    def start(self, time, sensors):
+        """
+        start of an episode
+        """
+        global rtneat
+        epsilon = TeamAdapt.module.getMod().epsilon
+        self.org = rtneat.next_organism(epsilon)
+        self.net = self.org.net
+        return self.network_action(sensors)
+
+    def act(self, time, sensors, reward):
+        """
+        a state transition
+        """
+
+        # return action
+        return self.network_action(sensors)
+
+    def end(self, time, reward):
+        """
+        end of an episode
+        """
+        self.org.fitness = self.fitness # assign organism fitness for evolution
+        self.org.time_alive += 1
+        #assert(self.org.fitness >= 0) # we have to have a non-negative fitness for rtNEAT to work
+        print  "Final reward: %f, cumulative: %f" % (reward, self.fitness)
+        return True
+
+    def destroy(self):
+        """
+        the agent brain is discarded
+        """
+        return True
+
+    def network_action(self, sensors):
+        """
+        Take the current network
+        Feed the sensors into it
+        Activate the network to produce the output
+        Collect and interpret the outputs as valid maze actions
+        """
+        assert(self.sensors.validate(sensors))
+#        inputs = TeamAdapt.module.input_to_neurons(self.sensors, sensors)
+
+        inputs = []
+        for s in sensors:
+          inputs.append(s)
+        inputs.append(0.3)
+
+        self.net.load_sensors(inputs)
+
+        self.net.activate()
+        outputs = self.net.get_outputs()
+        actions = self.actions.get_instance()
+
+        '''
+        * Actions (1 discrete action)
+        * 0 - NW
+        * 1 - N
+        * 2 - NE
+        * 3 - E
+        * 4 - SE
+        * 5 - S
+        * 6 - SW
+        * 7 - W
+
+        * 8 - no move
+
+        #sensors
+
+        0-7 direction
+        (Nw->W clockwise)
+
+        8 - move
+        9 - stay
+        '''
+
+        print "NETWORKACT: agent moving"
+        best = -1
+        index = 0
+        for i in range(3):
+          if outputs[i] > best:
+            best = outputs[i]
+            index = i
+
+        #map to actions
+        if index == 0:
+          index = 1
+        elif index == 1:
+          index = 3
+        elif index == 2:
+          index = 5
+        elif index == 3:
+          index = 7
+
+        actions[0] = index
+
+        print str(actions)
+#        actions = TeamAdapt.module.neurons_to_output(self.actions, outputs)
+        # debugging output
+        #print 'obs -> net:', sensors, inputs
+        #print '    -> org -> out:', self.org.id, outputs
+        #print '    -> action:', actions
+        assert(self.actions.validate(actions))
+        return actions
 

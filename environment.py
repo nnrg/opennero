@@ -12,10 +12,10 @@ class MazeRewardStructure:
     """ This defines the reward that the agents get for running the maze """
     def valid_move(self, state):
         """ a valid move is just a -1 (to reward shorter routes) """
-        return -1
+        return 0
     def out_of_bounds(self, state):
         """ reward for running out of bounds of the maze (hitting the outer wall) """
-        return -5
+        return 0 #-5
     def hit_wall(self, state):
         """ reward for hitting any other wall """
         return -5
@@ -131,11 +131,26 @@ class MazeEnvironment(Environment):
         self.maze = Maze.generate(ROWS, COLS, GRID_DX, GRID_DY)
         self.rewards = MazeRewardStructure()
         self.states = {}
+        self.objects = {} # dict of ID's referencing Object_state
+
+        '''
+        every time an agent is added, the agent's id becomes the 'lastAgent'
+        step # is updated during the lastAgent's step
+        when stepsDone = STEPS_IN_ROUND, game is reset
+        '''
+
+        self.stepsDone = 0
+        self.lastAgent = -1
+
         action_info = FeatureVectorInfo()
         observation_info = FeatureVectorInfo()
         reward_info = FeatureVectorInfo()
         action_info.add_discrete(0, len(MazeEnvironment.MOVES)) # select from the moves we can make
 
+#        #FOR AVOIDER GAME
+#        observation_info.add_continuous(0,1)
+#        observation_info.add_continuous(0,1)
+#
         #legions
         #local [0]
         observation_info.add_discrete(0,1)
@@ -159,18 +174,18 @@ class MazeEnvironment(Environment):
 #        observation_info.add_discrete(0,1)
 #        observation_info.add_discrete(0,1)
 #
-        #warbands
-        #local [17]
-        observation_info.add_discrete(0,1)
-        #adjacent [18-25]
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
-        observation_info.add_discrete(0,1)
+#        #warbands
+#        #local [17]
+#        observation_info.add_discrete(0,1)
+#        #adjacent [18-25]
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
+#        observation_info.add_discrete(0,1)
 #        #radar [26-33]
 #        observation_info.add_discrete(0,1)
 #        observation_info.add_discrete(0,1)
@@ -246,6 +261,17 @@ class MazeEnvironment(Environment):
                 agent.epsilon = self.epsilon
             return self.states[agent]
 
+    def get_object_state(self, agent):
+        if agent in self.objects:
+
+            return self.objects[agent]
+
+        else:
+            self.objects[agent] = AgentState(self.maze)
+            print str(agent) + "object state created"
+            return self.objects[agent]
+
+
     def can_move(self, state, move):
         """
         Figure out if the agent can make the specified move
@@ -271,20 +297,62 @@ class MazeEnvironment(Environment):
         agent.state.rotation = copy(state.initial_rotation)
         return True
 
-    def cell_occupied(self,r,c,agentType):
+    def set_position(self, id, r ,c):
+      getSimContext().setObjectPosition(id , Vector3f(r, c, 2))
+
+    def get_other_rc(self,id):
       for key in self.states.iterkeys():
-        if self.states[key].rc == (r,c) and self.states[key].agentType == agentType:
-          print "occupied: " + "(" + str(r) + "," + str(c) + ") " + str(agentType)
-          return 1
-      print "NOT occupied: " + "(" + str(r) + "," + str(c) + ") " + str(agentType)
+          #if its a legion thats not us
+        if key != id and self.states[key].agentType == 0:
+          return self.states[key].rc
       return 0
 
-    def get_agent_in_cell(self,r,c,agentType):
-      for key in self.states.iterkeys():
-        if self.states[key].rc == (r,c) and self.states[key].agentType == agentType:
-          return key
-      return -1
+    def cell_occupied(self,r,c,objectType):
+
+      #are we getting an object or agent?
+
+      #agent (anything with a brain)
+      if objectType < 2:
+        for key in self.states.iterkeys():
+          if self.states[key].rc == (r,c) and self.states[key].agentType == objectType:
+            print "occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
+            return 1
+#        print "NOT occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
+        return 0
+
+      #object
+      else:
+        for key in self.objects.iterkeys():
+          if self.objects[key].rc == (r,c) and self.objects[key].agentType == objectType:
+            print "occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
+            return 1
+#        print "NOT occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
+        return 0
+
+    def get_object_in_cell(self,r,c,objectType):
+      #are we getting an object or agent?
+
+      #agent (anything with a brain)
+      if objectType < 2:
+        for key in self.states.iterkeys():
+          if self.states[key].rc == (r,c) and self.states[key].agentType == objectType:
+            print "agentHere : " + "(" + str(r) + "," + str(c) + ") " + str(key)
+            return key
+#        print "NOT occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
+        return -1
+
+      #object
+      else:
+        for key in self.objects.iterkeys():
+          if self.objects[key].rc == (r,c) and self.objects[key].agentType == objectType:
+            print "objectHere : " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
+            return key
+#        print "NOT occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
+        return -1
     
+    def get_round_fitness():
+      print "setting fitness"
+      return 1
 
     def get_agent_info(self, agent):
         return self.agent_info
@@ -295,11 +363,18 @@ class MazeEnvironment(Environment):
             state.animation = animation
 
     def step(self, agent, action):
+        
         """
         Discrete version
         """
+        
         state = self.get_state(agent.state.id)
         state.record_action(action)
+
+        #if were done
+        if self.stepsDone == STEPS_IN_ROUND:
+          return get_round_fitness()
+
         if not self.agent_info.actions.validate(action):
             state.prev_rc = state.rc
             return 0
@@ -315,28 +390,55 @@ class MazeEnvironment(Environment):
         state.prev_rc = state.rc
 
         if a == len(MazeEnvironment.MOVES): # null action
-            return state.record_reward(self.rewards.valid_move(state))
+            return 0 #state.record_reward(self.rewards.valid_move(state))
         (dr,dc) = MazeEnvironment.MOVES[a]
         print "agent action:" + str(a)
         print "agent moving:" + str(MazeEnvironment.MOVES[a])
         new_r, new_c = r + dr, c + dc
 
+        #our step is done
+        if agent.state.id  == self.lastAgent:
+          self.stepsDone += 1
+          print "turn complete: " + str(self.stepsDone)
+
+        #reasons not to actually move
+        #out of bounds
         if not self.maze.rc_bounds(new_r, new_c):
             print "out of bounds"
-            return state.record_reward(self.rewards.out_of_bounds(state))
+            return 0
+            #return state.record_reward(self.rewards.out_of_bounds(state))
+
+        #if we are legion
+        if state.agentType == 0:
+          print "IM LEGION"
+          #and there's a legion in our destination cell
+          legion =  self.get_object_in_cell(dr, dc, 0)
+          print "checking for legion :" + str(new_r) + str (new_c)
+          print str(legion)
+          if legion != -1:
+            #don't move
+            print "legion in cell" + str(legion)
+            return 0
+
+          #and there's a barb in the cell
+          barb =  self.get_object_in_cell(dr, dc, 1)
+          if barb != -1:
+            #remove that agent
+            print "removing agent: " + str(barb)
+
+        #if we are barb
+        if state.agentType == 1:
+          #and there's any agent in the destination cell
+          legion =  self.get_object_in_cell(dr, dc, 0)
+          barb =  self.get_object_in_cell(dr, dc, 1)
+          if legion != -1 or barb != -1:
+            #don't move
+            return 0
 
 #        elif self.maze.is_wall(r,c,dr,dc):
 #            print "hitting wall"
 #            return state.record_reward(self.rewards.hit_wall(state))
 
-
-        #update agentList to new coords
-
-#        #if
-#        if len(agentList) > 0:
-#
-#          agentList[state.id][0] = new_r
-#          agentList[state.id][1] = new_c
 
         state.rc = (new_r, new_c)
         print "newPos :" + str(state.rc)
@@ -348,13 +450,40 @@ class MazeEnvironment(Environment):
         agent.state.position = pos0
         relative_rotation = self.get_next_rotation((dr,dc))
         agent.state.rotation = state.initial_rotation + relative_rotation
-        if new_r == ROWS - 1 and new_c == COLS - 1:
-            state.goal_reached = True
-            return state.record_reward(self.rewards.goal_reached(state))
+
+
+        
+
+        #if this is the final step in the round, assign fitness
+        
+
+#        if new_r == 4 - 1 and new_c == COLS - 1:
+#            state.goal_reached = True
+#            return state.record_reward(self.rewards.goal_reached(state))
           
-        elif agent.step >= self.max_steps - 1:
-            return state.record_reward(self.rewards.last_reward(state))
+#        elif agent.step >= self.max_steps - 1:
+#            return state.record_reward(self.rewards.last_reward(state))
+
+
+        #other reward
         return state.record_reward(self.rewards.valid_move(state))
+
+
+
+#        (r,c) = state.rc
+#        (other_r,other_c) = self.get_other_rc(agent.state.id)
+#
+#        disOther = ((r - other_r) ** 2) + ((c - other_c)**2)
+#        disOther = sqrt(disOther)
+#        disGoal = ((r - 3) ** 2) + ((c - COLS - 1)**2)
+#        disGoal = sqrt(disGoal)
+#        if disGoal != 0:
+#          disGoal = 1/disGoal
+#        if disOther != 0:
+#          disOther = 1/disOther
+#        reward = (disGoal) - (disOther)
+#        print "agent :" + str(disGoal) + " , " + str(disOther)
+#        return reward
 
     def teleport(self, agent, r, c):
         """
@@ -380,6 +509,26 @@ class MazeEnvironment(Environment):
         r = state.rc[0]
         c = state.rc[1]
 
+#        (r,c) = state.rc
+#        print str(r) + str(c)
+#        (other_r,other_c) = self.get_other_rc(agent.state.id)
+#        print str(other_r) + str(other_c)
+#        disOther = ((r - other_r) ** 2) + ((c - other_c)**2)
+#        print str(disOther)
+#        disOther = sqrt(disOther)
+#        print str(disOther)
+#        disGoal = ((r - 3) ** 2) + ((c - COLS - 1)**2)
+#        disGoal = sqrt(disGoal)
+#        if disGoal != 0:
+#          disGoal = 1/disGoal
+#        if disOther != 0:
+#          disOther = 1/disOther
+
+#        print "agent :" + str(disGoal) + " , " + str(disOther)
+#        v[0] = disGoal
+#        v[1] = disOther
+
+
         #legions
         #local [0]
         v[0] = self.cell_occupied(r,c,0)
@@ -392,7 +541,7 @@ class MazeEnvironment(Environment):
         v[6] = self.cell_occupied(r,c+1,0)
         v[7] = self.cell_occupied(r-1,c+1,0)
         v[8] = self.cell_occupied(r-1,c,0)
-        #radar [9-16]
+#        radar [9-16]s
 #
 #        #warbands
 #        #local [17]
