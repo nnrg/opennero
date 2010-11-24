@@ -1,6 +1,7 @@
 from OpenNero import *
 import random
 from time import time
+from Battle.constants import *
 
 FITNESS_OUT = False
 
@@ -97,8 +98,6 @@ class RTNEATAgent(AgentBrain):
         Activate the network to produce the output
         Collect and interpret the outputs as valid maze actions
         """
-        # make sure we have the right number of sensors
-        assert(len(sensors)==NEAT_SENSORS)
         # convert the sensors into the [0.0, 1.0] range
         sensors = self.sensors.normalize(sensors)
         # create the list of sensors
