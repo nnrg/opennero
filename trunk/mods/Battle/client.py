@@ -32,21 +32,6 @@ def recenter(cam):
 
 #########################################################
 
-def CreateGui(guiMan): 
-    global toggleAiButton
-    global mode
-    mode = 0
-
-    guiMan.setTransparency(1.0)
-    guiMan.setFont("data/gui/fonthaettenschweiler.bmp")  
-    guiWindow = gui.create_window( guiMan, 'window', Pos2i(20,20),Pos2i(80,100), 'Nero Controls' )
-
-    toggleAiButton = gui.create_button( guiMan, 'toggle_ai', Pos2i(0,0),Pos2i(60,80), '' )
-    toggleAiButton.text = 'Begin Battle'
-    toggleAiButton.OnMouseLeftClick = toggle_ai_callback
-    
-    guiWindow.addChild(toggleAiButton)
-
 def weight_adjusted(scroll, key, value):
     result = scroll.getPos() - 100
     value.text = str(result)
@@ -192,9 +177,6 @@ def ClientMain():
     getSimContext().addLightSource(Vector3f(500,-500,1000), 1500)
 
     addSkyBox("data/sky/irrlicht2")
-
-    # setup the gui
-    CreateGui(getGuiManager())
 
     # add a camera
     camRotateSpeed = 100

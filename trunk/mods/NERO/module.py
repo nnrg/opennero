@@ -172,6 +172,7 @@ def getMod():
     return gMod
 
 def parseInput(strn):
+    from NERO.client import toggle_ai_callback
     if strn == "deploy": return
     if len(strn) < 2: return
     mod = getMod()
@@ -195,6 +196,7 @@ def parseInput(strn):
     if loc == "load1": mod.load_rtneat(val,1)
     if loc == "save2": mod.save_rtneat(val,2)
     if loc == "load2": mod.load_rtneat(val,2)
+    if loc == "deploy": toggle_ai_callback()
 
 def ServerMain():
     print "Starting mod NERO"
