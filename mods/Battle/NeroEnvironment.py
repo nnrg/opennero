@@ -364,7 +364,6 @@ class NeroEnvironment(Environment):
     def sense(self, agent, observations):
         """ figure out what the agent should sense """
         from module import getMod
-        observations = self.agent_info.sensors.get_instance()
         vx = []
         
         state = self.get_state(agent)
@@ -381,12 +380,12 @@ class NeroEnvironment(Environment):
         
         ffr = self.getFriendFoe(agent)
         if (ffr[0] == []) or ffr[1] == []:
-            return v
+            return observations
         ff = []
         ff.append(self.nearest(state.pose, state.id, ffr[0]))
         ff.append(self.nearest(state.pose, state.id, ffr[1]))
         if ff[0] == 1:
-            return v
+            return observations
         fd = self.distance(state.pose,(ff[1].pose[0],ff[1].pose[1]))
         if fd != 0:
             fh  = ((degrees(atan2(ff[1].pose[1]-state.pose[1],ff[1].pose[0] - state.pose[0])) - state.pose[2]) % 360) - 180
@@ -450,9 +449,9 @@ class NeroEnvironment(Environment):
         vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST)))
 
         for iter in range(len(vx)):
-            v[iter] = vx[iter]
+            observations[iter] = vx[iter]
         
-        return v
+        return observations
    
     def flag_loc(self):
         from Battle.module import getMod

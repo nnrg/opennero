@@ -52,7 +52,9 @@ class NetworkLogWriter:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.connect(self.addr)
             self.connected = True
-        except:
+        except socket.error, e:
+            self.connected = False
+        except IOError, e:
             self.connected = False
         return self.connected
 
@@ -62,6 +64,10 @@ class NetworkLogWriter:
                 self.sock.send(msg)
             except socket.error, e:
                 self.failed = True
+                print 'socket.error'
+            except IOError, e:
+                self.failed = True
+                print 'IOError'
         if self.failed:
             print msg
 
@@ -70,8 +76,13 @@ class NetworkLogWriter:
 
     def close(self):
         if self.connected and not self.failed:
-            self.sock.sendto('', self.addr)
-            self.sock.close()
+            try:
+                self.sock.sendto('', self.addr)
+                self.sock.close()
+            except socket.error, e:
+                pass
+            except IOError, e:
+                pass
             self.connected = False
         if self.server_process:
             self.server_process.kill()

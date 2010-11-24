@@ -3,24 +3,12 @@ from OpenNero import getSimContext
 from Battle.NeroEnvironment import *
 from Battle.RTNEATAgent import *
 from Battle.Turret import *
+from Battle.constants import *
 import subprocess
 import os
 import sys
 
 import random
-
-XDIM = 800
-YDIM = 400
-HEIGHT = 20
-OFFSET = -HEIGHT/2
-
-NEAT_ACTIONS = 3
-NEAT_SENSORS = 20
-pop_size = 40
-DEPLOY_SIZE = 40 * 2
-
-OBSTACLE = 1 #0b0001
-AGENT = 2 #0b0010
 
 class NeroModule:
     def __init__(self):

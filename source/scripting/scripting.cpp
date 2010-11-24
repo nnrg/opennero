@@ -232,7 +232,6 @@ namespace OpenNero
                 _network_log_writer.attr("write")(message);
             } catch (py::error_already_set const&) {
                 LogError();
-                _network_log_writer = py::object();
             }
         } else {
             Log::LogMsg(NULL, NULL, message.c_str());
