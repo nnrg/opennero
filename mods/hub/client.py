@@ -20,20 +20,20 @@ def ClientMain():
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")
 
-    neroImg = gui.create_image( guiMan, 'nero_background', Pos2i(0,0), Pos2i(0,0), 'data/gui/nero_background.jpg' )
+    neroImg = gui.create_image( guiMan, 'nero_background', Pos2i(0,0), Pos2i(800,600), 'data/gui/nero_background.png' )
 
-    combo_box = gui.create_combo_box(guiMan, "mod_selector", Pos2i(325, 100), Pos2i(200, 25))
+    combo_box = gui.create_combo_box(guiMan, "mod_selector", Pos2i(400, 200), Pos2i(200, 25))
     for i, modname in enumerate(mods):
         combo_box.addItem(modname)
 
-    startButton = gui.create_button( guiMan, 'start', Pos2i(125,100), Pos2i(100,50), '' )
-    startButton.text = 'Start:'
+    startButton = gui.create_button( guiMan, 'start', Pos2i(400,250), Pos2i(60,25), '' )
+    startButton.text = 'Start'
     startButton.OnMouseLeftClick = SwitchToSelectedMod(combo_box)
 
-    helpButton = gui.create_button( guiMan, 'help', Pos2i(125,175), Pos2i(100,50), '' )
+    helpButton = gui.create_button( guiMan, 'help', Pos2i(470,250), Pos2i(60,25), '' )
     helpButton.text = 'Help'
     helpButton.OnMouseLeftClick = openWiki('RunningOpenNero')
 
-    killButton = gui.create_button( guiMan, 'kill', Pos2i(125,250), Pos2i(100,50), '' )
+    killButton = gui.create_button( guiMan, 'kill', Pos2i(540,250), Pos2i(60,25), '' )
     killButton.text = 'Exit'
     killButton.OnMouseLeftClick = lambda: getSimContext().killGame()
