@@ -278,9 +278,9 @@ class MazeMod:
         enable_ai()
         self.place_legions_hardCoded()
 #        self.place_legions(pop_on_field_size)
-        self.place_cities(city_on_field_size)
+        #self.place_cities(city_on_field_size)
 #        self.place_avoiders()
-#        self.place_barbarians(barb_on_field_size)
+        self.place_barbarians(barb_on_field_size)
 
     def place_cities(self, number):
 
