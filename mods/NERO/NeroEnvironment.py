@@ -316,7 +316,6 @@ class NeroEnvironment(Environment):
         figure out what the agent should sense
         """
         # we only use the built-in sensors defined in get_agent_info
-        print 'observations:', observations
         return observations
    
     def flag_loc(self):
