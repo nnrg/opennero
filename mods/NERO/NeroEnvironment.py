@@ -177,12 +177,6 @@ class NeroEnvironment(Environment):
         # check if the action is valid
         assert(self.agent_info.actions.validate(action))
         
-        startScript('NERO/menu.py')
-        data = script_server.read_data()
-        while data:
-            parseInput(data.strip())
-            data = script_server.read_data()
-
         state = self.get_state(agent)
 
         #Initilize Agent state
