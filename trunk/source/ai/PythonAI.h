@@ -31,9 +31,6 @@ namespace OpenNero
         /// load this AI object from template
         virtual bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data );
 
-        /// sense the agent's environment
-        virtual Observations Sense();
-
         /// display this AI object as a string
         virtual std::ostream& stream(std::ostream& out) const;
     };

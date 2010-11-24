@@ -1,69 +1,81 @@
 #include "core/Common.h"
+#include "core/IrrSerialize.h"
 #include "ai/sensors/RadarSensor.h"
+#include <iostream>
+#include <algorithm>
 
 namespace OpenNero
 {
+    const double RadarSensor::kDistanceScalar = 1.0/10.0;
+
     //! Create a new RadarSensor
-    //! @param leftbound least relative yaw (degrees) of objects to include
-    //! @param rightbound greatest relative yaw (degrees) of objects to include
-    //! @param bottombound least relative pitch (degrees) of objects to include
-    //! @param topbound greatest relative pitch (degrees) of objects to include
     //! @param radius the radius of the radar sector (how far it extends)
     //! @param types the bitmask which is used to filter objects by type
     RadarSensor::RadarSensor(
-        double leftbound, double rightbound, 
-        double bottombound, double topbound, 
+        double lb, double rb, 
+        double bb, double tb, 
         double radius, U32 types )
         : Sensor(1, types)
-        , leftbound(leftbound)
-        , rightbound(rightbound)
-        , bottombound(bottombound)
-        , topbound(topbound)
+        , leftbound(LockDegreesTo180(lb))
+        , rightbound(LockDegreesTo180(rb))
+        , bottombound(LockDegreesTo180(bb))
+        , topbound(LockDegreesTo180(tb))
         , radius(radius)
     {
-        LOG_F_DEBUG("sensors", "new RadarSensor(" 
-                    << leftbound << ", " 
-                    << rightbound << ", "
-                    << bottombound << ", "
-                    << topbound << ", "
-                    << radius << ")");
     }
     
     RadarSensor::~RadarSensor() {}
 
-    //! Get the region of interest for this sensor
-    BBoxf RadarSensor::getBoundingBox()
-    {
-        // TODO: implement
-        return BBoxf(0,0,0,10,10,10);
-    }
-    
     //! Decide if this sensor is interested in a particular object
-    bool RadarSensor::process(SimEntityPtr ent)
+    bool RadarSensor::process(SimEntityPtr source, SimEntityPtr target)
     {
-        // TODO: implement
+        if (observed)
+        {
+            observed = false;
+            value = 0;
+        }
+        Vector3f sourcePos = source->GetPosition();
+        Vector3f targetPos = target->GetPosition();
+        Vector3f vecToTarget = targetPos - sourcePos;
+        double distToTarget = vecToTarget.getLength();
+        Matrix4 rotation;
+        rotation.setRotationDegrees(source->GetRotation());
+        rotation.rotateVect(vecToTarget);
+        rotation = rotation.buildRotateFromTo(Vector3f(1,0,0), vecToTarget);
+        Vector3f angleToTarget = rotation.getRotationDegrees();
+        double yawToTarget = LockDegreesTo180(angleToTarget.Z);
+        double pitchToTarget = LockDegreesTo180(angleToTarget.Y);
+        if (distToTarget <= radius &&                                       // within radius
+            ((leftbound <= yawToTarget && yawToTarget <= rightbound) ||     // yaw within L-R angle bounds
+             (rightbound < leftbound) && (leftbound <= yawToTarget || yawToTarget <= rightbound)) && // possibly wrapping around
+			(bottombound <= pitchToTarget && pitchToTarget <= topbound) )   // pitch within B-T angle bounds
+        {
+            if (distToTarget > 0) {
+                value += kDistanceScalar * radius / distToTarget;
+            } else {
+                value += 1;
+            }
+        }
         return true;
     }
     
     //! get the minimal possible observation
     double RadarSensor::getMin()
     {
-        // TODO: implement
         return 0;
     }
     
     //! get the maximum possible observation
     double RadarSensor::getMax()
     {
-        // TODO: implement
         return 1;
     }
 
     //! Get the value computed for this sensor given the filtered objects
-    double RadarSensor::getObservation()
+    double RadarSensor::getObservation(SimEntityPtr source)
     {
-        // TODO: implement
-        return 0.5;
+        observed = true;
+        return std::max(0.0, std::min(value,1.0));
     }
     
     void RadarSensor::toXMLParams(std::ostream& out) const
@@ -76,11 +88,10 @@ namespace OpenNero
             << "radius=\"" << radius << "\" ";
     }
 
-    std::ostream& operator<<(std::ostream& out, const RadarSensor& rs)
+    void RadarSensor::toStream(std::ostream& out) const
     {
         out << "<RadarSensor ";
-        rs.toXMLParams(out);
+        toXMLParams(out);
         out << " />";
-        return out;
     }
 }
