@@ -343,6 +343,8 @@ namespace OpenNero
     {
         // update the scripting scheduler
         ScriptingEngine::instance().GetScheduler().ProcessEvents();
+        
+        ScriptingEngine::instance().Tick(dt);
     }
 
     /// update the local simulations

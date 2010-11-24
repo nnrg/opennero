@@ -40,8 +40,6 @@ def wrap_degrees(a, da):
 
 opennero_sub_procs = {}
 
-script_server = ScriptServer()
-
 def startScript(script):
     """
     start the named script unless it is already running
