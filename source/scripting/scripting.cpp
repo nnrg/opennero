@@ -45,6 +45,16 @@ namespace OpenNero
         }
 #endif // NERO_DEBUG
     }
+    
+    void ScriptingEngine::Tick(float32_t dt) {
+        try {
+            if (_globals.has_key("ModTick")) {
+                _globals["ModTick"](dt);
+            }
+        } catch (py::error_already_set const&) {
+            LogError();
+        }
+    }
 
     // the default module name
     const char* ScriptingEngine::kDefaultModuleName = "OpenNero";
@@ -132,7 +142,7 @@ namespace OpenNero
             _main_module = python::import("__main__");
 
             // get the namespace of the main module
-            _globals = _main_module.attr("__dict__");
+            _globals = py::dict(_main_module.attr("__dict__"));
 
             LOG_F_DEBUG("scripting", "loaded __main__ and _globals");
 

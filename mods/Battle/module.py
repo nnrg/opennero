@@ -138,6 +138,7 @@ def getMod():
     return gMod
 
 def parseInput(strn):
+    from Battle.client import toggle_ai_callback
     strn = str(strn)
     mod = getMod()
     loc,val = strn.split(' ')
@@ -147,5 +148,4 @@ def parseInput(strn):
     if loc == "SP": mod.set_speedup(vali)
     if loc == "load1": mod.load_rtneat(1,val)
     if loc == "load2": mod.load_rtneat(2,val)
-def ServerMain():
-    print "Starting mod NERO"
+    if loc == "deploy": toggle_ai_callback()

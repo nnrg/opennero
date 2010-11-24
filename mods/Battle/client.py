@@ -4,18 +4,19 @@ from common import *
 import common.gui as gui
 from inputConfig import *
 
+ai_state = None
+
 def toggle_ai_callback():
-    global toggleAiButton
+    global ai_state
     toggle_ai()
-    if toggleAiButton.text == 'Begin Battle':
-     from Battle.module import parseInput
-     data = script_server.read_data()
-     while data:
-         parseInput(data.strip())
-         data = script_server.read_data()
-     getMod().start_rtneat()
-     reset_ai()
-     toggleAiButton.text = 'Toggle AI'
+    if not ai_state:
+        getMod().start_rtneat()
+        reset_ai()
+        ai_state = 'Started'
+    elif ai_state == 'Started':
+        ai_state = 'Paused'
+    elif ai_state == 'Paused':
+        ai_state = 'Started'
 
 def save_ai_call():
     getMod().save_rtneat()
