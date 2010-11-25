@@ -38,6 +38,9 @@ class AgentState:
         self.animation = 'stand'
         self.prev_collected = 0
         self.p_coin_collect = {}
+        self.defense_steps = 0
+        self.offense_steps = 0
+        self.flag_sum = 0
 
 class BlocksEnvironment(Environment):
     """
@@ -141,6 +144,9 @@ class BlocksEnvironment(Environment):
         state.final_fitness = 0
         state.animation = 'stand'
         state.prev_collected = 0
+        state.defense_steps = 0
+        state.offense_steps = 0
+        state.flag_sum = 0
         #update client fitness
         from client import set_stat
         ff = self.getFriendFoe(agent)
@@ -243,6 +249,17 @@ class BlocksEnvironment(Environment):
             data = script_server.read_data()
 
         state = self.get_state(agent)
+        
+        #Assign Offensive/Defensive Points for this step
+        if agent.get_team() == 1:
+            if agent.state.position.x < XDIM/2.0: state.defense_steps += 1
+            else:                                 state.offense_steps += 1
+        
+        if agent.get_team() == 2:
+            if agent.state.position.x > XDIM/2.0: state.defense_steps += 1
+            else:                                 state.offense_steps += 1
+
+        state.flag_sum += len(getMod().coins[agent.get_team()])
 
         CAP_RATIO = getMod().capture[agent.get_team()]
 
@@ -399,6 +416,9 @@ class BlocksEnvironment(Environment):
                 getMod().coin_nears[agent.get_team() -1][coin] -= 1
                 getMod().coin_nears_ids[agent.get_team() -1][coin].remove(state.id)
              if getMod().coin_nears[agent.get_team() -1][coin] < 0: getMod().coin_nears[agent.get_team()-1][coin] = 0
+        
+            print "Team ", agent.get_team(), ": ", float(state.offense_steps) / float(state.defense_steps)
+            print "Team ", agent.get_team() + 2, ": ", float(state.flag_sum) / float(getMod().lt)
             return len(self.coin_teams()[agent.get_team()]) * getMod().fitness[agent.get_team()]
 
         return x
@@ -516,6 +536,7 @@ class BlocksEnvironment(Environment):
  
           if fh > 360:
              fh -= 360
+          
       
           for val in tv:
              if ((fh - val) > 0) and ((fh - val) <= (tv == delta)) and (tv[val][0] == 0 or tv[val][0] > fd):
