@@ -144,9 +144,14 @@ class BlocksworldModule:
         global rtneat, rtneat2
         location = os.path.relpath("/") + location
         if os.path.exists(location):
-            if pop == 1: rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)
-            if pop == 2: rtneat2= RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)
-    
+            if pop == 1: 
+                rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)    
+                set_ai("neat1",rtneat)
+            if pop == 2:
+                rtneat2= RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)
+                set_ai("neat2",rtneat2)
+        
+
     def set_speedup(self, speedup):
         self.speedup = speedup
         if self.environment:
