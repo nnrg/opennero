@@ -526,21 +526,21 @@ class MazeEnvironment(Environment):
     # returns which direction the agent is relative to self
     def inAngle(self, r, c, agent_r, agent_c ):
         angle = self.getAngle( r, c, agent_r, agent_c )
-        if 337.5 >= angle and 292.5 < angle:
+        if 337.5 >= angle and 292.5 < angle: # NW
             return 0
-        if 22.5 >= angle or 337.5 < angle:
+        if  22.5 >= angle or  337.5 < angle: # N
             return 1
-        if 67.5 >= angle and 22.5 < angle:
+        if  67.5 >= angle and  22.5 < angle: # NE
             return 2
-        if 112.5 >= angle and 67.5 < angle:
+        if 112.5 >= angle and  67.5 < angle: # E
             return 3
-        if 157.5 >= angle and 112.5 < angle:
+        if 157.5 >= angle and 112.5 < angle: # SE
             return 4
-        if 202.5 >= angle and 157.5 < angle:
+        if 202.5 >= angle and 157.5 < angle: # S
             return 5
-        if 247.5 >= angle and 202.5 < angle:
+        if 247.5 >= angle and 202.5 < angle: # SW
             return 6
-        if 292.5 >= angle and 247.5 < angle:
+        if 292.5 >= angle and 247.5 < angle: # W
             return 7
 
     # return 0-259
@@ -555,6 +555,14 @@ class MazeEnvironment(Environment):
             return 360 + angle
         return angle
 
+    def normalize(self, arr):
+        max = 0
+        for x in arr:
+            if x > max:
+                max = x
+        for i in range(len(arr)):
+            arr[i] /= max
+
     def sense(self, agent):
         """
         Discrete version
@@ -564,7 +572,6 @@ class MazeEnvironment(Environment):
         v = self.agent_info.sensors.get_instance()
         r = state.rc[0]
         c = state.rc[1]
-
 
         # sharing sensors #
 
@@ -604,10 +611,11 @@ class MazeEnvironment(Environment):
 #        radar [9-16]s
         #loop through all
 
-        directions = [[]]*8
+        directions = [[],[],[],[],[],[],[],[]]
         for agent_id in mod.agent_map.values():
-            if agent_id != agent.state.id:
-                agent_r, agent_c = self.get_state(agent_id).rc
+            agent_state = self.get_state(agent_id)
+            if agent_id != agent.state.id and agent_state.rc != (r,c):
+                agent_r, agent_c = agent_state.rc
                 dir_i = self.inAngle( r, c, agent_r, agent_c )
                 directions[dir_i].append((agent_r,agent_c))
 
@@ -617,9 +625,10 @@ class MazeEnvironment(Environment):
                 dist = sqrt(pow(r-point[0],2)+pow(c-point[1],2))
                 distances[i] += float(1)/dist
 
+        self.normalize(distances)
+
         for i in range(len(distances)):
             v[i+9] = distances[i]
-
 
 
 #        if state.agentType == 0:
