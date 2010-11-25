@@ -245,7 +245,7 @@ class MazeMod:
         # Create an rtNEAT object appropriate for the environment
         pop_size = 50
         pop_on_field_size = 10
-        barb_on_field_size = 1
+        barb_on_field_size = 3
         city_on_field_size = 3
 
         # Establish the number of inputs and outputs
@@ -276,8 +276,8 @@ class MazeMod:
         rtneat = RTNEAT("data/ai/neat-params.dat", n_inputs, n_outputs, pop_size, 1.0)
         set_ai("neat",rtneat)
         enable_ai()
-        self.place_legions_hardCoded()
-#        self.place_legions(pop_on_field_size)
+#        self.place_legions_hardCoded()
+        self.place_legions(pop_on_field_size)
         #self.place_cities(city_on_field_size)
 #        self.place_avoiders()
         self.place_barbarians(barb_on_field_size)
@@ -337,6 +337,7 @@ class MazeMod:
         c = posDict[key][1]
         dy = c * GRID_DY
         city = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
+        self.agent_map[(0,key)] = city
 
         state = self.environment.get_state(city)
         state.rc = (r,c)
@@ -379,9 +380,9 @@ class MazeMod:
         #pick random cells, test if valid, repeat if not
         while(placed == False):
 
-          r = 4 #randint(1,ROWS)
+          r = randint(1,ROWS)
           dx = r * GRID_DX
-          c =  8 #randint(1,COLS)
+          c =  randint(1,COLS)
           dy = c * GRID_DY
           #is the cell occupied by a barbarian/legion?
           if self.environment.cell_occupied(r,c,0) == 0 and self.environment.cell_occupied(r,c,1) == 0:

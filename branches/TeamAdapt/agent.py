@@ -505,13 +505,13 @@ class BarbarianAgent(AgentBrain):
           s_end = (len(sensors)-1)/2
           adjacent_sensors = sensors[1:s_end]
 
-          #### UNCOMMENT WHEN WE GET RADAR SET UP ###
-          #s_start = (len(sensors)-1)/2 + 1
-          #radar_sensors = sensors[s_start:]
+          radar_sensors = sensors[9:]
 
           directions = [0]*8 # addition of all sensors pointing in the same dir.
           for i in range(len(adjacent_sensors)):
-              directions[i] = adjacent_sensors[i]# + radar_sensors[i]
+              directions[i] = adjacent_sensors[i] + radar_sensors[i]
+
+          print("directions: " + str(directions))
 
           maxes = [] # list indexes of greatest directions
           greater = False
