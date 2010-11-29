@@ -52,7 +52,9 @@ class AgentState:
         self.action_history = deque([ [x] for x in range(HISTORY_LENGTH)])
         self.reward_history = deque([ 0 for x in range(HISTORY_LENGTH)])
         self.agentType = 0
-        
+
+
+
     def reset(self):
         self.rc = (0,0)
         self.prev_rc = (0,0)
@@ -100,7 +102,7 @@ class AgentState:
         return r0
 
 class MazeEnvironment(Environment):
-    MOVES = [(-1,-1), (0,-1), (1,-1), (1,0), (1,1), (0,1), (-1,1), (0,-1)]
+    MOVES = [(-1,1), (0,1), (1,1), (1,0), (1,-1), (0,-1), (-1,-1), (-1,0)]
 
     """
     The environment is a 2-D maze.
@@ -148,13 +150,14 @@ class MazeEnvironment(Environment):
         observation_info = FeatureVectorInfo()
         reward_info = FeatureVectorInfo()
         action_info.add_discrete(0, len(MazeEnvironment.MOVES)) # select from the moves we can make
-
+        action_info.add_discrete(0, len(MazeEnvironment.MOVES)) # select from the moves we can make
 #        #FOR AVOIDER GAME
 #        observation_info.add_continuous(0,1)
 #        observation_info.add_continuous(0,1)
 #
+
+
         #legions
-        
         #local [0]
         observation_info.add_discrete(0,1)
         #adjacent [1-8]
@@ -177,72 +180,49 @@ class MazeEnvironment(Environment):
         observation_info.add_discrete(0,1)
         observation_info.add_discrete(0,1)
 
-#        #legions
-#        #local [0]
-#        observation_info.add_discrete(0,1)
-#        #adjacent [1-8]
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#
-#        #radar [9-16]
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#
-#        #warbands
-#        #local [17]
-#        observation_info.add_discrete(0,1)
-#        #adjacent [18-25]
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        #radar [26-33]
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#
-#        #cities
-#        #local [34]
-#        observation_info.add_discrete(0,1)
-#        #adjacent [35-42]
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        #radar [43-50]
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
-#        observation_info.add_discrete(0,1)
+        #warbands
+        #local [17]
+        observation_info.add_discrete(0,1)
+        #adjacent [18-25]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        #radar [26-33]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+
+        #cities
+        #local [34]
+        observation_info.add_discrete(0,1)
+        #adjacent [35-42]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        #radar [43-50]
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
+        observation_info.add_discrete(0,1)
 
         '''
          OUTPUTS
@@ -272,6 +252,27 @@ class MazeEnvironment(Environment):
         
     def get_delay(self):
         return self.step_delay * (1.0 - self.speedup)
+
+
+    def place_agent(self, id):
+
+        placed = False
+        #pick random cells, test if valid, repeat if not
+        while(placed == False):
+
+          r = randint(1,ROWS-1)
+          dx = r * GRID_DX
+          c = randint(1,COLS-1)
+          dy = c * GRID_DY
+
+          #is the cell occupied by a barbarian/legion?
+          print "placing legion"
+          if self.environment.cell_occupied(r,c,0) == 0 and self.environment.cell_occupied(r,c,1) == 0:
+            state = self.environment.get_state(id)
+            state.rc = (r,c)
+            placed = True
+            print "done creating legion"
+
 
     def get_state(self, agent):
         if agent in self.states:
@@ -328,6 +329,8 @@ class MazeEnvironment(Environment):
 
     def remove_object(self, id):
       getSimContext().removeObject(id)
+      del self.states[id]
+      self.lastAgent = max(self.states.keys())
       
     def get_other_rc(self,id):
       for key in self.states.iterkeys():
@@ -381,22 +384,24 @@ class MazeEnvironment(Environment):
     
     def get_round_fitness(self,agent):
 
-      #if we are barbarian, quit
+      #if we are barbarian, dont calculate
       if self.states[agent.state.id].agentType == 1:
-        return 0
+        fitness = 1
+      else:
+        '''
+        FITNESS
 
-      '''
-      FITNESS
+        worst case: rounds x (100xcities + 1x(totalBarbs-cities))
+        fitness = 1 - % of worst case
 
-      worst case: rounds x (100xcities + 1x(totalBarbs-cities))
-      fitness = 1 - % of worst case
+        25% worst case = .75 etc...
 
-      25% worst case = .75 etc...
-      
-      '''
-      barbs = STARTING_BARBS # + get_num_barbarians
-      cities = STARTING_CITIES
-      worstCase = STEPS_IN_ROUND * (100)
+        '''
+        barbs = STARTING_BARBS  + get_num_barbarians()
+        cities = STARTING_CITIES
+        worstCase = STEPS_IN_ROUND * (100*cities + 1*(barbs-cities))
+        fitness = 1 - (float(self.points)/worstCase)
+
 
       #if we are the last agent, end round
       if agent.state.id == self.lastAgent:
@@ -415,11 +420,26 @@ class MazeEnvironment(Environment):
             remove_object(key)
 
         #place legions
-        self.place_barbarians(STARTING_BARBS)
+        for key in self.states.iterkeys():
+          if states[key].agentType == 0:
+            self.place_agent(key)
+#
+#        #create barbs
+#        self.place_barbarians(STARTING_BARBS)
 
-        #reset counter
-        stepsDone = 0
-      return 1
+        #reset counters
+        self.stepsDone = 0
+        self.points = 0
+        self.lastAgent = max(self.states.keys())
+        print "lastAgent = " + str(self.lastAgent)
+        print str(self.states)
+
+
+      return fitness
+
+    def get_num_barbarians():
+      return len(self.states) - STARTING_LEGIONS
+
 
     def get_agent_info(self, agent):
         return self.agent_info
@@ -477,8 +497,6 @@ class MazeEnvironment(Environment):
 
         a = int(round(action[0]))
 
-        a = 1
-
 #        #TODO: remove test
 #        for i in range(1,8):
 #          if agent.step == i:
@@ -497,16 +515,32 @@ class MazeEnvironment(Environment):
         print "agent moving:" + str(MazeEnvironment.MOVES[a])
         new_r, new_c = r + dr, c + dc
 
-        
+        if state.agentType == 1:
+          if not self.maze.rc_bounds(new_r, new_c):
+          #choose second best action
+            a = int(round(action[1]))
+            state.prev_rc = state.rc
+
+            if a == len(MazeEnvironment.MOVES): # null action
+
+                #return
+                self.end_step(agent)
+                return 0
+
+            (dr,dc) = MazeEnvironment.MOVES[a]
+            print "agent action:" + str(a)
+            print "agent moving:" + str(MazeEnvironment.MOVES[a])
+            new_r, new_c = r + dr, c + dc
 
         #reasons not to actually move
         #out of bounds
         if not self.maze.rc_bounds(new_r, new_c):
-            print "out of bounds"
-            #return
-            self.end_step(agent)
-            return 0
-            #return state.record_reward(self.rewards.out_of_bounds(state))
+          print "out of bounds"
+
+          #return
+          self.end_step(agent)
+          return 0
+          #return state.record_reward(self.rewards.out_of_bounds(state))
 
         #if we are legion
         if state.agentType == 0:
@@ -537,6 +571,7 @@ class MazeEnvironment(Environment):
 
         #if we are barb
         elif state.agentType == 1:
+          print "IM A BARBARIAN"
           #and there's any agent in the destination cell
           legion =  self.get_object_in_cell(new_r, new_c, 0)
           barb =  self.get_object_in_cell(new_r, new_c, 1)
@@ -549,9 +584,9 @@ class MazeEnvironment(Environment):
 
         #if there is a city in our destination
         if self.cell_occupied(new_r, new_c, 2):
-          points = 100
+          self.points += 100
         else:
-          points = 1
+          self.points += 1
 #        elif self.maze.is_wall(r,c,dr,dc):
 #            print "hitting wall"
 #            return state.record_reward(self.rewards.hit_wall(state))
@@ -568,9 +603,7 @@ class MazeEnvironment(Environment):
         agent.state.position = pos0
         relative_rotation = self.get_next_rotation((dr,dc))
         agent.state.rotation = state.initial_rotation + relative_rotation
-        self.points += points
-
-        
+    
 
         #if this is the final step in the round, assign fitness
         
@@ -680,12 +713,10 @@ class MazeEnvironment(Environment):
         return angle
 
     def normalize(self, arr):
-        max = 0
-        for x in arr:
-            if x > max:
-                max = x
-        for i in range(len(arr)):
-            arr[i] /= max
+        m = max(arr)
+        if m != 0:
+          for i in range(len(arr)):
+            arr[i] /= m
 
     def sense(self, agent):
         """
@@ -719,46 +750,122 @@ class MazeEnvironment(Environment):
 #        v[1] = disOther
 
 
-        #legions
-
-        #local [0]
-        v[0] = self.cell_occupied(r,c,0)
-        #adjacent [1-8]
-        v[1] = self.cell_occupied(r-1,c-1,0)
-        v[2] = self.cell_occupied(r,c-1,0)
-        v[3] = self.cell_occupied(r+1,c-1,0)
-        v[4] = self.cell_occupied(r+1,c,0)
-        v[5] = self.cell_occupied(r+1,c+1,0)
-        v[6] = self.cell_occupied(r,c+1,0)
-        v[7] = self.cell_occupied(r-1,c+1,0)
-        v[8] = self.cell_occupied(r-1,c,0)
-#        radar [9-16]s
-        #loop through all
-
-        directions = [[],[],[],[],[],[],[],[]]
-        for agent_id in mod.agent_map.values():
-            agent_state = self.get_state(agent_id)
-            if agent_id != agent.state.id and agent_state.rc != (r,c):
-                agent_r, agent_c = agent_state.rc
-                dir_i = self.inAngle( r, c, agent_r, agent_c )
-                directions[dir_i].append((agent_r,agent_c))
-
-        distances = [0]*8
-        for i in range(len(directions)):
-            for point in directions[i]:
-                dist = sqrt(pow(r-point[0],2)+pow(c-point[1],2))
-                distances[i] += float(1)/dist
-
-        self.normalize(distances)
-
-        for i in range(len(distances)):
-            v[i+9] = distances[i]
 
 
-#        if state.agentType == 0:
-#            #legions
-#            #local [0]
-#            v[0] = self.cell_occupied(r,c,0)
+
+        if state.agentType == 0:
+            #legions
+
+            #local [0]
+            v[0] = self.cell_occupied(r,c,0)
+            #adjacent [1-8]
+            v[1] = self.cell_occupied(r-1,c-1,0)
+            v[2] = self.cell_occupied(r,c-1,0)
+            v[3] = self.cell_occupied(r+1,c-1,0)
+            v[4] = self.cell_occupied(r+1,c,0)
+            v[5] = self.cell_occupied(r+1,c+1,0)
+            v[6] = self.cell_occupied(r,c+1,0)
+            v[7] = self.cell_occupied(r-1,c+1,0)
+            v[8] = self.cell_occupied(r-1,c,0)
+    #        radar [9-16]s
+            #loop through all
+
+            directions = [[],[],[],[],[],[],[],[]]
+            for agent_id in mod.agent_map.values():
+                agent_state = self.get_state(agent_id)
+                if agent_id != agent.state.id and agent_state.rc != (r,c) and agent_state.agentType == 0:
+                    agent_r, agent_c = agent_state.rc
+                    dir_i = self.inAngle( r, c, agent_r, agent_c )
+                    directions[dir_i].append((agent_r,agent_c))
+
+            distances = [0]*8
+            for i in range(len(directions)):
+                for point in directions[i]:
+                    dist = sqrt(pow(r-point[0],2)+pow(c-point[1],2))
+                    distances[i] += float(1)/dist
+
+            self.normalize(distances)
+
+            for i in range(len(distances)):
+                v[i+9] = distances[i]
+
+                #barbs
+            n = 17
+            #local [0]
+            v[n+0] = self.cell_occupied(r,c,1)
+            #adjacent [1-8]
+            v[n+1] = self.cell_occupied(r-1,c-1,1)
+            v[n+2] = self.cell_occupied(r,c-1,1)
+            v[n+3] = self.cell_occupied(r+1,c-1,1)
+            v[n+4] = self.cell_occupied(r+1,c,1)
+            v[n+5] = self.cell_occupied(r+1,c+1,1)
+            v[n+6] = self.cell_occupied(r,c+1,1)
+            v[n+7] = self.cell_occupied(r-1,c+1,1)
+            v[n+8] = self.cell_occupied(r-1,c,1)
+    #        radar [9-16]s
+            #loop through all
+
+            directions = [[],[],[],[],[],[],[],[]]
+            for agent_id in mod.agent_map.values():
+                agent_state = self.get_state(agent_id)
+                if agent_id != agent.state.id and agent_state.rc != (r,c) and agent_state.agentType == 1:
+                    agent_r, agent_c = agent_state.rc
+                    dir_i = self.inAngle( r, c, agent_r, agent_c )
+                    directions[dir_i].append((agent_r,agent_c))
+
+            distances = [0]*8
+            for i in range(len(directions)):
+                for point in directions[i]:
+                    dist = sqrt(pow(r-point[0],2)+pow(c-point[1],2))
+                    distances[i] += float(1)/dist
+
+            self.normalize(distances)
+
+            for i in range(len(distances)):
+                v[i+n+9] = distances[i]
+
+                #cities
+            n=34
+            #local [0]
+            v[n+0] = self.cell_occupied(r,c,2)
+            #adjacent [1-8]
+            v[n+1] = self.cell_occupied(r-1,c-1,2)
+            v[n+2] = self.cell_occupied(r,c-1,2)
+            v[n+3] = self.cell_occupied(r+1,c-1,2)
+            v[n+4] = self.cell_occupied(r+1,c,2)
+            v[n+5] = self.cell_occupied(r+1,c+1,2)
+            v[n+6] = self.cell_occupied(r,c+1,2)
+            v[n+7] = self.cell_occupied(r-1,c+1,2)
+            v[n+8] = self.cell_occupied(r-1,c,2)
+    #        radar [9-16]s
+            #loop through all
+
+            directions = [[],[],[],[],[],[],[],[]]
+            for agent_id in self.objects.iterkeys():
+                agent_state = self.get_object_state(agent_id)
+                if agent_id != agent.state.id and agent_state.rc != (r,c) and agent_state.agentType == 2:
+                    agent_r, agent_c = agent_state.rc
+                    dir_i = self.inAngle( r, c, agent_r, agent_c )
+                    directions[dir_i].append((agent_r,agent_c))
+
+            distances = [0]*8
+            for i in range(len(directions)):
+                for point in directions[i]:
+                    dist = sqrt(pow(r-point[0],2)+pow(c-point[1],2))
+                    distances[i] += float(1)/dist
+
+            self.normalize(distances)
+
+            for i in range(len(distances)):
+                v[i+n+9] = distances[i]
+
+
+
+        elif state.agentType == 1:
+          #legions
+
+            #local [0]
+            v[0] = self.cell_occupied(r,c,0)
 #            #adjacent [1-8]
 #            v[1] = self.cell_occupied(r-1,c-1,0)
 #            v[2] = self.cell_occupied(r,c-1,0)
@@ -768,35 +875,99 @@ class MazeEnvironment(Environment):
 #            v[6] = self.cell_occupied(r,c+1,0)
 #            v[7] = self.cell_occupied(r-1,c+1,0)
 #            v[8] = self.cell_occupied(r-1,c,0)
-#            #radar [9-16]
-#        elif state.agentType == 1:
-#            #warbands
-#            #local [17]
-#            v[0] = 1#self.cell_occupied(r,c,0)
-#            #adjacent [18-25]
-#            v[1] = self.cell_occupied(r-1,c-1,0)
-#            v[2] = self.cell_occupied(r,c-1,0)
-#            v[3] = self.cell_occupied(r+1,c-1,0)
-#            v[4] = self.cell_occupied(r+1,c,0)
-#            v[5] = self.cell_occupied(r+1,c+1,0)
-#            v[6] = self.cell_occupied(r,c+1,0)
-#            v[7] = self.cell_occupied(r-1,c+1,0)
-#            v[8] = self.cell_occupied(r-1,c,0)
-#            #radar [26-33]
-#        elif state.agentType == 2:
-#            #cities
-#            #local [34]
-#            v[34] = self.cell_occupied(r,c,0)
-#            #adjacent [35-42]
-#            v[35] = self.cell_occupied(r-1,c-1,0)
-#            v[36] = self.cell_occupied(r,c-1,0)
-#            v[37] = self.cell_occupied(r+1,c-1,0)
-#            v[38] = self.cell_occupied(r+1,c,0)
-#            v[39] = self.cell_occupied(r+1,c+1,0)
-#            v[40] = self.cell_occupied(r,c+1,0)
-#            v[41] = self.cell_occupied(r-1,c+1,0)
-#            v[42] = self.cell_occupied(r-1,c,0)
-#            #radar [43-50]
+    #        radar [9-16]s
+            #loop through all
+
+            directions = [[],[],[],[],[],[],[],[]]
+            for agent_id in mod.agent_map.values():
+                agent_state = self.get_state(agent_id)
+                if agent_id != agent.state.id and agent_state.rc != (r,c) and agent_state.agentType == 0:
+                    agent_r, agent_c = agent_state.rc
+                    dir_i = self.inAngle( r, c, agent_r, agent_c )
+                    directions[dir_i].append((agent_r,agent_c))
+
+            distances = [0]*8
+            for i in range(len(directions)):
+                for point in directions[i]:
+                    dist = sqrt(pow(r-point[0],2)+pow(c-point[1],2))
+                    distances[i] += float(1)/dist
+
+            self.normalize(distances)
+
+            for i in range(len(distances)):
+                v[i+9] = distances[i]
+
+                #barbs
+            n = 17
+            #local [0]
+            v[n+0] = self.cell_occupied(r,c,1)
+            #adjacent [1-8]
+#            v[n+1] = self.cell_occupied(r-1,c-1,1)
+#            v[n+2] = self.cell_occupied(r,c-1,1)
+#            v[n+3] = self.cell_occupied(r+1,c-1,1)
+#            v[n+4] = self.cell_occupied(r+1,c,1)
+#            v[n+5] = self.cell_occupied(r+1,c+1,1)
+#            v[n+6] = self.cell_occupied(r,c+1,1)
+#            v[n+7] = self.cell_occupied(r-1,c+1,1)
+#            v[n+8] = self.cell_occupied(r-1,c,1)
+    #        radar [9-16]s
+            #loop through all
+
+            directions = [[],[],[],[],[],[],[],[]]
+            for agent_id in mod.agent_map.values():
+                agent_state = self.get_state(agent_id)
+                if agent_id != agent.state.id and agent_state.rc != (r,c) and agent_state.agentType == 1:
+                    agent_r, agent_c = agent_state.rc
+                    dir_i = self.inAngle( r, c, agent_r, agent_c )
+                    directions[dir_i].append((agent_r,agent_c))
+
+            distances = [0]*8
+            for i in range(len(directions)):
+                for point in directions[i]:
+                    dist = sqrt(pow(r-point[0],2)+pow(c-point[1],2))
+                    distances[i] += float(1)/dist
+
+            self.normalize(distances)
+
+            for i in range(len(distances)):
+                v[i+n+9] = distances[i]
+
+                #cities
+            n=34
+            #local [0]
+            v[n+0] = self.cell_occupied(r,c,2)
+            #adjacent [1-8]
+#            v[n+1] = self.cell_occupied(r-1,c-1,2)
+#            v[n+2] = self.cell_occupied(r,c-1,2)
+#            v[n+3] = self.cell_occupied(r+1,c-1,2)
+#            v[n+4] = self.cell_occupied(r+1,c,2)
+#            v[n+5] = self.cell_occupied(r+1,c+1,2)
+#            v[n+6] = self.cell_occupied(r,c+1,2)
+#            v[n+7] = self.cell_occupied(r-1,c+1,2)
+#            v[n+8] = self.cell_occupied(r-1,c,2)
+    #        radar [43-50]s
+            #loop through all
+
+            directions = [[],[],[],[],[],[],[],[]]
+            for agent_id in self.objects.iterkeys():
+                agent_state = self.get_object_state(agent_id)
+                if agent_id != agent.state.id and agent_state.rc != (r,c) and agent_state.agentType == 2:
+                    agent_r, agent_c = agent_state.rc
+                    dir_i = self.inAngle( r, c, agent_r, agent_c )
+                    directions[dir_i].append((agent_r,agent_c))
+
+            distances = [0]*8
+            for i in range(len(directions)):
+                for point in directions[i]:
+                    dist = sqrt(pow(r-point[0],2)+pow(c-point[1],2))
+                    distances[i] += float(1)/dist
+
+            self.normalize(distances)
+
+            for i in range(len(distances)):
+                v[i+n+9] = distances[i]
+
+
 
 #        offset = GRID_DX/10.0
 #        p0 = agent.state.position
