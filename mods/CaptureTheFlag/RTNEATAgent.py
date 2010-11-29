@@ -39,6 +39,7 @@ class RTNEATAgent(AgentBrain):
         """
         start of an episode
         """
+        print "in RTNEATAGENT start"
         from CaptureTheFlag.module import getMod
         EXPLOIT_PROB = getMod().ee
         rtneat = get_ai("neat%d" % self.team)
@@ -64,6 +65,7 @@ class RTNEATAgent(AgentBrain):
         """
         end of an episode
         """
+        print "in RTNEATAGENT end"
         if FITNESS_OUT:
             self.file_out.append(str(gettime()))
             self.file_out.append(",")
