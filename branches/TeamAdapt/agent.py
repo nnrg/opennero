@@ -497,44 +497,81 @@ class BarbarianAgent(AgentBrain):
     def network_action(self, sensors):
 
         actions = self.actions.get_instance()
-        
-        if sensors[0] == 1:
-            actions[0] = 8 # stay...die?
-        elif 1 not in sensors:
-            actions[0] = 8 # stay
+
+        #if we are in a city, don't move
+        if sensors[34] == 1:
+          print "barbarian is in city"
+          actions[0] = 8 # stay...die?
+
+#        elif 1 not in sensors:
+#            actions[0] = 8 # stay
+
         else:
-          s_end = (len(sensors)-1)/2
-          adjacent_sensors = sensors[1:s_end]
+#          s_end = (len(sensors)-1)/2
+#          adjacent_sensors = sensors[1:s_end]
+          legion_sensors = sensors[9:17]
+          city_sensors = sensors[43:51]
 
-          radar_sensors = sensors[9:]
-
+          
           directions = [0]*8 # addition of all sensors pointing in the same dir.
-          for i in range(len(adjacent_sensors)):
-              directions[i] = adjacent_sensors[i] + radar_sensors[i]
+          for i in range(len(directions)):
+              directions[i] = city_sensors[i] - 0.9 * legion_sensors[i]
 
           print("directions: " + str(directions))
 
-          maxes = [] # list indexes of greatest directions
-          greater = False
-          equal = False
-          for i in range(len(directions)):
-              if len(maxes) == 0:
-                maxes.append(i)
-              else:
-                for m in maxes:
-                    if directions[i] > directions[m]:
-                        greater = True
-                        break
-                    elif directions[i] == directions[m]:
-                        equal = True
-                        break
-                if greater:
-                  maxes = [i]
-                  greater = False
-                elif equal:
-                  maxes.append(i)
-                  equal = False
-          actions[0] = random.choice(maxes)
+
+
+#          maxes = [] # list indexes of greatest directions
+#          greater = False
+#          equal = False
+#          for i in range(len(directions)):
+#              if len(maxes) == 0:
+#                maxes.append(i)
+#              else:
+#                for m in maxes:
+#                    if directions[i] > directions[m]:
+#                        greater = True
+#                        break
+#                    elif directions[i] == directions[m]:
+#                        equal = True
+#                        break
+#                if greater:
+#                  maxes = [i]
+#                  greater = False
+#                elif equal:
+#                  maxes.append(i)
+#                  equal = False
+#          actions[0] = random.choice(maxes)
+#          if len(maxes) > 1:
+#           actions[1] = random.choice(maxes[1:])
+#
+#           #if we happened to make the same choice
+#           while actions[1] == actions[0]:
+#             actions[1] = random.choice(maxes[1:])
+#
+#          #sort the array and pick the second highest value
+#          else:
+#            sorted(directions)
+#            actions[1] = directions[1]
+
+#          sorted(directions)
+#          directions.reverse()
+
+          best = -1
+          index1 = 0
+          index2 = 0
+
+          for i in range(7):
+            if directions[i] > best:
+              best = directions[i]
+              index2 = index1
+              index1 = i
+          print "top direction: " + str(index1)
+
+        #map to actions
+          actions[0] = index1
+          actions[1] = index2
+
 
         print str(actions)
         # assert(self.actions.validate(actions))

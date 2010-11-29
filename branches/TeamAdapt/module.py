@@ -245,7 +245,6 @@ class MazeMod:
         # Create an rtNEAT object appropriate for the environment
         pop_size = 50
         pop_on_field_size = 10
-        barb_on_field_size = 3
         city_on_field_size = 3
 
         # Establish the number of inputs and outputs
@@ -277,8 +276,8 @@ class MazeMod:
         set_ai("neat",rtneat)
         enable_ai()
         self.place_barbarians_hardCoded()
-        self.place_legions_hardCoded()
-#        self.place_barbarians_hardCoded()
+#        self.place_legions_hardCoded()
+#        self.place_barbarians(STARTING_BARBS)
 #        self.place_legions(pop_on_field_size)
         self.place_cities(city_on_field_size)
 #        self.place_avoiders()
@@ -330,6 +329,8 @@ class MazeMod:
       #NOT randomly placed
       posDict = {}
       posDict[1] = (4,5)
+      posDict[0] = (3,0)
+      posDict[2] = (4,0)
 
       for key in posDict.iterkeys():
 
@@ -343,26 +344,29 @@ class MazeMod:
         state = self.environment.get_state(city)
         state.rc = (r,c)
         state.agentType = 0
-        self.environment.set_position(city,r,c)
+#        self.environment.set_position(city,r,c)
+        self.environment.lastAgent = city
         print str(self.environment.states[city].rc)
         print "done creating legion"
 
     def place_barbarians_hardCoded(self):
       posDict = {}
-      posDict[1] = (4,7)
-      posDict[0] = (4,1)
+      posDict[1] = (2,4)
+      posDict[0] = (3,5)
+      posDict[2] = (1,1)
 
       for key in posDict.iterkeys():
 
         r = posDict[key][0]
-        dx = r * GRID_DX
+        dx = (r) * GRID_DX
         c = posDict[key][1]
-        dy = c * GRID_DY
+        dy = (c) * GRID_DY
         city = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
 
         state = self.environment.get_state(city)
         state.rc = (r,c)
         state.agentType = 1
+        self.environment.lastAgent = city
         self.environment.set_position(city,r,c)
         print str(self.environment.states[city].rc)
         print "done creating barb"
@@ -410,7 +414,7 @@ class MazeMod:
           if self.environment.cell_occupied(r,c,0) == 0 and self.environment.cell_occupied(r,c,1) == 0:
             self.agent_map[(1,i)] = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
             state = self.environment.get_state(self.agent_map[(1,i)])
-            state.rc = (r,c)
+            state.rc = (r-1,c-1)
             state.agentType = 1
             self.environment.lastAgent = self.agent_map[(1,i)]
             print str(self.environment.states[self.agent_map[(1,i)]].rc)
