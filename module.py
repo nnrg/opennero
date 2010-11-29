@@ -276,11 +276,13 @@ class MazeMod:
         rtneat = RTNEAT("data/ai/neat-params.dat", n_inputs, n_outputs, pop_size, 1.0)
         set_ai("neat",rtneat)
         enable_ai()
-#        self.place_legions_hardCoded()
-        self.place_legions(pop_on_field_size)
-        #self.place_cities(city_on_field_size)
+        self.place_barbarians_hardCoded()
+        self.place_legions_hardCoded()
+#        self.place_barbarians_hardCoded()
+#        self.place_legions(pop_on_field_size)
+        self.place_cities(city_on_field_size)
 #        self.place_avoiders()
-        self.place_barbarians(barb_on_field_size)
+        
 
     def place_cities(self, number):
 
@@ -327,8 +329,7 @@ class MazeMod:
 
       #NOT randomly placed
       posDict = {}
-      posDict[0] = (4,1)
-      posDict[1] = (4,7)
+      posDict[1] = (4,5)
 
       for key in posDict.iterkeys():
 
@@ -342,8 +343,29 @@ class MazeMod:
         state = self.environment.get_state(city)
         state.rc = (r,c)
         state.agentType = 0
+        self.environment.set_position(city,r,c)
         print str(self.environment.states[city].rc)
         print "done creating legion"
+
+    def place_barbarians_hardCoded(self):
+      posDict = {}
+      posDict[1] = (4,7)
+      posDict[0] = (4,1)
+
+      for key in posDict.iterkeys():
+
+        r = posDict[key][0]
+        dx = r * GRID_DX
+        c = posDict[key][1]
+        dy = c * GRID_DY
+        city = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
+
+        state = self.environment.get_state(city)
+        state.rc = (r,c)
+        state.agentType = 1
+        self.environment.set_position(city,r,c)
+        print str(self.environment.states[city].rc)
+        print "done creating barb"
 
     def place_legions(self, number):
 

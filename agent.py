@@ -481,6 +481,7 @@ class BarbarianAgent(AgentBrain):
         """
         end of an episode
         """
+        
         self.org.fitness = self.fitness # assign organism fitness for evolution
         self.org.time_alive += 1
         #assert(self.org.fitness >= 0) # we have to have a non-negative fitness for rtNEAT to work
@@ -656,7 +657,7 @@ class RTNEATAgent(AgentBrain):
           index = 8 #dont move
 
         #map to actions
-        actions[0] = 1
+        actions[0] = index
 
         print str(actions)
 #        actions = TeamAdapt.module.neurons_to_output(self.actions, outputs)

@@ -11,4 +11,13 @@ INITIAL_EPSILON = 0.1
 HISTORY_LENGTH = 5 # number of state-action pairs used to determine if the agent is stuck
 OBSTACLE_MASK = 1 #0b0001
 AGENT_MASK = 2 #0b0010
-STEPS_IN_ROUND = 200
+
+
+STEPS_IN_ROUND = 10
+
+STARTING_BARBS = 3
+BARBS_PER_TURN = 1
+
+STARTING_CITIES = 3
+
+STARTING_LEGIONS = 3
