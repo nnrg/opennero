@@ -50,7 +50,7 @@ class NeroModule:
             openWiki('wx')()
             return False
 
-        startScript('NERO/menu.py')
+        startScript('CaptureTheFlag/menu.py')
         
         self.environment = NeroEnvironment()
 
@@ -74,7 +74,8 @@ class NeroModule:
     def change_flag(self, new_loc):
         self.flag_loc = Vector3f(new_loc[0],new_loc[1],new_loc[2])
         
-        removeObject(self.flag_id)
+        if self.flag_id >= 0:
+            removeObject(self.flag_id)
         
         self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag")
 

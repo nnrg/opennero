@@ -248,6 +248,8 @@ class NeroEnvironment(Environment):
             agent.state.rotation.z = randrange(360)
             r = agent.state.rotation
             
+            print "state.initial_position ="
+            print p
             state.initial_position = p
             state.initial_rotation = r
             
@@ -261,8 +263,8 @@ class NeroEnvironment(Environment):
         #Spawn more agents if there are more to spawn (Staggered spawning times tend to yeild better behavior)
         if agent.step == 3:
             if getMod().getNumToAdd() > 0:
-                dx = randrange(XDIM/20) - XDIM/40
-                dy = randrange(XDIM/20) - XDIM/40
+                dx = randrange(XDIM/20) - YDIM/40
+                dy = randrange(XDIM/20) - YDIM/40
                 getMod().addAgent((XDIM/2 + dx, YDIM/3 + dy, 2))
 
         # Update Damage totals

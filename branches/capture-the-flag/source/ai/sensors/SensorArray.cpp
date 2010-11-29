@@ -10,6 +10,7 @@ namespace OpenNero
             out << "  " << **iter << std::endl;
         }
         out << "</SensorArray>";
+		return out;
     }
 
 }

@@ -1,3 +1,4 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Template>
   <Render>
     <MaterialType>solid</MaterialType>
@@ -5,9 +6,10 @@
     <AniMesh>data/shapes/steve/steve_red_armed.md2</AniMesh>
     <CastsShadow>false</CastsShadow>
     <Texture0>data/shapes/steve/steve_red.jpg</Texture0>
-    <Scale>1.0 1.0 1.0</Scale>
+    <Scale>0.25 0.25 0.25</Scale>
     <DrawLabel>false</DrawLabel>
   </Render>
+  <Collision>1</Collision>
   <AI>
     <Python agent="RTNEATAgent()" />
   </AI>
