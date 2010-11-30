@@ -682,8 +682,14 @@ namespace OpenNero
         }
     }
     
-    /// do we collide with the other object?
-    bool SceneObject::CheckCollision(const Vector3f& new_pos, const SceneObjectPtr& other)
+    /// can we possibly collide with any other object?
+    bool SceneObject::canCollide() const
+    {
+        return (mSceneObjectTemplate && mSceneObjectTemplate->mCollisionType != 0);
+    }
+
+    /// are we colliding with the other object?
+    bool SceneObject::isColliding(const Vector3f& new_pos, const SceneObjectPtr& other)
     {
         Assert(other);
         if (mSceneObjectTemplate->mCollisionType != 

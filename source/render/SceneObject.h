@@ -160,8 +160,11 @@ namespace OpenNero
         /// get object position
         Vector3f getPosition() const;
         
-        /// do we collide with the other object?
-        bool CheckCollision(const Vector3f& new_pos, const SceneObjectPtr& other);
+        /// are we colliding with the other object?
+        bool isColliding(const Vector3f& new_pos, const SceneObjectPtr& other);
+        
+        /// can we possibly collide with any other object?
+        bool canCollide() const;
 
         /// attach an FPS camera to this scene object
         void attachCamera(CameraPtr cam);

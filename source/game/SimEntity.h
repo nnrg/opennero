@@ -145,6 +145,9 @@ namespace OpenNero
         
         /// Assume that a collision occurred and resolve it (bounce)
         void ResolveCollision();
+        
+        /// Can this object collide at all?
+        bool CanCollide() const;
 
         /// output human-readable information about this SimEntity
         friend std::ostream& operator<<(std::ostream& stream, const SimEntityPtr&);

@@ -148,8 +148,9 @@ namespace OpenNero
             SimIdHashMap::const_iterator end = mSimIdHashedEntities.end();
             
             for( ; itr != end; ++itr ) {
-                // TODO: check if this object can collide at all
-                not_colliding.insert(itr->second);
+                SimEntityPtr ent = itr->second;
+                if (ent->CanCollide())
+                    not_colliding.insert(ent);
             }
         }
 
@@ -185,7 +186,7 @@ namespace OpenNero
 			}
         }
 
-		// now all the objects that collided are in the colliding set
+		// now all the objects that collided are in the "colliding" set
 		// we need to resolve all these collisions
 		SimEntitySet::const_iterator itr;
 
