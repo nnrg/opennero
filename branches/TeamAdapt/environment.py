@@ -5,6 +5,7 @@ from mazer import Maze
 from constants import *
 from OpenNero import *
 from collections import deque
+from random import *
 import TeamAdapt
 
 import observer
@@ -142,9 +143,9 @@ class MazeEnvironment(Environment):
         when stepsDone = STEPS_IN_ROUND, game is reset
         '''
 
-        self.stepsDone = 0
-        self.lastAgent = -1
-        self.points = 0
+        self.set_round_variables()
+        self.roundCount = 1
+        self.fitness = 0
         
         action_info = FeatureVectorInfo()
         observation_info = FeatureVectorInfo()
@@ -241,6 +242,18 @@ class MazeEnvironment(Environment):
         action_info.add_continuous(0,1)
         '''
 
+
+        #begin csv
+
+        randstr = str(randint(0,10000))
+
+        self.output_fitness = "output_fitness" + randstr + ".csv"
+
+        file = open(self.output_fitness, "w")
+        newLine = "Round Number" + "," + "Fitness" + "," + "agents on cities / cities" + "," + "barbarian count"
+        file.write(newLine)
+        file.close()
+
         reward_info.add_continuous(-100,100)
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
         self.max_steps = MAX_STEPS
@@ -249,29 +262,37 @@ class MazeEnvironment(Environment):
         self.shortcircuit = False
         self.agentList = {}
         print 'Initialized MazeEnvironment'
+
+    def set_round_variables(self):
+      #round-dependent
+        self.stepsDone = 0
+        self.lastAgent = -1
+        self.firstAgent = -1
+        self.points = 0
+        self.agentCities = 0
+        self.barbarians = 0
         
     def get_delay(self):
         return self.step_delay * (1.0 - self.speedup)
 
 
-    def place_agent(self, id):
+    def place_agent(self, id, agent):
 
         placed = False
         #pick random cells, test if valid, repeat if not
         while(placed == False):
 
-          r = randint(1,ROWS-1)
-          dx = r * GRID_DX
-          c = randint(1,COLS-1)
-          dy = c * GRID_DY
+          (r,c) = self.random_rc()
+#          (x,y) = self.environment.maze.rc2xy(r, c)
 
           #is the cell occupied by a barbarian/legion?
           print "placing legion"
-          if self.environment.cell_occupied(r,c,0) == 0 and self.environment.cell_occupied(r,c,1) == 0:
-            state = self.environment.get_state(id)
-            state.rc = (r,c)
+          if self.cell_occupied(r,c,0) == 0 and self.cell_occupied(r,c,1) == 0:
+            state = self.get_state(id)
+
+            self.teleport(agent, r, c)
             placed = True
-            print "done creating legion"
+            print "done placing legion"
 
 
     def get_state(self, agent):
@@ -330,8 +351,8 @@ class MazeEnvironment(Environment):
     def remove_object(self, id):
       getSimContext().removeObject(id)
       del self.states[id]
-      self.lastAgent = max(self.states.keys())
-      
+      self.set_firstlast_agents()
+
     def get_other_rc(self,id):
       for key in self.states.iterkeys():
           #if its a legion thats not us
@@ -381,13 +402,23 @@ class MazeEnvironment(Environment):
             return key
 #        print "NOT occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
         return -1
-    
+    def random_rc(self):
+      r = randint(1,ROWS-1)
+      c = randint(1,COLS-1)
+      return r,c
     def get_round_fitness(self,agent):
 
       #if we are barbarian, dont calculate
       if self.states[agent.state.id].agentType == 1:
-        fitness = 1
-      else:
+        return 1
+      
+      #place ourselves
+      self.place_agent(agent.state.id, agent)
+
+
+      #if we are first
+      if agent.state.id == self.firstAgent:
+
         '''
         FITNESS
 
@@ -397,13 +428,18 @@ class MazeEnvironment(Environment):
         25% worst case = .75 etc...
 
         '''
-        barbs = STARTING_BARBS  + get_num_barbarians()
+        barbs = STARTING_BARBS  + self.get_num_barbarians()
         cities = STARTING_CITIES
         worstCase = STEPS_IN_ROUND * (100*cities + 1*(barbs-cities))
-        fitness = 1 - (float(self.points)/worstCase)
+        self.fitness = 1 - (float(self.points)/worstCase)
 
+        #delete all barbs
+        for key in self.states.keys():
+          if self.states[key].agentType == 1:
+            self.remove_object(key)
+            
 
-      #if we are the last agent, end round
+      #if we are the last agent, write to csv end round
       if agent.state.id == self.lastAgent:
         print "------ENDING ROUND------"
         #reset(move all agents to 0,0)
@@ -413,31 +449,50 @@ class MazeEnvironment(Environment):
         create barbs
         go
         '''
+        
+        #write CSV
+        '''
+        avg:
+        agentsCities
+        barbarians
+        
+        fitness
+        '''
+        
+        agentCities = float(self.agentCities)/STEPS_IN_ROUND
+        barbarians = float(self.barbarians)/STEPS_IN_ROUND
 
-        #delete all barbs
-        for key in self.states.iterkeys():
-          if states[key].agentType == 1:
-            remove_object(key)
+        '''
+        write to file:
+        round#, fitness, agentCities, barbarians
+        
+        '''
+        file = open(self.output_fitness, "a")
+        newLine = str(self.roundCount) + "," + str(self.fitness) + "," + str(agentCities) + "," + str(barbarians)
+        file.write(newLine)
+        file.close()
 
-        #place legions
-        for key in self.states.iterkeys():
-          if states[key].agentType == 0:
-            self.place_agent(key)
+        self.roundCount += 1
+
+
+        
+
+        
 #
 #        #create barbs
 #        self.place_barbarians(STARTING_BARBS)
 
         #reset counters
-        self.stepsDone = 0
-        self.points = 0
-        self.lastAgent = max(self.states.keys())
-        print "lastAgent = " + str(self.lastAgent)
+        self.set_round_variables()
+        
         print str(self.states)
 
 
-      return fitness
+      
 
-    def get_num_barbarians():
+      return self.fitness
+
+    def get_num_barbarians(self):
       return len(self.states) - STARTING_LEGIONS
 
 
@@ -459,11 +514,54 @@ class MazeEnvironment(Environment):
         self.stepsDone += 1
         print "turn complete: " + str(self.stepsDone)
         self.end_turn()
-        
 
-
+    def set_firstlast_agents(self):
+      self.lastAgent = max(self.states.keys())
+      self.firstAgent = min(self.states.keys())
+      print "lastAgent = " + str(self.lastAgent)
+      print "firstAgent = " + str(self.firstAgent)
+      
     def end_turn(self):
       print "---END TURN " + str(self.stepsDone) + " ---"
+
+      agentsCities = 0
+      #for each city,
+      for key in self.objects.iterkeys():
+        (r,c) = self.objects[key].rc
+        #see if agent in city
+        #local [0]
+        agentsCities += self.cell_occupied(r,c,0)
+#        #adjacent [1-8]
+#        agentsCities += self.cell_occupied(r-1,c-1,0)
+#        agentsCities += self.cell_occupied(r,c-1,0)
+#        agentsCities += self.cell_occupied(r+1,c-1,0)
+#        agentsCities += self.cell_occupied(r+1,c,0)
+#        agentsCities += self.cell_occupied(r+1,c+1,0)
+#        agentsCities += self.cell_occupied(r,c+1,0)
+#        agentsCities += self.cell_occupied(r-1,c+1,0)
+#        agentsCities += self.cell_occupied(r-1,c,0)
+
+      agentCities = agentsCities / len(self.objects)
+
+      print "Ratio of agentsCities:"
+      print "agents on cities " + str(agentCities)
+      print "total cities " + str(len(self.objects))
+
+      #add ratio to counter
+      self.agentCities += agentCities
+
+      '''
+      Barbarians
+      '''
+
+      barbarians = self.get_num_barbarians()
+      print "current barbarians " + str(barbarians)
+      self.barbarians += barbarians
+
+
+      #record data for the turn
+
+
 #      self.place_barbarians(BARBS_PER_TURN)
     def step(self, agent, action):
         
@@ -674,7 +772,7 @@ class MazeEnvironment(Environment):
             state = self.get_state(object)
             state.rc = (r,c)
             state.agentType = 1
-            self.lastAgent = object
+            self.set_firstlast_agents()
             print str(self.states[object].rc)
 #            self.environment.agentList[self.agent_map[(0,i)]] = (r,c,0)
             placed = True
@@ -1004,6 +1102,7 @@ class MazeEnvironment(Environment):
             return True # call the sense/act/step loop
         else:
             return False
+#      return True
 
     def is_episode_over(self, agent):
         state = self.get_state(agent.state.id)

@@ -150,7 +150,7 @@ class MazeMod:
                 z_rotation = 90
             self.wall_ids.append(addObject(WALL_TEMPLATE, pos, Vector3f(0, 0, z_rotation), type=OBSTACLE_MASK))
         # world boundaries
-        for i in range(1,COLS+1):
+        for i in range(1 , COLS+1):
             self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(GRID_DX/2, i * GRID_DY, 2), Vector3f(0, 0, 90), type=OBSTACLE_MASK ))
             self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(i * GRID_DX, GRID_DY/2, 2), Vector3f(0, 0, 0), type=OBSTACLE_MASK ))
             self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(i * GRID_DX, COLS * GRID_DY + GRID_DY/2, 2), Vector3f(0, 0, 0), type=OBSTACLE_MASK ))
@@ -244,8 +244,6 @@ class MazeMod:
         self.environment.agentList = {}
         # Create an rtNEAT object appropriate for the environment
         pop_size = 50
-        pop_on_field_size = 10
-        city_on_field_size = 3
 
         # Establish the number of inputs and outputs
         # We use 1 neuron for each continuous value, and N neurons for 1-of-N
@@ -275,29 +273,31 @@ class MazeMod:
         rtneat = RTNEAT("data/ai/neat-params.dat", n_inputs, n_outputs, pop_size, 1.0)
         set_ai("neat",rtneat)
         enable_ai()
+        self.place_legions(STARTING_LEGIONS)
         self.place_barbarians_hardCoded()
 #        self.place_legions_hardCoded()
 #        self.place_barbarians(STARTING_BARBS)
-#        self.place_legions(pop_on_field_size)
-        self.place_cities(city_on_field_size)
+        
+        self.place_cities(STARTING_CITIES)
+        self.environment.set_firstlast_agents()
 #        self.place_avoiders()
         
-
     def place_cities(self, number):
 
       #NOT randomly placed
       posDict = {}
       posDict[0] = (4,7)
       posDict[1] = (7,5)
-      posDict[2] = (1,3)
+      posDict[2] = (0,0)
 
       for key in posDict.iterkeys():
 
-        r = posDict[key][0]
-        dx = r * GRID_DX
-        c = posDict[key][1]
-        dy = c * GRID_DY
-        city = addObject("data/shapes/objects/city.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
+        (r,c) = posDict[key]
+        (x,y) = self.environment.maze.rc2xy(r, c)
+
+        print r,c,x,y
+
+        city = addObject("data/shapes/objects/city.xml",Vector3f(x, y, 2), type=AGENT_MASK)
 
         state = self.environment.get_object_state(city)
         state.rc = (r,c)
@@ -345,29 +345,27 @@ class MazeMod:
         state.rc = (r,c)
         state.agentType = 0
 #        self.environment.set_position(city,r,c)
-        self.environment.lastAgent = city
         print str(self.environment.states[city].rc)
         print "done creating legion"
 
     def place_barbarians_hardCoded(self):
       posDict = {}
       posDict[1] = (2,4)
-      posDict[0] = (3,5)
-      posDict[2] = (1,1)
+#      posDict[0] = (1,3)
+#      posDict[2] = (1,1)
 
       for key in posDict.iterkeys():
 
-        r = posDict[key][0]
-        dx = (r) * GRID_DX
-        c = posDict[key][1]
-        dy = (c) * GRID_DY
-        city = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
+        (r,c) = posDict[key]
+        (x,y) = self.environment.maze.rc2xy(r, c)
+
+        print r,c,x,y
+        city = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(x, y, 2), type=AGENT_MASK)
 
         state = self.environment.get_state(city)
         state.rc = (r,c)
         state.agentType = 1
-        self.environment.lastAgent = city
-        self.environment.set_position(city,r,c)
+#        self.environment.set_position(city,r,c)
         print str(self.environment.states[city].rc)
         print "done creating barb"
 
@@ -378,15 +376,13 @@ class MazeMod:
         #pick random cells, test if valid, repeat if not
         while(placed == False):
 
-          r = randint(1,ROWS-1)
-          dx = r * GRID_DX
-          c = randint(1,COLS-1)
-          dy = c * GRID_DY
-
+          (r,c) = self.environment.random_rc()
+          (x,y) = self.environment.maze.rc2xy(r, c)
+          
           #is the cell occupied by a barbarian/legion?
           print "creating legion"
           if self.environment.cell_occupied(r,c,0) == 0 and self.environment.cell_occupied(r,c,1) == 0:
-            self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
+            self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(x, y, 2), type=AGENT_MASK)
             
             
             state = self.environment.get_state(self.agent_map[(0,i)])
@@ -406,10 +402,9 @@ class MazeMod:
         #pick random cells, test if valid, repeat if not
         while(placed == False):
 
-          r = randint(1,ROWS)
-          dx = r * GRID_DX
-          c =  randint(1,COLS)
-          dy = c * GRID_DY
+          (r,c) = self.environment.random_rc()
+          (x,y) = self.environment.maze.rc2xy(r, c)
+          
           #is the cell occupied by a barbarian/legion?
           if self.environment.cell_occupied(r,c,0) == 0 and self.environment.cell_occupied(r,c,1) == 0:
             self.agent_map[(1,i)] = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
