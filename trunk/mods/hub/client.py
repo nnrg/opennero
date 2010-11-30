@@ -22,18 +22,20 @@ def ClientMain():
 
     neroImg = gui.create_image( guiMan, 'nero_background', Pos2i(0,0), Pos2i(800,600), 'data/gui/nero_background.png' )
 
-    combo_box = gui.create_combo_box(guiMan, "mod_selector", Pos2i(400, 200), Pos2i(200, 25))
+    x_offset, y_offset = (800 - 200)/2, (600 - 100)/2
+
+    combo_box = gui.create_combo_box(guiMan, "mod_selector", Pos2i(x_offset, y_offset + 50), Pos2i(200, 25))
     for i, modname in enumerate(mods):
         combo_box.addItem(modname)
 
-    startButton = gui.create_button( guiMan, 'start', Pos2i(400,250), Pos2i(60,25), '' )
+    startButton = gui.create_button( guiMan, 'start', Pos2i(x_offset, y_offset), Pos2i(60,25), '' )
     startButton.text = 'Start'
     startButton.OnMouseLeftClick = SwitchToSelectedMod(combo_box)
 
-    helpButton = gui.create_button( guiMan, 'help', Pos2i(470,250), Pos2i(60,25), '' )
+    helpButton = gui.create_button( guiMan, 'help', Pos2i(x_offset + 70, y_offset), Pos2i(60,25), '' )
     helpButton.text = 'Help'
     helpButton.OnMouseLeftClick = openWiki('RunningOpenNero')
 
-    killButton = gui.create_button( guiMan, 'kill', Pos2i(540,250), Pos2i(60,25), '' )
+    killButton = gui.create_button( guiMan, 'kill', Pos2i(x_offset + 140, y_offset), Pos2i(60,25), '' )
     killButton.text = 'Exit'
     killButton.OnMouseLeftClick = lambda: getSimContext().killGame()
