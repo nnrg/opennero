@@ -16,7 +16,7 @@ BOOST_AUTO_TEST_CASE( test_simentity_data )
     SimEntityData data;
     
     // initially, all data is considered dirty
-    BOOST_CHECK_EQUAL( data.GetDirtyBits(), uint32_t(-1) );
+    BOOST_CHECK_EQUAL( data.GetDirtyBits(), U32(-1) );
     
     data.ClearDirtyBits();
     
