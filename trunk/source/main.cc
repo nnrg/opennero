@@ -3,8 +3,6 @@
 
 #include "core/Common.h"
 
-#ifndef OPEN_NERO_TEST // only compile this code if we are not building a test executable
-
 #include <string>
 #include <vector>
 #include <iostream>
@@ -57,5 +55,3 @@ int main( int argc, char* argv[] )
     // start OpenNero
     return OpenNeroMain(argc, argv);
 }
-
-#endif // OPEN_NERO_TEST
