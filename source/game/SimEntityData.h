@@ -25,7 +25,7 @@ namespace OpenNero
     public:
 
         /// Declaration of how bits in a binary string correspond to data
-        enum DataBits
+        unsigned enum DataBits
         {
             kDB_Position        = (1<<0),
             kDB_Rotation        = (1<<1),
@@ -86,10 +86,6 @@ namespace OpenNero
 
         friend Bitstream& operator<<( Bitstream& stream, const SimEntityData& data);
         friend Bitstream& operator>>( Bitstream& stream, SimEntityData& data);
-
-#if NERO_ENABLE_UNIT_TESTS
-        static void UnitTest();
-#endif
 
     private:
 
