@@ -7,8 +7,8 @@
     <MaterialFlagLighting>false</MaterialFlagLighting>
     <Terrain>data/terrain/terrain-heightmap-flat.bmp</Terrain>
     <Texture0>data/terrain/terrain-texture.jpg</Texture0>
-    <Texture1>data/terrain/detailmap3.jpg</Texture1>
+    <Texture1>data/terrain/sand-texture2.jpg</Texture1>
     <ScaleTexture>10 10</ScaleTexture>
-    <Scale>2.0 2.0 2.0</Scale>
+    <Scale>1.0 1.0 1.0</Scale>
   </Render>
 </Template>

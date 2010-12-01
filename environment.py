@@ -819,7 +819,7 @@ class MazeEnvironment(Environment):
           for i in range(len(arr)):
             arr[i] /= m
 
-    def sense(self, agent):
+    def sense(self, agent, obs):
         """
         Discrete version
         """
@@ -854,7 +854,7 @@ class MazeEnvironment(Environment):
 
 
 
-        if state.agentType == 0:
+        if state.agentType == 0: 
             #legions
 
             #local [0]
