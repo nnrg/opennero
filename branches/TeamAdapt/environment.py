@@ -250,7 +250,7 @@ class MazeEnvironment(Environment):
         self.output_fitness = "output_fitness" + randstr + ".csv"
 
         file = open(self.output_fitness, "w")
-        newLine = "Round Number" + "," + "Fitness" + "," + "agents on cities / cities" + "," + "barbarian count"
+        newLine = "Round Number" + "," + "Fitness" + "," + "occupied to total cities" + "," + "barbarian count" + '\n'
         file.write(newLine)
         file.close()
 
@@ -419,6 +419,8 @@ class MazeEnvironment(Environment):
       #if we are first
       if agent.state.id == self.firstAgent:
 
+        print "___FITNESS FOR ROUND " + str(self.roundCount) + " ___"
+
         '''
         FITNESS
 
@@ -428,10 +430,14 @@ class MazeEnvironment(Environment):
         25% worst case = .75 etc...
 
         '''
-        barbs = STARTING_BARBS  + self.get_num_barbarians()
+        barbs = self.get_num_barbarians()
+        maxBarbs = STARTING_BARBS + BARBS_PER_ROUND * STEPS_IN_ROUND
         cities = STARTING_CITIES
-        worstCase = STEPS_IN_ROUND * (100*cities + 1*(barbs-cities))
+        worstCase = STEPS_IN_ROUND * (100*cities + 1*(maxBarbs-cities))
         self.fitness = 1 - (float(self.points)/worstCase)
+        print "barbs/cities/worstcase/fitness"
+        print barbs, cities, worstCase, self.fitness
+        
 
         #delete all barbs
         for key in self.states.keys():
@@ -468,7 +474,7 @@ class MazeEnvironment(Environment):
         
         '''
         file = open(self.output_fitness, "a")
-        newLine = str(self.roundCount) + "," + str(self.fitness) + "," + str(agentCities) + "," + str(barbarians)
+        newLine = str(self.roundCount) + "," + str(self.fitness) + "," + str(agentCities) + "," + str(barbarians)  + '\n'
         file.write(newLine)
         file.close()
 
@@ -484,7 +490,7 @@ class MazeEnvironment(Environment):
 
         #reset counters
         self.set_round_variables()
-        
+        self.set_firstlast_agents()
         print str(self.states)
 
 
@@ -760,15 +766,12 @@ class MazeEnvironment(Environment):
         #pick random cells, test if valid, repeat if not
         while(placed == False):
 
-          r = 4 #randint(1,ROWS)
-          dx = r * GRID_DX
-          c =  8 #randint(1,COLS)
-          dy = c * GRID_DY
+          (r,c) = self.random_rc()
+          (x,y) = self.maze.rc2xy(r, c)
+
           #is the cell occupied by a barbarian/legion?
           if self.cell_occupied(r,c,0) == 0 and self.cell_occupied(r,c,1) == 0:
-
-            object = getSimContext().addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
-            print "object ID: " + str(object)
+#            object = getSimContext().addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(x, y, 2), type=AGENT_MASK)
             state = self.get_state(object)
             state.rc = (r,c)
             state.agentType = 1
