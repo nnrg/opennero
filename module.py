@@ -276,7 +276,7 @@ class MazeMod:
         self.place_legions(STARTING_LEGIONS)
         self.place_barbarians_hardCoded()
 #        self.place_legions_hardCoded()
-#        self.place_barbarians(STARTING_BARBS)
+#        self.environment.place_barbarians(STARTING_BARBS)
         
         self.place_cities(STARTING_CITIES)
         self.environment.set_firstlast_agents()
@@ -338,7 +338,7 @@ class MazeMod:
         dx = r * GRID_DX
         c = posDict[key][1]
         dy = c * GRID_DY
-        city = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
+        city = addObject("data/shapes/character/SteveRTNEAT.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
         self.agent_map[(0,key)] = city
 
         state = self.environment.get_state(city)
@@ -382,42 +382,18 @@ class MazeMod:
           #is the cell occupied by a barbarian/legion?
           print "creating legion"
           if self.environment.cell_occupied(r,c,0) == 0 and self.environment.cell_occupied(r,c,1) == 0:
-            self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(x, y, 2), type=AGENT_MASK)
+            self.agent_map[(0,i)] = addObject("data/shapes/character/SteveRTNEAT.xml",Vector3f(x, y, 1), type=AGENT_MASK)
             
             
             state = self.environment.get_state(self.agent_map[(0,i)])
             state.rc = (r,c)
             state.agentType = 0
-            self.environment.lastAgent = self.agent_map[(0,i)]
+            self.environment.set_firstlast_agents()
             print str(self.environment.states[self.agent_map[(0,i)]].rc)
 #            self.environment.agentList[self.agent_map[(0,i)]] = (r,c,0)
 #            self.environment.states[agent]
             placed = True
             print "done creating legion"
-
-    def place_barbarians(self, number):
-
-      for i in range(0, number):
-        placed = False
-        #pick random cells, test if valid, repeat if not
-        while(placed == False):
-
-          (r,c) = self.environment.random_rc()
-          (x,y) = self.environment.maze.rc2xy(r, c)
-          
-          #is the cell occupied by a barbarian/legion?
-          if self.environment.cell_occupied(r,c,0) == 0 and self.environment.cell_occupied(r,c,1) == 0:
-            self.agent_map[(1,i)] = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
-            state = self.environment.get_state(self.agent_map[(1,i)])
-            state.rc = (r-1,c-1)
-            state.agentType = 1
-            self.environment.lastAgent = self.agent_map[(1,i)]
-            print str(self.environment.states[self.agent_map[(1,i)]].rc)
-#            self.environment.agentList[self.agent_map[(0,i)]] = (r,c,0)
-            placed = True
-            print "done"
-        
-
 
 
     def start_sarsa(self):
