@@ -9,6 +9,6 @@
     <Texture0>data/terrain/terrain-texture.jpg</Texture0>
     <Texture1>data/terrain/sand-texture2.jpg</Texture1>
     <ScaleTexture>10 10</ScaleTexture>
-    <Scale>1.5 1.5 1.0</Scale>
+    <Scale>3 3 1.0</Scale>
   </Render>
 </Template>

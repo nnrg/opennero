@@ -146,6 +146,7 @@ class MazeEnvironment(Environment):
 
         self.set_round_variables()
         self.roundCount = 1
+        self.ternaryFitness = 0
         self.fitness = 0
         
         action_info = FeatureVectorInfo()
@@ -434,7 +435,7 @@ class MazeEnvironment(Environment):
         maxBarbs = STARTING_BARBS + BARBS_PER_ROUND * STEPS_IN_ROUND
         cities = STARTING_CITIES
         worstCase = STEPS_IN_ROUND * (100*cities + 1*(maxBarbs-cities))
-        self.fitness = 1 - (float(self.points)/worstCase)
+        self.fitness += 1 - (float(self.points)/worstCase)
         print "barbs/cities/worstcase/fitness"
         print barbs, cities, worstCase, self.fitness
         
@@ -495,11 +496,16 @@ class MazeEnvironment(Environment):
         self.set_round_variables()
         self.set_firstlast_agents()
         print str(self.states)
+        
+        if self.roundCount % 3 == 0:
+          self.ternaryFitness += self.fitness
+          self.fitness = 0
+          return self.ternaryFitness
 
+      if self.roundCount % 3 == 0:
+          self.ternaryFitness += self.fitness
 
-      
-
-      return self.fitness
+      return 0
 
     def get_num_barbarians(self):
       return len(self.states) - STARTING_LEGIONS
