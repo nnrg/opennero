@@ -57,6 +57,7 @@ namespace NEAT
         // **********LOAD IN PARAMETERS*************** //
         cout << "NEAT READING IN "<< filename << endl;
         char curword[256];
+        paramFile >> curword;
         paramFile >> trait_param_mut_prob;
         paramFile >> curword;
         paramFile >> trait_mutation_power;
