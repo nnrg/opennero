@@ -119,8 +119,8 @@ def speedup_adjusted(scroll, value):
 
 def recenter(cam):
     def closure():
-        cam.setPosition(Vector3f(NUDGE_X, NUDGE_Y, 30))
-        cam.setTarget(Vector3f(NUDGE_X + GRID_DX * ROWS / 2, NUDGE_Y + GRID_DY * COLS / 2, 5))
+        cam.setPosition(Vector3f(((GRID_DX*COLS)/2)-10, (GRID_DY*ROWS+NUDGE_Y)/2-40, 150))
+        cam.setTarget(Vector3f(((GRID_DX*COLS)/2)-10, (GRID_DY*ROWS)/2, 0))
     return closure
 
 def ClientMain():

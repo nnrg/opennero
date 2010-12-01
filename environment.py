@@ -865,7 +865,7 @@ class MazeEnvironment(Environment):
 
 
 
-        if state.agentType == 0: 
+        if state.agentType == 0:
             #legions
 
             #local [0]
