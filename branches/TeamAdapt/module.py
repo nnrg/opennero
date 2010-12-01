@@ -316,7 +316,7 @@ class MazeMod:
         dx = r * GRID_DX
         c = posDict[key][1]
         dy = c * GRID_DY
-        city = addObject("data/shapes/character/SydneyAvoider.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
+        city = addObject("data/shapes/character/SydneyAvoider.xml",Vector3f(dx, dy, 0), type=AGENT_MASK)
 
         state = self.environment.get_state(city)
         state.rc = (r,c)
@@ -338,7 +338,7 @@ class MazeMod:
         dx = r * GRID_DX
         c = posDict[key][1]
         dy = c * GRID_DY
-        city = addObject("data/shapes/character/SteveRTNEAT.xml",Vector3f(dx, dy, 2), type=AGENT_MASK)
+        city = addObject("data/shapes/character/SteveRTNEAT.xml",Vector3f(dx, dy, 0), type=AGENT_MASK)
         self.agent_map[(0,key)] = city
 
         state = self.environment.get_state(city)
@@ -360,7 +360,7 @@ class MazeMod:
         (x,y) = self.environment.maze.rc2xy(r, c)
 
         print r,c,x,y
-        city = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(x, y, 2), type=AGENT_MASK)
+        city = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(x, y, 6), type=AGENT_MASK)
 
         state = self.environment.get_state(city)
         state.rc = (r,c)
@@ -382,7 +382,7 @@ class MazeMod:
           #is the cell occupied by a barbarian/legion?
           print "creating legion"
           if self.environment.cell_occupied(r,c,0) == 0 and self.environment.cell_occupied(r,c,1) == 0:
-            self.agent_map[(0,i)] = addObject("data/shapes/character/SteveRTNEAT.xml",Vector3f(x, y, 1), type=AGENT_MASK)
+            self.agent_map[(0,i)] = addObject("data/shapes/character/SteveRTNEAT.xml",Vector3f(x, y, 0), type=AGENT_MASK)
             
             
             state = self.environment.get_state(self.agent_map[(0,i)])

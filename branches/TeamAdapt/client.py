@@ -142,11 +142,11 @@ def ClientMain():
 
     # load the background
     #addObject("data/terrain/Terrain.xml", Vector3f(-3000 + NUDGE_X,-3000 + NUDGE_Y,-20))
-    addObject("data/terrain/FlatTerrain.xml", Vector3f(-100 + NUDGE_X, -100 + NUDGE_Y, -5), Vector3f(0,0,0))
+    addObject("data/terrain/FlatTerrain.xml", Vector3f(-50 + NUDGE_X, -50 + NUDGE_Y, 0), Vector3f(0,0,0))
     addSkyBox("data/sky/irrlicht2")
 
     # load the maze
-    getSimContext().addLightSource(Vector3f(-500,-500,1000), 1500)
+    #getSimContext().addLightSource(Vector3f(-500,-500,1000), 1500)
     getMod().add_maze()
 
     # load the GUI
