@@ -465,9 +465,9 @@ class BarbarianAgent(AgentBrain):
         start of an episode
         """
         global rtneat
-        epsilon = TeamAdapt.module.getMod().epsilon
-        self.org = rtneat.next_organism(epsilon)
-        self.net = self.org.net
+#        epsilon = TeamAdapt.module.getMod().epsilon
+#        self.org = rtneat.next_organism(epsilon)
+#        self.net = self.org.net
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
@@ -482,8 +482,8 @@ class BarbarianAgent(AgentBrain):
         end of an episode
         """
         
-        self.org.fitness = self.fitness # assign organism fitness for evolution
-        self.org.time_alive += 1
+#        self.org.fitness = self.fitness # assign organism fitness for evolution
+#        self.org.time_alive += 1
         #assert(self.org.fitness >= 0) # we have to have a non-negative fitness for rtNEAT to work
         print  "Final reward: %f, cumulative: %f" % (reward, self.fitness)
         return True
@@ -517,7 +517,7 @@ class BarbarianAgent(AgentBrain):
           for i in range(len(directions)):
               directions[i] = city_sensors[i] - 0.9 * legion_sensors[i]
 
-          print("directions: " + str(directions))
+#          print("directions: " + str(directions))
 
 
 
@@ -566,14 +566,14 @@ class BarbarianAgent(AgentBrain):
               best = directions[i]
               index2 = index1
               index1 = i
-          print "top direction: " + str(index1)
+#          print "top direction: " + str(index1)
 
         #map to actions
           actions[0] = index1
           actions[1] = index2
 
 
-        print str(actions)
+#        print str(actions)
         # assert(self.actions.validate(actions))
         return actions
 
@@ -675,7 +675,7 @@ class RTNEATAgent(AgentBrain):
         8 - move
         9 - stay
         '''
-        print "go? " + str(outputs[8]) + "stay? " + str(outputs[9])
+#        print "go? " + str(outputs[8]) + "stay? " + str(outputs[9])
 
 
 
@@ -688,7 +688,7 @@ class RTNEATAgent(AgentBrain):
             if outputs[i] > best:
               best = outputs[i]
               index = i
-          print "top direction: " + str(index)
+#          print "top direction: " + str(index)
         else:
           print "NETWORKACT: agent staying"
           index = 8 #dont move
