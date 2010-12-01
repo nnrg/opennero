@@ -4,6 +4,7 @@ from copy import copy
 from mazer import Maze
 from constants import *
 from OpenNero import *
+from common import *
 from collections import deque
 from random import *
 import TeamAdapt
@@ -368,7 +369,7 @@ class MazeEnvironment(Environment):
       if objectType < 2:
         for key in self.states.iterkeys():
           if self.states[key].rc == (r,c) and self.states[key].agentType == objectType:
-            print "occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
+#            print "occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
             return 1
 #        print "NOT occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
         return 0
@@ -377,7 +378,7 @@ class MazeEnvironment(Environment):
       else:
         for key in self.objects.iterkeys():
           if self.objects[key].rc == (r,c) and self.objects[key].agentType == objectType:
-            print "occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
+#            print "occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
             return 1
 #        print "NOT occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
         return 0
@@ -389,7 +390,7 @@ class MazeEnvironment(Environment):
       if objectType < 2:
         for key in self.states.iterkeys():
           if self.states[key].rc == (r,c) and self.states[key].agentType == objectType:
-            print "agentHere : " + "(" + str(r) + "," + str(c) + ") " + str(key)
+#            print "agentHere : " + "(" + str(r) + "," + str(c) + ") " + str(key)
             return key
 #        print "NOT occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
         return -1
@@ -398,22 +399,21 @@ class MazeEnvironment(Environment):
       else:
         for key in self.objects.iterkeys():
           if self.objects[key].rc == (r,c) and self.objects[key].agentType == objectType:
-            print "objectHere : " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
+#            print "objectHere : " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
             return key
 #        print "NOT occupied: " + "(" + str(r) + "," + str(c) + ") " + str(objectType)
         return -1
     def random_rc(self):
-      r = randint(1,ROWS-1)
-      c = randint(1,COLS-1)
+      r = randint(0,ROWS-1)
+      c = randint(0,COLS-1)
       return r,c
     def get_round_fitness(self,agent):
 
       #if we are barbarian, dont calculate
-      if self.states[agent.state.id].agentType == 1:
+      if self.states[agent.state.id].agentType == 1 and agent.state.id != self.firstAgent:
         return 1
       
-      #place ourselves
-      self.place_agent(agent.state.id, agent)
+      
 
 
       #if we are first
@@ -443,7 +443,10 @@ class MazeEnvironment(Environment):
         for key in self.states.keys():
           if self.states[key].agentType == 1:
             self.remove_object(key)
-            
+
+      
+      #place ourselves
+      self.place_agent(agent.state.id, agent)
 
       #if we are the last agent, write to csv end round
       if agent.state.id == self.lastAgent:
@@ -513,7 +516,12 @@ class MazeEnvironment(Environment):
     #because of potential early returns, handle end logic here
     def end_step(self,agent):
       state = self.get_state(agent.state.id)
-
+      if state.agentType == 1:
+        (r,c) = state.rc
+        if self.cell_occupied(r, c, 2):
+          self.points += 100
+        else:
+          self.points += 1
       #our step is done, if we are last agent
       if agent.state.id  == self.lastAgent:
         #end the turn
@@ -563,7 +571,8 @@ class MazeEnvironment(Environment):
       barbarians = self.get_num_barbarians()
       print "current barbarians " + str(barbarians)
       self.barbarians += barbarians
-
+      self.place_barbarians(BARBS_PER_ROUND)
+      
 
       #record data for the turn
 
@@ -577,6 +586,10 @@ class MazeEnvironment(Environment):
         
         state = self.get_state(agent.state.id)
         state.record_action(action)
+
+        if self.firstAgent == agent.state.id and self.stepsDone != 0:
+          
+          self.set_firstlast_agents()
 
         #if the last round is done, get fitness
         if self.stepsDone == STEPS_IN_ROUND:
@@ -596,8 +609,8 @@ class MazeEnvironment(Environment):
             state.initial_rotation = agent.state.rotation
         (r,c) = state.rc
 
-        print "prevPos :" + str(state.prev_rc)
-        print "pos: " + str(state.rc)
+#        print "prevPos :" + str(state.prev_rc)
+#        print "pos: " + str(state.rc)
 
         a = int(round(action[0]))
 
@@ -615,8 +628,8 @@ class MazeEnvironment(Environment):
             return 0
 
         (dr,dc) = MazeEnvironment.MOVES[a]
-        print "agent action:" + str(a)
-        print "agent moving:" + str(MazeEnvironment.MOVES[a])
+#        print "agent action:" + str(a)
+#        print "agent moving:" + str(MazeEnvironment.MOVES[a])
         new_r, new_c = r + dr, c + dc
 
         if state.agentType == 1:
@@ -632,8 +645,8 @@ class MazeEnvironment(Environment):
                 return 0
 
             (dr,dc) = MazeEnvironment.MOVES[a]
-            print "agent action:" + str(a)
-            print "agent moving:" + str(MazeEnvironment.MOVES[a])
+#            print "agent action:" + str(a)
+#            print "agent moving:" + str(MazeEnvironment.MOVES[a])
             new_r, new_c = r + dr, c + dc
 
         #reasons not to actually move
@@ -651,10 +664,10 @@ class MazeEnvironment(Environment):
           print "IM A LEGION"
           #and there's a legion in our destination cell
           legion =  self.get_object_in_cell(new_r, new_c, 0)
-          print "checking for legion :" + str(new_r) + " , " + str(new_c)
+#          print "checking for legion :" + str(new_r) + " , " + str(new_c)
           if legion != -1:
             #don't move
-            print "legion in cell :" + str(legion)
+#            print "legion in cell :" + str(legion)
 
             #return
             self.end_step(agent)
@@ -665,40 +678,33 @@ class MazeEnvironment(Environment):
 
           #and there's a barb in the cell
           barb =  self.get_object_in_cell(new_r, new_c, 1)
-          print "checking for barbarian :" + str(new_r) + " , " + str(new_c)
+#          print "checking for barbarian :" + str(new_r) + " , " + str(new_c)
           if barb != -1:
             #remove that agent
-            print "agent to remove at: " + str(self.states[barb].rc)
+#            print "agent to remove at: " + str(self.states[barb].rc)
             self.remove_object(barb)
             print "removing agent: " + str(barb)
 
 
         #if we are barb
         elif state.agentType == 1:
-          print "IM A BARBARIAN"
+#          print "IM A BARBARIAN"
           #and there's any agent in the destination cell
           legion =  self.get_object_in_cell(new_r, new_c, 0)
           barb =  self.get_object_in_cell(new_r, new_c, 1)
           if legion != -1 or barb != -1:
             #don't move
-
+#            print "CANT MOVE"
             #return
             self.end_step(agent)
             return 0
 
-        #if there is a city in our destination
-        if self.cell_occupied(new_r, new_c, 2):
-          self.points += 100
-        else:
-          self.points += 1
-#        elif self.maze.is_wall(r,c,dr,dc):
-#            print "hitting wall"
-#            return state.record_reward(self.rewards.hit_wall(state))
+          
 
 
         #MOVE
         state.rc = (new_r, new_c)
-        print "newPos :" + str(state.rc)
+#        print "newPos :" + str(state.rc)
         (old_r,old_c) = state.prev_rc
         (old_x,old_y) = self.maze.rc2xy(old_r, old_c)
         pos0 = agent.state.position
@@ -763,6 +769,11 @@ class MazeEnvironment(Environment):
 
       for i in range(0, number):
         placed = False
+
+        #if their are agents in all spots
+        if len(self.states) == ROWS * COLS:
+          placed = True
+
         #pick random cells, test if valid, repeat if not
         while(placed == False):
 
@@ -771,11 +782,11 @@ class MazeEnvironment(Environment):
 
           #is the cell occupied by a barbarian/legion?
           if self.cell_occupied(r,c,0) == 0 and self.cell_occupied(r,c,1) == 0:
-#            object = getSimContext().addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(x, y, 2), type=AGENT_MASK)
+            object = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(x, y, 2), type=AGENT_MASK)
             state = self.get_state(object)
             state.rc = (r,c)
             state.agentType = 1
-            self.set_firstlast_agents()
+#            self.set_firstlast_agents()
             print str(self.states[object].rc)
 #            self.environment.agentList[self.agent_map[(0,i)]] = (r,c,0)
             placed = True

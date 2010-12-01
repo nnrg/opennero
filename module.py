@@ -274,9 +274,9 @@ class MazeMod:
         set_ai("neat",rtneat)
         enable_ai()
         self.place_legions(STARTING_LEGIONS)
-        self.place_barbarians_hardCoded()
+#        self.place_barbarians_hardCoded()
 #        self.place_legions_hardCoded()
-#        self.environment.place_barbarians(STARTING_BARBS)
+        self.environment.place_barbarians(STARTING_BARBS)
         
         self.place_cities(STARTING_CITIES)
         self.environment.set_firstlast_agents()
