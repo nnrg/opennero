@@ -250,7 +250,7 @@ class MazeEnvironment(Environment):
 
         self.output_fitness = "output_fitness" + randstr + ".csv"
 
-        file = open(self.output_fitness, "w")
+        file = open(self.output_fitness, "a")
         newLine = "Round Number" + "," + "Fitness" + "," + "occupied to total cities" + "," + "barbarian count" + '\n'
         file.write(newLine)
         file.close()
