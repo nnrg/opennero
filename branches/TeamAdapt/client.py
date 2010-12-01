@@ -87,8 +87,8 @@ def CreateGui(guiMan):
     speedupScroll.setMax(100)
     speedupScroll.setLargeStep(10)
     speedupScroll.setSmallStep(1)
-    speedupScroll.setPos(0)
-    getMod().set_speedup(0)
+    speedupScroll.setPos(100)
+    getMod().set_speedup(100)
     speedupScroll.OnScrollBarChange = speedup_adjusted(speedupScroll, speedupValue)
     
     paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 500), Pos2i(300,100), 'Parameters')
@@ -156,3 +156,6 @@ def ClientMain():
     ioMap = createInputMapping()
     ioMap.BindKey( "KEY_SPACE", "onPress", recenter_cam )
     getSimContext().setInputMapping(ioMap)
+    
+    # start mod
+    getMod().start_rtneat()
