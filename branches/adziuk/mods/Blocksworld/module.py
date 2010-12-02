@@ -134,6 +134,7 @@ class BlocksworldModule:
     def save_rtneat(self, location, pop):
         import os
         location = os.path.relpath("/") + location
+        print "LOCATION,", location
         global rtneat, rtneat2
         if pop == 1: rtneat.save_population(str(location))
         if pop == 2: rtneat2.save_population(str(location))
