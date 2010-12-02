@@ -4,7 +4,7 @@
 	</Audio>
 	<Render>
 		<MaterialType>solid</MaterialType>
-		<MaterialFlagLighting>true</MaterialFlagLighting>
+		<MaterialFlagLighting>false</MaterialFlagLighting>
 		<AniMesh>data/shapes/steve/steve_red_armed.md2</AniMesh>
 		<Texture0>data/shapes/steve/steve_red.jpg</Texture0>
 		<CastsShadow>false</CastsShadow>

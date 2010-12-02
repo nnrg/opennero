@@ -87,8 +87,8 @@ def CreateGui(guiMan):
     speedupScroll.setMax(100)
     speedupScroll.setLargeStep(10)
     speedupScroll.setSmallStep(1)
-    speedupScroll.setPos(100)
-    getMod().set_speedup(100)
+    speedupScroll.setPos(0)
+    getMod().set_speedup(0)
     speedupScroll.OnScrollBarChange = speedup_adjusted(speedupScroll, speedupValue)
     
     paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 500), Pos2i(300,100), 'Parameters')

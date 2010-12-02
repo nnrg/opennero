@@ -1,6 +1,6 @@
 from math import sqrt
 
-STEPS_IN_ROUND = 64
+STEPS_IN_ROUND = 100
 
 STARTING_BARBS = 2
 BARBS_PER_ROUND = 1
