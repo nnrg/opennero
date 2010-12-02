@@ -42,7 +42,6 @@ class RTNEATAgent(AgentBrain):
         from Blocksworld.module import getMod
         EXPLOIT_PROB = getMod().ee
         rtneat = get_ai("neat%d" % self.team)
-        print self.team, ":", rtneat
         self.org = rtneat.next_organism(EXPLOIT_PROB)
         self.state.label = "%.02f" % self.org.fitness
         if FITNESS_OUT:    

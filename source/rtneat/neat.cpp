@@ -9,7 +9,7 @@
 using namespace std;
 
 namespace NEAT
-{
+ {
     U32 time_alive_minimum = 0;
     F64 trait_param_mut_prob = 0;
     F64 trait_mutation_power = 0; // Power of mutation on a signle trait param 
@@ -57,6 +57,7 @@ namespace NEAT
         // **********LOAD IN PARAMETERS*************** //
         cout << "NEAT READING IN "<< filename << endl;
         char curword[256];
+        paramFile >> curword;
         paramFile >> trait_param_mut_prob;
         paramFile >> curword;
         paramFile >> trait_mutation_power;

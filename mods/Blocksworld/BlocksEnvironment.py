@@ -41,6 +41,7 @@ class AgentState:
         self.defense_steps = 0
         self.offense_steps = 0
         self.flag_sum = 0
+        self.generation = 0
 
 class BlocksEnvironment(Environment):
     """
@@ -54,6 +55,7 @@ class BlocksEnvironment(Environment):
         print "CREATING NERO ENVIRONMENT: " + str(dir(module))
         Environment.__init__(self) 
 
+        self.SAVE_AGENT = 0
         self.curr_id = 0
         self.step_delay = 0.25 # time between steps in seconds
         self.max_steps = 20
@@ -147,6 +149,7 @@ class BlocksEnvironment(Environment):
         state.defense_steps = 0
         state.offense_steps = 0
         state.flag_sum = 0
+        state.generation += 1
         #update client fitness
         from client import set_stat
         ff = self.getFriendFoe(agent)
@@ -265,6 +268,14 @@ class BlocksEnvironment(Environment):
 
         #Initilize Agent state
         if agent.step == 0:
+            if self.SAVE_AGENT == 0:
+                self.SAVE_AGENT = state.id
+
+            if self.SAVE_AGENT == state.id and state.generation % 5 == 0:
+                print "SAVING UPDATED"
+                getMod().save_rtneat("/home/adam/thesis_files/control_d/pop_1_" + str(state.generation) + ".gnm", 1)
+                getMod().save_rtneat("/home/adam/thesis_files/control_d/pop_2_" + str(state.generation) + ".gnm", 2)
+
             p = agent.state.position
             agent.state.rotation.z = randrange(360)
             r = agent.state.rotation
@@ -399,8 +410,8 @@ class BlocksEnvironment(Environment):
             if id in self.coin_teams()[agent.get_team()] and self.coin_distance(agent, id) <= CRANGE and getMod().coin_nears[other-1][id] > 0:
                 x += (float(getMod().coin_nears[other-1][id]) / getMod().coin_nears[agent.get_team()-1][id])
 
-        if len(self.coin_teams()[agent.get_team()]) - state.prev_collected > 0:
-            x -= (len(self.coin_teams()[agent.get_team()]) - (state.prev_collected)) * getMod().fitness[agent.get_team()]
+        #if len(self.coin_teams()[agent.get_team()]) - state.prev_collected > 0:
+        #    x -= (len(self.coin_teams()[agent.get_team()]) - (state.prev_collected)) * getMod().fitness[agent.get_team()]
         
         state.prev_collected = len(self.coin_teams()[agent.get_team()])
 
@@ -541,7 +552,6 @@ class BlocksEnvironment(Environment):
           for val in tv:
              if ((fh - val) > 0) and ((fh - val) <= (tv == delta)) and (tv[val][0] == 0 or tv[val][0] > fd):
                  tv[val][0] = fd
-             if cos(radians(fh-val)) > tv[val][1]:
                  tv[val][1] = max(0,cos(radians(fh-val)))
         
         for val in cap:
