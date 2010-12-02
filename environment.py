@@ -589,7 +589,7 @@ class MazeEnvironment(Environment):
         """
         Discrete version
         """
-        
+        fitness = 0
         state = self.get_state(agent.state.id)
         state.record_action(action)
 
@@ -690,7 +690,14 @@ class MazeEnvironment(Environment):
 #            print "agent to remove at: " + str(self.states[barb].rc)
             self.remove_object(barb)
             print "removing agent: " + str(barb)
+            print "LEGION FITNESS = 1"
+#            fitness = 1
 
+          #if there's a city in the cell
+          city =  self.cell_occupied(new_r, new_c, 2)
+          if city != 0:
+            print "LEGION FITNESS = 100"
+#            fitness = 100
 
         #if we are barb
         elif state.agentType == 1:
@@ -719,7 +726,7 @@ class MazeEnvironment(Environment):
         agent.state.position = pos0
         relative_rotation = self.get_next_rotation((dr,dc))
         agent.state.rotation = state.initial_rotation + relative_rotation
-    
+
 
         #if this is the final step in the round, assign fitness
         
@@ -736,7 +743,7 @@ class MazeEnvironment(Environment):
         
         #return]
         self.end_step(agent)
-        return 0 
+        return fitness
       
       #state.record_reward(self.rewards.valid_move(state))
 
