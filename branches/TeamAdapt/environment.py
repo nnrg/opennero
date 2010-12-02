@@ -605,6 +605,7 @@ class MazeEnvironment(Environment):
 
         if not self.agent_info.actions.validate(action):
             state.prev_rc = state.rc
+            print "actions invalid"
 
             #return
             self.end_step(agent)
@@ -630,6 +631,7 @@ class MazeEnvironment(Environment):
         if a == len(MazeEnvironment.MOVES): # null action
 
             #return
+            print "NULL action"
             self.end_step(agent)
             return 0
 
@@ -673,7 +675,7 @@ class MazeEnvironment(Environment):
 #          print "checking for legion :" + str(new_r) + " , " + str(new_c)
           if legion != -1:
             #don't move
-#            print "legion in cell :" + str(legion)
+            print "legion in cell :" + str(legion)
 
             #return
             self.end_step(agent)
@@ -717,7 +719,8 @@ class MazeEnvironment(Environment):
 
         #MOVE
         state.rc = (new_r, new_c)
-#        print "newPos :" + str(state.rc)
+        if state.agentType == 0:
+          print "newPos :" + str(state.rc)
         (old_r,old_c) = state.prev_rc
         (old_x,old_y) = self.maze.rc2xy(old_r, old_c)
         pos0 = agent.state.position
@@ -795,7 +798,7 @@ class MazeEnvironment(Environment):
 
           #is the cell occupied by a barbarian/legion?
           if self.cell_occupied(r,c,0) == 0 and self.cell_occupied(r,c,1) == 0:
-            object = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(x, y, 2), type=AGENT_MASK)
+            object = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(x, y, 6), type=AGENT_MASK)
             state = self.get_state(object)
             state.rc = (r,c)
             state.agentType = 1

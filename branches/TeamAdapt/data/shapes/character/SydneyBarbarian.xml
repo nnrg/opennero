@@ -4,12 +4,12 @@
 	</Audio>
 	<Render>
 		<MaterialType>solid</MaterialType>
-		<MaterialFlagLighting>true</MaterialFlagLighting>
+		<MaterialFlagLighting>fasle</MaterialFlagLighting>
 		<AniMesh>data/shapes/character/sydney.md2</AniMesh>
 		<Texture0>data/shapes/character/sydney.bmp</Texture0>
-		<CastsShadow>true</CastsShadow>
+		<CastsShadow>false</CastsShadow>
 		<Footprints>
-			<Frames>2</Frames>
+			<Frames>3</Frames>
 			<Trail>25</Trail>
 			<Object>data/shapes/footprint/Footprint.xml</Object>
 		</Footprints>

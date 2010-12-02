@@ -680,7 +680,7 @@ class RTNEATAgent(AgentBrain):
 
 
         #if move>stay
-        if outputs[8] >= outputs[9]:
+        if (outputs[8]*1.5) >= outputs[9]:
           print "NETWORKACT: agent moving"
           best = -1
           index = 0

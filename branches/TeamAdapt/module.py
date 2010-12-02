@@ -286,9 +286,9 @@ class MazeMod:
 
       #NOT randomly placed
       posDict = {}
-      posDict[0] = (4,7)
-      posDict[1] = (7,5)
-      posDict[2] = (0,0)
+      posDict[0] = (4,8)
+      posDict[1] = (9,5)
+      posDict[2] = (1,1)
 
       for key in posDict.iterkeys():
 
@@ -297,7 +297,7 @@ class MazeMod:
 
         print r,c,x,y
 
-        city = addObject("data/shapes/objects/city.xml",Vector3f(x, y, 2), Vector3f(45,45,45), type=AGENT_MASK)
+        city = addObject("data/shapes/objects/city.xml",Vector3f(x, y, 2), Vector3f(0,0,0), scale=Vector3f(2,2,.5), type=AGENT_MASK)
 
         state = self.environment.get_object_state(city)
         state.rc = (r,c)
@@ -360,7 +360,7 @@ class MazeMod:
         (x,y) = self.environment.maze.rc2xy(r, c)
 
         print r,c,x,y
-        city = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(x, y, 6), type=AGENT_MASK)
+        city = addObject("data/shapes/character/SydneyBarbarian.xml",Vector3f(x, y, 0), type=AGENT_MASK)
 
         state = self.environment.get_state(city)
         state.rc = (r,c)
