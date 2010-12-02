@@ -9,7 +9,7 @@
 using namespace std;
 
 namespace NEAT
-{
+ {
     U32 time_alive_minimum = 0;
     F64 trait_param_mut_prob = 0;
     F64 trait_mutation_power = 0; // Power of mutation on a signle trait param 

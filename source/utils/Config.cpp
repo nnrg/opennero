@@ -6,8 +6,9 @@
 #include "core/Common.h"
 #include "core/File.h"
 #include "utils/Config.h"
-#include "game/Kernel.h"
+#include "scripting/scriptIncludes.h"
 #include "scripting/scripting.h"
+#include "game/Kernel.h"
 #include <iostream>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -41,6 +42,37 @@ namespace OpenNero
         out_archive << BOOST_SERIALIZATION_NVP(config);
         return output;
     }
+
+    /// Get the current application config
+    const AppConfig& GetAppConfig()
+    {
+        return Kernel::const_instance().getAppConfig();
+    }
+
+    /// Exports AppConfig classes to Python
+    PYTHON_BINDER( AppConfig )
+    {
+
+        class_<AppConfig>("AppConfig", "A configuration of the application.")
+            .def_readwrite("window_title", &AppConfig::window_title)
+            .def_readwrite("log_config_file", &AppConfig::log_config_file)
+            .def_readwrite("renderer", &AppConfig::render_type)
+            .def_readwrite("start_mod_name", &AppConfig::start_mod_name)
+            .def_readwrite("start_mod_dir", &AppConfig::start_mod_dir)
+            .def_readwrite("start_command", &AppConfig::start_command)
+            .def_readwrite("window_width", &AppConfig::window_width)
+            .def_readwrite("window_height", &AppConfig::window_height)
+            .def_readwrite("window_bpp", &AppConfig::window_BPP)
+            .def_readwrite("fullscreen", &AppConfig::full_screen)
+            .def_readwrite("use_stencil_buffer", &AppConfig::use_stencil_buffer)
+            .def_readwrite("use_vsync", &AppConfig::use_vsync)
+            .def_readwrite("seeds", &AppConfig::seeds)
+            .def(self_ns::str(self_ns::self))
+        ;
+
+        def("get_app_config", &GetAppConfig, return_value_policy<copy_const_reference>());
+    }
+
 
     AppConfig ReadAppConfig( int argc, char** argv, const string& appConfigFile )
     {

@@ -22,10 +22,10 @@ namespace OpenNero
         AgentInitInfo mInfo; ///< initialization info
         ApproximatorPtr mApproximator; ///< function approximator we are using
         Actions action;                 ///< previous action taken
-        Observations state;                  ///< previous state
+        Sensors state;                  ///< previous state
         Actions new_action;             ///< new action
     	// predicts reinforcement for current round
-    	virtual double predict(const Observations& new_state) = 0;
+    	virtual double predict(const Sensors& new_state) = 0;
     public:
         /// constructor
         /// @param gamma reward discount factor (between 0 and 1)
@@ -63,10 +63,10 @@ namespace OpenNero
         virtual bool initialize(const AgentInitInfo& init);
 
         /// called for agent to take its first step
-        virtual Actions start(const TimeType& time, const Observations& observations);
+        virtual Actions start(const TimeType& time, const Sensors& sensors);
 
         /// act based on time, sensor arrays, and last reward
-        virtual Actions act(const TimeType& time, const Observations& observations, const Reward& reward);
+        virtual Actions act(const TimeType& time, const Sensors& sensors, const Reward& reward);
 
         /// called to tell agent about its last reward
         virtual bool end(const TimeType& time, const Reward& reward);
@@ -99,7 +99,7 @@ namespace OpenNero
         double getEpsilon() { return mEpsilon; }
 
         /// select action according to policy
-        double epsilon_greedy(const Observations& new_state);
+        double epsilon_greedy(const Sensors& new_state);
 
         /// load this object from a template
         bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data ) 

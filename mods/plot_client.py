@@ -8,7 +8,7 @@ import sys
 import socket
 from subprocess import Popen
 
-HOST, PORT = "127.0.0.1", 9999
+HOST, PORT = "localhost", 9999
 ADDR = (HOST, PORT)
 BUFSIZE = 4096
 
@@ -19,29 +19,12 @@ class NetworkLogWriter:
         self.failed = False
         self.server_process = None
         if start_server:
-            missing = set([])
             try:
-                import wx
+                import wx, matplotlib, numpy, pylab
+                self.server_process = Popen(['python','plot_server.py'])
+                print 'plot server started!'
             except:
-                missing.add('wx')
-            try:
-                import matplotlib
-            except:
-                missing.add('matplotlib')
-            try:
-                import numpy
-            except:
-                missing.add('numpy')
-            if len(missing) == 0:
-                try:
-                    self.server_process = Popen(['python','plot_server.py'])
-                    print 'plot server started!'
-                except:
-                    print 'Could not start plot server!'
-            else:
-                import tkMessageBox
-                tkMessageBox.showwarning('Warning!', 'Could not start plot window because the following module(s) are missing: ' + ', '.join(missing))
-                
+                print 'Could not start plot server!'
 
     def connect(self):
         if self.connected:
@@ -52,9 +35,7 @@ class NetworkLogWriter:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.connect(self.addr)
             self.connected = True
-        except socket.error, e:
-            self.connected = False
-        except IOError, e:
+        except:
             self.connected = False
         return self.connected
 
@@ -64,25 +45,14 @@ class NetworkLogWriter:
                 self.sock.send(msg)
             except socket.error, e:
                 self.failed = True
-                print 'socket.error'
-            except IOError, e:
-                self.failed = True
-                print 'IOError'
-        if self.failed:
-            print msg
 
     def flush(self):
         pass
 
     def close(self):
         if self.connected and not self.failed:
-            try:
-                self.sock.sendto('', self.addr)
-                self.sock.close()
-            except socket.error, e:
-                pass
-            except IOError, e:
-                pass
+            self.sock.sendto('', self.addr)
+            self.sock.close()
             self.connected = False
         if self.server_process:
             self.server_process.kill()

@@ -12,6 +12,7 @@ namespace OpenNero
 {
 	/// @cond
     BOOST_SHARED_DECL(AgentBrain);
+    BOOST_SHARED_DECL(SensorArray);
     BOOST_SHARED_DECL(PythonAITemplate);
     BOOST_SHARED_DECL(PythonAIObject);
     /// @endcond
@@ -30,6 +31,12 @@ namespace OpenNero
 
         /// load this AI object from template
         virtual bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data );
+
+        /// get sensor information for the agent
+        virtual SensorInfo GetSensorInfo() { return SensorInfo(); }
+
+        /// sense the agent's environment
+        virtual Sensors Sense();
 
         /// display this AI object as a string
         virtual std::ostream& stream(std::ostream& out) const;

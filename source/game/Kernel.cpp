@@ -404,4 +404,34 @@ namespace OpenNero
         : mActive(false)
     {}
 
+    /// request a switch to a new mod with the specified mod path
+    void switchMod( const std::string& modName, const std::string& modDir )
+    {
+        Kernel::instance().RequestModSwitch(modName,modDir);
+    }
+
+    /// convert mod-relative path to filesystem path
+    std::string findResource(const std::string& path)
+    {
+        return Kernel::instance().findResource(path);
+    }
+
+    std::string getModPath()
+    {
+        return Kernel::instance().getModPath();
+    }
+
+    void setModPath(const std::string& path)
+    {
+        Kernel::instance().setModPath(path);
+    }
+
+    PYTHON_BINDER( Kernel )
+    {
+        def( "switchMod", &switchMod, "Switch the kernel to a new mod");
+        def( "findResource", &findResource, "Convert mod-relative path to filesystem path");
+        def( "getModPath", &getModPath, "get the resource search path of the current mod ( separated by ':' )");
+        def( "setModPath", &setModPath, "set the resource search path of the current mod ( separated by ':' )");
+    }
+
 } //end OpenNero

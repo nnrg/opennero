@@ -15,12 +15,12 @@ namespace OpenNero
 {
 	class SimFactory;
     class ObjectTemplate;
-	BOOST_SHARED_DECL(SimFactory);
-    BOOST_SHARED_DECL(ObjectTemplate);
+	typedef shared_ptr<SimFactory>      SimFactoryPtr;
+    typedef shared_ptr<ObjectTemplate>  ObjectTemplatePtr;
 
 	/// An object template is the basic structure for storing data that will not vary
 	/// from instance to instance. It is the basic flyweight pattern
-    class ObjectTemplate : public BOOST_SHARED_THIS(ObjectTemplate)
+    class ObjectTemplate : public enable_shared_from_this<ObjectTemplate>
 	{
 	public:
 

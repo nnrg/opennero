@@ -251,7 +251,7 @@ namespace OpenNero
 
         /// @return Get the gui element we contain
         IGuiElement_IPtr getGuiElement();
-        
+
         /// convert a position in absolute coordinates to relative coordinates
         /// @param pos2D the position to convert
         position2di convertToRelative( const position2di& pos2D );

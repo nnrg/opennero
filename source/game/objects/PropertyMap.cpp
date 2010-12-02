@@ -6,6 +6,7 @@
 #include "core/Common.h"
 #include "PropertyMap.h"
 #include "game/Kernel.h"
+#include "scripting/scriptIncludes.h"
 #include <boost/tokenizer.hpp>
 
 namespace OpenNero
@@ -428,6 +429,27 @@ namespace OpenNero
         return false;
     }
 
+
+    PYTHON_BINDER( PropertyMap )
+    {
+        using namespace boost::python;
+
+        // export the map
+        typedef std::map< std::string, std::string > StringToStringMap;
+        class_< StringToStringMap >( "StringToStringMap", "A mapping of strings to strings" )
+            .def(map_indexing_suite< StringToStringMap >() )
+        ;
+
+        // export property map
+        class_<PropertyMap>("PropertyMap", "A quick utility for polling an xml file")
+            .def("construct",   &PropertyMap::constructPropertyMap, "Creating a property map from an xml file path")            
+            .def("get_value", &PropertyMap::PyGetStringValue,       "Get a string value from a property spec" )
+            .def("get_attributes", &PropertyMap::getAttributes,     "Get the attributes at a given property spec")            
+            .def("has_attributes", &PropertyMap::hasAttributes,     "Check if the given property map spec contains attributes")
+            .def("has_value", &PropertyMap::hasValue,               "Check if the given property map spec contains a value")            
+            .def("has_section", &PropertyMap::hasSection,           "Check if the given property map spec exists")
+        ;         
+    }
 
 } //end OpenNero
 

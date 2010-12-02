@@ -20,7 +20,7 @@ namespace OpenNero
      * The camera class is an abstraction for the underlying rendering engine camera. It allows us to remain
      * api independent while still harnessing the power of the underlying api.
     */
-    class Camera : public BOOST_SHARED_THIS(Camera)
+    class Camera : public enable_shared_from_this<Camera>
     {
     public:
 

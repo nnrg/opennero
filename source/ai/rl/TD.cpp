@@ -17,7 +17,7 @@ namespace OpenNero
     }
 
     /// called for agent to take its first step
-    Actions TDBrain::start(const TimeType& time, const Observations& new_state)
+    Actions TDBrain::start(const TimeType& time, const Sensors& new_state)
     {
         epsilon_greedy(new_state);
         action = new_action;
@@ -26,7 +26,7 @@ namespace OpenNero
     }
 
     /// act based on time, sensor arrays, and last reward
-    Actions TDBrain::act(const TimeType& time, const Observations& new_state, const Reward& reward)
+    Actions TDBrain::act(const TimeType& time, const Sensors& new_state, const Reward& reward)
     {
         double new_Q = epsilon_greedy(new_state); // select new action and estimate its value
         double old_Q = mApproximator->predict(state, action);
@@ -48,7 +48,7 @@ namespace OpenNero
     }
 
     /// select action according to the epsilon-greedy policy
-    double TDBrain::epsilon_greedy(const Observations& new_state)
+    double TDBrain::epsilon_greedy(const Sensors& new_state)
     {
         // with chance epsilon, select random action
         if (RANDOM.randF() < mEpsilon)

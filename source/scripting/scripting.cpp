@@ -8,7 +8,6 @@
 
 #include "tinyxml.h"
 #include "scripting/scripting.h"
-#include "scripting/exports.h"
 #include "core/File.h"
 #include "game/Kernel.h"
 #include "boost/pool/detail/singleton.hpp"
@@ -45,16 +44,6 @@ namespace OpenNero
         }
 #endif // NERO_DEBUG
     }
-    
-    void ScriptingEngine::Tick(float32_t dt) {
-        try {
-            if (_globals.has_key("ModTick")) {
-                _globals["ModTick"](dt);
-            }
-        } catch (py::error_already_set const&) {
-            LogError();
-        }
-    }
 
     // the default module name
     const char* ScriptingEngine::kDefaultModuleName = "OpenNero";
@@ -66,6 +55,7 @@ namespace OpenNero
             stringstream ss;
             ss << "import " << moduleName << endl;
             python::exec(ss.str().c_str(), _globals, _globals);
+            PrintDebuggingInfo(_globals, _globals);
         }
         catch (error_already_set const&)
         {
@@ -101,7 +91,7 @@ namespace OpenNero
         try {
             python::exec(snippet.c_str(), _globals, _globals);
         }
-        catch (py::error_already_set const&)
+        catch (error_already_set)
         {
             if( !supressErrors )
             {
@@ -142,7 +132,7 @@ namespace OpenNero
             _main_module = python::import("__main__");
 
             // get the namespace of the main module
-            _globals = py::dict(_main_module.attr("__dict__"));
+            _globals = _main_module.attr("__dict__");
 
             LOG_F_DEBUG("scripting", "loaded __main__ and _globals");
 
@@ -180,13 +170,7 @@ namespace OpenNero
         if( _initialized )
         {
             _initialized = false;
-            if (_network_log_writer) {
-                try {
-                    _network_log_writer.attr("close")();
-                } catch (py::error_already_set const&) {
-                    // ignore errors on close
-                }
-            }
+            _network_log_writer.attr("close")();
         }
     }
 
@@ -222,11 +206,99 @@ namespace OpenNero
         return _scheduler;
     }
 
+    class ScriptExporter;
+
+    /// set of python exporters
+    typedef set<ScriptExporter*> ExporterSet;
+
+    /// a script registry that holds a collection of python export functions
+    class ScriptRegistry
+    {
+        private:
+            ExporterSet exporters;
+        public:
+        	/// register the script exporter (use only through the PYTHON_BINDER macro)
+        	/// @see PYTHON_BINDER
+            void Register(ScriptExporter* exporter)
+            {
+                exporters.insert(exporter);
+            }
+        	/// export the script exporter (use only through the PYTHON_BINDER macro)
+        	/// @see PYTHON_BINDER
+            void Export()
+            {
+                ExporterSet::iterator iter;
+                for (iter = exporters.begin(); iter != exporters.end(); ++iter)
+                {
+                    (*iter)->PyBind();
+                }
+            }
+    };
+
+    /// return the instance of a script registry
+    ScriptRegistry& GetScriptRegistry() {
+        static ScriptRegistry collection;
+        return collection;
+    }
+
+    ScriptExporter::ScriptExporter()
+    {
+        GetScriptRegistry().Register(this);
+    }
+
     // initialize our default module
     void InitializeScriptModule() {
-        scripting::ExportScripts();
+        GetScriptRegistry().Export();
         LOG_F_DEBUG("scripting", "OpenNero Python module initialized");
     }
+
+    /// redirect standard output to message-level logging
+    class PyStdLogWriter {
+        string s;
+    public:
+        PyStdLogWriter() : s() {}
+        /// write messge to log
+        void write(string msg)
+        {
+            if (msg == "\n")
+            {
+                LOG_F_MSG( "python", s );
+                s = "";
+            }
+            else
+            {
+                s += msg;
+            }
+        }
+        /// flush log to final destination
+        void flush() {}
+        /// close log
+        void close() {}
+    };
+
+    /// redirect standard error to error-level logging
+    class PyErrLogWriter {
+        string s;
+    public:
+        PyErrLogWriter() : s() {}
+        /// write a message to log
+        void write(string msg)
+        {
+            if (msg == "\n")
+            {
+                LOG_F_MSG( "python", s );
+                s = "";
+            }
+            else
+            {
+                s += msg;
+            }
+        }
+        /// flush log to final destination
+        void flush() {}
+        /// close log
+        void close() {}
+    };
 
     void ScriptingEngine::LogError()
     {
@@ -237,14 +309,20 @@ namespace OpenNero
     
     void ScriptingEngine::NetworkWrite(const std::string& message)
     {
-        if (_network_log_writer) {
-            try {
-                _network_log_writer.attr("write")(message);
-            } catch (py::error_already_set const&) {
-                LogError();
-            }
-        } else {
-            Log::LogMsg(NULL, NULL, message.c_str());
-        }
+        _network_log_writer.attr("write")(message);
+    }
+
+    /// export scripting engine to Python
+    PYTHON_BINDER(ScriptingEngine)
+    {
+        class_<ScriptingEngine>("ScriptingEngine");
+        class_<PyStdLogWriter>("StdLogWriter")
+            .def("write", &PyStdLogWriter::write, "write message to the OpenNERO log")
+            .def("close", &PyStdLogWriter::close, "close the python log writer")
+            .def("flush", &PyStdLogWriter::flush, "flush the OpenNERO log");
+        class_<PyErrLogWriter>("ErrLogWriter")
+            .def("write", &PyErrLogWriter::write, "write message to the OpenNERO log")
+            .def("close", &PyErrLogWriter::close, "close the python log writer")
+            .def("flush", &PyErrLogWriter::flush, "flush the OpenNERO log");
     }
 }

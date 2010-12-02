@@ -3,6 +3,7 @@
 #include "ai/AIObject.h"
 #include "ai/AIManager.h"
 #include "ai/Environment.h"
+#include "ai/SensorArray.h"
 #include "ai/AgentBrain.h"
 #include "ai/PythonAI.h"
 #include "ai/random/RandomAI.h"
@@ -40,7 +41,6 @@ namespace OpenNero
         , mAgentBrain()
         , mWorld(world)
         , mReward()
-        , mSensors(parent)
     {
     }
 
@@ -55,8 +55,8 @@ namespace OpenNero
         Assert(getBrain());
         if (getBrain()->step == 0) // if first step
         {
-            Observations observations = sense();
-            setActions(getBrain()->start(dt, observations));
+            Sensors sensors = getWorld()->sense(getBrain());
+            setActions(getBrain()->start(dt, sensors));
             setReward(getWorld()->step(getBrain(), getActions()));
             getBrain()->step++;
             if (mSharedData && mSharedData->GetLabel().empty() && !getBrain()->name.empty())
@@ -76,8 +76,8 @@ namespace OpenNero
                     getBrain()->step = 0;
                     getBrain()->fitness = 0;
                 } else {
-                    Observations observations = sense();
-                    setActions(getBrain()->act(dt, observations, getReward()));
+                    Sensors sensors = getWorld()->sense(getBrain());
+                    setActions(getBrain()->act(dt, sensors, getReward()));
                     setReward(getWorld()->step(getBrain(), getActions()));
                     getBrain()->step++;
                 }
@@ -98,15 +98,9 @@ namespace OpenNero
     }
 
     /// sense the agent's environment
-    Observations AIObject::sense()
+    Sensors AIObject::Sense()
     {
-        // create a new observation vector
-        Observations o = getInitInfo().sensors.getInstance();
-        // first, pass it along to the built-in sensors so that they can set some of the values
-        mSensors.getObservations(o);
-        // then, pass it to the environment and let it compute the final sensor vector
-        Observations observations = getWorld()->sense(getBrain(), o);
-        return observations;
+        return Sensors();
     }
 
     inline std::ostream& operator<<(std::ostream& out, AIObject& obj)

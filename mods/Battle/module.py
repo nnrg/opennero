@@ -3,18 +3,30 @@ from OpenNero import getSimContext
 from Battle.NeroEnvironment import *
 from Battle.RTNEATAgent import *
 from Battle.Turret import *
-from Battle.constants import *
 import subprocess
 import os
 import sys
 
 import random
 
+XDIM = 800
+YDIM = 400
+HEIGHT = 20
+OFFSET = -HEIGHT/2
+
+NEAT_ACTIONS = 3
+NEAT_SENSORS = 20
+pop_size = 40
+DEPLOY_SIZE = 40 * 2
+
+OBSTACLE = 1 #0b0001
+AGENT = 2 #0b0010
+
 class NeroModule:
     def __init__(self):
         global rtneat, rtneat2
-        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS + 1, NEAT_ACTIONS, pop_size, 1.0)
-        rtneat2 = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS + 1, NEAT_ACTIONS, pop_size,1.0)
+        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size, 1.0)
+        rtneat2 = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size,1.0)
         self.XDIM = XDIM
         self.YDIM = YDIM
         self.NEAT_ACTIONS = NEAT_ACTIONS
@@ -138,7 +150,6 @@ def getMod():
     return gMod
 
 def parseInput(strn):
-    from Battle.client import toggle_ai_callback
     strn = str(strn)
     mod = getMod()
     loc,val = strn.split(' ')
@@ -148,4 +159,5 @@ def parseInput(strn):
     if loc == "SP": mod.set_speedup(vali)
     if loc == "load1": mod.load_rtneat(1,val)
     if loc == "load2": mod.load_rtneat(2,val)
-    if loc == "deploy": toggle_ai_callback()
+def ServerMain():
+    print "Starting mod NERO"

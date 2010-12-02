@@ -6,6 +6,7 @@
 #include "core/Common.h"
 #include "GuiBase.h"
 #include "core/Log.h"
+#include "scripting/scripting.h"
 #include "gui/GuiManager.h"
 
 namespace OpenNero
@@ -257,7 +258,7 @@ namespace OpenNero
     {
         return mpGuiElement;
     }
-    
+
     /**
      * Convert a 2D position in the absolute frame to a 2D position in my relative frame
      * @param pos2D the absolute position
@@ -485,6 +486,22 @@ namespace OpenNero
         }
 
         return false;
+    }
+
+
+
+    PYTHON_BINDER( PyGuiBase )
+    {
+        using namespace boost;
+        using namespace boost::python;
+
+        // ptrs to special overloaded member methods
+        _GUI_BASE_PRE_HACK_(PyGuiBase);
+
+        // exprt the PyGuiBase class
+        class_<PyGuiBase, noncopyable, GuiBasePtr>( "PyGuiBase", "A basic python gui element", no_init )
+            _GUI_BASE_HACK_(PyGuiBase)
+        ;
     }
 
 } // end OpenNero

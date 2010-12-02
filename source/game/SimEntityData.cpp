@@ -7,7 +7,13 @@
 #include "game/SimEntityData.h"
 #include "game/Kernel.h"
 #include "game/SimContext.h"
+#include "scripting/scriptIncludes.h"
 #include "core/IrrSerialize.h"
+
+#if NERO_ENABLE_UNIT_TESTS
+    #include <boost/test/unit_test.hpp>
+    #include <boost/test/floating_point_comparison.hpp>
+#endif
 
 namespace OpenNero 
 {
@@ -293,6 +299,39 @@ namespace OpenNero
 		return Kernel::instance().GetSimContext()->SetObjectAnimation(mId, animation);
 	}
 
+    PYTHON_BINDER(SimEntityData)
+    {
+        class_<SimEntityData>("SimEntityData", no_init)
+            .add_property("position", 
+                          make_function(&SimEntityData::GetPosition, return_value_policy<copy_const_reference>()), 
+                          &SimEntityData::SetPosition)
+            .add_property("velocity", 
+                          make_function(&SimEntityData::GetVelocity, return_value_policy<copy_const_reference>()), 
+                          &SimEntityData::SetVelocity)
+            .add_property("rotation", 
+                          make_function(&SimEntityData::GetRotation, return_value_policy<copy_const_reference>()), 
+                          &SimEntityData::SetRotation)
+            .add_property("acceleration",
+                          make_function(&SimEntityData::GetAcceleration, return_value_policy<copy_const_reference>()), 
+                          &SimEntityData::SetAcceleration)
+            .add_property("label",
+                          make_function(&SimEntityData::GetLabel, return_value_policy<copy_const_reference>()),
+                          &SimEntityData::SetLabel)
+            .add_property("color",
+                          make_function(&SimEntityData::GetColor, return_value_policy<copy_const_reference>()),
+                          &SimEntityData::SetColor)
+            .add_property("type",
+                          &SimEntityData::GetType,
+                          &SimEntityData::SetType)
+            .add_property("id", &SimEntityData::GetId)
+			.def("setAnimation", &SimEntityData::SetAnimation, "set the animation of the object")
+            ;
+        
+        class_<SimDataVector>("SimDataVector", "A vector of SimEntityData")
+            .def(vector_indexing_suite<SimDataVector>())
+        ;
+    }
+
 	/// output sim entity data to stream
 	std::ostream& operator<<(std::ostream& stream, const SimEntityData& data)
 	{
@@ -303,5 +342,50 @@ namespace OpenNero
 			<< ", scale: " << data.GetScale() << "}";
 		return stream;
 	}
+
+#if NERO_ENABLE_UNIT_TESTS
+    void SimEntityData::UnitTest()
+    {   
+		using namespace boost::unit_test;
+		using namespace std;
+        {
+            SimEntityData data;
+            
+            // initially, all data is considered dirty
+            BOOST_CHECK_EQUAL( data.mDirtyBits, uint32_t(-1) );
+            
+            data.ClearDirtyBits();
+            
+            // after clearing the dirty bits, data is considered clean
+            BOOST_CHECK_EQUAL( data.mDirtyBits, 0 );
+
+            // check that setting same value does not cause to be dirty
+            data.SetPosition( Vector3f(0,0,0) );
+            BOOST_CHECK_EQUAL( data.mDirtyBits, 0 );
+
+            // check that setting dif value does make it dirty
+            data.SetPosition( Vector3f(1,0,0) );
+            BOOST_CHECK_EQUAL( data.mDirtyBits, kDB_Position );
+            BOOST_CHECK_CLOSE( data.GetPosition().X, 1.0f, 0.1f );
+            BOOST_CHECK_CLOSE( data.GetPosition().Y, 0.0f, 0.1f );
+            BOOST_CHECK_CLOSE( data.GetPosition().Z, 0.0f, 0.1f );            
+
+            // check bit clearance
+            data.ClearDirtyBits();
+            BOOST_CHECK_EQUAL( data.mDirtyBits, 0 );
+
+            // check flag setting
+            data.SetPosition( Vector3f(2,0,0) );
+            BOOST_CHECK_EQUAL( data.mDirtyBits, kDB_Position );
+            data.ClearDirtyBits();
+
+            data.SetVelocity( Vector3f(0,1,0) );
+            BOOST_CHECK_EQUAL( data.mDirtyBits, kDB_Velocity );
+
+            data.SetPosition( Vector3f(3,0,0) );
+            BOOST_CHECK_EQUAL( data.mDirtyBits, kDB_Position | kDB_Velocity );
+        }
+    }
+#endif
 
 } //end OpenNero

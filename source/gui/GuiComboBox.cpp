@@ -26,12 +26,23 @@ namespace OpenNero
         IGuiComboBox_IPtr cbox = boost::static_pointer_cast<IGUIComboBox>( getGuiElement() );
         return cbox->addItem( mEntries.back().c_str() );
     }
-    
-    int32_t GuiComboBox::getSelected()
-    {
-        Assert( getGuiElement() );
-        
-        return (boost::static_pointer_cast<IGUIComboBox>(getGuiElement()))->getSelected();
-    }
 
+    PYTHON_BINDER( GuiComboBox )
+    {
+        using namespace boost;
+        using namespace boost::python;
+
+        // ptrs to special overloaded member methods
+        _GUI_BASE_PRE_HACK_(GuiComboBox);
+        typedef int32_t (GuiComboBox::*AddItemPtr)( const std::string& );
+
+        // export the combo box to python
+        class_<GuiComboBox, noncopyable>( "GuiComboBox", "A basic gui combo box", no_init )
+
+            // Hack in our gui base methods
+            _GUI_BASE_HACK_(GuiComboBox)
+
+            .def("addItem", (AddItemPtr)&GuiComboBox::addItem, "Add an item to the combo box", "addItem(myItemDescString)" )
+        ;
+    }
 }

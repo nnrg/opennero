@@ -284,7 +284,7 @@ class MazeMod:
 
     def set_epsilon(self, epsilon):
         self.epsilon = epsilon
-        print 'Epsilon set to', self.epsilon
+        print 'Epsilon set to', self.speedup
         if self.environment:
             self.environment.epsilon = epsilon
             

@@ -35,7 +35,6 @@ namespace OpenNero
         AssertMsg( ent, "Adding a null entity to the simulation!" );
         AssertMsg( !Find( ent->GetSimId() ), "Entity with id " << ent->GetSimId() << " already exists in the simulation" );
         mSimIdHashedEntities[ ent->GetSimId() ] = ent;
-        mEntities.insert(ent);
         AssertMsg( Find(ent->GetSimId()) == ent, "The entity with id " << ent->GetSimId() << " could not be properly added" );
     }
 
@@ -61,18 +60,12 @@ namespace OpenNero
             SimId id = *removeItr;
 
             SimIdHashMap::iterator simItr = mSimIdHashedEntities.find(id);
-            
+
             if( simItr != mSimIdHashedEntities.end() ) {
                 SimEntityPtr simE = simItr->second;
                 AssertMsg( simE, "Invalid SimEntity stored in our simulation!" );
-                // remove also from entities set
-                SimEntitySet::iterator simInSet = mEntities.find(simE);
-                if (simInSet != mEntities.end()) {
-                    mEntities.erase(simInSet);
-                }
-
                 mSimIdHashedEntities.erase(simItr);
-            }            
+            }
 
             AssertMsg( !Find(id), "Did not properly remove entity from simulation!" );
         }
@@ -83,9 +76,8 @@ namespace OpenNero
     /// Remove all sim entities from our simulation
     void Simulation::clear()
     {
-        // clear our internal containers
+        // clear our sim id
         mSimIdHashedEntities.clear();
-        mEntities.clear();
     }
 
     /**
@@ -148,9 +140,8 @@ namespace OpenNero
             SimIdHashMap::const_iterator end = mSimIdHashedEntities.end();
             
             for( ; itr != end; ++itr ) {
-                SimEntityPtr ent = itr->second;
-                if (ent->CanCollide())
-                    not_colliding.insert(ent);
+                // TODO: check if this object can collide at all
+                not_colliding.insert(itr->second);
             }
         }
 
@@ -186,7 +177,7 @@ namespace OpenNero
 			}
         }
 
-		// now all the objects that collided are in the "colliding" set
+		// now all the objects that collided are in the colliding set
 		// we need to resolve all these collisions
 		SimEntitySet::const_iterator itr;
 
@@ -196,17 +187,6 @@ namespace OpenNero
 				(*itr)->ResolveCollision();
 			}
 		}
-    }
-    
-    const SimEntitySet Simulation::GetEntities(size_t types) const
-    {
-        SimEntitySet result;
-        SimEntitySet::const_iterator entIter;
-        for (entIter = mEntities.begin(); entIter != mEntities.end(); ++entIter)
-        {
-            if ((*entIter)->GetType() & types) result.insert(*entIter);
-        }
-        return result;
     }
 
 } //end OpenNero

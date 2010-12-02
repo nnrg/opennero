@@ -167,6 +167,33 @@ namespace OpenNero
 			sLogConnections.clear();
 		}
 
+#if NERO_TEST
+        // This method just tests if the logger will compile, not a functionality test.
+        void LogCompileTest()
+        {
+            LOG_DEBUG_EVERY(5,"Hello");
+            LOG_DEBUG("Hello");
+            LOG_ERROR("Hello");
+            LOG_MSG("Hello");
+            LOG_WARNING("Hello");
+
+            LOG_D_DEBUG("file","Hello");
+            LOG_D_ERROR("file","Hello");
+            LOG_D_MSG("file","Hello");
+            LOG_D_WARNING("file","Hello");
+
+            LOG_F_DEBUG("generic","Hello");
+            LOG_F_ERROR("generic","Hello");
+            LOG_F_MSG("generic","Hello");
+            LOG_F_WARNING("generic","Hello");
+
+            LOG_FD_DEBUG("generic","test","Hello");
+            LOG_FD_ERROR("generic","test","Hello");
+            LOG_FD_MSG("generic","test","Hello");
+            LOG_FD_WARNING("generic","test","Hello");
+        }
+#endif // end NERO_TEST
+
 	} // end Log
 
 } //end OpenNero

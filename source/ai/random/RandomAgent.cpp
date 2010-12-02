@@ -35,12 +35,12 @@ namespace OpenNero {
         return true;
     }
 
-    Actions RandomAgent::start(const TimeType& time, const Observations& observations)
+    Actions RandomAgent::start(const TimeType& time, const Sensors& sensors)
     {
         return this->get_random_action();
     }
 
-    Actions RandomAgent::act(const TimeType& time, const Observations& observations,
+    Actions RandomAgent::act(const TimeType& time, const Sensors& sensors,
                              const Reward& reward)
     {
         return this->get_random_action();

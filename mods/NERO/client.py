@@ -7,19 +7,13 @@ from inputConfig import *
 from constants import *
 from math import *
 
-ai_state = None
-
 def toggle_ai_callback():
-    global ai_state
+    global toggleAiButton
     toggle_ai()
-    if not ai_state:
-        getMod().start_rtneat()
-        reset_ai()
-        ai_state = 'Started'
-    elif ai_state == 'Started':
-        ai_state = 'Paused'
-    elif ai_state == 'Paused':
-        ai_state = 'Started'
+    if toggleAiButton.text == 'Deploy':
+     getMod().start_rtneat()
+     reset_ai()
+     toggleAiButton.text = 'Toggle AI'
 
 def save_ai_call():
     getMod().save_rtneat()
@@ -50,8 +44,6 @@ def show_context_menu():
     cursor = sim_context.getMousePosition()
     location = sim_context.getClickedPosition(cursor.x, cursor.y)
     selected_object_id = sim_context.getClickedEntityId(cursor.x, cursor.y)
-
-    if abs(location.z) > 1: return
 
     print "location:", location
 
@@ -150,6 +142,7 @@ def mouse_action():
 #########################################################
 
 def CreateGui(guim): 
+    global toggleAiButton
     global mode
     global modify_object_id
     global object_ids
@@ -161,6 +154,16 @@ def CreateGui(guim):
     modify_object_id = {}
 
     #x = getReader() 
+
+    guiMan.setTransparency(1.0)
+    guiMan.setFont("data/gui/fonthaettenschweiler.bmp")  
+    guiWindow = gui.create_window( guiMan, 'window', Pos2i(20,20),Pos2i(80,100), 'Nero Controls' )
+
+    toggleAiButton = gui.create_button( guiMan, 'toggle_ai', Pos2i(0,0),Pos2i(60,80), '' )
+    toggleAiButton.text = 'Deploy'
+    toggleAiButton.OnMouseLeftClick = toggle_ai_callback
+    
+    guiWindow.addChild(toggleAiButton)
 
 def weight_adjusted(scroll, key, value):
     result = scroll.getPos() - 100

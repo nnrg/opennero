@@ -59,7 +59,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         grid.Fit(parent)
 
     def OnDeploy(self,event):
-        self.send("deploy 0")
+        self.send("deploy")
 
     def OnSave(self,event):
         dirname = ""

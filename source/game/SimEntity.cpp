@@ -230,20 +230,10 @@ namespace OpenNero
     {
         return mSharedData.GetColor();
     }
-    
-    uint32_t SimEntity::GetType() const
-    {
-        return mSharedData.GetType();
-    }
 
     void SimEntity::SetPosition( const Vector3f& pos )
     {
         mSharedData.SetPosition(pos);
-    }
-
-    bool SimEntity::CanCollide() const 
-    {
-        return mSceneObject && mSceneObject->canCollide();
     }
 
 	/// Get the set of objects colliding
@@ -254,8 +244,8 @@ namespace OpenNero
         for (iter = others.begin(); iter != others.end(); ++iter)
         {
             SimEntityPtr ent = *iter;
-            if (ent.get() != this && // don't collide with self
-                mSceneObject->isColliding(mSharedData.GetPosition(), ent->mSceneObject))
+            if (ent.get() == this) continue; // this is us, skip
+            if (mSceneObject->CheckCollision(mSharedData.GetPosition(), ent->mSceneObject))
                 result_set.insert(ent);
         }
         return result_set;

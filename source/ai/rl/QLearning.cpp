@@ -7,7 +7,7 @@
 
 namespace OpenNero
 {
-	double QLearningBrain::predict(const Observations& new_state) {
+	double QLearningBrain::predict(const Sensors& new_state) {
         std::list< FeatureVector > action_list = mInfo.actions.enumerate();
 		double max_value = -DBL_MAX;
 		std::list< Actions >::const_iterator iter;

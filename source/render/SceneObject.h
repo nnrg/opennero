@@ -65,7 +65,7 @@ namespace OpenNero
         virtual ~SceneObjectTemplate();
 
         // create the concrete type of template we need
-        static boost::shared_ptr<SceneObjectTemplate> createTemplate(SimFactoryPtr factory, const PropertyMap& propMap);
+        static shared_ptr<SceneObjectTemplate> createTemplate(SimFactoryPtr factory, const PropertyMap& propMap);
 
         /// returns the template type of a scene object
         static const std::string TemplateType() { return "SceneObject"; }
@@ -98,7 +98,7 @@ namespace OpenNero
      * A scene object is responsible for being able to provide the proper
      * information to irrlicht such that a node can be rendered
     */
-    class SceneObject : public SimEntityComponent, public TemplatedObject, public BOOST_SHARED_THIS(SceneObject)
+    class SceneObject : public SimEntityComponent, public TemplatedObject, public enable_shared_from_this<SceneObject>
     {
     public:
 
@@ -160,11 +160,8 @@ namespace OpenNero
         /// get object position
         Vector3f getPosition() const;
         
-        /// are we colliding with the other object?
-        bool isColliding(const Vector3f& new_pos, const SceneObjectPtr& other);
-        
-        /// can we possibly collide with any other object?
-        bool canCollide() const;
+        /// do we collide with the other object?
+        bool CheckCollision(const Vector3f& new_pos, const SceneObjectPtr& other);
 
         /// attach an FPS camera to this scene object
         void attachCamera(CameraPtr cam);

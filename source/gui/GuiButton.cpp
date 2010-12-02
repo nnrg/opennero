@@ -7,6 +7,7 @@
 #include "gui/GuiButton.h"
 #include "game/factories/IrrFactory.h"
 #include "game/factories/SimFactory.h"
+#include "scripting/scripting.h"
 
 namespace OpenNero
 {	
@@ -149,5 +150,23 @@ namespace OpenNero
         }
         else
             LOG_F_WARNING("gui", "could not load texture file " << dPathJPG);
+    }
+
+    PYTHON_BINDER( GuiButton )
+    {
+        using namespace boost;
+        using namespace boost::python;
+
+        // ptrs to special overloaded member methods
+        _GUI_BASE_PRE_HACK_(GuiButton);
+
+        class_<GuiButton, noncopyable>( "GuiButton", "A basic gui button", no_init )
+
+            // Hack in our gui base methods
+            _GUI_BASE_HACK_(GuiButton)
+
+            // export our button methods
+            .def("setImages", &GuiButton::setImages,"Set the images to use for the button" )            
+        ;
     }
 }

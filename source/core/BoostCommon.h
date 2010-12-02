@@ -35,6 +35,4 @@ using namespace boost;
 #define BOOST_SMART_PTR_STRUCT( structname ) BOOST_SHARED_STRUCT(structname); BOOST_WEAK_STRUCT(structname); BOOST_INTRUSIVE_STRUCT(structname)
 #define BOOST_PTR_STRUCT(structname) BOOST_SMART_PTR_STRUCT(structname)
 
-#define BOOST_SHARED_THIS( classname ) boost::enable_shared_from_this<classname>
-
 #endif //end _CORE_BOOST_H_

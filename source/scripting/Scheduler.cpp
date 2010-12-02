@@ -8,6 +8,7 @@
 #include "core/ONTime.h"
 #include "core/Algorithm.h"
 #include "scripting/Scheduler.h"
+#include "scripting/scriptIncludes.h"
 #include "scripting/scripting.h"
 
 namespace OpenNero
@@ -62,6 +63,9 @@ namespace OpenNero
         EventInfo info( sEventId++, execTime, command );
         mEvents.insert( std::lower_bound( mEvents.begin(), mEvents.end(), info, CompareEventExecTime() ), info );
 
+        // make sure the events are sorted
+        AssertMsg( is_sorted( mEvents.begin(), mEvents.end(), CompareEventExecTime() ), "Events are not sorted properly!" );
+
         return info.mEventId;
     }
 
@@ -85,6 +89,9 @@ namespace OpenNero
             ExecEvent(*itr);
 
         mEvents.erase( start, itr );
+
+        // make sure the events are sorted
+        AssertMsg( is_sorted( mEvents.begin(), mEvents.end(), CompareEventExecTime() ), "Events are not sorted properly!" );
 
         return c;
     }
@@ -113,5 +120,27 @@ namespace OpenNero
     {
         ScriptingEngine& se = ScriptingEngine::instance();
         return se.Exec(event.mCommand);
+    }
+
+    namespace ScriptEventScheduling
+    {
+        Scheduler::EventId schedule( uint32_t timeOffset, const Scheduler::ScriptCommand& command )
+        {
+            Scheduler& scheduler = ScriptingEngine::instance().GetScheduler();
+            return scheduler.ScheduleEvent( timeOffset, command );
+        }
+
+        bool cancel( const Scheduler::EventId& id )
+        {
+            Scheduler& scheduler = ScriptingEngine::instance().GetScheduler();
+            return scheduler.CancelEvent(id);
+        }
+    }
+
+    /// export scheduler methods into Python API
+    PYTHON_BINDER( Scheduler )
+    {
+        def( "schedule", &ScriptEventScheduling::schedule, "Schedule an event to execute in some time offset. schedule(offset,command)");
+        def( "cancel",   &ScriptEventScheduling::cancel,   "Cancel an event from executing. cancel( eventId )" );
     }
 }

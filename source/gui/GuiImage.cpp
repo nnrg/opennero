@@ -6,6 +6,7 @@
 #include "core/Common.h"
 #include "gui/GuiImage.h"
 #include "game/factories/SimFactory.h"
+#include "scripting/scripting.h"
 
 namespace OpenNero
 {
@@ -48,4 +49,22 @@ namespace OpenNero
         image->setUseAlphaChannel(enable);
 	}
 
+    PYTHON_BINDER( GuiImage )
+    {
+        using namespace boost;
+        using namespace boost::python;
+
+        // ptrs to special overloaded member methods
+        _GUI_BASE_PRE_HACK_(GuiImage);
+
+        class_<GuiImage, noncopyable>( "GuiImage", "A basic gui image", no_init )
+
+            // Hack in our gui base methods
+            _GUI_BASE_HACK_(GuiImage)
+
+            // export our button methods
+            .def("setImage",                &GuiImage::setImage,"Set the image to use" )
+            .def("setEnableAlphaChannel",   &GuiImage::setEnableAlphaChannel, "Set whether or not to use the alpha channel")
+        ;
+    }
 }

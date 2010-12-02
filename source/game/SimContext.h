@@ -31,7 +31,7 @@ namespace OpenNero
      * The SimContext is the entire game state. It stores all the objects in 
      * in the simulation.
      */
-    class SimContext : public BOOST_SHARED_THIS(SimContext)
+    class SimContext : public enable_shared_from_this<SimContext>
     {
     public:
 
@@ -89,24 +89,17 @@ namespace OpenNero
         Line3f GetRayUnderMouse(const int32_t& x, const int32_t& y) const;
 
 		/// Find the first object that intersects the specified ray
-		bool FindInRay( SimEntityData& hitEntity,
-                        Vector3f& hitPos,
-                        const Vector3f& origin, 
-                        const Vector3f& target, 
-                        const uint32_t& type = 0, 
-                        const bool val = false, 
-                        const SColor& foundColor = SColor(255,255,0,0),
-                        const SColor& noneColor = SColor(255,255,255,0)
-                      ) const;
-
-		/// Find the first object that intersects the specified ray
-		boost::python::tuple PyFindInRay( const Vector3f& origin, 
-                                          const Vector3f& target, 
-                                          const uint32_t& type = 0, 
-                                          const bool val = false, 
-                                          const SColor& foundColor = SColor(255,255,0,0),
-                                          const SColor& noneColor = SColor(255,255,255,0)
+		boost::python::tuple FindInRay( const Vector3f& origin, 
+                                        const Vector3f& target, 
+                                        const uint32_t& type = 0, 
+                                        const bool val = false, 
+                                        const SColor& foundColor = SColor(255,255,0,0),
+                                        const SColor& noneColor = SColor(255,255,255,0)
                                         ) const;
+
+        /// Find K nearest neighbours to a point
+        boost::python::list FindKNN( const Vector3f& point,
+                                     const uint32_t& K ) const;
 
         /// Get (approximate) 3d position of the click
         Vector3f GetClickedPosition(const int32_t& x, const int32_t& y) const;
@@ -178,7 +171,7 @@ namespace OpenNero
         CameraPtr getActiveCamera() const;
 
         // get an object template from a file
-        template<typename ObjTemp> boost::shared_ptr<ObjTemp> getObjectTemplate( const std::string& templateName) const;
+        template<typename ObjTemp> shared_ptr<ObjTemp> getObjectTemplate( const std::string& templateName) const;
 
         // move the world forward by time dt
         void ProcessTick(float32_t dt);
@@ -190,7 +183,7 @@ namespace OpenNero
         const SimulationPtr getSimulation() const { return mpSimulation; }
 
         /// return the next free Id
-        SimId GetNextFreeId() const { return mpSimulation->GetNextFreeId(); }
+        SimId GetNextFreeId() const;
 
     protected:
 
@@ -245,7 +238,7 @@ namespace OpenNero
      * @param templateName the name of the file to get the template from
      * @return ptr to the loaded object template or NULL if failed to load
      */
-    template<typename ObjTemp> boost::shared_ptr<ObjTemp> SimContext::getObjectTemplate(
+    template<typename ObjTemp> shared_ptr<ObjTemp> SimContext::getObjectTemplate(
             const std::string& templateName) const
     {
         // make the mod path
@@ -268,7 +261,7 @@ namespace OpenNero
         PropertyMap pmap;
         if (pmap.constructPropertyMap(modTemplateName ) )
         {
-            boost::shared_ptr<ObjTemp> temp = ObjTemp::createTemplate( mpFactory, pmap ); // allows some degree of polymorphism
+            shared_ptr<ObjTemp> temp = ObjTemp::createTemplate( mpFactory, pmap ); // allows some degree of polymorphism
             mObjectTemplates[lookupPath] = temp;
             LOG_F_MSG( "game", "Successfully loaded object template " << modTemplateName );
             return temp;
@@ -276,7 +269,7 @@ namespace OpenNero
 
         // fail
         LOG_F_ERROR("game", "Failed to load object template " << modTemplateName );
-        return boost::shared_ptr<ObjTemp>();
+        return shared_ptr<ObjTemp>();
     }
     
 } //end OpenNero

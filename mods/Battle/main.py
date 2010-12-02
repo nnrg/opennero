@@ -2,16 +2,9 @@
 
 #import all client and server scripts
 from Battle.module import *
+from Battle.module import getMod
 from Battle.client import *
 
 def ModMain():
-    ClientMain()
-
-script_server = ScriptServer()
-
-def ModTick(dt):
-    startScript("Battle/menu.py")
-    data = script_server.read_data()
-    while data:
-        parseInput(data.strip())
-        data = script_server.read_data()
+    ServerMain()
+    ClientMain()  

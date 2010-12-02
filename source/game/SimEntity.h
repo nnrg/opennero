@@ -125,9 +125,6 @@ namespace OpenNero
 
         /// get override color of the object
         const SColor& GetColor() const;
-        
-        /// get the type flag of the object
-        uint32_t GetType() const;
 
 		/// Setters for properties
         /// @{
@@ -145,9 +142,6 @@ namespace OpenNero
         
         /// Assume that a collision occurred and resolve it (bounce)
         void ResolveCollision();
-        
-        /// Can this object collide at all?
-        bool CanCollide() const;
 
         /// output human-readable information about this SimEntity
         friend std::ostream& operator<<(std::ostream& stream, const SimEntityPtr&);
