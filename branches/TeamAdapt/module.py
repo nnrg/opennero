@@ -156,7 +156,7 @@ class MazeMod:
             self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(i * GRID_DX, COLS * GRID_DY + GRID_DY/2, 2), Vector3f(0, 0, 0), type=OBSTACLE_MASK ))
             self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(ROWS * GRID_DX + GRID_DX/2, i * GRID_DY, 2), Vector3f(0, 0, 90), type=OBSTACLE_MASK ))
         # goal (red cube)
-        self.wall_ids.append(addObject("data/shapes/cube/RedCube.xml", Vector3f(4 * GRID_DX, 8 * GRID_DY, 5), Vector3f(45,45,45)))
+#        self.wall_ids.append(addObject("data/shapes/cube/RedCube.xml", Vector3f(4 * GRID_DX, 8 * GRID_DY, 5), Vector3f(45,45,45)))
 
     def reset_maze(self):
         """ reset the maze by removing the markers and starting the AI """
@@ -297,7 +297,7 @@ class MazeMod:
 
         print r,c,x,y
 
-        city = addObject("data/shapes/objects/city.xml",Vector3f(x, y, 2), type=AGENT_MASK)
+        city = addObject("data/shapes/objects/city.xml",Vector3f(x, y, 2), Vector3f(45,45,45), type=AGENT_MASK)
 
         state = self.environment.get_object_state(city)
         state.rc = (r,c)
