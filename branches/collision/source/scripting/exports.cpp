@@ -844,6 +844,9 @@ namespace OpenNero {
                 .add_property("type",
                               &SimEntityData::GetType,
                               &SimEntityData::SetType)
+                .add_property("collision",
+                              &SimEntityData::GetCollision,
+                              &SimEntityData::SetCollision)
                 .add_property("id", &SimEntityData::GetId)
                 .def("setAnimation", &SimEntityData::SetAnimation, "set the animation of the object")
                 ;
@@ -859,7 +862,7 @@ namespace OpenNero {
             return *(Kernel::GetSimContext());
         }
         
-        BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addObject_overloads, AddObject, 2, 6)
+        BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addObject_overloads, AddObject, 2, 7)
         
         BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addSkyBox_overloads, AddSkyBox, 1, 2)
         
@@ -886,8 +889,8 @@ namespace OpenNero {
                      &SimContext::AddSkyBox, 
                      addSkyBox_overloads("Add a sky box consisting of 6 images starting with arg0 and ending with arg1"))
                 .def("addObject", 
-                     &SimContext::AddObject, 
-                     "Create an object on the server and broadcast to clients")
+                     &SimContext::AddObject,
+                     addObject_overloads("Create an object on the server and broadcast to clients"))
                 .def("removeObject", 
                      &SimContext::RemoveObject, 
                      "Remove an object from the server and broadcast to clients")

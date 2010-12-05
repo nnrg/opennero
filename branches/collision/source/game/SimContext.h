@@ -74,6 +74,7 @@ namespace OpenNero
                         const Vector3f& rot = Vector3f(0,0,0),
                         const Vector3f& scale = Vector3f(1,1,1),
                         const std::string& label = std::string(),
+                        uint32_t collision = 0, 
                         uint32_t type = 0);
 
         /// Remove an object by it's ID

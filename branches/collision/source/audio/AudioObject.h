@@ -61,7 +61,7 @@ namespace OpenNero
         ~AudioObject();
 
         /// load the scene object from a template
-        virtual bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data );
+        virtual bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const  SimEntityData& data );
 
         /// get the template
         ObjectTemplatePtr GetObjectTemplate();

@@ -40,7 +40,6 @@ namespace OpenNero
     {
         SimEntityPtr ent(new SimEntity(data, templateName));
         InitializeSimEntity(ent, data, templateName, context);
-        LOG_F_DEBUG("game", "created new object: " << ent);
         return ent;
     }
 
@@ -51,17 +50,18 @@ namespace OpenNero
         const std::string& templateName, 
         SimContextPtr context)
     {
-        // object template
-        ObjectTemplatePtr objTemp;
-
-        objTemp = context->getObjectTemplate<SceneObjectTemplate>(templateName);
-        SceneObjectPtr sceneObj;
-        if (objTemp)
         {
-            sceneObj.reset(new SceneObject(ent));
-            if (sceneObj->LoadFromTemplate(objTemp, data) )
+            SceneObjectTemplatePtr objTemp = context->getObjectTemplate<SceneObjectTemplate>(templateName);
+            if (objTemp)
             {
-                ent->SetSceneObject(sceneObj);
+                SceneObjectPtr sceneObj;
+                sceneObj.reset(new SceneObject(ent));
+                if (sceneObj->LoadFromTemplate(objTemp, data) )
+                {
+                    ent->SetSceneObject(sceneObj);
+                    ent->SetCollision(ent->GetCollision() | objTemp->mCollisionMask);
+                }
+                
             }
         }
 #if NERO_BUILD_AUDIO
@@ -77,17 +77,16 @@ namespace OpenNero
             }
         }
 #endif // NERO_BUILD_AUDIO
-        AIObjectTemplatePtr aiTemplate = context->getObjectTemplate<AIObjectTemplate>(templateName);
-        if (aiTemplate)
         {
-            LOG_F_DEBUG( "ai", "Creating AI Object");
-            EnvironmentPtr env = AIManager::instance().GetEnvironment();
-            AssertMsg(env, "Environment is not set up when creating an AI agent!");
-            AIObjectPtr aiObj = aiTemplate->CreateObject(env, ent);
-            if (aiObj)
+            AIObjectTemplatePtr aiTemplate = context->getObjectTemplate<AIObjectTemplate>(templateName);
+            if (aiTemplate)
             {
-                aiObj->LoadFromTemplate(aiTemplate, data);
-                ent->SetAIObject(aiObj);
+                EnvironmentPtr env = AIManager::instance().GetEnvironment();
+                AssertMsg(env, "Environment is not set up when creating an AI agent!");
+                AIObjectPtr aiObj = aiTemplate->CreateObject(env, ent);
+                if (aiObj && aiObj->LoadFromTemplate(aiTemplate, data)) {
+                    ent->SetAIObject(aiObj);
+                }
             }
         }
         ent->SetCreationTemplate( templateName );
@@ -235,6 +234,11 @@ namespace OpenNero
     {
         return mSharedData.GetType();
     }
+    
+    uint32_t SimEntity::GetCollision() const
+    {
+        return mSharedData.GetCollision();
+    }
 
     void SimEntity::SetPosition( const Vector3f& pos )
     {
@@ -243,22 +247,24 @@ namespace OpenNero
 
     bool SimEntity::CanCollide() const 
     {
-        return mSceneObject && mSceneObject->canCollide();
+        return mSharedData.GetCollision() != 0;
     }
 
 	/// Get the set of objects colliding
-    SimEntitySet SimEntity::GetCollisions( const SimEntitySet& others)
+    bool SimEntity::IsColliding( const SimEntitySet& others)
     {
         SimEntitySet::const_iterator iter; // iterate over the list
-		SimEntitySet result_set;
         for (iter = others.begin(); iter != others.end(); ++iter)
         {
             SimEntityPtr ent = *iter;
             if (ent.get() != this && // don't collide with self
+                (mSharedData.GetCollision() & ent->GetType()) &&
                 mSceneObject->isColliding(mSharedData.GetPosition(), ent->mSceneObject))
-                result_set.insert(ent);
+            {
+                return true;
+            }
         }
-        return result_set;
+        return false;
     }
     
     /// Assume that a collision occurred and resolve it (bounce)
@@ -266,7 +272,6 @@ namespace OpenNero
     /// before (which is stored in mSceneObject).
     void SimEntity::ResolveCollision()
     {
-		SetLabel("Bump");
 		SetPosition(mSceneObject->getPosition());
     }
 
@@ -294,6 +299,11 @@ namespace OpenNero
     void SimEntity::SetColor(const SColor& color)
     {
         mSharedData.SetColor(color);
+    }
+    
+    void SimEntity::SetCollision(uint32_t mask)
+    {
+        mSharedData.SetCollision(mask);
     }
 
     /// output SimEntity to stream
