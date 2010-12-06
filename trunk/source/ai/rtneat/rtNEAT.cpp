@@ -104,15 +104,11 @@ namespace OpenNero
     {
         OrganismPtr org;
         
-        //With prob probability, instead of "exploring", "exploit" by
-        //re-evaluating a previous agent.
         if (!mEvalQueue.empty())
-         {
+        {
             org = mEvalQueue.front();
             mEvalQueue.pop();
         }
- 
-        //Notes on current implementation.
         else if (RANDOM.randF() < prob)
         {
             vector<OrganismPtr>::iterator most = max_element(mPopulation->organisms.begin(), mPopulation->organisms.end(), fitness_less);
@@ -120,17 +116,28 @@ namespace OpenNero
         }
         else
         {
- 
             vector<OrganismPtr>::iterator least = min_element(mPopulation->organisms.begin(), mPopulation->organisms.end(), fitness_less);
             AssertMsg(least != mPopulation->organisms.end(), "lowest fitness organism not found");
             double least_fitness = (*least)->fitness;
-            LOG_F_DEBUG("ai", "lowest fitness: " << least_fitness);
+            double max_fitness = least_fitness;
+            size_t effective_pop_size = 0;
             vector<OrganismPtr>::iterator org_iter;
             for (org_iter = mPopulation->organisms.begin(); org_iter != mPopulation->organisms.end(); ++org_iter)
             {
-                if((*org_iter)->time_alive > 0)
-                (*org_iter)->fitness -= least_fitness;
+                if ((*org_iter)->time_alive > 0) {
+                    double fitness = (*org_iter)->fitness;
+                    if (fitness > max_fitness) 
+                    {
+                        max_fitness = fitness;
+                    }
+                    effective_pop_size += 1;
+                    (*org_iter)->fitness -= least_fitness;
+                }
             }
+            LOG_F_DEBUG("ai", 
+                "Effective rtNEAT population of size: " << effective_pop_size <<
+                ", min. fitness: " << least_fitness <<
+                ", max. fitness: " << max_fitness);
             OrganismPtr removed = mPopulation->remove_worst();
             if (removed) {
                 SpeciesPtr parent = mPopulation->choose_parent_species();
