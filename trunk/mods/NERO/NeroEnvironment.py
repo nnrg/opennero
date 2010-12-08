@@ -80,7 +80,12 @@ class NeroEnvironment(Environment):
         """
         reset the environment to its initial state
         """
+        from NERO.module import getMod
         state = self.get_state(agent)
+        dx = randrange(XDIM/20) - XDIM/40
+        dy = randrange(XDIM/20) - XDIM/40
+        state.initial_position.x = getMod().spawn_x + dx
+        state.initial_position.y = getMod().spawn_y + dy
         agent.state.position = copy(state.initial_position)
         agent.state.rotation = copy(state.initial_rotation)
         state.pose = (state.initial_position.x, state.initial_position.y, state.initial_rotation.z)
@@ -199,7 +204,7 @@ class NeroEnvironment(Environment):
             if getMod().getNumToAdd() > 0:
                 dx = randrange(XDIM/20) - XDIM/40
                 dy = randrange(XDIM/20) - XDIM/40
-                getMod().addAgent((XDIM/2 + dx, YDIM/3 + dy, 2))
+                getMod().addAgent((getMod().spawn_x + dx, getMod().spawn_y + dy, 2))
 
         # Update Damage totals
         state.total_damage += state.curr_damage
