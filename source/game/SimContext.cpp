@@ -119,20 +119,22 @@ namespace OpenNero
     /// @param rot initial rotation (Euler angle) of the object
     /// @param scale initial scale of the object
     /// @param label initial text label of the object
-    /// @param type initial type of the object (has to be smaller than BITMASK_SIZE
+    /// @param type initial type of the object (has to be smaller than BITMASK_SIZE)
+    /// @param collision collision mask of the new object
     /// @return SimId of the newly added object
     SimId SimContext::AddObject( const std::string& templateName, 
                                 const Vector3f& pos, 
                                 const Vector3f& rot, 
                                 const Vector3f& scale,
                                 const std::string& label,
+                                uint32_t collision, 
                                 uint32_t type)
     {
         Assert( mpSimulation );
 
         // initialize the creation data
         SimId new_id = GetNextFreeId();
-        SimEntityData data(pos, rot, scale, label, type, new_id);
+        SimEntityData data(pos, rot, scale, label, type, collision, new_id);
         data.SetDirtyBits();
         SimEntityPtr simEnt = SimEntity::CreateSimEntity(data, templateName, shared_from_this());
         if( simEnt )
@@ -281,7 +283,8 @@ namespace OpenNero
         // decisions.
         UpdateSimulation(dt);
         
-        // This will trigger scheduled events in the Python script
+        // This will trigger scheduled events in the Python script,
+        // as well as ModTick(dt) if it is defined
         UpdateScriptingSystem(dt);
     }
 

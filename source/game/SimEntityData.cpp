@@ -21,6 +21,7 @@ namespace OpenNero
         , mColor(0xFF, 0xFF, 0xFF, 0xFF)
         , mId()
         , mType()
+        , mCollision()
         , mDirtyBits(uint32_t(-1))
     {
     }
@@ -30,6 +31,7 @@ namespace OpenNero
                                  const Vector3f& scale, 
                                  const std::string& label,
                                  uint32_t t,
+                                 uint32_t collision,
                                  SimId id)
         : mPosition(pos)
         , mRotation(rot)
@@ -40,6 +42,7 @@ namespace OpenNero
         , mColor(0xFF, 0xFF, 0xFF, 0xFF)
         , mId(id)
         , mType(t)
+        , mCollision(collision)
         , mDirtyBits(uint32_t(-1))
     {
     }
@@ -116,6 +119,15 @@ namespace OpenNero
         }
     }
 
+    void SimEntityData::SetCollision( uint32_t mask )
+    {
+        if ( mCollision != mask )
+        {
+            mCollision = mask;
+            mDirtyBits |= kDB_Collision;
+        }
+    }
+
     void SimEntityData::ClearDirtyBits()
     {
         mDirtyBits = 0;
@@ -164,6 +176,11 @@ namespace OpenNero
     uint32_t SimEntityData::GetType() const
     {
         return mType;
+    }
+
+    uint32_t SimEntityData::GetCollision() const
+    {
+        return mCollision;
     }
 
     uint32_t SimEntityData::GetDirtyBits() const
@@ -227,6 +244,10 @@ namespace OpenNero
         {
             stream << data.mType;
         }
+        if (data.mDirtyBits & SimEntityData::kDB_Collision)
+        {
+            stream << data.mCollision;
+        }
         return stream;
     }
 
@@ -274,6 +295,10 @@ namespace OpenNero
         if (dirty_bits & SimEntityData::kDB_Type)
         {
             stream >> data.mType;
+        }
+        if (dirty_bits & SimEntityData::kDB_Collision)
+        {
+            stream >> data.mCollision;
         }
         return stream;
     }

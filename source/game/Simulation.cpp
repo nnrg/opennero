@@ -6,14 +6,19 @@
 
 #include "render/SceneObject.h"
 
-#include "kdtree++/kdtree.hpp"
-
 namespace OpenNero
 {
     /// Constructor - initialize variables
     Simulation::Simulation( const IrrHandles& irr )
         : mIrr(irr), mMaxId(kFirstSimId)
-    {}
+    {
+        // initialize entity types
+        for (size_t i = 0; i < sizeof(uint32_t); ++i)
+        {
+            SimEntitySet entitites;
+            mEntityTypes[1 << i] = entitites;
+        }
+    }
 
     /// Deconstructor - remove everything
     Simulation::~Simulation()
@@ -36,6 +41,14 @@ namespace OpenNero
         AssertMsg( !Find( ent->GetSimId() ), "Entity with id " << ent->GetSimId() << " already exists in the simulation" );
         mSimIdHashedEntities[ ent->GetSimId() ] = ent;
         mEntities.insert(ent);
+        uint32_t ent_type = ent->GetType();
+        for (size_t i = 0; i < sizeof(uint32_t); ++i) {
+            uint32_t t = 1 << i;
+            if (ent_type & t) {
+                mEntityTypes[t].insert(ent);
+            }
+        }
+        mEntityTypes[ent->GetType()].insert(ent);
         AssertMsg( Find(ent->GetSimId()) == ent, "The entity with id " << ent->GetSimId() << " could not be properly added" );
     }
 
@@ -69,6 +82,12 @@ namespace OpenNero
                 SimEntitySet::iterator simInSet = mEntities.find(simE);
                 if (simInSet != mEntities.end()) {
                     mEntities.erase(simInSet);
+                }
+                // remove also from the type-indexed set
+                SimEntitySet setInTypes = mEntityTypes[simE->GetType()];
+                simInSet = setInTypes.find(simE);
+                if (simInSet != setInTypes.end()) {
+                    setInTypes.erase(simE);
                 }
 
                 mSimIdHashedEntities.erase(simItr);
@@ -118,17 +137,9 @@ namespace OpenNero
         SimIdHashMap::const_iterator itr = entities_to_tick.begin();
         SimIdHashMap::const_iterator end = entities_to_tick.end();
         
-        // TODO: consider adding a "tick" method to python that gets called every ProcessWorld
-        
         for( ; itr != end; ++itr ) {
-            /*
-               FIXME: whether or not something that is removed is still ticked depends on the
-               order of iteration, which doesn't even have to depend on IDs!
-             */
-            if (mRemoveSet.count(itr->first) == 0) {
-                AssertMsg( itr->second, "Attempting to process an invalid SimEntity with id: " << itr->first);
-                itr->second->ProcessTick(dt);
-            }
+            AssertMsg( itr->second, "Attempting to process an invalid SimEntity with id: " << itr->first);
+            itr->second->ProcessTick(dt);
         }
         
         // the last step is to remove all the objects that were scheduled during the ticks
@@ -141,57 +152,43 @@ namespace OpenNero
     /// mSharedData's version back to mSceneObject's.
     void Simulation::DoCollisions() 
     {
-        SimEntitySet not_colliding;
-        // assume no-one is colliding at first, put everyone in not_colliding
+        SimEntitySet colliders; // set of objects that could be colliding with something
         {
             SimIdHashMap::const_iterator itr = mSimIdHashedEntities.begin();
             SimIdHashMap::const_iterator end = mSimIdHashedEntities.end();
-            
-            for( ; itr != end; ++itr ) {
+            for (; itr != end; ++itr)
+            {
                 SimEntityPtr ent = itr->second;
                 if (ent->CanCollide())
-                    not_colliding.insert(ent);
+                    colliders.insert(ent);
             }
         }
 
-		bool anyCollisions = true;
-		SimEntitySet colliding;
+		SimEntitySet colliding; // set of objects that are colliding with something
 
 		// while there are any potential collisions, check and resolve
-		// TODO: check for collisions with resolved objects?
-		while (anyCollisions) {
-	        SimEntitySet::const_iterator itr;
-			SimEntitySet colliding_new;
-			
-			// add any colliding entities to colliding_new
-		    for (itr = not_colliding.begin(); itr != not_colliding.end(); ++itr)
-			{
-				SimEntityPtr ent = *itr;
-				SimEntitySet my_collisions = ent->GetCollisions(not_colliding);
-				if (my_collisions.size() > 0) {
-					colliding_new.insert(my_collisions.begin(), my_collisions.end());
-				}
+        SimEntitySet::const_iterator itr;
+        SimEntitySet colliding_new;
+        
+        // add any colliding entities to colliding_new
+        for (itr = colliders.begin(); itr != colliders.end(); ++itr)
+        {
+            SimEntityPtr ent = *itr;
+            if (ent->IsColliding(GetEntities(ent->GetCollision())))
+            {
+                colliding_new.insert(ent);
             }
-
-			anyCollisions = (colliding_new.size() > 0);
-
-			if (anyCollisions) {
-				LOG_F_DEBUG("collision", colliding_new.size() << " new collisions");
-
-				// move the newly marked entities from not_colliding to colliding
-				for (itr = colliding_new.begin(); itr != colliding_new.end(); ++itr) {
-					not_colliding.erase(*itr);
-					colliding.insert(*itr);
-				}
-			}
         }
 
-		// now all the objects that collided are in the "colliding" set
-		// we need to resolve all these collisions
-		SimEntitySet::const_iterator itr;
+        if (colliding_new.size() > 0) {
+            // move the newly marked entities from colliders to colliding
+            for (itr = colliding_new.begin(); itr != colliding_new.end(); ++itr) {
+                colliders.erase(*itr);
+                colliding.insert(*itr);
+            }
+        }
 
 		if (colliding.size() > 0) {
-			LOG_F_DEBUG("collision", colliding.size() << " total collisions");
 			for (itr = colliding.begin(); itr != colliding.end(); ++itr) {
 				(*itr)->ResolveCollision();
 			}
@@ -201,10 +198,13 @@ namespace OpenNero
     const SimEntitySet Simulation::GetEntities(size_t types) const
     {
         SimEntitySet result;
-        SimEntitySet::const_iterator entIter;
-        for (entIter = mEntities.begin(); entIter != mEntities.end(); ++entIter)
-        {
-            if ((*entIter)->GetType() & types) result.insert(*entIter);
+        for (size_t i = 0; i < sizeof(uint32_t); ++i) {
+            uint32_t t = 1 << i;
+            if (types & t) {
+                hash_map<uint32_t, SimEntitySet>::const_iterator type_set = mEntityTypes.find(t);
+                Assert(type_set != mEntityTypes.end());
+                result.insert(type_set->second.begin(), type_set->second.end());
+            }
         }
         return result;
     }

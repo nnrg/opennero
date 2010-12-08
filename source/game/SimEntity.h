@@ -128,6 +128,8 @@ namespace OpenNero
         
         /// get the type flag of the object
         uint32_t GetType() const;
+        
+        uint32_t GetCollision() const;
 
 		/// Setters for properties
         /// @{
@@ -137,11 +139,12 @@ namespace OpenNero
         void SetScale( const Vector3f& scale );
         void SetLabel( const std::string& label );
         void SetColor( const SColor& color );
+        void SetCollision( uint32_t mask );
         /// @}
         
     private:
         /// Will moving the entity to new_pos cause it to collide with others?
-        SimEntitySet GetCollisions( const SimEntitySet& others);
+        bool IsColliding( const SimEntitySet& others);
         
         /// Assume that a collision occurred and resolve it (bounce)
         void ResolveCollision();
