@@ -182,8 +182,9 @@ class NeroEnvironment(Environment):
         #Initilize Agent state
         if agent.step == 0:
             p = agent.state.position
-            agent.state.rotation.z = randrange(360)
             r = agent.state.rotation
+            r.z = randrange(360)
+            agent.state.rotation = r #Note the internal components of agent.state.rotation are immutable you need to make a copy, modify the copy, and set agent.state.rotation to be the copy.
             
             state.initial_position = p
             state.initial_rotation = r
@@ -191,6 +192,7 @@ class NeroEnvironment(Environment):
             state.pose = (p.x, p.y, r.z)
             state.prev_pose = (p.x, p.y, r.z)
             self.pop_state[agent.org.id] = state
+            return 0
 
         #Spawn more agents if there are more to spawn (Staggered spawning times tend to yeild better behavior)
         if agent.step == 3:
