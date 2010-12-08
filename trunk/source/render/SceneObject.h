@@ -86,8 +86,7 @@ namespace OpenNero
         FPSCameraTemplatePtr            mFPSCamera;         ///< information about camera attachment
         float32_t                       mAnimationSpeed;    ///< animation speed
         FootprintTemplatePtr            mFootprints;        ///< footprint template
-		int                             mCollisionType;     ///< type of this object for collision purposes
-		int                             mCollisionMask;     ///< mask of objects this object collides with
+		uint32_t                        mCollisionMask;     ///< mask of objects this object collides with
     };
 
     SimId ConvertSceneIdToSimId(uint32_t simId);

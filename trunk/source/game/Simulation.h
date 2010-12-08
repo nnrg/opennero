@@ -95,7 +95,9 @@ namespace OpenNero
 
         SimIdHashMap        mSimIdHashedEntities;   ///< Our entities hashed by SimId
 
-        SimEntitySet        mEntities;             ///< Set of all the sim entities
+        SimEntitySet        mEntities;              ///< Set of all the sim entities
+        
+        hash_map<uint32_t, SimEntitySet> mEntityTypes; ///< entity sets by type
 
         SimIdSet            mRemoveSet;             ///< SimId's to remove after next ProcessWorld
 
