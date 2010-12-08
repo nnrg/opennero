@@ -6,14 +6,19 @@
 
 #include "render/SceneObject.h"
 
-#include "kdtree++/kdtree.hpp"
-
 namespace OpenNero
 {
     /// Constructor - initialize variables
     Simulation::Simulation( const IrrHandles& irr )
         : mIrr(irr), mMaxId(kFirstSimId)
-    {}
+    {
+        // initialize entity types
+        for (size_t i = 0; i < sizeof(uint32_t); ++i)
+        {
+            SimEntitySet entitites;
+            mEntityTypes[1 << i] = entitites;
+        }
+    }
 
     /// Deconstructor - remove everything
     Simulation::~Simulation()
@@ -36,6 +41,14 @@ namespace OpenNero
         AssertMsg( !Find( ent->GetSimId() ), "Entity with id " << ent->GetSimId() << " already exists in the simulation" );
         mSimIdHashedEntities[ ent->GetSimId() ] = ent;
         mEntities.insert(ent);
+        uint32_t ent_type = ent->GetType();
+        for (size_t i; i < sizeof(uint32_t); ++i) {
+            uint32_t t = 1 << i;
+            if (ent_type & t) {
+                mEntityTypes[t].insert(ent);
+            }
+        }
+        mEntityTypes[ent->GetType()].insert(ent);
         AssertMsg( Find(ent->GetSimId()) == ent, "The entity with id " << ent->GetSimId() << " could not be properly added" );
     }
 
@@ -69,6 +82,12 @@ namespace OpenNero
                 SimEntitySet::iterator simInSet = mEntities.find(simE);
                 if (simInSet != mEntities.end()) {
                     mEntities.erase(simInSet);
+                }
+                // remove also from the type-indexed set
+                SimEntitySet setInTypes = mEntityTypes[simE->GetType()];
+                simInSet = setInTypes.find(simE);
+                if (simInSet != setInTypes.end()) {
+                    setInTypes.erase(simE);
                 }
 
                 mSimIdHashedEntities.erase(simItr);
@@ -179,10 +198,13 @@ namespace OpenNero
     const SimEntitySet Simulation::GetEntities(size_t types) const
     {
         SimEntitySet result;
-        SimEntitySet::const_iterator entIter;
-        for (entIter = mEntities.begin(); entIter != mEntities.end(); ++entIter)
-        {
-            if ((*entIter)->GetType() & types) result.insert(*entIter);
+        for (size_t i = 0; i < sizeof(uint32_t); ++i) {
+            uint32_t t = 1 << i;
+            if (types & t) {
+                hash_map<uint32_t, SimEntitySet>::const_iterator type_set = mEntityTypes.find(t);
+                Assert(type_set != mEntityTypes.end());
+                result.insert(type_set->second.begin(), type_set->second.end());
+            }
         }
         return result;
     }
