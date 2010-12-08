@@ -32,6 +32,7 @@ class NeroModule:
         self.flag_loc = Vector3f(0,0,0)
         self.flag_id = -1
         self.num_to_add = pop_size
+        (self.spawn_x,self.spawn_y) = (XDIM/2, YDIM/3)
 
     def setup_map(self):
         """
@@ -91,7 +92,7 @@ class NeroModule:
         dy = random.randrange(XDIM/20) - XDIM/40
         dx = random.randrange(XDIM/20) - XDIM/40
         dy = random.randrange(XDIM/20) - XDIM/40
-        id = addObject("data/shapes/character/steve_red_armed.xml",Vector3f(XDIM/2 + dx,YDIM/3 + dy,2),type = OBJECT_TYPE_AGENT)
+        id = addObject("data/shapes/character/steve_red_armed.xml",Vector3f(self.spawn_x + dx,self.spawn_y + dy,2),type = OBJECT_TYPE_AGENT)
         self.num_to_add -= 1
 
    #The following is run when the Save button is pressed
@@ -115,7 +116,11 @@ class NeroModule:
         self.speedup = speedup
         if self.environment:
             self.environment.speedup = speedup
-    
+   
+    def set_spawn(self, x, y):
+        self.spawn_x = x
+        self.spawn_y = y
+   
     #The following functions are used to let the client update the fitness function
     def set_weight(self, key, value):
         self.weights[key] = (value-100.0)/100.0

@@ -73,6 +73,9 @@ def show_context_menu():
         from module import getMod
         getMod().change_flag([location.x,location.y,0])
 
+    def set_spawn():
+        getMod().set_spawn(location.x,location.y)
+
     def remove_wall():
         removeObject(selected_object_id)
 
@@ -101,6 +104,10 @@ def show_context_menu():
         flagButton = gui.create_button(guiMan, 'flag', Pos2i(0,0), Pos2i(0,0), '')
         flagButton.OnMouseLeftClick = lambda: place_flag()
         contextMenu.addItem('Place Flag', flagButton)
+        
+        spawnButton = gui.create_button(guiMan, 'spawn', Pos2i(0,0), Pos2i(0,0), '')
+        spawnButton.OnMouseLeftClick = lambda: set_spawn()
+        contextMenu.addItem('Set Spawn Location', spawnButton)
 
 def reset_mouse_action():
     global modify_object_id
