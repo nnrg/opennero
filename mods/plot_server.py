@@ -119,6 +119,7 @@ class LearningCurve:
     def __init__(self):
         self.histories = {}
         self.total = XYData()
+        self.lock = threading.Lock()
 
     def tmin(self):
         return 0
@@ -134,11 +135,12 @@ class LearningCurve:
 
     def append(self, id, ms, episode, step, reward, fitness):
         record = None
-        if id in self.histories:
-            record = self.histories[id]
-        else:
-            record = AgentHistory()
-            self.histories[id] = record
+        with self.lock:
+            if id in self.histories:
+                record = self.histories[id]
+            else:
+                record = AgentHistory()
+                self.histories[id] = record
         if step == 0:
             record.episode()
         record.append(ms, fitness)
@@ -148,8 +150,9 @@ class LearningCurve:
         axes.hold(True)
         t = np.array(self.total.x)
         f = np.array(self.total.y)
-        for id in self.histories:
-            self.histories[id].plot(axes, self.total.xmin)
+        with self.lock:
+            for id in self.histories:
+                self.histories[id].plot(axes, self.total.xmin)
 
     def process_line(self, line):
         """
