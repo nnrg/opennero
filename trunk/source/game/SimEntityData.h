@@ -25,7 +25,7 @@ namespace OpenNero
     public:
 
         /// Declaration of how bits in a binary string correspond to data
-        unsigned enum DataBits
+        enum DataBits
         {
             kDB_Position        = (1<<0),
             kDB_Rotation        = (1<<1),
