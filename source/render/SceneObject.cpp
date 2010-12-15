@@ -496,7 +496,11 @@ namespace OpenNero
         std::list<SimId>::iterator iter;
         for (iter = mFootprints.begin(); iter != mFootprints.end(); ++iter)
         {
-            Kernel::GetSimContext()->getSimulation()->Remove(*iter);
+			SimContextPtr context = Kernel::GetSimContext();
+			if (context) {
+				SimulationPtr simulation = context->getSimulation();
+				simulation->Remove(*iter);
+			}
         }
     }
 
