@@ -20,7 +20,7 @@ class BlocksworldModule:
         self.agent_id = None
         self.agent_map = {}
         self.weights = Fitness()
-        self.lt = 150
+        self.lt = 150 * 8
         self.dta = 50
         self.dtb = 50
         self.dtc = 50
@@ -38,7 +38,18 @@ class BlocksworldModule:
         self.p_coin_ids = {}
         self.p_coin_locs = {0:Vector3f(XDIM/2, YDIM/2,0)}
         self.curr_id = 3
-        self.num_to_add = pop_size
+        self.num_to_add = 0
+        self.team_1_average = 0.0
+        self.team_2_average = 0.0
+        self.preprefix = "../../../../../..//home/adam/thesis_files/"
+        self.prefix = ["control_e/","control_f/","control_g/","control_h/","control_i/","control_j/"]
+        self.out_file = ["control_e_mt.txt", "control_f_mt.txt", "control_g_mt.txt","control_h_mt.txt","control_i_mt.txt","control_j_mt.txt"]
+        self.team_1_loc = ""
+        self.team_2_loc = ""
+        self.team_locs = ["pop_1_10.gnm","pop_1_20.gnm","pop_1_30.gnm","pop_1_40.gnm","pop_1_50.gnm","pop_1_60.gnm","pop_1_70.gnm","pop_1_80.gnm","pop_1_90.gnm","pop_1_100.gnm"]
+        self.team_1_li = 0
+        self.team_2_li = 0
+        self.prenum = 0
 
     def setup_map(self):
         """
@@ -85,10 +96,35 @@ class BlocksworldModule:
         
         removeObject(self.coin_ids[id])
 
+        if team == 0: self.coin_ids[id] = addObject("data/shapes/cube/BlueCube.xml", self.coin_locs[id], label="Coin")
+
         if team == 1: self.coin_ids[id] = addObject("data/shapes/cube/YellowCube.xml", self.coin_locs[id], label="Coin")
 
         if team == 2: self.coin_ids[id] = addObject("data/shapes/cube/GreenCube.xml", self.coin_locs[id], label="Coin")
+   
+    def reset_coin(self):
+        self.change_coin((XDIM/2,YDIM/2,0),0,0)
+        self.change_coin((XDIM/2,YDIM/3,0),1,0)
+        self.change_coin((XDIM/2,2*YDIM/3,0),2,0)
+        self.coin_nears = [{0:0, 1:0, 2:0},{0:0,1:0,2:0}]
+        self.coin_nears_ids = [{0:[], 1:[], 2:[]},{0:[],1:[],2:[]}]
+        self.coin_locs = {0:Vector3f(XDIM/2,YDIM/2,0), 1:Vector3f(XDIM/2,YDIM/3,0), 2:Vector3f(XDIM/2,2*YDIM/3,0)}
+        self.coins = [[0,1,2],[],[]]
     
+    def get_next_1(self):
+        if self.team_2_li == len(self.team_locs)-1: self.team_1_li += 1
+        if self.team_1_li == len(self.team_locs):
+            self.team_1_li = 0
+            self.prenum += 1
+        string =  self.preprefix + self.prefix[self.prenum] + self.team_locs[self.team_1_li]
+        return string
+
+    def get_next_2(self):
+        self.team_2_li += 1
+        if self.team_2_li == len(self.team_locs): self.team_2_li = 0
+        string =  self.preprefix + self.prefix[self.prenum] +  self.team_locs[self.team_2_li]
+        return string
+
     def add_coin(self, new_loc):
         
         self.coin_locs[self.curr_id] = (Vector3f(new_loc[0],new_loc[1],new_loc[2]))
@@ -113,6 +149,10 @@ class BlocksworldModule:
         # Create RTNEAT Objects
         set_ai("neat1",rtneat)
         set_ai("neat2", rtneat2)
+        
+        self.load_rtneat(self.preprefix + self.prefix[self.prenum] + self.team_locs[self.team_1_li],1)
+        self.load_rtneat(self.preprefix + self.prefix[self.prenum] + self.team_locs[self.team_2_li],2)
+        
         enable_ai()
         # Generate all initial rtNEAT Agents
         dx = random.randrange(XDIM/20) - XDIM/40
@@ -140,16 +180,19 @@ class BlocksworldModule:
         if pop == 2: rtneat2.save_population(str(location))
 
     #The following is run when the Load button is pressed
-    def load_rtneat(self, location , pop):
+    def load_rtneat(self, location_orig , pop):
         import os
         global rtneat, rtneat2
-        location = os.path.relpath("/") + location
+        location = os.path.relpath("/") + location_orig
+        print "LOADING FOR POP", pop, " LOCATION:", location
         if os.path.exists(location):
             if pop == 1: 
                 rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)    
+                #self.team_1_loc = str(location_orig)
                 set_ai("neat1",rtneat)
             if pop == 2:
                 rtneat2= RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)
+                #self.team_2_loc = str(location_orig)
                 set_ai("neat2",rtneat2)
         
 

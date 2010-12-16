@@ -63,7 +63,7 @@ class BlocksEnvironment(Environment):
         self.MAX_DIST = pow((pow(XDIM, 2) + pow(YDIM, 2)), .5)
         self.states = {}
         self.teams = {}
-        self.speedup = 0
+        self.speedup = 100
 
         self.pop_state_1 = {}
         self.pop_state_2 = {}
@@ -271,10 +271,6 @@ class BlocksEnvironment(Environment):
             if self.SAVE_AGENT == 0:
                 self.SAVE_AGENT = state.id
 
-            if self.SAVE_AGENT == state.id and state.generation % 5 == 0:
-                print "SAVING UPDATED"
-                getMod().save_rtneat("/home/adam/thesis_files/control_d/pop_1_" + str(state.generation) + ".gnm", 1)
-                getMod().save_rtneat("/home/adam/thesis_files/control_d/pop_2_" + str(state.generation) + ".gnm", 2)
 
             p = agent.state.position
             agent.state.rotation.z = randrange(360)
@@ -428,8 +424,11 @@ class BlocksEnvironment(Environment):
                 getMod().coin_nears_ids[agent.get_team() -1][coin].remove(state.id)
              if getMod().coin_nears[agent.get_team() -1][coin] < 0: getMod().coin_nears[agent.get_team()-1][coin] = 0
         
-            print "Team ", agent.get_team(), ": ", float(state.offense_steps) / float(state.defense_steps)
-            print "Team ", agent.get_team() + 2, ": ", float(state.flag_sum) / float(getMod().lt)
+            if agent.get_team() == 1:
+                getMod().team_1_average += float(state.flag_sum) / float(getMod().lt)
+            if agent.get_team() == 2:
+                getMod().team_2_average += float(state.flag_sum) / float(getMod().lt)
+            
             return len(self.coin_teams()[agent.get_team()]) * getMod().fitness[agent.get_team()]
 
         return x
@@ -686,8 +685,16 @@ class BlocksEnvironment(Environment):
         self.max_steps = getMod().lt
         state = self.get_state(agent)
         if self.max_steps != 0 and agent.step >= self.max_steps:
-            return True
-        if getMod().hp != 0 and state.total_damage >= getMod().hp:
+            if self.SAVE_AGENT == state.id:
+                fil = open(getMod().preprefix + getMod().out_file[getMod().prenum],'a')
+                fil.write(getMod().team_locs[getMod().team_1_li] + " : " + str(getMod().team_1_average/pop_size) + "\n")
+                fil.write(getMod().team_locs[getMod().team_2_li] + " : " + str(getMod().team_2_average/pop_size) + "\n")
+                fil.write("===\n")
+                getMod().load_rtneat(getMod().get_next_1(),1)
+                getMod().load_rtneat(getMod().get_next_2(),2)
+                getMod().team_1_average = 0.0
+                getMod().team_2_average = 0.0
+                getMod().reset_coin()
             return True
         else:
             return False
