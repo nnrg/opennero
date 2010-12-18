@@ -1,0 +1,11 @@
+<Template>
+  <Audio>    
+  </Audio>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>true</MaterialFlagLighting>
+    <AniMesh>data/shapes/wall/BrickWall.obj</AniMesh>
+    <CastsShadow>true</CastsShadow>
+    <Scale>2 3 3</Scale>
+  </Render>  
+</Template>
