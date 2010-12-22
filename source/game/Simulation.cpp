@@ -48,7 +48,6 @@ namespace OpenNero
                 mEntityTypes[t].insert(ent);
             }
         }
-        mEntityTypes[ent->GetType()].insert(ent);
         AssertMsg( Find(ent->GetSimId()) == ent, "The entity with id " << ent->GetSimId() << " could not be properly added" );
     }
 
@@ -72,7 +71,7 @@ namespace OpenNero
         for (; removeItr != mRemoveSet.end(); ++removeItr) {
 
             SimId id = *removeItr;
-
+            
             SimIdHashMap::iterator simItr = mSimIdHashedEntities.find(id);
             
             if( simItr != mSimIdHashedEntities.end() ) {
@@ -84,10 +83,15 @@ namespace OpenNero
                     mEntities.erase(simInSet);
                 }
                 // remove also from the type-indexed set
-                SimEntitySet setInTypes = mEntityTypes[simE->GetType()];
-                simInSet = setInTypes.find(simE);
-                if (simInSet != setInTypes.end()) {
-                    setInTypes.erase(simE);
+                uint32_t ent_type = simE->GetType();
+                for (size_t i = 0; i < sizeof(uint32_t); ++i) {
+                    uint32_t t = 1 << i;
+                    if (ent_type & t) {
+                        simInSet = mEntityTypes[t].find(simE);
+                        if (simInSet != mEntityTypes[t].end()) {
+                            mEntityTypes[t].erase(simE);
+                        }
+                    }
                 }
 
                 mSimIdHashedEntities.erase(simItr);
