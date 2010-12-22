@@ -42,8 +42,8 @@ class BlocksworldModule:
         self.team_1_average = 0.0
         self.team_2_average = 0.0
         self.preprefix = "../../../../../..//home/adam/thesis_files/"
-        self.prefix = ["control_e/","control_f/","control_g/","control_h/","control_i/","control_j/"]
-        self.out_file = ["control_e_mt.txt", "control_f_mt.txt", "control_g_mt.txt","control_h_mt.txt","control_i_mt.txt","control_j_mt.txt"]
+        self.prefix = ["control_a","control_b","control_c","control_d","control_e/","control_f/","control_g/","control_h/","control_i/","control_j/"]
+        self.out_file = ["control_a_mt.txt","control_b_mt.txt","control_c_mt.txt","control_d_mt.txt","control_e_mt.txt", "control_f_mt.txt", "control_g_mt.txt","control_h_mt.txt","control_i_mt.txt","control_j_mt.txt"]
         self.team_1_loc = ""
         self.team_2_loc = ""
         self.team_locs = ["pop_1_10.gnm","pop_1_20.gnm","pop_1_30.gnm","pop_1_40.gnm","pop_1_50.gnm","pop_1_60.gnm","pop_1_70.gnm","pop_1_80.gnm","pop_1_90.gnm","pop_1_100.gnm"]
@@ -88,7 +88,11 @@ class BlocksworldModule:
 
         # Add the surrounding Environment
         addObject("data/terrain/NeroWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="NeroWorld")
-        
+       
+        print "BLOCKSWORLD SUCCESFULLY CREATED"
+
+        self.start_rtneat()
+
         return True
     
     def change_coin(self, new_loc, id, team):
