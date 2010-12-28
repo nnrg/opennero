@@ -42,7 +42,7 @@ class BlocksworldModule:
         self.team_1_average = 0.0
         self.team_2_average = 0.0
         self.preprefix = "../../../../../..//home/adam/thesis_files/"
-        self.prefix = ["control_a","control_b","control_c","control_d","control_e/","control_f/","control_g/","control_h/","control_i/","control_j/"]
+        self.prefix = ["control_a/","control_b/","control_c/","control_d/","control_e/","control_f/","control_g/","control_h/","control_i/","control_j/"]
         self.out_file = ["control_a_mt.txt","control_b_mt.txt","control_c_mt.txt","control_d_mt.txt","control_e_mt.txt", "control_f_mt.txt", "control_g_mt.txt","control_h_mt.txt","control_i_mt.txt","control_j_mt.txt"]
         self.team_1_loc = ""
         self.team_2_loc = ""
