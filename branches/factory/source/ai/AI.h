@@ -159,7 +159,7 @@ namespace OpenNero {
 
     typedef FeatureVector Actions; ///< Actions type
 
-    typedef double Reward; ///< Reward type
+    typedef FeatureVector Reward; ///< Reward type
 
     /// set of agents
     typedef std::set<AgentBrainPtr> AgentSet;
