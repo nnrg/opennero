@@ -271,10 +271,24 @@ class BlocksEnvironment(Environment):
             if self.SAVE_AGENT == 0:
                 self.SAVE_AGENT = state.id
 
+            if self.SAVE_AGENT == state.id and state.generation % 2 == 0:
+                f1 = getMod().fitness[1]
+                valx1 = 60
+                valx2 = 40
+                if f1 < valx1:
+                    getMod().fitChange(1,valx1)
+                    getMod().fitChange(2,valx2)
+                else:
+                    getMod().fitChange(1,valx2)
+                    getMod().fitChange(2,valx1)
+            
             if self.SAVE_AGENT == state.id and state.generation % 5 == 0:
                 print "SAVING UPDATED"
-                getMod().save_rtneat("/home/adam/thesis_files/control_d/pop_1_" + str(state.generation) + ".gnm", 1)
-                getMod().save_rtneat("/home/adam/thesis_files/control_d/pop_2_" + str(state.generation) + ".gnm", 2)
+                getMod().save_rtneat("/home/adam/thesis_files/temp_test/pop_1_" + str(state.generation) + ".gnm", 1)
+                getMod().save_rtneat("/home/adam/thesis_files/temp_test/pop_2_" + str(state.generation) + ".gnm", 2)
+                if state.generation == 100:
+                    print "CRASH TIME"
+                    print getMod().dgsnfgo
 
             p = agent.state.position
             agent.state.rotation.z = randrange(360)
