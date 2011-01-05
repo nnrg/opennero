@@ -29,6 +29,8 @@ class AgentState:
         self.prev_fitness = Fitness()
         self.final_fitness = 0
         self.animation = 'stand'
+        self.average_distance = 0
+        self.generation = 0
 
 class NeroEnvironment(Environment):
     """
@@ -42,13 +44,16 @@ class NeroEnvironment(Environment):
         print "CREATING NERO ENVIRONMENT: " + str(dir(module))
         Environment.__init__(self) 
         
+        self.TEST_AGENT = 0
         self.curr_id = 0
         self.step_delay = 0.25 # time between steps in seconds
         self.max_steps = 20
         self.time = time.time()
         self.MAX_DIST = pow((pow(XDIM, 2) + pow(YDIM, 2)), .5)
         self.states = {}
-        self.speedup = 0
+        self.speedup = 100
+        self.current_test = 0 # 0 = No Test 1 = Approach Flag 2 = Approach Flag again
+        self.total_distance = 0
         
         self.pop_state = {}
         
@@ -93,7 +98,14 @@ class NeroEnvironment(Environment):
         state.total_damage = 0
         state.curr_damage = 0
         state.prev_fitness = state.fitness
+        state.generation += 1
         state.fitness = Fitness()
+        self.total_distance += state.average_distance/getMod().lt
+        state.average_distance = 0
+        if state.id == self.TEST_AGENT:
+            print "gen:", str(state.generation - 1), "ad:", self.total_distance / 40
+            self.total_distance = 0
+
         #update client fitness
         from client import set_stat
         ff = self.getFriendFoe(agent)
@@ -186,6 +198,10 @@ class NeroEnvironment(Environment):
 
         #Initilize Agent state
         if agent.step == 0:
+            if self.TEST_AGENT == 0:
+                self.TEST_AGENT = state.id
+
+
             p = agent.state.position
             r = agent.state.rotation
             r.z = randrange(360)
@@ -198,6 +214,25 @@ class NeroEnvironment(Environment):
             state.prev_pose = (p.x, p.y, r.z)
             self.pop_state[agent.org.id] = state
             return 0
+
+        if state.id == self.TEST_AGENT:
+            if self.current_test == 0:
+                getMod().change_flag([XDIM/3,YDIM/3,0])
+                getMod().set_weight(Fitness.APPROACH_FLAG,200)
+                getMod().ltChange(50)
+                self.current_test = 1
+            if self.current_test == 1 and state.generation == 50:
+                getMod().change_flag([2*XDIM/3,YDIM/3,0])
+                self.current_test = 2
+                getMod().ltChange(51)
+            if self.current_test == 2 and state.generation == 100:
+                getMod().change_flag([XDIM/2,2*YDIM/3,0])
+                getMod().ltChange(52)
+                self.current_test = 3
+            if self.current_test == 3 and state.generation == 150:
+                getMod().change_flag([XDIM/3,YDIM/3,0])
+                getMod().ltChange(50)
+                self.current_test = 4
 
         #Spawn more agents if there are more to spawn (Staggered spawning times tend to yeild better behavior)
         if agent.step == 3:
@@ -279,6 +314,8 @@ class NeroEnvironment(Environment):
         ht = hit
         vf = -damage        
         
+        state.average_distance += self.flag_distance(agent)
+
         #update current state data with fitness values
         state.fitness[Fitness.STAND_GROUND] += sg
         state.fitness[Fitness.STICK_TOGETHER] += st
@@ -313,6 +350,7 @@ class NeroEnvironment(Environment):
             #Add current unit to pop_state
             self.pop_state[agent.org.id] = state
             state.final_fitness = sums.sum()
+            print "WEIGHTS:",getMod().weights
             print 'FITNESS:',getMod().weights * state.fitness,'=> Z-SCORE:', state.final_fitness
             return state.final_fitness
 

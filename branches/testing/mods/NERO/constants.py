@@ -10,7 +10,7 @@ MAX_MOVEMENT_SPEED = 12
 MAX_VISION_RADIUS = 100
 
 # Population size
-pop_size = 40
+pop_size = 120
 
 OBJECT_TYPE_OBSTACLE  = (1 << 0) # object type for walls
 OBJECT_TYPE_AGENT = (1 << 1) # object type for agent

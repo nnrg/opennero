@@ -31,7 +31,7 @@ class NeroModule:
         self.hp = 50
         self.flag_loc = Vector3f(0,0,0)
         self.flag_id = -1
-        self.num_to_add = pop_size
+        self.num_to_add = 40#pop_size
         (self.spawn_x,self.spawn_y) = (XDIM/2, YDIM/3)
 
     def setup_map(self):
@@ -70,6 +70,8 @@ class NeroModule:
         # Add the surrounding Environment
         addObject("data/terrain/NeroWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="NeroWorld", type = OBJECT_TYPE_LEVEL_GEOM)
         
+        self.start_rtneat()
+
         return True
 
     def change_flag(self, new_loc):

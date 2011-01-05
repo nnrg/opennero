@@ -59,8 +59,8 @@ def default_app_config():
     app_config.fullscreen = False
     app_config.use_stencil_buffer = True
     app_config.use_vsync = True
-    app_config.start_mod_dir = "hub:common"
-    app_config.start_mod_name = "hub"
+    app_config.start_mod_dir = "NERO:common"
+    app_config.start_mod_name = "NERO"
     app_config.start_command = ""
     app_config.seeds = "55555"
     return app_config
