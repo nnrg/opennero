@@ -7,7 +7,7 @@ try:
 except:
     import tkMessageBox
     tkMessageBox.showwarning('Warning!', 'Could not start the external menu for NERO because wxPython is not installed.')
-sys.exit()    
+    sys.exit()
 
 class NeroPanel(wx.Panel, ScriptClient):
     def __init__(self,parent):
