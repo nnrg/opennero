@@ -119,9 +119,16 @@ namespace OpenNero
     {
         FeatureVector result;
         FeatureVector::const_iterator iter;
-        for (iter = lower.begin(); iter != lower.end(); ++iter)
+        for (size_t i = 0; i < size(); ++i)
         {
-            result.push_back(*iter);
+            // if 0 is an in-bounds value, use it
+            if (lower[i] <= 0 && 0 <= upper[i]) {
+                result.push_back(0);
+            }
+            else // otherwise, use the lower bound
+            {
+                result.push_back(lower[i]);
+            }
         }
         return result;
     }

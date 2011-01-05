@@ -74,7 +74,7 @@ namespace OpenNero
                     getWorld()->reset(getBrain());
                     getBrain()->episode++;
                     getBrain()->step = 0;
-                    getBrain()->fitness;
+                    getBrain()->fitness = getInitInfo().reward.getInstance();
                 } else {
                     Observations observations = sense();
                     setActions(getBrain()->act(dt, observations, getReward()));
@@ -88,7 +88,7 @@ namespace OpenNero
     void AIObject::setReward(Reward reward)
     {
         mReward = reward;
-		for (size_t i = 0; i < getBrain()->fitness.size(); ++i)
+		for (size_t i = 0; i < reward.size(); ++i)
 		{
 			getBrain()->fitness[i] += reward[i];
 		}

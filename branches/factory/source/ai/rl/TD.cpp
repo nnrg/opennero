@@ -12,6 +12,7 @@ namespace OpenNero
     bool TDBrain::initialize(const AgentInitInfo& init)
     {
         mInfo = init;
+        this->fitness = mInfo.reward.getInstance();
         mApproximator.reset(new TableApproximator(mInfo)); // initialize the function approximator
         return true;
     }
