@@ -20,7 +20,7 @@ class BlocksworldModule:
         self.agent_id = None
         self.agent_map = {}
         self.weights = Fitness()
-        self.lt = 150
+        self.lt = 1#150
         self.dta = 50
         self.dtb = 50
         self.dtc = 50
@@ -35,10 +35,14 @@ class BlocksworldModule:
         self.coins = [[0,1,2],[],[]]
         self.fitness = {1:.5,2:.5}
         self.capture = {1:.5,2:.5}
-        self.p_coin_ids = {}
-        self.p_coin_locs = {0:Vector3f(XDIM/2, YDIM/2,0)}
         self.curr_id = 3
         self.num_to_add = pop_size
+
+        #Code to generate example files automatically
+        self.times_to_run = 10
+        self.current_run = 0
+        self.prefix = "/home/adam/thesis_files/control_"
+
 
     def setup_map(self):
         """
@@ -66,8 +70,6 @@ class BlocksworldModule:
         # coin placement
         for coin in self.coin_locs:
          self.coin_ids[coin] = addObject("data/shapes/cube/BlueCube.xml", self.coin_locs[coin], label="Coin")
-        for coin in self.p_coin_locs:
-         self.p_coin_ids[coin] = addObject("data/shapes/cube/RedCube.xml", self.p_coin_locs[coin], label = "Coin")
 
         # world walls
         addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2,0,HEIGHT+OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall0", type = OBSTACLE )
@@ -129,8 +131,16 @@ class BlocksworldModule:
                 id = addObject("data/shapes/character/steve_blue_armed.xml",Vector3f(TEAM_2_SL_X + dx,TEAM_2_SL_Y + dy ,2),type = AGENT)
             self.agent_map[(0,i)] = id
 
-   #The following is run when the Save button is pressed
+    #Reset funciton for rt_neat
+    def reset_rtneat(self):
+        global rtneat, rtneat2
+        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size, 1.0)
+        rtneat2 = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS, NEAT_ACTIONS, pop_size,1.0)
+        set_ai("neat1",rtneat)
+        set_ai("neat2",rtneat2)
 
+
+    #The following is run when the Save button is pressed
     def save_rtneat(self, location, pop):
         import os
         location = os.path.relpath("/") + location
@@ -152,6 +162,25 @@ class BlocksworldModule:
                 rtneat2= RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)
                 set_ai("neat2",rtneat2)
         
+    def change_coin(self, new_loc, id, team):
+        self.coin_locs[id] = Vector3f(new_loc[0],new_loc[1],new_loc[2])
+        
+        removeObject(self.coin_ids[id])
+
+        if team == 0: self.coin_ids[id] = addObject("data/shapes/cube/BlueCube.xml", self.coin_locs[id], label="Coin")
+
+        if team == 1: self.coin_ids[id] = addObject("data/shapes/cube/YellowCube.xml", self.coin_locs[id], label="Coin")
+
+        if team == 2: self.coin_ids[id] = addObject("data/shapes/cube/GreenCube.xml", self.coin_locs[id], label="Coin")
+   
+    def reset_coin(self):
+        self.change_coin((XDIM/2,YDIM/2,0),0,0)
+        self.change_coin((XDIM/2,YDIM/3,0),1,0)
+        self.change_coin((XDIM/2,2*YDIM/3,0),2,0)
+        self.coin_nears = [{0:0, 1:0, 2:0},{0:0,1:0,2:0}]
+        self.coin_nears_ids = [{0:[], 1:[], 2:[]},{0:[],1:[],2:[]}]
+        self.coin_locs = {0:Vector3f(XDIM/2,YDIM/2,0), 1:Vector3f(XDIM/2,YDIM/3,0), 2:Vector3f(XDIM/2,2*YDIM/3,0)}
+        self.coins = [[0,1,2],[],[]]
 
     def set_speedup(self, speedup):
         self.speedup = speedup
