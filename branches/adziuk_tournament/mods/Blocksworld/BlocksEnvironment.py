@@ -37,7 +37,6 @@ class AgentState:
         self.final_fitness = 0
         self.animation = 'stand'
         self.prev_collected = 0
-        self.p_coin_collect = {}
         self.defense_steps = 0
         self.offense_steps = 0
         self.flag_sum = 0
@@ -137,7 +136,6 @@ class BlocksEnvironment(Environment):
         state.curr_damage = 0
         state.prev_fitness = state.fitness
         state.fitness = Fitness()
-        state.p_coin_collect = {}
         state.animation = 0
         state.time = time.time()
         state.start_time = state.time
@@ -374,13 +372,6 @@ class BlocksEnvironment(Environment):
                 getMod().coin_nears[agent.get_team()-1][coin] += 1
                 getMod().coin_nears_ids[agent.get_team()-1][coin].append(state.id)
 
-        #Check all perma-coins
-        for id in self.p_coin_locs():
-            if id not in state.p_coin_collect and self.p_coin_distance(agent,id) <= CRANGE:
-                state.p_coin_collect[id] = 1
-                x += 1
-                print "Team:", state.team, " PERM. COIN COLLECTED"
-
         #Check distance to all coins, collect as necessary
         for id in self.coin_locs():
             other = agent.get_team() + 1
@@ -528,30 +519,7 @@ class BlocksEnvironment(Environment):
                  tv[val][0] = fd
              if cos(radians(fh-val)) > tv[val][1]:
                  tv[val][1] = max(0,cos(radians(fh-val)))
-        
-        for coin in self.p_coin_locs():
-          if coin  in state.p_coin_collect: continue
-          tv = cap
-         
-          delta = 30
-
-          fd = self.p_coin_distance(agent, 0)
-          if fd != 0:
-             fh  = ((degrees(atan2(self.coin_locs()[coin].y-state.pose[1],self.coin_locs()[coin].x - state.pose[0])) - state.pose[2]) % 360) - 180
-          else:
-             fh = 0
  
-          if fh < 0:
-             fh += 360
- 
-          if fh > 360:
-             fh -= 360
-          
-      
-          for val in tv:
-             if ((fh - val) > 0) and ((fh - val) <= (tv == delta)) and (tv[val][0] == 0 or tv[val][0] > fd):
-                 tv[val][0] = fd
-                 tv[val][1] = max(0,cos(radians(fh-val)))
         
         for val in cap:
             vx.append(min(1,max(0,(self.MAX_DIST-cap[val][0])/self.MAX_DIST)))
@@ -591,10 +559,6 @@ class BlocksEnvironment(Environment):
         from Blocksworld.module import getMod
         return getMod().coin_locs
 
-    def p_coin_locs(self):
-        from Blocksworld.module import getMod
-        return getMod().p_coin_locs
-
     def coin_teams(self):
         from Blocksworld.module import getMod
         return getMod().coins
@@ -606,10 +570,6 @@ class BlocksEnvironment(Environment):
         """
         pos = self.get_state(agent).pose
         return pow(pow(float(pos[0]) - self.coin_locs()[id].x, 2) + pow(float(pos[1]) - self.coin_locs()[id].y, 2), .5)
-
-    def p_coin_distance(self, agent, id):
-        pos = self.get_state(agent).pose
-        return pow(pow(float(pos[0]) - self.p_coin_locs()[id].x, 2) + pow(float(pos[1]) - self.p_coin_locs()[id].y, 2), .5)
 
 
     def distance(self, agloc, tgloc):
