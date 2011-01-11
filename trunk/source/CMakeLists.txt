@@ -41,9 +41,6 @@ IF (PYTHON_FOUND)
 ENDIF (PYTHON_FOUND)
 
 # header include directories
-IF (EXISTS "/p/include")
-  INCLUDE_DIRECTORIES ("/p/include")
-ENDIF (EXISTS "/p/include")
 INCLUDE_DIRECTORIES ( ${OpenNERO_SOURCE_DIR}/external/include/irrlicht )
 INCLUDE_DIRECTORIES ( ${OpenNERO_SOURCE_DIR}/external/include )
 INCLUDE_DIRECTORIES ( ${OpenNERO_SOURCE_DIR}/external/source/tiny )

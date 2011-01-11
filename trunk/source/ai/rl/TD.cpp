@@ -12,6 +12,7 @@ namespace OpenNero
     bool TDBrain::initialize(const AgentInitInfo& init)
     {
         mInfo = init;
+        this->fitness = mInfo.reward.getInstance();
         mApproximator.reset(new TableApproximator(mInfo)); // initialize the function approximator
         return true;
     }
@@ -31,7 +32,7 @@ namespace OpenNero
         double new_Q = epsilon_greedy(new_state); // select new action and estimate its value
         double old_Q = mApproximator->predict(state, action);
         // Q(s_t, a_t) <- Q(s_t, a_t) + \alpha [r_{t+1} + \gamma Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t)
-        mApproximator->update(state, action, old_Q + mAlpha * (reward + mGamma * new_Q - old_Q));
+        mApproximator->update(state, action, old_Q + mAlpha * (reward[0] + mGamma * new_Q - old_Q));
         action = new_action;
         state = new_state;
         return action;
@@ -43,7 +44,7 @@ namespace OpenNero
         // Q(s_t, a_t) <- Q(s_t, a_t) + \alpha [r_{t+1} - Q(s_t, a_t)]
         // LOG_F_DEBUG("ai", "TD FINAL UPDATE s1: " << state << ", a1: " << action << ", r: " << reward);
         double old_Q = mApproximator->predict(state, action);
-        mApproximator->update(state, action, old_Q + mAlpha * (reward - old_Q));
+        mApproximator->update(state, action, old_Q + mAlpha * (reward[0] - old_Q));
         return true;
     }
 

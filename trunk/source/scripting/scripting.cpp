@@ -164,10 +164,10 @@ namespace OpenNero
                  "sys.stderr = ErrLogWriter()\n"
                  "sys.stdout = StdLogWriter()\n");
             
-            Exec("from plot_client import NetworkLogWriter\n"
-                 "network_log_writer = NetworkLogWriter()\n");
+            //Exec("from plot_client import NetworkLogWriter\n"
+            //     "network_log_writer = NetworkLogWriter()\n");
                  
-            Extract("network_log_writer", _network_log_writer);
+            //Extract("network_log_writer", _network_log_writer);
 
             _initialized = true;
 
@@ -180,13 +180,13 @@ namespace OpenNero
         if( _initialized )
         {
             _initialized = false;
-            if (_network_log_writer) {
-                try {
-                    _network_log_writer.attr("close")();
-                } catch (py::error_already_set const&) {
-                    // ignore errors on close
-                }
-            }
+            //if (_network_log_writer) {
+            //    try {
+            //        _network_log_writer.attr("close")();
+            //    } catch (py::error_already_set const&) {
+            //        // ignore errors on close
+            //    }
+            //}
         }
     }
 
@@ -237,14 +237,14 @@ namespace OpenNero
     
     void ScriptingEngine::NetworkWrite(const std::string& message)
     {
-        if (_network_log_writer) {
-            try {
-                _network_log_writer.attr("write")(message);
-            } catch (py::error_already_set const&) {
-                LogError();
-            }
-        } else {
-            Log::LogMsg(NULL, NULL, message.c_str());
-        }
+        //if (_network_log_writer) {
+        //    try {
+        //        _network_log_writer.attr("write")(message);
+        //    } catch (py::error_already_set const&) {
+        //        LogError();
+        //    }
+        //} else {
+        //    Log::LogMsg(NULL, NULL, message.c_str());
+        //}
     }
 }

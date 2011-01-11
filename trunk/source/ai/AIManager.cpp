@@ -60,17 +60,22 @@ namespace OpenNero
     void AIManager::Log(SimId id, 
                         size_t episode, 
                         size_t step, 
-                        double reward, 
-                        double fitness)
+                        Reward reward, 
+                        Reward fitness)
     {
-        stringstream ss;
-        GetStaticTimer().stamp(ss);
-        ss << " (M) [ai.tick] " << id <<
+        //stringstream ss;
+        //GetStaticTimer().stamp(ss);
+        //ss << " (M) [ai.tick] " << id <<
+        //    "\t" << episode <<
+        //    "\t" << step <<
+        //    "\t" << reward <<
+        //    "\t" << fitness << endl;
+        //ScriptingEngine::instance().NetworkWrite(ss.str());
+        LOG_F_DEBUG("ai.tick", id <<
             "\t" << episode <<
             "\t" << step <<
             "\t" << reward <<
-            "\t" << fitness << endl;
-        ScriptingEngine::instance().NetworkWrite(ss.str());
+            "\t" << fitness);
     }
 
     void AIManager::SetAI(const std::string& name, AIPtr ai)

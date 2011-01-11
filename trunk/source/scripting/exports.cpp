@@ -147,6 +147,48 @@ namespace OpenNero {
 
 		static bool eq_fv(const FeatureVector& v1, const FeatureVector& v2)
 		{ return v1 == v2; }
+        
+        /// convert a Python float to a FeatureVector
+        struct FeatureVector_from_python_float
+        {
+            /// the constructor will register this converter with Boost.Python
+            FeatureVector_from_python_float()
+            {
+                py::converter::registry::push_back(
+                    &convertible,
+                    &construct,
+                    py::type_id<FeatureVector>());
+            }
+        
+            /// determine if the Python object in question can be converted
+            /// it has to be a tuple containing three floating point numbers
+            static void* convertible(PyObject* obj_ptr)
+            {
+                if (PyFloat_Check(obj_ptr) || PyInt_Check(obj_ptr))
+                {
+                    return obj_ptr;
+                } else {
+                    return 0;
+                }
+            }
+            /// convert a Python object to a FeatureVector object
+            static void construct(
+                PyObject* obj_ptr,
+                py::converter::rvalue_from_python_stage1_data* data)
+            {
+                // get the value out
+                double x = PyFloat_AsDouble(obj_ptr);
+
+                // grab a pointer to memory into which to construct the new FeatureVector
+                void* storage = ((py::converter::rvalue_from_python_storage<FeatureVector>*)data)->storage.bytes;
+                
+                // in-place construct the Vector3f from the values in the tuple
+                new (storage) FeatureVector(1,x);
+                
+                // remember the memory chunk
+                data->convertible = storage;
+            }
+        };
 
 		/// @brief export the OpenNERO AI script interface
 		void ExportAIScripts()
@@ -184,6 +226,9 @@ namespace OpenNero {
 				.def("__eq__", &eq_fv)
 				.def(vector_indexing_suite< std::vector<double> >())
 				;
+            
+            // ability to convert a single Python float to a FeatureVector
+            FeatureVector_from_python_float();
 
 			py::class_<AgentInitInfo>("AgentInitInfo", "Initialization information given to the agent", 
                                       init<const FeatureVectorInfo&, const FeatureVectorInfo&, const FeatureVectorInfo&>())
@@ -320,7 +365,6 @@ namespace OpenNero {
 			/// Python Object
 			typedef py::object  PyObject;
 
-
 			/// Create a python tuple from a vector
 			static PyTuple getinitargs(const VectorType& v)
 			{   
@@ -432,6 +476,59 @@ namespace OpenNero {
 			}
 		}
 
+        /// convert Python tuples to Vector3f objects
+        struct Vector3f_from_python_tuple
+        {
+            /// the constructor will register this converter with Boost.Python
+            Vector3f_from_python_tuple()
+            {
+                py::converter::registry::push_back(
+                    &convertible,
+                    &construct,
+                    py::type_id<Vector3f>());
+            }
+        
+            /// determine if the Python object in question can be converted
+            /// it has to be a tuple containing three floating point numbers
+            static void* convertible(PyObject* obj_ptr)
+            {
+                if (PyTuple_Check(obj_ptr) && PyTuple_Size(obj_ptr) == 3) {
+                    if (PyFloat_Check(PyTuple_GetItem(obj_ptr, 0)) &&
+                        PyFloat_Check(PyTuple_GetItem(obj_ptr, 1)) &&
+                        PyFloat_Check(PyTuple_GetItem(obj_ptr, 2)))
+                    {
+                        return obj_ptr;
+                    }
+                    else
+                    {
+                        return 0;
+                    }
+                } else {
+                    return obj_ptr;
+                }
+            }
+            
+            /// convert a Python object to a Vector3f object
+            static void construct(
+                PyObject* obj_ptr,
+                py::converter::rvalue_from_python_stage1_data* data)
+            {
+                // get the x, y and z components of the tuple as doubles
+                double x = PyFloat_AsDouble(PyTuple_GetItem(obj_ptr, 0));
+                double y = PyFloat_AsDouble(PyTuple_GetItem(obj_ptr, 1));
+                double z = PyFloat_AsDouble(PyTuple_GetItem(obj_ptr, 2));
+                
+                // grab a pointer to memory into which to construct the new Vector3f
+                void* storage = ((py::converter::rvalue_from_python_storage<Vector3f>*)data)->storage.bytes;
+                
+                // in-place construct the Vector3f from the values in the tuple
+                new (storage) Vector3f(x,y,z);
+                
+                // remember the memory chunk
+                data->convertible = storage;
+            }
+        };
+
 		/// export the Irrlicht utilities to python
 		void ExportIrrUtilScripts()
 		{
@@ -458,6 +555,9 @@ namespace OpenNero {
 				.def(self_ns::str(self))
 				.def_pickle(irr_vector3d_pickle_suite<float32_t>())
 				;
+                
+            // A converter from a Python tuple to a Vector3f
+            Vector3f_from_python_tuple();
 
 			// position2D classes
 			ExportPos2< Pos2i, int32_t >  ( "Pos2i", "A two dimensional integer position." );
