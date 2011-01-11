@@ -36,7 +36,7 @@ namespace OpenNero
             
             size_t step; ///< step count
             
-            double fitness; ///< cumulative reward for the current episode
+            Reward fitness; ///< cumulative reward for the current episode
 
         public:
             /// constructor

@@ -12,6 +12,8 @@ namespace OpenNero
     /// called right before the agent is born
     bool PyAgentBrain::initialize(const AgentInitInfo& init_info)
     {
+        // initialize (potentially multi-objective) fitness
+        fitness = init_info.reward.getInstance();
         bool result(false);
         TryOverride("initialize", result, init_info);
         return result;

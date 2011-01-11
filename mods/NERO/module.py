@@ -42,14 +42,6 @@ class NeroModule:
         if self.environment:
             error("Environment already created")
             return
-        
-        #Test for wx python
-        try:
-            import wx
-        except ImportError:
-            print "Please install wx"
-            openWiki('wx')()
-            return False
 
         startScript('NERO/menu.py')
         

@@ -35,7 +35,7 @@ namespace OpenNero
     /// @brief perform agent actions in the environment and receive the reward
     Reward RandomEnvironment::step(AgentBrainPtr agent, Actions action)
     {
-        return RANDOM.randD(1);
+        return mInitInfo.reward.getRandom();
     }
 
     /// called to find out if the agent is active and should act
