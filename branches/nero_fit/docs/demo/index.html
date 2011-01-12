@@ -1,0 +1,486 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html><head>
+	<title>OpenNERO: a Game Platform for AI Research and Education: Demonstration Outline</title>
+	<meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+	<meta name="keywords" content="">
+	<link rel="stylesheet" type="text/css" href="index_files/wikka.css">
+	<link rel="stylesheet" type="text/css" href="index_files/print.css" media="print">
+</head><body>
+<div class="page">
+<h2>OpenNERO: a Game Platform for AI Research and Education: Demonstration Outline</h2>
+
+<table>
+  <tr>
+    <td>
+      <span id="hcard-Igor-V.-Karpov" class="vcard">
+	<a class="url fn n" href="http://www.cs.utexas.edu/~ikarpov/">
+	  <span class="given-name">Igor</span>
+	  <span class="additional-name">V.</span>
+	  <span class="family-name">Karpov</span>
+	</a>
+	(<a class="email" href="mailto:ikarpov@cs.utexas.edu">ikarpov@cs.utexas.edu</a>)<br />
+	<span class="org">
+	  <a class="organization-unit" href="http://www.cs.utexas.edu/">Department of Computer Sciences</a> <br />
+	  <a class="organization-name" href="http://www.utexas.edu/">The Univeristy of Texas at Austin</a>
+	</span> <br />
+	<span class="adr">
+	  <span class="street-address">1 University Station C0500</span><br />
+	  <span class="locality">Austin</span>, 
+	  <span class="region">TX</span>
+	  <span class="postal-code">78712-0233</span>
+	  <span class="country-name">USA</span>
+	</span> <br />
+	<span class="tel"><span class="type">Tel.:</span> <span class="value">+1-(512)-232-0895</span></span>
+      </span>
+    </td>
+    <td>
+      <span id="hcard-John-Sheblak" class="vcard">
+	<a class="url fn n" href="http://www.jbsheblak.com/">
+	  <span class="given-name">John</span>
+	  <span class="additional-name">B.</span>
+	  <span class="family-name">Sheblak</span>
+	</a>
+	(<a class="email" href="mailto:jsheblak@retrostudios.com">jsheblak@retrostudios.com</a>)<br />
+	<span class="org">
+	  <a class="organization-name" href="http://www.retrostudios.com/">Retro Studios</a>
+	</span> <br />
+	<span class="adr">
+	  <span class="street-address">1835A Kramer Lane, Suite 100</span><br />
+	  <span class="locality">Austin</span>, 
+	  <span class="region">TX</span>
+	  <span class="postal-code">78758</span>
+	  <span class="country-name">USA</span>
+	</span>
+      </span>
+    </td>
+    <td>
+      <span id="hcard-Risto-Miikkulainen" class="vcard">
+	<a class="url fn n" href="http://www.cs.utexas.edu/~risto/">
+	  <span class="given-name">Risto</span>
+	  <span class="family-name">Miikkulainen</span>
+	</a>
+	(<a class="email" href="mailto:risto@cs.utexas.edu">risto@cs.utexas.edu</a>)<br />
+	<span class="org">
+	  <a class="organization-unit" href="http://www.cs.utexas.edu/">Department of Computer Sciences</a> <br />
+	  <a class="organization-name" href="http://www.utexas.edu/">The Univeristy of Texas at Austin</a>
+	</span> <br />
+	<span class="adr">
+	  <span class="street-address">1 University Station C0500</span><br />
+	  <span class="locality">Austin</span>, 
+	  <span class="region">TX</span>
+	  <span class="postal-code">78712-0233</span>
+	  <span class="country-name">USA</span>
+	</span> <br />
+	<span class="tel"><span class="type">Tel.:</span> <span class="value">+1-(512)-471-9571</span></span>
+      </span>
+    </td>
+  </tr>
+</table>
+
+<h3>System Overview</h3>
+
+<br>
+OpenNERO (Open Neuro-Evolving Robotic Operatives) is an open source
+game platform designed for game AI research. The platform combines
+features commonly available in modern game engines (such as 3D
+graphics, physics simulation, 3D audio rendering, networked play, and a
+powerful scripting interface) with an easy to use API and tools for
+defining machine learning tasks, environments, and agents. This live
+demonstration highlights the flexibility and ease of use of the
+OpenNERO platform by following the process of creating a simple machine
+learning game, and verifies the system's scalability through the
+implementation of a more complex machine learning game based on the
+successful <a class="ext" href="http://www.nerogame.org/">NERO game</a><span class="exttail">&#8734;</span>.<br>
+<br>
+Internally, OpenNERO is implemented in C++ and embeds a Python
+interpreter. The implementation is cross platform and can be compiled
+for Microsoft Windows, Mac OS X, and Linux operating systems running on
+x86, PPC, and x86_64 architectures. The platform can be thought of as a
+federation of open source libraries, including:<br>
+<br>
+<ul><li> <a class="ext" href="http://irrlicht.sourceforge.net/">Irrlicht Engine</a><span class="exttail">&#8734;</span> - a fully featured free game engine used for rendering and graphical user interface.
+</li><li> <a class="ext" href="http://www.ode.org/">Open Dynamics Engine</a><span class="exttail">&#8734;</span> - a library used to simulate physics of rigid body collisions and dynamics.
+</li><li> <a class="ext" href="http://www.python.org/">Python scripting language</a><span class="exttail">&#8734;</span> - OpenNERO relies on embedded Python as its scripting solution
+</li><li> <a class="ext" href="http://www.boost.org/">Boost C++ Libraries</a><span class="exttail">&#8734;</span>
+- a collection of peer-reviewed libraries used for Python embedding,
+serialization, cross-platform file system operation, and automatic
+pointers
+</li><li> <a class="ext" href="http://www.openal.org/">OpenAL</a><span class="exttail">&#8734;</span> - the audio library used for 3D audio rendering</li></ul>
+<br>
+We would like to thank the many developers of these libraries for their great contributions to the open source community.<br>
+<br>
+<h3>System Architecture</h3>
+
+<br>
+<h5>Figure 1: OpenNERO server-client architecture</h5>
+
+<a href="index_files/opennero-architecture.png"><img src="index_files/opennero-architecture.png" alt="OpenNERO server-client architecture" width="400"></a><br>
+<br>
+OpenNERO follows the basic client-server architecture commonly found in many modern networked video games. The <em>simulation</em>, either a <em>client simulation</em> or a <em>server simulation</em>, can contain a number of <em>Simulation Entities</em>,
+which represent static objects of the simulated environment (such as
+terrain and walls) as well as player and non-player characters
+(controlled by the AI system). The server is responsible for keeping a
+centralized world state, simulating the world transition function
+through calls to the physics simulation library and the AI subsystem,
+and for updating the clients when their view of the world state
+requires an update. The clients are responsible for interacting with
+human players through input devices and a graphical user interface,
+providing video and audio rendering of the simulation, and sending
+appropriate requests to the server when called upon to do so by the
+player or by the locally running AI agent.<br>
+<br>
+<h5>Figure 2: A subset of the OpenNERO mod hierarchy</h5>
+
+<a href="index_files/opennero-mods.png"><img src="index_files/opennero-mods.png" alt="A subset of the OpenNERO mod hierarchy" width="400"></a><br>
+<br>
+Functionally, OpenNERO is organized as a core system (or <em>kernel</em>) that allows the execution of a number of user-modified games or simulations (or <em>mods</em>)
+such as the main menu, the maze environment described below, or the
+different phases of the NERO game. A mod is defined as a stand-alone
+collection of resources such as 3D models, AI agents, configuration
+files, user interface bindings and so on, which can be executed by the 
+OpenNERO system. Additionally, some mods may extend existing mods in order to
+reuse their resources. This modular architecture allows contributors to
+define and modify their mods/games independently of each other as well
+as to reuse resources that are already available.<br>
+<br>
+<hr>
+
+<h3>Use Case: Maze Island</h3>
+
+<br>
+In order to demonstrate the various features of the OpenNERO platform,
+we step through the various stages. The end product will be a simple
+maze-running task that is playable by human players as well as by a
+collection of AI algorithms such as A* search or reinforcement learning
+algorithms.<br>
+<br>
+<h4>Starting Materials</h4>
+
+<br>
+A starting assumption for this walk-through is that the digital content
+and artwork for the game has already been generated and/or licensed.
+Original content generation and digital modeling are some of the most
+costly and time-consuming components of modern game development,
+because it is a labor intensive process that requires a highly skilled
+and creative staff working with expensive software tools. However, this
+problem is mitigated somewhat in the context of game AI research
+because the games don't need to look polished: the idea is to have just
+enough content for the purpose at hand. In our case, we will need an
+island, some walls, some markers and a character model:<br>
+<br>
+<h5>Digital building blocks of the Maze Island world</h5>
+
+<br>
+
+<table>
+<tbody><tr><td><img src="index_files/island-heightmap.jpg" alt="Maze Island heightmap"></td><td>Maze Island Height map (randomly generated)</td></tr>
+<tr><td><img src="index_files/island-texture.jpg" alt="Maze Island texture"></td><td>Maze Island Texture (generated from the height map using the free <a href="http://www.toymaker.info/html/texgen.html">T2 Texture Generation Program</a>)</td></tr>
+<tr><td><a href="index_files/opennero-brick-wall.png"><img src="index_files/opennero-brick-wall.png" alt="Maze wall" width="256"></a></td><td>Maze wall (modeled using <a href="http://usa.autodesk.com/adsk/servlet/index?id=7635018&amp;siteID=123112">Autodesk Maya</a>)</td></tr>
+<tr><td><img src="index_files/red-cube.html" alt="Red cube"></td><td>Red cube (modeled using <a href="http://usa.autodesk.com/adsk/servlet/index?id=7635018&amp;siteID=123112">Autodesk Maya</a>)</td></tr>
+<tr><td><img src="index_files/irrlicht-sydney.png" alt="Sydney character model"></td><td>Sydney character model (comes with Irrlicht)</td></tr>
+</tbody></table>
+<br>
+<br>
+OpenNERO provides a simple tool for opening and viewing various
+loadable resources called the Importer (under development). In addition
+to examining and adjusting the appearance of an object (such as scale,
+initial orientation, shadow-casting and lighting parameters), the
+Importer allows its users to adjust other object properties as ambient
+audio, animations, mass, density, and collision parameters. Characters
+also have an associated AI controller. The Importer tool generates an
+XML file that points to the primitive resources and describes the
+properties of the object. These files may also be edited by hand.<br>
+<br>
+<a href="../../build/maze/data/shapes/character/SydneyAStar.xml">OPEN SydneyAStar.xml</a>
+<br>
+<!--start GeSHi-->
+<div class="code" style="font-family: monospace;"><span class="sc3"><span class="re1">&lt;Template<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;Audio<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;Rocket<span class="re2">&gt;</span></span></span>maze/data/sounds/rocket_launcher.ogg<span class="sc3"><span class="re1">&lt;/Rocket<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;/Audio<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;Render<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;MaterialType<span class="re2">&gt;</span></span></span>solid<span class="sc3"><span class="re1">&lt;/MaterialType<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;MaterialFlagLighting<span class="re2">&gt;</span></span></span>true<span class="sc3"><span class="re1">&lt;/MaterialFlagLighting<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;AniMesh<span class="re2">&gt;</span></span></span>data/shapes/character/sydney.md2<span class="sc3"><span class="re1">&lt;/AniMesh<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;Texture0<span class="re2">&gt;</span></span></span>data/shapes/character/sydney.bmp<span class="sc3"><span class="re1">&lt;/Texture0<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;CastsShadow<span class="re2">&gt;</span></span></span>true<span class="sc3"><span class="re1">&lt;/CastsShadow<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;Footprints<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;Frames<span class="re2">&gt;</span></span></span>3<span class="sc3"><span class="re1">&lt;/Frames<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;Trail<span class="re2">&gt;</span></span></span>100<span class="sc3"><span class="re1">&lt;/Trail<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;Object<span class="re2">&gt;</span></span></span>data/shapes/footprint/Footprint.xml<span class="sc3"><span class="re1">&lt;/Object<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;/Footprints<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;Scale<span class="re2">&gt;</span></span></span>0.2 0.2 0.2<span class="sc3"><span class="re1">&lt;/Scale<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;/Render<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;AI<span class="re2">&gt;</span></span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;Python</span> <span class="re0">agent</span>=<span class="st0">"AStarSearchAgent()"</span> <span class="re2">/&gt;</span></span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="sc3"><span class="re1">&lt;/AI<span class="re2">&gt;</span></span></span><br>
+<span class="sc3"><span class="re1">&lt;/Template<span class="re2">&gt;</span></span></span></div>
+<!--end GeSHi-->
+<br>
+<br>
+Finally, because OpenNERO uses the Irrlicht engine for rendering, users also have the excellent <a class="ext" href="http://www.ambiera.com/irredit/">IrrEdit</a><span class="exttail">&#8734;</span> tool at their disposal.<br>
+<br>
+<h4>Building the Island</h4>
+
+<br>
+Once we have imported a collection of the building blocks, we can use
+the Builder tool (under development) in order to put these objects
+together. The output of the builder tool is a snippet of Python code
+that, when executed in the OpenNERO environment, generates the world
+and the user interface. Again, this code can be modified either through
+the tool or manually.<br>
+<br>
+<h5>Snippet of python code that generates the Maze Island</h5>
+
+<br/><a href="../../build/maze/client/client.py">OPEN client.py</a>
+<br/>
+
+<!--start GeSHi-->
+<div class="code" style="font-family: monospace;">server.<span class="me1">addStaticObject</span><span class="br0">(</span><span class="st0">"data/terrain/Sea.xml"</span>, Vector3f<span class="br0">(</span><span class="nu0">-3000</span>,<span class="nu0">-3000</span>,<span class="nu0">-20</span><span class="br0">)</span><span class="br0">)</span> <span class="co1"># tell server to add the sea</span><br>
+server.<span class="me1">addStaticObject</span><span class="br0">(</span><span class="st0">"data/terrain/IslandTerrain.xml"</span>, Vector3f<span class="br0">(</span><span class="nu0">-1100</span>, <span class="nu0">-2400</span>, <span class="nu0">-17</span><span class="br0">)</span>, Vector3f<span class="br0">(</span><span class="nu0">0</span>,<span class="nu0">0</span>,<span class="nu0">1</span><span class="br0">)</span><span class="br0">)</span> <span class="co1"># tell server to add the island</span><br>
+server.<span class="me1">addSkyBox</span><span class="br0">(</span><span class="st0">"data/sky/irrlicht2"</span><span class="br0">)</span> <span class="co1"># tell server to add the sky</span><br>
+cam = sim.<span class="me1">addCamera</span><span class="br0">(</span><span class="nu0">100</span>, <span class="nu0">3000</span>, <span class="nu0">100</span><span class="br0">)</span> <span class="co1"># add a camera (local object)</span><br>
+sim.<span class="me1">addLightSource</span><span class="br0">(</span>Vector3f<span class="br0">(</span><span class="nu0">500</span>,<span class="nu0">-500</span>,<span class="nu0">1000</span><span class="br0">)</span>, <span class="nu0">1500</span><span class="br0">)</span> <span class="co1"># add a sun (local object)</span></div>
+<!--end GeSHi-->
+<br>
+<h4>Generating the Maze</h4>
+
+<br>
+For the maze environment, we use <a class="ext" href="http://en.wikipedia.org/wiki/Maze_generation_algorithm">Kruskal's algorithm</a><span class="exttail">&#8734;</span>
+to generate a simple ROWS by COLS 2D grid maze. The start state is in
+cell (0,0) and the goal state is in cell (ROWS-1, COLS-1). We place
+copies of the brick wall model appropriately using the following Python
+code.<br>
+
+<br/><a href="../../build/maze/server/server.py">OPEN server.py</a>
+<br/>
+
+<!--start GeSHi-->
+<div class="code" style="font-family: monospace;"><span class="kw1">for</span> <span class="br0">(</span><span class="br0">(</span>r1, c1<span class="br0">)</span>, <span class="br0">(</span>r2, c2<span class="br0">)</span><span class="br0">)</span> <span class="kw1">in</span> <span class="kw2">self</span>.<span class="me1">environment</span>.<span class="me1">walls</span>:<br>
+&nbsp; &nbsp; pos = Vector3f<span class="br0">(</span><span class="br0">(</span>r1 + r2<span class="br0">)</span> * GRID_DX/<span class="nu0">2</span> + GRID_DX, <span class="br0">(</span>c1 + c2<span class="br0">)</span> * GRID_DY/<span class="nu0">2</span> + GRID_DY, <span class="nu0">2.5</span><span class="br0">)</span><br>
+&nbsp; &nbsp; z_rotation = <span class="nu0">0</span><br>
+&nbsp; &nbsp; <span class="kw1">if</span> r1 != r2:<br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;z_rotation = <span class="nu0">90</span><br>
+&nbsp; &nbsp; <span class="kw2">self</span>._addStaticObject<span class="br0">(</span><span class="st0">"data/shapes/wall/BrickWall.xml"</span>, pos, Vector3f<span class="br0">(</span><span class="nu0">0</span>, <span class="nu0">0</span>, z_rotation<span class="br0">)</span><span class="br0">)</span><br>
+<span class="co1"># world boundaries&nbsp; &nbsp; &nbsp; &nbsp; </span><br>
+<span class="kw1">for</span> i <span class="kw1">in</span> <span class="kw2">range</span><span class="br0">(</span><span class="nu0">1</span>,COLS<span class="nu0">+1</span><span class="br0">)</span>:<br>
+&nbsp; &nbsp; <span class="kw2">self</span>._addStaticObject<span class="br0">(</span><span class="st0">"data/shapes/wall/BrickWall.xml"</span>, Vector3f<span class="br0">(</span>GRID_DX/<span class="nu0">2</span>, i * GRID_DY, <span class="nu0">2</span><span class="br0">)</span>, Vector3f<span class="br0">(</span><span class="nu0">0</span>, <span class="nu0">0</span>, <span class="nu0">90</span><span class="br0">)</span> <span class="br0">)</span><br>
+&nbsp; &nbsp; <span class="kw2">self</span>._addStaticObject<span class="br0">(</span><span class="st0">"data/shapes/wall/BrickWall.xml"</span>, Vector3f<span class="br0">(</span>i * GRID_DX, GRID_DY/<span class="nu0">2</span>, <span class="nu0">2</span><span class="br0">)</span>, Vector3f<span class="br0">(</span><span class="nu0">0</span>, <span class="nu0">0</span>, <span class="nu0">0</span><span class="br0">)</span> <span class="br0">)</span><br>
+&nbsp; &nbsp; <span class="kw2">self</span>._addStaticObject<span class="br0">(</span><span class="st0">"data/shapes/wall/BrickWall.xml"</span>, Vector3f<span class="br0">(</span>i * GRID_DX, COLS * GRID_DY + GRID_DY/<span class="nu0">2</span>, <span class="nu0">2</span><span class="br0">)</span>, Vector3f<span class="br0">(</span><span class="nu0">0</span>, <span class="nu0">0</span>, <span class="nu0">0</span><span class="br0">)</span> <span class="br0">)</span><br>
+&nbsp; &nbsp; <span class="kw2">self</span>._addStaticObject<span class="br0">(</span><span class="st0">"data/shapes/wall/BrickWall.xml"</span>, Vector3f<span class="br0">(</span>ROWS * GRID_DX + GRID_DX/<span class="nu0">2</span>, i * GRID_DY, <span class="nu0">2</span><span class="br0">)</span>, Vector3f<span class="br0">(</span><span class="nu0">0</span>, <span class="nu0">0</span>, <span class="nu0">90</span><span class="br0">)</span> <span class="br0">)</span><br>
+<span class="co1"># goal (red cube)</span><br>
+<span class="kw2">self</span>._addObject<span class="br0">(</span><span class="st0">"data/shapes/cube/RedCube.xml"</span>, Vector3f<span class="br0">(</span>ROWS * GRID_DX, COLS * GRID_DY, <span class="nu0">2</span><span class="br0">)</span>, Vector3f<span class="br0">(</span><span class="nu0">45</span>,<span class="nu0">45</span>,<span class="nu0">45</span><span class="br0">)</span><span class="br0">)</span>&nbsp; &nbsp; &nbsp; &nbsp;</div>
+<!--end GeSHi-->
+<br>
+<br>
+<h4>GUI bindings</h4>
+
+We can add basic user interface in Python using code like the following:<br>
+
+<a href="../../build/maze/client/client.py">OPEN client.py</a>
+<br/>
+
+<!--start GeSHi-->
+<div class="code" style="font-family: monospace;">fpsButton = gui.<span class="me1">create_button</span><span class="br0">(</span>guiMan, <span class="st0">'maze'</span>, Pos2i<span class="br0">(</span><span class="nu0">0</span>,<span class="nu0">100</span><span class="br0">)</span>, Pos2i<span class="br0">(</span><span class="nu0">100</span>,<span class="nu0">50</span><span class="br0">)</span>, <span class="st0">''</span><span class="br0">)</span><br>
+fpsButton.<span class="me1">text</span> = <span class="st0">'Do it yourself!'</span><br>
+fpsButton.<span class="me1">OnMouseLeftClick</span> = <span class="kw1">lambda</span>: clientContext.<span class="me1">server</span>.<span class="me1">start_fps</span><span class="br0">(</span><span class="br0">)</span><br>
+guiWindow = gui.<span class="me1">create_window</span><span class="br0">(</span>guiMan, <span class="st0">'window'</span>, Pos2i<span class="br0">(</span><span class="nu0">20</span>, <span class="nu0">300</span><span class="br0">)</span>, Pos2i<span class="br0">(</span><span class="nu0">200</span>, <span class="nu0">270</span><span class="br0">)</span>, <span class="st0">'Maze Control'</span><span class="br0">)</span><br>
+guiWindow.<span class="me1">addChild</span><span class="br0">(</span>fpsButton<span class="br0">)</span></div>
+<!--end GeSHi-->
+<br>
+<br>
+<h4>A Finished Maze Island</h4>
+
+At this point, our Maze Island looks pretty inviting:<br>
+<a href="index_files/opennero-maze-birdseye.png"><img src="index_files/opennero-maze-birdseye.png" alt="OpenNERO maze island" width="400"></a><br>
+What remains is to add the fun parts of the game - the task and the agents that will solve it.<br>
+<br>
+<h4>Maze running environment</h4>
+
+<br>
+In order to create the rules of the task that our toy reinforcement
+learning agent will perform, we need to define the following methods of
+an Environment class in Python:<br>
+<br>
+<a href="../../build/maze/server/SearchEnvironment.py">OPEN SearchEnvironment.py</a>
+<br>
+<!--start GeSHi-->
+<div class="code" style="font-family: monospace;"><span class="kw1">def</span> sense<span class="br0">(</span><span class="kw2">self</span>, agent<span class="br0">)</span>:<br>
+&nbsp; &nbsp;<span class="st0">""</span><span class="kw1">return</span> the observations felt by a particular agent<span class="st0">""</span><br>
+<br>
+<span class="kw1">def</span> step<span class="br0">(</span><span class="kw2">self</span>, agent, actions<span class="br0">)</span>:<br>
+&nbsp; &nbsp;<span class="st0">""</span>process the agent<span class="st0">'s actions and return the immediate reward""</span></div>
+<!--end GeSHi-->
+<br>
+<br>
+We define the sensors, actions and rewards of the environment as follows:<br>
+<br>
+
+<table>
+<thead>
+<tr><td>Sensor number</td><td>Meaning</td></tr>
+</thead>
+<tbody><tr><td>0-9</td><td>obstacle range finders</td></tr>
+<tr><td>10-19</td><td>direction to target</td></tr>
+</tbody></table>
+<br>
+<br>
+
+<table>
+<thead>
+<tr><td>Action number</td><td>Meaning (if non-zero)</td></tr>
+</thead>
+<tbody><tr><td>0</td><td>move forward</td></tr>
+<tr><td>1</td><td>move back</td></tr>
+<tr><td>2</td><td>turn left</td></tr>
+<tr><td>3</td><td>turn right</td></tr>
+<tr><td>4</td><td>move left</td></tr>
+<tr><td>5</td><td>move right</td></tr>
+</tbody></table>
+<br>
+<br>
+
+<table>
+<thead>
+<tr><td>Action outcome</td><td>Reward</td></tr>
+</thead>
+<tbody>
+<tr><td>Goal reached</td><td>+100</td></tr>
+<tr><td>Wall hit</td><td>-5</td></tr>
+<tr><td>Other</td><td>-1</td></tr>
+</tbody>
+</table>
+<br>
+<br>
+<h4>Random Agent</h4>
+
+<br>
+The simplest agent to implement for this environment is one that simply picks a random action each step:<br>
+<br>
+<!--start GeSHi-->
+<div class="code" style="font-family: monospace;"><span class="kw1">class</span> RandomAgent<span class="br0">(</span>AgentBrain<span class="br0">)</span>:<br>
+&nbsp; &nbsp; <span class="kw1">def</span> <span class="kw4">__init__</span><span class="br0">(</span><span class="kw2">self</span><span class="br0">)</span>:<br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="co1"># this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++</span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;AgentBrain.<span class="kw4">__init__</span><span class="br0">(</span><span class="kw2">self</span><span class="br0">)</span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<br>
+&nbsp; &nbsp; <span class="kw1">def</span> initialize<span class="br0">(</span><span class="kw2">self</span>, init_info<span class="br0">)</span>:<br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="st0">""</span><span class="st0">" grab any resources "</span><span class="st0">""</span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="kw2">self</span>.<span class="me1">action_info</span> = init_info.<span class="me1">actions</span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="kw1">return</span> <span class="kw2">True</span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<br>
+&nbsp; &nbsp; <span class="kw1">def</span> start<span class="br0">(</span><span class="kw2">self</span>, <span class="kw3">time</span>, sensors<span class="br0">)</span>:<br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="st0">""</span><span class="st0">" start an episode "</span><span class="st0">""</span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="kw1">return</span> <span class="kw2">self</span>.<span class="me1">action_info</span>.<span class="kw3">random</span><span class="br0">(</span><span class="br0">)</span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<br>
+&nbsp; &nbsp; <span class="kw1">def</span> act<span class="br0">(</span><span class="kw2">self</span>, <span class="kw3">time</span>, sensors, reward<span class="br0">)</span>:<br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="st0">""</span><span class="st0">" select an action "</span><span class="st0">""</span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="kw1">return</span> <span class="kw2">self</span>.<span class="me1">action_info</span>.<span class="kw3">random</span><span class="br0">(</span><span class="br0">)</span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<br>
+&nbsp; &nbsp; <span class="kw1">def</span> end<span class="br0">(</span><span class="kw2">self</span>, <span class="kw3">time</span>, reward<span class="br0">)</span>:<br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="st0">""</span><span class="st0">" end an episode "</span><span class="st0">""</span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="kw1">return</span> <span class="kw2">True</span><br>
+<br>
+&nbsp; &nbsp; <span class="kw1">def</span> destroy<span class="br0">(</span><span class="kw2">self</span><span class="br0">)</span>:<br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="st0">""</span><span class="st0">" free any resources "</span><span class="st0">""</span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="kw1">return</span> <span class="kw2">True</span></div>
+<!--end GeSHi-->
+<br>
+In the decision methods, <strong>self.action_info.random()</strong>,
+can be easily replaced by simple code that learns a value function or
+one that evolves neural network controllers. Facilities for doing so
+can be written in C++ and exported into Python, written in Python
+directly, or written in any other language and connected to the system
+via a network interface or an existing system such as <a class="ext" href="http://www.tielt.org/">TIELT</a><span class="exttail">&#8734;</span> or <a class="ext" href="http://rlai.cs.ualberta.ca/RLBB/top.html">RL-glue</a><span class="exttail">&#8734;</span> (this connectivity is under construction).<br>
+<br>
+<h4>Human Player</h4>
+
+<br>
+To take advantage of the game engine capabilities of OpenNERO, it is
+straightforward to add a first-person player capability. This is done
+by configuring the keyboard shortcuts on the client to make remote
+calls on the server, as follows:<br>
+<br>
+<!--start GeSHi-->
+<div class="code" style="font-family: monospace;">BindKey<span class="br0">(</span> <span class="st0">"KEY_KEY_A"</span>, <span class="st0">"onHold"</span>, <span class="kw1">lambda</span>: server.<span class="me1">send_command</span><span class="br0">(</span><span class="st0">'left'</span><span class="br0">)</span> <span class="br0">)</span></div>
+<!--end GeSHi-->
+<br>
+<br>
+and by defining an agent that reads this command buffer on the server side:<br>
+<br>
+<!--start GeSHi-->
+<div class="code" style="font-family: monospace;">&nbsp; &nbsp; <span class="kw1">def</span> key_action<span class="br0">(</span><span class="kw2">self</span><span class="br0">)</span>:<br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;action = <span class="kw2">self</span>.<span class="me1">action_info</span>.<span class="me1">get_instance</span><span class="br0">(</span><span class="br0">)</span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="kw1">for</span> key <span class="kw1">in</span> <span class="kw2">self</span>.<span class="me1">action_map</span>.<span class="me1">keys</span><span class="br0">(</span><span class="br0">)</span>:<br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="kw1">if</span> key <span class="kw1">in</span> <span class="kw2">self</span>.<span class="me1">keys</span><span class="br0">(</span><span class="br0">)</span>:<br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;action<span class="br0">[</span><span class="kw2">self</span>.<span class="me1">action_map</span><span class="br0">[</span>key<span class="br0">]</span><span class="br0">]</span> = <span class="nu0">1</span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp;<span class="kw1">else</span>:<br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;action<span class="br0">[</span><span class="kw2">self</span>.<span class="me1">action_map</span><span class="br0">[</span>key<span class="br0">]</span><span class="br0">]</span> = <span class="nu0">0</span><br>
+&nbsp; &nbsp;&nbsp; &nbsp; &nbsp;<span class="kw1">return</span> action</div>
+<!--end GeSHi-->
+<br>
+<h4>Maze Island, first person view</h4>
+<a href="index_files/opennero-maze-running.png"><img width="400" src="index_files/opennero-maze-running.png" alt="First person view of the maze"/></a>
+<hr>
+
+<br>
+<h3>Scaling OpenNERO: real-time Neuroevolution</h3>
+
+<br>
+<img src="index_files/territory_screen2_detail.png"><br>
+<br>
+<a class="ext" href="http://www.nerogame.org/">NERO Game</a><span class="exttail">&#8734;</span>
+is an existing machine learning game that uses the real-time version of
+the Neuroevolution of Augmenting Topologies method (rt-NEAT) to evolve
+artificial neural network controllers for simulated agents:<br>
+<br>
+<a class="ext" href="http://steam.csres.utexas.edu/%7Eikarpov/OpenNERO/Movies/nero2_trailer.mov">NERO 2.0 Video</a><span class="exttail">&#8734;</span><br>
+<br>
+Since NERO was released to the public in 2002 and during the subsequent
+updates to 1.1 and 2.0, the game has enjoyed some popularity both as a
+teaching tool, an innovative game, and a research platform. The game
+itself was already demonstrated at <a class="ext" href="http://www.aiide.org/">AIIDE</a><span class="exttail">&#8734;</span> 2005 and <a class="ext" href="http://www.gdconf.com/">GDC</a><span class="exttail">&#8734;</span> 2006 Independent Games Showcase, among others.<br>
+<br>
+In order to test the scalability of the new OpenNERO platform, we are
+re-implementing an improved version of the NERO game. The game provides
+a good scalability test because it requires support of 50 or more
+simultaneously simulated agents with individual sensors and decision
+processes, as well as a complex user interface, online game play and
+complex environments. This demonstration will provide a verify platform
+scalability in the face of increasing agent population size, sensor
+computational requirements, number of clients, and other system
+parameters.<br>
+<br>
+<hr>
+
+<h3>Summary and Future Directions</h3>
+
+<br>
+We have demonstrated that the OpenNERO environment is flexible, easy to
+use, and scales well to larger projects. We have already proven
+OpenNERO's usefulness as part of an introductory research class for
+undergraduates as well as in our own work including natural language
+understanding, evolution of communication and design and empirical
+comparison of practical game AI algorithms. As the project continues to
+grow and develop, we hope that it will include contributions from other
+researchers and game developers interested in building the next
+generation AI system for video games. We see the project as a valuable
+tool for researchers, educators and members of the video game industry
+alike.<br>
+<br>
+Future directions that we would like to explore using the OpenNERO
+environment include the interface between game simulation and physical
+robotics, human data collection using massively multi-player online
+games, and human-agent interaction protocols in virtual and augmented
+reality environments.<br>
+<br>
+<hr>
+
+<h3>Acknowledgements</h3>
+
+<br>
+OpenNERO was tested as part of a course introducing undergraduate students to AI research. We acknowledge the time and effort spent by the students discovering and in some cases fixing problems with the platform as it was being developed.
+<br>
+<br>
+OpenNERO is a federation of a number of open source tools. We would like to thank the many developers of these tools for making their quality products available for open source development.
+
+</body></html>
