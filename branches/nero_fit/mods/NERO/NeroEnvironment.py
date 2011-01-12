@@ -272,9 +272,9 @@ class NeroEnvironment(Environment):
         #calculate fitness
         sg = -action[0]
         if ff[0] != 1 and self.distance(ff[0].pose,state.pose) != 0:
-            st = distance_st / self.distance(ff[0].pose,state.pose)
+            st = -self.distance(ff[0].pose,state.pose)
         if ff[1] != 1 and self.distance(ff[1].pose,state.pose) != 0:
-            ae = distance_ae / self.distance(ff[1].pose,state.pose)
+            ae = -self.distance(ff[1].pose,state.pose)
         af = -self.flag_distance(agent)
         ht = hit
         vf = -damage        
