@@ -20,7 +20,7 @@ class BlocksworldModule:
         self.agent_id = None
         self.agent_map = {}
         self.weights = Fitness()
-        self.lt = 1#150
+        self.lt = 150
         self.dta = 50
         self.dtb = 50
         self.dtc = 50
@@ -33,13 +33,14 @@ class BlocksworldModule:
         self.coin_locs = {0:Vector3f(XDIM/2,YDIM/2,0), 1:Vector3f(XDIM/2,YDIM/3,0), 2:Vector3f(XDIM/2,2*YDIM/3,0)}
         self.coin_ids = {}
         self.coins = [[0,1,2],[],[]]
-        self.fitness = {1:.5,2:.5}
+        self.atk_fitness = {1:.5,2:.5}
+        self.def_fitness = {1:.5,2:.5}
         self.capture = {1:.5,2:.5}
         self.curr_id = 3
         self.num_to_add = pop_size
 
         #Code to generate example files automatically
-        self.times_to_run = 10
+        self.times_to_run = 1
         self.current_run = 0
         self.prefix = "/home/adam/thesis_files/control_"
 
@@ -220,11 +221,16 @@ class BlocksworldModule:
         self.hp = value
         print 'Hit points:',value
 
-    def fitChange(self,team,value):
+    def afitChange(self,team,value):
         value = value/100.0
-        self.fitness[team] = value
-        print 'Team:', team, "Fitness Ratio =",value
+        self.atk_fitness[team] = value
+        print 'Team:', team, "Attacking Fitness Multiplier =",value
 
+    def dfitChange(self,team,value):
+        value = value/100.0
+        self.def_fitness[team] = value
+        print 'Team:', team, "Defending Fitness Multiplier =",value
+    
     def capChange(self,team,value):
         value = value/100.0
         self.capture[team] = value
@@ -261,8 +267,10 @@ def parseInput(strn):
     loc,val = strn.split(' ')
     vali = 1
     if strn.isupper(): vali = int(val)
-    if loc == "F1": mod.fitChange(1,vali)
-    if loc == "F2": mod.fitChange(2,vali)
+    if loc == "F1A": mod.afitChange(1,vali)
+    if loc == "F1A": mod.afitChange(1,vali)
+    if loc == "F2D": mod.dfitChange(2,vali)
+    if loc == "F2D": mod.dfitChange(2,vali)
     if loc == "C1": mod.capChange(1,vali)
     if loc == "C2": mod.capChange(2,vali)
     if loc == "EE": mod.eeChange(vali)
