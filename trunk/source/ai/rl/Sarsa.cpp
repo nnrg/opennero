@@ -18,7 +18,7 @@ namespace OpenNero
     /// act based on time, sensor arrays, and last reward
     Actions SarsaBrain::act(const TimeType& time, const Observations& new_state, const Reward& reward)
     {
-		AssertMsg(reward.size() == 1, "");
+		AssertMsg(reward.size() == 1, "multi-objective rewards not supported");
         cumulative_reward += reward[0];
         return TDBrain::act(time, new_state, reward);
     }
