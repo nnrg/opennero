@@ -29,6 +29,7 @@ namespace OpenNero
     /// act based on time, sensor arrays, and last reward
     Actions TDBrain::act(const TimeType& time, const Observations& new_state, const Reward& reward)
     {
+		AssertMsg(reward.size() == 1, "multi-objective rewards not supported");
         double new_Q = epsilon_greedy(new_state); // select new action and estimate its value
         double old_Q = mApproximator->predict(state, action);
         // Q(s_t, a_t) <- Q(s_t, a_t) + \alpha [r_{t+1} + \gamma Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t)
@@ -41,7 +42,8 @@ namespace OpenNero
     /// called to tell agent about its last reward
     bool TDBrain::end(const TimeType& time, const Reward& reward)
     {
-        // Q(s_t, a_t) <- Q(s_t, a_t) + \alpha [r_{t+1} - Q(s_t, a_t)]
+		AssertMsg(reward.size() == 1, "multi-objective rewards not supported");
+		// Q(s_t, a_t) <- Q(s_t, a_t) + \alpha [r_{t+1} - Q(s_t, a_t)]
         // LOG_F_DEBUG("ai", "TD FINAL UPDATE s1: " << state << ", a1: " << action << ", r: " << reward);
         double old_Q = mApproximator->predict(state, action);
         mApproximator->update(state, action, old_Q + mAlpha * (reward[0] - old_Q));
