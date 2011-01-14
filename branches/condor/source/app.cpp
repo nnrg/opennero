@@ -9,7 +9,7 @@
 #include "game/SimContext.h"
 #include "game/Kernel.h"
 #include "scripting/scripting.h"
-
+#include "tclap/CmdLine.h"
 #include "audio/AudioManager.h"
 #include "utils/Config.h"
 
@@ -34,8 +34,26 @@ namespace OpenNero
         using namespace irr;
         using namespace irr::core;
 
-        // turn on our custom logging system
-        OpenNero::Log::LogSystemInit();
+        std::string logFileName = "nero_log.txt";
+        
+        try 
+        {
+            TCLAP::CmdLine cmd("OpenNERO command line interface", ' ', "1.1");
+            
+            TCLAP::ValueArg<std::string> logFileNameArg("l", "log", "log file name to use", false, "nero_log.txt", "filename");
+            
+            cmd.add( logFileNameArg );
+            
+            cmd.parse( argc, argv );
+            
+            logFileName = logFileNameArg.getValue();
+        }
+        catch (TCLAP::ArgException &e)
+        {
+            std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
+        }
+        
+        OpenNero::Log::LogSystemInit(logFileName);
 
 		// read the application configuration
         AppConfig appConfig = ReadAppConfig(argc, argv, "appConfig.py");
