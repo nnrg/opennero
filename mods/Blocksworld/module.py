@@ -40,8 +40,8 @@ class BlocksworldModule:
         self.team_1_average = 0.0
         self.team_2_average = 0.0
         self.preprefix = "../../../../../..//home/adam/thesis_files/"
-        self.prefix = ["control_0/"]#["control_a/","control_b/","control_c/","control_d/","control_e/","control_f/","control_g/","control_h/","control_i/","control_j/"]
-        self.out_file = ["control_0_mt.txt"]#["control_a_mt.txt","control_b_mt.txt","control_c_mt.txt","control_d_mt.txt","control_e_mt.txt", "control_f_mt.txt", "control_g_mt.txt","control_h_mt.txt","control_i_mt.txt","control_j_mt.txt"]
+        self.prefix = ["experiment_2/"]#["control_a/","control_b/","control_c/","control_d/","control_e/","control_f/","control_g/","control_h/","control_i/","control_j/"]
+        self.out_file = ["experiment_2_mt.txt"]#["control_a_mt.txt","control_b_mt.txt","control_c_mt.txt","control_d_mt.txt","control_e_mt.txt", "control_f_mt.txt", "control_g_mt.txt","control_h_mt.txt","control_i_mt.txt","control_j_mt.txt"]
         self.team_1_loc = ""
         self.team_2_loc = ""
         self.team_locs = ["pop_1_20.gnm","pop_1_40.gnm","pop_1_60.gnm","pop_1_80.gnm","pop_1_100.gnm"]
