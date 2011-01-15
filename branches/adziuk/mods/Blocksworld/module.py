@@ -40,9 +40,9 @@ class BlocksworldModule:
         self.num_to_add = pop_size
 
         #Code to generate example files automatically
-        self.times_to_run = 1
-        self.current_run = 0
-        self.prefix = "/home/adam/thesis_files/control_"
+        self.times_to_run = 3
+        self.current_run = 2
+        self.prefix = "/home/adam/thesis_files/experiment_"
 
 
     def setup_map(self):
