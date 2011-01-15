@@ -426,8 +426,8 @@ class BlocksEnvironment(Environment):
             if (id not in self.coin_teams()[agent.get_team()]) and (self.coin_distance(agent, id) <= CRANGE) and ((getMod().coin_nears[other-1][id] == 0) or ( (float(getMod().coin_nears[agent.get_team()-1][id]) / ( float(getMod().coin_nears[other-1][id]) + float(getMod().coin_nears[agent.get_team()-1][id]))) > CAP_RATIO )):
 
                 # Print out log message indicating that a defended coin was captured
-                #if getMod().coin_nears[other-1][id] > 0:
-                #    print "Coin Captured with", getMod().coin_nears[other-1][id], " Defenders and", getMod().coin_nears[agent.get_team()-1][id], " Attackers cap ratio =", CAP_RATIO
+                if getMod().coin_nears[other-1][id] > 0:
+                    print "Coin Captured with", getMod().coin_nears[other-1][id], " Defenders and", getMod().coin_nears[agent.get_team()-1][id], " Attackers cap ratio =", CAP_RATIO
                 
                 loc = self.coin_locs()[id]
 
