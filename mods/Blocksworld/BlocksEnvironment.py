@@ -298,9 +298,6 @@ class BlocksEnvironment(Environment):
 
         state.flag_sum += len(getMod().coins[agent.get_team()])
 
-        # ATTACKERS ATTACKING RATIO
-        # So we can think of this as "How difficult is it to attack"
-        CAP_RATIO = getMod().capture[agent.get_team()]
 
         # Initilize Agent state
         if agent.step == 0:
@@ -308,19 +305,25 @@ class BlocksEnvironment(Environment):
                 self.SAVE_AGENT = state.id
             
             # GENERATIONAL SHAPING POINT
-            """
             if self.SAVE_AGENT == state.id and state.generation % 2 == 0:
                 f1 = getMod().atk_fitness[1]
-                valx1 = 60
-                valx2 = 40
+                valx1 = 75
+                valx2 = 25
                 if f1 < valx1:
-                    getMod().fitChange(1,valx1)
-                    getMod().fitChange(2,valx2)
+                    getMod().afitChange(1,valx1)
+                    getMod().dfitChange(1,valx2)
+                    getMod().capChange(1,valx2)
+                    getMod().afitChange(2,valx2)
+                    getMod().dfitChange(2,valx1)
+                    getMod().capChange(2,valx1)
                 else:
-                    getMod().fitChange(1,valx2)
-                    getMod().fitChange(2,valx1)
-            """
-            
+                    getMod().afitChange(2,valx1)
+                    getMod().dfitChange(2,valx2)
+                    getMod().capChange(2,valx2)
+                    getMod().afitChange(1,valx2)
+                    getMod().dfitChange(1,valx1)
+                    getMod().capChange(1,valx1)
+                        
             # Regular Saving Code
             if self.SAVE_AGENT == state.id and state.generation % 5 == 0:
                 print "SAVING UPDATED"
@@ -353,6 +356,10 @@ class BlocksEnvironment(Environment):
              self.pop_state_1[agent.org.id] = state 
             else:
              self.pop_state_2[agent.org.id] = state 
+        
+        # ATTACKERS ATTACKING RATIO
+        # So we can think of this as "How difficult is it to attack"
+        CAP_RATIO = getMod().capture[agent.get_team()]
 
         # Remove this agent from all coins it is currently nearby (in order to later add this agent to all nearby coins later)
         for coin in self.coin_locs():
