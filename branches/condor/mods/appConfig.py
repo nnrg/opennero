@@ -52,16 +52,16 @@ def default_app_config():
     app_config = AppConfig()
     app_config.window_title = 'OpenNero'
     app_config.log_config_file = 'logConfig.py'
-    app_config.renderer = 'OpenGL'
+    app_config.renderer = 'null'
     app_config.window_width = 800
     app_config.window_height = 600
     app_config.bpp = 16
     app_config.fullscreen = False
     app_config.use_stencil_buffer = True
     app_config.use_vsync = True
-    app_config.start_mod_dir = "hub:common"
-    app_config.start_mod_name = "hub"
-    app_config.start_command = ""
+    app_config.start_mod_dir = "Maze:common"
+    app_config.start_mod_name = "Maze"
+    app_config.start_command = "StartMe()"
     app_config.seeds = "55555"
     return app_config
 
@@ -95,13 +95,13 @@ def process_config_opts(app_config, opts):
             assert False, 'Unhandled option: %s with value %s' % (o,a) 
 
 app_config = default_app_config()
-try:
-    opts, args = getopt.getopt(sys.argv[1:], '', config_opts)
-    process_config_opts(app_config, opts)
-except getopt.GetoptError, err:
-    # print help information and exit:
-    print str(err) # will print something like "option -a not recognized"
-    usage()
-    sys.exit(2)
+#try:
+#opts, args = getopt.getopt(sys.argv[1:], '', config_opts)
+#process_config_opts(app_config, opts)
+#except getopt.GetoptError, err:
+# print help information and exit:
+# print str(err) # will print something like "option -a not recognized"
+# usage()
+# sys.exit(2)
 
 print str(app_config)
