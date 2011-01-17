@@ -9,7 +9,6 @@
 #include "game/SimContext.h"
 #include "game/Kernel.h"
 #include "scripting/scripting.h"
-#include "tclap/CmdLine.h"
 #include "audio/AudioManager.h"
 #include "utils/Config.h"
 
@@ -35,31 +34,20 @@ namespace OpenNero
         using namespace irr::core;
 
         std::string logFileName = "nero_log.txt";
-        
-        try 
-        {
-            TCLAP::CmdLine cmd("OpenNERO command line interface", ' ', "1.1");
-            
-            TCLAP::ValueArg<std::string> logFileNameArg("l", "log", "log file name to use", false, "nero_log.txt", "filename");
-            
-            cmd.add( logFileNameArg );
-            
-            cmd.parse( argc, argv );
-            
-            logFileName = logFileNameArg.getValue();
-        }
-        catch (TCLAP::ArgException &e)
-        {
-            std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
-        }
-        
+                
         OpenNero::Log::LogSystemInit(logFileName);
+        
+        AppConfig appConfig;
+        
+        if (!appConfig.ParseCommandLine(argc, argv)) {
+            return -1;
+        }
 
 		// read the application configuration
-        AppConfig appConfig = ReadAppConfig(argc, argv, "appConfig.py");
+        //AppConfig appConfig = ReadAppConfig(argc, argv, "appConfig.py");
 
         // configure our log receivers
-        LogSpecifyReceivers( argc, argv, appConfig.log_config_file );
+        //LogSpecifyReceivers( argc, argv, appConfig.log_config_file );
 
         // add loggers
         LOG_MSG( "Starting OpenNero" );
@@ -72,10 +60,10 @@ namespace OpenNero
 #endif // NERO_BUILD_AUDIO
 
         // create our video device
-        irr::video::E_DRIVER_TYPE driverType = ( appConfig.render_type == "null" ) ? video::EDT_NULL : video::EDT_OPENGL;
+        irr::video::E_DRIVER_TYPE driverType = ( appConfig.RenderType == "null" ) ? video::EDT_NULL : video::EDT_OPENGL;
 
-        IrrlichtDevice_IPtr irrDevice( createDevice( driverType, dimension2d<u32>( appConfig.window_width, appConfig.window_height),
-                                                     appConfig.window_BPP, appConfig.full_screen, appConfig.use_stencil_buffer, appConfig.use_vsync ), false );
+        IrrlichtDevice_IPtr irrDevice( createDevice( driverType, dimension2d<u32>( appConfig.Width, appConfig.Height),
+                                                     appConfig.BPP, appConfig.FullScreen, appConfig.StencilBuffer, appConfig.VSync ), false );
 
     #if NERO_DEBUG
         OpenNero::AssertExt::SetDevice( irrDevice.get() );
@@ -84,17 +72,17 @@ namespace OpenNero
         Assert(irrDevice);
 
         // set the window title
-        std::wstring wWindowName = boost::lexical_cast<std::wstring>( appConfig.window_title.c_str() );
+        std::wstring wWindowName = boost::lexical_cast<std::wstring>( appConfig.Title.c_str() );
         irrDevice->setWindowCaption(wWindowName.c_str());
         irrDevice->setResizable(true);
 
         // initialize our kernel and start the first mod
         OpenNero::Kernel&		kern = OpenNero::Kernel::instance();
         kern.Initialize(irrDevice, appConfig, argc, argv);
-        kern.switchMod( irrDevice, appConfig.start_mod_name, appConfig.start_mod_dir );
-        if (!appConfig.start_command.empty())
+        kern.switchMod( irrDevice, appConfig.StartMod, appConfig.StartModDir );
+        if (!appConfig.StartCommand.empty())
         {
-        	ScriptingEngine::instance().Exec(appConfig.start_command);
+        	ScriptingEngine::instance().Exec(appConfig.StartCommand);
         }
 
         // run the loop until the device is killed
