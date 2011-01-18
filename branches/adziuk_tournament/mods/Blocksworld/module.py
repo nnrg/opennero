@@ -86,7 +86,7 @@ class BlocksworldModule:
 
 	temp = os.environ.get("RUN")
 	if temp is not None:
-		self.run_number = temp
+		self.run_number = int(temp)
 		self.run_set = True
 
         self.start_rtneat()
