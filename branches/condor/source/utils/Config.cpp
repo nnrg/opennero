@@ -126,25 +126,6 @@ namespace OpenNero
         return output;
     }
 
-    AppConfig ReadAppConfig( int argc, char** argv, const string& appConfigFile )
-    {
-        AppConfig appConfig;
-
-        if( OpenNero::FileExists(appConfigFile) )
-        {
-            // Note: This should be run before the scripting engine is setup for the game
-            ScriptingEngine& se = ScriptingEngine::instance();
-            se.init(argc, argv);
-            if( se.ExecFile(appConfigFile) )
-            {
-                // get the app config defined in the file
-                se.Extract<AppConfig>("app_config", appConfig);
-            }
-        }
-
-        return appConfig;
-    }
-
     /// specify the receivers that the logger should consider
     /// @param argc number of arguments passed in in argv
     /// @param argv array of char* arguments

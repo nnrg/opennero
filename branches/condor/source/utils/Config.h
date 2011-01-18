@@ -63,9 +63,6 @@ namespace OpenNero
     /// output AppConfig to stream
     std::ostream& operator<<(std::ostream& output, const AppConfig& config);
 
-    /// Get the application config out of a python file
-    AppConfig ReadAppConfig( int argc, char** argv, const std::string& appConfigFile );
-
     /// Get the current application config
     const AppConfig& GetAppConfig();
 

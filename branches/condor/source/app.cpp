@@ -33,21 +33,19 @@ namespace OpenNero
         using namespace irr;
         using namespace irr::core;
 
-        std::string logFileName = "nero_log.txt";
-                
-        OpenNero::Log::LogSystemInit(logFileName);
-        
         AppConfig appConfig;
         
         if (!appConfig.ParseCommandLine(argc, argv)) {
             return -1;
         }
 
+        OpenNero::Log::LogSystemInit(appConfig.LogFile);
+        
 		// read the application configuration
         //AppConfig appConfig = ReadAppConfig(argc, argv, "appConfig.py");
 
         // configure our log receivers
-        //LogSpecifyReceivers( argc, argv, appConfig.log_config_file );
+        LogSpecifyReceivers( argc, argv, appConfig.LogConfigFile );
 
         // add loggers
         LOG_MSG( "Starting OpenNero" );
