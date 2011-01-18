@@ -30,7 +30,7 @@ namespace OpenNero
         virtual ~AudioObjectTemplate();
 
         /// create the concrete type of template we need
-        static shared_ptr<AudioObjectTemplate> createTemplate(SimFactoryPtr factory, const PropertyMap& propMap);
+        static AudioObjectTemplatePtr createTemplate(SimFactoryPtr factory, const PropertyMap& propMap);
 
         /// Return the template type of an AudioObjectTemplate
         static const std::string TemplateType() { return "AudioObject"; }
@@ -61,7 +61,7 @@ namespace OpenNero
         ~AudioObject();
 
         /// load the scene object from a template
-        virtual bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data );
+        virtual bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const  SimEntityData& data );
 
         /// get the template
         ObjectTemplatePtr GetObjectTemplate();

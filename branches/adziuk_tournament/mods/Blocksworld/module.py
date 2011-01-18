@@ -20,7 +20,7 @@ class BlocksworldModule:
         self.agent_id = None
         self.agent_map = {}
         self.weights = Fitness()
-        self.lt = 150 * 8
+        self.lt = 1#150 * 8
         self.dta = 50
         self.dtb = 50
         self.dtc = 50
@@ -39,15 +39,16 @@ class BlocksworldModule:
         self.num_to_add = 0
         self.team_1_average = 0.0
         self.team_2_average = 0.0
-        self.preprefix = "../../../../../..//home/adam/thesis_files/"
-        self.prefix = ["experiment_2/"]#["control_a/","control_b/","control_c/","control_d/","control_e/","control_f/","control_g/","control_h/","control_i/","control_j/"]
-        self.out_file = ["experiment_2_mt.txt"]#["control_a_mt.txt","control_b_mt.txt","control_c_mt.txt","control_d_mt.txt","control_e_mt.txt", "control_f_mt.txt", "control_g_mt.txt","control_h_mt.txt","control_i_mt.txt","control_j_mt.txt"]
+        self.preprefix = "../"
+        self.prefix = ["rules_10/"]#["control_a/","control_b/","control_c/","control_d/","control_e/","control_f/","control_g/","control_h/","control_i/","control_j/"]
         self.team_1_loc = ""
         self.team_2_loc = ""
         self.team_locs = ["pop_1_20.gnm","pop_1_40.gnm","pop_1_60.gnm","pop_1_80.gnm","pop_1_100.gnm"]
-        self.team_1_li = 0
-        self.team_2_li = 0
-        self.prenum = 0
+        self.run_number = 0
+	self.run_set = False
+	#self.team_1_li = 0
+        #self.team_2_li = 0
+        #self.prenum = 0
 
     def setup_map(self):
         """
@@ -66,8 +67,6 @@ class BlocksworldModule:
             openWiki('wx')()
             return False
 
-        startScript('Blocksworld/menu.py')
-        
         self.environment = BlocksEnvironment()
 
         set_environment(self.environment)
@@ -84,8 +83,11 @@ class BlocksworldModule:
 
         # Add the surrounding Environment
         addObject("data/terrain/NeroWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="NeroWorld")
-       
-        print "BLOCKSWORLD SUCCESFULLY CREATED"
+
+	temp = os.environ.get("RUN")
+	if temp is not None:
+		self.run_number = temp
+		self.run_set = True
 
         self.start_rtneat()
 
@@ -111,18 +113,13 @@ class BlocksworldModule:
         self.coin_locs = {0:Vector3f(XDIM/2,YDIM/2,0), 1:Vector3f(XDIM/2,YDIM/3,0), 2:Vector3f(XDIM/2,2*YDIM/3,0)}
         self.coins = [[0,1,2],[],[]]
     
-    def get_next_1(self):
-        if self.team_2_li == len(self.team_locs)-1: self.team_1_li += 1
-        if self.team_1_li == len(self.team_locs):
-            self.team_1_li = 0
-            self.prenum += 1
-        string =  self.preprefix + self.prefix[self.prenum] + self.team_locs[self.team_1_li]
+    def get_next_1(self,team_1_li,prenum):
+	print "prenum:",prenum,"team_1_li", team_1_li
+        string =  self.preprefix + self.prefix[prenum] + self.team_locs[team_1_li]
         return string
 
-    def get_next_2(self):
-        self.team_2_li += 1
-        if self.team_2_li == len(self.team_locs): self.team_2_li = 0
-        string =  self.preprefix + self.prefix[self.prenum] +  self.team_locs[self.team_2_li]
+    def get_next_2(self,team_2_li,prenum):
+        string =  self.preprefix + self.prefix[prenum] + self.team_locs[team_2_li]
         return string
 
     def add_coin(self, new_loc):
@@ -149,9 +146,17 @@ class BlocksworldModule:
         # Create RTNEAT Objects
         set_ai("neat1",rtneat)
         set_ai("neat2", rtneat2)
+		
+	rn = getMod().run_number
+	lt = len(getMod().team_locs) #length of teams folder
+	lt = len(getMod().team_locs) #length of teams folder
+	ld = len(getMod().prefix) #length of not teams folder
+	prenum = rn / (lt*lt)
+	team_2_li = (rn - prenum*lt*lt)/lt
+	team_1_li = rn-prenum*lt*lt-team_2_li*lt
         
-        self.load_rtneat(self.preprefix + self.prefix[self.prenum] + self.team_locs[self.team_1_li],1)
-        self.load_rtneat(self.preprefix + self.prefix[self.prenum] + self.team_locs[self.team_2_li],2)
+        self.load_rtneat(self.preprefix + self.prefix[prenum] + self.team_locs[team_1_li],1)
+        self.load_rtneat(self.preprefix + self.prefix[prenum] + self.team_locs[team_2_li],2)
         
         enable_ai()
         # Generate all initial rtNEAT Agents
@@ -183,7 +188,9 @@ class BlocksworldModule:
     def load_rtneat(self, location_orig , pop):
         import os
         global rtneat, rtneat2
-        location = os.path.relpath("/") + location_orig
+        #location = os.path.relpath("/") + location_orig
+        location = os.path.relpath(location_orig)
+	print "CURRENT LOCATION: ", os.getcwd()
         print "LOADING FOR POP", pop, " LOCATION:", location
         if os.path.exists(location):
             if pop == 1: 
@@ -194,6 +201,7 @@ class BlocksworldModule:
                 rtneat2= RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)
                 #self.team_2_loc = str(location_orig)
                 set_ai("neat2",rtneat2)
+	else: print "WARNING PATH DOES NOT EXIST"
         
 
     def set_speedup(self, speedup):

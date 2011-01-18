@@ -4,18 +4,19 @@ from common import *
 import common.gui as gui
 from inputConfig import *
 
+ai_state = None
+
 def toggle_ai_callback():
-    global toggleAiButton
+    global ai_state
     toggle_ai()
-    if toggleAiButton.text == 'Begin Battle':
-     from Battle.module import parseInput
-     data = script_server.read_data()
-     while data:
-         parseInput(data.strip())
-         data = script_server.read_data()
-     getMod().start_rtneat()
-     reset_ai()
-     toggleAiButton.text = 'Toggle AI'
+    if not ai_state:
+        getMod().start_rtneat()
+        reset_ai()
+        ai_state = 'Started'
+    elif ai_state == 'Started':
+        ai_state = 'Paused'
+    elif ai_state == 'Paused':
+        ai_state = 'Started'
 
 def save_ai_call():
     getMod().save_rtneat()
@@ -30,21 +31,6 @@ def recenter(cam):
     return closure
 
 #########################################################
-
-def CreateGui(guiMan): 
-    global toggleAiButton
-    global mode
-    mode = 0
-
-    guiMan.setTransparency(1.0)
-    guiMan.setFont("data/gui/fonthaettenschweiler.bmp")  
-    guiWindow = gui.create_window( guiMan, 'window', Pos2i(20,20),Pos2i(80,100), 'Nero Controls' )
-
-    toggleAiButton = gui.create_button( guiMan, 'toggle_ai', Pos2i(0,0),Pos2i(60,80), '' )
-    toggleAiButton.text = 'Begin Battle'
-    toggleAiButton.OnMouseLeftClick = toggle_ai_callback
-    
-    guiWindow.addChild(toggleAiButton)
 
 def weight_adjusted(scroll, key, value):
     result = scroll.getPos() - 100
@@ -191,9 +177,6 @@ def ClientMain():
     getSimContext().addLightSource(Vector3f(500,-500,1000), 1500)
 
     addSkyBox("data/sky/irrlicht2")
-
-    # setup the gui
-    CreateGui(getGuiManager())
 
     # add a camera
     camRotateSpeed = 100

@@ -30,7 +30,6 @@ class RTNEATAgent(AgentBrain):
         global rtneat
         self.org = rtneat.next_organism(0.5)
         self.net = self.org.net
-        #print "got network to evaluate: " + str(self.net)
         self.reward = 0
         sensors = self.sensors.normalize(sensors)
         return self.network_action(sensors)
@@ -42,7 +41,6 @@ class RTNEATAgent(AgentBrain):
 	if reward >= 1:
 	    self.reward += reward # store reward
         sensors = self.sensors.normalize(sensors)
-        # return action
         return self.network_action(sensors)
 
     def end(self, time, reward):
@@ -52,8 +50,6 @@ class RTNEATAgent(AgentBrain):
         self.reward += reward # store reward
         self.org.fitness = self.reward # assign organism fitness for evolution
         self.org.time_alive += 1
-        #assert(self.org.fitness >= 0) # we have to have a non-negative fitness for rtNEAT to work
-        #print  "Final reward: %f, cumulative: %f" % (reward, self.reward)
         return True
 
     def destroy(self):
@@ -69,17 +65,26 @@ class RTNEATAgent(AgentBrain):
         Activate the network to produce the output.
         Collect and interpret the outputs as valid maze actions.
         """
-        assert(len(sensors)==6) # make sure we have the right number of sensors
-        inputs = [sensor for sensor in sensors] # create the sensor array
+        # make sure we have the right number of sensors
+        assert(len(sensors)==6)
+        # convert the sensors into the [0.0, 1.0] range
+        sensors = self.sensors.normalize(sensors)
+        # create the list of sensors
+        inputs = [sensor for sensor in sensors]        
+        # add the bias value
+        inputs.append(0.3)
+        # load the list of sensors into the network input layer
         self.net.load_sensors(inputs)
-        #print "Loading sensor. Value is: ", inputs
+        # activate the network
         self.net.activate()
+        # get the list of network outputs
         outputs = self.net.get_outputs()
-        actions = self.actions.get_instance() # make a vector for the actions
-
-        assert(len(actions) == len(outputs))
-        for i in range(len(outputs)):
-            actions[i] = outputs[i] - 0.5
-
-        #print actions
+        # create a C++ vector for action values
+        actions = self.actions.get_instance()
+        # assign network outputs to action vector
+        for i in range(0,len(self.actions.get_instance())):
+            actions[i] = outputs[i]
+        # convert the action vector back from [0.0, 1.0] range
+        actions = self.actions.denormalize(actions)
+        #print "in:", inputs, "out:", outputs, "a:", actions
         return actions

@@ -11,7 +11,7 @@
 namespace OpenNero
 {
 	class SimFactory;
-	typedef boost::shared_ptr<SimFactory> SimFactoryPtr;
+	BOOST_SHARED_DECL(SimFactory);
 
     /// Loads resources for our simulation
     class SimFactory

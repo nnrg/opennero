@@ -10,14 +10,19 @@ namespace OpenNero {
 	class SimEntityComponent
 	{
 	protected:
-		SimEntityWPtr mParent;                                                              ///< Parent entity
-		SimEntityData* mSharedData;                                                         ///< Shared data for entity 
+		SimEntityWPtr mParent;      ///< Parent entity
+		SimEntityData* mSharedData; ///< Shared data for entity 
 	public:
-		SimEntityComponent(SimEntityPtr parent) : mParent(parent), mSharedData(NULL) {}     ///< SimEntityComponent constructor
-		virtual ~SimEntityComponent() {}                                                    ///< virtual destructor
-		void SetSharedState(SimEntityData* data) { mSharedData = data; }                     ///< Set the entity's shared data
-		SimEntityData* GetSharedState() { return mSharedData; }                              ///< Return the entity's shared data
-		SimEntityPtr GetEntity() { return mParent.lock(); }                                 ///< Return the entity
+        /// SimEntityComponent constructor
+		SimEntityComponent(SimEntityPtr parent) : mParent(parent), mSharedData(NULL) {}
+        /// virtual destructor
+		virtual ~SimEntityComponent() {}
+        /// Set the entity's shared data
+		void SetSharedState(SimEntityData* data) { mSharedData = data; }
+        /// Return the entity's shared data
+		SimEntityData* GetSharedState() { return mSharedData; }
+        /// Return the entity
+		SimEntityPtr GetEntity() { return mParent.lock(); }
 	};
 }
 

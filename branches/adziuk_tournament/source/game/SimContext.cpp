@@ -26,8 +26,6 @@
 
 #include "ai/AIManager.h"
 
-#include "scripting/scriptIncludes.h"
-
 #include "input/IOMapping.h"
 
 #include <sstream>
@@ -121,20 +119,22 @@ namespace OpenNero
     /// @param rot initial rotation (Euler angle) of the object
     /// @param scale initial scale of the object
     /// @param label initial text label of the object
-    /// @param type initial type of the object (has to be smaller than BITMASK_SIZE
+    /// @param type initial type of the object (has to be smaller than BITMASK_SIZE)
+    /// @param collision collision mask of the new object
     /// @return SimId of the newly added object
     SimId SimContext::AddObject( const std::string& templateName, 
                                 const Vector3f& pos, 
                                 const Vector3f& rot, 
                                 const Vector3f& scale,
                                 const std::string& label,
+                                uint32_t collision, 
                                 uint32_t type)
     {
         Assert( mpSimulation );
 
         // initialize the creation data
         SimId new_id = GetNextFreeId();
-        SimEntityData data(pos, rot, scale, label, type, new_id);
+        SimEntityData data(pos, rot, scale, label, type, collision, new_id);
         data.SetDirtyBits();
         SimEntityPtr simEnt = SimEntity::CreateSimEntity(data, templateName, shared_from_this());
         if( simEnt )
@@ -283,7 +283,8 @@ namespace OpenNero
         // decisions.
         UpdateSimulation(dt);
         
-        // This will trigger scheduled events in the Python script
+        // This will trigger scheduled events in the Python script,
+        // as well as ModTick(dt) if it is defined
         UpdateScriptingSystem(dt);
     }
 
@@ -345,6 +346,8 @@ namespace OpenNero
     {
         // update the scripting scheduler
         ScriptingEngine::instance().GetScheduler().ProcessEvents();
+        
+        ScriptingEngine::instance().Tick(dt);
     }
 
     /// update the local simulations
@@ -378,12 +381,6 @@ namespace OpenNero
             mpGuiManager->RemoveAll();
     }
     
-    SimId SimContext::GetNextFreeId() const
-    {
-        SimId result = mpSimulation->GetNextFreeId();
-        return result;
-    }
-        
     /// @param x screen x-coordinate for active camera
     /// @param y screen y-coordinate for active camera
     /// @return the SimEntity intersected first by the ray from the camera origin through the view plane
@@ -430,28 +427,34 @@ namespace OpenNero
         return line;
     }
 
+    /// @param hitEntity the entity intersected by the ray
+    /// @param hitPos the position of the intersection
     /// @param origin origin of the ray to cast
     /// @param target target of the ray to cast
     /// @param type bitmask of the objects to care about or 0 for 'check all'
     /// @param vis show rays?
+    /// @param foundColor the color to use if vis is true and an intersection is found
+    /// @param noneColor the color to use if vis is true 
     /// @return first intersection info tuple(sim, hit) with SimEntityData sim and Vector3f hit (hit location) or ()
-    boost::python::tuple SimContext::FindInRay(const Vector3f& origin, 
-                                               const Vector3f& target,
-                                               const uint32_t& type,
-                                               const bool vis,
-                                               const SColor& foundColor,
-                                               const SColor& noneColor) const
+    /// Find the first object that intersects the specified ray
+    bool SimContext::FindInRay( SimEntityData& hitEntity,
+                                Vector3f& hitPos,
+                                const Vector3f& origin, 
+                                const Vector3f& target, 
+                                const uint32_t& type, 
+                                const bool vis, 
+                                const SColor& foundColor,
+                                const SColor& noneColor
+                              ) const
 	{
-        namespace py = boost::python;
         ISceneCollisionManager* collider = mIrr.mpSceneManager->getSceneCollisionManager();
         Assert(collider);
         Line3f ray(ConvertNeroToIrrlichtPosition(origin), ConvertNeroToIrrlichtPosition(target));
-        Vector3f outPosition;
         Triangle3f outTriangle;
         ISceneNode* node = collider->getSceneNodeAndCollisionPointFromRay
-            (ray, outPosition, outTriangle, type);
+            (ray, hitPos, outTriangle, type);
         // convert back into our coord system
-        outPosition = ConvertIrrlichtToNeroPosition(outPosition);
+        hitPos = ConvertIrrlichtToNeroPosition(hitPos);
         if (node && node->getID() >= kFirstSimId)
         {
             // we found a sim node, so return its data
@@ -460,12 +463,13 @@ namespace OpenNero
             if (ent)
             {
                 // draw a ray if requested
-                if(vis)
+                if (vis)
                 {
-                    LineSet::instance().AddSegment(origin, outPosition, foundColor);
+                    LineSet::instance().AddSegment(origin, hitPos, foundColor);
                 }
                 // return the result: (sim, hit)
-                return py::make_tuple(ent->GetState(), outPosition);
+                hitEntity = ent->GetState();
+                return true;
             }
         } else {
             if (vis)
@@ -473,18 +477,29 @@ namespace OpenNero
                 LineSet::instance().AddSegment(origin, target, noneColor);
             }
         }
-        return py::make_tuple();
+        return false;
 	}
-
-    /// Find K nearest neighbours to a point
-    boost::python::list SimContext::FindKNN( const Vector3f& point,
-                                             const uint32_t& K ) const {
-        namespace py = boost::python;
-        py::list result;
-        //result.append();
-        return result;
-    }
     
+    /// Find the first object that intersects the specified ray
+    boost::python::tuple SimContext::PyFindInRay( const Vector3f& origin, 
+                                      const Vector3f& target, 
+                                      const uint32_t& type, 
+                                      const bool val, 
+                                      const SColor& foundColor,
+                                      const SColor& noneColor
+                                    ) const
+    {
+        SimEntityData hitEntity;
+        Vector3f hitPos;
+        if (FindInRay(hitEntity, hitPos, origin, target, type, val, foundColor, noneColor))
+        {
+            return boost::python::make_tuple(hitEntity, hitPos);
+        }
+        else
+        {
+            return boost::python::make_tuple();
+        }        
+    }
 
     /// @param x screen x-coordinate for active camera
     /// @param y screen y-coordinate for active camera
@@ -650,64 +665,6 @@ namespace OpenNero
     /// @brief Transform the given vector by the matrix of the SimEntity specified by id
     Vector3f SimContext::TransformVector( uint32_t id, const Vector3f& vect ) const {
         return mpSimulation->Find(id)->GetSceneObject()->transformVector(vect);
-    }
-
-    // --------------------------------------------------------------------
-    //  Python Binding Procedures
-
-    /// get the current simulation context
-    SimContext& GetSimContext()
-    {
-        return *(Kernel::GetSimContext());
-    }
-
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addObject_overloads, AddObject, 2, 6)
-
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addSkyBox_overloads, AddSkyBox, 1, 2)
-
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addLightSource_overloads, AddLightSource, 2, 3)
-    
-    BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(findInRay_overloads, FindInRay, 2, 6)
-
-    PYTHON_BINDER( SimContext )
-    {
-        using namespace boost::python;            
-
-        class_<SimContext>("SimContext", "The simulation context from an XML file", no_init )
-            .def("addAxes",              &SimContext::AddAxes, "Add a set of Cartesian axes from an XML file")
-            .def("setFog",               &SimContext::SetFog, "Set the fog mode")
-            .def("addCamera",            &SimContext::AddCamera, "Create and add a camera to the context and return camera")
-            .def("addLightSource",       &SimContext::AddLightSource, addLightSource_overloads("Add a light source to the scene"))
-            .def("addSkyBox",            &SimContext::AddSkyBox, addSkyBox_overloads("Add a sky box consisting of 6 images starting with arg0 and ending with arg1"))
-            .def("addObject",            &SimContext::AddObject, "Create an object on the server and broadcast to clients")
-            .def("removeObject",         &SimContext::RemoveObject, "Remove an object from the server and broadcast to clients")
-            .def("getGuiManager",        &SimContext::GetGuiManager, "Return the gui manager for the context")
-            .def("killGame",             &SimContext::KillGame, "Kill the game")
-            .def("setInputMapping",      &SimContext::SetInputMapping, "Set the io map to use" )
-            .def("getNextFreeId",        &SimContext::GetNextFreeId, "Get the next available network ID" )
-			.def("findInRay",            &SimContext::FindInRay, findInRay_overloads("Find the first object that intersects the specified ray (origin:Vector3f, target:Vector3f, [int])") )
-            .def("getClickedPosition",    &SimContext::GetClickedPosition, "Approximate 3d position of the mouse click")
-            //.def("getClickedEntity",    &SimContext::GetClickedEntity, "Return the entity that was clicked")
-            .def("getClickedEntityId",  &SimContext::GetClickedEntityId, "Return the id of the entity that was clicked")
-            .def("getMousePosition",    &SimContext::GetMousePosition, "Get the current position of the mouse")
-            .def("setObjectPosition",   &SimContext::SetObjectPosition, "Set the position of an object specified by its id")
-            .def("setObjectRotation",   &SimContext::SetObjectRotation, "Set the rotation of an object specified by its id")
-            .def("setObjectScale",      &SimContext::SetObjectScale, "Set the scale of an object specified by its id")
-            .def("setObjectLabel",      &SimContext::SetObjectLabel, "Set the label of an object specified by its id")
-            .def("setObjectColor",      &SimContext::SetObjectColor, "Set the color of an object specified by its id")
-			.def("setObjectAnimation",  &SimContext::SetObjectAnimation, "Set the animation of the object specified by its id")
-            .def("getObjectPosition",   &SimContext::GetObjectPosition, "Get the position of an object specified by its id")
-            .def("getObjectRotation",   &SimContext::GetObjectRotation, "Get the rotation of an object specified by its id")
-            .def("getObjectScale",      &SimContext::GetObjectScale, "Get the scale of an object specified by its id")
-            .def("getObjectLabel",      &SimContext::GetObjectLabel, "Get the label of an object specified by its id")
-            .def("getObjectColor",      &SimContext::GetObjectColor, "Get the color of an object specified by its id")
-            .def("getObjectBBMinEdge",  &SimContext::GetObjectBBMinEdge, "Get the bounding box min edge of an object specified by its id")
-            .def("getObjectBBMaxEdge",  &SimContext::GetObjectBBMaxEdge, "Get the bounding box max edge of an object specified by its id")
-            .def("transformVector",     &SimContext::TransformVector, "Transform the given vector by the matrix of the object specified by id")
-        ;
-
-        // this is how Python can access the C++ reference to SimContext
-        def("getSimContext", &GetSimContext, return_value_policy<reference_existing_object>());
     }
 
 } //end OpenNero

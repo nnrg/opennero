@@ -22,10 +22,10 @@ namespace OpenNero
         bool initialize(const AgentInitInfo& init);
 
         /// start a new episode
-        Actions start(const TimeType& time, const Sensors& sensors);
+        Actions start(const TimeType& time, const Observations& observations);
 
         /// act based on time, sensor arrays, and last reward
-        Actions act(const TimeType& time, const Sensors& sensors, const Reward& reward);
+        Actions act(const TimeType& time, const Observations& observations, const Reward& reward);
 
         /// end an episode
         bool end(const TimeType& time, const Reward& reward);

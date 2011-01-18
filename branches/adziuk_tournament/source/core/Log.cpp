@@ -143,10 +143,10 @@ namespace OpenNero
         }
 
         /// Setup the log system by adding a file log and a console log
-		void LogSystemInit()
+		void LogSystemInit( const std::string& logFileName )
 		{
             // initialize the connections
-			string log_file = Kernel::instance().findResource("nero_log.txt", false);
+			string log_file = Kernel::instance().findResource(logFileName, false);
 			cout << "LOG CREATED in " << log_file << endl;
             ILogConnectionPtr fileLog( new FileStreamConnection( "nero_file_log", log_file.c_str()) );
             ILogConnectionPtr stdioLog( new StreamLogConnection<std::ostream>( "console_log", &std::cout ) );
@@ -166,33 +166,6 @@ namespace OpenNero
 		{
 			sLogConnections.clear();
 		}
-
-#if NERO_TEST
-        // This method just tests if the logger will compile, not a functionality test.
-        void LogCompileTest()
-        {
-            LOG_DEBUG_EVERY(5,"Hello");
-            LOG_DEBUG("Hello");
-            LOG_ERROR("Hello");
-            LOG_MSG("Hello");
-            LOG_WARNING("Hello");
-
-            LOG_D_DEBUG("file","Hello");
-            LOG_D_ERROR("file","Hello");
-            LOG_D_MSG("file","Hello");
-            LOG_D_WARNING("file","Hello");
-
-            LOG_F_DEBUG("generic","Hello");
-            LOG_F_ERROR("generic","Hello");
-            LOG_F_MSG("generic","Hello");
-            LOG_F_WARNING("generic","Hello");
-
-            LOG_FD_DEBUG("generic","test","Hello");
-            LOG_FD_ERROR("generic","test","Hello");
-            LOG_FD_MSG("generic","test","Hello");
-            LOG_FD_WARNING("generic","test","Hello");
-        }
-#endif // end NERO_TEST
 
 	} // end Log
 

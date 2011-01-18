@@ -32,6 +32,11 @@ YDIM = 200.0
 HEIGHT = 20.0
 OFFSET = -HEIGHT/2
 
+OBJECT_TYPE_ROOMBA = (1 << 0)
+OBJECT_TYPE_WALLS = (1 << 1)
+OBJECT_TYPE_FLOOR = (1 << 2)
+OBJECT_TYPE_MARKER = (1 << 3)
+
 class SandboxMod:
 
     def __init__(self):
@@ -47,7 +52,7 @@ class SandboxMod:
         # remove the previous object, if necessary
         self.unmark(x, y)
         # add a new marker object
-        id = addObject(marker, Vector3f(x, y, -1), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5))
+        id = addObject(marker, Vector3f(x, y, -1), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5), type = OBJECT_TYPE_MARKER)
         # remember the ID of the object we are about to create
         self.marker_map[(x, y)] = id
 	    
@@ -108,7 +113,7 @@ class SandboxMod:
             (r,c) = tiles.pop() # random tile
             x, y = r * XDIM / float(N_TILES), c * YDIM / float(N_TILES) # position within tile
             x, y = x + random.random() * XDIM * 0.5 / N_TILES, y + random.random() * YDIM * 0.5 / N_TILES # random offset
-            agent_id = addObject(bot_type, Vector3f(x, y, 0), Vector3f(0.5, 0.5, 0.5))
+            agent_id = addObject(bot_type, Vector3f(x, y, 0), Vector3f(0.5, 0.5, 0.5), type = OBJECT_TYPE_ROOMBA, collision = OBJECT_TYPE_ROOMBA)
             self.agent_ids.append(agent_id)
         
 
@@ -121,11 +126,6 @@ class SandboxMod:
             return True
         elif bot_type.lower().find("rtneat") >= 0:
             self.start_rtneat(num_bots)
-            return True
-        elif bot_type.lower().find("asuka") >= 0:
-            id = addObject("data/ai/Asuka.xml", Vector3f(XDIM/2,YDIM/2,0))
-            self.agent_ids.append(id)
-            enable_ai()
             return True
         else:
             return False
@@ -214,7 +214,7 @@ class SandboxEnvironment(Environment):
 
         # set up shop
         # Add Wayne's Roomba room with experimentally-derived vertical offset to match crumbs.
-        addObject("data/terrain/RoombaRoom.xml", Vector3f(XDIM/2,YDIM/2, -1), Vector3f(0,0,0), Vector3f(XDIM/245.0, YDIM/245.0, HEIGHT/24.5))
+        addObject("data/terrain/RoombaRoom.xml", Vector3f(XDIM/2,YDIM/2, -1), Vector3f(0,0,0), Vector3f(XDIM/245.0, YDIM/245.0, HEIGHT/24.5), type = OBJECT_TYPE_WALLS)
 
         # getSimContext().addAxes()
         self.add_crumbs()
@@ -358,9 +358,8 @@ class SandboxEnvironment(Environment):
             state.is_out = True    # if yes, mark it to be removed
         return reward            
     
-    def sense(self, agent):
+    def sense(self, agent, sensors):
         """ figure out what the agent should sense """
-        sensors = self.get_agent_info(agent).sensors.get_instance()
         state = self.get_state(agent)
         if (str(type(agent)) == "<class 'Roomba.roomba.RoombaBrain'>"):
             if state.bumped:

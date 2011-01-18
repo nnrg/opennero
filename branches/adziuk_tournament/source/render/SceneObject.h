@@ -65,7 +65,7 @@ namespace OpenNero
         virtual ~SceneObjectTemplate();
 
         // create the concrete type of template we need
-        static shared_ptr<SceneObjectTemplate> createTemplate(SimFactoryPtr factory, const PropertyMap& propMap);
+        static boost::shared_ptr<SceneObjectTemplate> createTemplate(SimFactoryPtr factory, const PropertyMap& propMap);
 
         /// returns the template type of a scene object
         static const std::string TemplateType() { return "SceneObject"; }
@@ -86,8 +86,7 @@ namespace OpenNero
         FPSCameraTemplatePtr            mFPSCamera;         ///< information about camera attachment
         float32_t                       mAnimationSpeed;    ///< animation speed
         FootprintTemplatePtr            mFootprints;        ///< footprint template
-		int                             mCollisionType;     ///< type of this object for collision purposes
-		int                             mCollisionMask;     ///< mask of objects this object collides with
+		uint32_t                        mCollisionMask;     ///< mask of objects this object collides with
     };
 
     SimId ConvertSceneIdToSimId(uint32_t simId);
@@ -98,7 +97,7 @@ namespace OpenNero
      * A scene object is responsible for being able to provide the proper
      * information to irrlicht such that a node can be rendered
     */
-    class SceneObject : public SimEntityComponent, public TemplatedObject, public enable_shared_from_this<SceneObject>
+    class SceneObject : public SimEntityComponent, public TemplatedObject, public BOOST_SHARED_THIS(SceneObject)
     {
     public:
 
@@ -160,8 +159,11 @@ namespace OpenNero
         /// get object position
         Vector3f getPosition() const;
         
-        /// do we collide with the other object?
-        bool CheckCollision(const Vector3f& new_pos, const SceneObjectPtr& other);
+        /// are we colliding with the other object?
+        bool isColliding(const Vector3f& new_pos, const SceneObjectPtr& other);
+        
+        /// can we possibly collide with any other object?
+        bool canCollide() const;
 
         /// attach an FPS camera to this scene object
         void attachCamera(CameraPtr cam);

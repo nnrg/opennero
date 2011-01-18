@@ -1,6 +1,7 @@
 from OpenNero import *
 import random
 from time import time
+from Battle.constants import *
 
 FITNESS_OUT = False
 
@@ -97,15 +98,23 @@ class RTNEATAgent(AgentBrain):
         Activate the network to produce the output
         Collect and interpret the outputs as valid maze actions
         """
-        from Battle.module import getMod
-        assert(len(sensors)==getMod().NEAT_SENSORS) # make sure we have the right number of sensors
+        # convert the sensors into the [0.0, 1.0] range
         sensors = self.sensors.normalize(sensors)
-        inputs = [sensor for sensor in sensors] # create the sensor array
+        # create the list of sensors
+        inputs = [sensor for sensor in sensors]
+        # add the bias value
+        inputs.append(NEAT_BIAS)
+        # load the list of sensors into the network input layer
         self.net.load_sensors(inputs)
+        # activate the network
         self.net.activate()
+        # get the list of network outputs
         outputs = self.net.get_outputs()
-        actions = self.actions.get_instance() # make a vector for the actions
+        # create a C++ vector for action values
+        actions = self.actions.get_instance()
+        # assign network outputs to action vector
         for i in range(0,len(self.actions.get_instance())):
             actions[i] = outputs[i]
+        # convert the action vector back from [0.0, 1.0] range
         actions = self.actions.denormalize(actions)
         return actions

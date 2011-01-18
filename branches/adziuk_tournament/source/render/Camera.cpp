@@ -8,7 +8,6 @@
 #include "game/SimContext.h"
 #include "game/Simulation.h"
 #include "game/SimEntity.h"
-#include "scripting/scriptIncludes.h"
 
 namespace OpenNero 
 {
@@ -167,20 +166,6 @@ namespace OpenNero
     {
         Assert(mCamera);
         return mCamera->getFarValue();
-    }
-
-
-    /// export camera API to script
-    PYTHON_BINDER(Camera)
-    {
-        class_<Camera,CameraPtr>("Camera", "A camera in a sim context", no_init)
-            .def("setPosition",     &Camera::setPosition, "Set the current position of the camera" )
-            .def("setRotation",     &Camera::setRotation, "Set the euler rotation angles of the camera" )
-            .def("setTarget",       &Camera::setTarget, "Set the point the camera is looking at" )
-            .def("setFarPlane",     &Camera::setFarPlane, "Set the far plane of the perspective projection of the camera" )
-            .def("setEdgeScroll",   &Camera::setEdgeScroll, "Set whether or not the camera edge scrolls" )
-            .def("attach",          &Camera::attach, "Attach to sim object by id" )
-            ;
     }
 
     std::ostream& operator<<( std::ostream& output, const CameraPtr camera )

@@ -36,10 +36,10 @@ CMAKE_COMMAND = /usr/bin/cmake
 RM = /usr/bin/cmake -E remove -f
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = /home/adam/Programming/short_duel
+CMAKE_SOURCE_DIR = /home/adam/Programming/condor
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = /home/adam/Programming/short_duel
+CMAKE_BINARY_DIR = /home/adam/Programming/condor
 
 #=============================================================================
 # Targets provided globally by CMake.
@@ -98,7 +98,7 @@ list_install_components/fast: list_install_components
 # Special rule for the target package
 package: preinstall
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool..."
-	cd /home/adam/Programming/short_duel && /usr/bin/cpack --config ./CPackConfig.cmake
+	cd /home/adam/Programming/condor && /usr/bin/cpack --config ./CPackConfig.cmake
 .PHONY : package
 
 # Special rule for the target package
@@ -108,7 +108,7 @@ package/fast: package
 # Special rule for the target package_source
 package_source:
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Run CPack packaging tool for source..."
-	cd /home/adam/Programming/short_duel && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/adam/Programming/short_duel/CPackSourceConfig.cmake
+	cd /home/adam/Programming/condor && /usr/bin/cpack --config ./CPackSourceConfig.cmake /home/adam/Programming/condor/CPackSourceConfig.cmake
 .PHONY : package_source
 
 # Special rule for the target package_source
@@ -125,16 +125,26 @@ rebuild_cache:
 rebuild_cache/fast: rebuild_cache
 .PHONY : rebuild_cache/fast
 
+# Special rule for the target test
+test:
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --cyan "Running tests..."
+	/usr/bin/ctest --force-new-ctest-process $(ARGS)
+.PHONY : test
+
+# Special rule for the target test
+test/fast: test
+.PHONY : test/fast
+
 # The main all target
 all: cmake_check_build_system
-	cd /home/adam/Programming/short_duel && $(CMAKE_COMMAND) -E cmake_progress_start /home/adam/Programming/short_duel/CMakeFiles /home/adam/Programming/short_duel/external/source/Irrlicht/bzip2/CMakeFiles/progress.marks
-	cd /home/adam/Programming/short_duel && $(MAKE) -f CMakeFiles/Makefile2 external/source/Irrlicht/bzip2/all
-	$(CMAKE_COMMAND) -E cmake_progress_start /home/adam/Programming/short_duel/CMakeFiles 0
+	cd /home/adam/Programming/condor && $(CMAKE_COMMAND) -E cmake_progress_start /home/adam/Programming/condor/CMakeFiles /home/adam/Programming/condor/external/source/Irrlicht/bzip2/CMakeFiles/progress.marks
+	cd /home/adam/Programming/condor && $(MAKE) -f CMakeFiles/Makefile2 external/source/Irrlicht/bzip2/all
+	$(CMAKE_COMMAND) -E cmake_progress_start /home/adam/Programming/condor/CMakeFiles 0
 .PHONY : all
 
 # The main clean target
 clean:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f CMakeFiles/Makefile2 external/source/Irrlicht/bzip2/clean
+	cd /home/adam/Programming/condor && $(MAKE) -f CMakeFiles/Makefile2 external/source/Irrlicht/bzip2/clean
 .PHONY : clean
 
 # The main clean target
@@ -143,22 +153,22 @@ clean/fast: clean
 
 # Prepare targets for installation.
 preinstall: all
-	cd /home/adam/Programming/short_duel && $(MAKE) -f CMakeFiles/Makefile2 external/source/Irrlicht/bzip2/preinstall
+	cd /home/adam/Programming/condor && $(MAKE) -f CMakeFiles/Makefile2 external/source/Irrlicht/bzip2/preinstall
 .PHONY : preinstall
 
 # Prepare targets for installation.
 preinstall/fast:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f CMakeFiles/Makefile2 external/source/Irrlicht/bzip2/preinstall
+	cd /home/adam/Programming/condor && $(MAKE) -f CMakeFiles/Makefile2 external/source/Irrlicht/bzip2/preinstall
 .PHONY : preinstall/fast
 
 # clear depends
 depend:
-	cd /home/adam/Programming/short_duel && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
+	cd /home/adam/Programming/condor && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 1
 .PHONY : depend
 
 # Convenience name for target.
 external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/rule:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f CMakeFiles/Makefile2 external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/rule
+	cd /home/adam/Programming/condor && $(MAKE) -f CMakeFiles/Makefile2 external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/rule
 .PHONY : external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/rule
 
 # Convenience name for target.
@@ -167,7 +177,7 @@ bz2: external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/rule
 
 # fast build rule for target.
 bz2/fast:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build
 .PHONY : bz2/fast
 
 blocksort.o: blocksort.c.o
@@ -175,7 +185,7 @@ blocksort.o: blocksort.c.o
 
 # target to build an object file
 blocksort.c.o:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/blocksort.c.o
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/blocksort.c.o
 .PHONY : blocksort.c.o
 
 blocksort.i: blocksort.c.i
@@ -183,7 +193,7 @@ blocksort.i: blocksort.c.i
 
 # target to preprocess a source file
 blocksort.c.i:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/blocksort.c.i
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/blocksort.c.i
 .PHONY : blocksort.c.i
 
 blocksort.s: blocksort.c.s
@@ -191,7 +201,7 @@ blocksort.s: blocksort.c.s
 
 # target to generate assembly for a file
 blocksort.c.s:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/blocksort.c.s
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/blocksort.c.s
 .PHONY : blocksort.c.s
 
 bzcompress.o: bzcompress.c.o
@@ -199,7 +209,7 @@ bzcompress.o: bzcompress.c.o
 
 # target to build an object file
 bzcompress.c.o:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/bzcompress.c.o
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/bzcompress.c.o
 .PHONY : bzcompress.c.o
 
 bzcompress.i: bzcompress.c.i
@@ -207,7 +217,7 @@ bzcompress.i: bzcompress.c.i
 
 # target to preprocess a source file
 bzcompress.c.i:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/bzcompress.c.i
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/bzcompress.c.i
 .PHONY : bzcompress.c.i
 
 bzcompress.s: bzcompress.c.s
@@ -215,7 +225,7 @@ bzcompress.s: bzcompress.c.s
 
 # target to generate assembly for a file
 bzcompress.c.s:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/bzcompress.c.s
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/bzcompress.c.s
 .PHONY : bzcompress.c.s
 
 bzlib.o: bzlib.c.o
@@ -223,7 +233,7 @@ bzlib.o: bzlib.c.o
 
 # target to build an object file
 bzlib.c.o:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/bzlib.c.o
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/bzlib.c.o
 .PHONY : bzlib.c.o
 
 bzlib.i: bzlib.c.i
@@ -231,7 +241,7 @@ bzlib.i: bzlib.c.i
 
 # target to preprocess a source file
 bzlib.c.i:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/bzlib.c.i
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/bzlib.c.i
 .PHONY : bzlib.c.i
 
 bzlib.s: bzlib.c.s
@@ -239,7 +249,7 @@ bzlib.s: bzlib.c.s
 
 # target to generate assembly for a file
 bzlib.c.s:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/bzlib.c.s
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/bzlib.c.s
 .PHONY : bzlib.c.s
 
 crctable.o: crctable.c.o
@@ -247,7 +257,7 @@ crctable.o: crctable.c.o
 
 # target to build an object file
 crctable.c.o:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/crctable.c.o
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/crctable.c.o
 .PHONY : crctable.c.o
 
 crctable.i: crctable.c.i
@@ -255,7 +265,7 @@ crctable.i: crctable.c.i
 
 # target to preprocess a source file
 crctable.c.i:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/crctable.c.i
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/crctable.c.i
 .PHONY : crctable.c.i
 
 crctable.s: crctable.c.s
@@ -263,7 +273,7 @@ crctable.s: crctable.c.s
 
 # target to generate assembly for a file
 crctable.c.s:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/crctable.c.s
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/crctable.c.s
 .PHONY : crctable.c.s
 
 decompress.o: decompress.c.o
@@ -271,7 +281,7 @@ decompress.o: decompress.c.o
 
 # target to build an object file
 decompress.c.o:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/decompress.c.o
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/decompress.c.o
 .PHONY : decompress.c.o
 
 decompress.i: decompress.c.i
@@ -279,7 +289,7 @@ decompress.i: decompress.c.i
 
 # target to preprocess a source file
 decompress.c.i:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/decompress.c.i
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/decompress.c.i
 .PHONY : decompress.c.i
 
 decompress.s: decompress.c.s
@@ -287,7 +297,7 @@ decompress.s: decompress.c.s
 
 # target to generate assembly for a file
 decompress.c.s:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/decompress.c.s
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/decompress.c.s
 .PHONY : decompress.c.s
 
 huffman.o: huffman.c.o
@@ -295,7 +305,7 @@ huffman.o: huffman.c.o
 
 # target to build an object file
 huffman.c.o:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/huffman.c.o
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/huffman.c.o
 .PHONY : huffman.c.o
 
 huffman.i: huffman.c.i
@@ -303,7 +313,7 @@ huffman.i: huffman.c.i
 
 # target to preprocess a source file
 huffman.c.i:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/huffman.c.i
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/huffman.c.i
 .PHONY : huffman.c.i
 
 huffman.s: huffman.c.s
@@ -311,7 +321,7 @@ huffman.s: huffman.c.s
 
 # target to generate assembly for a file
 huffman.c.s:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/huffman.c.s
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/huffman.c.s
 .PHONY : huffman.c.s
 
 randtable.o: randtable.c.o
@@ -319,7 +329,7 @@ randtable.o: randtable.c.o
 
 # target to build an object file
 randtable.c.o:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/randtable.c.o
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/randtable.c.o
 .PHONY : randtable.c.o
 
 randtable.i: randtable.c.i
@@ -327,7 +337,7 @@ randtable.i: randtable.c.i
 
 # target to preprocess a source file
 randtable.c.i:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/randtable.c.i
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/randtable.c.i
 .PHONY : randtable.c.i
 
 randtable.s: randtable.c.s
@@ -335,7 +345,7 @@ randtable.s: randtable.c.s
 
 # target to generate assembly for a file
 randtable.c.s:
-	cd /home/adam/Programming/short_duel && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/randtable.c.s
+	cd /home/adam/Programming/condor && $(MAKE) -f external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/build.make external/source/Irrlicht/bzip2/CMakeFiles/bz2.dir/randtable.c.s
 .PHONY : randtable.c.s
 
 # Help Target
@@ -353,6 +363,7 @@ help:
 	@echo "... package"
 	@echo "... package_source"
 	@echo "... rebuild_cache"
+	@echo "... test"
 	@echo "... blocksort.o"
 	@echo "... blocksort.i"
 	@echo "... blocksort.s"
@@ -385,6 +396,6 @@ help:
 # No rule that depends on this can have commands that come from listfiles
 # because they might be regenerated.
 cmake_check_build_system:
-	cd /home/adam/Programming/short_duel && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
+	cd /home/adam/Programming/condor && $(CMAKE_COMMAND) -H$(CMAKE_SOURCE_DIR) -B$(CMAKE_BINARY_DIR) --check-build-system CMakeFiles/Makefile.cmake 0
 .PHONY : cmake_check_build_system
 

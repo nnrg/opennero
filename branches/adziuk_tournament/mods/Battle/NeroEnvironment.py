@@ -227,12 +227,6 @@ class NeroEnvironment(Environment):
 
         state = self.get_state(agent)
 
-        startScript("Battle/menu.py")
-        data = script_server.read_data()
-        while data:
-            parseInput(data.strip())
-            data = script_server.read_data()
-
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
            agent.state.position.x, agent.state.position.y = -100,-100 
            state.prev_pose = state.pose
@@ -361,36 +355,31 @@ class NeroEnvironment(Environment):
                 return len_data / len_ray
         return 1
 
-    def sense(self, agent):
+    def sense(self, agent, observations):
         """ figure out what the agent should sense """
         from module import getMod
-        v = self.agent_info.sensors.get_instance()
         vx = []
         
         state = self.get_state(agent)
         
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
-            return v
+            return observations
 
         
         vx.append(self.raySense(agent, -60, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, -45, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, -30, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, -15, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 0, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, 15, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 30, MAX_SD, OBSTACLE))
-        #vx.append(self.raySense(agent, 45, MAX_SD, OBSTACLE))
         vx.append(self.raySense(agent, 60, MAX_SD, OBSTACLE))
         
         ffr = self.getFriendFoe(agent)
         if (ffr[0] == []) or ffr[1] == []:
-            return v
+            return observations
         ff = []
         ff.append(self.nearest(state.pose, state.id, ffr[0]))
         ff.append(self.nearest(state.pose, state.id, ffr[1]))
         if ff[0] == 1:
-            return v
+            return observations
         fd = self.distance(state.pose,(ff[1].pose[0],ff[1].pose[1]))
         if fd != 0:
             fh  = ((degrees(atan2(ff[1].pose[1]-state.pose[1],ff[1].pose[0] - state.pose[0])) - state.pose[2]) % 360) - 180
@@ -405,14 +394,10 @@ class NeroEnvironment(Environment):
         
 
         vx.append(max(0,cos(radians(fh-  0))))
-        #vx.append(max(0,cos(radians(fh- 45))))
         vx.append(max(0,cos(radians(fh- 90))))
-        #vx.append(max(0,cos(radians(fh-135))))
         
         vx.append(max(0,cos(radians(fh-180))))
-        #vx.append(max(0,cos(radians(fh-225))))
         vx.append(max(0,cos(radians(fh-270))))
-        #vx.append(max(0,cos(radians(fh-315))))
        
         vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST))) 
         
@@ -430,17 +415,12 @@ class NeroEnvironment(Environment):
         
 
         vx.append(max(0,cos(radians(fh-  0))))
-        #vx.append(max(0,cos(radians(fh- 45))))
         vx.append(max(0,cos(radians(fh- 90))))
-        #vx.append(max(0,cos(radians(fh-135))))
         
         vx.append(max(0,cos(radians(fh-180))))
-        #vx.append(max(0,cos(radians(fh-225))))
         vx.append(max(0,cos(radians(fh-270))))
-        #vx.append(max(0,cos(radians(fh-315))))
        
         vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST))) 
-        
         
         fd = self.flag_distance(agent)
         if fd != 0:
@@ -455,21 +435,17 @@ class NeroEnvironment(Environment):
             fh -= 360
 
         vx.append(max(0,cos(radians(fh-  0))))
-        #vx.append(max(0,cos(radians(fh- 45))))
         vx.append(max(0,cos(radians(fh- 90))))
-        #vx.append(max(0,cos(radians(fh-135))))
         
         vx.append(max(0,cos(radians(fh-180))))
-        #vx.append(max(0,cos(radians(fh-225))))
         vx.append(max(0,cos(radians(fh-270))))
-        #vx.append(max(0,cos(radians(fh-315))))
        
         vx.append(min(1,max(0,(self.MAX_DIST-fd)/self.MAX_DIST)))
 
         for iter in range(len(vx)):
-            v[iter] = vx[iter]
+            observations[iter] = vx[iter]
         
-        return v
+        return observations
    
     def flag_loc(self):
         from Battle.module import getMod

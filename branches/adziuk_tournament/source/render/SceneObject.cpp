@@ -283,7 +283,6 @@ namespace OpenNero
 		, mFPSCamera(objTempl.mFPSCamera)
 		, mAnimationSpeed(objTempl.mAnimationSpeed)
 		, mFootprints(objTempl.mFootprints)
-		, mCollisionType(objTempl.mCollisionType)
 		, mCollisionMask(objTempl.mCollisionMask)
     {
         // copy over the textures and the material flags
@@ -320,7 +319,6 @@ namespace OpenNero
         mFPSCamera(),
         mAnimationSpeed(25.0f),
         mFootprints(),
-		mCollisionType(0),
 		mCollisionMask(0)
     {
         AssertMsg( factory, "Invalid sim factory" );
@@ -364,7 +362,7 @@ namespace OpenNero
 
 		if (propMap.hasSection( "Template.Render.Collision" ))
 		{
-			propMap.getValue( mCollisionType, "Template.Render.Collision" );
+			propMap.getValue( mCollisionMask, "Template.Render.Collision" );
 		}
 
         static const std::string kFootprints("Template.Render.Footprints");
@@ -498,7 +496,11 @@ namespace OpenNero
         std::list<SimId>::iterator iter;
         for (iter = mFootprints.begin(); iter != mFootprints.end(); ++iter)
         {
-            Kernel::GetSimContext()->getSimulation()->Remove(*iter);
+			SimContextPtr context = Kernel::GetSimContext();
+			if (context) {
+				SimulationPtr simulation = context->getSimulation();
+				simulation->Remove(*iter);
+			}
         }
     }
 
@@ -528,7 +530,7 @@ namespace OpenNero
     {
         if( !objTemplate )
             return false;
-
+            
         Assert( objTemplate->mpSimFactory );
 
         // cast to object template to the type we expect
@@ -594,14 +596,17 @@ namespace OpenNero
 
             // set the node scale
             Vector3f scale = mSceneObjectTemplate->mScale;
-            if (mSharedData)
-            {
-                /// we can optionally multiply by a custom scale
-                scale.X = scale.X * mSharedData->GetScale().X;
-                scale.Y = scale.Y * mSharedData->GetScale().Y;
-                scale.Z = scale.Z * mSharedData->GetScale().Z;
-            }
+            /// we can optionally multiply by a custom scale
+            scale.X = scale.X * data.GetScale().X;
+            scale.Y = scale.Y * data.GetScale().Y;
+            scale.Z = scale.Z * data.GetScale().Z;
             mSceneNode->setScale( ConvertNeroToIrrlichtPosition(scale) );
+            
+            // set the position of the object
+            mSceneNode->setPosition( ConvertNeroToIrrlichtPosition(data.GetPosition()) );
+            
+            // set the rotation of the object
+            mSceneNode->setRotation( ConvertNeroToIrrlichtRotation(data.GetRotation()) );
 
             // add a ref to the scene node
             SafeIrrGrab(mSceneNode);
@@ -626,7 +631,7 @@ namespace OpenNero
             }
         #endif // end SCENEOBJECT_ENABLE_STATS
         }
-
+        
         return true;
     }
 
@@ -682,36 +687,40 @@ namespace OpenNero
         }
     }
     
-    /// do we collide with the other object?
-    bool SceneObject::CheckCollision(const Vector3f& new_pos, const SceneObjectPtr& other)
+    /// can we possibly collide with any other object?
+    bool SceneObject::canCollide() const
+    {
+        return (mSceneObjectTemplate && mSceneObjectTemplate->mCollisionMask != 0);
+    }
+
+    /// are we colliding with the other object?
+    bool SceneObject::isColliding(const Vector3f& new_pos, const SceneObjectPtr& other)
     {
         Assert(other);
-        if (mSceneObjectTemplate->mCollisionType != 
-            other->mSceneObjectTemplate->mCollisionType ||
-            mSceneObjectTemplate->mCollisionType == 0)
-        { // if the collision types don't match or are 0, no collision
+        Vector3f my_prev_irr_pos(ConvertNeroToIrrlichtPosition(getPosition())); // our prev irr pos
+        Vector3f my_irr_pos(ConvertNeroToIrrlichtPosition(new_pos)); // our irr pos
+        Line3f my_irr_movement(my_prev_irr_pos, my_irr_pos); // line from A to B
+        
+        if (my_irr_movement.getLengthSQ() == 0) return false;
+
+        // get the axis-aligned bounding boxes for both objects
+        BBoxf my_box = mSceneNode->getTransformedBoundingBox(); // our irr a.a.b. box
+        BBoxf other_box = other->mSceneNode->getTransformedBoundingBox(); // their irr a.a.b. box
+        
+        // check if our movement line crosses the bounding box of the other object
+        if (other_box.intersectsWithLine(my_irr_movement))
+        {
+            return true;
+        }
+        // check if our final bounding box overlaps the bounding box of the other object
+        else if (my_box.intersectsWithBox(other_box)) 
+        {
+            return true;
+        }
+        else
+        {
             return false;
         }
-        BBoxf my_box = mSceneNode->getBoundingBox(); // our irr box
-        BBoxf other_box = other->mSceneNode->getBoundingBox(); // their irr box
-        Vector3f my_irr_pos(ConvertNeroToIrrlichtPosition(new_pos)); // our irr pos
-		Vector3f other_irr_pos(ConvertNeroToIrrlichtPosition(other->getPosition())); // their irr pos
-		Vector3f my_irr_scale(ConvertNeroToIrrlichtPosition(getScale()));
-		Vector3f their_irr_scale(ConvertNeroToIrrlichtPosition(other->getScale()));
-        
-        // translate our bounding box over to our future position
-        Matrix4 transform;
-        transform.setTranslation(my_irr_pos);
-		transform.setScale(my_irr_scale);
-        transform.transformBox(my_box);
-        
-        // translate their bounding box over to their current position
-        transform.setTranslation(other->mSceneNode->getPosition());
-		transform.setScale(their_irr_scale);
-        transform.transformBox(other_box);
-        
-        // check if the bounding boxes intersect
-        return my_box.intersectsWithBox(other_box);
     }
 
     /// Move forward the simulation of this sim object by a time delta

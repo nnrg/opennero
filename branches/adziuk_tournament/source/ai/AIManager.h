@@ -2,6 +2,7 @@
 #define _OPENNERO_AI_AIMANAGER_H_
 
 #include <set>
+#include "ai/AI.h"
 
 namespace OpenNero
 {
@@ -46,7 +47,7 @@ namespace OpenNero
         void SetAI(const std::string& name, AIPtr ai);
 
         /// log the performance of AI agents
-        void Log(SimId id, size_t episode, size_t step, double reward, double fitness);
+        void Log(SimId id, size_t episode, size_t step, Reward reward, Reward fitness);
 
         /// Shutdown and clean-up the AI subsystem
         void destroy();

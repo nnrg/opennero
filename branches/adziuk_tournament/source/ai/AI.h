@@ -122,7 +122,6 @@ namespace OpenNero {
     typedef FeatureVectorInfo SensorInfo; ///< Sensor/feature vector descriptor
     typedef FeatureVectorInfo ActionInfo; ///< Action vector descriptor
     typedef FeatureVectorInfo RewardInfo; ///< Reward descriptor (currently discarded)
-    // TODO: do we really need multi-objective rewards at this level?
 
     /// Initial information given to an agent
     struct AgentInitInfo
@@ -135,10 +134,8 @@ namespace OpenNero {
         * @param a action description
         * @param r reward description
         */
-        AgentInitInfo(const SensorInfo& s,
-            const ActionInfo& a,
-            const RewardInfo& r) :
-        sensors(s), actions(a), reward(r)
+        AgentInitInfo(const SensorInfo& s, const ActionInfo& a, const RewardInfo& r)
+        : sensors(s), actions(a), reward(r)
         {
         }
 
@@ -158,16 +155,16 @@ namespace OpenNero {
         friend std::ostream& operator<<(std::ostream& out, const AgentInitInfo& obj);
     };
 
-    typedef FeatureVector Sensors; ///< Sensors type
+    typedef FeatureVector Observations; ///< Observations coming from sensors
 
     typedef FeatureVector Actions; ///< Actions type
 
-    typedef double Reward; ///< Reward type
+    typedef FeatureVector Reward; ///< Reward type
 
     /// set of agents
     typedef std::set<AgentBrainPtr> AgentSet;
     
-    typedef std::pair<Sensors, Actions> StateActionPair;
+    typedef std::pair<Observations, Actions> StateActionPair;
 
     /// hash value of a feature vector
     size_t hash_value(const FeatureVector& fv);
