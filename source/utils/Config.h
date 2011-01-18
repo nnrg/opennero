@@ -19,47 +19,49 @@ namespace OpenNero
     /// values that are used at initial startup
     struct AppConfig
     {
-        std::string window_title;        ///< The window title text
-        std::string log_config_file;     ///< The log config file
-        std::string render_type;         ///< The type of renderer "OpenGL" or "null"
-        std::string start_mod_name;      ///< The starting mod name
-        std::string start_mod_dir;       ///< The starting mod directory
-        std::string start_command;       ///< The Python command to run after loading the module
-        uint32_t    window_width;        ///< Window width
-        uint32_t    window_height;       ///< window height
-        uint8_t     window_BPP;          ///< window bits per pixel
-        bool        full_screen;         ///< Should we use fullscreen?
-        bool        use_stencil_buffer;  ///< Should we use a stencil buffer for shadows?
-        bool        use_vsync;           ///< Should we use vsync?
-        std::string seeds;               ///< Random seed buffer
+        std::string Title;              ///< The window title text
+        std::string LogFile;            ///< The log file
+        std::string LogConfigFile;      ///< The log config file
+        std::string RenderType;         ///< The type of renderer "OpenGL" or "null"
+        std::string StartMod;           ///< The starting mod name
+        std::string StartModDir;        ///< The starting mod directory
+        std::string StartCommand;       ///< The Python command to run after loading the module
+        uint32_t    Width;              ///< Window width
+        uint32_t    Height;             ///< window height
+        uint8_t     BPP;                ///< window bits per pixel
+        bool        FullScreen;         ///< Should we use fullscreen?
+        bool        StencilBuffer;      ///< Should we use a stencil buffer for shadows?
+        bool        VSync;              ///< Should we use vsync?
+        std::string RandomSeeds;        ///< Random seed buffer
 
         /// Constructor
         AppConfig();
 
+        /// Construct from command line arguments
+        bool ParseCommandLine(int argc, char** argv);
+
         /// serialize to stream, file or string
         template<class Archive> void serialize(Archive & ar, const unsigned int version)
         {
-            ar & BOOST_SERIALIZATION_NVP(window_title);
-            ar & BOOST_SERIALIZATION_NVP(log_config_file);
-            ar & BOOST_SERIALIZATION_NVP(render_type);
-            ar & BOOST_SERIALIZATION_NVP(start_mod_name);
-            ar & BOOST_SERIALIZATION_NVP(start_mod_dir);
-            ar & BOOST_SERIALIZATION_NVP(start_command);
-            ar & BOOST_SERIALIZATION_NVP(window_width);
-            ar & BOOST_SERIALIZATION_NVP(window_height);
-            ar & BOOST_SERIALIZATION_NVP(window_BPP);
-            ar & BOOST_SERIALIZATION_NVP(full_screen);
-            ar & BOOST_SERIALIZATION_NVP(use_stencil_buffer);
-            ar & BOOST_SERIALIZATION_NVP(use_vsync);
-            ar & BOOST_SERIALIZATION_NVP(seeds);
+            ar & BOOST_SERIALIZATION_NVP(Title);
+            ar & BOOST_SERIALIZATION_NVP(LogFile);
+            ar & BOOST_SERIALIZATION_NVP(LogConfigFile);
+            ar & BOOST_SERIALIZATION_NVP(RenderType);
+            ar & BOOST_SERIALIZATION_NVP(StartMod);
+            ar & BOOST_SERIALIZATION_NVP(StartModDir);
+            ar & BOOST_SERIALIZATION_NVP(StartCommand);
+            ar & BOOST_SERIALIZATION_NVP(Width);
+            ar & BOOST_SERIALIZATION_NVP(Height);
+            ar & BOOST_SERIALIZATION_NVP(BPP);
+            ar & BOOST_SERIALIZATION_NVP(FullScreen);
+            ar & BOOST_SERIALIZATION_NVP(StencilBuffer);
+            ar & BOOST_SERIALIZATION_NVP(VSync);
+            ar & BOOST_SERIALIZATION_NVP(RandomSeeds);
         }
     };
 
     /// output AppConfig to stream
     std::ostream& operator<<(std::ostream& output, const AppConfig& config);
-
-    /// Get the application config out of a python file
-    AppConfig ReadAppConfig( int argc, char** argv, const std::string& appConfigFile );
 
     /// Get the current application config
     const AppConfig& GetAppConfig();

@@ -88,6 +88,7 @@ namespace NEAT
 
             /// Takes an array of sensor values and loads it into SENSOR inputs ONLY
             void load_sensors(const F64*);
+            /// Takes a vector of sensor values and loads it into SENSOR inputs ONLY
             void load_sensors(const std::vector<F64> &sensvals);
 
             /// Takes an array of error values and loads it into OUTPUT nodes

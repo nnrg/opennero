@@ -18,6 +18,8 @@ def ignore(type):
 # ignore('ai') and ignore('audio'). Doing this achieves filtered logs.
 
 # component section filters
-#ignore('ai')
-#ignore('audio')
+ignore('ai.tick')
+ignore('ai')
+ignore('audio')
 ignore('game')
+#ignore('python')

@@ -6,7 +6,6 @@
 #include "ai/Environment.h"
 #include "ai/random/RandomAgent.h"
 #include "ai/random/RandomEnvironment.h"
-#include "ai/random/RandomSensorArray.h"
 #include "math/Random.h"
 
 namespace OpenNero

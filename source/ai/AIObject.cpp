@@ -3,7 +3,6 @@
 #include "ai/AIObject.h"
 #include "ai/AIManager.h"
 #include "ai/Environment.h"
-#include "ai/SensorArray.h"
 #include "ai/AgentBrain.h"
 #include "ai/PythonAI.h"
 #include "ai/random/RandomAI.h"
@@ -41,6 +40,7 @@ namespace OpenNero
         , mAgentBrain()
         , mWorld(world)
         , mReward()
+        , mSensors(parent)
     {
     }
 
@@ -55,8 +55,8 @@ namespace OpenNero
         Assert(getBrain());
         if (getBrain()->step == 0) // if first step
         {
-            Sensors sensors = getWorld()->sense(getBrain());
-            setActions(getBrain()->start(dt, sensors));
+            Observations observations = sense();
+            setActions(getBrain()->start(dt, observations));
             setReward(getWorld()->step(getBrain(), getActions()));
             getBrain()->step++;
             if (mSharedData && mSharedData->GetLabel().empty() && !getBrain()->name.empty())
@@ -74,10 +74,10 @@ namespace OpenNero
                     getWorld()->reset(getBrain());
                     getBrain()->episode++;
                     getBrain()->step = 0;
-                    getBrain()->fitness = 0;
+                    getBrain()->fitness = getInitInfo().reward.getInstance();
                 } else {
-                    Sensors sensors = getWorld()->sense(getBrain());
-                    setActions(getBrain()->act(dt, sensors, getReward()));
+                    Observations observations = sense();
+                    setActions(getBrain()->act(dt, observations, getReward()));
                     setReward(getWorld()->step(getBrain(), getActions()));
                     getBrain()->step++;
                 }
@@ -88,7 +88,10 @@ namespace OpenNero
     void AIObject::setReward(Reward reward)
     {
         mReward = reward;
-        getBrain()->fitness += reward;
+		for (size_t i = 0; i < reward.size(); ++i)
+		{
+			getBrain()->fitness[i] += reward[i];
+		}
         AIManager::instance().Log
             (GetSharedState()->GetId(),
              getBrain()->episode,
@@ -98,9 +101,15 @@ namespace OpenNero
     }
 
     /// sense the agent's environment
-    Sensors AIObject::Sense()
+    Observations AIObject::sense()
     {
-        return Sensors();
+        // create a new observation vector
+        Observations o = getInitInfo().sensors.getInstance();
+        // first, pass it along to the built-in sensors so that they can set some of the values
+        mSensors.getObservations(o);
+        // then, pass it to the environment and let it compute the final sensor vector
+        Observations observations = getWorld()->sense(getBrain(), o);
+        return observations;
     }
 
     inline std::ostream& operator<<(std::ostream& out, AIObject& obj)

@@ -32,12 +32,12 @@ namespace OpenNero
     class ScriptingEngine
     {
     private:
-        python::object _main_module;     ///< main module
-        python::object _globals;  ///< global namespace
-        python::object _locals;   ///< local namespace
+        python::object _main_module;        ///< main module
+        python::dict _globals;              ///< global namespace
+        python::dict _locals;               ///< local namespace
         python::object _network_log_writer; ///< network log writer object
-        bool _initialized; ///< flag to mark if this scripting engine is initialized
-        Scheduler _scheduler; ///< the event scheduler for scripts
+        bool _initialized;                  ///< flag to mark if this scripting engine is initialized
+        Scheduler _scheduler;               ///< the event scheduler for scripts
 
     public:
 
@@ -47,6 +47,12 @@ namespace OpenNero
 
         ScriptingEngine();
         ~ScriptingEngine();
+        
+        /**
+         * This is called every simulation tick. If a ModTick function is defined,
+         * it is called.
+         */
+        void Tick(float32_t dt);
 
         /**
          * Get the singleton for the scripting engine

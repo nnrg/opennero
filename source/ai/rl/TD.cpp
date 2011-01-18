@@ -12,12 +12,13 @@ namespace OpenNero
     bool TDBrain::initialize(const AgentInitInfo& init)
     {
         mInfo = init;
+        this->fitness = mInfo.reward.getInstance();
         mApproximator.reset(new TableApproximator(mInfo)); // initialize the function approximator
         return true;
     }
 
     /// called for agent to take its first step
-    Actions TDBrain::start(const TimeType& time, const Sensors& new_state)
+    Actions TDBrain::start(const TimeType& time, const Observations& new_state)
     {
         epsilon_greedy(new_state);
         action = new_action;
@@ -26,12 +27,13 @@ namespace OpenNero
     }
 
     /// act based on time, sensor arrays, and last reward
-    Actions TDBrain::act(const TimeType& time, const Sensors& new_state, const Reward& reward)
+    Actions TDBrain::act(const TimeType& time, const Observations& new_state, const Reward& reward)
     {
+		AssertMsg(reward.size() == 1, "multi-objective rewards not supported");
         double new_Q = epsilon_greedy(new_state); // select new action and estimate its value
         double old_Q = mApproximator->predict(state, action);
         // Q(s_t, a_t) <- Q(s_t, a_t) + \alpha [r_{t+1} + \gamma Q(s_{t+1}, a_{t+1}) - Q(s_t, a_t)
-        mApproximator->update(state, action, old_Q + mAlpha * (reward + mGamma * new_Q - old_Q));
+        mApproximator->update(state, action, old_Q + mAlpha * (reward[0] + mGamma * new_Q - old_Q));
         action = new_action;
         state = new_state;
         return action;
@@ -40,15 +42,16 @@ namespace OpenNero
     /// called to tell agent about its last reward
     bool TDBrain::end(const TimeType& time, const Reward& reward)
     {
-        // Q(s_t, a_t) <- Q(s_t, a_t) + \alpha [r_{t+1} - Q(s_t, a_t)]
+		AssertMsg(reward.size() == 1, "multi-objective rewards not supported");
+		// Q(s_t, a_t) <- Q(s_t, a_t) + \alpha [r_{t+1} - Q(s_t, a_t)]
         // LOG_F_DEBUG("ai", "TD FINAL UPDATE s1: " << state << ", a1: " << action << ", r: " << reward);
         double old_Q = mApproximator->predict(state, action);
-        mApproximator->update(state, action, old_Q + mAlpha * (reward - old_Q));
+        mApproximator->update(state, action, old_Q + mAlpha * (reward[0] - old_Q));
         return true;
     }
 
     /// select action according to the epsilon-greedy policy
-    double TDBrain::epsilon_greedy(const Sensors& new_state)
+    double TDBrain::epsilon_greedy(const Observations& new_state)
     {
         // with chance epsilon, select random action
         if (RANDOM.randF() < mEpsilon)

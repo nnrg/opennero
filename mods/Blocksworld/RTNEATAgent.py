@@ -49,14 +49,12 @@ class RTNEATAgent(AgentBrain):
             self.file_out.append(str(gettime()))
             self.file_out.append(",")
         self.net = self.org.net
-        self.reward = 0
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
         """
         a state transition
         """
-        self.reward += reward # store reward        
         # return action
         return self.network_action(sensors)
 
@@ -67,8 +65,7 @@ class RTNEATAgent(AgentBrain):
         if FITNESS_OUT:
             self.file_out.append(str(gettime()))
             self.file_out.append(",")
-        self.reward += reward # store reward
-        self.org.fitness = self.reward # assign organism fitness for evolution
+        self.org.fitness = 0 # assign organism fitness for evolution
         self.org.time_alive += 1
         if FITNESS_OUT:
             self.file_out.append(str(self.reward))
@@ -111,6 +108,8 @@ class RTNEATAgent(AgentBrain):
         self.net.activate()
         outputs = self.net.get_outputs()
         actions = self.actions.get_instance() # make a vector for the actions
+	#print "outputs:", outputs
+	#print "actions:", actions
         for i in range(0,len(self.actions.get_instance())):
             actions[i] = outputs[i]
         actions = self.actions.denormalize(actions)

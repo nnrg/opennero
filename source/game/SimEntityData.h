@@ -36,6 +36,7 @@ namespace OpenNero
             kDB_Color           = (1<<7),
             kDB_Id              = (1<<8),
             kDB_Type            = (1<<9),
+            kDB_Collision       = (1<<10),
         };
         
     public:
@@ -49,6 +50,7 @@ namespace OpenNero
                       const Vector3f& scale, 
                       const std::string& label,
                       uint32_t t,
+                      uint32_t collision,
                       SimId id);
 
         void SetPosition( const Vector3f& pos );      ///< Set position of entity
@@ -58,14 +60,14 @@ namespace OpenNero
         void SetAcceleration( const Vector3f& acc );  ///< Set acceleration for entity
         void SetLabel( const std::string& label );    ///< Set label for entity
         void SetColor( const SColor& color );         ///< Set the color of the entity
-        void SetType( uint32_t t );               ///< Type of this object (for sensors)
+        void SetType( uint32_t t );                   ///< Type of this object (for sensors)
+        void SetCollision( uint32_t mask );           ///< Set the collision mask for this object
 		bool SetAnimation( const std::string& animation ); ///< animation of the node
 
         /// make all the bits dirty (forces full update)
         void SetDirtyBits();
         /// make certain bits dirty
         void SetDirtyBits(uint32_t bits);
-
         /// clear all the bits
         void ClearDirtyBits();
         
@@ -77,7 +79,8 @@ namespace OpenNero
         const std::string& GetLabel() const;      ///< Returns label of entity
         const SColor& GetColor() const;           ///< Returns the color of the entity
         SimId GetId() const;                      ///< Returns the id of the entity
-        uint32_t GetType() const;                       ///< Type of this object (for sensors)
+        uint32_t GetType() const;                 ///< Type of this object (for sensors)
+        uint32_t GetCollision( ) const; ///< Get the collision mask
 
         uint32_t GetDirtyBits() const;            ///< Retrieve the dirty bits
         bool IsDirty(DataBits bit) const;         ///< Flag to say if SimEntity is dirty
@@ -86,10 +89,6 @@ namespace OpenNero
 
         friend Bitstream& operator<<( Bitstream& stream, const SimEntityData& data);
         friend Bitstream& operator>>( Bitstream& stream, SimEntityData& data);
-
-#if NERO_ENABLE_UNIT_TESTS
-        static void UnitTest();
-#endif
 
     private:
 
@@ -102,6 +101,7 @@ namespace OpenNero
         SColor mColor;          ///< Color of the object
         SimId mId;              ///< The id of the object
         uint32_t mType;         ///< Type of this object (for sensors)
+        uint32_t mCollision;    ///< The collision mask
         uint32_t mDirtyBits;    ///< The dirty bits of the object (specifying which data has changed)
     };
 

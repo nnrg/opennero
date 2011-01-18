@@ -142,6 +142,8 @@ class BlocksEnvironment(Environment):
         #BIAS
         sbound.add_continuous(0,1) # Bias
 
+	rbound.add_continuous(-100,100)
+
         self.agent_info = AgentInitInfo(sbound, abound, rbound)
     
     def out_of_bounds(self, pos):
@@ -274,13 +276,9 @@ class BlocksEnvironment(Environment):
         from Blocksworld.module import getMod, parseInput
         # check if the action is valid
         assert(self.agent_info.actions.validate(action))
+
        
         # menu.py accessing and updating
-        startScript('Blocksworld/menu.py')
-        data = script_server.read_data()
-        while data:
-            parseInput(data.strip())
-            data = script_server.read_data()
 
         state = self.get_state(agent)
         
@@ -426,8 +424,6 @@ class BlocksEnvironment(Environment):
             if (id not in self.coin_teams()[agent.get_team()]) and (self.coin_distance(agent, id) <= CRANGE) and ((getMod().coin_nears[other-1][id] == 0) or ( (float(getMod().coin_nears[agent.get_team()-1][id]) / ( float(getMod().coin_nears[other-1][id]) + float(getMod().coin_nears[agent.get_team()-1][id]))) > CAP_RATIO )):
 
                 # Print out log message indicating that a defended coin was captured
-                if getMod().coin_nears[other-1][id] > 0:
-                    print "Coin Captured with", getMod().coin_nears[other-1][id], " Defenders and", getMod().coin_nears[agent.get_team()-1][id], " Attackers cap ratio =", CAP_RATIO
                 
                 loc = self.coin_locs()[id]
 
@@ -514,7 +510,7 @@ class BlocksEnvironment(Environment):
         return 1
 
   
-    def sense(self, agent):
+    def sense(self, agent, obs):
         """ 
         figure out what the agent should sense 
         """
@@ -725,15 +721,30 @@ class BlocksEnvironment(Environment):
         state = self.get_state(agent)
         if self.max_steps != 0 and agent.step >= self.max_steps:
             if self.SAVE_AGENT == state.id:
-                fil = open(getMod().preprefix + getMod().out_file[getMod().prenum],'a')
-                fil.write(getMod().team_locs[getMod().team_1_li] + " : " + str(getMod().team_1_average/pop_size) + "\n")
-                fil.write(getMod().team_locs[getMod().team_2_li] + " : " + str(getMod().team_2_average/pop_size) + "\n")
+		rn = getMod().run_number
+		lt = len(getMod().team_locs) #length of teams folder
+		ld = len(getMod().prefix) #length of not teams folder
+		prenum = rn / (lt*lt)
+		team_2_li = (rn - prenum*lt*lt)/lt
+		team_1_li = rn-prenum*lt*lt-team_2_li*lt
+                fil = open(getMod().preprefix + getMod().prefix[prenum] + "result_" + str(rn) + ".txt",'a')
+                fil.write(getMod().team_locs[team_1_li] + " : " + str(getMod().team_1_average/pop_size) + "\n")
+                fil.write(getMod().team_locs[team_2_li] + " : " + str(getMod().team_2_average/pop_size) + "\n")
                 fil.write("===\n")
-                getMod().load_rtneat(getMod().get_next_1(),1)
-                getMod().load_rtneat(getMod().get_next_2(),2)
-                getMod().team_1_average = 0.0
-                getMod().team_2_average = 0.0
-                getMod().reset_coin()
+		getMod().run_number += 1
+		rn = getMod().run_number
+		if rn >= lt * lt * ld or getMod().run_set:
+			getSimContext().killGame()	
+		else:
+			prenum = rn / (lt*lt)
+			team_2_li = (rn - prenum*lt*lt)/lt
+			team_1_li = rn-prenum*lt*lt-team_2_li*lt
+			# NOTE IF RUNNING ON CONDOR (env variable run set) THIS NEEDS TO CLEANLY EXIT NOW
+                	getMod().load_rtneat(getMod().get_next_1(team_1_li,prenum),1)
+                	getMod().load_rtneat(getMod().get_next_2(team_2_li,prenum),2)
+                	getMod().team_1_average = 0.0
+                	getMod().team_2_average = 0.0
+                	getMod().reset_coin()
             return True
         else:
             return False

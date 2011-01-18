@@ -242,14 +242,13 @@ class MazeEnvironment(Environment):
         pos0.y = y
         agent.state.position = pos0
 
-    def sense(self, agent):
+    def sense(self, agent, obs):
         """
         Discrete version
         """
         state = self.get_state(agent)
-        v = self.agent_info.sensors.get_instance()
-        v[0] = state.rc[0]
-        v[1] = state.rc[1]
+        obs[0] = state.rc[0]
+        obs[1] = state.rc[1]
         offset = GRID_DX/10.0
         p0 = agent.state.position
         for i, (dr, dc) in enumerate(MazeEnvironment.MOVES):
@@ -257,9 +256,9 @@ class MazeEnvironment(Environment):
             ray = (p0 + direction * offset, p0 + direction * GRID_DX)
             # we only look for objects of type 1, which means walls
             objects = getSimContext().findInRay(ray[0], ray[1], 1, True)
-            v[2 + i] = int(len(objects) > 0)
-        state.record_observation(v)
-        return v
+            obs[2 + i] = int(len(objects) > 0)
+        state.record_observation(obs)
+        return obs
 
     def is_active(self, agent):
         state = self.get_state(agent)
@@ -417,21 +416,20 @@ class ContMazeEnvironment(MazeEnvironment):
             return self.rewards.last_reward(state)
         return self.rewards.valid_move(state)
 
-    def sense(self, agent):
+    def sense(self, agent, obs):
         """
         Continuous version
         """
         state = self.get_state(agent)
-        v = self.agent_info.sensors.get_instance()
         (x,y,heading) = state.pose # current agent pose
-        v[0] = x # the agent can observe its position
-        v[1] = y # the agent can observe its position
+        obs[0] = x # the agent can observe its position
+        obs[1] = y # the agent can observe its position
         (tx, ty) = self.maze.rc2xy(ROWS-1,COLS-1) # coordinates of target
         tx, ty = tx - x, ty - y # line to target
-        v[2] = hypot(tx, ty) # distance to target
+        obs[2] = hypot(tx, ty) # distance to target
         angle_to_target = degrees(atan2(ty, tx)) # angle to target from +x, in degrees
         angle_to_target = wrap_degrees(angle_to_target, -heading) # heading to target relative to us
-        v[3] = angle_to_target
+        obs[3] = angle_to_target
         d_angle = 360.0 / ContMazeEnvironment.N_RAYS
         p0 = agent.state.position
         for i in range(ContMazeEnvironment.N_RAYS):
@@ -446,21 +444,23 @@ class ContMazeEnvironment(MazeEnvironment):
                 len1 = (ray[1] - ray[0]).getLength() # max extent
                 len2 = (hit - ray[0]).getLength() # actual extent
                 if len1 != 0:
-                    v[4+i] = len2/len1
+                    obs[4+i] = len2/len1
                 else:
-                    v[4+i] = 0
+                    obs[4+i] = 0
             else:
-                v[4+i] = 1
-        if not self.agent_info.sensors.validate(v):
-            print 'ERROR: incorect observation!', v
+                obs[4+i] = 1
+        if not self.agent_info.sensors.validate(obs):
+            print 'ERROR: incorect observation!', obs
             print '       should be:', self.agent_info.sensors
-        state.record_observation(v)
-        return v
+        state.record_observation(obs)
+        return obs
 
     def is_active(self, agent):
         state = self.get_state(agent)
         # TODO: interpolate
-        fraction = min(1.0,float(time.time() - state.time)/self.get_delay())
+        fraction = 1.0
+        if self.get_delay() != 0:
+            fraction = min(1.0,float(time.time() - state.time)/self.get_delay())
         if time.time() - state.time > self.get_delay():
             state.time = time.time()
             return True # call the sense/act/step loop

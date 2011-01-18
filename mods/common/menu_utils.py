@@ -25,7 +25,7 @@ def receive(channel):
         buf = channel.recv(size - len(buf))
     return unmarshall(buf)[0]
 
-HOST = 'localhost'
+HOST = '127.0.0.1'
 PORT = 8888
 
 class ScriptServer:
@@ -33,8 +33,7 @@ class ScriptServer:
         self.scriptmap = {}
         self.outputs = []
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.server.bind(('', port))
+        self.server.bind((HOST, port))
         print 'Listening to port', port, '...'
         self.server.listen(backlog)
         self.inputs = [self.server]
@@ -66,8 +65,10 @@ class ScriptServer:
                     else:
                         print 'ScriptServer: %d hung up' % s.fileno()
                         s.close()
-                        self.inputs.remove(s)
-                        self.outputs.remove(s)
+                        if s in self.inputs:
+                            self.inputs.remove(s)
+                        if s in self.outputs:
+                            self.outputs.remove(s)
                 except socket.error, e:
                     print 'ScriptServer socket error'
                     self.inputs.remove(e)

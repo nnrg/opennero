@@ -9,16 +9,17 @@ namespace OpenNero
 {
 
     /// called for agent to take its first step
-    Actions SarsaBrain::start(const TimeType& time, const Sensors& new_state)
+    Actions SarsaBrain::start(const TimeType& time, const Observations& new_state)
     {
         cumulative_reward = 0;
         return TDBrain::start(time, new_state);
     }
 
     /// act based on time, sensor arrays, and last reward
-    Actions SarsaBrain::act(const TimeType& time, const Sensors& new_state, const Reward& reward)
+    Actions SarsaBrain::act(const TimeType& time, const Observations& new_state, const Reward& reward)
     {
-        cumulative_reward += reward;
+		AssertMsg(reward.size() == 1, "multi-objective rewards not supported");
+        cumulative_reward += reward[0];
         return TDBrain::act(time, new_state, reward);
     }
 
@@ -30,7 +31,7 @@ namespace OpenNero
         return TDBrain::end(time, reward);
     }
 
-    double SarsaBrain::predict(const Sensors& new_state) {
+    double SarsaBrain::predict(const Observations& new_state) {
     	return mApproximator->predict(new_state, new_action);
     }
 }

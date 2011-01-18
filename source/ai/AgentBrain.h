@@ -18,6 +18,7 @@ namespace OpenNero
 
 	/// @cond
     BOOST_PTR_DECL(AIObject);
+    BOOST_PTR_DECL(Sensor);
     /// @endcond
 
     using namespace boost;
@@ -35,7 +36,7 @@ namespace OpenNero
             
             size_t step; ///< step count
             
-            double fitness; ///< cumulative reward for the current episode
+            Reward fitness; ///< cumulative reward for the current episode
 
         public:
             /// constructor
@@ -48,10 +49,10 @@ namespace OpenNero
             virtual bool initialize(const AgentInitInfo& init) = 0;
 
             /// called for agent to take its first step
-            virtual Actions start(const TimeType& time, const Sensors& sensors) = 0;
+            virtual Actions start(const TimeType& time, const Observations& observations) = 0;
 
             /// act based on time, sensor arrays, and last reward
-            virtual Actions act(const TimeType& time, const Sensors& sensors, const Reward& reward) = 0;
+            virtual Actions act(const TimeType& time, const Observations& observations, const Reward& reward) = 0;
 
             /// called to tell agent about its last reward
             virtual bool end(const TimeType& time, const Reward& reward) = 0;
@@ -60,6 +61,8 @@ namespace OpenNero
             virtual bool destroy() = 0;
 
             /// set the body associated with this agent
+            size_t add_sensor(SensorPtr s) { return GetBody()->add_sensor(s); }
+
             virtual void SetBody(AIObjectPtr body) { mBody = body; }
 
             /// get the body associated with this agent
@@ -70,7 +73,7 @@ namespace OpenNero
     };
 
     /// shared pointer to an AgentBrain
-    typedef shared_ptr<AgentBrain> AgentBrainPtr;
+    BOOST_SHARED_DECL(AgentBrain);
 
     /// C++ interface for Python-side AgentBrain
     class PyAgentBrain : public AgentBrain, public TryWrapper<AgentBrain>
@@ -80,10 +83,10 @@ namespace OpenNero
             bool initialize(const AgentInitInfo& init);
 
             /// called for agent to take its first step
-            Actions start(const TimeType& time, const Sensors& sensors);
+            Actions start(const TimeType& time, const Observations& observations);
 
             /// act based on time, sensor arrays, and last reward
-            Actions act(const TimeType& time, const Sensors& sensors,
+            Actions act(const TimeType& time, const Observations& observations,
                         const Reward& reward);
 
             /// called to tell agent about its last reward
@@ -97,7 +100,7 @@ namespace OpenNero
     };
 
     /// shared pointer to a PyAgentBrain
-    typedef shared_ptr<PyAgentBrain> PyAgentBrainPtr;
+    BOOST_SHARED_DECL(PyAgentBrain);
 }
 
 #endif
