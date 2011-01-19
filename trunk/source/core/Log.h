@@ -64,7 +64,7 @@ namespace OpenNero
         extern void LogError( const char* type,  const char* connectionName, const char* msg );
 
         /// start up and shut down the logging system
-        extern void LogSystemInit();
+        extern void LogSystemInit( const std::string& logFileName );
         extern void LogSystemSpecifyFilters( const FilterList& flist );
         extern void LogSystemShutdown();
 

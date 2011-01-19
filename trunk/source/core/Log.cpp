@@ -143,10 +143,10 @@ namespace OpenNero
         }
 
         /// Setup the log system by adding a file log and a console log
-		void LogSystemInit()
+		void LogSystemInit( const std::string& logFileName )
 		{
             // initialize the connections
-			string log_file = Kernel::instance().findResource("nero_log.txt", false);
+			string log_file = Kernel::instance().findResource(logFileName, false);
 			cout << "LOG CREATED in " << log_file << endl;
             ILogConnectionPtr fileLog( new FileStreamConnection( "nero_file_log", log_file.c_str()) );
             ILogConnectionPtr stdioLog( new StreamLogConnection<std::ostream>( "console_log", &std::cout ) );

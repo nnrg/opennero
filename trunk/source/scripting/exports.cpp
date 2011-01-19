@@ -1074,35 +1074,6 @@ namespace OpenNero {
                 ;
         }
 
-        /// Get the current application config
-        const AppConfig& GetAppConfig()
-        {
-            return Kernel::const_instance().getAppConfig();
-        }
-
-        /// Exports AppConfig classes to Python
-        void ExportConfigScripts()
-        {            
-            py::class_<AppConfig>("AppConfig", "A configuration of the application.")
-                .def_readwrite("window_title", &AppConfig::window_title)
-                .def_readwrite("log_config_file", &AppConfig::log_config_file)
-                .def_readwrite("renderer", &AppConfig::render_type)
-                .def_readwrite("start_mod_name", &AppConfig::start_mod_name)
-                .def_readwrite("start_mod_dir", &AppConfig::start_mod_dir)
-                .def_readwrite("start_command", &AppConfig::start_command)
-                .def_readwrite("window_width", &AppConfig::window_width)
-                .def_readwrite("window_height", &AppConfig::window_height)
-                .def_readwrite("window_bpp", &AppConfig::window_BPP)
-                .def_readwrite("fullscreen", &AppConfig::full_screen)
-                .def_readwrite("use_stencil_buffer", &AppConfig::use_stencil_buffer)
-                .def_readwrite("use_vsync", &AppConfig::use_vsync)
-                .def_readwrite("seeds", &AppConfig::seeds)
-                .def(self_ns::str(self_ns::self))
-                ;
-
-            py::def("get_app_config", &GetAppConfig, return_value_policy<copy_const_reference>());
-        }
-
         /// export camera API to script
         void ExportCameraScripts()
         {
@@ -1154,7 +1125,6 @@ namespace OpenNero {
             ExportSimEntityDataScripts();
             ExportSimContextScripts();
             ExportIOMappingScripts();
-            ExportConfigScripts();
             ExportCameraScripts();
             ExportScriptingEngineScripts();
         }

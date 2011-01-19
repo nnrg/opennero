@@ -169,6 +169,8 @@ namespace OpenNero
                  
             //Extract("network_log_writer", _network_log_writer);
 
+            Exec("from OpenNero import *");
+
             _initialized = true;
 
             LOG_F_MSG("scripting", "scripting engine initialized");

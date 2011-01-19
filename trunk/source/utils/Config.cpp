@@ -8,6 +8,7 @@
 #include "utils/Config.h"
 #include "game/Kernel.h"
 #include "scripting/scripting.h"
+#include "tclap/CmdLine.h"
 #include <iostream>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -17,22 +18,105 @@ namespace OpenNero
     using namespace std;
     using namespace boost::archive;
 
-    // magic defaults
     AppConfig::AppConfig()
-        : window_title("OpenNero")
-        , log_config_file("logConfig.py")
-        , render_type("OpenGL")
-        , start_mod_name("hub")
-        , start_mod_dir("hub/")
-        , start_command()
-        , window_width(800)
-        , window_height(600)
-        , window_BPP(16)
-        , full_screen(false)
-        , use_stencil_buffer(false)
-        , use_vsync(false)
-        , seeds("12345")
-    {}
+        : Title("OpenNero")
+        , LogFile("nero_log.txt")
+        , LogConfigFile("logConfig.py")
+        , RenderType("OpenGL")
+        , StartMod("hub")
+        , StartModDir("hub/")
+        , StartCommand()
+        , Width(800)
+        , Height(600)
+        , BPP(16)
+        , FullScreen(false)
+        , StencilBuffer(false)
+        , VSync(false)
+        , RandomSeeds("12345")
+    {
+    }
+
+    
+    /// Construct from command line arguments
+    bool AppConfig::ParseCommandLine(int argc, char** argv)
+    {
+        try {
+            TCLAP::CmdLine cmd("OpenNERO (command line interface)", ' ', "1.1");
+            
+            // construct command line argument specs
+            TCLAP::ValueArg<std::string> 
+                argLogFile("", "log", "log file name to use", false, "nero_log.txt", "filename");
+            TCLAP::ValueArg<std::string> 
+                argTitle("", "title", "title for the window", false, "OpenNERO", "string");
+            TCLAP::ValueArg<std::string> 
+                argLogConfigFile("", "log_config", "log config file name to use", false, "logConfig.py", "string");
+            TCLAP::SwitchArg 
+                argHeadlessMode("", "headless", "run in headless mode without using the display");
+            TCLAP::ValueArg<std::string> 
+                argStartMod("", "mod", "OpenNERO mod to start", false, "hub", "string");
+            TCLAP::ValueArg<std::string> 
+                argStartModDir("", "modpath", "OpenNERO modpath to search for resources", false, "hub:common", "colon-separated path");
+            TCLAP::ValueArg<std::string> 
+                argStartCommand("", "command", "Python command to run on startup", false, "", "Python command");
+            TCLAP::ValueArg<int> 
+                argWidth("", "width", "Window width in pixels", false, 800, "integer");
+            TCLAP::ValueArg<int> 
+                argHeight("", "height", "Window height in pixels", false, 600, "integer");
+            TCLAP::ValueArg<int> 
+                argBPP("", "bpp", "Bitps per pixel to use", false, 16, "integer");
+            TCLAP::SwitchArg 
+                argFullScreen("", "fullscreen", "Use the full screen mode", false);
+            TCLAP::SwitchArg 
+                argStencilBuffer("", "stencil", "Use the stencil buffer", false);
+            TCLAP::SwitchArg 
+                argVSync("", "vsync", "Use VSync", false);
+            TCLAP::ValueArg<std::string> 
+                argRandomSeeds("", "random", "Random seeds to use", false, "12345", "numbers");
+            
+            // add them to CmdLine object
+            cmd.add(argLogFile);
+            cmd.add(argTitle);
+            cmd.add(argLogConfigFile);
+            cmd.add(argHeadlessMode);
+            cmd.add(argStartMod);
+            cmd.add(argStartModDir);
+            cmd.add(argStartCommand);
+            cmd.add(argWidth);
+            cmd.add(argHeight);
+            cmd.add(argBPP);
+            cmd.add(argFullScreen);
+            cmd.add(argStencilBuffer);
+            cmd.add(argVSync);
+            cmd.add(argRandomSeeds);
+                
+            // parse the command line
+            cmd.parse( argc, argv );
+        
+            // set the values
+            Title = argTitle.getValue();
+            LogFile = argLogFile.getValue();
+            LogConfigFile = argLogConfigFile.getValue();
+            if (argHeadlessMode.getValue()) {
+                RenderType = "null";
+            }
+            StartMod = argStartMod.getValue();
+            StartModDir = argStartModDir.getValue();
+            StartCommand = argStartCommand.getValue();
+            Width = argWidth.getValue();
+            Height = argHeight.getValue();
+            BPP = argBPP.getValue();
+            FullScreen = argFullScreen.getValue();
+            StencilBuffer = argStencilBuffer.getValue();
+            VSync = argVSync.getValue();
+            RandomSeeds = argRandomSeeds.getValue();
+
+            return true;
+        } catch (TCLAP::ArgException& e) {
+            std::cerr << "error: " << e.error() << " for arg " << e.argId() << std::endl;
+            return false;
+        }
+       
+    }
 
     /// output AppConfig to stream
     ostream& operator<<(ostream& output, const AppConfig& config)
@@ -40,25 +124,6 @@ namespace OpenNero
         xml_oarchive out_archive(output);
         out_archive << BOOST_SERIALIZATION_NVP(config);
         return output;
-    }
-
-    AppConfig ReadAppConfig( int argc, char** argv, const string& appConfigFile )
-    {
-        AppConfig appConfig;
-
-        if( OpenNero::FileExists(appConfigFile) )
-        {
-            // Note: This should be run before the scripting engine is setup for the game
-            ScriptingEngine& se = ScriptingEngine::instance();
-            se.init(argc, argv);
-            if( se.ExecFile(appConfigFile) )
-            {
-                // get the app config defined in the file
-                se.Extract<AppConfig>("app_config", appConfig);
-            }
-        }
-
-        return appConfig;
     }
 
     /// specify the receivers that the logger should consider
