@@ -8,6 +8,6 @@ cd $SCRIPT_DIR
 
 # start child process
 export RUN=${RUN}
-./OpenNERO --log opennero_condor_${RUN}.log --mod Blocksworld --modpath Blocksworld:common --headless > /dev/null &
+./OpenNERO --log opennero_condor_${RUN}.log --mod Blocksworld --modpath Blocksworld:common --headless
 OPENNERO_PID=$!
 echo STARTED OpenNERO with PID $OPENNERO_PID
