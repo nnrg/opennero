@@ -18,7 +18,7 @@ end
 $numRuns = ARGV[0].to_i 
 $script = ARGV[1]
 
-# ---------------------------------------
+#  ---------------------------------------
 
 def run_on_condor(run, script) 
   condorContents = <<END_OF_CONDORFILE;
@@ -26,16 +26,16 @@ def run_on_condor(run, script)
 Executable = #{$script}
 Universe = vanilla
 #Environment = PATH=/lusr/bin:/bin:/usr/bin;
-Requirements = Lucid
+Requirements = Lucid && Arch == "X86_64"
 
-+Group = "GRAD"
++Group = "UNDER"
 +Project = "AI_OPENNERO"
-+ProjectDescription = "opennero testing"
++ProjectDescription = "opennero-shaping evaluation"
 
 Input = /dev/null
 
 END_OF_CONDORFILE
-  
+   
   condorContents = condorContents + "\n"
   
   condorContents = condorContents +

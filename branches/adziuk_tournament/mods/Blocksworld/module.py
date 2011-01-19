@@ -20,7 +20,7 @@ class BlocksworldModule:
         self.agent_id = None
         self.agent_map = {}
         self.weights = Fitness()
-        self.lt = 1#150 * 8
+        self.lt = 150 * 8
         self.dta = 50
         self.dtb = 50
         self.dtc = 50
@@ -40,13 +40,13 @@ class BlocksworldModule:
         self.team_1_average = 0.0
         self.team_2_average = 0.0
         self.preprefix = "../"
-        self.prefix = ["rules_10/"]#["control_a/","control_b/","control_c/","control_d/","control_e/","control_f/","control_g/","control_h/","control_i/","control_j/"]
+        self.prefix = ["rules_10/","rules_11/","rules_12/","rules_13/","rules_14/","rules_15/","rules_16/","rules_17/","rules_18/","rules_19/","altalt_0/","altalt_1/","altalt_2/","altalt_3/","altalt_4/","altalt_5/","altalt_6/","altalt_7/","altalt_8/","altalt_9/","altdyn_0/","altdyn_1/","altdyn_2/","altdyn_3/","altdyn_4/","altdyn_5/","altdyn_6/","altdyn_7/","altdyn_8/","altdyn_9/","fitdyn_0/","fitdyn_1/","fitdyn_2/","fitdyn_3/","fitdyn_4/","fitdyn_5/","fitdyn_6/","fitdyn_7/","fitdyn_8/","fitdyn_9/"]#["control_a/","control_b/","control_c/","control_d/","control_e/","control_f/","control_g/","control_h/","contr_i/","control_j/"]
         self.team_1_loc = ""
         self.team_2_loc = ""
-        self.team_locs = ["pop_1_20.gnm","pop_1_40.gnm","pop_1_60.gnm","pop_1_80.gnm","pop_1_100.gnm"]
+        self.team_locs = ["pop_1_10.gnm","pop_1_20.gnm","pop_1_30.gnm","pop_1_40.gnm","pop_1_50.gnm","pop_1_60.gnm","pop_1_70.gnm","pop_1_80.gnm","pop_1_90.gnm","pop_1_100.gnm"]
         self.run_number = 0
-	self.run_set = False
-	#self.team_1_li = 0
+    	self.run_set = False
+    	#self.team_1_li = 0
         #self.team_2_li = 0
         #self.prenum = 0
 
@@ -147,13 +147,13 @@ class BlocksworldModule:
         set_ai("neat1",rtneat)
         set_ai("neat2", rtneat2)
 		
-	rn = getMod().run_number
-	lt = len(getMod().team_locs) #length of teams folder
-	lt = len(getMod().team_locs) #length of teams folder
-	ld = len(getMod().prefix) #length of not teams folder
-	prenum = rn / (lt*lt)
-	team_2_li = (rn - prenum*lt*lt)/lt
-	team_1_li = rn-prenum*lt*lt-team_2_li*lt
+    	rn = getMod().run_number
+    	lt = len(getMod().team_locs) #length of teams folder
+    	lt = len(getMod().team_locs) #length of teams folder
+    	ld = len(getMod().prefix) #length of not teams folder
+    	prenum = rn / (lt*lt)
+    	team_2_li = (rn - prenum*lt*lt)/lt
+    	team_1_li = rn-prenum*lt*lt-team_2_li*lt
         
         self.load_rtneat(self.preprefix + self.prefix[prenum] + self.team_locs[team_1_li],1)
         self.load_rtneat(self.preprefix + self.prefix[prenum] + self.team_locs[team_2_li],2)
@@ -190,18 +190,20 @@ class BlocksworldModule:
         global rtneat, rtneat2
         #location = os.path.relpath("/") + location_orig
         location = os.path.relpath(location_orig)
-	print "CURRENT LOCATION: ", os.getcwd()
+    	print "CURRENT LOCATION: ", os.getcwd()
         print "LOADING FOR POP", pop, " LOCATION:", location
         if os.path.exists(location):
             if pop == 1: 
                 rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)    
                 #self.team_1_loc = str(location_orig)
                 set_ai("neat1",rtneat)
+                print "successful load"
             if pop == 2:
                 rtneat2= RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)
                 #self.team_2_loc = str(location_orig)
                 set_ai("neat2",rtneat2)
-	else: print "WARNING PATH DOES NOT EXIST"
+                print "successful load"
+    	else: print "WARNING PATH DOES NOT EXIST"
         
 
     def set_speedup(self, speedup):
