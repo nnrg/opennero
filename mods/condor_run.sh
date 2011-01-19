@@ -6,10 +6,8 @@ SCRIPT_DIR=`dirname $SCRIPT`
 RUN=$1
 cd $SCRIPT_DIR
 
-set
-
 # start child process
-./OpenNERO --mod=Maze --mod-path=Maze:common --command="StartMe()" --no-window > /dev/null &
+./OpenNERO --log opennero_condor_${RUN}.log --mod Maze --modpath Maze:common --headless --command "StartMe()" > /dev/null &
 OPENNERO_PID=$!
 echo STARTED OpenNERO with PID $OPENNERO_PID
 

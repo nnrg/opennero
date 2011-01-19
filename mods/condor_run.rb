@@ -39,9 +39,9 @@ END_OF_CONDORFILE
   condorContents = condorContents + "\n"
   
   condorContents = condorContents +
-    "Error = error.txt\n" +
-    "Output = output.txt\n" +
-    "Log = log.txt\n"
+    "Error = error_#{run}.txt\n" +
+    "Output = output_#{run}.txt\n" +
+    "Log = log_#{run}.txt\n"
   
   condorContents = condorContents + "arguments = #{run}\n" +
     "Queue 1";
