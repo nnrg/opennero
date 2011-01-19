@@ -19,5 +19,5 @@ def ignore(type):
 
 # component section filters
 #ignore('ai')
-#ignore('audio')
 ignore('game')
+ignore('ai.tick')
