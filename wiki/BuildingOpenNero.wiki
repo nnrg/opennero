@@ -16,6 +16,8 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The
 == Prerequisites == 
  * Download and install [http://www.cmake.org/cmake/resources/software.html cmake]
  * Install [http://developer.apple.com/tools/xcode/ Xcode] (optional install on the Mac OS X DVD)
+ * Install [http://www.wxpython.org/download.php wxPython]
+ * Build and install [http://www.boost.org/doc/libs/release/more/getting_started/unix-variants.html Boost Libraries]
 
 == Steps to build ==
  # (recommended) create a new directory for your build
@@ -28,8 +30,8 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The
 == Prerequisites ==
  * [http://www.cmake.org/cmake/resources/software.html cmake]
  * [http://www.microsoft.com/visualstudio/ Microsoft Visual Studio]
- * [http://www.boostpro.com/download/ Boost libraries] (install a binary version of all the libraries for your version of Visual Studio)
- * [http://www.python.org/download/releases/2.6.5/ Latest Python 2.x with source]
+ * [http://www.boostpro.com/download/ Boost libraries] (install a binary version of all the libraries for your version of Visual Studio) or [http://www.boost.org/doc/libs/release/more/getting_started/windows.html build and install Boost]
+ * [http://www.python.org/download/releases/2.6.6/ Latest Python 2.6.x with source]
  * [http://www.wxpython.org/download.php wxPython]
 
 == Steps to build ==
