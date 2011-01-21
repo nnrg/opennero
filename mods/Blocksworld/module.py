@@ -40,10 +40,14 @@ class BlocksworldModule:
         self.team_1_average = 0.0
         self.team_2_average = 0.0
         self.preprefix = "../"
-        self.prefix = ["rules_10/","rules_11/","rules_12/","rules_13/","rules_14/","rules_15/","rules_16/","rules_17/","rules_18/","rules_19/","altalt_0/","altalt_1/","altalt_2/","altalt_3/","altalt_4/","altalt_5/","altalt_6/","altalt_7/","altalt_8/","altalt_9/","altdyn_0/","altdyn_1/","altdyn_2/","altdyn_3/","altdyn_4/","altdyn_5/","altdyn_6/","altdyn_7/","altdyn_8/","altdyn_9/","fitdyn_0/","fitdyn_1/","fitdyn_2/","fitdyn_3/","fitdyn_4/","fitdyn_5/","fitdyn_6/","fitdyn_7/","fitdyn_8/","fitdyn_9/"]#["control_a/","control_b/","control_c/","control_d/","control_e/","control_f/","control_g/","control_h/","contr_i/","control_j/"]
+        self.prefix = ["top_results/"]
+        #self.prefix = ["altdynb_0/","altdynb_1/","altdynb_2/","altdynb_3/","altdynb_4/","altdynb_5/","altdynb_6/","altdynb_7/","altdynb_8/","altdynb_9/"]
+        #self.prefix = ["rules_10/","rules_11/","rules_12/","rules_13/","rules_14/","rules_15/","rules_16/","rules_17/","rules_18/","rules_19/","altalt_0/","altalt_1/","altalt_2/","altalt_3/","altalt_4/","altalt_5/","altalt_6/","altalt_7/","altalt_8/","altalt_9/","altdyn_0/","altdyn_1/","altdyn_2/","altdyn_3/","altdyn_4/","altdyn_5/","altdyn_6/","altdyn_7/","altdyn_8/","altdyn_9/","fitdyn_0/","fitdyn_1/","fitdyn_2/","fitdyn_3/","fitdyn_4/","fitdyn_5/","fitdyn_6/","fitdyn_7/","fitdyn_8/","fitdyn_9/"]#["control_a/","control_b/","control_c/","control_d/","control_e/","control_f/","control_g/","control_h/","contr_i/","control_j/"]
         self.team_1_loc = ""
         self.team_2_loc = ""
-        self.team_locs = ["pop_1_10.gnm","pop_1_20.gnm","pop_1_30.gnm","pop_1_40.gnm","pop_1_50.gnm","pop_1_60.gnm","pop_1_70.gnm","pop_1_80.gnm","pop_1_90.gnm","pop_1_100.gnm"]
+        #self.team_locs = ["a_0.gnm","a_1.gnm","a_2.gnm","a_3.gnm","a_4.gnm","a_5.gnm","a_6.gnm","a_7.gnm","a_8.gnm","a_9.gnm","b_0.gnm","b_1.gnm","b_2.gnm","b_3.gnm","b_4.gnm","b_5.gnm","b_6.gnm","b_7.gnm","b_8.gnm","b_9.gnm","c_0.gnm","c_1.gnm","c_2.gnm","c_3.gnm","c_4.gnm","c_5.gnm","c_6.gnm","c_7.gnm","c_8.gnm","c_9.gnm"]
+        #self.team_locs = ["pop_1_10.gnm","pop_1_20.gnm","pop_1_30.gnm","pop_1_40.gnm","pop_1_50.gnm","pop_1_60.gnm","pop_1_70.gnm","pop_1_80.gnm","pop_1_90.gnm","pop_1_100.gnm"]
+        self.team_locs = ["altalt_0.gnm","altalt_1.gnm","altalt_2.gnm","altalt_3.gnm","altalt_4.gnm","altalt_5.gnm","altalt_6.gnm","altalt_7.gnm","altalt_8.gnm","altalt_9.gnm","altdyn_0.gnm","altdyn_1.gnm","altdyn_2.gnm","altdyn_3.gnm","altdyn_4.gnm","altdyn_5.gnm","altdyn_6.gnm","altdyn_7.gnm","altdyn_8.gnm","altdyn_9.gnm","altfit_0.gnm","altfit_1.gnm","altfit_2.gnm","altfit_3.gnm","altfit_4.gnm","altfit_5.gnm","altfit_6.gnm","altfit_7.gnm","altfit_8.gnm","altfit_9.gnm","dynfit_0.gnm","dynfit_1.gnm","dynfit_2.gnm","dynfit_3.gnm","dynfit_4.gnm","dynfit_5.gnm","dynfit_6.gnm","dynfit_7.gnm","dynfit_8.gnm","dynfit_9.gnm","control_0.gnm","control_1.gnm","control_2.gnm","control_3.gnm","control_4.gnm","control_5.gnm","control_6.gnm","control_7.gnm","control_8.gnm","control_9.gnm","rules_0.gnm","rules_1.gnm","rules_2.gnm","rules_3.gnm","rules_4.gnm","rules_5.gnm","rules_6.gnm","rules_7.gnm","rules_8.gnm","rules_9.gnm"]
         self.run_number = 0
     	self.run_set = False
     	#self.team_1_li = 0
