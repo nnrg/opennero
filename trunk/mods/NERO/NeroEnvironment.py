@@ -67,6 +67,10 @@ class NeroEnvironment(Environment):
         # Flag sensors
         for fs in FLAG_SENSORS:
             sbound.add_continuous(0,1)
+            
+        # rewards
+        # our rewards are Z-scores, and so they could in theory be large
+        rbound.add_continuous(-100,100) # range for reward
         
         self.agent_info = AgentInitInfo(sbound, abound, rbound)
     

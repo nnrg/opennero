@@ -16,7 +16,8 @@ class RTNEATAgent(AgentBrain):
         """
         Create an agent brain
         """
-        # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
+        # this line is crucial, otherwise the class is not recognized as an 
+        # AgentBrainPtr by C++
         AgentBrain.__init__(self)
 
     def initialize(self, init_info):
@@ -47,14 +48,12 @@ class RTNEATAgent(AgentBrain):
             self.file_out.append(str(gettime()))
             self.file_out.append(",")
         self.net = self.org.net
-        self.reward = 0
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
         """
         a state transition
         """
-        self.reward += reward # store reward        
         # return action
         return self.network_action(sensors)
 
@@ -65,11 +64,10 @@ class RTNEATAgent(AgentBrain):
         if FITNESS_OUT:
             self.file_out.append(str(gettime()))
             self.file_out.append(",")
-        self.reward += reward # store reward
-        self.org.fitness = self.reward # assign organism fitness for evolution
+        self.org.fitness = self.fitness[0] # assign organism fitness for evolution
         self.org.time_alive += 1
         if FITNESS_OUT:
-            self.file_out.append(str(self.reward))
+            self.file_out.append(str(self.fitness[0]))
             self.file_out.append('\n')
             strn = "".join(self.file_out)
             f = open('output.out','a')

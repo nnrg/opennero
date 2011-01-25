@@ -87,6 +87,8 @@ namespace OpenNero
     
     void AIObject::setReward(Reward reward)
     {
+        Assert(getBrain());
+        AssertMsg(getBrain()->fitness.size() == reward.size(), "AgentBrain fitness and reward dimensions must match");
         mReward = reward;
 		for (size_t i = 0; i < reward.size(); ++i)
 		{
