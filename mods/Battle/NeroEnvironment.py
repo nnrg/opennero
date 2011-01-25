@@ -120,8 +120,9 @@ class NeroEnvironment(Environment):
         #sbound.add_continuous(0, self.MAX_DIST) # Enemy Sensors - Dist
         #sbound.add_continuous(-1 * pi * 2, pi * 2) # Enemy Sensors - Heading
         
-        #rewards
-#        rbound.add_continuous(-100,100) # range for reward
+        # rewards
+        # our rewards are Z-scores, and so they could in theory be large
+        rbound.add_continuous(-100,100) # range for reward
         
         self.agent_info = AgentInitInfo(sbound, abound, rbound)
     
