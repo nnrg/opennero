@@ -40,7 +40,6 @@ class RoombaBrain(AgentBrain):
         self.action_sq = Queue()
 
         self.step_count = 0
-        self.reward = 0
 
         return True
 
@@ -94,7 +93,6 @@ class RoombaBrain(AgentBrain):
                     target = crumb
 
             # book-keeping
-            self.reward = self.reward + reward
             self.step_count += 1
 
             # go to target
@@ -132,7 +130,6 @@ class RoombaBrain(AgentBrain):
         """
         take in final reward
         """
-        self.reward += reward
         return True
 
     def destroy(self):

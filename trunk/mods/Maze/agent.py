@@ -62,7 +62,7 @@ class RandomAgent(AgentBrain):
         """
         receive the reward for the last observation
         """
-        print  "Final reward: %f, cumulative: %f" % (reward, self.fitness)
+        print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
         return True
 
     def destroy(self):
@@ -163,7 +163,7 @@ class DFSSearchAgent(SearchAgent):
         return self.dfs_action(sensors)
 
     def end(self, time, reward):
-        print  "Final reward: %f, cumulative: %f" % (reward, self.fitness)
+        print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
         self.highlight_path()
         self.reset()
         return True
@@ -301,7 +301,7 @@ class AStarSearchAgent(SearchAgent):
         """
         at the end of an episode, the environment tells us the final reward
         """
-        print  "Final reward: %f, cumulative: %f" % (reward, self.fitness)
+        print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
         self.reset()
         return True
 
@@ -481,10 +481,10 @@ class RTNEATAgent(AgentBrain):
         """
         end of an episode
         """
-        self.org.fitness = self.fitness # assign organism fitness for evolution
+        self.org.fitness = self.fitness[0] # assign organism fitness for evolution
         self.org.time_alive += 1
         #assert(self.org.fitness >= 0) # we have to have a non-negative fitness for rtNEAT to work
-        print  "Final reward: %f, cumulative: %f" % (reward, self.fitness)
+        print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
         return True
         
     def destroy(self):

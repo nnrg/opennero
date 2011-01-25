@@ -30,7 +30,6 @@ class RTNEATAgent(AgentBrain):
         global rtneat
         self.org = rtneat.next_organism(0.5)
         self.net = self.org.net
-        self.reward = 0
         sensors = self.sensors.normalize(sensors)
         return self.network_action(sensors)
 
@@ -38,17 +37,15 @@ class RTNEATAgent(AgentBrain):
         """
         a state transition
         """
-	if reward >= 1:
-	    self.reward += reward # store reward
-        sensors = self.sensors.normalize(sensors)
+        if reward >= 1:
+            sensors = self.sensors.normalize(sensors)
         return self.network_action(sensors)
 
     def end(self, time, reward):
         """
         end of an episode
         """
-        self.reward += reward # store reward
-        self.org.fitness = self.reward # assign organism fitness for evolution
+        self.org.fitness = self.fitness[0] # assign organism fitness for evolution
         self.org.time_alive += 1
         return True
 
