@@ -50,7 +50,8 @@ namespace OpenNero
         AssertMsg(mOffspringCount == population_size, "population has " << mOffspringCount << " organisms instead of " << population_size);
         for (size_t i = 0; i < mPopulation->organisms.size(); ++i)
         {
-            mWaitingBrainList.push(new PyOrganism(mPopulation->organisms[i]));
+			PyOrganismPtr brain(new PyOrganism(mPopulation->organisms[i]));
+            mWaitingBrainList.push(brain);
         }
     }
 
@@ -76,7 +77,8 @@ namespace OpenNero
         AssertMsg(mOffspringCount == population_size, "population has " << mOffspringCount << " organisms instead of " << population_size);
         for (size_t i = 0; i < mPopulation->organisms.size(); ++i)
         {
-            mWaitingBrainList.push(new PyOrganism(mPopulation->organisms[i]));
+			PyOrganismPtr brain(new PyOrganism(mPopulation->organisms[i]));
+            mWaitingBrainList.push(brain);
         }
     }
     
@@ -97,9 +99,9 @@ namespace OpenNero
         }
         else
         {
-            PyOrganismPtr org(new PyOrganism(mEvalQueue.front()));
-            mAgentsToOrganisms[agent] = org;
-            return org;
+            PyOrganismPtr brain(new PyOrganism(mWaitingBrainList.front()));
+            mAgentsToOrganisms[agent] = brain;
+            return brain;
         }
 
     }
@@ -254,17 +256,16 @@ namespace OpenNero
     void RTNEAT::evolveAll()
     {
         // Remove the worst organism
-        //NEAT::Organism *deadorg = m_Population->remove_worst_probabilistic();
-        NEAT::Organism *deadorg = m_Population->remove_worst();
+        OrganismPtr deadorg = mPopulation->remove_worst();
 
         //We can try to keep the number of species constant at this number
         S32 num_species_target=4;
-        S32 compat_adjust_frequency = m_BrainList.size()/10;
+        S32 compat_adjust_frequency = mBrainList.size()/10;
         if (compat_adjust_frequency < 1)
             compat_adjust_frequency = 1;
 
-        Vector<NEAT::Organism*>::iterator curorg;
-        NEAT::Species *new_species;
+        vector<PyOrganismPtr>::iterator curorg;
+        SpeciesPtr new_species;
 
         // Sometimes, if all organisms are beneath the minimum "time alive" threshold, no organism will be removed
         // If an organism *was* actually removed, then we can proceed with replacing it via the evolutionary process
@@ -272,7 +273,7 @@ namespace OpenNero
             NEAT::Organism *new_org = 0;
 
             // Estimate all species' fitnesses
-            for (Vector<NEAT::Species*>::iterator curspec = (m_Population->species).begin(); curspec != (m_Population->species).end(); ++curspec) {
+            for (vector<SpeciesPtr>::iterator curspec = (mPopulation->species).begin(); curspec != (mPopulation->species).end(); ++curspec) {
                 (*curspec)->estimate_average();
 
                 // Calculate an average based upon the actual scores (not the adjusted, non-negative scores that are
@@ -280,13 +281,13 @@ namespace OpenNero
                 // evaluation to evaluation
                 F32 scoreavg = 0;
                 S32 samplesize = 0;
-                Vector<NEAT::Organism*>::iterator curorg = m_Population->organisms.begin();
-                for ( ; curorg != m_Population->organisms.end(); ++curorg) {
+                vector<OrganismPtr>::iterator curorg = mPopulation->organisms.begin();
+                for ( ; curorg != mPopulation->organisms.end(); ++curorg) {
                     if ((*curorg)->species == (*curspec)) {
-                        Vector<NEROBrain*>::iterator curbrain = m_BrainList.begin();
-                        for ( ; curbrain != m_BrainList.end(); ++curbrain) {
-                            if ( (*curbrain)->m_Organism == (*curorg) && (*curbrain)->m_Organism->time_alive >= NEAT::time_alive_minimum) {
-                                scoreavg += (*curbrain)->m_AbsoluteScore;
+                        vector<PyOrganismPtr>::iterator curbrain = mBrainList.begin();
+                        for ( ; curbrain != mBrainList.end(); ++curbrain) {
+                            if ( (*curbrain)->GetOrganism() == (*curorg) && (*curbrain)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
+                                scoreavg += (*curbrain)->mAbsoluteScore;
                                 ++samplesize;                            
                             }
                         }
@@ -295,16 +296,16 @@ namespace OpenNero
                 if (samplesize > 0)
                     scoreavg /= (F32)samplesize;
 
-                if( s_ConsoleDebug )
-                    Con::printf("Species %d   size: %d   elig. size: %d   avg. score: %f", (*curspec)->id, (*curspec)->organisms.size(), samplesize, scoreavg);  //PFHACK
+                LOG_F_DEBUG("ai", "Species " << (*curspec)->id << 
+					              " size: " << (*curspec)->organisms.size() << 
+								  " elig. size: " << samplesize <<
+								  " avg. score: " << scoreavg);
             }
-            //Con::printf("--------------------");  //PFHACK
 
             // Print out info about the organism that was killed off
-            for (Vector<NEROBrain*>::iterator iter = m_BrainList.begin(); iter != m_BrainList.end(); ++iter) {
-                if ((*iter)->m_Organism == deadorg) {
-                    if( s_ConsoleDebug )
-                        Con::printf("Org to kill: score = %f", (*iter)->m_AbsoluteScore);
+            for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
+                if ((*iter)->GetOrganism() == deadorg) {
+                    LOG_F_DEBUG("ai", "Org to kill: score = " << (*iter)->m_AbsoluteScore);
                     break;
                 }
             }
@@ -313,18 +314,15 @@ namespace OpenNero
             if(Platform::getRandom()<=s_MilestoneProbability && !m_Population->memory_pool->isEmpty())// && meets probability requirement)
                 {
                     // Reproduce an organism with the same traits as the "memory pool".
-                    Con::printf("Using the Memory Pool");
                     new_org = (m_Population->memory_pool)->reproduce_one(m_OffspringCount, m_Population, m_Population->species);
                 }
             else
                 // Reproduce a single new organism to replace the one killed off.
                 new_org = (m_Population->choose_parent_species())->reproduce_one(m_OffspringCount,m_Population,m_Population->species, 0,0);
-            ++m_OffspringCount;
-
-            //Con::printf("Compat threshold: %f",NEAT::compat_threshold);
+            ++mOffspringCount;
 
             //Every m_BrainList.size() reproductions, reassign the population to new species
-            if (m_OffspringCount % compat_adjust_frequency == 0) {
+            if (mOffspringCount % compat_adjust_frequency == 0) {
 
                 S32 num_species = m_Population->species.size();
                 F64 compat_mod=0.1;  //Modify compat thresh to control speciation
@@ -339,18 +337,18 @@ namespace OpenNero
                     NEAT::compat_threshold = 0.3;
 
                 //Go through entire population, reassigning organisms to new species
-                for (curorg = (m_Population->organisms).begin(); curorg != (m_Population->organisms).end(); ++curorg) {
-                    m_Population->reassign_species(*curorg);
+                for (curorg = mPopulation->organisms.begin(); curorg != mPopulation->organisms.end(); ++curorg) {
+                    mPopulation->reassign_species(*curorg);
                 }
             }
 
             // Iterate through all of the Brains, find the one whose Organism was killed off, and link that Brain
             // to the newly created Organism, effectively doing a "hot swap" of the Organisms in that Brain.  
-            for (Vector<NEROBrain*>::iterator iter = m_BrainList.begin(); iter != m_BrainList.end(); ++iter) {
-                if ((*iter)->m_Organism == deadorg) {
-                    (*iter)->m_Organism = new_org;
+            for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
+                if ((*iter)->GetOrganism() == deadorg) {
+                    (*iter)->SetOrganism(new_org);
                     (*iter)->m_Stats.resetAll();
-                    for (Vector<NEROBody*>::iterator iter2 = m_BodyList.begin(); iter2 != m_BodyList.end(); ++iter2) {
+                    for (vector<NEROBody*>::iterator iter2 = mBodyList.begin(); iter2 != mBodyList.end(); ++iter2) {
                         if ((*iter2)->getBrain() == (*iter)) {
                             deleteUnit(*iter2);
                             break;

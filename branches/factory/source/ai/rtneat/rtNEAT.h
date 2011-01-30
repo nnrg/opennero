@@ -56,7 +56,7 @@ namespace OpenNero
         ~RTNEAT();
         
         /// are we ready to spawn a new organism?
-        bool ready() { return !mEvalQueue.empty(); }
+        bool ready() { return !mWaitingBrainList.empty(); }
         
         /// get the organism currently assigned to the agent
         PyOrganismPtr get_organism(AgentBrainPtr agent);
