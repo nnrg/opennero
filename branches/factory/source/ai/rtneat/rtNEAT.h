@@ -125,7 +125,9 @@ namespace OpenNero
     {
         OrganismPtr mOrganism;
     public:
-        /// constructor for a PyOrganism
+		F32 mAbsoluteScore;
+
+		/// constructor for a PyOrganism
         PyOrganism(OrganismPtr org) : mOrganism(org) {}
         /// set the fitness of the organism
         void SetFitness(double fitness) { 

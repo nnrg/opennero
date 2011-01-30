@@ -136,8 +136,40 @@ namespace OpenNero
     
     void RTNEAT::ProcessTick( float32_t incAmt )
     {
-        
-    }
+		// Increment the spawn tick and evolution tick counters
+		++mSpawnTickCount;
+		++mEvolutionTickCount;
+
+		// Iterate through the active bodies in the field, removing those which have exceeded the time limit.
+		for (vector<NEROBody*>::iterator iter = m_BodyList.begin(); iter != m_BodyList.end(); ++iter) {
+			if ( (*iter)->GetTimeLimitCounter() >= s_UnitTimeLimit ) {
+				deleteUnit(*iter);
+				--iter;
+			}
+		}
+
+		// Every m_SpawnFrequency game ticks, we should spawn a new unit from the factory, provided that we
+		// haven't already spawned the maximum number of units.
+		if ( mSpawnTickCount >= mSpawnFrequency  &&  mBodyList.size() < mBrainList.size() ) { // <-- for now, max number of units is m_BrainList.size()
+			if (spawnUnit())
+				mSpawnTickCount = 0;
+		}
+
+		// Check to see if evolution has been activated
+		if (mEvolutionActive) {
+			// Evaluate all brains' scores
+			evaluateAll();
+
+			// If the total number of units spawned so far exceeds the threshold value AND enough
+			// ticks have passed since the last evolution, then a new evolution may commence.
+			if (mTotalUnitsDeleted >= mUnitsToDeleteBeforeFirstJudgment  &&  mEvolutionTickCount >= mTimeBetweenEvolutions) {
+
+				//Judgment day!
+				evolveAll();
+				mEvolutionTickCount = 0;
+			}
+		}
+	}
     
     void RTNEAT::evaluateAll()
     {
@@ -305,7 +337,7 @@ namespace OpenNero
             // Print out info about the organism that was killed off
             for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
                 if ((*iter)->GetOrganism() == deadorg) {
-                    LOG_F_DEBUG("ai", "Org to kill: score = " << (*iter)->m_AbsoluteScore);
+                    LOG_F_DEBUG("ai", "Org to kill: score = " << (*iter)->mAbsoluteScore);
                     break;
                 }
             }
