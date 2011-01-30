@@ -29,11 +29,12 @@ namespace OpenNero
     typedef queue<OrganismPtr> OrganismQueue;
     
     typedef map<AgentBrainPtr, PyOrganismPtr> AgentToOrganismMap;
-
+    
     /// An interface for the RTNEAT learning algorithm
     class RTNEAT : public AI {
         PopulationPtr mPopulation;        ///< population of organisms on the field
-        OrganismQueue mEvalQueue;         ///< queue of organisms to be evaluated
+        queue<OrganismPtr> mEvalQueue;    ///< queue of organisms to be evaluated
+        vector<RTNEATBrainPtr> mOrganisms;   ///< all the org
         AgentToOrganismMap mAgentsToOrganisms; ///< map from agents to organisms
         size_t mOffspringCount;           ///< number of reproductions so far
     public:
@@ -66,6 +67,8 @@ namespace OpenNero
         void evaluateAll();
         
         void evolveAll();
+        
+        virtual void ProcessTick( float32_t incAmt );
 
         /// save the current population to a file
         bool save_population(const std::string& population_file);

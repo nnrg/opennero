@@ -181,6 +181,8 @@ namespace OpenNero {
     public:
         virtual ~AI() {}
 
+        /// update our entity base on our object access mode
+        virtual void ProcessTick( float32_t incAmt ) = 0;
     };
 
 }
