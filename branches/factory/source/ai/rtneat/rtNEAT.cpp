@@ -37,7 +37,8 @@ namespace OpenNero
     /// @param population_size size of the population to construct
     RTNEAT::RTNEAT(const std::string& filename, const std::string& param_file, size_t population_size)
         : mPopulation()
-        , mEvalQueue()
+        , mWaitingBrainList()
+		, mBrainList()
         , mOffspringCount(0)
     {
         NEAT::load_neat_params(Kernel::findResource(param_file));
@@ -49,7 +50,7 @@ namespace OpenNero
         AssertMsg(mOffspringCount == population_size, "population has " << mOffspringCount << " organisms instead of " << population_size);
         for (size_t i = 0; i < mPopulation->organisms.size(); ++i)
         {
-            mEvalQueue.push(mPopulation->organisms[i]);
+            mWaitingBrainList.push(new PyOrganism(mPopulation->organisms[i]));
         }
     }
 
@@ -61,7 +62,8 @@ namespace OpenNero
     /// @param noise variance of the Gaussian used to assign initial weights
     RTNEAT::RTNEAT(const std::string& param_file, size_t inputs, size_t outputs, size_t population_size, F32 noise)
         : mPopulation()
-        , mEvalQueue()
+        , mWaitingBrainList()
+		, mBrainList()
         , mOffspringCount(0)
     {
         NEAT::load_neat_params(Kernel::findResource(param_file));
@@ -74,26 +76,10 @@ namespace OpenNero
         AssertMsg(mOffspringCount == population_size, "population has " << mOffspringCount << " organisms instead of " << population_size);
         for (size_t i = 0; i < mPopulation->organisms.size(); ++i)
         {
-            mEvalQueue.push(mPopulation->organisms[i]);
+            mWaitingBrainList.push(new PyOrganism(mPopulation->organisms[i]));
         }
     }
     
-    boost::python::list RTNEAT::get_population_ids()
-    {
-        boost::python::list result;
-        vector<OrganismPtr>::iterator org_iter;
-        for (org_iter = mPopulation->organisms.begin(); 
-             org_iter != mPopulation->organisms.end(); 
-             ++org_iter) {
-            if ((*org_iter)->time_alive > 0)
-            {
-                result.append((*org_iter)->gnome->genome_id);
-            }
-            mPopulation->reassign_species(*org_iter);
-        }
-        return result;
-    }
-
     /// Destructor
     RTNEAT::~RTNEAT()
     {
@@ -124,7 +110,7 @@ namespace OpenNero
         AgentToOrganismMap::const_iterator found;
         found = mAgentsToOrganisms.find(agent);
         Assert(found != mAgentsToOrganisms.end());
-        mEvalQueue.push(found->second->GetOrganism());
+        mWaitingBrainList.push(found->second);
     }
 
     /// save a population to a file
@@ -154,37 +140,37 @@ namespace OpenNero
     void RTNEAT::evaluateAll()
     {
         // Zero out the score helper
-        m_ScoreHelper->reset();
+        mScoreHelper->reset();
 
-        for (Vector<NEROBrain*>::iterator iter = m_BrainList.begin(); iter != m_BrainList.end(); ++iter) {
-            if ((*iter)->m_Organism->time_alive >= NEAT::time_alive_minimum) {
-                if ( (!((*iter)->m_Organism->time_alive % NEAT::time_alive_minimum)) && (*iter)->m_Organism->time_alive > 0 ) {
+        for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
+            if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
+                if ( (!((*iter)->GetOrganism()->time_alive % NEAT::time_alive_minimum)) && (*iter)->GetOrganism()->time_alive > 0 ) {
 
                     //temp hack. evaluateBrains() is called
                     //more often than NeroBrain::think for some reason
-                    (*iter)->m_Organism->time_alive++; 												   
+                    (*iter)->GetOrganism()->time_alive++; 												   
                     (*iter)->m_Stats.startNextTrial();
                 }
-                m_ScoreHelper->addAccuracyOfShotsSample((*iter)->m_Stats.getAccuracyOfShots());
-                m_ScoreHelper->addEnemyHitsSample((*iter)->m_Stats.getEnemyHits());
-                m_ScoreHelper->addFriendHitsSample((*iter)->m_Stats.getFriendHits());
-                m_ScoreHelper->addHitsTakenSample((*iter)->m_Stats.getHitsTaken());
-                m_ScoreHelper->addWeaponFiresSample((*iter)->m_Stats.getWeaponFires());
-                m_ScoreHelper->addTravelDistanceSample((*iter)->m_Stats.getTravelDistance());
-                m_ScoreHelper->addDistanceFromEnemiesSample((*iter)->m_Stats.getDistanceFromEnemies());
-                m_ScoreHelper->addDistanceFromFriendsSample((*iter)->m_Stats.getDistanceFromFriends());
-                m_ScoreHelper->addDistanceFromFlagSample((*iter)->m_Stats.getDistanceFromFlag());
-                m_ScoreHelper->addRangeFromEnemySample((*iter)->m_Stats.getRangeFromEnemy());
-                m_ScoreHelper->addRangeFromFriendsSample((*iter)->m_Stats.getRangeFromFriends());
+                mScoreHelper->addAccuracyOfShotsSample((*iter)->m_Stats.getAccuracyOfShots());
+                mScoreHelper->addEnemyHitsSample((*iter)->m_Stats.getEnemyHits());
+                mScoreHelper->addFriendHitsSample((*iter)->m_Stats.getFriendHits());
+                mScoreHelper->addHitsTakenSample((*iter)->m_Stats.getHitsTaken());
+                mScoreHelper->addWeaponFiresSample((*iter)->m_Stats.getWeaponFires());
+                mScoreHelper->addTravelDistanceSample((*iter)->m_Stats.getTravelDistance());
+                mScoreHelper->addDistanceFromEnemiesSample((*iter)->m_Stats.getDistanceFromEnemies());
+                mScoreHelper->addDistanceFromFriendsSample((*iter)->m_Stats.getDistanceFromFriends());
+                mScoreHelper->addDistanceFromFlagSample((*iter)->m_Stats.getDistanceFromFlag());
+                mScoreHelper->addRangeFromEnemySample((*iter)->m_Stats.getRangeFromEnemy());
+                mScoreHelper->addRangeFromFriendsSample((*iter)->m_Stats.getRangeFromFriends());
             }
         }
 
-        m_ScoreHelper->doCalculations();
+        mScoreHelper->doCalculations();
 
         //Con::printf("Population accuracy average: %f", m_ScoreHelper->getAccuracyOfShotsAverage());
         F32 minAbsoluteScore = 0; // min of 0, min abs score
         F32 maxAbsoluteScore = -F32_MAX; // max raw score
-        NEROBrain* champ = NULL; // brain with best raw score
+        PyOrganismPtr champ; // brain with best raw score
         F32 accuracyOfShotsScore;
         F32 enemyHitsScore;
         F32 friendHitsScore;
@@ -197,21 +183,21 @@ namespace OpenNero
         F32 rangeFromEnemyScore;
         F32 rangeFromFriendsScore;
 
-        for (Vector<NEROBrain*>::iterator iter = m_BrainList.begin(); iter != m_BrainList.end(); ++iter) {
-            if ((*iter)->m_Organism->time_alive >= NEAT::time_alive_minimum) {
-                accuracyOfShotsScore = m_ScoreHelper->getAccuracyOfShotsRelativeScore((*iter)->m_Stats.getAccuracyOfShots()) * s_AccuracyOfShotsWeight;
-                enemyHitsScore = m_ScoreHelper->getEnemyHitsRelativeScore((*iter)->m_Stats.getEnemyHits()) * s_EnemyHitsWeight;
-                friendHitsScore = m_ScoreHelper->getFriendHitsRelativeScore((*iter)->m_Stats.getFriendHits()) * s_FriendHitsWeight;
-                hitsTakenScore = m_ScoreHelper->getHitsTakenRelativeScore((*iter)->m_Stats.getHitsTaken()) * s_HitsTakenWeight;
-                weaponFiresScore = m_ScoreHelper->getWeaponFiresRelativeScore((*iter)->m_Stats.getWeaponFires()) * s_WeaponFiresWeight;
-                travelDistanceScore = m_ScoreHelper->getTravelDistanceRelativeScore((*iter)->m_Stats.getTravelDistance()) * s_TravelDistanceWeight;
-                distanceFromEnemiesScore = m_ScoreHelper->getDistanceFromEnemiesRelativeScore((*iter)->m_Stats.getDistanceFromEnemies()) * s_DistanceFromEnemiesWeight;
-                distanceFromFriendsScore = m_ScoreHelper->getDistanceFromFriendsRelativeScore((*iter)->m_Stats.getDistanceFromFriends()) * s_DistanceFromFriendsWeight;
-                distanceFromFlagScore = m_ScoreHelper->getDistanceFromFlagRelativeScore((*iter)->m_Stats.getDistanceFromFlag()) * s_DistanceFromFlagWeight;
-                rangeFromEnemyScore = m_ScoreHelper->getRangeFromEnemyRelativeScore((*iter)->m_Stats.getRangeFromEnemy()) * s_RangeFromEnemyWeight;
-                rangeFromFriendsScore = m_ScoreHelper->getRangeFromFriendsRelativeScore((*iter)->m_Stats.getRangeFromFriends()) * s_RangeFromFriendsWeight;
+        for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != m_rainList.end(); ++iter) {
+            if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
+                accuracyOfShotsScore = mScoreHelper->getAccuracyOfShotsRelativeScore((*iter)->m_Stats.getAccuracyOfShots()) * s_AccuracyOfShotsWeight;
+                enemyHitsScore = mScoreHelper->getEnemyHitsRelativeScore((*iter)->m_Stats.getEnemyHits()) * s_EnemyHitsWeight;
+                friendHitsScore = mScoreHelper->getFriendHitsRelativeScore((*iter)->m_Stats.getFriendHits()) * s_FriendHitsWeight;
+                hitsTakenScore = mScoreHelper->getHitsTakenRelativeScore((*iter)->m_Stats.getHitsTaken()) * s_HitsTakenWeight;
+                weaponFiresScore = mScoreHelper->getWeaponFiresRelativeScore((*iter)->m_Stats.getWeaponFires()) * s_WeaponFiresWeight;
+                travelDistanceScore = mScoreHelper->getTravelDistanceRelativeScore((*iter)->m_Stats.getTravelDistance()) * s_TravelDistanceWeight;
+                distanceFromEnemiesScore = mScoreHelper->getDistanceFromEnemiesRelativeScore((*iter)->m_Stats.getDistanceFromEnemies()) * s_DistanceFromEnemiesWeight;
+                distanceFromFriendsScore = mScoreHelper->getDistanceFromFriendsRelativeScore((*iter)->m_Stats.getDistanceFromFriends()) * s_DistanceFromFriendsWeight;
+                distanceFromFlagScore = mScoreHelper->getDistanceFromFlagRelativeScore((*iter)->m_Stats.getDistanceFromFlag()) * s_DistanceFromFlagWeight;
+                rangeFromEnemyScore = mScoreHelper->getRangeFromEnemyRelativeScore((*iter)->m_Stats.getRangeFromEnemy()) * s_RangeFromEnemyWeight;
+                rangeFromFriendsScore = mScoreHelper->getRangeFromFriendsRelativeScore((*iter)->m_Stats.getRangeFromFriends()) * s_RangeFromFriendsWeight;
 
-                (*iter)->m_AbsoluteScore =	accuracyOfShotsScore +
+                (*iter)->mAbsoluteScore = accuracyOfShotsScore +
                     enemyHitsScore +
                     friendHitsScore +
                     hitsTakenScore +
@@ -223,50 +209,42 @@ namespace OpenNero
                     rangeFromEnemyScore +
                     rangeFromFriendsScore;
 
-                if ((*iter)->m_AbsoluteScore < minAbsoluteScore)
-                    minAbsoluteScore = (*iter)->m_AbsoluteScore;
-
-                F32 rawScore = GuiNEROFitnessGraph::evaluate(*iter);
-                if (rawScore > maxAbsoluteScore) {
-                    maxAbsoluteScore = rawScore;
-                    champ = (*iter);
-                }
+                if ((*iter)->mAbsoluteScore < minAbsoluteScore)
+                    minAbsoluteScore = (*iter)->mAbsoluteScore;
+				if ((*iter)->mAbsoluteScore > maxAbsoluteScore)
+					maxAbsoluteScore = (*iter)->mAbsoluteScore;
             }
         }
 
-        if (champ != NULL) {
-            F32 score = GuiNEROFitnessGraph::evaluate(champ,true);
-            GuiNERONetworkDisplay::setBrain(champ);
-            NEROLog::write(NEROLog::LOG_FITNESS, score);
-        }
-
         if (minAbsoluteScore < 0) {
-            for (Vector<NEROBrain*>::iterator iter = m_BrainList.begin(); iter != m_BrainList.end(); ++iter) {
-                if ((*iter)->m_Organism->time_alive >= NEAT::time_alive_minimum) {
-                    F32 modifiedFitness = (*iter)->m_AbsoluteScore - minAbsoluteScore;
+            for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
+                if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
+                    F32 modifiedFitness = (*iter)->mAbsoluteScore - minAbsoluteScore;
                     if (modifiedFitness < 0)
                         modifiedFitness = 0;
 
 
-                    if (!((*iter)->m_Organism->smited)) 
-                        (*iter)->m_Organism->fitness = modifiedFitness;
+                    if (!((*iter)->GetOrganism()->smited)) 
+					{
+                        (*iter)->GetOrganism()->fitness = modifiedFitness;
+					}
                     else 
                     { 
-                        (*iter)->m_Organism->fitness = 0.01 * modifiedFitness;
+                        (*iter)->GetOrganism()->fitness = 0.01 * modifiedFitness;
                     }
                 }
             }
         }
         else
         {
-            for (Vector<NEROBrain*>::iterator iter = m_BrainList.begin(); iter != m_BrainList.end(); ++iter) {
-                if ((*iter)->m_Organism->time_alive >= NEAT::time_alive_minimum) {
+            for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
+                if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
 
-                    if (!((*iter)->m_Organism->smited)) 
-                        (*iter)->m_Organism->fitness = (*iter)->m_AbsoluteScore;
+                    if (!((*iter)->GetOrganism()->smited)) 
+                        (*iter)->GetOrganism()->fitness = (*iter)->mAbsoluteScore;
                     else 
                     { 
-                        (*iter)->m_Organism->fitness = 0.01 * (*iter)->m_AbsoluteScore;
+                        (*iter)->GetOrganism()->fitness = 0.01 * (*iter)->mAbsoluteScore;
                     }
                 }
             }

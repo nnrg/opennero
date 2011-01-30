@@ -32,9 +32,9 @@ namespace OpenNero
     
     /// An interface for the RTNEAT learning algorithm
     class RTNEAT : public AI {
-        PopulationPtr mPopulation;        ///< population of organisms on the field
-        queue<OrganismPtr> mEvalQueue;    ///< queue of organisms to be evaluated
-        vector<RTNEATBrainPtr> mOrganisms;   ///< all the org
+        PopulationPtr mPopulation;        ///< population of organisms
+        queue<PyOrganismPtr> mWaitingBrainList; ///< queue of organisms to be evaluated
+        vector<PyOrganismPtr> mBrainList;   ///< all the organisms along with their stats
         AgentToOrganismMap mAgentsToOrganisms; ///< map from agents to organisms
         size_t mOffspringCount;           ///< number of reproductions so far
     public:
@@ -76,9 +76,6 @@ namespace OpenNero
         /// load a population from a file
         bool load_population(const std::string& population_file);
         
-        /// get the list of IDs in the currently scored population
-        boost::python::list get_population_ids();
-
         /// load info about this AI from the object template
         bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data) { return true; }
     };
