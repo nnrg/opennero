@@ -20,18 +20,21 @@ namespace OpenNero
     using namespace std;
     namespace py = boost::python;
 
-    typedef queue<OrganismPtr> OrganismQueue;
-
     /// @cond
     BOOST_SHARED_DECL(RTNEAT);
     BOOST_SHARED_DECL(PyNetwork);
     BOOST_SHARED_DECL(PyOrganism);
     /// @endcond
 
+    typedef queue<OrganismPtr> OrganismQueue;
+    
+    typedef map<AgentBrainPtr, PyOrganismPtr> AgentToOrganismMap;
+
     /// An interface for the RTNEAT learning algorithm
     class RTNEAT : public AI {
         PopulationPtr mPopulation;        ///< population of organisms on the field
         OrganismQueue mEvalQueue;         ///< queue of organisms to be evaluated
+        AgentToOrganismMap mAgentsToOrganisms; ///< map from agents to organisms
         size_t mOffspringCount;           ///< number of reproductions so far
     public:
         /// Constructor
@@ -50,9 +53,19 @@ namespace OpenNero
 
         /// Destructor
         ~RTNEAT();
-
-        /// get the next organism to be evaluated
-        PyOrganismPtr next_organism(float prob);
+        
+        /// are we ready to spawn a new organism?
+        bool ready() { return !mEvalQueue.empty(); }
+        
+        /// get the organism currently assigned to the agent
+        PyOrganismPtr get_organism(AgentBrainPtr agent);
+        
+        /// release the organism that was being used by the agent
+        void release_organism(AgentBrainPtr agent);
+        
+        void evaluateAll();
+        
+        void evolveAll();
 
         /// save the current population to a file
         bool save_population(const std::string& population_file);
@@ -130,6 +143,8 @@ namespace OpenNero
         PyNetworkPtr GetNetwork() const { return PyNetworkPtr(new PyNetwork(mOrganism->net)); }
         /// save this organism to a file
         bool Save(const std::string& fname) const { return mOrganism->print_to_file(fname); }
+        /// Get the organism out
+        OrganismPtr GetOrganism() { return mOrganism; }
         /// operator to push to an output stream
         friend std::ostream& operator<<(std::ostream& output, const PyOrganism& net);
     };

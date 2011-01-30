@@ -99,80 +99,32 @@ namespace OpenNero
     {
 
     }
-
-    PyOrganismPtr RTNEAT::next_organism(float prob)
+    
+    /// get the organism currently assigned to the agent
+    PyOrganismPtr RTNEAT::get_organism(AgentBrainPtr agent)
     {
-        OrganismPtr org;
-        
-        if (!mEvalQueue.empty())
+        AgentToOrganismMap::const_iterator found;
+        found = mAgentsToOrganisms.find(agent);
+        if (found != mAgentsToOrganisms.end())
         {
-            org = mEvalQueue.front();
-            mEvalQueue.pop();
-        }
-        else if (RANDOM.randF() < prob)
-        {
-            vector<OrganismPtr>::iterator most = max_element(mPopulation->organisms.begin(), mPopulation->organisms.end(), fitness_less);
-            org = *most;
+            return found->second;
         }
         else
         {
-            vector<OrganismPtr>::iterator least = min_element(mPopulation->organisms.begin(), mPopulation->organisms.end(), fitness_less);
-            AssertMsg(least != mPopulation->organisms.end(), "lowest fitness organism not found");
-            double least_fitness = (*least)->fitness;
-            double max_fitness = least_fitness;
-            size_t effective_pop_size = 0;
-            vector<OrganismPtr>::iterator org_iter;
-            for (org_iter = mPopulation->organisms.begin(); org_iter != mPopulation->organisms.end(); ++org_iter)
-            {
-                if ((*org_iter)->time_alive > 0) {
-                    double fitness = (*org_iter)->fitness;
-                    if (fitness > max_fitness) 
-                    {
-                        max_fitness = fitness;
-                    }
-                    effective_pop_size += 1;
-                    (*org_iter)->fitness -= least_fitness;
-                }
-            }
-            LOG_F_DEBUG("ai", 
-                "Effective rtNEAT population of size: " << effective_pop_size <<
-                ", min. fitness: " << least_fitness <<
-                ", max. fitness: " << max_fitness);
-            OrganismPtr removed = mPopulation->remove_worst();
-            if (removed) {
-                SpeciesPtr parent = mPopulation->choose_parent_species();
-
-                // reproduce
-                org = parent->reproduce_one(static_cast<S32>(mOffspringCount++), mPopulation, mPopulation->species, 0, 0);
-                AssertMsg(org, "Organism did not reproduce correctly");
-
-                size_t num_species = mPopulation->species.size(); // number of species in the population
-
-                // adjust species boundaries to keep their number close to target
-                if (num_species < kNumSpeciesTarget)
-                    NEAT::compat_threshold -= kCompatMod;
-                else if (num_species > kNumSpeciesTarget)
-                    NEAT::compat_threshold += kCompatMod;
-
-                if (NEAT::compat_threshold < kMinCompatThreshold)
-                    NEAT::compat_threshold = kMinCompatThreshold;
-
-                //Go through entire population, reassigning organisms to new species
-                for (org_iter = mPopulation->organisms.begin(); org_iter != mPopulation->organisms.end(); ++org_iter) {
-                    assert((*org_iter)->gnome);
-                    if ((*org_iter)->time_alive > 0)
-                    {
- 
-                        (*org_iter)->fitness += least_fitness;
-                    }
-                    mPopulation->reassign_species(*org_iter);
-                } 
-            }
+            PyOrganismPtr org(new PyOrganism(mEvalQueue.front()));
+            mAgentsToOrganisms[agent] = org;
+            return org;
         }
 
-        AssertMsg(org, "No rtNEAT organism found!");
-
-        return PyOrganismPtr(new PyOrganism(org));
+    }
+    
+    /// release the organism that was being used by the agent
+    void RTNEAT::release_organism(AgentBrainPtr agent)
+    {
+        AgentToOrganismMap::const_iterator found;
+        found = mAgentsToOrganisms.find(agent);
+        Assert(found != mAgentsToOrganisms.end());
+        mEvalQueue.push(found->second->GetOrganism());
     }
 
     /// save a population to a file
@@ -193,6 +145,8 @@ namespace OpenNero
             return true;
         }
     }
+    
+    // 
 
     std::ostream& operator<<(std::ostream& output, const PyNetwork& net)
     {

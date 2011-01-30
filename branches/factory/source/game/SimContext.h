@@ -178,10 +178,10 @@ namespace OpenNero
         /// return the active camera
         CameraPtr getActiveCamera() const;
 
-        // get an object template from a file
+        /// get an object template from a file
         template<typename ObjTemp> boost::shared_ptr<ObjTemp> getObjectTemplate( const std::string& templateName) const;
 
-        // move the world forward by time dt
+        /// move the world forward by time dt
         void ProcessTick(float32_t dt);
 
         /// return the simulation
@@ -195,7 +195,8 @@ namespace OpenNero
 
     protected:
 
-        // update the various systems
+        /// update the various subsystems
+        /// @{
 
         /// update the audio system
         void UpdateAudioSystem(float32_t dt);
@@ -207,6 +208,8 @@ namespace OpenNero
         void UpdateScriptingSystem(float32_t dt);
 		/// update simulation
         void UpdateSimulation(float32_t dt);
+        
+        /// @}
 
     private:
 
