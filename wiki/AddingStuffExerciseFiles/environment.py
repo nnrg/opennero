@@ -50,12 +50,11 @@ class TestEnvironment(Environment):
                                           degrees(atan2(actions[1], actions[0])))
         return 0
 
-    def sense(self, agent):
+    def sense(self, agent, default_observation):
         """
         Figure out what the agent's input (observation) is
         @return the agent's observation
         """
-        default_observation = self.agent_info.sensors.get_instance()
         return default_observation
 
     def is_active(self, agent):
