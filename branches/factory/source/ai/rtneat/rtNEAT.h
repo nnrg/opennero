@@ -37,6 +37,8 @@ namespace OpenNero
         vector<PyOrganismPtr> mBrainList;   ///< all the organisms along with their stats
         AgentToOrganismMap mAgentsToOrganisms; ///< map from agents to organisms
         size_t mOffspringCount;           ///< number of reproductions so far
+		size_t mSpawnTickCount;           ///< number of spawn ticks
+		size_t mEvolutionTickCount;       ///< number of evolution ticks
     public:
         /// Constructor
         /// @param filename name of the file with the initial population genomes
