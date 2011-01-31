@@ -13,6 +13,7 @@
 #include <queue>
 #include <iostream>
 #include <boost/python.hpp>
+#include <boost/bimap.hpp>
 
 namespace OpenNero
 {
@@ -24,21 +25,26 @@ namespace OpenNero
     BOOST_SHARED_DECL(RTNEAT);
     BOOST_SHARED_DECL(PyNetwork);
     BOOST_SHARED_DECL(PyOrganism);
+    
+    typedef boost::bimap<SimId, PyOrganismPtr> BrainBodyMap;
     /// @endcond
 
-    typedef queue<OrganismPtr> OrganismQueue;
-    
     typedef map<AgentBrainPtr, PyOrganismPtr> AgentToOrganismMap;
     
     /// An interface for the RTNEAT learning algorithm
     class RTNEAT : public AI {
         PopulationPtr mPopulation;        ///< population of organisms
         queue<PyOrganismPtr> mWaitingBrainList; ///< queue of organisms to be evaluated
-        vector<PyOrganismPtr> mBrainList;   ///< all the organisms along with their stats
-        AgentToOrganismMap mAgentsToOrganisms; ///< map from agents to organisms
+        vector<PyOrganismPtr> mBrainList; ///< all the organisms along with their stats
+        BrainBodyMap mBrainBodyMap;       ///< map from agents to organisms
         size_t mOffspringCount;           ///< number of reproductions so far
 		size_t mSpawnTickCount;           ///< number of spawn ticks
 		size_t mEvolutionTickCount;       ///< number of evolution ticks
+        size_t mTotalUnitsDeleted;        ///< total units deleted
+        size_t mSpawnFrequency;           ///< how many ticks have to pass between spawns
+        size_t mUnitsToDeleteBeforeFirstJudgment; ///< number of units to delete before judging
+        size_t mTimeBetweenEvolutions;    ///< time (in ticks) between rounds of evolution
+        
     public:
         /// Constructor
         /// @param filename name of the file with the initial population genomes

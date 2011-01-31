@@ -2,6 +2,7 @@
 #include "game/SimEntity.h"
 #include "game/Kernel.h"
 #include "ai/AIObject.h"
+#include "ai/AgentBrain.h"
 #include "ai/rtneat/rtNEAT.h"
 #include "rtneat/population.h"
 #include "rtneat/network.h"
@@ -91,16 +92,17 @@ namespace OpenNero
     /// get the organism currently assigned to the agent
     PyOrganismPtr RTNEAT::get_organism(AgentBrainPtr agent)
     {
-        AgentToOrganismMap::const_iterator found;
-        found = mAgentsToOrganisms.find(agent);
-        if (found != mAgentsToOrganisms.end())
+        BrainBodyMap::left_map::const_iterator found;
+        SimId id = agent->GetBody()->GetId();
+        found = mBrainBodyMap.left.find(id);
+        if (found != mBrainBodyMap.left.end())
         {
             return found->second;
         }
         else
         {
-            PyOrganismPtr brain(new PyOrganism(mWaitingBrainList.front()));
-            mAgentsToOrganisms[agent] = brain;
+            PyOrganismPtr brain = mWaitingBrainList.front();
+            mBrainBodyMap.insert(BrainBodyMap::value_type(id, brain));
             return brain;
         }
 
@@ -109,9 +111,10 @@ namespace OpenNero
     /// release the organism that was being used by the agent
     void RTNEAT::release_organism(AgentBrainPtr agent)
     {
-        AgentToOrganismMap::const_iterator found;
-        found = mAgentsToOrganisms.find(agent);
-        Assert(found != mAgentsToOrganisms.end());
+        BrainBodyMap::left_map::const_iterator found;
+        SimId id = agent->GetBody()->GetId();
+        found = mBrainBodyMap.left.find(id);
+        Assert(found != mBrainBodyMap.left.end());
         mWaitingBrainList.push(found->second);
     }
 
@@ -141,40 +144,36 @@ namespace OpenNero
 		++mEvolutionTickCount;
 
 		// Iterate through the active bodies in the field, removing those which have exceeded the time limit.
-		for (vector<NEROBody*>::iterator iter = m_BodyList.begin(); iter != m_BodyList.end(); ++iter) {
-			if ( (*iter)->GetTimeLimitCounter() >= s_UnitTimeLimit ) {
-				deleteUnit(*iter);
-				--iter;
-			}
-		}
-
+        for( BrainBodyMap::const_iterator iter = mBrainBodyMap.begin(), iend = mBrainBodyMap.end(); iter != iend; ++iter )
+        {
+            AssertMsg(false, "FIXME: delete unit");
+        }
+        
 		// Every m_SpawnFrequency game ticks, we should spawn a new unit from the factory, provided that we
 		// haven't already spawned the maximum number of units.
-		if ( mSpawnTickCount >= mSpawnFrequency  &&  mBodyList.size() < mBrainList.size() ) { // <-- for now, max number of units is m_BrainList.size()
-			if (spawnUnit())
-				mSpawnTickCount = 0;
+		if ( mSpawnTickCount >= mSpawnFrequency  &&  mBrainBodyMap.size() < mBrainList.size() ) { // <-- for now, max number of units is m_BrainList.size()
+            
+			//if (spawnUnit())
+			//	mSpawnTickCount = 0;
+            AssertMsg(false, "FIXME: spawn unit");
 		}
 
-		// Check to see if evolution has been activated
-		if (mEvolutionActive) {
-			// Evaluate all brains' scores
-			evaluateAll();
+        // Evaluate all brains' scores
+        evaluateAll();
 
-			// If the total number of units spawned so far exceeds the threshold value AND enough
-			// ticks have passed since the last evolution, then a new evolution may commence.
-			if (mTotalUnitsDeleted >= mUnitsToDeleteBeforeFirstJudgment  &&  mEvolutionTickCount >= mTimeBetweenEvolutions) {
-
-				//Judgment day!
-				evolveAll();
-				mEvolutionTickCount = 0;
-			}
-		}
+        // If the total number of units spawned so far exceeds the threshold value AND enough
+        // ticks have passed since the last evolution, then a new evolution may commence.
+        if (mTotalUnitsDeleted >= mUnitsToDeleteBeforeFirstJudgment  &&  mEvolutionTickCount >= mTimeBetweenEvolutions) {
+            //Judgment day!
+            evolveAll();
+            mEvolutionTickCount = 0;
+        }
 	}
     
     void RTNEAT::evaluateAll()
     {
         // Zero out the score helper
-        mScoreHelper->reset();
+        //mScoreHelper->reset();
 
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
@@ -183,65 +182,65 @@ namespace OpenNero
                     //temp hack. evaluateBrains() is called
                     //more often than NeroBrain::think for some reason
                     (*iter)->GetOrganism()->time_alive++; 												   
-                    (*iter)->m_Stats.startNextTrial();
+                    //(*iter)->m_Stats.startNextTrial();
                 }
-                mScoreHelper->addAccuracyOfShotsSample((*iter)->m_Stats.getAccuracyOfShots());
-                mScoreHelper->addEnemyHitsSample((*iter)->m_Stats.getEnemyHits());
-                mScoreHelper->addFriendHitsSample((*iter)->m_Stats.getFriendHits());
-                mScoreHelper->addHitsTakenSample((*iter)->m_Stats.getHitsTaken());
-                mScoreHelper->addWeaponFiresSample((*iter)->m_Stats.getWeaponFires());
-                mScoreHelper->addTravelDistanceSample((*iter)->m_Stats.getTravelDistance());
-                mScoreHelper->addDistanceFromEnemiesSample((*iter)->m_Stats.getDistanceFromEnemies());
-                mScoreHelper->addDistanceFromFriendsSample((*iter)->m_Stats.getDistanceFromFriends());
-                mScoreHelper->addDistanceFromFlagSample((*iter)->m_Stats.getDistanceFromFlag());
-                mScoreHelper->addRangeFromEnemySample((*iter)->m_Stats.getRangeFromEnemy());
-                mScoreHelper->addRangeFromFriendsSample((*iter)->m_Stats.getRangeFromFriends());
+                //mScoreHelper->addAccuracyOfShotsSample((*iter)->m_Stats.getAccuracyOfShots());
+                //mScoreHelper->addEnemyHitsSample((*iter)->m_Stats.getEnemyHits());
+                //mScoreHelper->addFriendHitsSample((*iter)->m_Stats.getFriendHits());
+                //mScoreHelper->addHitsTakenSample((*iter)->m_Stats.getHitsTaken());
+                //mScoreHelper->addWeaponFiresSample((*iter)->m_Stats.getWeaponFires());
+                //mScoreHelper->addTravelDistanceSample((*iter)->m_Stats.getTravelDistance());
+                //mScoreHelper->addDistanceFromEnemiesSample((*iter)->m_Stats.getDistanceFromEnemies());
+                //mScoreHelper->addDistanceFromFriendsSample((*iter)->m_Stats.getDistanceFromFriends());
+                //mScoreHelper->addDistanceFromFlagSample((*iter)->m_Stats.getDistanceFromFlag());
+                //mScoreHelper->addRangeFromEnemySample((*iter)->m_Stats.getRangeFromEnemy());
+                //mScoreHelper->addRangeFromFriendsSample((*iter)->m_Stats.getRangeFromFriends());
+                AssertMsg(false, "FIXME/TODO: add stats samples");
             }
         }
 
         mScoreHelper->doCalculations();
 
-        //Con::printf("Population accuracy average: %f", m_ScoreHelper->getAccuracyOfShotsAverage());
-        F32 minAbsoluteScore = 0; // min of 0, min abs score
-        F32 maxAbsoluteScore = -F32_MAX; // max raw score
+        //F32 minAbsoluteScore = 0; // min of 0, min abs score
+        //F32 maxAbsoluteScore = -FLT_MAX; // max raw score
         PyOrganismPtr champ; // brain with best raw score
-        F32 accuracyOfShotsScore;
-        F32 enemyHitsScore;
-        F32 friendHitsScore;
-        F32 hitsTakenScore;
-        F32 weaponFiresScore;
-        F32 travelDistanceScore;
-        F32 distanceFromEnemiesScore;
-        F32 distanceFromFriendsScore;
-        F32 distanceFromFlagScore;
-        F32 rangeFromEnemyScore;
-        F32 rangeFromFriendsScore;
+        //F32 accuracyOfShotsScore;
+        //F32 enemyHitsScore;
+        //F32 friendHitsScore;
+        //F32 hitsTakenScore;
+        //F32 weaponFiresScore;
+        //F32 travelDistanceScore;
+        //F32 distanceFromEnemiesScore;
+        //F32 distanceFromFriendsScore;
+        //F32 distanceFromFlagScore;
+        //F32 rangeFromEnemyScore;
+        //F32 rangeFromFriendsScore;
 
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != m_rainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
-                accuracyOfShotsScore = mScoreHelper->getAccuracyOfShotsRelativeScore((*iter)->m_Stats.getAccuracyOfShots()) * s_AccuracyOfShotsWeight;
-                enemyHitsScore = mScoreHelper->getEnemyHitsRelativeScore((*iter)->m_Stats.getEnemyHits()) * s_EnemyHitsWeight;
-                friendHitsScore = mScoreHelper->getFriendHitsRelativeScore((*iter)->m_Stats.getFriendHits()) * s_FriendHitsWeight;
-                hitsTakenScore = mScoreHelper->getHitsTakenRelativeScore((*iter)->m_Stats.getHitsTaken()) * s_HitsTakenWeight;
-                weaponFiresScore = mScoreHelper->getWeaponFiresRelativeScore((*iter)->m_Stats.getWeaponFires()) * s_WeaponFiresWeight;
-                travelDistanceScore = mScoreHelper->getTravelDistanceRelativeScore((*iter)->m_Stats.getTravelDistance()) * s_TravelDistanceWeight;
-                distanceFromEnemiesScore = mScoreHelper->getDistanceFromEnemiesRelativeScore((*iter)->m_Stats.getDistanceFromEnemies()) * s_DistanceFromEnemiesWeight;
-                distanceFromFriendsScore = mScoreHelper->getDistanceFromFriendsRelativeScore((*iter)->m_Stats.getDistanceFromFriends()) * s_DistanceFromFriendsWeight;
-                distanceFromFlagScore = mScoreHelper->getDistanceFromFlagRelativeScore((*iter)->m_Stats.getDistanceFromFlag()) * s_DistanceFromFlagWeight;
-                rangeFromEnemyScore = mScoreHelper->getRangeFromEnemyRelativeScore((*iter)->m_Stats.getRangeFromEnemy()) * s_RangeFromEnemyWeight;
-                rangeFromFriendsScore = mScoreHelper->getRangeFromFriendsRelativeScore((*iter)->m_Stats.getRangeFromFriends()) * s_RangeFromFriendsWeight;
+                //accuracyOfShotsScore = mScoreHelper->getAccuracyOfShotsRelativeScore((*iter)->m_Stats.getAccuracyOfShots()) * s_AccuracyOfShotsWeight;
+                //enemyHitsScore = mScoreHelper->getEnemyHitsRelativeScore((*iter)->m_Stats.getEnemyHits()) * s_EnemyHitsWeight;
+                //friendHitsScore = mScoreHelper->getFriendHitsRelativeScore((*iter)->m_Stats.getFriendHits()) * s_FriendHitsWeight;
+                //hitsTakenScore = mScoreHelper->getHitsTakenRelativeScore((*iter)->m_Stats.getHitsTaken()) * s_HitsTakenWeight;
+                //weaponFiresScore = mScoreHelper->getWeaponFiresRelativeScore((*iter)->m_Stats.getWeaponFires()) * s_WeaponFiresWeight;
+                //travelDistanceScore = mScoreHelper->getTravelDistanceRelativeScore((*iter)->m_Stats.getTravelDistance()) * s_TravelDistanceWeight;
+                //distanceFromEnemiesScore = mScoreHelper->getDistanceFromEnemiesRelativeScore((*iter)->m_Stats.getDistanceFromEnemies()) * s_DistanceFromEnemiesWeight;
+                //distanceFromFriendsScore = mScoreHelper->getDistanceFromFriendsRelativeScore((*iter)->m_Stats.getDistanceFromFriends()) * s_DistanceFromFriendsWeight;
+                //distanceFromFlagScore = mScoreHelper->getDistanceFromFlagRelativeScore((*iter)->m_Stats.getDistanceFromFlag()) * s_DistanceFromFlagWeight;
+                //rangeFromEnemyScore = mScoreHelper->getRangeFromEnemyRelativeScore((*iter)->m_Stats.getRangeFromEnemy()) * s_RangeFromEnemyWeight;
+                //rangeFromFriendsScore = mScoreHelper->getRangeFromFriendsRelativeScore((*iter)->m_Stats.getRangeFromFriends()) * s_RangeFromFriendsWeight;
 
-                (*iter)->mAbsoluteScore = accuracyOfShotsScore +
-                    enemyHitsScore +
-                    friendHitsScore +
-                    hitsTakenScore +
-                    weaponFiresScore +
-                    travelDistanceScore +
-                    distanceFromEnemiesScore +
-                    distanceFromFriendsScore +
-                    distanceFromFlagScore +
-                    rangeFromEnemyScore +
-                    rangeFromFriendsScore;
+                //(*iter)->mAbsoluteScore = accuracyOfShotsScore +
+                //    enemyHitsScore +
+                //    friendHitsScore +
+                //    hitsTakenScore +
+                //    weaponFiresScore +
+                //    travelDistanceScore +
+                //    distanceFromEnemiesScore +
+                //    distanceFromFriendsScore +
+                //    distanceFromFlagScore +
+                //    rangeFromEnemyScore +
+                //    rangeFromFriendsScore;
 
                 if ((*iter)->mAbsoluteScore < minAbsoluteScore)
                     minAbsoluteScore = (*iter)->mAbsoluteScore;
