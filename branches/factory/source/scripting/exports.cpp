@@ -351,7 +351,6 @@ namespace OpenNero {
 				.def(init<const std::string&, S32, S32, S32, F32>())
 				.def("get_organism", &RTNEAT::get_organism, "evolve a new organism and return it")
                 .def("release_organism", &RTNEAT::release_organism, "release the organism after the agent is done")
-				.def("get_population_ids", &RTNEAT::get_population_ids, "get a list of the current genome ids")
 				.def("save_population", &RTNEAT::save_population, "save the population to a file");
 		}
 

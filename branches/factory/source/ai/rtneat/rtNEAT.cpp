@@ -199,10 +199,11 @@ namespace OpenNero
             }
         }
 
-        mScoreHelper->doCalculations();
+        //mScoreHelper->doCalculations();
+        AssertMsg(false, "FIXME/TODO: mScoreHelper->doCalculations()");
 
-        //F32 minAbsoluteScore = 0; // min of 0, min abs score
-        //F32 maxAbsoluteScore = -FLT_MAX; // max raw score
+        F32 minAbsoluteScore = 0; // min of 0, min abs score
+        F32 maxAbsoluteScore = -FLT_MAX; // max raw score
         PyOrganismPtr champ; // brain with best raw score
         //F32 accuracyOfShotsScore;
         //F32 enemyHitsScore;
@@ -216,7 +217,7 @@ namespace OpenNero
         //F32 rangeFromEnemyScore;
         //F32 rangeFromFriendsScore;
 
-        for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != m_rainList.end(); ++iter) {
+        for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
                 //accuracyOfShotsScore = mScoreHelper->getAccuracyOfShotsRelativeScore((*iter)->m_Stats.getAccuracyOfShots()) * s_AccuracyOfShotsWeight;
                 //enemyHitsScore = mScoreHelper->getEnemyHitsRelativeScore((*iter)->m_Stats.getEnemyHits()) * s_EnemyHitsWeight;
@@ -295,13 +296,12 @@ namespace OpenNero
         if (compat_adjust_frequency < 1)
             compat_adjust_frequency = 1;
 
-        vector<PyOrganismPtr>::iterator curorg;
         SpeciesPtr new_species;
 
         // Sometimes, if all organisms are beneath the minimum "time alive" threshold, no organism will be removed
         // If an organism *was* actually removed, then we can proceed with replacing it via the evolutionary process
         if (deadorg) {
-            NEAT::Organism *new_org = 0;
+            NEAT::OrganismPtr new_org;
 
             // Estimate all species' fitnesses
             for (vector<SpeciesPtr>::iterator curspec = (mPopulation->species).begin(); curspec != (mPopulation->species).end(); ++curspec) {
@@ -314,7 +314,8 @@ namespace OpenNero
                 S32 samplesize = 0;
                 vector<OrganismPtr>::iterator curorg = mPopulation->organisms.begin();
                 for ( ; curorg != mPopulation->organisms.end(); ++curorg) {
-                    if ((*curorg)->species == (*curspec)) {
+                    SpeciesPtr species = (*curorg)->species.lock();                    
+                    if (species == (*curspec)) {
                         vector<PyOrganismPtr>::iterator curbrain = mBrainList.begin();
                         for ( ; curbrain != mBrainList.end(); ++curbrain) {
                             if ( (*curbrain)->GetOrganism() == (*curorg) && (*curbrain)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
@@ -342,20 +343,22 @@ namespace OpenNero
             }
 
             //m_Population->memory_pool->isEmpty();
-            if(Platform::getRandom()<=s_MilestoneProbability && !m_Population->memory_pool->isEmpty())// && meets probability requirement)
-                {
-                    // Reproduce an organism with the same traits as the "memory pool".
-                    new_org = (m_Population->memory_pool)->reproduce_one(m_OffspringCount, m_Population, m_Population->species);
-                }
-            else
-                // Reproduce a single new organism to replace the one killed off.
-                new_org = (m_Population->choose_parent_species())->reproduce_one(m_OffspringCount,m_Population,m_Population->species, 0,0);
+            //if(Platform::getRandom()<=s_MilestoneProbability && !m_Population->memory_pool->isEmpty())// && meets probability requirement)
+            //{
+            //    // Reproduce an organism with the same traits as the "memory pool".
+            //    new_org.reset(mPopulation->memory_pool)->reproduce_one(mOffspringCount, mPopulation, mPopulation->species);
+            //}
+            //else
+            //{
+            // Reproduce a single new organism to replace the one killed off.
+            new_org = (mPopulation->choose_parent_species())->reproduce_one(mOffspringCount, mPopulation, mPopulation->species, 0,0);
+            //}
             ++mOffspringCount;
 
             //Every m_BrainList.size() reproductions, reassign the population to new species
             if (mOffspringCount % compat_adjust_frequency == 0) {
 
-                S32 num_species = m_Population->species.size();
+                U32 num_species = mPopulation->species.size();
                 F64 compat_mod=0.1;  //Modify compat thresh to control speciation
 
                 // This tinkers with the compatibility threshold, which normally would be held constant
@@ -368,23 +371,26 @@ namespace OpenNero
                     NEAT::compat_threshold = 0.3;
 
                 //Go through entire population, reassigning organisms to new species
-                for (curorg = mPopulation->organisms.begin(); curorg != mPopulation->organisms.end(); ++curorg) {
+                vector<OrganismPtr>::iterator curorg = mPopulation->organisms.begin();
+                vector<OrganismPtr>::iterator orgend = mPopulation->organisms.end();
+                for (; curorg != orgend; ++curorg) {
                     mPopulation->reassign_species(*curorg);
                 }
             }
 
             // Iterate through all of the Brains, find the one whose Organism was killed off, and link that Brain
             // to the newly created Organism, effectively doing a "hot swap" of the Organisms in that Brain.  
+            
             for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
                 if ((*iter)->GetOrganism() == deadorg) {
-                    (*iter)->SetOrganism(new_org);
-                    (*iter)->m_Stats.resetAll();
-                    for (vector<NEROBody*>::iterator iter2 = mBodyList.begin(); iter2 != mBodyList.end(); ++iter2) {
-                        if ((*iter2)->getBrain() == (*iter)) {
-                            deleteUnit(*iter2);
-                            break;
-                        }
-                    }
+                    PyOrganismPtr brain = *iter;
+                    brain->SetOrganism(new_org);
+                    AssertMsg(false, "FIXME/TODO: (*iter)->m_Stats.resetAll();");
+                    BrainBodyMap::right_map::const_iterator found;
+                    found = mBrainBodyMap.right.find(brain);
+                    Assert(found != mBrainBodyMap.right.end()); // should be there!
+                    SimId foundSimId = found->second;
+                    AssertMsg(false, "FIXME/TODO: deleteUnit(foundSimId)");
                     break;
                 }
             }

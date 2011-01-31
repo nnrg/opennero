@@ -25,11 +25,10 @@ namespace OpenNero
     BOOST_SHARED_DECL(RTNEAT);
     BOOST_SHARED_DECL(PyNetwork);
     BOOST_SHARED_DECL(PyOrganism);
-    
-    typedef boost::bimap<SimId, PyOrganismPtr> BrainBodyMap;
     /// @endcond
 
-    typedef map<AgentBrainPtr, PyOrganismPtr> AgentToOrganismMap;
+    /// A bi-directional map linking SimId
+    typedef boost::bimap<SimId, PyOrganismPtr> BrainBodyMap;
     
     /// An interface for the RTNEAT learning algorithm
     class RTNEAT : public AI {
@@ -136,7 +135,7 @@ namespace OpenNero
 		F32 mAbsoluteScore;
 
 		/// constructor for a PyOrganism
-        PyOrganism(OrganismPtr org) : mOrganism(org) {}
+        PyOrganism(OrganismPtr org) : mOrganism(org), mAbsoluteScore(0) {}
         /// set the fitness of the organism
         void SetFitness(double fitness) { 
             if (mOrganism->fitness == 0)
@@ -153,8 +152,10 @@ namespace OpenNero
         PyNetworkPtr GetNetwork() const { return PyNetworkPtr(new PyNetwork(mOrganism->net)); }
         /// save this organism to a file
         bool Save(const std::string& fname) const { return mOrganism->print_to_file(fname); }
-        /// Get the organism out
+        /// Get the organism
         OrganismPtr GetOrganism() { return mOrganism; }
+        /// Set the organism
+        void SetOrganism(OrganismPtr organism) { mOrganism = organism; mAbsoluteScore = 0; }
         /// operator to push to an output stream
         friend std::ostream& operator<<(std::ostream& output, const PyOrganism& net);
     };
