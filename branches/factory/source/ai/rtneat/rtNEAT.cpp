@@ -89,6 +89,21 @@ namespace OpenNero
 
     }
     
+    /// are we ready to spawn a new organism?
+    bool RTNEAT::ready() 
+    {
+        return !mWaitingBrainList.empty();
+    }
+    
+    /// have we been deleted?
+    bool RTNEAT::have_organism(AgentBrainPtr agent)
+    {
+        BrainBodyMap::left_map::const_iterator found;
+        SimId id = agent->GetBody()->GetId();
+        found = mBrainBodyMap.left.find(id);
+        return (found != mBrainBodyMap.left.end());
+    }
+    
     /// get the organism currently assigned to the agent
     PyOrganismPtr RTNEAT::get_organism(AgentBrainPtr agent)
     {
@@ -142,14 +157,12 @@ namespace OpenNero
     {
         // Push the brain onto the back of the waiting brain queue
         mWaitingBrainList.push(brain);
-
+        
         // find brain in brain-body map
         BrainBodyMap::right_map::iterator found = mBrainBodyMap.right.find(brain);
+        
         // disconnect brain from body
         mBrainBodyMap.right.erase(brain);
-    
-        // Unregister and delete the body from the simulation
-        
         
         // Increment the deletion counter
         ++mTotalUnitsDeleted;
@@ -166,15 +179,6 @@ namespace OpenNero
         {
             AssertMsg(false, "FIXME: delete unit");
         }
-        
-		// Every m_SpawnFrequency game ticks, we should spawn a new unit from the factory, provided that we
-		// haven't already spawned the maximum number of units.
-		if ( mSpawnTickCount >= mSpawnFrequency  &&  mBrainBodyMap.size() < mBrainList.size() ) { // <-- for now, max number of units is m_BrainList.size()
-            
-			//if (spawnUnit())
-			//	mSpawnTickCount = 0;
-            AssertMsg(false, "FIXME: spawn unit");
-		}
 
         // Evaluate all brains' scores
         evaluateAll();
@@ -336,7 +340,8 @@ namespace OpenNero
                     if (species == (*curspec)) {
                         vector<PyOrganismPtr>::iterator curbrain = mBrainList.begin();
                         for ( ; curbrain != mBrainList.end(); ++curbrain) {
-                            if ( (*curbrain)->GetOrganism() == (*curorg) && (*curbrain)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
+                            if ( (*curbrain)->GetOrganism() == (*curorg) && 
+                                 (*curbrain)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
                                 scoreavg += (*curbrain)->mAbsoluteScore;
                                 ++samplesize;                            
                             }
@@ -373,7 +378,7 @@ namespace OpenNero
             //}
             ++mOffspringCount;
 
-            //Every m_BrainList.size() reproductions, reassign the population to new species
+            //Every compat_adjust_frequency reproductions, reassign the population to new species
             if (mOffspringCount % compat_adjust_frequency == 0) {
 
                 U32 num_species = mPopulation->species.size();
@@ -404,11 +409,7 @@ namespace OpenNero
                     PyOrganismPtr brain = *iter;
                     brain->SetOrganism(new_org);
                     AssertMsg(false, "FIXME/TODO: (*iter)->m_Stats.resetAll();");
-                    BrainBodyMap::right_map::const_iterator found;
-                    found = mBrainBodyMap.right.find(brain);
-                    Assert(found != mBrainBodyMap.right.end()); // should be there!
-                    SimId foundSimId = found->second;
-                    AssertMsg(false, "FIXME/TODO: deleteUnit(foundSimId)");
+                    deleteUnit(brain);
                     break;
                 }
             }

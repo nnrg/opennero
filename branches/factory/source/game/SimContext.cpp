@@ -353,13 +353,16 @@ namespace OpenNero
     /// update the local simulations
     void SimContext::UpdateSimulation(float32_t dt)
     {
+        AIManager::instance().ProcessTick(dt);
+
         // update the simulation
         if( mpSimulation )
-            mpSimulation->ProcessWorld(dt);            
-
-		// after all the decisions have been made, we need to check if there 
-		// were any collisions and undo the motions that caused them
-		mpSimulation->DoCollisions();
+        {
+            mpSimulation->ProcessWorld(dt);
+            // after all the decisions have been made, we need to check if there 
+            // were any collisions and undo the motions that caused them
+            mpSimulation->DoCollisions();
+        }
 	}
 
     /// clear out data stored within the sim context

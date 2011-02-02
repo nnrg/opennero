@@ -8,6 +8,7 @@
 #include "rtneat/population.h"
 #include "scripting/scripting.h"
 #include "ai/AI.h"
+#include "ai/Environment.h"
 #include <string>
 #include <set>
 #include <queue>
@@ -25,6 +26,7 @@ namespace OpenNero
     BOOST_SHARED_DECL(RTNEAT);
     BOOST_SHARED_DECL(PyNetwork);
     BOOST_SHARED_DECL(PyOrganism);
+    BOOST_SHARED_DECL(PyRTNEATEnvironment);
     /// @endcond
 
     /// A bi-directional map linking SimId
@@ -49,7 +51,9 @@ namespace OpenNero
         /// @param filename name of the file with the initial population genomes
         /// @param param_file file with RTNEAT parameters to load
         /// @param population_size size of the population to construct
-        RTNEAT(const std::string& filename, const std::string& param_file, size_t population_size);
+        RTNEAT(const std::string& filename, 
+               const std::string& param_file, 
+               size_t population_size);
 
         /// Constructor
         /// @param param_file RTNEAT parameter file
@@ -57,13 +61,20 @@ namespace OpenNero
         /// @param outputs number of outputs
         /// @param population_size size of the population to construct
         /// @param noise variance of the Gaussian used to assign initial weights
-        RTNEAT(const std::string& param_file, size_t inputs, size_t outputs, size_t population_size, F32 noise);
+        RTNEAT(const std::string& param_file, 
+               size_t inputs, 
+               size_t outputs,
+               size_t population_size, 
+               F32 noise);
 
         /// Destructor
         ~RTNEAT();
         
         /// are we ready to spawn a new organism?
-        bool ready() { return !mWaitingBrainList.empty(); }
+        bool ready();
+                
+        /// have we been deleted?
+        bool have_organism(AgentBrainPtr agent);
         
         /// get the organism currently assigned to the agent
         PyOrganismPtr get_organism(AgentBrainPtr agent);
@@ -161,7 +172,6 @@ namespace OpenNero
         /// operator to push to an output stream
         friend std::ostream& operator<<(std::ostream& output, const PyOrganism& net);
     };
-
 }
 
 #endif /* _OPENNERO_AI_RTNEAT_RTNEAT_H_ */
