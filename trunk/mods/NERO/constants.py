@@ -41,7 +41,7 @@ FLAG_SENSORS = [(-90, -12), (-18, 3), (-3, 18), (12, 90), (87, -87)]
 NEAT_SENSORS = len(WALL_SENSORS) + len(FLAG_SENSORS)
 
 # Number of network outputs
-NEAT_ACTIONS = 2
+NEAT_ACTIONS = 3
 
 # Network bias value
 NEAT_BIAS = 0.3

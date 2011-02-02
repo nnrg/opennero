@@ -15,11 +15,17 @@ class Turret(AgentBrain):
         return True
 
     def start(self, time, sensors):
+        self.org = None
+        self.net = None
+        self.state.label = "Turret"
+        self.group = "Turret"
         a = self.actions.get_instance()
         for x in range(len(self.actions)):
             a[x] = 0
-            if x == 2:
+            if x == 1:
               a[x] = 0
+            if x == 2:
+              a[x] = 1
         return a
 
     def act(self,time,sensors,reward):
@@ -28,6 +34,8 @@ class Turret(AgentBrain):
             a[x] = 0
             if x == 1:
               a[x] = .1
+            if x == 2:
+              a[x] = 1
 
         return a
 

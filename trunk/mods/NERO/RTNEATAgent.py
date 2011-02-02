@@ -43,6 +43,7 @@ class RTNEATAgent(AgentBrain):
         rtneat = self.get_rtneat()
         self.org = rtneat.next_organism(EXPLOIT_PROB)
         self.state.label = "%.02f" % self.org.fitness
+        self.group = "Agent"
         if FITNESS_OUT:    
             self.file_out = []
             self.file_out.append(str(gettime()))

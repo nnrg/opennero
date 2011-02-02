@@ -59,7 +59,8 @@ class NeroEnvironment(Environment):
         # actions
         abound.add_continuous(-1,1) # forward/backward speed
         abound.add_continuous(-0.2, 0.2) # left/right turn (in radians)
-        
+        abound.add_continuous(0,1)
+
         # Wall sensors
         for a in WALL_SENSORS:
             sbound.add_continuous(0,1)
@@ -86,10 +87,11 @@ class NeroEnvironment(Environment):
         """
         from NERO.module import getMod
         state = self.get_state(agent)
-        dx = randrange(XDIM/20) - XDIM/40
-        dy = randrange(XDIM/20) - XDIM/40
-        state.initial_position.x = getMod().spawn_x + dx
-        state.initial_position.y = getMod().spawn_y + dy
+        if agent.group == "Agent":
+            dx = randrange(XDIM/20) - XDIM/40
+            dy = randrange(XDIM/20) - XDIM/40
+            state.initial_position.x = getMod().spawn_x + dx
+            state.initial_position.y = getMod().spawn_y + dy
         agent.state.position = copy(state.initial_position)
         agent.state.rotation = copy(state.initial_rotation)
         state.pose = (state.initial_position.x, state.initial_position.y, state.initial_rotation.z)
@@ -193,14 +195,16 @@ class NeroEnvironment(Environment):
             p = agent.state.position
             r = agent.state.rotation
             r.z = randrange(360)
-            agent.state.rotation = r #Note the internal components of agent.state.rotation are immutable you need to make a copy, modify the copy, and set agent.state.rotation to be the copy.
+            if agent.group == "Agent":
+                agent.state.rotation = r #Note the internal components of agent.state.rotation are immutable you need to make a copy, modify the copy, and set agent.state.rotation to be the copy.
             
             state.initial_position = p
             state.initial_rotation = r
             
             state.pose = (p.x, p.y, r.z)
             state.prev_pose = (p.x, p.y, r.z)
-            self.pop_state[agent.org.id] = state
+            if agent.group == "Agent":
+                self.pop_state[agent.org.id] = state
             return 0
 
         #Spawn more agents if there are more to spawn (Staggered spawning times tend to yeild better behavior)
@@ -216,7 +220,8 @@ class NeroEnvironment(Environment):
         state.curr_damage = 0
         
         #Add current unit to pop_state
-        self.pop_state[agent.org.id] = state 
+        if agent.group == "Agent":
+            self.pop_state[agent.org.id] = state 
         
         #Fitness Function Parameters
         fitness = getMod().weights
@@ -251,16 +256,18 @@ class NeroEnvironment(Environment):
         fire_pos = copy(position)
         fire_pos.x, fire_pos.y = fire_x, fire_y
         
+
         # calculate if we hit anyone
-        data = self.target(agent)
-        #string = agent.state.label + str(len(data)) + ": "
         hit = 0
-        if data != None:#len(data) > 0:
-            sim = data
-            #string += str(sim.label) + "," + str(sim.id) + ";"
-            target = self.getStateId(sim.id)
-            if target != -1:
-                target.curr_damage += 1 * friendly_fire
+        if action[2] > .5:
+            data = self.target(agent)
+            #string = agent.state.label + str(len(data)) + ": "
+            if data != None:#len(data) > 0:
+                sim = data
+                #string += str(sim.label) + "," + str(sim.id) + ";"
+                target = self.getStateId(sim.id)
+                if target != -1:
+                    target.curr_damage += 1 * friendly_fire
         
         # calculate friend/foe
         ffr = self.getFriendFoe(agent)
@@ -306,7 +313,8 @@ class NeroEnvironment(Environment):
         
         #If it's the final state, handle clean up behaviors
         #You may get better behavior if you move this to epsiode_over
-        if agent.step >= self.max_steps - 1 or (getMod().hp != 0 and state.total_damage >= getMod().hp):
+        if agent.group == "Agent":
+         if agent.step >= self.max_steps - 1 or (getMod().hp != 0 and state.total_damage >= getMod().hp):
             rtneat = agent.get_rtneat()
             pop = rtneat.get_population_ids()
             if len(pop) == 0:
@@ -441,7 +449,8 @@ class NeroEnvironment(Environment):
         for x in pop:
             f = self.pop_state[x].prev_fitness
             stats.add(f)
-        stats.add(self.pop_state[agent.org.id].prev_fitness)
+        if agent.group == "Agent":
+            stats.add(self.pop_state[agent.org.id].prev_fitness)
         return stats.mean, stats.stddev()
     
     def clear_averages(self):
