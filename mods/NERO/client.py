@@ -73,6 +73,10 @@ def show_context_menu():
         from module import getMod
         getMod().change_flag([location.x,location.y,0])
 
+    def place_basic_turret():
+        from module import getMod
+        getMod().place_basic_turret([location.x,location.y,0])
+
     def set_spawn():
         getMod().set_spawn(location.x,location.y)
 
@@ -104,7 +108,11 @@ def show_context_menu():
         flagButton = gui.create_button(guiMan, 'flag', Pos2i(0,0), Pos2i(0,0), '')
         flagButton.OnMouseLeftClick = lambda: place_flag()
         contextMenu.addItem('Place Flag', flagButton)
-        
+       
+        turretButton = gui.create_button(guiMan, 'b_turret', Pos2i(0,0), Pos2i(0,0), '')
+        turretButton.OnMouseLeftClick = lambda: place_basic_turret()
+        contextMenu.addItem('Place Basic Turret', turretButton)
+
         spawnButton = gui.create_button(guiMan, 'spawn', Pos2i(0,0), Pos2i(0,0), '')
         spawnButton.OnMouseLeftClick = lambda: set_spawn()
         contextMenu.addItem('Set Spawn Location', spawnButton)
