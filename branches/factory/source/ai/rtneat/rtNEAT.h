@@ -75,6 +75,8 @@ namespace OpenNero
         
         void evolveAll();
         
+        void deleteUnit(PyOrganismPtr brain);
+        
         virtual void ProcessTick( float32_t incAmt );
 
         /// save the current population to a file

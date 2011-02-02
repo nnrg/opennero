@@ -102,6 +102,7 @@ namespace OpenNero
         else
         {
             PyOrganismPtr brain = mWaitingBrainList.front();
+            mWaitingBrainList.pop();
             mBrainBodyMap.insert(BrainBodyMap::value_type(id, brain));
             return brain;
         }
@@ -135,6 +136,23 @@ namespace OpenNero
             output.close();
             return true;
         }
+    }
+    
+    void RTNEAT::deleteUnit(PyOrganismPtr brain)
+    {
+        // Push the brain onto the back of the waiting brain queue
+        mWaitingBrainList.push(brain);
+
+        // find brain in brain-body map
+        BrainBodyMap::right_map::iterator found = mBrainBodyMap.right.find(brain);
+        // disconnect brain from body
+        mBrainBodyMap.right.erase(brain);
+    
+        // Unregister and delete the body from the simulation
+        
+        
+        // Increment the deletion counter
+        ++mTotalUnitsDeleted;
     }
     
     void RTNEAT::ProcessTick( float32_t incAmt )
