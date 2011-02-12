@@ -19,13 +19,12 @@ class Turret(AgentBrain):
         self.net = None
         self.state.label = "Turret"
         self.group = "Turret"
+        self.team = 1
         a = self.actions.get_instance()
         for x in range(len(self.actions)):
             a[x] = 0
             if x == 1:
               a[x] = 0
-            if x == 2:
-              a[x] = 1
         return a
 
     def act(self,time,sensors,reward):
@@ -33,14 +32,12 @@ class Turret(AgentBrain):
         for x in range(len(self.actions)):
             a[x] = 0
             if x == 1:
-              a[x] = .1
-            if x == 2:
-              a[x] = 1
+              a[x] = .15
 
         return a
 
-    def getTeam(self):
-        return 2
+    def get_team(self):
+        return self.team
 
     def end(self,time,reward):
         return True

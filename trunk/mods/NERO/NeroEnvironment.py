@@ -48,6 +48,7 @@ class NeroEnvironment(Environment):
         self.time = time.time()
         self.MAX_DIST = pow((pow(XDIM, 2) + pow(YDIM, 2)), .5)
         self.states = {}
+        self.teams = {}
         self.speedup = 0
         
         self.pop_state = {}
@@ -59,7 +60,6 @@ class NeroEnvironment(Environment):
         # actions
         abound.add_continuous(-1,1) # forward/backward speed
         abound.add_continuous(-0.2, 0.2) # left/right turn (in radians)
-        abound.add_continuous(0,1)
 
         # Wall sensors
         for a in WALL_SENSORS:
@@ -124,6 +124,9 @@ class NeroEnvironment(Environment):
         else:
             self.states[agent] = AgentState()
             self.states[agent].id = agent.state.id
+            if agent.get_team() not in  self.teams:
+                self.teams[agent.get_team()] = {}
+            self.teams[agent.get_team()][agent] = self.states[agent]
             return self.states[agent]
 
     def getStateId(self, id):
@@ -142,8 +145,11 @@ class NeroEnvironment(Environment):
         """
         friend = []
         foe = []
-        friend = self.states.values()
-        foe = []
+        friend = self.teams[agent.get_team()]
+        if 1-agent.get_team() in self.teams:
+            foe = self.teams[1-agent.get_team()]
+        else:
+            foe = []
         return (friend, foe)
 
     def target(self, agent):
@@ -153,14 +159,15 @@ class NeroEnvironment(Environment):
         if (ffr[0] == []):
             return None
 
+
         state = self.get_state(agent)
         
         #sort in order of variance from 0~2 degrees (maybe more)
         valids = []
         for curr in alt:
-            fd = self.distance(state.pose,(curr.pose[0],curr.pose[1]))
+            fd = self.distance(state.pose,(alt[curr].pose[0],alt[curr].pose[1]))
             if fd != 0:
-                fh  = ((degrees(atan2(curr.pose[1]-state.pose[1],curr.pose[0] - state.pose[0])) - state.pose[2]) % 360)
+                fh  = ((degrees(atan2(alt[curr].pose[1]-state.pose[1],alt[curr].pose[0] - state.pose[0])) - state.pose[2]) % 360)
             else:
                 fh = 0
             fh = abs(fh)
@@ -214,6 +221,7 @@ class NeroEnvironment(Environment):
                 dy = randrange(XDIM/20) - XDIM/40
                 getMod().addAgent((getMod().spawn_x + dx, getMod().spawn_y + dy, 2))
 
+
         # Update Damage totals
         state.total_damage += state.curr_damage
         damage = state.curr_damage
@@ -256,18 +264,17 @@ class NeroEnvironment(Environment):
         fire_pos = copy(position)
         fire_pos.x, fire_pos.y = fire_x, fire_y
         
-
         # calculate if we hit anyone
         hit = 0
-        if action[2] > .5:
-            data = self.target(agent)
-            #string = agent.state.label + str(len(data)) + ": "
-            if data != None:#len(data) > 0:
+        data = self.target(agent)
+        #string = agent.state.label + str(len(data)) + ": "
+        if data != None:#len(data) > 0:
                 sim = data
                 #string += str(sim.label) + "," + str(sim.id) + ";"
-                target = self.getStateId(sim.id)
+                target = self.get_state(sim)
                 if target != -1:
-                    target.curr_damage += 1 * friendly_fire
+                    target.curr_damage += 1
+                    hit = 1
         
         # calculate friend/foe
         ffr = self.getFriendFoe(agent)
@@ -276,16 +283,16 @@ class NeroEnvironment(Environment):
         ff = []
         ff.append(self.nearest(state.pose, state.id, ffr[0]))
         ff.append(self.nearest(state.pose, state.id, ffr[1]))
-        
+
         st = 0
         ae = 0
-        
+
         #calculate fitness
         sg = -action[0]
-        if ff[0] != 1 and self.distance(ff[0].pose,state.pose) != 0:
-            st = distance_st / self.distance(ff[0].pose,state.pose)
-        if ff[1] != 1 and self.distance(ff[1].pose,state.pose) != 0:
-            ae = distance_ae / self.distance(ff[1].pose,state.pose)
+        if ff[0] != 1 and self.distance(self.get_state(ff[0]).pose,state.pose) != 0:
+            st = distance_st / self.distance(self.get_state(ff[0]).pose,state.pose)
+        if ff[1] != 1 and self.distance(self.get_state(ff[1]).pose,state.pose) != 0:
+            ae = distance_ae / self.distance(self.get_state(ff[1]).pose,state.pose)
         af = (distance_af/self.flag_distance(agent))
         ht = hit
         vf = -damage        
@@ -378,11 +385,11 @@ class NeroEnvironment(Environment):
         nearest = 1
         value = self.MAX_DIST * 5
         for other in array:
-            if id == other.id:
+            if id == array[other].id:
                 continue
-            if self.distance(cloc, other.pose) < value:
+            if self.distance(cloc, array[other].pose) < value:
                 nearest = other
-                value - self.distance(cloc, other.pose)
+                value - self.distance(cloc, array[other].pose)
         return nearest
 
     def set_animation(self, agent, state, animation):
