@@ -44,6 +44,7 @@ class RTNEATAgent(AgentBrain):
         self.org = rtneat.next_organism(EXPLOIT_PROB)
         self.state.label = "%.02f" % self.org.fitness
         self.group = "Agent"
+        self.team = 0
         if FITNESS_OUT:    
             self.file_out = []
             self.file_out.append(str(gettime()))
@@ -81,6 +82,9 @@ class RTNEATAgent(AgentBrain):
         """
         return True
         
+    def get_team(self):
+        return self.team
+
     def network_action(self, sensors):
         """
         Take the current network
