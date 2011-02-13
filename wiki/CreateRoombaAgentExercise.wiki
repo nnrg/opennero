@@ -15,7 +15,7 @@ In this assignment, you will write a very simple behavior script for a roomba-li
 	  * Look at the following files:
 		  * [http://opennero.googlecode.com/svn/trunk/mods/Roomba/data/shapes/roomba/Roomba.xml mods/Roomba/data/shapes/roomba/Roomba.xml]: this is the XML template for a roomba agent
 		  * [http://opennero.googlecode.com/svn/trunk/mods/Roomba/roomba.py mods/Roomba/roomba.py]: This is the Roomba behavior you will modify later
-		  * [http://opennero.googlecode.com/svn/trunk/mods/Roomba/SandboxEnvironment.py mods/Roomba/SandboxEnvironment.py]: this is the environment that defines the rules for what happens and how the actions are interpreted
+		  * [http://opennero.googlecode.com/svn/trunk/mods/Roomba/module.py mods/Roomba/module.py]: this is the environment that defines the rules for what happens and how the actions are interpreted
   * Compare the provided script with a random baseline
 	  * How well do the different kinds of agents work in this environment?
 	  * Plug in a random agent instead of `RoombaBrain`:
