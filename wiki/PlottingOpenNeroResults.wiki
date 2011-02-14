@@ -15,6 +15,7 @@ In order to run the built-in plot viewer, you will need the following installed 
 = Details =
 
   * Locate the logging output produced by OpenNERO (see OpenNeroLogs)
-  * Run {{{
+  * Run
+{{{
 python plot_server.py YOUR_NERO_LOG
 }}}
