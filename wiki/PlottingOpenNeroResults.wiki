@@ -8,9 +8,9 @@ OpenNERO comes with its own tool for plotting the progress of an AI algorithm (t
 
 In order to run the built-in plot viewer, you will need the following installed on your operating system:
 
-  * [http//www.python.org/ Python]
+  * [http://www.python.org/ Python]
   * [http://matplotlib.sourceforge.net/ matplotlib]
-  * [http://www.wxpython.org/]
+  * [http://www.wxpython.org/ wxPython]
 
 = Details =
 
