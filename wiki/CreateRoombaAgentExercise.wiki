@@ -57,7 +57,7 @@ class RandomAgent(AgentBrain):
 		return True
 }}}
 	  * Run a single vacuum with this behavior a number of times to get a good idea of how well it does on average
-	  * Use *plot_server.py* to look at the fitness of the agent recorded in *nero_log.txt* (it's a good idea to save this file after a long run).
+	  * Use *plot_server.py* (see PlottingOpenNeroResults) to look at the fitness of the agent recorded in *nero_log.txt* (see OpenNeroLogs) (it's a good idea to save this file after a long run).
 {{{
 pythonw plot_server.py path/to/your/nero_log.txt
 }}}
