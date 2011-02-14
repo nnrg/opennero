@@ -37,7 +37,7 @@ ADDR = (HOST, PORT)
 BUFSIZE = 4086
 SAVE_EVERY = 5
 
-ai_tick_pattern = re.compile(r'(?P<date>[^\[]*)\.(?P<msec>[0-9]+) \(m\) \[ai\.tick\]\s+(?P<id>\S+)\s+(?P<episode>\S+)\s+(?P<step>\S+)\s+(?P<reward>\S+)\s+(?P<fitness>\S+)')
+ai_tick_pattern = re.compile(r'(?P<date>[^\[]*)\.(?P<msec>[0-9]+) \(.\) \[ai\.tick\]\s+(?P<id>\S+)\s+(?P<episode>\S+)\s+(?P<step>\S+)\s+\[\s+(?P<reward>\S+\s+)\]\s+\[\s+(?P<fitness>\S+\s+)\]')
 timestamp_fmt = r'%Y-%b-%d %H:%M:%S'
 file_timestamp_fmt = r'%Y-%m-%d-%H-%M-%S'
 
@@ -165,11 +165,15 @@ class LearningCurve:
             t = time.strptime(m.group('date'), timestamp_fmt) # time of the record
             episode = int(m.group('episode'))
             step = int(m.group('step'))
-            reward = float(m.group('reward'))
-            fitness = float(m.group('fitness'))
+            reward_str = m.group('reward') # could be n-dimentional
+            reward = float(reward_str.split()[0]) # for now only plot [0]
+            fitness_str = m.group('fitness') # could be n-dimensional
+            fitness = float(fitness_str.split()[0]) # for now plot only [0]
             ms = int(m.group('msec')) / 1000000.0 # the micro-second part in seconds
             base = time.mktime(t) # seconds since the epoch
             self.append( id, base + ms, episode, step, reward, fitness )
+        elif line.find('ai.tick') >= 0:
+            print line
 
     def process_file(self, f):
         line = f.readline()

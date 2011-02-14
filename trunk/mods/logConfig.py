@@ -20,4 +20,4 @@ def ignore(type):
 # component section filters
 #ignore('ai')
 ignore('game')
-ignore('ai.tick')
+#ignore('ai.tick')
