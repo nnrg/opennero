@@ -1,5 +1,6 @@
 #include "core/Common.h"
 #include "game/SimEntity.h"
+#include "game/SimContext.h"
 #include "game/Kernel.h"
 #include "ai/AIObject.h"
 #include "ai/AgentBrain.h"
@@ -157,13 +158,10 @@ namespace OpenNero
     {
         // Push the brain onto the back of the waiting brain queue
         mWaitingBrainList.push(brain);
-        
-        // find brain in brain-body map
-        BrainBodyMap::right_map::iterator found = mBrainBodyMap.right.find(brain);
-        
+
         // disconnect brain from body
         mBrainBodyMap.right.erase(brain);
-        
+
         // Increment the deletion counter
         ++mTotalUnitsDeleted;
     }
@@ -174,10 +172,20 @@ namespace OpenNero
 		++mSpawnTickCount;
 		++mEvolutionTickCount;
 
-		// Iterate through the active bodies in the field, removing those which have exceeded the time limit.
-        for( BrainBodyMap::const_iterator iter = mBrainBodyMap.begin(), iend = mBrainBodyMap.end(); iter != iend; ++iter )
+        // iterate through the body id's and check to see if they have died
+        // if they have, we need to remove them from the books and put their
+        // brains back into the evaluation queue
+        BrainBodyMap::left_map::const_iterator iter = mBrainBodyMap.left.begin();
+        BrainBodyMap::left_map::const_iterator iend = mBrainBodyMap.left.end();
+        while (iter != iend)
         {
-            AssertMsg(false, "FIXME: delete unit");
+            SimId id = iter->first;
+            PyOrganismPtr brain = iter->second;
+            SimEntityPtr found = Kernel::instance().GetSimContext()->getSimulation()->Find(id);
+            ++iter; // iterate first, deleteUnit may invalidate our pointer!
+            if (!found) {
+                deleteUnit(brain);
+            }
         }
 
         // Evaluate all brains' scores
@@ -401,9 +409,10 @@ namespace OpenNero
                 }
             }
 
-            // Iterate through all of the Brains, find the one whose Organism was killed off, and link that Brain
-            // to the newly created Organism, effectively doing a "hot swap" of the Organisms in that Brain.  
-            
+            // Iterate through all of the Brains
+            //   - find the one whose Organism was killed off
+            //   - link that Brain to the newly created Organism, effectively 
+            //     doing a "hot swap" of the Organisms in that Brain.
             for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
                 if ((*iter)->GetOrganism() == deadorg) {
                     PyOrganismPtr brain = *iter;

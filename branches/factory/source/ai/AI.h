@@ -173,7 +173,7 @@ namespace OpenNero {
     size_t hash_value(const StateActionPair& sa_pair);
     
     /// An AI is a global "puppeteer" algorithm that manages the resources necessary
-    /// to do learning or intelligent behavior. Examples of AI algorithms include policy search
+    /// to do learning or intelligent behavior. Examples of AI algorithms include population
     /// methods such as neuroevolution (rtNEAT), online learning methods such as Q-learning or
     /// Sarsa, or non-adaptive behaviors such as A* path finding.
     class AI : public TemplatedObject

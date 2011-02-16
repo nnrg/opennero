@@ -47,20 +47,29 @@ namespace OpenNero
         SimContext();
         ~SimContext();
 
-        // -- For IEventReceiver ---
+        /// For IEventReceiver
+        /// @{
 
         /// handle an event
         bool HandleEvent( const irr::SEvent& event );
+        
+        /// @}
 
-        // -- For SimContext ---
+        /// For SimContext
+        /// @{
 
         /// Initialize a simcontext given a device
         bool Initialize(IrrlichtDevice_IPtr device);
+        
+        /// @}
 
         bool onPush(int argc, char** argv);
         bool onPop();
 
     public:
+
+        /// Exported to scripting API in exports.cpp
+        /// @{
 
         /// return the font
 		irr::gui::IGUIFont* GetFont();
@@ -130,7 +139,7 @@ namespace OpenNero
         void SetObjectColor( SimId id, const SColor& color );
 		bool SetObjectAnimation( SimId id, const std::string& animation_type );
         /// @}
-
+        
         /// Get the position of the SimEntity specified by the id
         Vector3f GetObjectPosition( SimId id ) const;
 
@@ -173,7 +182,7 @@ namespace OpenNero
         /// Define proper mapping for inputs
         void SetInputMapping( const PyIOMap& ioMap );
 
-        // --- end scripting interface methods
+        /// @}
 
         /// return the active camera
         CameraPtr getActiveCamera() const;

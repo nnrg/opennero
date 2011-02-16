@@ -45,6 +45,7 @@ namespace OpenNero
             mEnvironment->cleanup();
             mEnvironment.reset();
         }
+        mAIs.clear();
     }
 
     AIPtr AIManager::GetAI(const std::string& name) const

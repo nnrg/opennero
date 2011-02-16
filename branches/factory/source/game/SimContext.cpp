@@ -278,9 +278,11 @@ namespace OpenNero
         // potentially change a lot of things such as which mod we want to run.
         UpdateInputSystem(dt);
         
+        // Call the ProcessTick method of the global AI manager
+        AIManager::instance().ProcessTick(dt);
+        
         // This will loop through all the objects in the simulation, calling
-        // their ProcessTick method. In particular, it will run all of the AI
-        // decisions.
+        // their ProcessTick method.
         UpdateSimulation(dt);
         
         // This will trigger scheduled events in the Python script,
@@ -350,11 +352,9 @@ namespace OpenNero
         ScriptingEngine::instance().Tick(dt);
     }
 
-    /// update the local simulations
+    /// Update the simulation
     void SimContext::UpdateSimulation(float32_t dt)
     {
-        AIManager::instance().ProcessTick(dt);
-
         // update the simulation
         if( mpSimulation )
         {

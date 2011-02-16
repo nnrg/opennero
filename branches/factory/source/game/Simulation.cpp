@@ -119,7 +119,7 @@ namespace OpenNero
     SimEntityPtr Simulation::Find( SimId id ) const
     {
         SimIdHashMap::const_iterator itr = mSimIdHashedEntities.find(id);
-        return ( itr == mSimIdHashedEntities.end() ) ? SimEntityPtr( (SimEntity*)0 ) : itr->second;
+        return ( itr == mSimIdHashedEntities.end() ) ? SimEntityPtr() : itr->second;
     }
 
     /**
