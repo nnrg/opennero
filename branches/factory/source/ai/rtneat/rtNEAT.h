@@ -9,6 +9,7 @@
 #include "scripting/scripting.h"
 #include "ai/AI.h"
 #include "ai/Environment.h"
+#include "ai/rtneat/ScoreHelper.h"
 #include <string>
 #include <set>
 #include <queue>
@@ -148,47 +149,6 @@ namespace OpenNero
         }
         /// operator to push to an output stream
         friend std::ostream& operator<<(std::ostream& output, const PyNetwork& net);
-    };
-    
-    class Stats
-    {
-    public:
-        static U32 s_RunningAverageSampleSize;
-    private:
-        
-        /// Number of trials processed over the unit's lifetime
-        U32 m_NumLifetimeTrials;
-        
-        /// Zero stats (for resetting)
-        Reward m_ZeroStats;
-        
-        /// Fields for holding stat accumulations
-        Reward m_Stats;
-        
-        /// Lifetime averages of stat accumulations
-        Reward m_LifetimeAverage;
-        
-    public:
-        /// Constructor
-        explicit Stats(const RewardInfo& info);
-        
-        /// Destructor
-        ~Stats() {}
-        
-        /// Reset all stats
-        void resetAll();
-        
-        /// start next trial
-        void startNextTrial();
-        
-        /// predict what stats would be w/o death
-        void predictStats(int timeAlive, int fullLife );
-        
-        // Stat-tallying methods
-        void tally(Reward sample);
-        
-        /// Stat-retrieval methods
-        Reward getStats();
     };
 
     /// A Python wrapper for the Organism class with a simple interface for fitness and network

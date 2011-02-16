@@ -211,8 +211,7 @@ namespace OpenNero
     {
         // calculate Z-score for all the organisms we know about
         // 1. Let d be the number of dimensions in the fitness function
-        // 2. Let w be the vector of d weights of relative importance (user-assigned)
-        
+        // 2. Let w be the vector of d weights of relative importance (user-assigned)        
         // 3. Let fitness_mean be the vector of d means of each dimension of the fitness function
         Reward fitness_mean;
         // 4. Let fitness_stdev be the vector of d standard deviations for each dimension of the fitness
@@ -224,7 +223,7 @@ namespace OpenNero
                      (*iter)->GetOrganism()->time_alive > 0 )
                 {
                     (*iter)->GetOrganism()->time_alive++;
-                    AssertMsg(false, "FIXME/TODO: start next trial to normalize by time_alive_minimum");
+                    (*iter)->mStats.startNextTrial();
                 }
                 AssertMsg(false, "FIXME/TODO: add stats samples");
             }
@@ -392,72 +391,6 @@ namespace OpenNero
                 }
             }
         }
-    }
-    
-    U32 Stats::s_RunningAverageSampleSize = 2;
-
-    /// Number of trials processed over the unit's lifetime
-    Stats::Stats(const RewardInfo& info) 
-        : m_NumLifetimeTrials(0)
-        , m_ZeroStats(info.getInstance())
-        , m_Stats(m_ZeroStats)
-        , m_LifetimeAverage(m_ZeroStats)
-    {
-    
-    }
-            
-    /// Reset all stats
-    void Stats::resetAll()
-    {
-        m_NumLifetimeTrials = 0;
-        m_Stats = m_ZeroStats;
-        m_LifetimeAverage = m_ZeroStats;
-    }
-    
-    /// start next trial
-    void Stats::startNextTrial()
-    {
-        ++m_NumLifetimeTrials;
-        if (m_NumLifetimeTrials <= s_RunningAverageSampleSize)
-        {
-            m_LifetimeAverage += (m_Stats / (F32)m_NumLifetimeTrials);
-        } else {
-            m_LifetimeAverage += (m_Stats / (F32)s_RunningAverageSampleSize) - 
-                (m_LifetimeAverage / (F32)s_RunningAverageSampleSize);
-        }
-        m_Stats = m_ZeroStats;
-    }
-    
-    /// predict what stats would be w/o death
-    void Stats::predictStats(int timeAlive, int fullLife )
-    {
-        //get the local duration of life that we've lived
-        int localTimeAlive = timeAlive % fullLife;
-
-        //we can't predict if time is zero.
-        if( localTimeAlive == 0 )
-            return;
-
-        //we if have already lived a full life, no need to predict
-        if( localTimeAlive >= fullLife )
-            return;
-
-        F32 predict = (F32)fullLife / localTimeAlive;
-
-        //predict the stats
-        m_Stats = m_Stats * predict;
-    }
-    
-    // Stat-tallying methods
-    void Stats::tally(Reward sample)
-    {
-        m_Stats += sample;
-    }
-    
-    /// Stat-retrieval methods
-    Reward Stats::getStats()
-    {
-        return m_Stats;
     }
     
     std::ostream& operator<<(std::ostream& output, const PyNetwork& net)
