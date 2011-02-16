@@ -59,10 +59,14 @@ namespace OpenNero
 
             /// called right before the agent dies
             virtual bool destroy() = 0;
+            
+            /// get the current fitness of the agent
+            Reward get_fitness() { return fitness; }
 
-            /// set the body associated with this agent
+            /// add a sensor to this agent's body
             size_t add_sensor(SensorPtr s) { return GetBody()->add_sensor(s); }
 
+            /// set the body associated with this agent
             virtual void SetBody(AIObjectPtr body) { mBody = body; }
 
             /// get the body associated with this agent
