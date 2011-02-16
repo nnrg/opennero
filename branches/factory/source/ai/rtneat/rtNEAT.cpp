@@ -37,7 +37,11 @@ namespace OpenNero
     /// @param filename name of the file with the initial population genomes
     /// @param param_file file with RTNEAT parameters to load
     /// @param population_size size of the population to construct
-    RTNEAT::RTNEAT(const std::string& filename, const std::string& param_file, size_t population_size)
+    /// @param reward_info the specifications for the multidimensional reward
+    RTNEAT::RTNEAT(const std::string& filename, 
+                   const std::string& param_file, 
+                   size_t population_size,
+                   const RewardInfo& reward_info)
         : mPopulation()
         , mWaitingBrainList()
 		, mBrainList()
@@ -52,7 +56,7 @@ namespace OpenNero
         AssertMsg(mOffspringCount == population_size, "population has " << mOffspringCount << " organisms instead of " << population_size);
         for (size_t i = 0; i < mPopulation->organisms.size(); ++i)
         {
-			PyOrganismPtr brain(new PyOrganism(mPopulation->organisms[i]));
+			PyOrganismPtr brain(new PyOrganism(mPopulation->organisms[i], reward_info));
             mWaitingBrainList.push(brain);
         }
     }
@@ -63,7 +67,13 @@ namespace OpenNero
     /// @param outputs number of outputs
     /// @param population_size size of the population to construct
     /// @param noise variance of the Gaussian used to assign initial weights
-    RTNEAT::RTNEAT(const std::string& param_file, size_t inputs, size_t outputs, size_t population_size, F32 noise)
+    /// @param reward_info the specifications for the multidimensional reward
+    RTNEAT::RTNEAT(const std::string& param_file, 
+                   size_t inputs, 
+                   size_t outputs, 
+                   size_t population_size, 
+                   F32 noise,
+                   const RewardInfo& reward_info)
         : mPopulation()
         , mWaitingBrainList()
 		, mBrainList()
@@ -79,7 +89,7 @@ namespace OpenNero
         AssertMsg(mOffspringCount == population_size, "population has " << mOffspringCount << " organisms instead of " << population_size);
         for (size_t i = 0; i < mPopulation->organisms.size(); ++i)
         {
-			PyOrganismPtr brain(new PyOrganism(mPopulation->organisms[i]));
+			PyOrganismPtr brain(new PyOrganism(mPopulation->organisms[i], reward_info));
             mWaitingBrainList.push(brain);
         }
     }
@@ -399,7 +409,9 @@ namespace OpenNero
     /// Reset all stats
     void Stats::resetAll()
     {
-    
+        m_NumLifetimeTrials = 0;
+        m_Stats = m_ZeroStats;
+        m_LifetimeAverage = m_ZeroStats;
     }
     
     /// start next trial

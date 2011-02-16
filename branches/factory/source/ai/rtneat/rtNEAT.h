@@ -51,9 +51,11 @@ namespace OpenNero
         /// @param filename name of the file with the initial population genomes
         /// @param param_file file with RTNEAT parameters to load
         /// @param population_size size of the population to construct
+        /// @param reward_info the specifications for the multidimensional reward
         RTNEAT(const std::string& filename, 
                const std::string& param_file, 
-               size_t population_size);
+               size_t population_size,
+               const RewardInfo& reward_info);
 
         /// Constructor
         /// @param param_file RTNEAT parameter file
@@ -61,11 +63,13 @@ namespace OpenNero
         /// @param outputs number of outputs
         /// @param population_size size of the population to construct
         /// @param noise variance of the Gaussian used to assign initial weights
+        /// @param reward_info the specifications for the multidimensional reward
         RTNEAT(const std::string& param_file, 
                size_t inputs, 
                size_t outputs,
                size_t population_size, 
-               F32 noise);
+               F32 noise,
+               const RewardInfo& reward_info);
 
         /// Destructor
         ~RTNEAT();
@@ -82,12 +86,18 @@ namespace OpenNero
         /// release the organism that was being used by the agent
         void release_organism(AgentBrainPtr agent);
         
+        /// evaluate all brains by compiling their stats
         void evaluateAll();
         
+        /// evolution step that potentially replaces an organism with an 
+        /// ofspring
         void evolveAll();
         
+        /// Delete the unit which is currently associated with the specified
+        /// brain and move the brain back to waiting list.
         void deleteUnit(PyOrganismPtr brain);
         
+        /// Called every step by the OpenNERO system
         virtual void ProcessTick( float32_t incAmt );
 
         /// save the current population to a file
@@ -163,7 +173,7 @@ namespace OpenNero
         explicit Stats(const RewardInfo& info);
         
         /// Destructor
-        ~Stats();
+        ~Stats() {}
         
         /// Reset all stats
         void resetAll();
@@ -187,9 +197,16 @@ namespace OpenNero
         OrganismPtr mOrganism;
     public:
 		F32 mAbsoluteScore;
+        Stats mStats;
 
 		/// constructor for a PyOrganism
-        PyOrganism(OrganismPtr org) : mOrganism(org), mAbsoluteScore(0) {}
+        /// @param org rtNEAT organism to wrap
+        /// @param reward_info the info about the multidimensional reward
+        PyOrganism(OrganismPtr org, const RewardInfo& reward_info) : 
+            mOrganism(org), 
+            mAbsoluteScore(0),
+            mStats(reward_info)
+        { }
         /// set the fitness of the organism
         void SetFitness(double fitness) { 
             if (mOrganism->fitness == 0)
