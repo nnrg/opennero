@@ -100,8 +100,7 @@ namespace OpenNero
     bool RTNEAT::have_organism(AgentBrainPtr agent)
     {
         BrainBodyMap::left_map::const_iterator found;
-        SimId id = agent->GetBody()->GetId();
-        found = mBrainBodyMap.left.find(id);
+        found = mBrainBodyMap.left.find(agent->GetBody());
         return (found != mBrainBodyMap.left.end());
     }
     
@@ -109,8 +108,7 @@ namespace OpenNero
     PyOrganismPtr RTNEAT::get_organism(AgentBrainPtr agent)
     {
         BrainBodyMap::left_map::const_iterator found;
-        SimId id = agent->GetBody()->GetId();
-        found = mBrainBodyMap.left.find(id);
+        found = mBrainBodyMap.left.find(agent->GetBody());
         if (found != mBrainBodyMap.left.end())
         {
             return found->second;
@@ -119,7 +117,7 @@ namespace OpenNero
         {
             PyOrganismPtr brain = mWaitingBrainList.front();
             mWaitingBrainList.pop();
-            mBrainBodyMap.insert(BrainBodyMap::value_type(id, brain));
+            mBrainBodyMap.insert(BrainBodyMap::value_type(agent->GetBody(), brain));
             return brain;
         }
 
@@ -129,8 +127,7 @@ namespace OpenNero
     void RTNEAT::release_organism(AgentBrainPtr agent)
     {
         BrainBodyMap::left_map::const_iterator found;
-        SimId id = agent->GetBody()->GetId();
-        found = mBrainBodyMap.left.find(id);
+        found = mBrainBodyMap.left.find(agent->GetBody());
         Assert(found != mBrainBodyMap.left.end());
         mWaitingBrainList.push(found->second);
     }
@@ -146,7 +143,7 @@ namespace OpenNero
         }
         else
         {
-            LOG_F_DEBUG("rtNEAT", "Saving population to " << fname);
+            LOG_F_DEBUG("ai.rtneat", "Saving population to " << fname);
             //output << mPopulation;
             mPopulation->print_to_file(output);
             output.close();
@@ -179,10 +176,10 @@ namespace OpenNero
         BrainBodyMap::left_map::const_iterator iend = mBrainBodyMap.left.end();
         while (iter != iend)
         {
-            SimId id = iter->first;
+            AIObjectPtr body = iter->first;
             PyOrganismPtr brain = iter->second;
-            SimEntityPtr found = Kernel::instance().GetSimContext()->getSimulation()->Find(id);
-            ++iter; // iterate first, deleteUnit may invalidate our pointer!
+            SimEntityPtr found = Kernel::instance().GetSimContext()->getSimulation()->Find(body->GetId());
+            ++iter; // iterate first, deleteUnit may invalidate our pointer by changing BBM!
             if (!found) {
                 deleteUnit(brain);
             }
@@ -202,29 +199,23 @@ namespace OpenNero
     
     void RTNEAT::evaluateAll()
     {
-        // Zero out the score helper
-        //mScoreHelper->reset();
-
+        // calculate Z-score for all the organisms we know about
+        // 1. Let d be the number of dimensions in the fitness function
+        // 2. Let w be the vector of d weights of relative importance (user-assigned)
+        
+        // 3. Let fitness_mean be the vector of d means of each dimension of the fitness function
+        Reward fitness_mean;
+        // 4. Let fitness_stdev be the vector of d standard deviations for each dimension of the fitness
+        Reward fitness_stdev;
+        
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
-                if ( (!((*iter)->GetOrganism()->time_alive % NEAT::time_alive_minimum)) && (*iter)->GetOrganism()->time_alive > 0 ) {
-
-                    //temp hack. evaluateBrains() is called
-                    //more often than NeroBrain::think for some reason
-                    (*iter)->GetOrganism()->time_alive++; 												   
-                    //(*iter)->m_Stats.startNextTrial();
+                if ( !((*iter)->GetOrganism()->time_alive % NEAT::time_alive_minimum) && 
+                     (*iter)->GetOrganism()->time_alive > 0 )
+                {
+                    (*iter)->GetOrganism()->time_alive++;
+                    AssertMsg(false, "FIXME/TODO: start next trial to normalize by time_alive_minimum");
                 }
-                //mScoreHelper->addAccuracyOfShotsSample((*iter)->m_Stats.getAccuracyOfShots());
-                //mScoreHelper->addEnemyHitsSample((*iter)->m_Stats.getEnemyHits());
-                //mScoreHelper->addFriendHitsSample((*iter)->m_Stats.getFriendHits());
-                //mScoreHelper->addHitsTakenSample((*iter)->m_Stats.getHitsTaken());
-                //mScoreHelper->addWeaponFiresSample((*iter)->m_Stats.getWeaponFires());
-                //mScoreHelper->addTravelDistanceSample((*iter)->m_Stats.getTravelDistance());
-                //mScoreHelper->addDistanceFromEnemiesSample((*iter)->m_Stats.getDistanceFromEnemies());
-                //mScoreHelper->addDistanceFromFriendsSample((*iter)->m_Stats.getDistanceFromFriends());
-                //mScoreHelper->addDistanceFromFlagSample((*iter)->m_Stats.getDistanceFromFlag());
-                //mScoreHelper->addRangeFromEnemySample((*iter)->m_Stats.getRangeFromEnemy());
-                //mScoreHelper->addRangeFromFriendsSample((*iter)->m_Stats.getRangeFromFriends());
                 AssertMsg(false, "FIXME/TODO: add stats samples");
             }
         }
@@ -235,43 +226,10 @@ namespace OpenNero
         F32 minAbsoluteScore = 0; // min of 0, min abs score
         F32 maxAbsoluteScore = -FLT_MAX; // max raw score
         PyOrganismPtr champ; // brain with best raw score
-        //F32 accuracyOfShotsScore;
-        //F32 enemyHitsScore;
-        //F32 friendHitsScore;
-        //F32 hitsTakenScore;
-        //F32 weaponFiresScore;
-        //F32 travelDistanceScore;
-        //F32 distanceFromEnemiesScore;
-        //F32 distanceFromFriendsScore;
-        //F32 distanceFromFlagScore;
-        //F32 rangeFromEnemyScore;
-        //F32 rangeFromFriendsScore;
 
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
-                //accuracyOfShotsScore = mScoreHelper->getAccuracyOfShotsRelativeScore((*iter)->m_Stats.getAccuracyOfShots()) * s_AccuracyOfShotsWeight;
-                //enemyHitsScore = mScoreHelper->getEnemyHitsRelativeScore((*iter)->m_Stats.getEnemyHits()) * s_EnemyHitsWeight;
-                //friendHitsScore = mScoreHelper->getFriendHitsRelativeScore((*iter)->m_Stats.getFriendHits()) * s_FriendHitsWeight;
-                //hitsTakenScore = mScoreHelper->getHitsTakenRelativeScore((*iter)->m_Stats.getHitsTaken()) * s_HitsTakenWeight;
-                //weaponFiresScore = mScoreHelper->getWeaponFiresRelativeScore((*iter)->m_Stats.getWeaponFires()) * s_WeaponFiresWeight;
-                //travelDistanceScore = mScoreHelper->getTravelDistanceRelativeScore((*iter)->m_Stats.getTravelDistance()) * s_TravelDistanceWeight;
-                //distanceFromEnemiesScore = mScoreHelper->getDistanceFromEnemiesRelativeScore((*iter)->m_Stats.getDistanceFromEnemies()) * s_DistanceFromEnemiesWeight;
-                //distanceFromFriendsScore = mScoreHelper->getDistanceFromFriendsRelativeScore((*iter)->m_Stats.getDistanceFromFriends()) * s_DistanceFromFriendsWeight;
-                //distanceFromFlagScore = mScoreHelper->getDistanceFromFlagRelativeScore((*iter)->m_Stats.getDistanceFromFlag()) * s_DistanceFromFlagWeight;
-                //rangeFromEnemyScore = mScoreHelper->getRangeFromEnemyRelativeScore((*iter)->m_Stats.getRangeFromEnemy()) * s_RangeFromEnemyWeight;
-                //rangeFromFriendsScore = mScoreHelper->getRangeFromFriendsRelativeScore((*iter)->m_Stats.getRangeFromFriends()) * s_RangeFromFriendsWeight;
-
-                //(*iter)->mAbsoluteScore = accuracyOfShotsScore +
-                //    enemyHitsScore +
-                //    friendHitsScore +
-                //    hitsTakenScore +
-                //    weaponFiresScore +
-                //    travelDistanceScore +
-                //    distanceFromEnemiesScore +
-                //    distanceFromFriendsScore +
-                //    distanceFromFlagScore +
-                //    rangeFromEnemyScore +
-                //    rangeFromFriendsScore;
+                AssertMsg(false, "FIXME/TODO: calculate mAbsoluteScore");
 
                 if ((*iter)->mAbsoluteScore < minAbsoluteScore)
                     minAbsoluteScore = (*iter)->mAbsoluteScore;
@@ -321,8 +279,8 @@ namespace OpenNero
         OrganismPtr deadorg = mPopulation->remove_worst();
 
         //We can try to keep the number of species constant at this number
-        S32 num_species_target=4;
-        S32 compat_adjust_frequency = mBrainList.size()/10;
+        U32 num_species_target=4;
+        U32 compat_adjust_frequency = mBrainList.size()/10;
         if (compat_adjust_frequency < 1)
             compat_adjust_frequency = 1;
 
@@ -359,20 +317,21 @@ namespace OpenNero
                 if (samplesize > 0)
                     scoreavg /= (F32)samplesize;
 
-                LOG_F_DEBUG("ai", "Species " << (*curspec)->id << 
-					              " size: " << (*curspec)->organisms.size() << 
-								  " elig. size: " << samplesize <<
-								  " avg. score: " << scoreavg);
+                LOG_F_DEBUG("ai.rtneat", "Species " << (*curspec)->id << 
+                            " size: " << (*curspec)->organisms.size() << 
+                            " elig. size: " << samplesize <<
+                            " avg. score: " << scoreavg);
             }
 
             // Print out info about the organism that was killed off
             for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
                 if ((*iter)->GetOrganism() == deadorg) {
-                    LOG_F_DEBUG("ai", "Org to kill: score = " << (*iter)->mAbsoluteScore);
+                    LOG_F_DEBUG("ai.rtneat", "Org to kill: score = " << (*iter)->mAbsoluteScore);
                     break;
                 }
             }
 
+            // TODO: currently assuming this was not used
             //m_Population->memory_pool->isEmpty();
             //if(Platform::getRandom()<=s_MilestoneProbability && !m_Population->memory_pool->isEmpty())// && meets probability requirement)
             //{
@@ -423,6 +382,70 @@ namespace OpenNero
                 }
             }
         }
+    }
+    
+    U32 Stats::s_RunningAverageSampleSize = 2;
+
+    /// Number of trials processed over the unit's lifetime
+    Stats::Stats(const RewardInfo& info) 
+        : m_NumLifetimeTrials(0)
+        , m_ZeroStats(info.getInstance())
+        , m_Stats(m_ZeroStats)
+        , m_LifetimeAverage(m_ZeroStats)
+    {
+    
+    }
+            
+    /// Reset all stats
+    void Stats::resetAll()
+    {
+    
+    }
+    
+    /// start next trial
+    void Stats::startNextTrial()
+    {
+        ++m_NumLifetimeTrials;
+        if (m_NumLifetimeTrials <= s_RunningAverageSampleSize)
+        {
+            m_LifetimeAverage += (m_Stats / (F32)m_NumLifetimeTrials);
+        } else {
+            m_LifetimeAverage += (m_Stats / (F32)s_RunningAverageSampleSize) - 
+                (m_LifetimeAverage / (F32)s_RunningAverageSampleSize);
+        }
+        m_Stats = m_ZeroStats;
+    }
+    
+    /// predict what stats would be w/o death
+    void Stats::predictStats(int timeAlive, int fullLife )
+    {
+        //get the local duration of life that we've lived
+        int localTimeAlive = timeAlive % fullLife;
+
+        //we can't predict if time is zero.
+        if( localTimeAlive == 0 )
+            return;
+
+        //we if have already lived a full life, no need to predict
+        if( localTimeAlive >= fullLife )
+            return;
+
+        F32 predict = (F32)fullLife / localTimeAlive;
+
+        //predict the stats
+        m_Stats = m_Stats * predict;
+    }
+    
+    // Stat-tallying methods
+    void Stats::tally(Reward sample)
+    {
+        m_Stats += sample;
+    }
+    
+    /// Stat-retrieval methods
+    Reward Stats::getStats()
+    {
+        return m_Stats;
     }
     
     std::ostream& operator<<(std::ostream& output, const PyNetwork& net)

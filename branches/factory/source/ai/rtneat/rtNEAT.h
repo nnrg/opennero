@@ -26,11 +26,11 @@ namespace OpenNero
     BOOST_SHARED_DECL(RTNEAT);
     BOOST_SHARED_DECL(PyNetwork);
     BOOST_SHARED_DECL(PyOrganism);
-    BOOST_SHARED_DECL(PyRTNEATEnvironment);
+    BOOST_SHARED_DECL(AIObject);
     /// @endcond
 
-    /// A bi-directional map linking SimId
-    typedef boost::bimap<SimId, PyOrganismPtr> BrainBodyMap;
+    /// A bi-directional map associating AIObjects (bodies) with PyOrganisms (rtNEAT brains)
+    typedef boost::bimap<AIObjectPtr, PyOrganismPtr> BrainBodyMap;
     
     /// An interface for the RTNEAT learning algorithm
     class RTNEAT : public AI {
@@ -139,6 +139,47 @@ namespace OpenNero
         /// operator to push to an output stream
         friend std::ostream& operator<<(std::ostream& output, const PyNetwork& net);
     };
+    
+    class Stats
+    {
+    public:
+        static U32 s_RunningAverageSampleSize;
+    private:
+        
+        /// Number of trials processed over the unit's lifetime
+        U32 m_NumLifetimeTrials;
+        
+        /// Zero stats (for resetting)
+        Reward m_ZeroStats;
+        
+        /// Fields for holding stat accumulations
+        Reward m_Stats;
+        
+        /// Lifetime averages of stat accumulations
+        Reward m_LifetimeAverage;
+        
+    public:
+        /// Constructor
+        explicit Stats(const RewardInfo& info);
+        
+        /// Destructor
+        ~Stats();
+        
+        /// Reset all stats
+        void resetAll();
+        
+        /// start next trial
+        void startNextTrial();
+        
+        /// predict what stats would be w/o death
+        void predictStats(int timeAlive, int fullLife );
+        
+        // Stat-tallying methods
+        void tally(Reward sample);
+        
+        /// Stat-retrieval methods
+        Reward getStats();
+    };
 
     /// A Python wrapper for the Organism class with a simple interface for fitness and network
     class PyOrganism
@@ -152,7 +193,8 @@ namespace OpenNero
         /// set the fitness of the organism
         void SetFitness(double fitness) { 
             if (mOrganism->fitness == 0)
-            mOrganism->fitness = fitness; }
+            mOrganism->fitness = fitness;
+        }
         /// get the fitness of the organism
         double GetFitness() const { return mOrganism->fitness; }
 		/// get the genome ID of this organism
