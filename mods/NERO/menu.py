@@ -125,7 +125,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_SCROLL, self.OnFD,self.fds)
         grid.Add(self.fds,pos=(4,6))
         grid.Add(self.fdt,pos=(4,4))
-
+        
         #Hit Target Slider
         self.htt = wx.StaticText(self,label = "Hit Target", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.hts = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
@@ -137,16 +137,27 @@ class NeroPanel(wx.Panel, ScriptClient):
         grid.Add(self.hts,pos=(5,2))
         grid.Add(self.htt,pos=(5,0))
 
+        #Avoid Fire Slider
+        self.vft = wx.StaticText(self,label = "Avoid Fire", pos=wx.DefaultPosition, size=wx.DefaultSize)
+        self.vfs = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
+        self.vfs.SetScrollbar(wx.HORIZONTAL,0,200,200)
+        self.vfs.SetThumbPosition(100)
+        self.vfl = wx.StaticText(self,label = str(self.vfs.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
+        grid.Add(self.vfl,pos=(6,1))
+        self.Bind(wx.EVT_SCROLL, self.OnVF,self.vfs)
+        grid.Add(self.vfs,pos=(6,2))
+        grid.Add(self.vft,pos=(6,0))
+
         #Lifetime Slider
         self.ltt = wx.StaticText(self,label = "Lifetime", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.lts = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
         self.lts.SetScrollbar(wx.HORIZONTAL,0,100,100)
         self.lts.SetThumbPosition(10)
         self.ltl = wx.StaticText(self,label = str(self.lts.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.ltl,pos=(6,1))
+        grid.Add(self.ltl,pos=(7,1))
         self.Bind(wx.EVT_SCROLL, self.OnLT,self.lts)
-        grid.Add(self.lts,pos=(6,2))
-        grid.Add(self.ltt,pos=(6,0))
+        grid.Add(self.lts,pos=(7,2))
+        grid.Add(self.ltt,pos=(7,0))
 
         #Friendly Fire Slider
         self.fft = wx.StaticText(self,label = "Friendly Fire", pos=wx.DefaultPosition, size=wx.DefaultSize)
@@ -154,10 +165,10 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.ffs.SetScrollbar(wx.HORIZONTAL,0,200,200)
         self.ffs.SetThumbPosition(100)
         self.ffl = wx.StaticText(self,label = str(self.sgs.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.ffl,pos=(7,1))
+        grid.Add(self.ffl,pos=(8,1))
         self.Bind(wx.EVT_SCROLL, self.OnFF,self.ffs)
-        grid.Add(self.ffs,pos=(7,2))
-        grid.Add(self.fft,pos=(7,0))
+        grid.Add(self.ffs,pos=(8,2))
+        grid.Add(self.fft,pos=(8,0))
 
         #Explore/Exploit Slider
         self.eet = wx.StaticText(self,label = "Explore/Exploit", pos=wx.DefaultPosition, size=wx.DefaultSize)
@@ -262,6 +273,10 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.htl.SetLabel(str(event.Position - 100))
         self.send("HT %d" % event.Position)
 
+    def OnVF(self,event):
+        self.vfl.SetLabel(str(event.Position - 100))
+        self.send("VF %d" % event.Position)
+    
     def OnLT(self,event):
         self.ltl.SetLabel(str(event.Position))
         self.send("LT %d" % event.Position)
