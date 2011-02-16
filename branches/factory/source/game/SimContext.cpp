@@ -358,7 +358,7 @@ namespace OpenNero
         // update the simulation
         if( mpSimulation )
         {
-            mpSimulation->ProcessWorld(dt);
+            mpSimulation->ProcessTick(dt);
             // after all the decisions have been made, we need to check if there 
             // were any collisions and undo the motions that caused them
             mpSimulation->DoCollisions();

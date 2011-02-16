@@ -66,7 +66,7 @@ namespace OpenNero
         ///@}
 
         // move the simulation forward by time dt
-        void ProcessWorld( float32_t dt );
+        void ProcessTick( float32_t dt );
         
         // detect and deal with collisions
         void DoCollisions();
@@ -89,7 +89,7 @@ namespace OpenNero
         
         hash_map<uint32_t, SimEntitySet> mEntityTypes; ///< entity sets by type
 
-        SimIdSet            mRemoveSet;             ///< SimId's to remove after next ProcessWorld
+        SimIdSet            mRemoveSet;             ///< SimId's to remove after next ProcessTick
 
         EnvironmentPtr      mWorld;                 ///< The AI World interface
 
