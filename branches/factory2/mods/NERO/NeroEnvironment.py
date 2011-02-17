@@ -3,7 +3,6 @@ from math import *
 from OpenNero import *
 from NERO.module import *
 from constants import *
-from common.fitness import Fitness, FitnessStats
 from copy import copy
 from random import *
 
@@ -25,9 +24,6 @@ class AgentState:
         self.start_time = self.time
         self.total_damage = 0
         self.curr_damage = 0
-        self.fitness = Fitness()
-        self.prev_fitness = Fitness()
-        self.final_fitness = 0
         self.animation = 'stand'
 
 class NeroEnvironment(Environment):
@@ -75,12 +71,6 @@ class NeroEnvironment(Environment):
         
         self.agent_info = AgentInitInfo(sbound, abound, rbound)
     
-    def out_of_bounds(self, pos):
-        """
-        Checks if a given position is in bounds
-        """
-        return pos.x < 0 or pos.y < 0 or pos.x > XDIM or pos.y > YDIM
-    
     def reset(self, agent):
         """
         reset the environment to its initial state
@@ -98,10 +88,6 @@ class NeroEnvironment(Environment):
         state.prev_pose = state.pose
         state.total_damage = 0
         state.curr_damage = 0
-        state.prev_fitness = state.fitness
-        state.fitness = Fitness()
-        #update client fitness
-        from client import set_stat
         ff = self.getFriendFoe(agent)
         return True
     
@@ -186,7 +172,6 @@ class NeroEnvironment(Environment):
 
         return top
 
-
     def step(self, agent, action):
         """
         2A step for an agent
@@ -196,6 +181,9 @@ class NeroEnvironment(Environment):
         assert(self.agent_info.actions.validate(action))
         
         state = self.get_state(agent)
+        
+        # get the reward (which has multiple components)
+        reward = self.agent_info.reward.get_instance()
 
         #Initilize Agent state
         if agent.step == 0:
@@ -212,7 +200,7 @@ class NeroEnvironment(Environment):
             state.prev_pose = (p.x, p.y, r.z)
             if agent.group == "Agent":
                 self.pop_state[agent.org.id] = state
-            return 0
+            return reward
 
         #Spawn more agents if there are more to spawn (Staggered spawning times tend to yeild better behavior)
         if agent.step == 3:
@@ -279,7 +267,7 @@ class NeroEnvironment(Environment):
         # calculate friend/foe
         ffr = self.getFriendFoe(agent)
         if ffr[0] == []:
-            return 0 #Corner Case
+            return reward #Corner Case
         ff = []
         ff.append(self.nearest(state.pose, state.id, ffr[0]))
         ff.append(self.nearest(state.pose, state.id, ffr[1]))
@@ -298,13 +286,13 @@ class NeroEnvironment(Environment):
         vf = -damage        
         
         #update current state data with fitness values
-        state.fitness[Fitness.STAND_GROUND] += sg
-        state.fitness[Fitness.STICK_TOGETHER] += st
-        state.fitness[Fitness.APPROACH_ENEMY] += ae
-        state.fitness[Fitness.APPROACH_FLAG] += af
-        state.fitness[Fitness.HIT_TARGET] += ht
-        state.fitness[Fitness.AVOID_FIRE] += vf
-
+        reward[0] = sg
+        reward[1] = st
+        reward[2] = ae
+        reward[3] = af
+        reward[4] = ht
+        reward[5] = vf
+        
         # calculate the motion
         new_position = copy(position)
         new_position.x, new_position.y = new_x, new_y
@@ -318,24 +306,7 @@ class NeroEnvironment(Environment):
         state.pose = (new_position.x, new_position.y, rotation.z)
         state.time = time.time()
         
-        #If it's the final state, handle clean up behaviors
-        #You may get better behavior if you move this to epsiode_over
-        if agent.group == "Agent":
-         if agent.step >= self.max_steps - 1 or (getMod().hp != 0 and state.total_damage >= getMod().hp):
-            rtneat = agent.get_rtneat()
-            pop = rtneat.get_population_ids()
-            if len(pop) == 0:
-                return 0
-            avg,sig = self.generate_averages(agent)
-            sums = Fitness()
-            sums = getMod().weights * (state.fitness - avg) / sig
-            #Add current unit to pop_state
-            self.pop_state[agent.org.id] = state
-            state.final_fitness = sums.sum()
-            print 'FITNESS:',getMod().weights * state.fitness,'=> Z-SCORE:', state.final_fitness
-            return state.final_fitness
-
-        return 0
+        return reward
 
     def sense(self, agent, observations):
         """ 
@@ -443,26 +414,6 @@ class NeroEnvironment(Environment):
         """
         killScript('NERO/menu.py')
         return True
-
-    def generate_averages(self,agent):
-        """
-        Generates averages for using Z-Fitness
-        """
-        rtneat = agent.get_rtneat()
-        pop = rtneat.get_population_ids()
-        # calculate population average
-        # calculate population standard deviation
-        stats = FitnessStats()
-        for x in pop:
-            f = self.pop_state[x].prev_fitness
-            stats.add(f)
-        if agent.group == "Agent":
-            stats.add(self.pop_state[agent.org.id].prev_fitness)
-        return stats.mean, stats.stddev()
-    
-    def clear_averages(self):
-        for x in self.pop_state:
-            self.pop_state[x].prev_fitness = Fitness()
 
     def get_delay(self):
         """

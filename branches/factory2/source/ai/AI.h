@@ -172,8 +172,32 @@ namespace OpenNero {
     /// hash value of a state-action pair
     size_t hash_value(const StateActionPair& sa_pair);
     
+    /// addition operator for Reward, Observation and Action vectors
+    FeatureVector operator+(const FeatureVector& left, const FeatureVector& right);
+    
+    /// addition operator for Reward, Observation and Action vectors
+    FeatureVector& operator+=(FeatureVector& left, const FeatureVector& right);
+
+    /// subtraction operator for Reward, Observation and Action vectors
+    FeatureVector operator-(const FeatureVector& left, const FeatureVector& right);
+    
+    /// subtraction operator for Reward, Observation and Action vectors
+    FeatureVector& operator-=(FeatureVector& left, const FeatureVector& right);
+
+    /// scalar multiplication operator for Reward, Observation and Action vectors
+    FeatureVector operator*(const FeatureVector& left, const double& right);
+    
+    /// scalar multiplication operator for Reward, Observation and Action vectors
+    FeatureVector& operator*=(FeatureVector& left, const double& right);
+
+    /// scalar division operator for Reward, Observation and Action vectors
+    FeatureVector operator/(const FeatureVector& left, const double& right);
+
+    /// scalar division operator for Reward, Observation and Action vectors
+    FeatureVector& operator/=(FeatureVector& left, const double& right);
+
     /// An AI is a global "puppeteer" algorithm that manages the resources necessary
-    /// to do learning or intelligent behavior. Examples of AI algorithms include policy search
+    /// to do learning or intelligent behavior. Examples of AI algorithms include population
     /// methods such as neuroevolution (rtNEAT), online learning methods such as Q-learning or
     /// Sarsa, or non-adaptive behaviors such as A* path finding.
     class AI : public TemplatedObject
@@ -181,6 +205,8 @@ namespace OpenNero {
     public:
         virtual ~AI() {}
 
+        /// update our entity base on our object access mode
+        virtual void ProcessTick( float32_t incAmt ) = 0;
     };
 
 }

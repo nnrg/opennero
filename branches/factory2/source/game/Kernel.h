@@ -31,7 +31,8 @@ namespace OpenNero
 	 * The kernel is responsible for storing and manipulating the current mod loaded in the game.
 	 * It also provides utility functions for the mods to use. Note that it is a singleton.
 	*/
-	class Kernel : public irr::IEventReceiver
+	class Kernel : 
+        public irr::IEventReceiver
 	{
 		// allow this singleton_default class to allocate us
 		friend struct boost::details::pool::singleton_default<Kernel>;
