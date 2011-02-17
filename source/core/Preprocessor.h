@@ -55,8 +55,12 @@
 #endif
 
 // breakpoint insertion
-#if NERO_PLATFORM_WINDOWS 
+#if NERO_PLATFORM_WINDOWS
+#if defined(_WIN64)	
     #define NERO_BREAK __asm int 3
+#else
+    #define NERO_BREAK
+#endif
 #elif NERO_PLATFORM_LINUX
     #define NERO_BREAK asm("int $0x3")
 #else
