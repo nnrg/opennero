@@ -159,6 +159,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         grid.Add(self.lts,pos=(7,2))
         grid.Add(self.ltt,pos=(7,0))
 
+        """"
         #Friendly Fire Slider
         self.fft = wx.StaticText(self,label = "Friendly Fire", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.ffs = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
@@ -169,6 +170,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_SCROLL, self.OnFF,self.ffs)
         grid.Add(self.ffs,pos=(8,2))
         grid.Add(self.fft,pos=(8,0))
+        """
 
         #Explore/Exploit Slider
         self.eet = wx.StaticText(self,label = "Explore/Exploit", pos=wx.DefaultPosition, size=wx.DefaultSize)
