@@ -26,15 +26,15 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_BUTTON, self.OnDeploy, self.deploy)
 
         #Save1 Button
-        self.save = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Save Pop 1')
+        self.save = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Save Pop')# 1')
         buttonGrid.Add(self.save,pos=(0,1) )
         self.Bind(wx.EVT_BUTTON, self.OnSave1, self.save)
         
         #Load1 Button
-        self.load = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Load Pop 1')
+        self.load = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Load Pop')# 1')
         buttonGrid.Add(self.load, pos = (0,2) )
         self.Bind(wx.EVT_BUTTON, self.OnLoad1, self.load)
-
+        """
         #Save2 Button
         self.save2 = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Save Pop 2')
         buttonGrid.Add(self.save2,pos=(0,3) )
@@ -44,7 +44,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.load2 = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Load Pop 2')
         buttonGrid.Add(self.load2, pos = (0,4) )
         self.Bind(wx.EVT_BUTTON, self.OnLoad2, self.load2)
-        
+        """
         self.buttonPanel.SetSizer(buttonGrid)
 
         grid.Add(self.buttonPanel, pos=(0,0), span=(1,6))
