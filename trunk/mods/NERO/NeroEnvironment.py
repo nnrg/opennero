@@ -68,7 +68,11 @@ class NeroEnvironment(Environment):
         # Flag sensors
         for fs in FLAG_SENSORS:
             sbound.add_continuous(0,1)
-            
+        
+        # Enemy sensors
+        for es in ENEMY_SENSORS:
+            sbound.add_continuous(0,1)
+
         # rewards
         # our rewards are Z-scores, and so they could in theory be large
         rbound.add_continuous(-100,100) # range for reward
@@ -113,6 +117,9 @@ class NeroEnvironment(Environment):
             agent.add_sensor(RaySensor(cos(radians(a)), sin(radians(a)), 0, MAX_VISION_RADIUS, OBJECT_TYPE_OBSTACLE))
         for (a0, a1) in FLAG_SENSORS:
             agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS * 5, OBJECT_TYPE_FLAG))
+        for (a0, a1) in ENEMY_SENSORS:
+            if agent.get_team() == 0: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS * 5, OBJECT_TYPE_TEAM_1))
+            if agent.get_team() == 1: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS * 5, OBJECT_TYPE_TEAM_0))
         return self.agent_info
    
     def get_state(self, agent):
@@ -270,15 +277,18 @@ class NeroEnvironment(Environment):
         data = self.target(agent)
         #string = agent.state.label + str(len(data)) + ": "
         if data != None:#len(data) > 0:
+                print "We're getting inside at least"
                 objects = getSimContext().findInRay(position,data.state.position, OBJECT_TYPE_AGENT & OBJECT_TYPE_OBSTACLE ,True)
                 if len(objects) > 0: sim = objects[0]
                 else: sim = data
                 if len(objects) == 0 or objects[0] == sim:
                  #string += str(sim.label) + "," + str(sim.id) + ";"
                  target = self.get_state(data)
+                 print "Target hit successfully pre"
                  if target != -1:
                     target.curr_damage += 1
                     hit = 1
+                    print "Target hit successfully"
         
         # calculate friend/foe
         ffr = self.getFriendFoe(agent)
