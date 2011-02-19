@@ -19,6 +19,7 @@ class RTNEATAgent(AgentBrain):
         # this line is crucial, otherwise the class is not recognized as an 
         # AgentBrainPtr by C++
         AgentBrain.__init__(self)
+        self.team = 0
 
     def initialize(self, init_info):
         """
@@ -26,6 +27,7 @@ class RTNEATAgent(AgentBrain):
         """
         self.actions = init_info.actions # constraints for actions
         self.sensors = init_info.sensors # constraints for sensors
+        self.group = "Agent"
         return True
 
     def get_rtneat(self):
@@ -43,8 +45,6 @@ class RTNEATAgent(AgentBrain):
         rtneat = self.get_rtneat()
         self.org = rtneat.next_organism(EXPLOIT_PROB)
         self.state.label = "%.02f" % self.org.fitness
-        self.group = "Agent"
-        self.team = 0
         if FITNESS_OUT:    
             self.file_out = []
             self.file_out.append(str(gettime()))
