@@ -36,7 +36,6 @@ class NeroEnvironment(Environment):
         """
         Create the environment
         """
-        print "CREATING NERO ENVIRONMENT: " + str(dir(module))
         Environment.__init__(self) 
         
         self.curr_id = 0
@@ -273,7 +272,6 @@ class NeroEnvironment(Environment):
         R[FITNESS_APPROACH_FLAG] = (distance_af/self.flag_distance(agent))
         R[FITNESS_HIT_TARGET] = hit
         R[FITNESS_AVOID_FIRE] = -damage
-        print R
         
         # put the fitness dimensions into the reward vector in order
         for (i,f) in enumerate(FITNESS_DIMENSIONS):

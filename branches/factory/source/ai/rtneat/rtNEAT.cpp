@@ -248,17 +248,31 @@ namespace OpenNero
     {
         // Calculate the Z-score
         ScoreHelper scoreHelper(mRewardInfo);
+
+        size_t n_new_trials = 0;
+        size_t n_add_samples = 0;
+        size_t n_skipped = 0;
         
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
-                if ( !((*iter)->GetOrganism()->time_alive % NEAT::time_alive_minimum) && 
-                     (*iter)->GetOrganism()->time_alive > 0 )
+                size_t time_alive = (*iter)->GetOrganism()->time_alive;
+                if ( time_alive % NEAT::time_alive_minimum == 0 && time_alive > 0 )
                 {
                     (*iter)->mStats.startNextTrial();
+                    ++n_new_trials;
                 }
-                scoreHelper.addSample((*iter)->mStats.getStats());
+                Reward stats = (*iter)->mStats.getStats();
+                scoreHelper.addSample(stats);
+                ++n_add_samples;
+                LOG_F_DEBUG("ai.rtneat", "brain: " << (*iter)->GetId() << ", time_alive: " << time_alive << ", stats: " << stats);
+            }
+            else 
+            {
+                ++n_skipped;
             }
         }
+        
+        LOG_F_DEBUG("ai.rtneat", "ScoreHelper: " << n_new_trials << " " << n_add_samples << " " << n_skipped);
 
         scoreHelper.doCalculations();
 
