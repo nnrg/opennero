@@ -42,6 +42,7 @@ class RTNEATAgent(AgentBrain):
         from NERO.module import getMod
         EXPLOIT_PROB = getMod().ee
         org = self.get_org()
+        org.time_alive += 1
         self.state.label = "%.02f" % org.fitness
         if FITNESS_OUT:    
             self.file_out = []
@@ -93,8 +94,12 @@ class RTNEATAgent(AgentBrain):
         inputs = [sensor for sensor in sensors]        
         # add the bias value
         inputs.append(NEAT_BIAS)
+        # get the current organism we are using
+        org = self.get_org()
+        # increment the lifetime counter
+        org.time_alive += 1
         # get the current network we are using
-        net = self.get_org().net
+        net = org.net
         # load the list of sensors into the network input layer
         net.load_sensors(inputs)
         # activate the network

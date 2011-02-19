@@ -261,6 +261,8 @@ namespace OpenNero
         while (ileft != left.end() && iright != right.end())
         {
             *ileft += *iright;
+            ++ileft;
+            ++iright;
         }
         return left;
     }
@@ -288,6 +290,8 @@ namespace OpenNero
         while (ileft != left.end() && iright != right.end())
         {
             *ileft += *iright;
+            ++iright;
+            ++ileft;
         }
         return left;
     }
@@ -310,6 +314,7 @@ namespace OpenNero
         while (ileft != left.end())
         {
             *ileft *= right;
+            ++ileft;
         }
         return left;
     }
@@ -332,6 +337,7 @@ namespace OpenNero
         while (ileft != left.end())
         {
             *ileft *= right;
+            ++ileft;
         }
         return left;
     }

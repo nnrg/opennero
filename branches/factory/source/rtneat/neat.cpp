@@ -10,7 +10,7 @@ using namespace std;
 
 namespace NEAT
 {
-    U32 time_alive_minimum = 0;
+    U32 time_alive_minimum = 20;
     F64 trait_param_mut_prob = 0;
     F64 trait_mutation_power = 0; // Power of mutation on a signle trait param 
     F64 linktrait_mut_sig = 0; // Amount that mutation_num changes for a trait change inside a link

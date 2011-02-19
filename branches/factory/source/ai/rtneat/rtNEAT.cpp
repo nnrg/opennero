@@ -65,6 +65,7 @@ namespace OpenNero
         {
 			PyOrganismPtr brain(new PyOrganism(mPopulation->organisms[i], reward_info));
             mWaitingBrainList.push(brain);
+            mBrainList.push_back(brain);
         }
     }
 
@@ -104,6 +105,7 @@ namespace OpenNero
         {
 			PyOrganismPtr brain(new PyOrganism(mPopulation->organisms[i], reward_info));
             mWaitingBrainList.push(brain);
+            mBrainList.push_back(brain);
         }
     }
     
@@ -141,6 +143,10 @@ namespace OpenNero
             PyOrganismPtr brain = mWaitingBrainList.front();
             mWaitingBrainList.pop();
             mBrainBodyMap.insert(BrainBodyMap::value_type(agent->GetBody(), brain));
+            LOG_F_DEBUG("ai.rtneat", 
+                        "new brain: " << brain->GetOrganism()->gnome->genome_id <<
+                        " for body: " << agent->GetBody()->GetId());
+            
             return brain;
         }
 
@@ -152,7 +158,8 @@ namespace OpenNero
         BrainBodyMap::left_map::const_iterator found;
         found = mBrainBodyMap.left.find(agent->GetBody());
         Assert(found != mBrainBodyMap.left.end());
-        mWaitingBrainList.push(found->second);
+        PyOrganismPtr brain = found->second;
+        deleteUnit(brain);        
     }
 
     /// save a population to a file
@@ -179,11 +186,21 @@ namespace OpenNero
         // Push the brain onto the back of the waiting brain queue
         mWaitingBrainList.push(brain);
 
+#if NERO_DEBUG
+        // get the body that belongs to this brain
+        BrainBodyMap::right_map::const_iterator found = mBrainBodyMap.right.find(brain);
+        SimId body_id = found->second->GetId();
+        U32 brain_id = brain->GetId();
+        LOG_F_DEBUG("ai.rtneat", 
+                    "remove brain: " << brain_id << " from body: " << body_id);
+#endif
+
         // disconnect brain from body
         mBrainBodyMap.right.erase(brain);
 
         // Increment the deletion counter
         ++mTotalUnitsDeleted;
+        
     }
     
     void RTNEAT::ProcessTick( float32_t incAmt )
@@ -201,6 +218,7 @@ namespace OpenNero
         {
             AIObjectPtr body = iter->first;
             PyOrganismPtr brain = iter->second;
+            brain->mStats.tally(body->getReward());
             SimEntityPtr found = Kernel::instance().GetSimContext()->getSimulation()->Find(body->GetId());
             ++iter; // iterate first, deleteUnit may invalidate our pointer by changing BBM!
             if (!found) {
@@ -222,19 +240,13 @@ namespace OpenNero
         LOG_F_DEBUG("ai.rtneat", 
                     "brains: " << mBrainList.size() << 
                     ", waiting: " << mWaitingBrainList.size() << 
+                    ", active: " << mBrainBodyMap.size() <<
                     ", deleted: " << mTotalUnitsDeleted);
 	}
     
     void RTNEAT::evaluateAll()
     {
-        // calculate Z-score for all the organisms we know about
-        // 1. Let d be the number of dimensions in the fitness function
-        // 2. Let w be the vector of d weights of relative importance (user-assigned)        
-        // 3. Let fitness_mean be the vector of d means of each dimension of the fitness function
-        Reward fitness_mean;
-        // 4. Let fitness_stdev be the vector of d standard deviations for each dimension of the fitness
-        Reward fitness_stdev;
-        
+        // Calculate the Z-score
         ScoreHelper scoreHelper(mRewardInfo);
         
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
@@ -242,7 +254,6 @@ namespace OpenNero
                 if ( !((*iter)->GetOrganism()->time_alive % NEAT::time_alive_minimum) && 
                      (*iter)->GetOrganism()->time_alive > 0 )
                 {
-                    (*iter)->GetOrganism()->time_alive++;
                     (*iter)->mStats.startNextTrial();
                 }
                 scoreHelper.addSample((*iter)->mStats.getStats());
@@ -253,7 +264,6 @@ namespace OpenNero
 
         F32 minAbsoluteScore = 0; // min of 0, min abs score
         F32 maxAbsoluteScore = -FLT_MAX; // max raw score
-        PyOrganismPtr champ; // brain with best raw score
 
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
@@ -262,7 +272,7 @@ namespace OpenNero
                 Reward relative_score = scoreHelper.getRelativeScore(stats);
                 for (size_t i = 0; i < relative_score.size(); ++i)
                 {
-                    (*iter)->mAbsoluteScore += relative_score[i];
+                    (*iter)->mAbsoluteScore += relative_score[i] * mFitnessWeights[i];
                 }
                 if ((*iter)->mAbsoluteScore < minAbsoluteScore)
                     minAbsoluteScore = (*iter)->mAbsoluteScore;
@@ -270,6 +280,13 @@ namespace OpenNero
 					maxAbsoluteScore = (*iter)->mAbsoluteScore;
             }
         }
+        
+        LOG_F_DEBUG("ai.rtneat", 
+                    "evaluateAll minAbsoluteScore: " << minAbsoluteScore <<
+                    ", maxAbsoluteScore: " << maxAbsoluteScore <<
+                    ", mFitnessWeights: " << mFitnessWeights <<
+                    ", mean: " << scoreHelper.getAverage() <<
+                    ", stdev: " << scoreHelper.getStandardDeviation());
 
         if (minAbsoluteScore < 0) {
             for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {

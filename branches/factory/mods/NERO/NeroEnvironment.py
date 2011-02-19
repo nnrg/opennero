@@ -194,10 +194,8 @@ class NeroEnvironment(Environment):
             r = agent.state.rotation
             r.z = randrange(360)
             agent.state.rotation = r #Note the internal components of agent.state.rotation are immutable you need to make a copy, modify the copy, and set agent.state.rotation to be the copy.
-            
             state.initial_position = p
             state.initial_rotation = r
-            
             state.pose = (p.x, p.y, r.z)
             state.prev_pose = (p.x, p.y, r.z)
             return reward
@@ -215,7 +213,6 @@ class NeroEnvironment(Environment):
         state.curr_damage = 0
         
         #Fitness Function Parameters
-        fitness = getMod().weights
         distance_st = getMod().dta
         distance_ae = getMod().dtb
         distance_af = getMod().dtc
@@ -266,7 +263,6 @@ class NeroEnvironment(Environment):
         ff.append(self.nearest(state.pose, state.id, ffr[0]))
         ff.append(self.nearest(state.pose, state.id, ffr[1]))
         
-        
         #calculate fitness accrued during this step
         R = dict([(f, 0) for f in FITNESS_DIMENSIONS])
         R[FITNESS_STAND_GROUND] = -action[0]
@@ -277,10 +273,11 @@ class NeroEnvironment(Environment):
         R[FITNESS_APPROACH_FLAG] = (distance_af/self.flag_distance(agent))
         R[FITNESS_HIT_TARGET] = hit
         R[FITNESS_AVOID_FIRE] = -damage
+        print R
         
         # put the fitness dimensions into the reward vector in order
         for (i,f) in enumerate(FITNESS_DIMENSIONS):
-            reward[i] = fitness[f]
+            reward[i] = R[f]
         
         # calculate the motion
         new_position = copy(position)

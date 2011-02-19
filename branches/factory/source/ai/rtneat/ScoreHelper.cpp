@@ -33,7 +33,7 @@ namespace OpenNero {
     void ScoreHelper::doCalculations()
     {
         calculateAverages();
-        calculateStandardDeviations();    
+        calculateStandardDeviations();
     }
     
     void ScoreHelper::calculateAverages()

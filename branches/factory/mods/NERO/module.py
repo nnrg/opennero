@@ -14,7 +14,6 @@ class NeroModule:
     def __init__(self):
         self.environment = None
         self.agent_id = None
-        self.weights = dict([(f,0) for f in FITNESS_DIMENSIONS])
         self.lt = 10
         self.dta = 50
         self.dtb = 50
@@ -106,10 +105,11 @@ class NeroModule:
    
     #The following functions are used to let the client update the fitness function
     def set_weight(self, key, value):
-        self.weights[key] = (100.0 - value)/100.0
+        i = FITNESS_INDEX[key]
+        value = (value - 100) / 100.0 # value in [-1,1]
         rtneat = get_ai("rtneat")
         if rtneat:
-            rtneat.set_weight(FITNESS_INDEX[key])
+            rtneat.set_weight(i, value)
         print key, value
         
     def ltChange(self,value):
@@ -168,14 +168,14 @@ def parseInput(strn):
     loc,val = strn.split(' ')
     vali = 1
     if strn.isupper(): vali = int(val)
-    if loc == "SG": mod.set_weight(Fitness.STAND_GROUND,vali)
-    if loc == "ST": mod.set_weight(Fitness.STICK_TOGETHER,vali)
+    if loc == "SG": mod.set_weight(FITNESS_STAND_GROUND,vali)
+    if loc == "ST": mod.set_weight(FITNESS_STICK_TOGETHER,vali)
     if loc == "TD": mod.dtaChange(vali)
-    if loc == "AE": mod.set_weight(Fitness.APPROACH_ENEMY,vali)
+    if loc == "AE": mod.set_weight(FITNESS_APPROACH_ENEMY,vali)
     if loc == "ED": mod.dtbChange(vali)
-    if loc == "AF": mod.set_weight(Fitness.APPROACH_FLAG,vali) 
+    if loc == "AF": mod.set_weight(FITNESS_APPROACH_FLAG,vali) 
     if loc == "FD": mod.dtcChange(vali)
-    if loc == "HT": mod.set_weight(Fitness.HIT_TARGET,vali)
+    if loc == "HT": mod.set_weight(FITNESS_HIT_TARGET,vali)
     if loc == "LT": mod.ltChange(vali)
     if loc == "FF": mod.ffChange(vali)
     if loc == "EE": mod.eeChange(vali)

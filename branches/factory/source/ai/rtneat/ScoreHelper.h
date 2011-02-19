@@ -33,10 +33,13 @@ namespace OpenNero
         /// add a reward sample
         void addSample(Reward sample);
 
-        /// preferred generic method
+        /// average scores in all dimensions
         const Reward& getAverage() const { return m_Average; }
+        
+        /// standard deviation of scores in all dimensions
+        const Reward& getStandardDeviation() const { return m_StandardDeviation; }
 
-        /// get the relative (scaled) scores along the dimensions
+        /// get the relative (scaled) Z-scores along the dimensions
         Reward getRelativeScore(Reward absoluteScore) const;
     };
     
