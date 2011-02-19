@@ -68,8 +68,8 @@ namespace OpenNero {
     /// preferred generic method
     Reward ScoreHelper::getRelativeScore(Reward absoluteScore) const
     {
-        Reward result;
-        for (size_t i = 0; i < result.size(); ++i)
+        Reward result(absoluteScore);
+        for (size_t i = 0; i < absoluteScore.size(); ++i)
         {
             if (m_StandardDeviation[i] > 0) {
                 result[i] = (absoluteScore[i] - m_Average[i]) / m_StandardDeviation[i];

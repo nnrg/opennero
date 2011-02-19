@@ -318,6 +318,8 @@ namespace OpenNero
         // Remove the worst organism
         OrganismPtr deadorg = mPopulation->remove_worst();
 
+        LOG_F_DEBUG("ai.rtneat.evolve", "deadorg: " << deadorg);
+
         //We can try to keep the number of species constant at this number
         U32 num_species_target=4;
         U32 compat_adjust_frequency = mBrainList.size()/10;
@@ -363,14 +365,6 @@ namespace OpenNero
                             " avg. score: " << scoreavg);
             }
 
-            // Print out info about the organism that was killed off
-            for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
-                if ((*iter)->GetOrganism() == deadorg) {
-                    LOG_F_DEBUG("ai.rtneat", "Org to kill: score = " << (*iter)->mAbsoluteScore);
-                    break;
-                }
-            }
-
             // TODO: currently assuming this was not used
             //m_Population->memory_pool->isEmpty();
             //if(Platform::getRandom()<=s_MilestoneProbability && !m_Population->memory_pool->isEmpty())// && meets probability requirement)
@@ -414,6 +408,7 @@ namespace OpenNero
             //     doing a "hot swap" of the Organisms in that Brain.
             for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
                 if ((*iter)->GetOrganism() == deadorg) {
+                    LOG_F_DEBUG("ai.rtneat", "Org to kill: score = " << (*iter)->mAbsoluteScore);
                     PyOrganismPtr brain = *iter;
                     brain->SetOrganism(new_org);
                     brain->mStats.resetAll();
