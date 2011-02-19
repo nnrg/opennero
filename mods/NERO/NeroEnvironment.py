@@ -73,6 +73,10 @@ class NeroEnvironment(Environment):
         for es in ENEMY_SENSORS:
             sbound.add_continuous(0,1)
 
+        # Friend Sensors
+        sbound.add_continuous(0,1)
+        sbound.add_continuous(0,1)
+
         # rewards
         # our rewards are Z-scores, and so they could in theory be large
         rbound.add_continuous(-100,100) # range for reward
@@ -356,6 +360,29 @@ class NeroEnvironment(Environment):
         figure out what the agent should sense
         """
         # we only use the built-in sensors defined in get_agent_info
+
+        f = len(observations)
+        state = self.get_state(agent)
+
+
+        ffr = self.getFriendFoe(agent)
+        if (ffr[0] == []): return v
+        xloc = agent.state.position.x
+        yloc = agent.state.position.y
+        for x in ffr[0]:
+            xloc += ffr[0][x].pose[0]
+            yloc += ffr[0][x].pose[1]
+        xloc /= len(ffr[0])
+        yloc /= len(ffr[0])
+        fd = self.distance(state.pose,(xloc,yloc))
+        fh = 0
+        if fd != 0:
+            fh = ((degrees(atan2(yloc-state.pose[1],xloc - state.pose[0])) - state.pose[2]) % 360) - 180
+
+        if fd <= 15:
+            observations[f-2] = fd/15.0
+            observations[f-1] = fh/360.0
+
         return observations
    
     def flag_loc(self):

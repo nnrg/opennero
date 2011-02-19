@@ -52,7 +52,7 @@ FLAG_SENSORS = [(-90, -12), (-18, 3), (-3, 18), (12, 90), (87, -87)]
 ENEMY_SENSORS = [(-90, -12), (-18, 3), (-3, 18), (12, 90), (87, -87)]
 
 # Number of network inputs
-NEAT_SENSORS = len(WALL_SENSORS) + len(FLAG_SENSORS) + len(ENEMY_SENSORS)
+NEAT_SENSORS = len(WALL_SENSORS) + len(FLAG_SENSORS) + len(ENEMY_SENSORS) + 2
 
 # Number of network outputs
 NEAT_ACTIONS = 2
