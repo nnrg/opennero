@@ -46,6 +46,8 @@ namespace OpenNero
         , mWaitingBrainList()
 		, mBrainList()
         , mOffspringCount(0)
+        , mRewardInfo(reward_info)
+        , mFitnessWeights(reward_info.size())
     {
         NEAT::load_neat_params(Kernel::findResource(param_file));
         NEAT::pop_size = population_size;
@@ -78,6 +80,8 @@ namespace OpenNero
         , mWaitingBrainList()
 		, mBrainList()
         , mOffspringCount(0)
+        , mRewardInfo(reward_info)
+        , mFitnessWeights(reward_info.size())
     {
         NEAT::load_neat_params(Kernel::findResource(param_file));
         NEAT::pop_size = population_size;
@@ -217,6 +221,8 @@ namespace OpenNero
         // 4. Let fitness_stdev be the vector of d standard deviations for each dimension of the fitness
         Reward fitness_stdev;
         
+        ScoreHelper scoreHelper(mRewardInfo);
+        
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
                 if ( !((*iter)->GetOrganism()->time_alive % NEAT::time_alive_minimum) && 
@@ -225,12 +231,11 @@ namespace OpenNero
                     (*iter)->GetOrganism()->time_alive++;
                     (*iter)->mStats.startNextTrial();
                 }
-                AssertMsg(false, "FIXME/TODO: add stats samples");
+                scoreHelper.addSample((*iter)->mStats.getStats());
             }
         }
 
-        //mScoreHelper->doCalculations();
-        AssertMsg(false, "FIXME/TODO: mScoreHelper->doCalculations()");
+        scoreHelper.doCalculations();
 
         F32 minAbsoluteScore = 0; // min of 0, min abs score
         F32 maxAbsoluteScore = -FLT_MAX; // max raw score
@@ -238,8 +243,13 @@ namespace OpenNero
 
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
-                AssertMsg(false, "FIXME/TODO: calculate mAbsoluteScore");
-
+                (*iter)->mAbsoluteScore = 0;
+                Reward stats = (*iter)->mStats.getStats();
+                Reward relative_score = scoreHelper.getRelativeScore(stats);
+                for (size_t i = 0; i < relative_score.size(); ++i)
+                {
+                    (*iter)->mAbsoluteScore += relative_score[i];
+                }
                 if ((*iter)->mAbsoluteScore < minAbsoluteScore)
                     minAbsoluteScore = (*iter)->mAbsoluteScore;
 				if ((*iter)->mAbsoluteScore > maxAbsoluteScore)
@@ -385,7 +395,7 @@ namespace OpenNero
                 if ((*iter)->GetOrganism() == deadorg) {
                     PyOrganismPtr brain = *iter;
                     brain->SetOrganism(new_org);
-                    AssertMsg(false, "FIXME/TODO: (*iter)->m_Stats.resetAll();");
+                    brain->mStats.resetAll();
                     deleteUnit(brain);
                     break;
                 }

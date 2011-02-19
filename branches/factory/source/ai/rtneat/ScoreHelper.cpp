@@ -66,13 +66,7 @@ namespace OpenNero {
     }
 
     /// preferred generic method
-    Reward ScoreHelper::getAverage()
-    {
-        return m_Average;
-    }
-
-    /// preferred generic method
-    Reward ScoreHelper::getRelativeScore(Reward absoluteScore)
+    Reward ScoreHelper::getRelativeScore(Reward absoluteScore) const
     {
         Reward result;
         for (size_t i = 0; i < result.size(); ++i)
@@ -144,10 +138,4 @@ namespace OpenNero {
         m_Stats += sample;
     }
     
-    /// Stat-retrieval methods
-    Reward Stats::getStats()
-    {
-        return m_Stats;
-    }
-
 }

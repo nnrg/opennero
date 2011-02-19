@@ -31,13 +31,13 @@ namespace OpenNero
         void calculateStandardDeviations();
 
         /// add a reward sample
-        inline void addSample(Reward sample);
+        void addSample(Reward sample);
 
         /// preferred generic method
-        inline Reward getAverage();
+        const Reward& getAverage() const { return m_Average; }
 
-        /// preferred generic method
-        inline Reward getRelativeScore(Reward absoluteScore);
+        /// get the relative (scaled) scores along the dimensions
+        Reward getRelativeScore(Reward absoluteScore) const;
     };
     
     class Stats
@@ -78,7 +78,7 @@ namespace OpenNero
         void tally(Reward sample);
         
         /// Stat-retrieval methods
-        inline Reward getStats();
+        const Reward& getStats() const { return m_Stats; }
     };    
 }
 

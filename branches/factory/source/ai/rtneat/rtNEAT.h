@@ -46,6 +46,8 @@ namespace OpenNero
         size_t mSpawnFrequency;           ///< how many ticks have to pass between spawns
         size_t mUnitsToDeleteBeforeFirstJudgment; ///< number of units to delete before judging
         size_t mTimeBetweenEvolutions;    ///< time (in ticks) between rounds of evolution
+        RewardInfo mRewardInfo; ///< the constraints that describe the per-step rewards
+        FeatureVector mFitnessWeights; ///< fitness weights
         
     public:
         /// Constructor
@@ -106,6 +108,12 @@ namespace OpenNero
 
         /// load a population from a file
         bool load_population(const std::string& population_file);
+        
+        /// get the weight vector
+        const FeatureVector& get_weights() const { return mFitnessWeights; }
+        
+        /// set the i'th weight
+        void set_weight(size_t i, double weight) { mFitnessWeights[i] = weight; }
         
         /// load info about this AI from the object template
         bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data) { return true; }
