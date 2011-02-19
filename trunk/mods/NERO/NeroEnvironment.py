@@ -76,6 +76,7 @@ class NeroEnvironment(Environment):
         # Friend Sensors
         sbound.add_continuous(0,1)
         sbound.add_continuous(0,1)
+        sbound.add_continuous(0,1)
 
         # rewards
         # our rewards are Z-scores, and so they could in theory be large
@@ -380,8 +381,15 @@ class NeroEnvironment(Environment):
             fh = ((degrees(atan2(yloc-state.pose[1],xloc - state.pose[0])) - state.pose[2]) % 360) - 180
 
         if fd <= 15:
-            observations[f-2] = fd/15.0
-            observations[f-1] = fh/360.0
+            observations[f-3] = fd/15.0
+            observations[f-2] = fh/360.0
+
+        if observations[f-2] < 0: observations[f-2] += 1
+
+        
+        data = self.target(agent)
+        observations[f-1] = 0
+        if data != None: observations[f-1] = 1
 
         return observations
    
