@@ -62,7 +62,7 @@ namespace OpenNero {
         m_Total += sample;
         for (size_t i = 0; i < sample.size(); ++i)
             m_SumOfSquares[i] += (sample[i] * sample[i]);
-        ++(m_SampleSize);
+        ++m_SampleSize;
     }
 
     /// preferred generic method

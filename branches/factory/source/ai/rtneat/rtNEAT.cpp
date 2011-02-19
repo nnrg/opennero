@@ -55,7 +55,6 @@ namespace OpenNero
     {
         NEAT::load_neat_params(Kernel::findResource(param_file));
         NEAT::pop_size = population_size;
-        NEAT::time_alive_minimum = 1; // organisms cannot be removed before the are evaluated at least once
         mPopulation.reset(new Population(filename, population_size));
         AssertMsg(mPopulation, "initial population creation failed");
         mOffspringCount = mPopulation->organisms.size();
@@ -95,7 +94,6 @@ namespace OpenNero
     {
         NEAT::load_neat_params(Kernel::findResource(param_file));
         NEAT::pop_size = population_size;
-        NEAT::time_alive_minimum = 1; // organisms cannot be removed before the are evaluated at least once
         GenomePtr genome(new Genome(inputs, outputs, 0, 0));
         mPopulation.reset(new Population(genome, population_size, noise));
         AssertMsg(mPopulation, "initial population creation failed");
@@ -302,36 +300,14 @@ namespace OpenNero
                     ", mean: " << scoreHelper.getAverage() <<
                     ", stdev: " << scoreHelper.getStandardDeviation());
 
-        if (minAbsoluteScore < 0) {
-            for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
-                if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
-                    F32 modifiedFitness = (*iter)->mAbsoluteScore - minAbsoluteScore;
-                    if (modifiedFitness < 0)
-                        modifiedFitness = 0;
-
-
-                    if (!((*iter)->GetOrganism()->smited)) 
-					{
-                        (*iter)->GetOrganism()->fitness = modifiedFitness;
-					}
-                    else 
-                    { 
-                        (*iter)->GetOrganism()->fitness = 0.01 * modifiedFitness;
-                    }
-                }
-            }
-        }
-        else
-        {
-            for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
-                if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
-
-                    if (!((*iter)->GetOrganism()->smited)) 
-                        (*iter)->GetOrganism()->fitness = (*iter)->mAbsoluteScore;
-                    else 
-                    { 
-                        (*iter)->GetOrganism()->fitness = 0.01 * (*iter)->mAbsoluteScore;
-                    }
+        for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
+            if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
+                F32 modifiedFitness = (*iter)->mAbsoluteScore - (minAbsoluteScore < 0 ? minAbsoluteScore : 0);
+                
+                if (!((*iter)->GetOrganism()->smited)) {
+                    (*iter)->GetOrganism()->fitness = modifiedFitness;
+                } else { 
+                    (*iter)->GetOrganism()->fitness = 0.01 * modifiedFitness;
                 }
             }
         }

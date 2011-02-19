@@ -275,7 +275,7 @@ namespace OpenNero
         FeatureVector::const_iterator iright = right.begin();
         for (size_t i = 0; i < left.size(); ++i)
         {
-            result[i] = *ileft + *iright;
+            result[i] = *ileft - *iright;
             ++ileft;
             ++iright;
         }
@@ -289,7 +289,7 @@ namespace OpenNero
         FeatureVector::const_iterator iright = right.begin();
         while (ileft != left.end() && iright != right.end())
         {
-            *ileft += *iright;
+            *ileft -= *iright;
             ++iright;
             ++ileft;
         }
@@ -325,7 +325,7 @@ namespace OpenNero
         FeatureVector::const_iterator ileft = left.begin();
         for (size_t i = 0; i < left.size(); ++i)
         {
-            result[i] = *ileft * right;
+            result[i] = *ileft / right;
             ++ileft;
         }
         return result;
@@ -336,7 +336,7 @@ namespace OpenNero
         FeatureVector::iterator ileft = left.begin();
         while (ileft != left.end())
         {
-            *ileft *= right;
+            *ileft /= right;
             ++ileft;
         }
         return left;
