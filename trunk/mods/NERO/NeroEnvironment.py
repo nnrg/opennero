@@ -92,10 +92,10 @@ class NeroEnvironment(Environment):
             dy = randrange(XDIM/20) - XDIM/40
             state.initial_position.x = getMod().spawn_x + dx
             state.initial_position.y = getMod().spawn_y + dy
-        agent.state.position = copy(state.initial_position)
-        agent.state.rotation = copy(state.initial_rotation)
-        state.pose = (state.initial_position.x, state.initial_position.y, state.initial_rotation.z)
-        state.prev_pose = state.pose
+            agent.state.position = copy(state.initial_position)
+            agent.state.rotation = copy(state.initial_rotation)
+            state.pose = (state.initial_position.x, state.initial_position.y, state.initial_rotation.z)
+            state.prev_pose = state.pose
         state.total_damage = 0
         state.curr_damage = 0
         state.prev_fitness = state.fitness
@@ -145,7 +145,8 @@ class NeroEnvironment(Environment):
         """
         friend = []
         foe = []
-        friend = self.teams[agent.get_team()]
+        if agent.get_team() in self.teams:
+            friend = self.teams[agent.get_team()]
         if 1-agent.get_team() in self.teams:
             foe = self.teams[1-agent.get_team()]
         else:
@@ -201,8 +202,8 @@ class NeroEnvironment(Environment):
         if agent.step == 0:
             p = agent.state.position
             r = agent.state.rotation
-            r.z = randrange(360)
             if agent.group == "Agent":
+                r.z = randrange(360)
                 agent.state.rotation = r #Note the internal components of agent.state.rotation are immutable you need to make a copy, modify the copy, and set agent.state.rotation to be the copy.
             
             state.initial_position = p
@@ -269,10 +270,13 @@ class NeroEnvironment(Environment):
         data = self.target(agent)
         #string = agent.state.label + str(len(data)) + ": "
         if data != None:#len(data) > 0:
-                sim = data
-                #string += str(sim.label) + "," + str(sim.id) + ";"
-                target = self.get_state(sim)
-                if target != -1:
+                objects = getSimContext().findInRay(position,data.state.position, OBJECT_TYPE_AGENT & OBJECT_TYPE_OBSTACLE ,True)
+                if len(objects) > 0: sim = objects[0]
+                else: sim = data
+                if len(objects) == 0 or objects[0] == sim:
+                 #string += str(sim.label) + "," + str(sim.id) + ";"
+                 target = self.get_state(data)
+                 if target != -1:
                     target.curr_damage += 1
                     hit = 1
         
