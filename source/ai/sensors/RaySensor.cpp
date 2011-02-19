@@ -30,7 +30,7 @@ namespace OpenNero {
         toTarget = ConvertIrrlichtToNeroPosition(toTarget);
         toTarget.setLength(radius);
         Vector3f targetPos = sourcePos + toTarget;
-        if (Kernel::GetSimContext()->FindInRay(hitEntity, hitPos, sourcePos, targetPos, getTypes(), true))
+        if (Kernel::GetSimContext()->FindInRay(hitEntity, hitPos, sourcePos, targetPos, getTypes(), false))
         {
             Vector3f toHit = hitPos - sourcePos;
             return toHit.getLength()/radius;
