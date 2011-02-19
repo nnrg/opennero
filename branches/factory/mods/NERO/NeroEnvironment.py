@@ -5,6 +5,7 @@ from NERO.module import *
 from constants import *
 from copy import copy
 from random import *
+import sys
 
 class AgentState:
     """
@@ -46,8 +47,6 @@ class NeroEnvironment(Environment):
         self.states = {}
         self.speedup = 0
         
-        self.pop_state = {}
-        
         abound = FeatureVectorInfo() # actions
         sbound = FeatureVectorInfo() # sensors
         rbound = FeatureVectorInfo() # rewards
@@ -64,9 +63,22 @@ class NeroEnvironment(Environment):
         for fs in FLAG_SENSORS:
             sbound.add_continuous(0,1)
             
-        # rewards
-        # our rewards are Z-scores, and so they could in theory be large
-        rbound.add_continuous(-100,100) # range for reward
+        # Rewards
+        # the enviroment returns the raw multiple dimensions of the fitness as
+        # they get each step. This then gets combined into, e.g. Z-score, by
+        # the ScoreHelper in order to calculate the final rtNEAT-fitness
+        for f in FITNESS_DIMENSIONS:
+            # we don't care about the bounds of the individual dimensions
+            rbound.add_continuous(-sys.float_info.max, sys.float_info.max) # range for reward
+        
+        # initialize the rtNEAT algorithm parameters
+        # input layer has enough nodes for all the observations plus a bias
+        # output layer has enough values for all the actions
+        # population size matches ours
+        # 1.0 is the weight initialization noise
+        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS + 1, NEAT_ACTIONS, pop_size, 1.0, rbound)
+        
+        set_ai("rtneat", rtneat)
         
         self.agent_info = AgentInitInfo(sbound, abound, rbound)
     
@@ -188,11 +200,10 @@ class NeroEnvironment(Environment):
             
             state.pose = (p.x, p.y, r.z)
             state.prev_pose = (p.x, p.y, r.z)
-            self.pop_state[agent.org.id] = state
             return reward
-
-        #Spawn more agents if there are more to spawn (Staggered spawning times tend to yeild better behavior)
-        if agent.step == 3:
+        
+        # Spawn more agents if there are more to spawn
+        if get_ai("rtneat").ready():
             if getMod().getNumToAdd() > 0:
                 dx = randrange(XDIM/20) - XDIM/40
                 dy = randrange(XDIM/20) - XDIM/40
@@ -202,9 +213,6 @@ class NeroEnvironment(Environment):
         state.total_damage += state.curr_damage
         damage = state.curr_damage
         state.curr_damage = 0
-        
-        #Add current unit to pop_state
-        self.pop_state[agent.org.id] = state 
         
         #Fitness Function Parameters
         fitness = getMod().weights
@@ -258,26 +266,21 @@ class NeroEnvironment(Environment):
         ff.append(self.nearest(state.pose, state.id, ffr[0]))
         ff.append(self.nearest(state.pose, state.id, ffr[1]))
         
-        st = 0
-        ae = 0
         
-        #calculate fitness
-        sg = -action[0]
+        #calculate fitness accrued during this step
+        R = dict([(f, 0) for f in FITNESS_DIMENSIONS])
+        R[FITNESS_STAND_GROUND] = -action[0]
         if ff[0] != 1 and self.distance(ff[0].pose,state.pose) != 0:
-            st = distance_st / self.distance(ff[0].pose,state.pose)
+            R[FITNESS_STAND_GROUND] = distance_st / self.distance(ff[0].pose,state.pose)
         if ff[1] != 1 and self.distance(ff[1].pose,state.pose) != 0:
-            ae = distance_ae / self.distance(ff[1].pose,state.pose)
-        af = (distance_af/self.flag_distance(agent))
-        ht = hit
-        vf = -damage        
+            R[FITNESS_APPROACH_ENEMY] = distance_ae / self.distance(ff[1].pose,state.pose)
+        R[FITNESS_APPROACH_FLAG] = (distance_af/self.flag_distance(agent))
+        R[FITNESS_HIT_TARGET] = hit
+        R[FITNESS_AVOID_FIRE] = -damage
         
-        #update current state data with fitness values
-        reward[0] = sg
-        reward[1] = st
-        reward[2] = ae
-        reward[3] = af
-        reward[4] = ht
-        reward[5] = vf
+        # put the fitness dimensions into the reward vector in order
+        for (i,f) in enumerate(FITNESS_DIMENSIONS):
+            reward[i] = fitness[f]
         
         # calculate the motion
         new_position = copy(position)

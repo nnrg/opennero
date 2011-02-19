@@ -46,6 +46,10 @@ namespace OpenNero
         , mWaitingBrainList()
 		, mBrainList()
         , mOffspringCount(0)
+		, mSpawnTickCount(0)
+		, mEvolutionTickCount(0)
+        , mTotalUnitsDeleted(0)
+        , mTimeBetweenEvolutions(20)
         , mRewardInfo(reward_info)
         , mFitnessWeights(reward_info.size())
     {
@@ -55,6 +59,7 @@ namespace OpenNero
         mPopulation.reset(new Population(filename, population_size));
         AssertMsg(mPopulation, "initial population creation failed");
         mOffspringCount = mPopulation->organisms.size();
+        mUnitsToDeleteBeforeFirstJudgment = mOffspringCount;
         AssertMsg(mOffspringCount == population_size, "population has " << mOffspringCount << " organisms instead of " << population_size);
         for (size_t i = 0; i < mPopulation->organisms.size(); ++i)
         {
@@ -80,6 +85,10 @@ namespace OpenNero
         , mWaitingBrainList()
 		, mBrainList()
         , mOffspringCount(0)
+		, mSpawnTickCount(0)
+		, mEvolutionTickCount(0)
+        , mTotalUnitsDeleted(0)
+        , mTimeBetweenEvolutions(20)
         , mRewardInfo(reward_info)
         , mFitnessWeights(reward_info.size())
     {
@@ -209,6 +218,11 @@ namespace OpenNero
             evolveAll();
             mEvolutionTickCount = 0;
         }
+        
+        LOG_F_DEBUG("ai.rtneat", 
+                    "brains: " << mBrainList.size() << 
+                    ", waiting: " << mWaitingBrainList.size() << 
+                    ", deleted: " << mTotalUnitsDeleted);
 	}
     
     void RTNEAT::evaluateAll()

@@ -43,7 +43,6 @@ namespace OpenNero
 		size_t mSpawnTickCount;           ///< number of spawn ticks
 		size_t mEvolutionTickCount;       ///< number of evolution ticks
         size_t mTotalUnitsDeleted;        ///< total units deleted
-        size_t mSpawnFrequency;           ///< how many ticks have to pass between spawns
         size_t mUnitsToDeleteBeforeFirstJudgment; ///< number of units to delete before judging
         size_t mTimeBetweenEvolutions;    ///< time (in ticks) between rounds of evolution
         RewardInfo mRewardInfo; ///< the constraints that describe the per-step rewards
