@@ -81,7 +81,7 @@ namespace OpenNero
         void tally(Reward sample);
         
         /// Stat-retrieval methods
-        const Reward& getStats() const { return m_Stats; }
+        const Reward& getStats() const { return m_LifetimeAverage; }
     };    
 }
 

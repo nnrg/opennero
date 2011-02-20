@@ -87,7 +87,7 @@ namespace OpenNero {
         , m_Stats(m_ZeroStats)
         , m_LifetimeAverage(m_ZeroStats)
     {
-    
+        // empty
     }
             
     /// Reset all stats

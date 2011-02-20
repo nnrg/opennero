@@ -158,9 +158,10 @@ namespace OpenNero
     {
         BrainBodyMap::left_map::const_iterator found;
         found = mBrainBodyMap.left.find(agent->GetBody());
-        Assert(found != mBrainBodyMap.left.end());
-        PyOrganismPtr brain = found->second;
-        deleteUnit(brain);        
+        if (found != mBrainBodyMap.left.end()) {
+            PyOrganismPtr brain = found->second;
+            deleteUnit(brain);
+        }
     }
 
     /// save a population to a file
@@ -319,7 +320,8 @@ namespace OpenNero
         // Remove the worst organism
         OrganismPtr deadorg = mPopulation->remove_worst();
 
-        LOG_F_DEBUG("ai.rtneat.evolve", "deadorg: " << deadorg->gnome->genome_id);
+        if (deadorg)
+            LOG_F_DEBUG("ai.rtneat.evolve", "deadorg: " << deadorg->gnome->genome_id);
 
         //We can try to keep the number of species constant at this number
         U32 num_species_target=4;
