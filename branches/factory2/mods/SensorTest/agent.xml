@@ -1,0 +1,12 @@
+<Template>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>true</MaterialFlagLighting>
+    <AniMesh>data/shapes/character/sydney.md2</AniMesh>
+    <Texture0>data/shapes/character/sydney.bmp</Texture0>
+    <Scale>0.2 0.2 0.2</Scale>
+  </Render>
+  <AI>
+    <Python agent="agent.NoopAgent()" />
+  </AI>
+</Template>
