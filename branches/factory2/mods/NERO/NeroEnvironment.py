@@ -131,6 +131,7 @@ class NeroEnvironment(Environment):
         if agent in self.states:
             return self.states[agent]
         else:
+            print agent
             self.states[agent] = AgentState()
             self.states[agent].id = agent.state.id
             if agent.get_team() not in  self.teams:
@@ -288,9 +289,14 @@ class NeroEnvironment(Environment):
         ffr = self.getFriendFoe(agent)
         if ffr[0] == []:
             return reward #Corner Case
+
+        print "ffr:", ffr
+        
         ff = []
         ff.append(self.nearest(state.pose, state.id, ffr[0]))
         ff.append(self.nearest(state.pose, state.id, ffr[1]))
+    
+        print "ff:", ff
 
         st = 0
         ae = 0
@@ -298,11 +304,11 @@ class NeroEnvironment(Environment):
         #calculate fitness accrued during this step
         R = dict([(f, 0) for f in FITNESS_DIMENSIONS])
         R[FITNESS_STAND_GROUND] = -action[0]
-        d = self.distance(self.get_state(ff[0]).pose,state.pose)
         if ff[0] != 1 and d != 0:
+            d = self.distance(self.get_state(ff[0]).pose,state.pose)
             R[FITNESS_STAND_GROUND] = distance_st / d
-        d = self.distance(self.get_state(ff[1]).pose,state.pose)
         if ff[1] != 1 and d != 0:
+            d = self.distance(self.get_state(ff[1]).pose,state.pose)
             R[FITNESS_APPROACH_ENEMY] = distance_ae / d
         d = self.flag_distance(agent)
         if d != 0:
