@@ -45,11 +45,13 @@ namespace OpenNero
         : mPopulation()
         , mWaitingBrainList()
 		, mBrainList()
-        , mOffspringCount(0)
+        , mBrainBodyMap()
+        , mOffspringCount(population_size)
 		, mSpawnTickCount(0)
 		, mEvolutionTickCount(0)
         , mTotalUnitsDeleted(0)
-        , mTimeBetweenEvolutions(20)
+        , mUnitsToDeleteBeforeFirstJudgment(population_size)
+        , mTimeBetweenEvolutions(NEAT::time_alive_minimum)
         , mRewardInfo(reward_info)
         , mFitnessWeights(reward_info.size())
     {
@@ -58,7 +60,6 @@ namespace OpenNero
         mPopulation.reset(new Population(filename, population_size));
         AssertMsg(mPopulation, "initial population creation failed");
         mOffspringCount = mPopulation->organisms.size();
-        mUnitsToDeleteBeforeFirstJudgment = mOffspringCount;
         AssertMsg(mOffspringCount == population_size, "population has " << mOffspringCount << " organisms instead of " << population_size);
         for (size_t i = 0; i < mPopulation->organisms.size(); ++i)
         {
@@ -84,11 +85,13 @@ namespace OpenNero
         : mPopulation()
         , mWaitingBrainList()
 		, mBrainList()
+        , mBrainBodyMap()
         , mOffspringCount(0)
 		, mSpawnTickCount(0)
 		, mEvolutionTickCount(0)
         , mTotalUnitsDeleted(0)
-        , mTimeBetweenEvolutions(20)
+        , mUnitsToDeleteBeforeFirstJudgment(population_size)
+        , mTimeBetweenEvolutions(NEAT::time_alive_minimum)
         , mRewardInfo(reward_info)
         , mFitnessWeights(reward_info.size())
     {
@@ -184,14 +187,12 @@ namespace OpenNero
         // Push the brain onto the back of the waiting brain queue
         mWaitingBrainList.push(brain);
 
-#if NERO_DEBUG
         // get the body that belongs to this brain
         BrainBodyMap::right_map::const_iterator found = mBrainBodyMap.right.find(brain);
         SimId body_id = found->second->GetId();
         U32 brain_id = brain->GetId();
         LOG_F_DEBUG("ai.rtneat", 
                     "remove brain: " << brain_id << " from body: " << body_id);
-#endif
 
         // disconnect brain from body
         mBrainBodyMap.right.erase(brain);
@@ -318,7 +319,7 @@ namespace OpenNero
         // Remove the worst organism
         OrganismPtr deadorg = mPopulation->remove_worst();
 
-        LOG_F_DEBUG("ai.rtneat.evolve", "deadorg: " << deadorg);
+        LOG_F_DEBUG("ai.rtneat.evolve", "deadorg: " << deadorg->gnome->genome_id);
 
         //We can try to keep the number of species constant at this number
         U32 num_species_target=4;
