@@ -8,11 +8,14 @@
 #include "rtneat/population.h"
 #include "scripting/scripting.h"
 #include "ai/AI.h"
+#include "ai/Environment.h"
+#include "ai/rtneat/ScoreHelper.h"
 #include <string>
 #include <set>
 #include <queue>
 #include <iostream>
 #include <boost/python.hpp>
+#include <boost/bimap.hpp>
 
 namespace OpenNero
 {
@@ -20,25 +23,41 @@ namespace OpenNero
     using namespace std;
     namespace py = boost::python;
 
-    typedef queue<OrganismPtr> OrganismQueue;
-
     /// @cond
     BOOST_SHARED_DECL(RTNEAT);
     BOOST_SHARED_DECL(PyNetwork);
     BOOST_SHARED_DECL(PyOrganism);
+    BOOST_SHARED_DECL(AIObject);
     /// @endcond
 
+    /// A bi-directional map associating AIObjects (bodies) with PyOrganisms (rtNEAT brains)
+    typedef boost::bimap<AIObjectPtr, PyOrganismPtr> BrainBodyMap;
+    
     /// An interface for the RTNEAT learning algorithm
     class RTNEAT : public AI {
-        PopulationPtr mPopulation;        ///< population of organisms on the field
-        OrganismQueue mEvalQueue;         ///< queue of organisms to be evaluated
+        PopulationPtr mPopulation;        ///< population of organisms
+        queue<PyOrganismPtr> mWaitingBrainList; ///< queue of organisms to be evaluated
+        vector<PyOrganismPtr> mBrainList; ///< all the organisms along with their stats
+        BrainBodyMap mBrainBodyMap;       ///< map from agents to organisms
         size_t mOffspringCount;           ///< number of reproductions so far
+		size_t mSpawnTickCount;           ///< number of spawn ticks
+		size_t mEvolutionTickCount;       ///< number of evolution ticks
+        size_t mTotalUnitsDeleted;        ///< total units deleted
+        size_t mUnitsToDeleteBeforeFirstJudgment; ///< number of units to delete before judging
+        size_t mTimeBetweenEvolutions;    ///< time (in ticks) between rounds of evolution
+        RewardInfo mRewardInfo; ///< the constraints that describe the per-step rewards
+        FeatureVector mFitnessWeights; ///< fitness weights
+        
     public:
         /// Constructor
         /// @param filename name of the file with the initial population genomes
         /// @param param_file file with RTNEAT parameters to load
         /// @param population_size size of the population to construct
-        RTNEAT(const std::string& filename, const std::string& param_file, size_t population_size);
+        /// @param reward_info the specifications for the multidimensional reward
+        RTNEAT(const std::string& filename, 
+               const std::string& param_file, 
+               size_t population_size,
+               const RewardInfo& reward_info);
 
         /// Constructor
         /// @param param_file RTNEAT parameter file
@@ -46,13 +65,42 @@ namespace OpenNero
         /// @param outputs number of outputs
         /// @param population_size size of the population to construct
         /// @param noise variance of the Gaussian used to assign initial weights
-        RTNEAT(const std::string& param_file, size_t inputs, size_t outputs, size_t population_size, F32 noise);
+        /// @param reward_info the specifications for the multidimensional reward
+        RTNEAT(const std::string& param_file, 
+               size_t inputs, 
+               size_t outputs,
+               size_t population_size, 
+               F32 noise,
+               const RewardInfo& reward_info);
 
         /// Destructor
         ~RTNEAT();
-
-        /// get the next organism to be evaluated
-        PyOrganismPtr next_organism(float prob);
+        
+        /// are we ready to spawn a new organism?
+        bool ready();
+                
+        /// have we been deleted?
+        bool have_organism(AgentBrainPtr agent);
+        
+        /// get the organism currently assigned to the agent
+        PyOrganismPtr get_organism(AgentBrainPtr agent);
+        
+        /// release the organism that was being used by the agent
+        void release_organism(AgentBrainPtr agent);
+        
+        /// evaluate all brains by compiling their stats
+        void evaluateAll();
+        
+        /// evolution step that potentially replaces an organism with an 
+        /// ofspring
+        void evolveAll();
+        
+        /// Delete the unit which is currently associated with the specified
+        /// brain and move the brain back to waiting list.
+        void deleteUnit(PyOrganismPtr brain);
+        
+        /// Called every step by the OpenNERO system
+        virtual void ProcessTick( float32_t incAmt );
 
         /// save the current population to a file
         bool save_population(const std::string& population_file);
@@ -60,9 +108,12 @@ namespace OpenNero
         /// load a population from a file
         bool load_population(const std::string& population_file);
         
-        /// get the list of IDs in the currently scored population
-        boost::python::list get_population_ids();
-
+        /// get the weight vector
+        const FeatureVector& get_weights() const { return mFitnessWeights; }
+        
+        /// set the i'th weight
+        void set_weight(size_t i, double weight) { mFitnessWeights[i] = weight; }
+        
         /// load info about this AI from the object template
         bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data) { return true; }
     };
@@ -112,12 +163,22 @@ namespace OpenNero
     {
         OrganismPtr mOrganism;
     public:
-        /// constructor for a PyOrganism
-        PyOrganism(OrganismPtr org) : mOrganism(org) {}
+		F32 mAbsoluteScore;
+        Stats mStats;
+
+		/// constructor for a PyOrganism
+        /// @param org rtNEAT organism to wrap
+        /// @param reward_info the info about the multidimensional reward
+        PyOrganism(OrganismPtr org, const RewardInfo& reward_info) : 
+            mOrganism(org), 
+            mAbsoluteScore(0),
+            mStats(reward_info)
+        { }
         /// set the fitness of the organism
         void SetFitness(double fitness) { 
             if (mOrganism->fitness == 0)
-            mOrganism->fitness = fitness; }
+            mOrganism->fitness = fitness;
+        }
         /// get the fitness of the organism
         double GetFitness() const { return mOrganism->fitness; }
 		/// get the genome ID of this organism
@@ -130,10 +191,13 @@ namespace OpenNero
         PyNetworkPtr GetNetwork() const { return PyNetworkPtr(new PyNetwork(mOrganism->net)); }
         /// save this organism to a file
         bool Save(const std::string& fname) const { return mOrganism->print_to_file(fname); }
+        /// Get the organism
+        OrganismPtr GetOrganism() { return mOrganism; }
+        /// Set the organism
+        void SetOrganism(OrganismPtr organism) { mOrganism = organism; mAbsoluteScore = 0; }
         /// operator to push to an output stream
         friend std::ostream& operator<<(std::ostream& output, const PyOrganism& net);
     };
-
 }
 
 #endif /* _OPENNERO_AI_RTNEAT_RTNEAT_H_ */

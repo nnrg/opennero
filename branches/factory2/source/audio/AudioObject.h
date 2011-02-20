@@ -11,6 +11,7 @@
 #include "core/IrrUtil.h"
 #include "core/BoostCommon.h"
 
+
 namespace OpenNero
 {
     /// @cond
@@ -51,7 +52,8 @@ namespace OpenNero
     class SimEntityData;
 
     /// The audio object is the actual holder of all of an object's audio buffers
-    class AudioObject : public TemplatedObject
+    class AudioObject : 
+        public TemplatedObject
     {
     public:
 

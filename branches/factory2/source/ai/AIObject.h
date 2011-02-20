@@ -21,7 +21,9 @@ namespace OpenNero
     class SimEntityData;
 
     /// interface for objects connecting an AgentBrain to a SimEntity body
-    class AIObject : public BOOST_SHARED_THIS(AIObject), public SimEntityComponent, public TemplatedObject
+    class AIObject : public BOOST_SHARED_THIS(AIObject), 
+                     public SimEntityComponent, 
+                     public TemplatedObject
     {
     public:
         /// create an AIObject for the specified world
@@ -55,9 +57,6 @@ namespace OpenNero
         
         /// get the current brain of this AIObject
         AgentBrainPtr getBrain() const { return mAgentBrain; }
-
-        /// set the environment in which this AIObject operates
-        void setWorld(EnvironmentPtr world) { mWorld = world; }
 
         /// get the environment in which this AIObject operates
         EnvironmentPtr getWorld() const { return mWorld.lock(); }

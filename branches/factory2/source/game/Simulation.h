@@ -66,21 +66,11 @@ namespace OpenNero
         ///@}
 
         // move the simulation forward by time dt
-        void ProcessWorld( float32_t dt );
+        void ProcessTick( float32_t dt );
         
         // detect and deal with collisions
         void DoCollisions();
 
-        /** @name AI Functions */
-        ///@{
-
-        /// Connect to the AI world (server only)
-        inline void setWorld(EnvironmentPtr world) { mWorld = world; }
-
-        /// Get the AI world (server only)
-        inline EnvironmentPtr getWorld() { return mWorld; }
-
-        ///@}
     protected:
 
         /// hash map of SimEntities indexed by SimId
@@ -99,7 +89,7 @@ namespace OpenNero
         
         hash_map<uint32_t, SimEntitySet> mEntityTypes; ///< entity sets by type
 
-        SimIdSet            mRemoveSet;             ///< SimId's to remove after next ProcessWorld
+        SimIdSet            mRemoveSet;             ///< SimId's to remove after next ProcessTick
 
         EnvironmentPtr      mWorld;                 ///< The AI World interface
 

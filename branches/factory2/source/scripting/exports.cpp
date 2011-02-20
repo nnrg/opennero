@@ -347,10 +347,12 @@ namespace OpenNero {
 			py::class_<AI, AIPtr, noncopyable>("AI", "AI algorithm", no_init);
 
 			// export RTNEAT interface
-			py::class_<RTNEAT, bases<AI>, RTNEATPtr>("RTNEAT", init<const std::string&, const std::string&, S32>())
-				.def(init<const std::string&, S32, S32, S32, F32>())
-				.def("next_organism", &RTNEAT::next_organism, "evolve a new organism and return it")
-				.def("get_population_ids", &RTNEAT::get_population_ids, "get a list of the current genome ids")
+			py::class_<RTNEAT, bases<AI>, RTNEATPtr>("RTNEAT", init<const std::string&, const std::string&, S32, const RewardInfo&>())
+				.def(init<const std::string&, S32, S32, S32, F32, const RewardInfo&>())
+				.def("get_organism", &RTNEAT::get_organism, "evolve a new organism and return it")
+                .def("release_organism", &RTNEAT::release_organism, "release the organism after the agent is done")
+                .def("ready", &RTNEAT::ready, "return true iff RTNEAT is ready to produce a new organism")
+                .def("set_weight", &RTNEAT::set_weight, "set weight i to value f")
 				.def("save_population", &RTNEAT::save_population, "save the population to a file");
 		}
 
