@@ -294,17 +294,24 @@ class NeroEnvironment(Environment):
 
         st = 0
         ae = 0
-
+        
         #calculate fitness accrued during this step
         R = dict([(f, 0) for f in FITNESS_DIMENSIONS])
         R[FITNESS_STAND_GROUND] = -action[0]
-        if ff[0] != 1 and self.distance(ff[0].pose,state.pose) != 0:
-            R[FITNESS_STAND_GROUND] = distance_st / self.distance(ff[0].pose,state.pose)
-        if ff[1] != 1 and self.distance(ff[1].pose,state.pose) != 0:
-            R[FITNESS_APPROACH_ENEMY] = distance_ae / self.distance(ff[1].pose,state.pose)
-        R[FITNESS_APPROACH_FLAG] = (distance_af/self.flag_distance(agent))
+        d = self.distance(self.get_state(ff[0]).pose,state.pose)
+        if ff[0] != 1 and d != 0:
+            R[FITNESS_STAND_GROUND] = distance_st / d
+        d = self.distance(self.get_state(ff[1]).pose,state.pose)
+        if ff[1] != 1 and d != 0:
+            R[FITNESS_APPROACH_ENEMY] = distance_ae / d
+        d = self.flag_distance(agent)
+        if d != 0:
+            R[FITNESS_APPROACH_FLAG] = (distance_af/d)
+        else:
+            R[FITNESS_APPROACH_FLAG] = distance_af * 10 # high reward for priximity
         R[FITNESS_HIT_TARGET] = hit
         R[FITNESS_AVOID_FIRE] = -damage
+        
         
         # put the fitness dimensions into the reward vector in order
         for (i,f) in enumerate(FITNESS_DIMENSIONS):
