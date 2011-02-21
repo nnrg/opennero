@@ -230,6 +230,9 @@ namespace OpenNero
 
         // shut down the AI system
         AIManager::instance().destroy();
+        
+        // forget everything imported in script
+        ScriptingEngine::instance().destroy();
 
         return true;
     }

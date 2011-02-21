@@ -34,7 +34,6 @@ namespace OpenNero
     private:
         python::object _main_module;        ///< main module
         python::dict _globals;              ///< global namespace
-        python::dict _locals;               ///< local namespace
         python::object _network_log_writer; ///< network log writer object
         bool _initialized;                  ///< flag to mark if this scripting engine is initialized
         Scheduler _scheduler;               ///< the event scheduler for scripts
@@ -70,6 +69,11 @@ namespace OpenNero
          * Initialize the scripting engine. Turn on python
          */
         void init(int argc, char** argv);
+        
+        /**
+         * Re-initialize the scripting engine after calling destroy()
+         */
+        void reinitialize();
 
         /**
          * Shut down the engine. Disable python and free resources
@@ -95,7 +99,7 @@ namespace OpenNero
          * @return true iff successful
          */
         bool ExecFile(const std::string& fileName);
-
+        
         /**
          * Execute the statements contained in the parameter string
          * @param statement snippet code to execute

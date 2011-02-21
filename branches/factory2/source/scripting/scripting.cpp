@@ -118,7 +118,7 @@ namespace OpenNero
     }
 
     ScriptingEngine::ScriptingEngine()
-        : _main_module(), _globals(), _locals(), _initialized(false)
+        : _main_module(), _globals(), _initialized(false)
     {
     }
 
@@ -137,14 +137,19 @@ namespace OpenNero
             Py_InitializeEx(0); // no interrupt handlers
             PySys_SetArgv(argc, argv);
             Assert(Py_IsInitialized());
-
+            reinitialize();
+        }
+    }
+    
+    void ScriptingEngine::reinitialize()
+    {
+        if (!_initialized)
+        {
             // get the main module
             _main_module = python::import("__main__");
 
             // get the namespace of the main module
             _globals = py::dict(_main_module.attr("__dict__"));
-
-            LOG_F_DEBUG("scripting", "loaded __main__ and _globals");
 
             // add the client and server directories of the current mod
             AddScriptDirectory( Kernel::findResource("") ); // for the mod we are loading
@@ -182,6 +187,7 @@ namespace OpenNero
         if( _initialized )
         {
             _initialized = false;
+            _globals.clear();
             //if (_network_log_writer) {
             //    try {
             //        _network_log_writer.attr("close")();
@@ -189,6 +195,7 @@ namespace OpenNero
             //        // ignore errors on close
             //    }
             //}
+            
         }
     }
 

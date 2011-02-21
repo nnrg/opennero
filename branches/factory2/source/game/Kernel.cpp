@@ -222,10 +222,6 @@ namespace OpenNero
 		mCurMod->name = name;
 		mCurMod->SetPath(path);
 
-        // import as a scripting module
-        bool modImported = ScriptingEngine::instance().ImportModule(name);
-        AssertMsg( modImported, "Could not import mod " << name << " into the scripting engine" );
-
         AssertMsg( mCurMod->context, "Failed to create SimContext" );
         AssertMsg( device, "Failed to initialize rendering device" );
 
@@ -238,6 +234,10 @@ namespace OpenNero
 
 		    // let the context initialize itself (and pass along the command line arguments)
 		    mCurMod->context->onPush(mArgc, mArgv);
+            
+            // import as a scripting module
+            bool modImported = ScriptingEngine::instance().ImportModule(name);
+            AssertMsg( modImported, "Could not import mod " << name << " into the scripting engine" );
 
 #if NERO_ALLOW_DEV_CONSOLE
             // inject our console to the gui manager
