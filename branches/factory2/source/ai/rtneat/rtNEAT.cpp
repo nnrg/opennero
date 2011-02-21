@@ -190,17 +190,19 @@ namespace OpenNero
 
         // get the body that belongs to this brain
         BrainBodyMap::right_map::const_iterator found = mBrainBodyMap.right.find(brain);
-        SimId body_id = found->second->GetId();
-        U32 brain_id = brain->GetId();
-        LOG_F_DEBUG("ai.rtneat", 
-                    "remove brain: " << brain_id << " from body: " << body_id);
 
-        // disconnect brain from body
-        mBrainBodyMap.right.erase(brain);
+        if (found != mBrainBodyMap.right.end()) {
+            SimId body_id = found->second->GetId();
+            U32 brain_id = brain->GetId();
+            LOG_F_DEBUG("ai.rtneat", 
+                        "remove brain: " << brain_id << " from body: " << body_id);
 
-        // Increment the deletion counter
-        ++mTotalUnitsDeleted;
-        
+            // disconnect brain from body
+            mBrainBodyMap.right.erase(brain);
+
+            // Increment the deletion counter
+            ++mTotalUnitsDeleted;
+        }
     }
     
     void RTNEAT::ProcessTick( float32_t incAmt )

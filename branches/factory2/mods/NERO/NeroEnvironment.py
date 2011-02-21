@@ -131,14 +131,13 @@ class NeroEnvironment(Environment):
         if agent in self.states:
             return self.states[agent]
         else:
-            print agent
             self.states[agent] = AgentState()
             self.states[agent].id = agent.state.id
             if agent.get_team() not in  self.teams:
                 self.teams[agent.get_team()] = {}
             self.teams[agent.get_team()][agent] = self.states[agent]
             return self.states[agent]
-
+    
     def getStateId(self, id):
         """
         Searches for the state with the given ID
@@ -148,7 +147,7 @@ class NeroEnvironment(Environment):
                 return self.states[state]
         else:
             return - 1
-            
+    
     def getFriendFoe(self, agent):
         """
         Returns lists of all friend agents and all foe agents.
@@ -162,14 +161,13 @@ class NeroEnvironment(Environment):
         else:
             foe = []
         return (friend, foe)
-
+    
     def target(self, agent):
         #Get list of all targets
         ffr = self.getFriendFoe(agent)
         alt = ffr[1]#ffr[0] + ffr[1]
         if (ffr[0] == []):
             return None
-
 
         state = self.get_state(agent)
         
@@ -270,17 +268,13 @@ class NeroEnvironment(Environment):
         # calculate if we hit anyone
         hit = 0
         data = self.target(agent)
-        #string = agent.state.label + str(len(data)) + ": "
         if data != None:#len(data) > 0:
-                print "We're getting inside at least"
-                objects = getSimContext().findInRay(position,data.state.position, OBJECT_TYPE_AGENT & OBJECT_TYPE_OBSTACLE ,True)
-                if len(objects) > 0: sim = objects[0]
-                else: sim = data
-                if len(objects) == 0 or objects[0] == sim:
-                 #string += str(sim.label) + "," + str(sim.id) + ";"
-                 target = self.get_state(data)
-                 print "Target hit successfully pre"
-                 if target != -1:
+            objects = getSimContext().findInRay(position,data.state.position, OBJECT_TYPE_AGENT & OBJECT_TYPE_OBSTACLE ,True)
+            if len(objects) > 0: sim = objects[0]
+            else: sim = data
+            if len(objects) == 0 or objects[0] == sim:
+                target = self.get_state(data)
+                if target != -1:
                     target.curr_damage += 1
                     hit = 1
                     print "Target hit successfully"
@@ -289,27 +283,29 @@ class NeroEnvironment(Environment):
         ffr = self.getFriendFoe(agent)
         if ffr[0] == []:
             return reward #Corner Case
-
-        print "ffr:", ffr
         
         ff = []
         ff.append(self.nearest(state.pose, state.id, ffr[0]))
         ff.append(self.nearest(state.pose, state.id, ffr[1]))
-    
-        print "ff:", ff
-
+        
         st = 0
         ae = 0
         
         #calculate fitness accrued during this step
         R = dict([(f, 0) for f in FITNESS_DIMENSIONS])
         R[FITNESS_STAND_GROUND] = -action[0]
-        if ff[0] != 1 and d != 0:
+        if ff[0]:
             d = self.distance(self.get_state(ff[0]).pose,state.pose)
-            R[FITNESS_STAND_GROUND] = distance_st / d
-        if ff[1] != 1 and d != 0:
+            if d != 0:
+                R[FITNESS_STAND_GROUND] = distance_st / d
+            else:
+                R[FITNESS_STAND_GROUND] = distance_st
+        if ff[1]:
             d = self.distance(self.get_state(ff[1]).pose,state.pose)
-            R[FITNESS_APPROACH_ENEMY] = distance_ae / d
+            if d != 0:
+                R[FITNESS_APPROACH_ENEMY] = distance_ae / d
+            else:
+                R[FITNESS_APPROACH_ENEMY] = distance_ae
         d = self.flag_distance(agent)
         if d != 0:
             R[FITNESS_APPROACH_FLAG] = (distance_af/d)
@@ -317,7 +313,6 @@ class NeroEnvironment(Environment):
             R[FITNESS_APPROACH_FLAG] = distance_af * 10 # high reward for priximity
         R[FITNESS_HIT_TARGET] = hit
         R[FITNESS_AVOID_FIRE] = -damage
-        
         
         # put the fitness dimensions into the reward vector in order
         for (i,f) in enumerate(FITNESS_DIMENSIONS):
@@ -343,11 +338,10 @@ class NeroEnvironment(Environment):
         figure out what the agent should sense
         """
         # we only use the built-in sensors defined in get_agent_info
-
+        
         f = len(observations)
         state = self.get_state(agent)
-
-
+        
         ffr = self.getFriendFoe(agent)
         if (ffr[0] == []): return v
         xloc = agent.state.position.x
@@ -413,7 +407,7 @@ class NeroEnvironment(Environment):
         Returns the nearest agent in array to agent with id id at current location.
         """
         # TODO: this needs to only be computed once per tick, not per agent
-        nearest = 1
+        nearest = None
         value = self.MAX_DIST * 5
         for other in array:
             if id == array[other].id:
