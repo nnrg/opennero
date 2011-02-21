@@ -14,7 +14,7 @@ class NeroModule:
     def __init__(self):
         self.environment = None
         self.agent_id = None
-        self.lt = 10
+        self.lt = 20
         self.dta = 50
         self.dtb = 50
         self.dtc = 50
@@ -117,7 +117,11 @@ class NeroModule:
         
     def ltChange(self,value):
         self.lt = value
+        rtneat = get_ai("rtneat")
         print 'lifetime:',value
+        if rtneat:
+            rtneat.set_lifetime(value)
+            print 'rtNEAT lifetime:',value
 
     def dtaChange(self,value):
         self.dta = value

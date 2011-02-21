@@ -87,6 +87,11 @@ class NeroEnvironment(Environment):
         # 1.0 is the weight initialization noise
         rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS + 1, NEAT_ACTIONS, pop_size, 1.0, rbound)
         
+        # set the initial lifetime
+        lifetime = getMod().lt
+        rtneat.set_lifetime(lifetime)
+        print 'rtNEAT lifetime:', lifetime
+        
         set_ai("rtneat", rtneat)
         
         self.agent_info = AgentInitInfo(sbound, abound, rbound)

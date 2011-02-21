@@ -424,14 +424,31 @@ namespace OpenNero
         }
     }
     
+    /// set the lifetime so that we can ensure that the units have been alive
+    /// at least that long before evaluating them
+    void RTNEAT::set_lifetime(size_t lifetime)
+    {
+        // TODO: currently this will make it impossible to have more than one 
+        //       rtNEAT with different lifetimes at the same time, but changing it 
+        //       to a local value requires making changes to the code in source/rtneat
+        //       as well.
+        NEAT::time_alive_minimum = lifetime;
+    }
+    
     std::ostream& operator<<(std::ostream& output, const PyNetwork& net)
     {
+        // TODO: currently this prints out the whole network in a Boost 
+        //       synchronization dump. We probably need to print something
+        //       more useful/readable here.
         output << net.mNetwork;
         return output;
     }
     
     std::ostream& operator<<(std::ostream& output, const PyOrganism& org)
     {
+        // TODO: currently this prints out the whole organism in a Boost 
+        //       synchronization dump. We probably need to print something
+        //       more useful/readable here.
         output << org.mOrganism;
         return output;
     }

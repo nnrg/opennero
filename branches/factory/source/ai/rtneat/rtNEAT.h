@@ -114,6 +114,10 @@ namespace OpenNero
         /// set the i'th weight
         void set_weight(size_t i, double weight) { mFitnessWeights[i] = weight; }
         
+        /// set the lifetime so that we can ensure that the units have been alive
+        /// at least that long before evaluating them
+        void set_lifetime(size_t lifetime);
+        
         /// load info about this AI from the object template
         bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data) { return true; }
     };
