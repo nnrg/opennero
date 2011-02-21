@@ -254,9 +254,13 @@ class MazeMod:
         
         print 'RTNEAT, inputs: %d, outputs: %d' % (n_inputs, n_outputs)
 
+        rbound = FeatureVectorInfo() # rewards
+        rbound.add_continuous(-sys.float_info.max, sys.float_info.max)
+
         # create the rtneat object that will manage the population of agents
-        rtneat = RTNEAT("data/ai/neat-params.dat", n_inputs, n_outputs, pop_size, 1.0)
-        set_ai("neat",rtneat)
+        rtneat = RTNEAT("data/ai/neat-params.dat", n_inputs, n_outputs, pop_size, 1.0, rbound)
+        set_ai("rtneat",rtneat)
+        rtneat.set_weight(0,1) # we only have one reward, so we better count it!
         enable_ai()
         for i in range(0, pop_on_field_size):
             self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK)

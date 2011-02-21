@@ -30,11 +30,12 @@ class RTNEATAgent(AgentBrain):
         self.group = "Agent"
         return True
 
-    def get_rtneat(self):
+    def get_org(self):
         """
         Returns the rtNEAT object for this agent
         """
-        return get_ai("rtneat")
+        rtneat = get_ai("rtneat")
+        return rtneat.get_organism(self)
 
     def start(self, time, sensors):
         """
@@ -42,14 +43,13 @@ class RTNEATAgent(AgentBrain):
         """
         from NERO.module import getMod
         EXPLOIT_PROB = getMod().ee
-        rtneat = self.get_rtneat()
-        self.org = rtneat.next_organism(EXPLOIT_PROB)
-        self.state.label = "%.02f" % self.org.fitness
+        org = self.get_org()
+        org.time_alive += 1
+        self.state.label = "%.02f" % org.fitness
         if FITNESS_OUT:    
             self.file_out = []
             self.file_out.append(str(gettime()))
             self.file_out.append(",")
-        self.net = self.org.net
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
@@ -66,14 +66,13 @@ class RTNEATAgent(AgentBrain):
         if FITNESS_OUT:
             self.file_out.append(str(gettime()))
             self.file_out.append(",")
-        self.org.fitness = self.fitness[0] # assign organism fitness for evolution
-        self.org.time_alive += 1
         if FITNESS_OUT:
             self.file_out.append(str(self.fitness[0]))
             self.file_out.append('\n')
             strn = "".join(self.file_out)
             f = open('output.out','a')
             f.write(strn)
+        get_ai("rtneat").release_organism(self)
         return True
 
     def destroy(self):
@@ -100,12 +99,18 @@ class RTNEATAgent(AgentBrain):
         inputs = [sensor for sensor in sensors]        
         # add the bias value
         inputs.append(NEAT_BIAS)
+        # get the current organism we are using
+        org = self.get_org()
+        # increment the lifetime counter
+        org.time_alive += 1
+        # get the current network we are using
+        net = org.net
         # load the list of sensors into the network input layer
-        self.net.load_sensors(inputs)
+        net.load_sensors(inputs)
         # activate the network
-        self.net.activate()
+        net.activate()
         # get the list of network outputs
-        outputs = self.net.get_outputs()
+        outputs = net.get_outputs()
         # create a C++ vector for action values
         actions = self.actions.get_instance()
         # assign network outputs to action vector

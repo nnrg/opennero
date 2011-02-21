@@ -33,6 +33,9 @@ namespace OpenNero
 
         /// return true iff AI is enabled
         bool IsEnabled() const { return mEnabled; }
+        
+        /// tick the AIs
+        void ProcessTick( float32_t incAmt );
 
         /// get the currently selected AI Environment
         EnvironmentPtr GetEnvironment() const { return mEnvironment; }

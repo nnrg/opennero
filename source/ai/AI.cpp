@@ -237,5 +237,109 @@ namespace OpenNero
             << "\" reward=\"" << obj.reward << "\" />";
         return out;
     }
+    
+    FeatureVector operator+(const FeatureVector& left, const FeatureVector& right)
+    {
+        Assert(left.size() == right.size());
+        FeatureVector result(left);
+        FeatureVector::const_iterator ileft = left.begin();
+        FeatureVector::const_iterator iright = right.begin();
+        for (size_t i = 0; i < left.size(); ++i)
+        {
+            result[i] = *ileft + *iright;
+            ++ileft;
+            ++iright;
+        }
+        return result;
+    }
+    
+    FeatureVector& operator+=(FeatureVector& left, const FeatureVector& right)
+    {
+        Assert(left.size() == right.size());
+        FeatureVector::iterator ileft = left.begin();
+        FeatureVector::const_iterator iright = right.begin();
+        while (ileft != left.end() && iright != right.end())
+        {
+            *ileft += *iright;
+            ++ileft;
+            ++iright;
+        }
+        return left;
+    }
+    
+    FeatureVector operator-(const FeatureVector& left, const FeatureVector& right)
+    {
+        Assert(left.size() == right.size());
+        FeatureVector result(left);
+        FeatureVector::const_iterator ileft = left.begin();
+        FeatureVector::const_iterator iright = right.begin();
+        for (size_t i = 0; i < left.size(); ++i)
+        {
+            result[i] = *ileft - *iright;
+            ++ileft;
+            ++iright;
+        }
+        return result;
+    }
+    
+    FeatureVector& operator-=(FeatureVector& left, const FeatureVector& right)
+    {
+        Assert(left.size() == right.size());
+        FeatureVector::iterator ileft = left.begin();
+        FeatureVector::const_iterator iright = right.begin();
+        while (ileft != left.end() && iright != right.end())
+        {
+            *ileft -= *iright;
+            ++iright;
+            ++ileft;
+        }
+        return left;
+    }
+    
+    FeatureVector operator*(const FeatureVector& left, const double& right)
+    {
+        FeatureVector result(left);
+        FeatureVector::const_iterator ileft = left.begin();
+        for (size_t i = 0; i < left.size(); ++i)
+        {
+            result[i] = *ileft * right;
+            ++ileft;
+        }
+        return result;
+    }
+    
+    FeatureVector& operator*=(FeatureVector& left, const double& right)
+    {
+        FeatureVector::iterator ileft = left.begin();
+        while (ileft != left.end())
+        {
+            *ileft *= right;
+            ++ileft;
+        }
+        return left;
+    }
+    
+    FeatureVector operator/(const FeatureVector& left, const double& right)
+    {
+        FeatureVector result(left);
+        FeatureVector::const_iterator ileft = left.begin();
+        for (size_t i = 0; i < left.size(); ++i)
+        {
+            result[i] = *ileft / right;
+            ++ileft;
+        }
+        return result;
+    }
+    
+    FeatureVector& operator/=(FeatureVector& left, const double& right)
+    {
+        FeatureVector::iterator ileft = left.begin();
+        while (ileft != left.end())
+        {
+            *ileft /= right;
+            ++ileft;
+        }
+        return left;
+    }
 
 } // namespace OpenNero

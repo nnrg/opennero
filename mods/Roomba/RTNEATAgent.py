@@ -12,8 +12,6 @@ class RTNEATAgent(AgentBrain):
         """
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
         AgentBrain.__init__(self)
-        global rtneat
-        rtneat = get_ai("neat")
 
     def initialize(self, init_info):
         """
@@ -27,9 +25,6 @@ class RTNEATAgent(AgentBrain):
         """
         start of an episode
         """
-        global rtneat
-        self.org = rtneat.next_organism(0.5)
-        self.net = self.org.net
         sensors = self.sensors.normalize(sensors)
         return self.network_action(sensors)
 
@@ -45,8 +40,7 @@ class RTNEATAgent(AgentBrain):
         """
         end of an episode
         """
-        self.org.fitness = self.fitness[0] # assign organism fitness for evolution
-        self.org.time_alive += 1
+        get_ai("rtneat").release_organism(self)
         return True
 
     def destroy(self):
@@ -70,12 +64,18 @@ class RTNEATAgent(AgentBrain):
         inputs = [sensor for sensor in sensors]        
         # add the bias value
         inputs.append(0.3)
+
+        # get the rtNEAT organism we are assigned
+        org = get_ai("rtneat").get_organism(self)
+        org.time_alive += 1
+        net = org.net
+        
         # load the list of sensors into the network input layer
-        self.net.load_sensors(inputs)
+        net.load_sensors(inputs)
         # activate the network
-        self.net.activate()
+        net.activate()
         # get the list of network outputs
-        outputs = self.net.get_outputs()
+        outputs = net.get_outputs()
         # create a C++ vector for action values
         actions = self.actions.get_instance()
         # assign network outputs to action vector

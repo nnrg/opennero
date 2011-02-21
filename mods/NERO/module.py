@@ -12,16 +12,8 @@ import random
 
 class NeroModule:
     def __init__(self):
-        global rtneat
-        # initialize the rtNEAT algorithm parameters
-        # input layer has enough nodes for all the observations plus a bias
-        # output layer has enough values for all the actions
-        # population size matches ours
-        # 1.0 is the weight initialization noise
-        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS + 1, NEAT_ACTIONS, pop_size, 1.0)
         self.environment = None
         self.agent_id = None
-        self.weights = Fitness()
         self.lt = 10
         self.dta = 50
         self.dtb = 50
@@ -39,12 +31,16 @@ class NeroModule:
         setup the test environment
         """
         global XDIM, YDIM, HEIGHT, OFFSET
+        
+        disable_ai()
+        
         if self.environment:
             error("Environment already created")
             return
         
         startScript('NERO/menu.py')
         
+        # create the environment - this also creates the rtNEAT object
         self.environment = NeroEnvironment()
 
         set_environment(self.environment)
@@ -77,26 +73,20 @@ class NeroModule:
     #The following is run when the Deploy button is pressed
     def start_rtneat(self):
         """ start the rtneat learning stuff"""
-        global rtneat
-        disable_ai()
-        # Create RTNEAT Objects
-        set_ai("rtneat",rtneat)
-        enable_ai()
-        # Generate all initial rtNEAT Agents
+        # Generate an initial rtNEAT Agent
         dx = random.randrange(XDIM/20) - XDIM/40
         dy = random.randrange(XDIM/20) - XDIM/40
         dx = random.randrange(XDIM/20) - XDIM/40
         dy = random.randrange(XDIM/20) - XDIM/40
         id = addObject("data/shapes/character/steve_blue_armed.xml",Vector3f(self.spawn_x + dx,self.spawn_y + dy,2),type = OBJECT_TYPE_AGENT + OBJECT_TYPE_TEAM_0)
+        enable_ai()
         self.num_to_add -= 1
 
-   #The following is run when the Save button is pressed
-
+    #The following is run when the Save button is pressed
     def save_rtneat(self, location, pop):
         import os
         location = os.path.relpath("/") + location
-        global rtneat
-        rtneat.save_population(str(location))
+        get_ai("rtneat").save_population(str(location))
 
     #The following is run when the Load button is pressed
     def load_rtneat(self, location , pop):
@@ -118,13 +108,15 @@ class NeroModule:
    
     #The following functions are used to let the client update the fitness function
     def set_weight(self, key, value):
-        self.weights[key] = (value-100.0)/100.0
-        self.environment.clear_averages()
+        i = FITNESS_INDEX[key]
+        value = (value - 100) / 100.0 # value in [-1,1]
+        rtneat = get_ai("rtneat")
+        if rtneat:
+            rtneat.set_weight(i, value)
         print key, value
         
     def ltChange(self,value):
         self.lt = value
-        self.environment.clear_averages()
         print 'lifetime:',value
 
     def dtaChange(self,value):
@@ -149,7 +141,6 @@ class NeroModule:
 
     def hpChange(self,value):
         self.hp = value
-        self.environment.clear_averages()
         print 'Hit points:',value
 
     def getNumToAdd(self):
@@ -180,14 +171,14 @@ def parseInput(strn):
     loc,val = strn.split(' ')
     vali = 1
     if strn.isupper(): vali = int(val)
-    if loc == "SG": mod.set_weight(Fitness.STAND_GROUND,vali)
-    if loc == "ST": mod.set_weight(Fitness.STICK_TOGETHER,vali)
+    if loc == "SG": mod.set_weight(FITNESS_STAND_GROUND,vali)
+    if loc == "ST": mod.set_weight(FITNESS_STICK_TOGETHER,vali)
     if loc == "TD": mod.dtaChange(vali)
-    if loc == "AE": mod.set_weight(Fitness.APPROACH_ENEMY,vali)
+    if loc == "AE": mod.set_weight(FITNESS_APPROACH_ENEMY,vali)
     if loc == "ED": mod.dtbChange(vali)
-    if loc == "AF": mod.set_weight(Fitness.APPROACH_FLAG,vali) 
+    if loc == "AF": mod.set_weight(FITNESS_APPROACH_FLAG,vali) 
     if loc == "FD": mod.dtcChange(vali)
-    if loc == "HT": mod.set_weight(Fitness.HIT_TARGET,vali)
+    if loc == "HT": mod.set_weight(FITNESS_HIT_TARGET,vali)
     if loc == "VF": mod.set_weight(Fitness.AVOID_FIRE,vali)
     if loc == "LT": mod.ltChange(vali)
     if loc == "FF": mod.ffChange(vali)

@@ -54,7 +54,7 @@ namespace OpenNero
     /**
      * Request a SimEntity to be removed from the simulation.
      * The actual removal takes place during the RemoveNow call at
-     * the end of the next ProcessWorld.
+     * the end of the next ProcessTick.
      */
     void Simulation::Remove( SimId id )
     {
@@ -119,7 +119,7 @@ namespace OpenNero
     SimEntityPtr Simulation::Find( SimId id ) const
     {
         SimIdHashMap::const_iterator itr = mSimIdHashedEntities.find(id);
-        return ( itr == mSimIdHashedEntities.end() ) ? SimEntityPtr( (SimEntity*)0 ) : itr->second;
+        return ( itr == mSimIdHashedEntities.end() ) ? SimEntityPtr() : itr->second;
     }
 
     /**
@@ -134,7 +134,7 @@ namespace OpenNero
 
 
     /// move the simulation forward by time dt
-    void Simulation::ProcessWorld( float32_t dt )
+    void Simulation::ProcessTick( float32_t dt )
     {
         // this step will allow mSimIdHashedEntities to be modified during the ticks
         SimIdHashMap entities_to_tick(mSimIdHashedEntities.begin(), mSimIdHashedEntities.end());

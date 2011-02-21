@@ -449,8 +449,6 @@ class RTNEATAgent(AgentBrain):
         """
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
         AgentBrain.__init__(self)
-        global rtneat
-        rtneat = get_ai("neat")
 
     def initialize(self, init_info):
         """
@@ -464,10 +462,6 @@ class RTNEATAgent(AgentBrain):
         """
         start of an episode
         """
-        global rtneat
-        epsilon = Maze.module.getMod().epsilon
-        self.org = rtneat.next_organism(epsilon)
-        self.net = self.org.net
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
@@ -481,10 +475,8 @@ class RTNEATAgent(AgentBrain):
         """
         end of an episode
         """
-        self.org.fitness = self.fitness[0] # assign organism fitness for evolution
-        self.org.time_alive += 1
-        #assert(self.org.fitness >= 0) # we have to have a non-negative fitness for rtNEAT to work
         print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
+        get_ai("rtneat").release_organism(self)
         return True
         
     def destroy(self):
@@ -502,13 +494,12 @@ class RTNEATAgent(AgentBrain):
         """
         assert(self.sensors.validate(sensors))
         inputs = Maze.module.input_to_neurons(self.sensors, sensors)
-        self.net.load_sensors(inputs)
-        self.net.activate()
-        outputs = self.net.get_outputs()
+        org = get_ai("rtneat").get_organism(self)
+        org.time_alive += 1
+        net = org.net
+        net.load_sensors(inputs)
+        net.activate()
+        outputs = net.get_outputs()
         actions = Maze.module.neurons_to_output(self.actions, outputs)
-        # debugging output
-        #print 'obs -> net:', sensors, inputs
-        #print '    -> org -> out:', self.org.id, outputs
-        #print '    -> action:', actions
         assert(self.actions.validate(actions))
         return actions

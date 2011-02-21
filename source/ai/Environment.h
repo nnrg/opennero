@@ -60,26 +60,29 @@ namespace OpenNero
      */
     class PyEnvironment : public Environment, public TryWrapper<Environment>
     {
+    public:
+        virtual ~PyEnvironment() { }
+    
         /// get the information needed to create an agent suitable for this world
-        AgentInitInfo get_agent_info(AgentBrainPtr agent);
+        virtual AgentInitInfo get_agent_info(AgentBrainPtr agent);
 
         /// perform agent actions in the environment and return their sensors
-        Reward step(AgentBrainPtr agent, Actions action);
+        virtual Reward step(AgentBrainPtr agent, Actions action);
 
         /// called to find out if the agent is active and should act
-        bool is_active(AgentBrainPtr agent);
+        virtual bool is_active(AgentBrainPtr agent);
 
         /// sense the agent's current environment
-        Observations sense(AgentBrainPtr agent, Observations& observations);
+        virtual Observations sense(AgentBrainPtr agent, Observations& observations);
 
         /// is the episode over for the specified agent?
-        bool is_episode_over(AgentBrainPtr agent);
+        virtual bool is_episode_over(AgentBrainPtr agent);
 
         /// cleanup the world on close
-        void cleanup();
+        virtual void cleanup();
 
         /// reset the environment to its initial state
-        void reset(AgentBrainPtr agent);
+        virtual void reset(AgentBrainPtr agent);
     };
 
 }
