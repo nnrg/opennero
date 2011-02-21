@@ -465,23 +465,21 @@ namespace OpenNero
         {
             // we found a sim node, so return its data
             SimEntityPtr ent = getSimulation()->FindBySceneObjectId(node->getID());
-            AssertMsg(ent, "Could not figure out the entity for id: " << node->getID());
             if (ent)
             {
+                // return the result: (sim, hit)
+                hitEntity = ent->GetState();
                 // draw a ray if requested
                 if (vis)
                 {
                     LineSet::instance().AddSegment(origin, hitPos, foundColor);
                 }
-                // return the result: (sim, hit)
-                hitEntity = ent->GetState();
                 return true;
             }
-        } else {
-            if (vis)
-            {
-                LineSet::instance().AddSegment(origin, target, noneColor);
-            }
+        }
+        if (vis)
+        {
+            LineSet::instance().AddSegment(origin, target, noneColor);
         }
         return false;
 	}
