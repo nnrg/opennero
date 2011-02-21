@@ -254,8 +254,11 @@ class MazeMod:
         
         print 'RTNEAT, inputs: %d, outputs: %d' % (n_inputs, n_outputs)
 
+        rbound = FeatureVectorInfo() # rewards
+        rbound.add_continuous(-sys.float_info.max, sys.float_info.max)
+
         # create the rtneat object that will manage the population of agents
-        rtneat = RTNEAT("data/ai/neat-params.dat", n_inputs, n_outputs, pop_size, 1.0)
+        rtneat = RTNEAT("data/ai/neat-params.dat", n_inputs, n_outputs, pop_size, 1.0, rbound)
         set_ai("neat",rtneat)
         enable_ai()
         for i in range(0, pop_on_field_size):

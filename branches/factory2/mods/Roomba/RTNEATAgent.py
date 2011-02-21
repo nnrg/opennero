@@ -28,7 +28,7 @@ class RTNEATAgent(AgentBrain):
         start of an episode
         """
         global rtneat
-        self.org = rtneat.next_organism(0.5)
+        self.org = rtneat.get_organism(self)
         self.net = self.org.net
         sensors = self.sensors.normalize(sensors)
         return self.network_action(sensors)

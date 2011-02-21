@@ -466,7 +466,7 @@ class RTNEATAgent(AgentBrain):
         """
         global rtneat
         epsilon = Maze.module.getMod().epsilon
-        self.org = rtneat.next_organism(epsilon)
+        self.org = rtneat.get_organism(self)
         self.net = self.org.net
         return self.network_action(sensors)
 
