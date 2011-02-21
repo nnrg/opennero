@@ -23,6 +23,8 @@ namespace OpenNero {
 		SimEntityData* GetSharedState() { return mSharedData; }
         /// Return the entity
 		SimEntityPtr GetEntity() { return mParent.lock(); }
+        /// Return the id of the entity
+        SimId GetId() { return GetEntity()->GetSimId(); }
 	};
 }
 

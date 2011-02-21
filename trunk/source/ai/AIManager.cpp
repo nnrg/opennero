@@ -1,11 +1,14 @@
 #include "core/Common.h"
 #include <vector>
+#include <map>
 #include "ai/AIManager.h"
 #include "ai/AI.h"
 #include "ai/AgentBrain.h"
 #include "ai/Environment.h"
 #include "core/Log.h"
 #include "scripting/scriptIncludes.h"
+
+using namespace std;
 
 namespace OpenNero
 {
@@ -42,6 +45,7 @@ namespace OpenNero
             mEnvironment->cleanup();
             mEnvironment.reset();
         }
+        mAIs.clear();
     }
 
     AIPtr AIManager::GetAI(const std::string& name) const
@@ -81,5 +85,18 @@ namespace OpenNero
     void AIManager::SetAI(const std::string& name, AIPtr ai)
     {
         mAIs[name] = ai;
+    }
+    
+    /// tick the AIs
+    void AIManager::ProcessTick( float32_t incAmt )
+    {
+        if (mEnabled) {
+            map<string, AIPtr>::iterator iter;
+            map<string, AIPtr>::iterator iend = mAIs.end();
+            for (iter = mAIs.begin(); iter != iend; ++iter)
+            {
+                iter->second->ProcessTick(incAmt);
+            }
+        }
     }
 }

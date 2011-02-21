@@ -230,6 +230,9 @@ namespace OpenNero
 
         // shut down the AI system
         AIManager::instance().destroy();
+        
+        // forget everything imported in script
+        ScriptingEngine::instance().destroy();
 
         return true;
     }
@@ -278,9 +281,11 @@ namespace OpenNero
         // potentially change a lot of things such as which mod we want to run.
         UpdateInputSystem(dt);
         
+        // Call the ProcessTick method of the global AI manager
+        AIManager::instance().ProcessTick(dt);
+        
         // This will loop through all the objects in the simulation, calling
-        // their ProcessTick method. In particular, it will run all of the AI
-        // decisions.
+        // their ProcessTick method.
         UpdateSimulation(dt);
         
         // This will trigger scheduled events in the Python script,
@@ -350,16 +355,17 @@ namespace OpenNero
         ScriptingEngine::instance().Tick(dt);
     }
 
-    /// update the local simulations
+    /// Update the simulation
     void SimContext::UpdateSimulation(float32_t dt)
     {
         // update the simulation
         if( mpSimulation )
-            mpSimulation->ProcessWorld(dt);            
-
-		// after all the decisions have been made, we need to check if there 
-		// were any collisions and undo the motions that caused them
-		mpSimulation->DoCollisions();
+        {
+            mpSimulation->ProcessTick(dt);
+            // after all the decisions have been made, we need to check if there 
+            // were any collisions and undo the motions that caused them
+            mpSimulation->DoCollisions();
+        }
 	}
 
     /// clear out data stored within the sim context

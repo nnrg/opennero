@@ -47,20 +47,29 @@ namespace OpenNero
         SimContext();
         ~SimContext();
 
-        // -- For IEventReceiver ---
+        /// For IEventReceiver
+        /// @{
 
         /// handle an event
         bool HandleEvent( const irr::SEvent& event );
+        
+        /// @}
 
-        // -- For SimContext ---
+        /// For SimContext
+        /// @{
 
         /// Initialize a simcontext given a device
         bool Initialize(IrrlichtDevice_IPtr device);
+        
+        /// @}
 
         bool onPush(int argc, char** argv);
         bool onPop();
 
     public:
+
+        /// Exported to scripting API in exports.cpp
+        /// @{
 
         /// return the font
 		irr::gui::IGUIFont* GetFont();
@@ -130,7 +139,7 @@ namespace OpenNero
         void SetObjectColor( SimId id, const SColor& color );
 		bool SetObjectAnimation( SimId id, const std::string& animation_type );
         /// @}
-
+        
         /// Get the position of the SimEntity specified by the id
         Vector3f GetObjectPosition( SimId id ) const;
 
@@ -173,15 +182,15 @@ namespace OpenNero
         /// Define proper mapping for inputs
         void SetInputMapping( const PyIOMap& ioMap );
 
-        // --- end scripting interface methods
+        /// @}
 
         /// return the active camera
         CameraPtr getActiveCamera() const;
 
-        // get an object template from a file
+        /// get an object template from a file
         template<typename ObjTemp> boost::shared_ptr<ObjTemp> getObjectTemplate( const std::string& templateName) const;
 
-        // move the world forward by time dt
+        /// move the world forward by time dt
         void ProcessTick(float32_t dt);
 
         /// return the simulation
@@ -195,7 +204,8 @@ namespace OpenNero
 
     protected:
 
-        // update the various systems
+        /// update the various subsystems
+        /// @{
 
         /// update the audio system
         void UpdateAudioSystem(float32_t dt);
@@ -207,6 +217,8 @@ namespace OpenNero
         void UpdateScriptingSystem(float32_t dt);
 		/// update simulation
         void UpdateSimulation(float32_t dt);
+        
+        /// @}
 
     private:
 
