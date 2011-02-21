@@ -140,7 +140,8 @@ class SandboxMod:
         rbound = FeatureVectorInfo()
         rbound.add_continuous(-sys.float_info.max,sys.float_info.max)
         rtneat = RTNEAT("data/ai/neat-params.dat", 6, 2, pop_size, 1.0, rbound)
-        set_ai("neat",rtneat) 
+        rtneat.set_weight(0,1)
+        set_ai("rtneat",rtneat)
         enable_ai()
         self.distribute_bots(pop_size, "data/shapes/roomba/RoombaRTNEAT.xml")
         
