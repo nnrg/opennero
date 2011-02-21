@@ -18,6 +18,9 @@ def ignore(type):
 # ignore('ai') and ignore('audio'). Doing this achieves filtered logs.
 
 # component section filters
-#ignore('ai')
 ignore('game')
-#ignore('ai.tick')
+
+# you want to comment this out (allowing ai.tick messages) if you want to get 
+# detailed logging about each ai agent's reinforcement (and then plot it using
+# plot_server.py
+ignore('ai.tick')
