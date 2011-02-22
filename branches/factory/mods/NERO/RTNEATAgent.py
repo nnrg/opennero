@@ -49,7 +49,6 @@ class RTNEATAgent(AgentBrain):
             self.file_out = []
             self.file_out.append(str(gettime()))
             self.file_out.append(",")
-        print sensors
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
