@@ -222,6 +222,7 @@ class NeroEnvironment(Environment):
                 agent.state.rotation = r #Note the internal components of agent.state.rotation are immutable you need to make a copy, modify the copy, and set agent.state.rotation to be the copy.
             state.initial_position = p
             state.initial_rotation = r
+            print 'initial_rotation:',state.initial_rotation
             state.pose = (p.x, p.y, r.z)
             state.prev_pose = (p.x, p.y, r.z)
             return reward
