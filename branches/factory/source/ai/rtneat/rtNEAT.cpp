@@ -387,15 +387,16 @@ namespace OpenNero
                             " avg. score: " << scoreavg);
             }
 
-            // TODO: currently assuming this was not used
+            // TODO: milestoning is not implemented for now
             //m_Population->memory_pool->isEmpty();
-            //if(Platform::getRandom()<=s_MilestoneProbability && !m_Population->memory_pool->isEmpty())// && meets probability requirement)
+            //if(RANDOM.randD()<=s_MilestoneProbability && !m_Population->memory_pool->isEmpty())// && meets probability requirement)
             //{
-            //    // Reproduce an organism with the same traits as the "memory pool".
+            // // Reproduce an organism with the same traits as the "memory pool".
             //    new_org.reset(mPopulation->memory_pool)->reproduce_one(mOffspringCount, mPopulation, mPopulation->species);
             //}
             //else
             //{
+            
             // Reproduce a single new organism to replace the one killed off.
             new_org = (mPopulation->choose_parent_species())->reproduce_one(mOffspringCount, mPopulation, mPopulation->species, 0,0);
             //}

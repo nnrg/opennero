@@ -45,11 +45,11 @@ class RTNEATAgent(AgentBrain):
         EXPLOIT_PROB = getMod().ee
         org = self.get_org()
         org.time_alive += 1
-        self.state.label = "%.02f" % org.fitness
         if FITNESS_OUT:    
             self.file_out = []
             self.file_out.append(str(gettime()))
             self.file_out.append(",")
+        print sensors
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
@@ -57,6 +57,7 @@ class RTNEATAgent(AgentBrain):
         a state transition
         """
         # return action
+        self.state.label = str(self.fitness)
         return self.network_action(sensors)
 
     def end(self, time, reward):

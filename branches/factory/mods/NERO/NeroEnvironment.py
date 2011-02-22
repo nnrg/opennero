@@ -301,21 +301,12 @@ class NeroEnvironment(Environment):
         R[FITNESS_STAND_GROUND] = -action[0]
         if ff[0]:
             d = self.distance(self.get_state(ff[0]).pose,state.pose)
-            if d != 0:
-                R[FITNESS_STAND_GROUND] = distance_st / d
-            else:
-                R[FITNESS_STAND_GROUND] = distance_st
+            R[FITNESS_STAND_GROUND] = -d*d
         if ff[1]:
             d = self.distance(self.get_state(ff[1]).pose,state.pose)
-            if d != 0:
-                R[FITNESS_APPROACH_ENEMY] = distance_ae / d
-            else:
-                R[FITNESS_APPROACH_ENEMY] = distance_ae
+            R[FITNESS_APPROACH_ENEMY] = -d*d
         d = self.flag_distance(agent)
-        if d != 0:
-            R[FITNESS_APPROACH_FLAG] = (distance_af/d)
-        else:
-            R[FITNESS_APPROACH_FLAG] = distance_af * 10 # high reward for priximity
+        R[FITNESS_APPROACH_FLAG] = -d*d
         R[FITNESS_HIT_TARGET] = hit
         R[FITNESS_AVOID_FIRE] = -damage
         
