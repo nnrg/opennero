@@ -115,7 +115,7 @@ namespace OpenNero {
             py::class_<RaySensor, noncopyable, bases<Sensor>, RaySensorPtr>(
                 "RaySensor", 
                 "A ray sensor that returns the distance to the closest object it intersects",
-                init<double, double, double, double, U32>())
+                init<double, double, double, double, U32, bool>())
 				.def(self_ns::str(self_ns::self))
                 ;
             py::implicitly_convertible<RaySensorPtr, SensorPtr>();
@@ -123,7 +123,7 @@ namespace OpenNero {
                 "RadarSensor",
                 "A radar sensor that returns a value based on the number and \
                 distance of objects within a sector of space.",
-                init<double, double, double, double, double, U32>())
+                init<double, double, double, double, double, U32, bool>())
 				.def(self_ns::str(self_ns::self))
                 ;
             py::implicitly_convertible<RadarSensorPtr, SensorPtr>();
