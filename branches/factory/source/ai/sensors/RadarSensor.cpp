@@ -60,7 +60,6 @@ namespace OpenNero
                 Vector3f tp(sourcePos.X + distToTarget * cos(y + h), sourcePos.Y + distToTarget * sin(y + h), sourcePos.Z);
                 Vector3f hp(sourcePos.X + distToTarget * cos(h), sourcePos.Y + distToTarget * sin(h), sourcePos.Z);
                 Vector3f cp(sourcePos.X + distToTarget * cos(c + h), sourcePos.Y + distToTarget * sin(c + h), sourcePos.Z);
-                //Vector3f hp(sourcePos.X + distToTarget * cos(h), sourcePos.Y + distToTarget * sin(h), sourcePos.Z);
                 LineSet::instance().AddSegment(sourcePos, hp, SColor(255,255,255,255));
                 LineSet::instance().AddSegment(sourcePos, tp, SColor(255,255,0,0));
             }

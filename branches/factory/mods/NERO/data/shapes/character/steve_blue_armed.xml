@@ -6,7 +6,7 @@
     <CastsShadow>false</CastsShadow>
     <Texture0>data/shapes/steve/steve_blue.jpg</Texture0>
     <Scale>1.0 1.0 1.0</Scale>
-    <DrawLabel>true</DrawLabel>
+    <DrawLabel>false</DrawLabel>
   </Render>
   <AI>
     <Python agent="RTNEATAgent()" />

@@ -80,7 +80,7 @@ namespace OpenNero
         bool ready();
                 
         /// have we been deleted?
-        bool have_organism(AgentBrainPtr agent);
+        bool has_organism(AgentBrainPtr agent);
         
         /// get the organism currently assigned to the agent
         PyOrganismPtr get_organism(AgentBrainPtr agent);

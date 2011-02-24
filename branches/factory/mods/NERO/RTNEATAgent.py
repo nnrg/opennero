@@ -3,8 +3,6 @@ import random
 from time import time
 from constants import *
 
-FITNESS_OUT = False
-
 def gettime():
     return time() 
 
@@ -41,14 +39,8 @@ class RTNEATAgent(AgentBrain):
         """
         start of an episode
         """
-        from NERO.module import getMod
-        EXPLOIT_PROB = getMod().ee
         org = self.get_org()
         org.time_alive += 1
-        if FITNESS_OUT:    
-            self.file_out = []
-            self.file_out.append(str(gettime()))
-            self.file_out.append(",")
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
@@ -63,15 +55,7 @@ class RTNEATAgent(AgentBrain):
         """
         end of an episode
         """
-        if FITNESS_OUT:
-            self.file_out.append(str(gettime()))
-            self.file_out.append(",")
-        if FITNESS_OUT:
-            self.file_out.append(str(self.fitness[0]))
-            self.file_out.append('\n')
-            strn = "".join(self.file_out)
-            f = open('output.out','a')
-            f.write(strn)
+        get_ai("rtneat").get_organism(self).time_alive += 1
         get_ai("rtneat").release_organism(self)
         return True
 

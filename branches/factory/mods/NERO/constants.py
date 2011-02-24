@@ -29,7 +29,8 @@ OBJECT_TYPE_LEVEL_GEOM = 0#(1 << 3) # object type for the level geometry
 # node 11 1 1 1 RaySensor 1 16777216 16777220 90 0 50
 # node 12 1 1 1 RaySensor 1 16777216 16777220 45 0 50
 # node 13 1 1 1 RaySensor 1 16777216 16777220 0 0 50
-WALL_SENSORS = [-90, -45, 0, 45, 90]
+# WALL_SENSORS = [-90, -45, 0, 45, 90]
+WALL_SENSORS = []
 
 # Flag Radar Sensors
 # node 14 1 1 1 FlagRadarSensor 2 180 102 90 -90 300
@@ -37,7 +38,7 @@ WALL_SENSORS = [-90, -45, 0, 45, 90]
 # node 16 1 1 1 FlagRadarSensor 1 93 72 90 -90 300
 # node 17 1 1 1 FlagRadarSensor 2 78 0 90 -90 300
 # node 18 1 1 1 FlagRadarSensor 5 3 177 90 -90 300
-FLAG_SENSORS = [(-90, -12), (-18, 3), (-3, 18), (12, 90), (87, -87)]
+FLAG_SENSORS = [(-180,-90),(-90,-60), (-60,-30), (-30,0), (0, 30), (30, 60), (60, 90),(90,180)]
 
 # Friend Radar Sensors
 # node 1 1 1 1 FriendRadarSensor 3 90 -90 15 0
@@ -49,7 +50,8 @@ FLAG_SENSORS = [(-90, -12), (-18, 3), (-3, 18), (12, 90), (87, -87)]
 # node 5 1 1 1 EnemyRadarSensor 1 93 72 90 -90 300
 # node 6 1 1 1 EnemyRadarSensor 2 78 0 90 -90 300
 # node 7 1 1 1 EnemyRadarSensor 5 3 177 90 -90 300
-ENEMY_SENSORS = [(-90, -12), (-18, 3), (-3, 18), (12, 90), (87, -87)]
+# ENEMY_SENSORS = [(-90, -12), (-18, 3), (-3, 18), (12, 90), (87, -87)]
+ENEMY_SENSORS = []
 
 # Number of network inputs
 NEAT_SENSORS = len(WALL_SENSORS) + len(FLAG_SENSORS) + len(ENEMY_SENSORS) + 2 + 1

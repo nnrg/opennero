@@ -123,7 +123,7 @@ namespace OpenNero
     }
     
     /// have we been deleted?
-    bool RTNEAT::have_organism(AgentBrainPtr agent)
+    bool RTNEAT::has_organism(AgentBrainPtr agent)
     {
         BrainBodyMap::left_map::const_iterator found;
         found = mBrainBodyMap.left.find(agent->GetBody());
@@ -238,68 +238,34 @@ namespace OpenNero
             evolveAll();
             mEvolutionTickCount = 0;
         }
-        
-        LOG_F_DEBUG("ai.rtneat", 
-                    "brains: " << mBrainList.size() << 
-                    ", waiting: " << mWaitingBrainList.size() << 
-                    ", active: " << mBrainBodyMap.size() <<
-                    ", deleted: " << mTotalUnitsDeleted);
-	}
+    }
     
     void RTNEAT::evaluateAll()
     {
         // Calculate the Z-score
         ScoreHelper scoreHelper(mRewardInfo);
 
-        size_t n_new_trials = 0;
-        size_t n_add_samples = 0;
-        size_t n_skipped = 0;
-        
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
                 size_t time_alive = (*iter)->GetOrganism()->time_alive;
                 if ( time_alive % NEAT::time_alive_minimum == 0 && time_alive > 0 )
                 {
                     (*iter)->mStats.startNextTrial();
-                    ++n_new_trials;
                 }
                 Reward stats = (*iter)->mStats.getStats();
                 scoreHelper.addSample(stats);
-                ++n_add_samples;
-                LOG_F_DEBUG("ai.rtneat", "brain: " << (*iter)->GetId() << ", time_alive: " << time_alive << ", stats: " << stats);
-            }
-            else 
-            {
-                ++n_skipped;
             }
         }
-        
-        LOG_F_DEBUG("ai.rtneat", "ScoreHelper: " << n_new_trials << " " << n_add_samples << " " << n_skipped);
 
         scoreHelper.doCalculations();
 
         F32 minAbsoluteScore = 0; // min of 0, min abs score
         F32 maxAbsoluteScore = -FLT_MAX; // max raw score
 
-        Reward minRaw(mRewardInfo.getInstance());
-        Reward maxRaw(mRewardInfo.getInstance());
-        for (size_t i = 0; i < minRaw.size(); ++i) {
-            minRaw[i] = FLT_MAX;
-            maxRaw[i] = -FLT_MAX;
-        }
-
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
                 (*iter)->mAbsoluteScore = 0;
                 Reward stats = (*iter)->mStats.getStats();
-                for (size_t i = 0; i < stats.size(); ++i) {
-                    if (stats[i] > maxRaw[i]) {
-                        maxRaw[i] = stats[i];
-                    }
-                    if (stats[i] < minRaw[i]) {
-                        minRaw[i] = stats[i];
-                    }
-                }
                 Reward relative_score = scoreHelper.getRelativeScore(stats);
                 for (size_t i = 0; i < relative_score.size(); ++i)
                 {
@@ -312,14 +278,17 @@ namespace OpenNero
             }
         }
         
-        LOG_F_DEBUG("ai.rtneat", 
-                    "z-min: " << minAbsoluteScore <<
-                    " z-max: " << maxAbsoluteScore <<
-                    " r-min: " << minRaw <<
-                    " r-max: " << maxRaw <<
-                    " w: " << mFitnessWeights <<
-                    " mean: " << scoreHelper.getAverage() <<
-                    " stdev: " << scoreHelper.getStandardDeviation());
+        if (scoreHelper.getSampleSize() > 0)
+        {
+            LOG_F_DEBUG("ai.rtneat", 
+                        "z-min: " << minAbsoluteScore <<
+                        " z-max: " << maxAbsoluteScore <<
+                        " r-min: " << scoreHelper.getMin() <<
+                        " r-max: " << scoreHelper.getMax() <<
+                        " w: " << mFitnessWeights <<
+                        " mean: " << scoreHelper.getAverage() <<
+                        " stdev: " << scoreHelper.getStandardDeviation());
+        }
 
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
