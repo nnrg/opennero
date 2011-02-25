@@ -10,7 +10,10 @@ MAX_MOVEMENT_SPEED = 12
 MAX_VISION_RADIUS = 100
 
 # Population size
-pop_size = 40
+pop_size = 20
+
+# number of steps per lifetime
+lifetime = 1000
 
 OBJECT_TYPE_OBSTACLE  = (1 << 0) # object type for walls
 OBJECT_TYPE_AGENT = (1 << 1) # object type for agent
@@ -38,7 +41,7 @@ WALL_SENSORS = []
 # node 16 1 1 1 FlagRadarSensor 1 93 72 90 -90 300
 # node 17 1 1 1 FlagRadarSensor 2 78 0 90 -90 300
 # node 18 1 1 1 FlagRadarSensor 5 3 177 90 -90 300
-FLAG_SENSORS = [(-180,-90),(-90,-60), (-60,-30), (-30,0), (0, 30), (30, 60), (60, 90),(90,180)]
+FLAG_SENSORS = [(-120, -90), (-90,-60), (-60,-30), (-30,0), (0, 30), (30, 60), (60, 90), (90,120)]
 
 # Friend Radar Sensors
 # node 1 1 1 1 FriendRadarSensor 3 90 -90 15 0

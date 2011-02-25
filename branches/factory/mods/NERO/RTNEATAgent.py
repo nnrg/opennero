@@ -55,7 +55,6 @@ class RTNEATAgent(AgentBrain):
         """
         end of an episode
         """
-        get_ai("rtneat").get_organism(self).time_alive += 1
         get_ai("rtneat").release_organism(self)
         return True
 

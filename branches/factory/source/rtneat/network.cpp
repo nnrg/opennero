@@ -287,19 +287,6 @@ bool Network::activate()
         }
 
     } //end if (adaptable)
-    
-    std::stringstream ss;
-    ss << "in: ";
-    for (vector<NNodePtr>::const_iterator iter = inputs.begin(); iter != inputs.end(); ++iter)
-    {
-        ss << (*iter)->activation << " ";
-    }
-    ss << "out: ";
-    for (vector<NNodePtr>::const_iterator iter = outputs.begin(); iter != outputs.end(); ++iter)
-    {
-        ss << (*iter)->activation << " ";
-    }
-    LOG_F_DEBUG("ai.rtneat", ss.str());
     return true;
 }
 

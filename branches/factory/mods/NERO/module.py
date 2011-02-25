@@ -14,7 +14,7 @@ class NeroModule:
     def __init__(self):
         self.environment = None
         self.agent_id = None
-        self.lt = 50
+        self.lt = 1000
         self.dta = 50
         self.dtb = 50
         self.dtc = 50

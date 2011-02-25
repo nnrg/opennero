@@ -42,7 +42,7 @@ namespace OpenNero
         Vector3f vecToTarget = targetPos - sourcePos;
         double distToTarget = vecToTarget.getLength();
         double myHeading = source->GetRotation().Z;
-        double tgtAngle = RAD_2_DEG * atan2(vecToTarget.Y, vecToTarget.X);
+        double tgtAngle = RAD_2_DEG * atan2(vecToTarget.Y, vecToTarget.X); // [-180, 180]
         double yawToTarget = LockDegreesTo180(tgtAngle - myHeading);
         double pitchToTarget = 0; // TODO: for now
         if (distToTarget <= radius &&                                       // within radius
@@ -50,6 +50,11 @@ namespace OpenNero
              (rightbound < leftbound) && (leftbound <= yawToTarget || yawToTarget <= rightbound)) && // possibly wrapping around
 			(bottombound <= pitchToTarget && pitchToTarget <= topbound) )   // pitch within B-T angle bounds
         {
+            if (distToTarget > 0) {
+                value += kDistanceScalar * radius / distToTarget;
+            } else {
+                value += 1;
+            }
             if (vis) {
                 Vector3f r = source->GetRotation();
                 double h = DEG_2_RAD * myHeading;
@@ -60,21 +65,16 @@ namespace OpenNero
                 Vector3f tp(sourcePos.X + distToTarget * cos(y + h), sourcePos.Y + distToTarget * sin(y + h), sourcePos.Z);
                 Vector3f hp(sourcePos.X + distToTarget * cos(h), sourcePos.Y + distToTarget * sin(h), sourcePos.Z);
                 Vector3f cp(sourcePos.X + distToTarget * cos(c + h), sourcePos.Y + distToTarget * sin(c + h), sourcePos.Z);
-                LineSet::instance().AddSegment(sourcePos, hp, SColor(255,255,255,255));
+                Vector3f lp(sourcePos.X + distToTarget * cos(lb + h), sourcePos.Y + distToTarget * sin(lb + h), sourcePos.Z);
+                Vector3f rp(sourcePos.X + distToTarget * cos(rb + h), sourcePos.Y + distToTarget * sin(rb + h), sourcePos.Z);
                 LineSet::instance().AddSegment(sourcePos, tp, SColor(255,255,0,0));
+                LineSet::instance().AddSegment(sourcePos, lp, SColor(255,255,255,255));
+                LineSet::instance().AddSegment(sourcePos, rp, SColor(255,255,255,255));
+                //LOG_F_DEBUG("ai.sensor", 
+                //            "h: " << myHeading << " yaw: " << yawToTarget
+                //            << " lb: " << leftbound << " rb: " << rightbound 
+                //            << " R: " << radius << " v: " << value);
             }
-            if (distToTarget > 0) {
-                value += kDistanceScalar * radius / distToTarget;
-            } else {
-                value += 1;
-            }
-            //LOG_F_DEBUG("ai.sensor", 
-            //            "lb: " << leftbound << " hdg: " << r.Z << " rb: " << rightbound <<
-            //            " R: " << radius <<
-            //            " src: " << sourcePos << " tgt: " << targetPos <<
-            //            " dir: " << vecToTarget << " dst: " << distToTarget <<
-            //            " yaw: " << yawToTarget << " ptc: " << pitchToTarget <<
-            //            " v: " << value);
         }
         return true;
     }
