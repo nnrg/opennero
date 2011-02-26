@@ -1,5 +1,5 @@
 ==========================================================================
-The Irrlicht Engine SDK version 1.6
+The Irrlicht Engine SDK version 1.7
 ==========================================================================
 
   Welcome the Irrlicht Engine SDK.
@@ -135,7 +135,7 @@ The Irrlicht Engine SDK version 1.6
   The Irrlicht Engine License
   ===========================
 
-  Copyright (C) 2002-2009 Nikolaus Gebhardt
+  Copyright (C) 2002-2010 Nikolaus Gebhardt
 
   This software is provided 'as-is', without any express or implied
   warranty.  In no event will the authors be held liable for any damages

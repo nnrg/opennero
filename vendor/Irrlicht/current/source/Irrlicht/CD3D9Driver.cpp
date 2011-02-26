@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2009 Nikolaus Gebhardt
+// Copyright (C) 2002-2010 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -74,7 +74,8 @@ CD3D9Driver::~CD3D9Driver()
 	deleteAllTextures();
 
 	// drop the main depth buffer
-	DepthBuffers[0]->drop();
+	if (DepthBuffers.size())
+		DepthBuffers[0]->drop();
 
 	// drop d3d9
 
@@ -1362,9 +1363,9 @@ void CD3D9Driver::draw2D3DVertexPrimitiveList(const void* vertices,
 			else
 			{
 				pID3DDevice->DrawIndexedPrimitiveUP(D3DPT_LINESTRIP, 0, vertexCount,
-				primitiveCount, indexList, indexType, vertices, stride);
+				primitiveCount - 1, indexList, indexType, vertices, stride);
 
-				u16 tmpIndices[] = {0, primitiveCount};
+				u16 tmpIndices[] = {primitiveCount - 1, 0};
 
 				pID3DDevice->DrawIndexedPrimitiveUP(D3DPT_LINELIST, 0, vertexCount,
 					1, tmpIndices, indexType, vertices, stride);
@@ -2753,7 +2754,7 @@ bool CD3D9Driver::reset()
 	pID3DDevice->GetDepthStencilSurface(&(DepthBuffers[0]->Surface));
 	D3DSURFACE_DESC desc;
 	// restore other depth buffers
-	// dpeth format is taken from main depth buffer
+	// depth format is taken from main depth buffer
 	DepthBuffers[0]->Surface->GetDesc(&desc);
 	// multisampling is taken from rendertarget
 	D3DSURFACE_DESC desc2;
@@ -3021,6 +3022,12 @@ IImage* CD3D9Driver::createScreenShot()
 		clientRect.top	= clientPoint.y;
 		clientRect.right  = clientRect.left + ScreenSize.Width;
 		clientRect.bottom = clientRect.top  + ScreenSize.Height;
+
+		// window can be off-screen partly, we can't take screenshots from that
+		clientRect.left = core::max_(clientRect.left, 0l);
+		clientRect.top = core::max_(clientRect.top, 0l);
+		clientRect.right = core::min_(clientRect.right, (long)displayMode.Width);
+		clientRect.bottom = core::min_(clientRect.bottom, (long)displayMode.Height );
 	}
 
 	// lock our area of the surface
@@ -3031,8 +3038,12 @@ IImage* CD3D9Driver::createScreenShot()
 		return 0;
 	}
 
+	irr::core::dimension2d<u32> shotSize;
+	shotSize.Width = core::min_( ScreenSize.Width, (u32)(clientRect.right-clientRect.left) );
+	shotSize.Height = core::min_( ScreenSize.Height, (u32)(clientRect.bottom-clientRect.top) );
+
 	// this could throw, but we aren't going to worry about that case very much
-	IImage* newImage = new CImage(ECF_A8R8G8B8, ScreenSize);
+	IImage* newImage = new CImage(ECF_A8R8G8B8, shotSize);
 
 	// d3d pads the image, so we need to copy the correct number of bytes
 	u32* dP = (u32*)newImage->lock();
@@ -3043,26 +3054,26 @@ IImage* CD3D9Driver::createScreenShot()
 	// set each pixel alpha value to 255.
 	if(D3DFMT_X8R8G8B8 == displayMode.Format && (0xFF000000 != (*dP & 0xFF000000)))
 	{
-		for (u32 y = 0; y < ScreenSize.Height; ++y)
+		for (u32 y = 0; y < shotSize.Height; ++y)
 		{
-			for(u32 x = 0; x < ScreenSize.Width; ++x)
+			for(u32 x = 0; x < shotSize.Width; ++x)
 			{
 				*dP = *((u32*)sP) | 0xFF000000;
 				dP++;
 				sP += 4;
 			}
 
-			sP += lockedRect.Pitch - (4 * ScreenSize.Width);
+			sP += lockedRect.Pitch - (4 * shotSize.Width);
 		}
 	}
 	else
 	{
-		for (u32 y = 0; y < ScreenSize.Height; ++y)
+		for (u32 y = 0; y < shotSize.Height; ++y)
 		{
-			memcpy(dP, sP, ScreenSize.Width * 4);
+			memcpy(dP, sP, shotSize.Width * 4);
 
 			sP += lockedRect.Pitch;
-			dP += ScreenSize.Width;
+			dP += shotSize.Width;
 		}
 	}
 

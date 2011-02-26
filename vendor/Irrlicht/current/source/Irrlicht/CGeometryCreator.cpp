@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2009 Nikolaus Gebhardt
+// Copyright (C) 2002-2010 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -329,11 +329,13 @@ IMesh* CGeometryCreator::createArrowMesh(const u32 tesselationCylinder,
 		for (u32 j=0; j<buffer->getVertexCount(); ++j)
 			buffer->getPosition(j).Y += cylinderHeight;
 		buffer->setDirty(EBT_VERTEX);
+		buffer->recalculateBoundingBox();
 		mesh->addMeshBuffer(buffer);
 	}
 	mesh2->drop();
 	mesh->setHardwareMappingHint(EHM_STATIC);
 
+	mesh->recalculateBoundingBox();
 	return mesh;
 }
 
