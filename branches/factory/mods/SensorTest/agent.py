@@ -32,7 +32,7 @@ class NoopAgent(AgentBrain):
         """
         receive the reward for the last observation
         """
-        print  "Final reward: %f, cumulative: %f" % (reward, self.fitness)
+        print  "Final reward:", reward, "cumulative:", self.fitness
         return True
 
     def destroy(self):

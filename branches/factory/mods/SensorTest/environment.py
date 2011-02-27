@@ -14,14 +14,14 @@ class SensorTestEnvironment(Environment):
         print 'SensorTestEnvironment()'
 
     def add_ray(self, agent, x, y, z, radius, type_mask, expected):
-        sensor = RaySensor(x,y,z,radius,type_mask)
+        sensor = RaySensor(x,y,z,radius,type_mask, True)
         agent.add_sensor(sensor)
         self.sensor_info.add_continuous(0,1)
         self.expected.append(expected)
         self.sensor_names.append(str(sensor))
 
     def add_radar(self, agent, left_bound, right_bound, bottom_bound, top_bound, radius, type_mask, expected):
-        sensor = RadarSensor(left_bound, right_bound, bottom_bound, top_bound, radius,type_mask)
+        sensor = RadarSensor(left_bound, right_bound, bottom_bound, top_bound, radius, type_mask, True)
         agent.add_sensor(sensor)
         self.sensor_info.add_continuous(0,1)
         self.expected.append(expected)
@@ -67,7 +67,6 @@ class SensorTestEnvironment(Environment):
         return AgentInitInfo(self.sensor_info, self.sensor_info, reward_info)
 
     def sense(self, agent, observations):
-        print 'SensorTestEnvironment.sense()'
         correct_list = []
         for i in xrange(len(self.expected)):
             if self.expected[i] == 0.5:
@@ -84,7 +83,6 @@ class SensorTestEnvironment(Environment):
         return observations
         
     def step(self, agent, actions):
-        print 'SensorTestEnvironment.step()'
         return 1.0
         
     def is_active(self, agent):
