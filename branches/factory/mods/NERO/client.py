@@ -136,7 +136,7 @@ def mouse_action():
 
 
     if 'move' in modify_object_id:
-       sim_context.setObjectPosition(modify_object_id['move'], Vector3f(location.x, location.y, 0))
+       sim_context.setObjectPosition(modify_object_id['move'], Vector3f(location.x, location.y, HEIGHT+OFFSET))
 
     if 'rot' in modify_object_id:
         position = sim_context.getObjectPosition(modify_object_id['rot'])
