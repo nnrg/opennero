@@ -20,7 +20,7 @@ class AgentState:
         # starting position
         self.initial_position = Vector3f(0, 0, 0)
         # starting orientation
-        self.initial_rotation = Vector3f(0, 0, 0)        
+        self.initial_rotation = Vector3f(0, 0, 0)
         self.time = time.time()
         self.start_time = self.time
         self.total_damage = 0
@@ -237,7 +237,8 @@ class NeroEnvironment(Environment):
         rotation = agent.state.rotation
         
         # get the current pose of the agent
-        (x, y, heading) = state.pose
+        x, y, heading = position.x, position.y, rotation.z
+        state.pose = (x,y,heading)
         
         # get the actions of the agent
         move_by = action[0]
@@ -307,8 +308,7 @@ class NeroEnvironment(Environment):
         new_position.x, new_position.y = new_x, new_y
         
         # make the calculated motion
-        position.x, position.y = state.pose[0], state.pose[1]
-        agent.state.position = position
+        agent.state.position = new_position
         rotation.z = new_heading
         agent.state.rotation = rotation
         state.prev_pose = state.pose
@@ -411,26 +411,7 @@ class NeroEnvironment(Environment):
     
     def is_active(self, agent):
         """ return true when the agent should act """
-        state = self.get_state(agent)
-        # interpolate between prev_pose and pose
-        (x1, y1, h1) = state.prev_pose
-        (x2, y2, h2) = state.pose
-        if x1 != x2 or y1 != y2:
-            fraction = 1.0
-            if self.get_delay() != 0:
-                fraction = min(1.0, float(time.time() - state.time) / self.get_delay())
-            pos = agent.state.position
-            pos.x = x1 * (1 - fraction) + x2 * fraction
-            pos.y = y1 * (1 - fraction) + y2 * fraction
-            agent.state.position = pos
-            self.set_animation(agent, state, 'run')
-        else:
-            self.set_animation(agent, state, 'stand')
-        if time.time() - state.time > self.get_delay():
-            state.time = time.time()
-            return True
-        else:
-            return False
+        return True
     
     def is_episode_over(self, agent):
         """
