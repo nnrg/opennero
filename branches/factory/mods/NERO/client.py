@@ -51,7 +51,7 @@ def show_context_menu():
     location = sim_context.getClickedPosition(cursor.x, cursor.y)
     selected_object_id = sim_context.getClickedEntityId(cursor.x, cursor.y)
 
-    if abs(location.z) > 1: return
+    if selected_object_id not in object_ids and abs(location.z) > 1: return
 
     print "location:", location
 
