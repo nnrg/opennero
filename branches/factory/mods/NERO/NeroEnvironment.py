@@ -42,7 +42,7 @@ class NeroEnvironment(Environment):
         self.step_delay = 0.25 # time between steps in seconds
         self.max_steps = 20
         self.time = time.time()
-        self.MAX_DIST = pow((pow(XDIM, 2) + pow(YDIM, 2)), .5)
+        self.MAX_DIST = hypot(XDIM, YDIM)
         self.states = {}
         self.teams = {}
         self.speedup = 0
@@ -55,22 +55,9 @@ class NeroEnvironment(Environment):
         abound.add_continuous(-1,1) # forward/backward speed
         abound.add_continuous(-0.2, 0.2) # left/right turn (in radians)
 
-        # Wall sensors
-        for a in WALL_SENSORS:
-            sbound.add_continuous(0,1)
-                
-        # Flag sensors
-        for fs in FLAG_SENSORS:
-            sbound.add_continuous(0,1)
-        
-        # Enemy sensors
-        for es in ENEMY_SENSORS:
-            sbound.add_continuous(0,1)
-
-        # Friend Sensors
-        sbound.add_continuous(0,1)
-        sbound.add_continuous(0,1)
-        sbound.add_continuous(0,1)
+        # sensor dimensions
+        for a in range(N_SENSORS):
+            sbound.add_continuous(0,1);
 
         # Rewards
         # the enviroment returns the raw multiple dimensions of the fitness as
@@ -85,7 +72,7 @@ class NeroEnvironment(Environment):
         # output layer has enough values for all the actions
         # population size matches ours
         # 1.0 is the weight initialization noise
-        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS + 1, NEAT_ACTIONS, pop_size, 1.0, rbound)
+        rtneat = RTNEAT("data/ai/neat-params.dat", N_SENSORS, N_ACTIONS, pop_size, 1.0, rbound)
         
         # set the initial lifetime
         lifetime = getMod().lt
@@ -120,13 +107,13 @@ class NeroEnvironment(Environment):
         """
         return a blueprint for a new agent
         """ 
-        for a in WALL_SENSORS:
-            agent.add_sensor(RaySensor(cos(radians(a)), sin(radians(a)), 0, MAX_VISION_RADIUS, OBJECT_TYPE_OBSTACLE, False))
-        for (a0, a1) in FLAG_SENSORS:
-            agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS * 5, OBJECT_TYPE_FLAG, True))
-        for (a0, a1) in ENEMY_SENSORS:
-            if agent.get_team() == 0: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS * 5, OBJECT_TYPE_TEAM_1, False))
-            if agent.get_team() == 1: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS * 5, OBJECT_TYPE_TEAM_0, False))
+        for a in WALL_RAY_SENSORS:
+            agent.add_sensor(RaySensor(cos(radians(a)), sin(radians(a)), 0, 50, OBJECT_TYPE_OBSTACLE, True))
+        for (a0, a1) in FLAG_RADAR_SENSORS:
+            agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_FLAG, False))
+        for (a0, a1) in ENEMY_RADAR_SENSORS:
+            if agent.get_team() == 0: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_1, False))
+            if agent.get_team() == 1: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_0, False))
         return self.agent_info
    
     def get_state(self, agent):
