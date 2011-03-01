@@ -51,7 +51,7 @@ def show_context_menu():
     location = sim_context.getClickedPosition(cursor.x, cursor.y)
     selected_object_id = sim_context.getClickedEntityId(cursor.x, cursor.y)
 
-    if abs(location.z) > 1: return
+    if selected_object_id not in object_ids and abs(location.z) > 1: return
 
     print "location:", location
 
@@ -136,7 +136,7 @@ def mouse_action():
 
 
     if 'move' in modify_object_id:
-       sim_context.setObjectPosition(modify_object_id['move'], Vector3f(location.x, location.y, 0))
+       sim_context.setObjectPosition(modify_object_id['move'], Vector3f(location.x, location.y, HEIGHT+OFFSET))
 
     if 'rot' in modify_object_id:
         position = sim_context.getObjectPosition(modify_object_id['rot'])

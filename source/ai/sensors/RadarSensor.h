@@ -30,6 +30,9 @@ namespace OpenNero
 
         //! bookkeeping for resetting the value
         bool observed;
+
+        //! whether or not the sensor is displayed on screen
+        bool vis;
         
     public:
         RadarSensor()
@@ -39,6 +42,7 @@ namespace OpenNero
             , radius(0)
             , value(0)
             , observed(false)
+            , vis(false)
         {}
     
         //! Create a new RadarSensor
@@ -48,11 +52,13 @@ namespace OpenNero
         //! @param topbound greatest relative pitch (degrees) of objects to include
         //! @param radius the radius of the radar sector (how far it extends)
         //! @param types the type mask for the objects that the radar will count
+        //! @param vis whether or not the sensor is displayed on screen
         RadarSensor(
             double leftbound, double rightbound, 
             double bottombound, double topbound, 
             double radius, 
-            U32 types = 0);
+            U32 types = 0,
+            bool vis = false);
         
         ~RadarSensor();
     

@@ -19,6 +19,8 @@ namespace OpenNero
         Reward m_SumOfSquares;
         Reward m_Average;
         Reward m_StandardDeviation;
+        Reward m_Min;
+        Reward m_Max;
 
     public:
     
@@ -38,9 +40,16 @@ namespace OpenNero
         
         /// standard deviation of scores in all dimensions
         const Reward& getStandardDeviation() const { return m_StandardDeviation; }
+        
+        /// the number of samples
+        size_t getSampleSize() const { return m_SampleSize; }
 
         /// get the relative (scaled) Z-scores along the dimensions
         Reward getRelativeScore(Reward absoluteScore) const;
+        
+        const Reward& getMin() const { return m_Min; }
+        
+        const Reward& getMax() const { return m_Max; }
     };
     
     class Stats

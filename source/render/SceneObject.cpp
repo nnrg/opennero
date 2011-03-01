@@ -706,6 +706,10 @@ namespace OpenNero
         // get the axis-aligned bounding boxes for both objects
         BBoxf my_box = mSceneNode->getTransformedBoundingBox(); // our irr a.a.b. box
         BBoxf other_box = other->mSceneNode->getTransformedBoundingBox(); // their irr a.a.b. box
+
+        Matrix4 translation;
+        translation.setTranslation(my_irr_movement.getVector());
+        translation.transformBox(my_box);
         
         // check if our movement line crosses the bounding box of the other object
         if (other_box.intersectsWithLine(my_irr_movement))

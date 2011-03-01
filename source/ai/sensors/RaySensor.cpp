@@ -3,8 +3,8 @@
 #include "game/SimContext.h"
 
 namespace OpenNero {
-    RaySensor::RaySensor(double x, double y, double z, double radius, U32 types) :
-        Sensor(1, types), x(x), y(y), z(z), radius(radius)
+    RaySensor::RaySensor(double x, double y, double z, double radius, U32 types, bool vis) :
+        Sensor(1, types), x(x), y(y), z(z), radius(radius), vis(vis)
     {
     }
     
@@ -30,7 +30,7 @@ namespace OpenNero {
         toTarget = ConvertIrrlichtToNeroPosition(toTarget);
         toTarget.setLength(radius);
         Vector3f targetPos = sourcePos + toTarget;
-        if (Kernel::GetSimContext()->FindInRay(hitEntity, hitPos, sourcePos, targetPos, getTypes(), false))
+        if (Kernel::GetSimContext()->FindInRay(hitEntity, hitPos, sourcePos, targetPos, getTypes(), vis))
         {
             Vector3f toHit = hitPos - sourcePos;
             return toHit.getLength()/radius;

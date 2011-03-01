@@ -121,7 +121,7 @@ namespace OpenNero {
 
     typedef FeatureVectorInfo SensorInfo; ///< Sensor/feature vector descriptor
     typedef FeatureVectorInfo ActionInfo; ///< Action vector descriptor
-    typedef FeatureVectorInfo RewardInfo; ///< Reward descriptor (currently discarded)
+    typedef FeatureVectorInfo RewardInfo; ///< Reward descriptor
 
     /// Initial information given to an agent
     struct AgentInitInfo
