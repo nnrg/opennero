@@ -3,8 +3,6 @@ import random
 from time import time
 from constants import *
 
-FITNESS_OUT = False
-
 def gettime():
     return time() 
 
@@ -41,15 +39,8 @@ class RTNEATAgent(AgentBrain):
         """
         start of an episode
         """
-        from NERO.module import getMod
-        EXPLOIT_PROB = getMod().ee
         org = self.get_org()
         org.time_alive += 1
-        self.state.label = "%.02f" % org.fitness
-        if FITNESS_OUT:    
-            self.file_out = []
-            self.file_out.append(str(gettime()))
-            self.file_out.append(",")
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
@@ -57,21 +48,13 @@ class RTNEATAgent(AgentBrain):
         a state transition
         """
         # return action
+        self.state.label = str(self.fitness)
         return self.network_action(sensors)
 
     def end(self, time, reward):
         """
         end of an episode
         """
-        if FITNESS_OUT:
-            self.file_out.append(str(gettime()))
-            self.file_out.append(",")
-        if FITNESS_OUT:
-            self.file_out.append(str(self.fitness[0]))
-            self.file_out.append('\n')
-            strn = "".join(self.file_out)
-            f = open('output.out','a')
-            f.write(strn)
         get_ai("rtneat").release_organism(self)
         return True
 
@@ -92,7 +75,7 @@ class RTNEATAgent(AgentBrain):
         Collect and interpret the outputs as valid maze actions
         """
         # make sure we have the right number of sensors
-        assert(len(sensors)==NEAT_SENSORS)
+        assert(len(sensors)==N_SENSORS)
         # convert the sensors into the [0.0, 1.0] range
         sensors = self.sensors.normalize(sensors)
         # create the list of sensors

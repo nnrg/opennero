@@ -115,7 +115,7 @@ namespace OpenNero {
             py::class_<RaySensor, noncopyable, bases<Sensor>, RaySensorPtr>(
                 "RaySensor", 
                 "A ray sensor that returns the distance to the closest object it intersects",
-                init<double, double, double, double, U32>())
+                init<double, double, double, double, U32, bool>())
 				.def(self_ns::str(self_ns::self))
                 ;
             py::implicitly_convertible<RaySensorPtr, SensorPtr>();
@@ -123,7 +123,7 @@ namespace OpenNero {
                 "RadarSensor",
                 "A radar sensor that returns a value based on the number and \
                 distance of objects within a sector of space.",
-                init<double, double, double, double, double, U32>())
+                init<double, double, double, double, double, U32, bool>())
 				.def(self_ns::str(self_ns::self))
                 ;
             py::implicitly_convertible<RadarSensorPtr, SensorPtr>();
@@ -352,7 +352,9 @@ namespace OpenNero {
 				.def("get_organism", &RTNEAT::get_organism, "evolve a new organism and return it")
                 .def("release_organism", &RTNEAT::release_organism, "release the organism after the agent is done")
                 .def("ready", &RTNEAT::ready, "return true iff RTNEAT is ready to produce a new organism")
+                .def("has_organism", &RTNEAT::has_organism, "return true iff RTNEAT has an organism for this agent")
                 .def("set_weight", &RTNEAT::set_weight, "set weight i to value f")
+                .def("set_lifetime", &RTNEAT::set_lifetime, "set the lifetime of an agent")
 				.def("save_population", &RTNEAT::save_population, "save the population to a file");
 		}
 

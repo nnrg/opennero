@@ -13,8 +13,14 @@ namespace OpenNero {
         , m_SumOfSquares(m_Zero)
         , m_Average(m_Zero)
         , m_StandardDeviation(m_Zero)
+        , m_Min(m_Zero)
+        , m_Max(m_Zero)
     {
-        
+        for (size_t i = 0; i < m_Min.size(); ++i)
+        {
+            m_Min[i] = FLT_MAX;
+            m_Max[i] = -FLT_MAX;
+        }
     }
     
     ScoreHelper::~ScoreHelper()
@@ -28,6 +34,11 @@ namespace OpenNero {
         m_SumOfSquares = m_Zero;
         m_Average = m_Zero;
         m_StandardDeviation = m_Zero;    
+        for (size_t i = 0; i < m_Min.size(); ++i)
+        {
+            m_Min[i] = FLT_MAX;
+            m_Max[i] = -FLT_MAX;
+        }
     }
     
     void ScoreHelper::doCalculations()
@@ -61,7 +72,14 @@ namespace OpenNero {
     {
         m_Total += sample;
         for (size_t i = 0; i < sample.size(); ++i)
+        {
             m_SumOfSquares[i] += (sample[i] * sample[i]);
+            if (m_Min[i] > sample[i])
+                m_Min[i] = sample[i];
+            if (m_Max[i] < sample[i])
+                m_Max[i] = sample[i];
+        }
+        
         ++m_SampleSize;
     }
 

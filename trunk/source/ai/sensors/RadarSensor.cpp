@@ -1,6 +1,7 @@
 #include "core/Common.h"
 #include "core/IrrSerialize.h"
 #include "ai/sensors/RadarSensor.h"
+#include "render/LineSet.h"
 #include <iostream>
 #include <algorithm>
 
@@ -14,13 +15,15 @@ namespace OpenNero
     RadarSensor::RadarSensor(
         double lb, double rb, 
         double bb, double tb, 
-        double radius, U32 types )
+        double radius, U32 types,
+        bool vis)
         : Sensor(1, types)
         , leftbound(LockDegreesTo180(lb))
         , rightbound(LockDegreesTo180(rb))
         , bottombound(LockDegreesTo180(bb))
         , topbound(LockDegreesTo180(tb))
         , radius(radius)
+        , vis(vis)
     {
     }
     
@@ -38,13 +41,10 @@ namespace OpenNero
         Vector3f targetPos = target->GetPosition();
         Vector3f vecToTarget = targetPos - sourcePos;
         double distToTarget = vecToTarget.getLength();
-        Matrix4 rotation;
-        rotation.setRotationDegrees(source->GetRotation());
-        rotation.rotateVect(vecToTarget);
-        rotation = rotation.buildRotateFromTo(Vector3f(1,0,0), vecToTarget);
-        Vector3f angleToTarget = rotation.getRotationDegrees();
-        double yawToTarget = LockDegreesTo180(angleToTarget.Z);
-        double pitchToTarget = LockDegreesTo180(angleToTarget.Y);
+        double myHeading = source->GetRotation().Z;
+        double tgtAngle = RAD_2_DEG * atan2(vecToTarget.Y, vecToTarget.X); // [-180, 180]
+        double yawToTarget = LockDegreesTo180(tgtAngle - myHeading);
+        double pitchToTarget = 0; // TODO: for now
         if (distToTarget <= radius &&                                       // within radius
             ((leftbound <= yawToTarget && yawToTarget <= rightbound) ||     // yaw within L-R angle bounds
              (rightbound < leftbound) && (leftbound <= yawToTarget || yawToTarget <= rightbound)) && // possibly wrapping around
@@ -54,6 +54,26 @@ namespace OpenNero
                 value += kDistanceScalar * radius / distToTarget;
             } else {
                 value += 1;
+            }
+            if (vis) {
+                Vector3f r = source->GetRotation();
+                double h = DEG_2_RAD * myHeading;
+                double y = DEG_2_RAD * yawToTarget;
+                double lb = DEG_2_RAD * leftbound;
+                double rb = DEG_2_RAD * rightbound;
+                double c = lb + (rb - lb) / 2.0;
+                Vector3f tp(sourcePos.X + distToTarget * cos(y + h), sourcePos.Y + distToTarget * sin(y + h), sourcePos.Z);
+                Vector3f hp(sourcePos.X + distToTarget * cos(h), sourcePos.Y + distToTarget * sin(h), sourcePos.Z);
+                Vector3f cp(sourcePos.X + distToTarget * cos(c + h), sourcePos.Y + distToTarget * sin(c + h), sourcePos.Z);
+                Vector3f lp(sourcePos.X + distToTarget * cos(lb + h), sourcePos.Y + distToTarget * sin(lb + h), sourcePos.Z);
+                Vector3f rp(sourcePos.X + distToTarget * cos(rb + h), sourcePos.Y + distToTarget * sin(rb + h), sourcePos.Z);
+                LineSet::instance().AddSegment(sourcePos, tp, SColor(255,255,0,0));
+                LineSet::instance().AddSegment(sourcePos, lp, SColor(255,255,255,255));
+                LineSet::instance().AddSegment(sourcePos, rp, SColor(255,255,255,255));
+                //LOG_F_DEBUG("ai.sensor", 
+                //            "h: " << myHeading << " yaw: " << yawToTarget
+                //            << " lb: " << leftbound << " rb: " << rightbound 
+                //            << " R: " << radius << " v: " << value);
             }
         }
         return true;

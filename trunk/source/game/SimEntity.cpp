@@ -272,6 +272,7 @@ namespace OpenNero
     /// before (which is stored in mSceneObject).
     void SimEntity::ResolveCollision()
     {
+        //LOG_F_DEBUG("collision", "ResolveCollision id: " << GetSimId() << " old: " << GetPosition() << " new: " << mSceneObject->getPosition());
 		SetPosition(mSceneObject->getPosition());
     }
 

@@ -20,7 +20,7 @@ class AgentState:
         # starting position
         self.initial_position = Vector3f(0, 0, 0)
         # starting orientation
-        self.initial_rotation = Vector3f(0, 0, 0)        
+        self.initial_rotation = Vector3f(0, 0, 0)
         self.time = time.time()
         self.start_time = self.time
         self.total_damage = 0
@@ -42,7 +42,7 @@ class NeroEnvironment(Environment):
         self.step_delay = 0.25 # time between steps in seconds
         self.max_steps = 20
         self.time = time.time()
-        self.MAX_DIST = pow((pow(XDIM, 2) + pow(YDIM, 2)), .5)
+        self.MAX_DIST = hypot(XDIM, YDIM)
         self.states = {}
         self.teams = {}
         self.speedup = 0
@@ -55,22 +55,9 @@ class NeroEnvironment(Environment):
         abound.add_continuous(-1,1) # forward/backward speed
         abound.add_continuous(-0.2, 0.2) # left/right turn (in radians)
 
-        # Wall sensors
-        for a in WALL_SENSORS:
-            sbound.add_continuous(0,1)
-                
-        # Flag sensors
-        for fs in FLAG_SENSORS:
-            sbound.add_continuous(0,1)
-        
-        # Enemy sensors
-        for es in ENEMY_SENSORS:
-            sbound.add_continuous(0,1)
-
-        # Friend Sensors
-        sbound.add_continuous(0,1)
-        sbound.add_continuous(0,1)
-        sbound.add_continuous(0,1)
+        # sensor dimensions
+        for a in range(N_SENSORS):
+            sbound.add_continuous(0,1);
 
         # Rewards
         # the enviroment returns the raw multiple dimensions of the fitness as
@@ -85,7 +72,12 @@ class NeroEnvironment(Environment):
         # output layer has enough values for all the actions
         # population size matches ours
         # 1.0 is the weight initialization noise
-        rtneat = RTNEAT("data/ai/neat-params.dat", NEAT_SENSORS + 1, NEAT_ACTIONS, pop_size, 1.0, rbound)
+        rtneat = RTNEAT("data/ai/neat-params.dat", N_SENSORS, N_ACTIONS, pop_size, 1.0, rbound)
+        
+        # set the initial lifetime
+        lifetime = getMod().lt
+        rtneat.set_lifetime(lifetime)
+        print 'rtNEAT lifetime:', lifetime
         
         set_ai("rtneat", rtneat)
         
@@ -115,13 +107,13 @@ class NeroEnvironment(Environment):
         """
         return a blueprint for a new agent
         """ 
-        for a in WALL_SENSORS:
-            agent.add_sensor(RaySensor(cos(radians(a)), sin(radians(a)), 0, MAX_VISION_RADIUS, OBJECT_TYPE_OBSTACLE))
-        for (a0, a1) in FLAG_SENSORS:
-            agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS * 5, OBJECT_TYPE_FLAG))
-        for (a0, a1) in ENEMY_SENSORS:
-            if agent.get_team() == 0: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS * 5, OBJECT_TYPE_TEAM_1))
-            if agent.get_team() == 1: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS * 5, OBJECT_TYPE_TEAM_0))
+        for a in WALL_RAY_SENSORS:
+            agent.add_sensor(RaySensor(cos(radians(a)), sin(radians(a)), 0, 50, OBJECT_TYPE_OBSTACLE, True))
+        for (a0, a1) in FLAG_RADAR_SENSORS:
+            agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_FLAG, False))
+        for (a0, a1) in ENEMY_RADAR_SENSORS:
+            if agent.get_team() == 0: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_1, False))
+            if agent.get_team() == 1: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_0, False))
         return self.agent_info
    
     def get_state(self, agent):
@@ -217,6 +209,7 @@ class NeroEnvironment(Environment):
                 agent.state.rotation = r #Note the internal components of agent.state.rotation are immutable you need to make a copy, modify the copy, and set agent.state.rotation to be the copy.
             state.initial_position = p
             state.initial_rotation = r
+            print 'initial_rotation:',state.initial_rotation
             state.pose = (p.x, p.y, r.z)
             state.prev_pose = (p.x, p.y, r.z)
             return reward
@@ -244,7 +237,8 @@ class NeroEnvironment(Environment):
         rotation = agent.state.rotation
         
         # get the current pose of the agent
-        (x, y, heading) = state.pose
+        x, y, heading = position.x, position.y, rotation.z
+        state.pose = (x,y,heading)
         
         # get the actions of the agent
         move_by = action[0]
@@ -296,21 +290,12 @@ class NeroEnvironment(Environment):
         R[FITNESS_STAND_GROUND] = -action[0]
         if ff[0]:
             d = self.distance(self.get_state(ff[0]).pose,state.pose)
-            if d != 0:
-                R[FITNESS_STAND_GROUND] = distance_st / d
-            else:
-                R[FITNESS_STAND_GROUND] = distance_st
+            R[FITNESS_STAND_GROUND] = -d*d
         if ff[1]:
             d = self.distance(self.get_state(ff[1]).pose,state.pose)
-            if d != 0:
-                R[FITNESS_APPROACH_ENEMY] = distance_ae / d
-            else:
-                R[FITNESS_APPROACH_ENEMY] = distance_ae
+            R[FITNESS_APPROACH_ENEMY] = -d*d
         d = self.flag_distance(agent)
-        if d != 0:
-            R[FITNESS_APPROACH_FLAG] = (distance_af/d)
-        else:
-            R[FITNESS_APPROACH_FLAG] = distance_af * 10 # high reward for priximity
+        R[FITNESS_APPROACH_FLAG] = -d*d
         R[FITNESS_HIT_TARGET] = hit
         R[FITNESS_AVOID_FIRE] = -damage
         
@@ -323,8 +308,7 @@ class NeroEnvironment(Environment):
         new_position.x, new_position.y = new_x, new_y
         
         # make the calculated motion
-        position.x, position.y = state.pose[0], state.pose[1]
-        agent.state.position = position
+        agent.state.position = new_position
         rotation.z = new_heading
         agent.state.rotation = rotation
         state.prev_pose = state.pose
@@ -427,26 +411,7 @@ class NeroEnvironment(Environment):
     
     def is_active(self, agent):
         """ return true when the agent should act """
-        state = self.get_state(agent)
-        # interpolate between prev_pose and pose
-        (x1, y1, h1) = state.prev_pose
-        (x2, y2, h2) = state.pose
-        if x1 != x2 or y1 != y2:
-            fraction = 1.0
-            if self.get_delay() != 0:
-                fraction = min(1.0, float(time.time() - state.time) / self.get_delay())
-            pos = agent.state.position
-            pos.x = x1 * (1 - fraction) + x2 * fraction
-            pos.y = y1 * (1 - fraction) + y2 * fraction
-            agent.state.position = pos
-            self.set_animation(agent, state, 'run')
-        else:
-            self.set_animation(agent, state, 'stand')
-        if time.time() - state.time > self.get_delay():
-            state.time = time.time()
-            return True
-        else:
-            return False
+        return True
     
     def is_episode_over(self, agent):
         """
@@ -456,6 +421,9 @@ class NeroEnvironment(Environment):
         self.max_steps = getMod().lt
         state = self.get_state(agent)
         if self.max_steps != 0 and agent.step >= self.max_steps:
+            return True
+        if not get_ai("rtneat").has_organism(agent):
+            print 'agent selected by evolution!'
             return True
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
             return True

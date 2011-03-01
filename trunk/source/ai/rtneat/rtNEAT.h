@@ -80,24 +80,13 @@ namespace OpenNero
         bool ready();
                 
         /// have we been deleted?
-        bool have_organism(AgentBrainPtr agent);
+        bool has_organism(AgentBrainPtr agent);
         
         /// get the organism currently assigned to the agent
         PyOrganismPtr get_organism(AgentBrainPtr agent);
         
         /// release the organism that was being used by the agent
         void release_organism(AgentBrainPtr agent);
-        
-        /// evaluate all brains by compiling their stats
-        void evaluateAll();
-        
-        /// evolution step that potentially replaces an organism with an 
-        /// ofspring
-        void evolveAll();
-        
-        /// Delete the unit which is currently associated with the specified
-        /// brain and move the brain back to waiting list.
-        void deleteUnit(PyOrganismPtr brain);
         
         /// Called every step by the OpenNERO system
         virtual void ProcessTick( float32_t incAmt );
@@ -114,8 +103,25 @@ namespace OpenNero
         /// set the i'th weight
         void set_weight(size_t i, double weight) { mFitnessWeights[i] = weight; }
         
+        /// set the lifetime so that we can ensure that the units have been alive
+        /// at least that long before evaluating them
+        void set_lifetime(size_t lifetime);
+        
         /// load info about this AI from the object template
         bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data) { return true; }
+
+	private:
+
+		/// evaluate all brains by compiling their stats
+		void evaluateAll();
+
+		/// evolution step that potentially replaces an organism with an 
+		/// offspring
+		void evolveAll();
+
+		/// Delete the unit which is currently associated with the specified
+		/// brain and move the brain back to waiting list.
+		void deleteUnit(PyOrganismPtr brain);
     };
 
     /// A Python wrapper for the Network class with a simple interface for forward prop

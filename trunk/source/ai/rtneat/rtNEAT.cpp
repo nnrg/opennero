@@ -17,9 +17,11 @@ namespace OpenNero
  
     /// @cond
     BOOST_SHARED_DECL(SimEntity);
-    /// @endcond
+	/// @endcond
 
-    using namespace NEAT;
+	const F32 FRACTION_POPULATION_INELIGIBLE_ALLOWED = 0.5;
+
+	using namespace NEAT;
 
     namespace {
         const size_t kNumSpeciesTarget = 5; ///< target number of species in the population
@@ -123,7 +125,7 @@ namespace OpenNero
     }
     
     /// have we been deleted?
-    bool RTNEAT::have_organism(AgentBrainPtr agent)
+    bool RTNEAT::has_organism(AgentBrainPtr agent)
     {
         BrainBodyMap::left_map::const_iterator found;
         found = mBrainBodyMap.left.find(agent->GetBody());
@@ -145,7 +147,7 @@ namespace OpenNero
             mWaitingBrainList.pop();
             mBrainBodyMap.insert(BrainBodyMap::value_type(agent->GetBody(), brain));
             LOG_F_DEBUG("ai.rtneat", 
-                        "new brain: " << brain->GetOrganism()->gnome->genome_id <<
+                        "new brain: " << brain->GetId() <<
                         " for body: " << agent->GetBody()->GetId());
             
             return brain;
@@ -160,7 +162,7 @@ namespace OpenNero
         found = mBrainBodyMap.left.find(agent->GetBody());
         if (found != mBrainBodyMap.left.end()) {
             PyOrganismPtr brain = found->second;
-            deleteUnit(brain);
+            deleteUnit(brain); // TODO: pass in the body instead
         }
     }
 
@@ -224,7 +226,8 @@ namespace OpenNero
             SimEntityPtr found = Kernel::instance().GetSimContext()->getSimulation()->Find(body->GetId());
             ++iter; // iterate first, deleteUnit may invalidate our pointer by changing BBM!
             if (!found) {
-                deleteUnit(brain);
+                //deleteUnit(brain);
+				AssertMsg(false, "We should never falsely believe a body is in the sim");
             }
         }
 
@@ -233,48 +236,29 @@ namespace OpenNero
 
         // If the total number of units spawned so far exceeds the threshold value AND enough
         // ticks have passed since the last evolution, then a new evolution may commence.
-        if (mTotalUnitsDeleted >= mUnitsToDeleteBeforeFirstJudgment  &&  mEvolutionTickCount >= mTimeBetweenEvolutions) {
+        if (mTotalUnitsDeleted >= mUnitsToDeleteBeforeFirstJudgment && mEvolutionTickCount >= mTimeBetweenEvolutions) {
             //Judgment day!
             evolveAll();
             mEvolutionTickCount = 0;
         }
-        
-        LOG_F_DEBUG("ai.rtneat", 
-                    "brains: " << mBrainList.size() << 
-                    ", waiting: " << mWaitingBrainList.size() << 
-                    ", active: " << mBrainBodyMap.size() <<
-                    ", deleted: " << mTotalUnitsDeleted);
-	}
+    }
     
     void RTNEAT::evaluateAll()
     {
         // Calculate the Z-score
         ScoreHelper scoreHelper(mRewardInfo);
 
-        size_t n_new_trials = 0;
-        size_t n_add_samples = 0;
-        size_t n_skipped = 0;
-        
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
                 size_t time_alive = (*iter)->GetOrganism()->time_alive;
                 if ( time_alive % NEAT::time_alive_minimum == 0 && time_alive > 0 )
                 {
                     (*iter)->mStats.startNextTrial();
-                    ++n_new_trials;
                 }
                 Reward stats = (*iter)->mStats.getStats();
                 scoreHelper.addSample(stats);
-                ++n_add_samples;
-                LOG_F_DEBUG("ai.rtneat", "brain: " << (*iter)->GetId() << ", time_alive: " << time_alive << ", stats: " << stats);
-            }
-            else 
-            {
-                ++n_skipped;
             }
         }
-        
-        LOG_F_DEBUG("ai.rtneat", "ScoreHelper: " << n_new_trials << " " << n_add_samples << " " << n_skipped);
 
         scoreHelper.doCalculations();
 
@@ -297,12 +281,17 @@ namespace OpenNero
             }
         }
         
-        LOG_F_DEBUG("ai.rtneat", 
-                    "evaluateAll minAbsoluteScore: " << minAbsoluteScore <<
-                    ", maxAbsoluteScore: " << maxAbsoluteScore <<
-                    ", mFitnessWeights: " << mFitnessWeights <<
-                    ", mean: " << scoreHelper.getAverage() <<
-                    ", stdev: " << scoreHelper.getStandardDeviation());
+        if (scoreHelper.getSampleSize() > 0)
+        {
+            LOG_F_DEBUG("ai.rtneat", 
+                        "z-min: " << minAbsoluteScore <<
+                        " z-max: " << maxAbsoluteScore <<
+                        " r-min: " << scoreHelper.getMin() <<
+                        " r-max: " << scoreHelper.getMax() <<
+                        " w: " << mFitnessWeights <<
+                        " mean: " << scoreHelper.getAverage() <<
+                        " stdev: " << scoreHelper.getStandardDeviation());
+        }
 
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
@@ -341,44 +330,18 @@ namespace OpenNero
             // Estimate all species' fitnesses
             for (vector<SpeciesPtr>::iterator curspec = (mPopulation->species).begin(); curspec != (mPopulation->species).end(); ++curspec) {
                 (*curspec)->estimate_average();
-
-                // Calculate an average based upon the actual scores (not the adjusted, non-negative scores that are
-                // being passed to organisms' fitness fields) so that we can display an average that makes sense from
-                // evaluation to evaluation
-                F32 scoreavg = 0;
-                S32 samplesize = 0;
-                vector<OrganismPtr>::iterator curorg = mPopulation->organisms.begin();
-                for ( ; curorg != mPopulation->organisms.end(); ++curorg) {
-                    SpeciesPtr species = (*curorg)->species.lock();                    
-                    if (species == (*curspec)) {
-                        vector<PyOrganismPtr>::iterator curbrain = mBrainList.begin();
-                        for ( ; curbrain != mBrainList.end(); ++curbrain) {
-                            if ( (*curbrain)->GetOrganism() == (*curorg) && 
-                                 (*curbrain)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
-                                scoreavg += (*curbrain)->mAbsoluteScore;
-                                ++samplesize;                            
-                            }
-                        }
-                    }
-                }
-                if (samplesize > 0)
-                    scoreavg /= (F32)samplesize;
-
-                LOG_F_DEBUG("ai.rtneat", "Species " << (*curspec)->id << 
-                            " size: " << (*curspec)->organisms.size() << 
-                            " elig. size: " << samplesize <<
-                            " avg. score: " << scoreavg);
             }
 
-            // TODO: currently assuming this was not used
+            // TODO: milestoning is not implemented for now
             //m_Population->memory_pool->isEmpty();
-            //if(Platform::getRandom()<=s_MilestoneProbability && !m_Population->memory_pool->isEmpty())// && meets probability requirement)
+            //if(RANDOM.randD()<=s_MilestoneProbability && !m_Population->memory_pool->isEmpty())// && meets probability requirement)
             //{
-            //    // Reproduce an organism with the same traits as the "memory pool".
+            // // Reproduce an organism with the same traits as the "memory pool".
             //    new_org.reset(mPopulation->memory_pool)->reproduce_one(mOffspringCount, mPopulation, mPopulation->species);
             //}
             //else
             //{
+            
             // Reproduce a single new organism to replace the one killed off.
             new_org = (mPopulation->choose_parent_species())->reproduce_one(mOffspringCount, mPopulation, mPopulation->species, 0,0);
             //}
@@ -424,14 +387,37 @@ namespace OpenNero
         }
     }
     
+    /// set the lifetime so that we can ensure that the units have been alive
+    /// at least that long before evaluating them
+    void RTNEAT::set_lifetime(size_t lifetime)
+    {
+        // TODO: currently this will make it impossible to have more than one 
+        //       rtNEAT with different lifetimes at the same time, but changing it 
+        //       to a local value requires making changes to the code in source/rtneat
+        //       as well.
+		if (lifetime > 0) {
+			NEAT::time_alive_minimum = lifetime;
+			mTimeBetweenEvolutions = (F32)lifetime / FRACTION_POPULATION_INELIGIBLE_ALLOWED / (F32)(mPopulation->organisms.size());
+			LOG_F_DEBUG("ai.rtneat", 
+				"time_alive_minimum: " << NEAT::time_alive_minimum << 
+				" mTimeBetweenEvolutions: " << mTimeBetweenEvolutions);
+		}
+    }
+    
     std::ostream& operator<<(std::ostream& output, const PyNetwork& net)
     {
+        // TODO: currently this prints out the whole network in a Boost 
+        //       synchronization dump. We probably need to print something
+        //       more useful/readable here.
         output << net.mNetwork;
         return output;
     }
     
     std::ostream& operator<<(std::ostream& output, const PyOrganism& org)
     {
+        // TODO: currently this prints out the whole organism in a Boost 
+        //       synchronization dump. We probably need to print something
+        //       more useful/readable here.
         output << org.mOrganism;
         return output;
     }

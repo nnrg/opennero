@@ -158,7 +158,7 @@ bool Network::activate()
     // are always active)
 
     onetime=false;
-
+    
     while (outputsoff()||!onetime)
     {
 
@@ -287,7 +287,6 @@ bool Network::activate()
         }
 
     } //end if (adaptable)
-
     return true;
 }
 
