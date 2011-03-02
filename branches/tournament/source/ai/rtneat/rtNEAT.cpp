@@ -216,6 +216,7 @@ namespace OpenNero
         // iterate through the body id's and check to see if they have died
         // if they have, we need to remove them from the books and put their
         // brains back into the evaluation queue
+        // TODO: this is not needed in OpenNERO
         BrainBodyMap::left_map::const_iterator iter = mBrainBodyMap.left.begin();
         BrainBodyMap::left_map::const_iterator iend = mBrainBodyMap.left.end();
         while (iter != iend)
@@ -265,9 +266,12 @@ namespace OpenNero
         F32 minAbsoluteScore = 0; // min of 0, min abs score
         F32 maxAbsoluteScore = -FLT_MAX; // max raw score
 
+        size_t evaluated = 0;
+        
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
                 (*iter)->mAbsoluteScore = 0;
+                ++evaluated;
                 Reward stats = (*iter)->mStats.getStats();
                 Reward relative_score = scoreHelper.getRelativeScore(stats);
                 for (size_t i = 0; i < relative_score.size(); ++i)
@@ -281,7 +285,9 @@ namespace OpenNero
             }
         }
         
-        if (scoreHelper.getSampleSize() > 0)
+        LOG_F_DEBUG("ai.rtneat", "brains: " << mBrainList.size() << " active: " << mBrainBodyMap.size() << " waiting: " << mWaitingBrainList.size() << " evaluated: " << evaluated);
+        
+        if (scoreHelper.getSampleSize() > 0 && evaluated > 0)
         {
             LOG_F_DEBUG("ai.rtneat", 
                         "z-min: " << minAbsoluteScore <<
@@ -376,8 +382,8 @@ namespace OpenNero
             //     doing a "hot swap" of the Organisms in that Brain.
             for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
                 if ((*iter)->GetOrganism() == deadorg) {
-                    LOG_F_DEBUG("ai.rtneat", "Org to kill: score = " << (*iter)->mAbsoluteScore);
                     PyOrganismPtr brain = *iter;
+                    LOG_F_DEBUG("ai.rtneat", "Org to kill: " << brain->GetId() << " score: " << brain->mAbsoluteScore);
                     brain->SetOrganism(new_org);
                     brain->mStats.resetAll();
                     deleteUnit(brain);
