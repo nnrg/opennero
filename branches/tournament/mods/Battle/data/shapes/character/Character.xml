@@ -1,0 +1,15 @@
+<Template>
+	<Audio>
+		<Rocket>maze/data/sounds/rocket_launcher.ogg</Rocket>
+	</Audio>
+	<Render>
+		<MaterialType>solid</MaterialType>
+		<MaterialFlagLighting>false</MaterialFlagLighting>
+		<AniMesh>data/shapes/character/sydney.md2</AniMesh>
+		<Texture0>data/shapes/character/sydney.bmp</Texture0>
+		<Scale>0.2 0.2 0.2</Scale>
+	</Render>
+	<AI>
+		<Python agent="SearchAgentAStar()" />
+	</AI>
+</Template>
