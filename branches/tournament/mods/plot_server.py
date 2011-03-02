@@ -37,9 +37,29 @@ ADDR = (HOST, PORT)
 BUFSIZE = 4086
 SAVE_EVERY = 5
 
-ai_tick_pattern = re.compile(r'(?P<date>[^\[]*)\.(?P<msec>[0-9]+) \(.\) \[ai\.tick\]\s+(?P<id>\S+)\s+(?P<episode>\S+)\s+(?P<step>\S+)\s+\[\s+(?P<reward>\S+\s+)\]\s+\[\s+(?P<fitness>\S+\s+)\]')
-timestamp_fmt = r'%Y-%b-%d %H:%M:%S'
+# timestamp format
+timestamp_fmt = r'e%Y-%b-%d %H:%M:%S'
+# timestamp for file
 file_timestamp_fmt = r'%Y-%m-%d-%H-%M-%S'
+# general prefix for OpenNERO log lines (date and time with msec resolution)
+log_prefix = r'(?P<date>[^\[]*)\.(?P<msec>[0-9]+) \(.\) '
+
+# ----------------------------[ ai.tick log line regular expression ]-------------------------------------------
+ai_tick_pattern = re.compile(log_prefix + r'\[ai\.tick\]\s+(?P<id>\S+)\s+(?P<episode>\S+)\s+(?P<step>\S+)\s+\[\s+(?P<reward>\S+\s+)\]\s+\[\s+(?P<fitness>\S+\s+)\]')
+
+# ----------------------------[ ai.rtneat log line regular expression ]-----------------------------------------
+# ai.rtneat lines get printed during rtneat evaluations and can be used to keep track of rtneat progress
+# an example line has the format
+# 2011-Mar-02 12:52:55.167396 (!) [ai.rtneat] z-min: -0.0898853 z-max: 0.250617 r-min: [ -2.00352e+08 0 -4.97067e+08 -1.64796e+08 0 0 ] r-max: [ -2.59186e+06 0 -7.22071e+07 -6.11801e+06 8 0 ] w: [ 0 0 -1 1 0 0 ] mean: [ -5.74247e+07 0 -1.30798e+08 -2.47332e+07 5.71875 0 ] stdev: [ 6.33428e+07 0 1.22863e+08 4.67422e+07 2.75642 0 ]
+# The fields are:
+# * z-min: weighted Z-score minimum (based on population average and standard deviation)
+# * z-max: weighted Z-score maximum (based on population average and standard deviation)
+# * r-min: raw score minimum (D values)
+# * r-max: raw score maximum (D values)
+# * w: user-assigned weights (D values in [-1,1])
+# * mean: average over mature population (D values)
+# * stdev: standard deviation over mature population (D values)
+ai_rtneat_pattern = re.compile(log_prefix + r'\[ai\.rtneat\] z-min: (?P<zmin>\S+) z-max: (?P<zmax>\S+) r-min: \[(?P<rmin>[^\]]+)\] r-max: \[(?P<rmax>[^\]]+)\] w: \[(?P<w>[^\]]+)\] mean: \[(?P<mean>[^\]]+)\] stdev: \[(?P<stdev>[^\]]+)\]')
 
 def timestamped_filename(prefix = '', postfix = ''):
     return '%s%s%s' % (prefix, time.strftime(file_timestamp_fmt), postfix)
@@ -174,6 +194,9 @@ class LearningCurve:
             self.append( id, base + ms, episode, step, reward, fitness )
         elif line.find('ai.tick') >= 0:
             print line
+        m = ai_rtneat_pattern.search(line)
+        if m:
+            print m.groups()
 
     def process_file(self, f):
         line = f.readline()
