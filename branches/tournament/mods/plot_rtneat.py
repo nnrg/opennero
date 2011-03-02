@@ -25,6 +25,20 @@ log_prefix = r'(?P<date>[^\[]*)\.(?P<msec>[0-9]+) \(.\) '
 # * stdev: standard deviation over mature population (D values)
 ai_rtneat_pattern = re.compile(log_prefix + r'\[ai\.rtneat\] z-min: (?P<zmin>\S+) z-max: (?P<zmax>\S+) r-min: \[(?P<rmin>[^\]]+)\] r-max: \[(?P<rmax>[^\]]+)\] w: \[(?P<w>[^\]]+)\] mean: \[(?P<mean>[^\]]+)\] stdev: \[(?P<stdev>[^\]]+)\]')
 
+# this is the format for the equivalent line in NERO 2.0 files
+# opennero evaluateAll z-min: -2.16926 z-max: 0 r-min: [ 0 0 0 0 0 352.409 0 2230.01 1e+10 3.40282e+38 21502.5 5970.86 ] r-max: [ 0 134 22 0 0 1465.59 0 18089.8 1.499e+10 -3.40282e+38 95074.5 170507 ] w: [0.00 0.00 0.00 -0.00 0.00 -0.00 -0.00 -0.00 -0.00 -1.00 0.00] mean: [ 0 17.44 4.12 0 0 769.721 0 9097.14 1.12429e+10 0 57245 87640.1 ] stdev: [ 0 35.9222 6.43938 0 0 275.282 0 4604.4 1.76394e+09 0 17438.9 53606.8 ]
+nero_pattern = re.compile(r'opennero evaluateall z-min: (?P<zmin>\S+) z-max: (?P<zmax>\S+) r-min: \[(?P<rmin>[^\]]+)\] r-max: \[(?P<rmax>[^\]]+)\] w: \[(?P<w>[^\]]+)\] mean: \[(?P<mean>[^\]]+)\] stdev: \[(?P<stdev>[^\]]+)\]')
+
+FITNESS_STAND_GROUND = "Stand ground"
+FITNESS_STICK_TOGETHER = "Stick together"
+FITNESS_APPROACH_ENEMY = "Approach enemy"
+FITNESS_APPROACH_FLAG = "Approach flag"
+FITNESS_HIT_TARGET = "Hit target"
+FITNESS_AVOID_FIRE = "Avoid fire"
+FITNESS_DIMENSIONS = [FITNESS_STAND_GROUND, FITNESS_STICK_TOGETHER, 
+    FITNESS_APPROACH_ENEMY, FITNESS_APPROACH_FLAG, FITNESS_HIT_TARGET, 
+    FITNESS_AVOID_FIRE]
+
 zmin, zmax, rmin, rmax, w, mean, stdev = [], [], [], [], [], [], []
 
 def process_line(line):
@@ -34,10 +48,12 @@ def process_line(line):
     global zmin, zmax, rmin, rmax, w, mean, stdev
     line = line.strip().lower()
     m = ai_rtneat_pattern.search(line)
+    if not m:
+        m = nero_pattern.search(line)
     if m:
-        t = time.strptime(m.group('date'), timestamp_fmt) # time of the record
-        ms = int(m.group('msec')) / 1000000.0 # the micro-second part in seconds
-        base = time.mktime(t) + ms # seconds since the epoch
+        #t = time.strptime(m.group('date'), timestamp_fmt) # time of the record
+        #ms = int(m.group('msec')) / 1000000.0 # the micro-second part in seconds
+        #base = time.mktime(t) + ms # seconds since the epoch
         zmin.append(float(m.group('zmin')))
         zmax.append(float(m.group('zmax')))
         rmin.append([float(x) for x in m.group('rmin').strip().split()])
@@ -73,10 +89,14 @@ def main():
         avgline = ax.plot(mean[:,d], label='avg')
         minline = ax.plot(rmin[:,d], label='min')
         ax.legend()
-        ax.set_title('dimesion %d of the fitness function' % d)
-        ax = axs[1]
-        ax.plot(w[:,d])
-        ax.set_title('slider weight for the fitness dimension')
+        #ax.ylabel('Raw Fitness')
+        if len(FITNESS_DIMENSIONS) == dd:
+            ax.set_title(FITNESS_DIMENSIONS[d])
+        if d < np.size(w,1):
+            ax = axs[1]
+            ax.plot(w[:,d])
+            ax.set_title('Slider Weight')
+        #ax.xlabel('Tick')
         
     show()
 
