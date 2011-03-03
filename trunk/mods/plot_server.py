@@ -37,9 +37,15 @@ ADDR = (HOST, PORT)
 BUFSIZE = 4086
 SAVE_EVERY = 5
 
-ai_tick_pattern = re.compile(r'(?P<date>[^\[]*)\.(?P<msec>[0-9]+) \(.\) \[ai\.tick\]\s+(?P<id>\S+)\s+(?P<episode>\S+)\s+(?P<step>\S+)\s+\[\s+(?P<reward>\S+\s+)\]\s+\[\s+(?P<fitness>\S+\s+)\]')
+# timestamp format
 timestamp_fmt = r'%Y-%b-%d %H:%M:%S'
+# timestamp for file
 file_timestamp_fmt = r'%Y-%m-%d-%H-%M-%S'
+# general prefix for OpenNERO log lines (date and time with msec resolution)
+log_prefix = r'(?P<date>[^\[]*)\.(?P<msec>[0-9]+) \(.\) '
+
+# ----------------------------[ ai.tick log line regular expression ]-------------------------------------------
+ai_tick_pattern = re.compile(log_prefix + r'\[ai\.tick\]\s+(?P<id>\S+)\s+(?P<episode>\S+)\s+(?P<step>\S+)\s+\[\s+(?P<reward>\S+\s+)\]\s+\[\s+(?P<fitness>\S+\s+)\]')
 
 def timestamped_filename(prefix = '', postfix = ''):
     return '%s%s%s' % (prefix, time.strftime(file_timestamp_fmt), postfix)

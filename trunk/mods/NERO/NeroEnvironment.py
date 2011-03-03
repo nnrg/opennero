@@ -200,8 +200,9 @@ class NeroEnvironment(Environment):
         # get the reward (which has multiple components)
         reward = self.agent_info.reward.get_instance()
 
+
         #Initilize Agent state
-        if agent.step == 0:
+        if agent.step == 0 and agent.group != "Turret":
             p = agent.state.position
             r = agent.state.rotation
             if agent.group == "Agent":
@@ -209,7 +210,7 @@ class NeroEnvironment(Environment):
                 agent.state.rotation = r #Note the internal components of agent.state.rotation are immutable you need to make a copy, modify the copy, and set agent.state.rotation to be the copy.
             state.initial_position = p
             state.initial_rotation = r
-            print 'initial_rotation:',state.initial_rotation
+            #print 'initial_rotation:',state.initial_rotation, "group:", agent.group
             state.pose = (p.x, p.y, r.z)
             state.prev_pose = (p.x, p.y, r.z)
             return reward
@@ -271,7 +272,7 @@ class NeroEnvironment(Environment):
                 if target != -1:
                     target.curr_damage += 1
                     hit = 1
-                    print "Target hit successfully"
+                    #print "Target hit successfully Firing Group:", agent.group
         
         # calculate friend/foe
         ffr = self.getFriendFoe(agent)
@@ -418,6 +419,7 @@ class NeroEnvironment(Environment):
         is the current episode over for the agent?
         """
         from NERO.module import getMod
+        if agent.group == "Turret": return False
         self.max_steps = getMod().lt
         state = self.get_state(agent)
         if self.max_steps != 0 and agent.step >= self.max_steps:
