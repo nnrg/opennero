@@ -183,7 +183,7 @@ def parseInput(strn):
     if loc == "AF": mod.set_weight(FITNESS_APPROACH_FLAG,vali) 
     if loc == "FD": mod.dtcChange(vali)
     if loc == "HT": mod.set_weight(FITNESS_HIT_TARGET,vali)
-    if loc == "VF": mod.set_weight(Fitness.AVOID_FIRE,vali)
+    if loc == "VF": mod.set_weight(FITNESS_AVOID_FIRE,vali)
     if loc == "LT": mod.ltChange(vali)
     if loc == "FF": mod.ffChange(vali)
     if loc == "EE": mod.eeChange(vali)
