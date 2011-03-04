@@ -81,8 +81,8 @@ def main():
     # plot each dimension in a separate subplot
     dd = np.size(mean,1)
     for d in range(dd):
-        fig, axs = plt.subplots(nrows=2, ncols=1, sharex=True)
-        ax = axs[0]
+        figure()
+        ax = subplot('211')
         #ax.errorbar(np.arange(np.size(mean,0)), mean[:,d], yerr=stdev[:,d])
         ax.hold(True)
         maxline = ax.plot(rmax[:,d], label='max')
@@ -93,7 +93,7 @@ def main():
         if len(FITNESS_DIMENSIONS) == dd:
             ax.set_title(FITNESS_DIMENSIONS[d])
         if d < np.size(w,1):
-            ax = axs[1]
+            ax = ax = subplot('212')
             ax.plot(w[:,d])
             ax.set_title('Slider Weight')
         #ax.xlabel('Tick')

@@ -12,6 +12,7 @@
 #include <iostream>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
+#include <boost/date_time/posix_time/posix_time.hpp>
 
 namespace OpenNero
 {
@@ -36,16 +37,20 @@ namespace OpenNero
     {
     }
 
-    
+
     /// Construct from command line arguments
     bool AppConfig::ParseCommandLine(int argc, char** argv)
     {
         try {
-            TCLAP::CmdLine cmd("OpenNERO (command line interface)", ' ', "1.1");
+            TCLAP::CmdLine cmd("OpenNERO (command line interface)", ' ', "1.2");
+            
+            namespace pt = boost::posix_time;
+            pt::ptime t(pt::microsec_clock::local_time());
+            const string default_nero_log = "nero_log" + pt::to_iso_string(t) + ".txt";
             
             // construct command line argument specs
             TCLAP::ValueArg<std::string> 
-                argLogFile("", "log", "log file name to use", false, "nero_log.txt", "filename");
+                argLogFile("", "log", "log file name to use", false, default_nero_log, "filename");
             TCLAP::ValueArg<std::string> 
                 argTitle("", "title", "title for the window", false, "OpenNERO", "string");
             TCLAP::ValueArg<std::string> 
