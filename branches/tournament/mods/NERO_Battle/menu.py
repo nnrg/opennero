@@ -48,7 +48,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.buttonPanel.SetSizer(buttonGrid)
 
         grid.Add(self.buttonPanel, pos=(0,0), span=(1,6))
-
+        """
         #Stand Ground Slider
         self.sgt = wx.StaticText(self,label = "Stand Ground", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.sgs = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
@@ -159,7 +159,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         grid.Add(self.lts,pos=(7,2))
         grid.Add(self.ltt,pos=(7,0))
 
-        """
+        
         #Friendly Fire Slider
         self.fft = wx.StaticText(self,label = "Friendly Fire", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.ffs = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
@@ -170,7 +170,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_SCROLL, self.OnFF,self.ffs)
         grid.Add(self.ffs,pos=(8,2))
         grid.Add(self.fft,pos=(8,0))
-        """
+        
 
         #Explore/Exploit Slider
         self.eet = wx.StaticText(self,label = "Explore/Exploit", pos=wx.DefaultPosition, size=wx.DefaultSize)
@@ -182,6 +182,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_SCROLL, self.OnEE,self.ees)
         grid.Add(self.ees,pos=(8,2))
         grid.Add(self.eet,pos=(8,0))
+        """
 
         #Hitpoint Slider
         self.hpt = wx.StaticText(self,label = "Hitpoints", pos=wx.DefaultPosition, size=wx.DefaultSize)
@@ -189,10 +190,10 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.hps.SetScrollbar(wx.HORIZONTAL,0,100,100)
         self.hps.SetThumbPosition(5)
         self.hpl = wx.StaticText(self,label = str(self.hps.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.hpl,pos=(9,1))
+        grid.Add(self.hpl,pos=(1,1))
         self.Bind(wx.EVT_SCROLL, self.OnHP,self.hps)
-        grid.Add(self.hps,pos=(9,2))
-        grid.Add(self.hpt,pos=(9,0))
+        grid.Add(self.hps,pos=(1,2))
+        grid.Add(self.hpt,pos=(1,0))
 
         #Speedup Slider
         self.spt = wx.StaticText(self,label = "Speedup", pos=wx.DefaultPosition, size=wx.DefaultSize)
@@ -200,10 +201,10 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.sps.SetScrollbar(wx.HORIZONTAL,0,100,100)
         self.sps.SetThumbPosition(5)
         self.spl = wx.StaticText(self,label = str(self.sps.GetThumbPosition()), size=wx.DefaultSize)
-        grid.Add(self.spl,pos=(10,1))
+        grid.Add(self.spl,pos=(2,1))
         self.Bind(wx.EVT_SCROLL, self.OnSP,self.sps)
-        grid.Add(self.sps,pos=(10,2))
-        grid.Add(self.spt,pos=(10,0))
+        grid.Add(self.sps,pos=(2,2))
+        grid.Add(self.spt,pos=(2,0))
 
         self.SetSizer(grid)
         grid.Fit(parent)

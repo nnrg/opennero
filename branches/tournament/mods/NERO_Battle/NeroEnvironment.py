@@ -151,10 +151,12 @@ class NeroEnvironment(Environment):
         """
         friend = []
         foe = []
+        other = 1
+        if agent.get_team == 1: other = 2
         if agent.get_team() in self.teams:
             friend = self.teams[agent.get_team()]
-        if 1-agent.get_team() in self.teams:
-            foe = self.teams[1-agent.get_team()]
+        if other in self.teams:
+            foe = self.teams[other]
         else:
             foe = []
         return (friend, foe)
@@ -204,6 +206,8 @@ class NeroEnvironment(Environment):
         
         # get the reward (which has multiple components)
         reward = self.agent_info.reward.get_instance()
+        if getMod().hp != 0 and state.total_damage >= getMod().hp:
+            return reward
 
 
         #Initilize Agent state
@@ -283,7 +287,7 @@ class NeroEnvironment(Environment):
                 if target != -1:
                     target.curr_damage += 1
                     hit = 1
-                    #print "Target hit successfully Firing Group:", agent.group
+                    #print "Target hit successfully Firing Team:", agent.get_team()
         
         # calculate friend/foe
         ffr = self.getFriendFoe(agent)
@@ -345,8 +349,12 @@ class NeroEnvironment(Environment):
         for x in ffr[0]:
             xloc += ffr[0][x].pose[0]
             yloc += ffr[0][x].pose[1]
-        xloc /= len(ffr[0])
-        yloc /= len(ffr[0])
+        if len(ffr[0]) == 0:
+            xloc = 0
+            yloc = 0
+        else:
+            xloc /= len(ffr[0])
+            yloc /= len(ffr[0])
         fd = self.distance(state.pose,(xloc,yloc))
         fh = 0
         if fd != 0:
@@ -434,12 +442,15 @@ class NeroEnvironment(Environment):
         self.max_steps = getMod().lt
         state = self.get_state(agent)
         if self.max_steps != 0 and agent.step >= self.max_steps:
-            return True
+            return False#True
         if not get_ai("rtneat" + str(agent.get_team())).has_organism(agent):
             print 'agent selected by evolution!'
-            return True
+            return False#True
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
-            return True
+            agent.state.position = Vector3f(100,100,100)
+            state.pose = (agent.state.position.x, agent.state.position.y, agent.state.rotation.z)
+            if agent in self.teams[agent.get_team()]: self.teams[agent.get_team()].pop(agent)
+            return False#True
         else:
             return False
     
