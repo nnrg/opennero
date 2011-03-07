@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2009 Nikolaus Gebhardt
+// Copyright (C) 2002-2010 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -75,11 +75,13 @@ namespace gui
 	protected:
 
 		void updateClientRect();
+		void refreshSprites();
 
 		IGUIButton* CloseButton;
 		IGUIButton* MinButton;
 		IGUIButton* RestoreButton;
 		core::rect<s32> ClientRect;
+		video::SColor CurrentIconColor;
 
 		core::position2d<s32> DragStart;
 		bool Dragging, IsDraggable;

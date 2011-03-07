@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2009 Nikolaus Gebhardt
+// Copyright (C) 2002-2010 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -192,14 +192,14 @@ public:
 
 		if ( Y > 0)
 			if (X > 0)
-				return atan(Y/X) * RADTODEG64;
+				return atan((irr::f64)Y/(irr::f64)X) * RADTODEG64;
 			else
-				return 180.0-atan(Y/-X) * RADTODEG64;
+				return 180.0-atan((irr::f64)Y/-(irr::f64)X) * RADTODEG64;
 		else
 			if (X > 0)
-				return 360.0-atan(-Y/X) * RADTODEG64;
+				return 360.0-atan(-(irr::f64)Y/(irr::f64)X) * RADTODEG64;
 			else
-				return 180.0+atan(-Y/-X) * RADTODEG64;
+				return 180.0+atan(-(irr::f64)Y/-(irr::f64)X) * RADTODEG64;
 	}
 
 	//! Calculates the angle of this vector in degrees in the counter trigonometric sense.

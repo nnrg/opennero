@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2009 Nikolaus Gebhardt
+// Copyright (C) 2002-2010 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -164,7 +164,7 @@ namespace scene
 		parameters) the position of the collision, and the triangle that was hit.
 
 		All scene nodes in the hierarchy tree under the specified node are checked. Only
-		notes that are visible, with an ID that matches at least one bit in the supplied
+		nodes that are visible, with an ID that matches at least one bit in the supplied
 		bitmask, and which have a triangle selector are considered as candidates for being hit.
 		You do not have to build a meta triangle selector; the individual triangle selectors
 		of each candidate scene node are used automatically.

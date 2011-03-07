@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2009 Nikolaus Gebhardt
+// Copyright (C) 2002-2010 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -450,6 +450,8 @@ void CGUIListBox::selectNew(s32 ypos, bool onlyHover)
 
 	recalculateScrollPos();
 
+	gui::EGUI_EVENT_TYPE eventType = (Selected == oldSelected && now < selectTime + 500) ? EGET_LISTBOX_SELECTED_AGAIN : EGET_LISTBOX_CHANGED;
+	selectTime = now;
 	// post the news
 	if (Parent && !onlyHover)
 	{
@@ -457,10 +459,9 @@ void CGUIListBox::selectNew(s32 ypos, bool onlyHover)
 		event.EventType = EET_GUI_EVENT;
 		event.GUIEvent.Caller = this;
 		event.GUIEvent.Element = 0;
-		event.GUIEvent.EventType = (Selected == oldSelected && now < selectTime + 500) ? EGET_LISTBOX_SELECTED_AGAIN : EGET_LISTBOX_CHANGED;
+		event.GUIEvent.EventType = eventType;
 		Parent->OnEvent(event);
 	}
-	selectTime = now;
 }
 
 
