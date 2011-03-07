@@ -1,7 +1,7 @@
 #summary This page describes how to build OpenNERO from source for a variety of platforms.
 #labels Featured
 #sidebar TableOfContents
----- 
+----
 = Overview =
 OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The general steps are:
  * Install prerequisites as needed.
