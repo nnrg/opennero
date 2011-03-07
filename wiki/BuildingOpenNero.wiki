@@ -42,7 +42,8 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The
 = Linux =
 
 == Summary ==
- # `mkdir OpenNERO`
+ # `mkdir opennero`
+ # `cd opennero`
  # `svn checkout http://opennero.googlecode.com/svn/trunk`
  # `mkdir build-of-trunk`
  # `cd build-of-trunk`
