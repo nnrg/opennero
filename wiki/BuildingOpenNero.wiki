@@ -41,18 +41,29 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The
 
 = Linux =
 
+== Summary ==
+ # `mkdir OpenNERO`
+ # `svn checkout http://opennero.googlecode.com/svn/trunk`
+ # `mkdir build-of-trunk`
+ # `cd build-of-trunk`
+ # `cmake ..\trunk`
+ # `make`
+ # `cd dist`
+ # `./OpenNERO`
+
 == Prerequisites ==
-Make sure the following packages are installed on Ubuntu (or equivalent):
- * libboost-dev
- * libboost-date-time-dev
- * libboost-doc
- * libboost-filesystem-dev
- * libboost-python-dev
- * libboost-serialization-dev
+Install the following packages (using `sudo apt-get install`)
+
+=== Required ===
+ * libboost-all-dev
  * libx11-dev
  * libxxf86vm-dev
  * libgl-dev
  * libz-dev
+
+=== Optional ===
+ * python-matplotlib
+ * python-wxgtk
 
 == Steps to build ==
  # (recommended) create a new directory for your build
