@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2009 Nikolaus Gebhardt
+// Copyright (C) 2002-2010 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -575,6 +575,8 @@ CIrrDeviceWin32::CIrrDeviceWin32(const SIrrlichtCreationParameters& params)
 		HWnd = CreateWindow( ClassName, __TEXT(""), style, windowLeft, windowTop,
 					realWidth, realHeight, NULL, NULL, hInstance, NULL);
 		CreationParams.WindowId = HWnd;
+//		CreationParams.WindowSize.Width = realWidth;
+//		CreationParams.WindowSize.Height = realHeight;
 
 		ShowWindow(HWnd, SW_SHOW);
 		UpdateWindow(HWnd);

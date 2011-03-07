@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2009 Nikolaus Gebhardt
+// Copyright (C) 2002-2010 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine" and the "irrXML" project.
 // For conditions of distribution and use, see copyright notice in irrlicht.h and irrXML.h
 
@@ -907,7 +907,7 @@ public:
 			array[pos++] = array[i];
 		}
 		used -= found;
-		array[used] = 0;
+		array[used-1] = 0;
 	}
 
 
@@ -939,7 +939,7 @@ public:
 			array[pos++] = array[i];
 		}
 		used -= found;
-		array[used] = 0;
+		array[used-1] = 0;
 	}
 
 
@@ -969,7 +969,7 @@ public:
 			array[pos++] = array[i];
 		}
 		used -= found;
-		array[used] = 0;
+		array[used-1] = 0;
 	}
 
 
@@ -1019,8 +1019,8 @@ public:
 		// terminate
 		if ( allocated > 0 )
 		{
-			used = allocated - 1;
-			array[used] = 0;
+			used = allocated;
+			array[used-1] = 0;
 		}
 		else
 		{

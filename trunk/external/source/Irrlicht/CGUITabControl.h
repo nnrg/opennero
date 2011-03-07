@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2009 Nikolaus Gebhardt
+// Copyright (C) 2002-2010 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -65,11 +65,14 @@ namespace gui
 		//! Reads attributes of the element
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
 
+		//! only for internal use by CGUITabControl
+		void refreshSkinColors();
 
 	private:
 
 		s32 Number;
 		video::SColor BackColor;
+		bool OverrideTextColorEnabled;
 		video::SColor TextColor;
 		bool DrawBackground;
 	};
@@ -125,16 +128,16 @@ namespace gui
 
 		//! Reads attributes of the element
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
-		
+
 		//! Get the height of the tabs
 		virtual s32 getTabHeight() const;
 
 		//! set the maximal width of a tab. Per default width is 0 which means "no width restriction".
 		virtual void setTabMaxWidth(s32 width );
-			
+
 		//! get the maximal width of a tab
 		virtual s32 getTabMaxWidth() const;
-		
+
 		//! Set the alignment of the tabs
 		//! note: EGUIA_CENTER is not an option
 		virtual void setTabVerticalAlignment( gui::EGUI_ALIGNMENT alignment );

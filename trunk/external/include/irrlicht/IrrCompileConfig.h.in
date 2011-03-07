@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2009 Nikolaus Gebhardt
+// Copyright (C) 2002-2010 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -8,11 +8,11 @@
 //! Irrlicht SDK Version
 #define IRRLICHT_VERSION_MAJOR 1
 #define IRRLICHT_VERSION_MINOR 7
-#define IRRLICHT_VERSION_REVISION 1
+#define IRRLICHT_VERSION_REVISION 2
 // This flag will be defined only in SVN, the official release code will have
 // it undefined
 #define IRRLICHT_VERSION_SVN -beta
-#define IRRLICHT_SDK_VERSION "1.7.1-beta"
+#define IRRLICHT_SDK_VERSION "1.7.2-beta"
 
 #include <stdio.h> // TODO: Although included elsewhere this is required at least for mingw
 
