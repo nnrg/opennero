@@ -20,7 +20,7 @@ class NeroModule:
         self.dtc = 50
         self.ff =  0
         self.ee =  0
-        self.hp = 50
+        self.hp = 10
         self.flag_loc = Vector3f(0,0,0)
         self.flag_id = -1
         self.num_to_add = pop_size
