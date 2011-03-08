@@ -40,18 +40,26 @@ def kdtree(pointList, depth=0):
     node.right = kdtree(pointList[median+1:], depth+1)
     return node
 
-def kdremove(here, point, depth = 0):
+# this method seems to be buggy so we use the rebuild method instead
+# def kdremove(here, point, depth = 0):
+#     if not here:
+#         return None
+#     if here.location == point:
+#         return kdtree(here.points()[1:])
+#     k = len(here.location) # dimension
+#     axis = depth % k
+#     if point[axis] < here.location[axis]:
+#         here.left = kdremove(here.left, point, depth+1)
+#     else:
+#         here.right = kdremove(here.right, point, depth+1)
+#     return here
+
+def kdremove(here, point):
     if not here:
         return None
-    if here.location == point:
-        return kdtree(here.points()[1:])
-    k = len(here.location) # dimension
-    axis = depth % k
-    if point[axis] < here.location[axis]:
-        here.left = kdremove(here.left, point, depth+1)
-    else:
-        here.right = kdremove(here.right, point, depth+1)
-    return here
+    point_list = here.points()
+    point_list.remove(point)
+    return kdtree(point_list)
 
 def kddistance(point1, point2):
     return sum([(x-y)**2 for x,y in zip(point1, point2)])
@@ -94,12 +102,12 @@ def main():
     print 'KD-tree after removing (5,4):'
     tree = kdremove(tree, (5,4))
     print tree
-    print 'Points in it:', tree.points()
+    print 'Points in it:', tree.points(), 'length:'
 
     print 'KD-tree after removing (8,1):'
     tree = kdremove(tree, (8,1))
     print tree
-    print 'Points in it:', tree.points()
+    print 'Points in it:', tree.points(), 'length:'
 
 if __name__ == "__main__":
     main()
