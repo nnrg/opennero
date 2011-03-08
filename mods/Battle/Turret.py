@@ -7,24 +7,18 @@ class Turret(AgentBrain):
     """
     def __init__(self):
         AgentBrain.__init__(self)
-        self.team = 1
 
     def initialize(self, init_info):
         self.actions = init_info.actions
         self.sensors = init_info.sensors
-        self.group = "Turret"
         self.previous_fire =  0
         return True
 
     def start(self, time, sensors):
-        self.org = None
-        self.net = None
-        self.state.label = "Turret"
-        self.group = "Turret"
         a = self.actions.get_instance()
         for x in range(len(self.actions)):
             a[x] = 0
-            if x == 1:
+            if x == 2:
               a[x] = 0
         return a
 
@@ -33,12 +27,12 @@ class Turret(AgentBrain):
         for x in range(len(self.actions)):
             a[x] = 0
             if x == 1:
-              a[x] = .15
+              a[x] = .1
 
         return a
 
-    def get_team(self):
-        return self.team
+    def getTeam(self):
+        return 2
 
     def end(self,time,reward):
         return True
