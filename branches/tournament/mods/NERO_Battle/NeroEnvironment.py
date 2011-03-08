@@ -25,6 +25,7 @@ class AgentState:
         self.start_time = self.time
         self.total_damage = 0
         self.curr_damage = 0
+        self.team = 0
         self.animation = 'stand'
 
 class NeroEnvironment(Environment):
@@ -152,7 +153,7 @@ class NeroEnvironment(Environment):
         friend = []
         foe = []
         other = 1
-        if agent.get_team == 1: other = 2
+        if agent.get_team() == 1: other = 2
         if agent.get_team() in self.teams:
             friend = self.teams[agent.get_team()]
         if other in self.teams:
@@ -204,6 +205,13 @@ class NeroEnvironment(Environment):
         
         state = self.get_state(agent)
         
+        
+        if 1 in self.teams and len(self.teams[1]) == 0:
+            print "Team 2 Wins!!"
+        if 2 in self.teams and len(self.teams[2]) == 0:
+            print "Team 1 Wins!!"
+
+        
         # get the reward (which has multiple components)
         reward = self.agent_info.reward.get_instance()
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
@@ -222,6 +230,7 @@ class NeroEnvironment(Environment):
             #print 'initial_rotation:',state.initial_rotation, "group:", agent.group
             state.pose = (p.x, p.y, r.z)
             state.prev_pose = (p.x, p.y, r.z)
+            state.team = agent.get_team()
             return reward
         
         # Spawn more agents if there are more to spawn
@@ -287,10 +296,12 @@ class NeroEnvironment(Environment):
                 if target != -1:
                     target.curr_damage += 1
                     hit = 1
+                    #print "Target hit successfully Firing Team:", agent.get_team(), "Target ID:", target.id, "Target Team:", target.team
                     #print "Target hit successfully Firing Team:", agent.get_team()
         
         # calculate friend/foe
         ffr = self.getFriendFoe(agent)
+        if ffr[0] == ffr[1]: print "HOLY SHIT ERROR", agent.get_team()
         if ffr[0] == []:
             return reward #Corner Case
         
@@ -359,18 +370,18 @@ class NeroEnvironment(Environment):
         fh = 0
         if fd != 0:
             fh = ((degrees(atan2(yloc-state.pose[1],xloc - state.pose[0])) - state.pose[2]) % 360) - 180
-
+        
         if fd <= 15:
             observations[f-3] = fd/15.0
             observations[f-2] = fh/360.0
-
+        
         if observations[f-2] < 0: observations[f-2] += 1
-
+        
         
         data = self.target(agent)
         observations[f-1] = 0
         if data != None: observations[f-1] = 1
-
+        
         return observations
    
     def flag_loc(self):
