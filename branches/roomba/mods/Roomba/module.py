@@ -146,7 +146,6 @@ class SandboxEnvironment(Environment):
         self.XDIM = XDIM
         self.YDIM = YDIM
         self.max_steps = 500       
-        self.crumb_count = 0
         self.states = {} # dictionary of agent states
         self.crumbs = world_handler.pattern_cluster(500, "Roomba/world_config.txt")
         # only keep crumbs that are inside the walls
@@ -236,7 +235,6 @@ class SandboxEnvironment(Environment):
         for pellet in self.crumbs:
             if not (pellet.x, pellet.y) in getMod().marker_map:
                 getMod().mark_blue(pellet.x, pellet.y)
-        self.crumb_count = len(getMod().marker_map)
 
     def reset(self, agent):
         """ reset the environment to its initial state """
@@ -324,20 +322,16 @@ class SandboxEnvironment(Environment):
         
         reward = 0
         
-        # closest crumb (nearest neighbor search over the KD-tree)
+        # remove all crumbs within ROOMBA_RAD of agent position
         pos = (position.x, position.y)
-        closest = kdsearchnn(self.kdcrumbs, pos)
-        dist = kddistance(closest, pos)
-        if (dist <= 4):  # if agent gets close enough to a crumb
-            getMod().unmark(closest.x, closest.y) # remove marker on map
-            self.crumb_count -= 1  # decrement crumb count
-            kdremove(self.kdcrumbs, closest) # remove from the kd-tree
-            if (self.crumb_count <= 0):  # final Reward (no crumb left behind)
-                if  (self.max_steps != 0):  # for yes step limit
-                    reward += closest.reward + self.max_steps - state.step_count
-                else:                       # for no step limit
-                    reward += closest.reward + (1/agent.state_count) * 10000
-            else:
+        dist = 0
+        while dist <= ROOMBA_RAD:
+            closest = kdsearchnn(self.kdcrumbs, pos)
+            dist = kddistance(closest, pos)
+            print closest, dist
+            if closest and dist <= ROOMBA_RAD:  # if agent gets close enough to a crumb
+                getMod().unmark(closest.x, closest.y) # remove marker on map
+                self.kdcrumbs = kdremove(self.kdcrumbs, closest) # remove from the kd-tree
                 reward += closest.reward # normal reward for picking up a pellet
                 
         # check if agent has expended its step allowance
@@ -462,10 +456,7 @@ class SandboxEnvironment(Environment):
         state = self.get_state(agent)
         if self.max_steps != 0 and state.step_count >= self.max_steps:
             return True
-        elif (self.crumb_count <= 0):
-            return True
-        else:
-            return False
+        return False
     
     def cleanup(self):
         """
