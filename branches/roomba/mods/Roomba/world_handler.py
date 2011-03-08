@@ -52,7 +52,7 @@ class Pellet:
         else:
             raise IndexError
     def __str__(self):
-        return 'Pellet(%d, %d, reward = %f)' % (self.x, self.y, self.reward)
+        return 'Pellet(%.2f, %.2f, reward = %f)' % (self.x, self.y, self.reward)
 
 def add_random_pellets(num_pellets, file_name = world):
     "Add a specified number of random pellets into the world"

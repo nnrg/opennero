@@ -151,7 +151,6 @@ class SandboxEnvironment(Environment):
         # only keep crumbs that are inside the walls
         self.crumbs = [c for c in self.crumbs if in_bounds(c.x,c.y)]
         self.kdcrumbs = kdtree(self.crumbs)
-        print self.kdcrumbs
 
         self.init_list = AgentInit()
         self.init_list.add_type("<class 'Roomba.roomba.RoombaBrain'>")
@@ -219,6 +218,9 @@ class SandboxEnvironment(Environment):
         
     def randomize(self):
         self.crumbs = world_handler.read_pellets()
+        # only keep crumbs that are inside the walls        
+        self.crumbs = [c for c in self.crumbs if in_bounds(c.x,c.y)]
+        # keep in KD-tree for speedy nearest search
         self.kdcrumbs = kdtree(self.crumbs)
 
     def add_crumb_sensors(self, roomba_sbound):
@@ -235,6 +237,8 @@ class SandboxEnvironment(Environment):
         for pellet in self.crumbs:
             if not (pellet.x, pellet.y) in getMod().marker_map:
                 getMod().mark_blue(pellet.x, pellet.y)
+        # also reset the kdcrumbs
+        self.kdcrumbs = kdtree(self.crumbs)
 
     def reset(self, agent):
         """ reset the environment to its initial state """
@@ -327,8 +331,7 @@ class SandboxEnvironment(Environment):
         dist = 0
         while dist <= ROOMBA_RAD:
             closest = kdsearchnn(self.kdcrumbs, pos)
-            dist = kddistance(closest, pos)
-            print closest, dist
+            dist = sqrt(kddistance(closest, pos))
             if closest and dist <= ROOMBA_RAD:  # if agent gets close enough to a crumb
                 getMod().unmark(closest.x, closest.y) # remove marker on map
                 self.kdcrumbs = kdremove(self.kdcrumbs, closest) # remove from the kd-tree
