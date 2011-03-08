@@ -1,0 +1,18 @@
+<Template>
+  <Audio>
+    <Rocket>maze/data/sounds/rocket_launcher.ogg</Rocket>
+  </Audio>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>true</MaterialFlagLighting>
+    <AniMesh>data/shapes/character/sydney.md2</AniMesh>
+    <CastsShadow>false</CastsShadow>
+    <Texture0>data/shapes/character/sydney.bmp</Texture0>
+    <Scale>0.2 0.2 0.2</Scale>
+    <DrawLabel>true</DrawLabel>
+    <Collision>5</Collision>
+  </Render>
+  <AI>
+    <Python agent="RTNEATAgent()" />
+  </AI>
+</Template>

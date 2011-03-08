@@ -1,0 +1,12 @@
+<Template>
+	<Render>
+		<MaterialType>solid</MaterialType>
+		<MaterialFlagLighting>false</MaterialFlagLighting>
+		<AniMesh>data/shapes/cube/cube.obj</AniMesh>
+		<Scale>5 5 1</Scale>
+		<Rotation>0 0 0</Rotation>
+	</Render>
+	<AI>
+		<Python agent="AsukaCore()" />
+	</AI>
+</Template>
