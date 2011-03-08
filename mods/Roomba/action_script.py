@@ -3,7 +3,6 @@ import random
 MOE = 0
 
 def go_xy(sensors, target_x, target_y):
-    #print "LENGTH of SENSOR ARRAY: ", len(sensors)
     if (abs(round(sensors[1] - target_x)) > MOE):
         return go_x(sensors, target_x)
     elif (abs(round(sensors[2] - target_y)) > MOE):
@@ -12,7 +11,6 @@ def go_xy(sensors, target_x, target_y):
         return random.random() * math.pi
         
 def go_x(sensors, target):
-    #print "Executing Go X"
     if (sensors[1] > target):
         orient = math.pi
     elif (sensors[1] < target):
@@ -20,7 +18,6 @@ def go_x(sensors, target):
     return orient
 
 def go_y(sensors, target):
-    #print "Executing Go Y"
     if (sensors[2] >= target):
         orient = -math.pi/2
     elif (sensors[2] < target):
