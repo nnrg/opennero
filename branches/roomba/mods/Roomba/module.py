@@ -16,26 +16,7 @@ from kdtree import *
 from roomba import RoombaBrain
 from RTNEATAgent import RTNEATAgent
 
-# initialize global variables #
-MAX_SPEED = 1
-STEP_DT = 0.1
-AGENT_X = 10
-AGENT_Y = 10
-
-ROOMBA_RAD = 4  # Physical Radius of Roomba, for wall collision
-
-N_FIXED_SENSORS = 3     # 0: wall bump, 1: self position X, 2: self position Y
-N_S_IN_BLOCK = 4
-
-XDIM = 200.0
-YDIM = 200.0
-HEIGHT = 20.0
-OFFSET = -HEIGHT/2
-
-OBJECT_TYPE_ROOMBA = (1 << 0)
-OBJECT_TYPE_WALLS = (1 << 1)
-OBJECT_TYPE_FLOOR = (1 << 2)
-OBJECT_TYPE_MARKER = (1 << 3)
+from constants import *
 
 class SandboxMod:
 
@@ -55,6 +36,8 @@ class SandboxMod:
         id = addObject(marker, Vector3f(x, y, -1), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5), type = OBJECT_TYPE_MARKER)
         # remember the ID of the object we are about to create
         self.marker_map[(x, y)] = id
+        # ivk debugging
+        print 'adding pellet',id,'at',x,y
 	    
     def mark_blue(self, x, y):
         self.mark(x, y,"data/shapes/cube/BlueCube.xml")
@@ -71,6 +54,7 @@ class SandboxMod:
     def unmark(self, x, y):
         if (x, y) in self.marker_map:
             removeObject(self.marker_map[(x, y)])
+            print 'deleting pellet',self.marker_map[(x, y)],'from',x,y            
             del self.marker_map[(x, y)]
             return True
         else:
@@ -144,17 +128,12 @@ class SandboxMod:
         set_ai("rtneat",rtneat)
         enable_ai()
         self.distribute_bots(pop_size, "data/shapes/roomba/RoombaRTNEAT.xml")
-        
+
+def in_bounds(x,y):
+    return x > ROOMBA_RAD and x < XDIM - ROOMBA_RAD and y > ROOMBA_RAD and y < YDIM - ROOMBA_RAD
 
 #################################################################################        
 class SandboxEnvironment(Environment):
-    SPEED = 10 # max per-step translational speed
-    ANGULAR_SPEED = 90 # max angles in degrees agent can turn in one step
-    TIME_PER_STEP = 0.01 # min time between steps in seconds
-    STEPS_PER_EPISODE = 100 # max number of steps per episode
-    MAX_DISTANCE = 1000000 # max possible distance of objects from agent
-    MIN_DISTANCE = 1 # min distance from object for agent to visit it
-
     """
     Sample Environment for the Sandbox
     """
@@ -170,7 +149,10 @@ class SandboxEnvironment(Environment):
         self.crumb_count = 0
         self.states = {} # dictionary of agent states
         self.crumbs = world_handler.pattern_cluster(500, "Roomba/world_config.txt")
+        # only keep crumbs that are inside the walls
+        self.crumbs = [c for c in self.crumbs if in_bounds(c.x,c.y)]
         self.kdcrumbs = kdtree(self.crumbs)
+        print self.kdcrumbs
 
         self.init_list = AgentInit()
         self.init_list.add_type("<class 'Roomba.roomba.RoombaBrain'>")
@@ -190,8 +172,10 @@ class SandboxEnvironment(Environment):
         
         # sensors
         roomba_sbound.add_discrete(0,1)    # wall bump
-        roomba_sbound.add_continuous(0,XDIM)   # position X
-        roomba_sbound.add_continuous(0,YDIM)   # position Y
+        roomba_sbound.add_continuous(0,XDIM)   # self.x
+        roomba_sbound.add_continuous(0,YDIM)   # self.y
+        roomba_sbound.add_continuous(0,XDIM)   # closest.x
+        roomba_sbound.add_continuous(0,YDIM)   # closest.y
         
         # rewards
         roomba_rbound.add_continuous(-100,100) # range for reward
@@ -236,6 +220,7 @@ class SandboxEnvironment(Environment):
         
     def randomize(self):
         self.crumbs = world_handler.read_pellets()
+        self.kdcrumbs = kdtree(self.crumbs)
 
     def add_crumb_sensors(self, roomba_sbound):
         """Add the crumb sensors, in order: x position of crumb (0 to XDIM,
@@ -321,7 +306,6 @@ class SandboxEnvironment(Environment):
         if (position.x) < 0 or (position.y) < 0 or \
            (position.x) > self.XDIM or (position.y) > self.YDIM:
 
-            print "bump @ ", position.x, ", ", position.y
             # correct position
             if (position.x) < 0:
                 position.x -= delta_dist*cos(radians(rotation.z))    
@@ -375,7 +359,16 @@ class SandboxEnvironment(Environment):
             pos = agent.state.position
             sensors[1] = pos.x
             sensors[2] = pos.y
+            
+            pos = (pos.x, pos.y)
+            closest = kdsearchnn(self.kdcrumbs, pos)
+            
+            if closest:
+                # freebie for scripted agents: tell agent the closest crumb!
+                sensors[3] = closest.x
+                sensors[4] = closest.y
         
+            # describe every other crumb on the field!
             self.sense_crumbs(sensors, N_S_IN_BLOCK, N_FIXED_SENSORS)
 
         else:
@@ -439,7 +432,9 @@ class SandboxEnvironment(Environment):
 
     def sense_crumbs(self, sensors, num_sensors, start_sensor):
         """
-        Sensor sub-routine for crumbs
+        Generate a (big) array of observations, num_sensors for each crumb
+        and store them inside sensors starting at start_sensor.
+        Each crumb is stored as: (x,y,exists?,reward)
         """
         i = start_sensor
         for pellet in self.crumbs:
