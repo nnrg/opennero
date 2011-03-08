@@ -1,0 +1,12 @@
+<Template>
+  <Audio>
+  </Audio>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <MaterialFlagFogEnabled>true</MaterialFlagFogEnabled>
+    <AniMesh>data/terrain/island.obj</AniMesh>
+    <Rotation>0 90 0</Rotation>
+    <Scale>3 3 1</Scale>
+  </Render>
+</Template>
