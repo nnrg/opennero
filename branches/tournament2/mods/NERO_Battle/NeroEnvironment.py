@@ -59,14 +59,10 @@ class NeroEnvironment(Environment):
         # sensor dimensions
         for a in range(N_SENSORS):
             sbound.add_continuous(0,1);
-
+        
         # Rewards
-        # the enviroment returns the raw multiple dimensions of the fitness as
-        # they get each step. This then gets combined into, e.g. Z-score, by
-        # the ScoreHelper in order to calculate the final rtNEAT-fitness
-        for f in FITNESS_DIMENSIONS:
-            # we don't care about the bounds of the individual dimensions
-            rbound.add_continuous(-sys.float_info.max, sys.float_info.max) # range for reward
+        # In battle mode, we tell each agent how much health it has left
+        rbound.add_continuous(0,1)
         
         # initialize the rtNEAT algorithm parameters
         # input layer has enough nodes for all the observations plus a bias
@@ -76,8 +72,11 @@ class NeroEnvironment(Environment):
         rtneat = [RTNEAT("data/ai/neat-params.dat", N_SENSORS, N_ACTIONS, pop_size, 1.0, rbound), RTNEAT("data/ai/neat-params.dat", N_SENSORS, N_ACTIONS, pop_size, 1.0, rbound)]
         
         # set the initial lifetime
-        lifetime = getMod().lt
-        for algo in rtneat: algo.set_lifetime(lifetime)
+        # in Battle, the lifetime is basically infinite, unless they get killed
+        lifetime = sys.maxint
+        for algo in rtneat: 
+            algo.set_lifetime(lifetime)
+            algo.disable_evolution()
         print 'rtNEAT lifetime:', lifetime
         
         set_ai("rtneat1", rtneat[0])
@@ -205,35 +204,28 @@ class NeroEnvironment(Environment):
         
         state = self.get_state(agent)
         
-        
         if 1 in self.teams and len(self.teams[1]) == 0:
             print "Team 2 Wins!!"
+            disable_ai()
         if 2 in self.teams and len(self.teams[2]) == 0:
             print "Team 1 Wins!!"
-
+            disable_ai()
         
-        # get the reward (which has multiple components)
+        # get the reward
         reward = self.agent_info.reward.get_instance()
+        # the reward is just a fraction of the hit points left
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
             return reward
-
-
-        #Initilize Agent state
-        if agent.step == 0 and agent.group != "Turret":
-            p = agent.state.position
-            r = agent.state.rotation
-            if agent.group == "Agent":
-                r.z = randrange(360)
-                agent.state.rotation = r #Note the internal components of agent.state.rotation are immutable you need to make a copy, modify the copy, and set agent.state.rotation to be the copy.
-            state.initial_position = p
-            state.initial_rotation = r
-            #print 'initial_rotation:',state.initial_rotation, "group:", agent.group
-            state.pose = (p.x, p.y, r.z)
-            state.prev_pose = (p.x, p.y, r.z)
-            state.team = agent.get_team()
-            return reward
         
+        # the reward is the fraction of hp's the agent has left
+        hit_points = getMod().hp
+        damage = state.total_damage
+        if hit_points > 0:
+            reward[0] = (hit_points - damage)/float(hit_points)
+
         # Spawn more agents if there are more to spawn
+        # TODO: don't spawn more than the initial team size
+        
         if get_ai("rtneat1").ready():
             if getMod().getNumToAdd() > 0:
                 dx = randrange(XDIM/20) - XDIM/40
@@ -251,12 +243,6 @@ class NeroEnvironment(Environment):
         damage = state.curr_damage
         state.curr_damage = 0
         
-        #Fitness Function Parameters
-        distance_st = getMod().dta
-        distance_ae = getMod().dtb
-        distance_af = getMod().dtc
-        friendly_fire = getMod().ff
-
         # the position and the rotation of the agent on-screen
         position = agent.state.position
         rotation = agent.state.rotation
@@ -296,39 +282,12 @@ class NeroEnvironment(Environment):
                 if target != -1:
                     target.curr_damage += 1
                     hit = 1
-                    #print "Target hit successfully Firing Team:", agent.get_team(), "Target ID:", target.id, "Target Team:", target.team
-                    #print "Target hit successfully Firing Team:", agent.get_team()
         
         # calculate friend/foe
         ffr = self.getFriendFoe(agent)
-        if ffr[0] == ffr[1]: print "HOLY SHIT ERROR", agent.get_team()
+        if ffr[0] == ffr[1]: assert(false)
         if ffr[0] == []:
             return reward #Corner Case
-        
-        ff = []
-        ff.append(self.nearest(state.pose, state.id, ffr[0]))
-        ff.append(self.nearest(state.pose, state.id, ffr[1]))
-        
-        st = 0
-        ae = 0
-        
-        #calculate fitness accrued during this step
-        R = dict([(f, 0) for f in FITNESS_DIMENSIONS])
-        R[FITNESS_STAND_GROUND] = -action[0]
-        if ff[0]:
-            d = self.distance(self.get_state(ff[0]).pose,state.pose)
-            R[FITNESS_STAND_GROUND] = -d*d
-        if ff[1]:
-            d = self.distance(self.get_state(ff[1]).pose,state.pose)
-            R[FITNESS_APPROACH_ENEMY] = -d*d
-        d = self.flag_distance(agent)
-        R[FITNESS_APPROACH_FLAG] = -d*d
-        R[FITNESS_HIT_TARGET] = hit
-        R[FITNESS_AVOID_FIRE] = -damage
-        
-        # put the fitness dimensions into the reward vector in order
-        for (i,f) in enumerate(FITNESS_DIMENSIONS):
-            reward[i] = R[f]
         
         # calculate the motion
         new_position = copy(position)
