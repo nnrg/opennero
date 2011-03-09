@@ -5,7 +5,7 @@ from NERO.client import *
 def ModMain():
     ClientMain()  
 
-script_server = ScriptServer()
+script_server = GetScriptServer()
 
 def ModTick(dt):
     startScript("NERO/menu.py")
