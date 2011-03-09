@@ -28,53 +28,6 @@ def receive(channel):
 HOST = '127.0.0.1'
 PORT = 8888
 
-class ScriptServer:
-    def __init__(self, port = PORT, backlog = 5):
-        self.scriptmap = {}
-        self.outputs = []
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.bind((HOST, port))
-        print 'Listening to port', port, '...'
-        self.server.listen(backlog)
-        self.inputs = [self.server]
-
-    def read_data(self):
-        self.outputs = []
-        try:
-            inputready, outputready, exceptready = select.select(self.inputs, self.outputs, [], 0)
-        except select.error, e:
-            print 'ScriptServer select error'
-            return None
-        except socket.error, e:
-            print 'ScriptServer socket error'
-            return None
-        for s in inputready:
-            if s == self.server:
-                # this is a new connection
-                client, address = self.server.accept()
-                print 'ScriptServer got connection %d from %s' % (client.fileno(), address)
-                self.scriptmap[client] = address
-                self.outputs.append(client)
-                self.inputs.append(client)
-            else:
-                # this is a message on an existing connection
-                try:
-                    data = receive(s)
-                    if data:
-                        return data
-                    else:
-                        print 'ScriptServer: %d hung up' % s.fileno()
-                        s.close()
-                        if s in self.inputs:
-                            self.inputs.remove(s)
-                        if s in self.outputs:
-                            self.outputs.remove(s)
-                except socket.error, e:
-                    print 'ScriptServer socket error'
-                    self.inputs.remove(e)
-                    self.outputs.remove(e)
-        return None
-
 class ScriptClient:
     def __init__(self, host = HOST, port = PORT):
         self.host = host

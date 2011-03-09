@@ -29,12 +29,18 @@ HOST = '127.0.0.1'
 PORT = 8888
 
 class ScriptServer:
+    __single = None
+
     def __init__(self, port = PORT, backlog = 5):
+        # only init once!
+        if ScriptServer.__single:
+            raise ScriptServer.__single
+        ScriptServer.__single = self
         self.scriptmap = {}
         self.outputs = []
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server.bind((HOST, port))
-        print 'Listening to port', port, '...'
+        print 'ScriptServer listening to port', port, '...'
         self.server.listen(backlog)
         self.inputs = [self.server]
 
@@ -74,6 +80,16 @@ class ScriptServer:
                     self.inputs.remove(e)
                     self.outputs.remove(e)
         return None
+
+def GetScriptServer():
+    """
+    Only allow the code to create one script server
+    """
+    try:
+        theServer = ScriptServer()
+    except ScriptServer, s:
+        theServer = s
+    return theServer
 
 class ScriptClient:
     def __init__(self, host = HOST, port = PORT):

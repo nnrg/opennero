@@ -5,7 +5,7 @@ from NERO_Battle.client import *
 def ModMain():
     ClientMain()  
 
-script_server = ScriptServer()
+script_server = GetScriptServer()
 
 def ModTick(dt):
     startScript("NERO_Battle/menu.py")

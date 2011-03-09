@@ -71,6 +71,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         grid.Add(self.sts,pos=(2,2))
         grid.Add(self.stt,pos=(2,0))
 
+        """
         #Together Distance Slider
         self.tdt = wx.StaticText(self,label = "Distance", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.tds = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
@@ -81,6 +82,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_SCROLL, self.OnTD,self.tds)
         grid.Add(self.tds,pos=(2,6))
         grid.Add(self.tdt,pos=(2,4))
+        """
 
         #Approach Enemy Slider
         self.aet = wx.StaticText(self,label = "Approach Enemy", pos=wx.DefaultPosition, size=wx.DefaultSize)
@@ -93,6 +95,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         grid.Add(self.aes,pos=(3,2))
         grid.Add(self.aet,pos=(3,0))
 
+        """
         #Enemy Distance Slider
         self.edt = wx.StaticText(self,label = "Distance", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.eds = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
@@ -103,6 +106,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_SCROLL, self.OnED,self.eds)
         grid.Add(self.eds,pos=(3,6))
         grid.Add(self.edt,pos=(3,4))
+        """
 
         #Approach Flag Slider
         self.aft = wx.StaticText(self,label = "Approach Flag", pos=wx.DefaultPosition, size=wx.DefaultSize)
@@ -115,6 +119,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         grid.Add(self.afs,pos=(4,2))
         grid.Add(self.aft,pos=(4,0))
 
+        """
         #Flag Distance Slider
         self.fdt = wx.StaticText(self,label = "Distance", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.fds = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
@@ -125,6 +130,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_SCROLL, self.OnFD,self.fds)
         grid.Add(self.fds,pos=(4,6))
         grid.Add(self.fdt,pos=(4,4))
+        """
         
         #Hit Target Slider
         self.htt = wx.StaticText(self,label = "Hit Target", pos=wx.DefaultPosition, size=wx.DefaultSize)
@@ -172,6 +178,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         grid.Add(self.fft,pos=(8,0))
         """
 
+        """
         #Explore/Exploit Slider
         self.eet = wx.StaticText(self,label = "Explore/Exploit", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.ees = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
@@ -182,6 +189,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_SCROLL, self.OnEE,self.ees)
         grid.Add(self.ees,pos=(8,2))
         grid.Add(self.eet,pos=(8,0))
+        """
 
         #Hitpoint Slider
         self.hpt = wx.StaticText(self,label = "Hitpoints", pos=wx.DefaultPosition, size=wx.DefaultSize)
@@ -194,6 +202,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         grid.Add(self.hps,pos=(9,2))
         grid.Add(self.hpt,pos=(9,0))
 
+        """
         #Speedup Slider
         self.spt = wx.StaticText(self,label = "Speedup", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.sps = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
@@ -204,6 +213,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_SCROLL, self.OnSP,self.sps)
         grid.Add(self.sps,pos=(10,2))
         grid.Add(self.spt,pos=(10,0))
+        """
 
         self.SetSizer(grid)
         grid.Fit(parent)
