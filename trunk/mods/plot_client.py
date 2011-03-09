@@ -22,17 +22,17 @@ class NetworkLogWriter:
             missing = set([])
             try:
                 import wx
-            except:
+            except ImportError:
                 missing.add('wx')
             try:
                 import matplotlib
-            except:
+            except ImportError:
                 missing.add('matplotlib')
             try:
                 import numpy
-            except:
+            except ImportError:
                 missing.add('numpy')
-            if len(missing) == 0:
+            if not len(missing):
                 try:
                     self.server_process = Popen(['python','plot_server.py'])
                     print 'plot server started!'
@@ -52,9 +52,9 @@ class NetworkLogWriter:
             self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
             self.sock.connect(self.addr)
             self.connected = True
-        except socket.error, e:
+        except socket.error:
             self.connected = False
-        except IOError, e:
+        except IOError:
             self.connected = False
         return self.connected
 
@@ -62,10 +62,10 @@ class NetworkLogWriter:
         if self.connect():
             try:
                 self.sock.send(msg)
-            except socket.error, e:
+            except socket.error:
                 self.failed = True
                 print 'socket.error'
-            except IOError, e:
+            except IOError:
                 self.failed = True
                 print 'IOError'
         if self.failed:
@@ -79,9 +79,9 @@ class NetworkLogWriter:
             try:
                 self.sock.sendto('', self.addr)
                 self.sock.close()
-            except socket.error, e:
+            except socket.error:
                 pass
-            except IOError, e:
+            except IOError:
                 pass
             self.connected = False
         if self.server_process:

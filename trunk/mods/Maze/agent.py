@@ -4,7 +4,6 @@ import Maze
 from Maze.environment import MazeEnvironment, ContMazeEnvironment
 from Maze.constants import *
 
-import random
 from heapq import heappush, heappop
 
 def dfs_heuristic(r,c):
@@ -112,7 +111,7 @@ class DFSSearchAgent(SearchAgent):
             tovisit = []
             for m, (dr,dc) in enumerate(MazeEnvironment.MOVES):
                 r2, c2 = r+dr, c+dc
-                if sensors[2+m] == 0: # can we go that way?
+                if not sensors[2 + m]: # can we go that way?
                     if (r2,c2) not in self.visited:
                         tovisit.append( (r2,c2) )
                         self.parents[ (r2,c2) ] = (r,c)
@@ -122,7 +121,7 @@ class DFSSearchAgent(SearchAgent):
         adjlist = self.adjlist[(r,c)]
         k = 0
         while k < len(adjlist) and adjlist[k] in self.visited:
-            k = k + 1
+            k += 1
         # if we don't have other neighbors to visit, back up
         if k == len(adjlist):
             current = self.parents[(r,c)]
