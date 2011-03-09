@@ -56,6 +56,7 @@ namespace OpenNero
         , mTimeBetweenEvolutions(NEAT::time_alive_minimum)
         , mRewardInfo(reward_info)
         , mFitnessWeights(reward_info.size())
+        , mEvolutionEnabled(true)
     {
         NEAT::load_neat_params(Kernel::findResource(param_file));
         NEAT::pop_size = population_size;
@@ -96,6 +97,7 @@ namespace OpenNero
         , mTimeBetweenEvolutions(NEAT::time_alive_minimum)
         , mRewardInfo(reward_info)
         , mFitnessWeights(reward_info.size())
+        , mEvolutionEnabled(true)
     {
         NEAT::load_neat_params(Kernel::findResource(param_file));
         NEAT::pop_size = population_size;
@@ -237,7 +239,10 @@ namespace OpenNero
 
         // If the total number of units spawned so far exceeds the threshold value AND enough
         // ticks have passed since the last evolution, then a new evolution may commence.
-        if (mTotalUnitsDeleted >= mUnitsToDeleteBeforeFirstJudgment && mEvolutionTickCount >= mTimeBetweenEvolutions) {
+        if (mEvolutionEnabled
+            && mTotalUnitsDeleted >= mUnitsToDeleteBeforeFirstJudgment
+            && mEvolutionTickCount >= mTimeBetweenEvolutions)
+        {
             //Judgment day!
             evolveAll();
             mEvolutionTickCount = 0;

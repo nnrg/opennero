@@ -2,6 +2,7 @@ from OpenNero import *
 import random
 from time import time
 from constants import *
+from math import *
 
 def gettime():
     return time() 
@@ -35,27 +36,32 @@ class RTNEATAgent(AgentBrain):
         """
         rtneat = get_ai("rtneat" + str(self.team))
         return rtneat.get_organism(self)
+    
+    def display_health(self, h):
+        # the reward in battle tells us how much life we have left
+        # it is a value between 0 (no health) and 1 (full health)
+        # so we display it as a label consisting of round(r*10) characters
+        self.state.label = ''.join(['.' for x in range(round(h*10))])
 
     def start(self, time, sensors):
         """
         start of an episode
         """
-        org = self.get_org()
-        org.time_alive += 1
+        self.display_health(1)
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
         """
         a state transition
         """
-        # return action
-        self.state.label = str(self.fitness)
+        self.display_health(reward[0])
         return self.network_action(sensors)
 
     def end(self, time, reward):
         """
         end of an episode
         """
+        self.display_health(reward[0])
         get_ai("rtneat" + str(self.team)).release_organism(self)
         return True
 
