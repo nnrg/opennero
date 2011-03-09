@@ -20,14 +20,10 @@ import SocketServer
 import wx
 import matplotlib
 matplotlib.use('WXAgg')
-import matplotlib.pyplot as pl
-import matplotlib.mlab as mlab
 import numpy as np
 import pylab
 from matplotlib.figure import Figure
-from matplotlib.backends.backend_wxagg import \
-    FigureCanvasWxAgg as FigCanvas, \
-    NavigationToolbar2WxAgg as NavigationToolbar
+from matplotlib.backends.backend_wxagg import FigureCanvasWxAgg as FigCanvas
 
 __author__ = "Igor Karpov (ikarpov@cs.utexas.edu)"
 
@@ -74,7 +70,7 @@ class XYData:
         return len(self.x)
         
     def __str__(self):
-        if len(self.x) == 0:
+        if not len(self.x):
             return 'XYData(len = 0)'
         else:
             return 'XYData(len = %d, xmin = %f, xmax = %f, ymin = %f, ymax = %f)' % \
@@ -147,15 +143,13 @@ class LearningCurve:
             else:
                 record = AgentHistory()
                 self.histories[id] = record
-        if step == 0:
+        if not step:
             record.episode()
         record.append(ms, fitness)
         self.total.append(ms, fitness)
 
     def plot(self, axes):
         axes.hold(True)
-        t = np.array(self.total.x)
-        f = np.array(self.total.y)
         with self.lock:
             for id in self.histories:
                 self.histories[id].plot(axes, self.total.xmin)
