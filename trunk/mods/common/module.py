@@ -1,6 +1,6 @@
 import sys
 import subprocess
-from menu_utils import ScriptServer
+from menu_utils import GetScriptServer
 
 # OpenNero imports
 from OpenNero import getSimContext, Vector3f
