@@ -18,11 +18,10 @@ pop_size = 40
 lifetime = sys.maxint
 
 OBJECT_TYPE_OBSTACLE  = (1 << 0) # object type for walls
-OBJECT_TYPE_AGENT = (1 << 1) # object type for agent
-OBJECT_TYPE_TEAM_0 = (1 << 4) # object type for team 1
-OBJECT_TYPE_TEAM_1 = (1 << 3)#(1 << 5) # object type for team 2 and turrets during training
-OBJECT_TYPE_FLAG = (1 << 2) # object type for the flag
-OBJECT_TYPE_LEVEL_GEOM = 0#(1 << 3) # object type for the level geometry
+OBJECT_TYPE_TEAM_0 = (1 << 1) # object type for team 1
+OBJECT_TYPE_TEAM_1 = (1 << 2) # object type for team 2 and turrets during training
+OBJECT_TYPE_FLAG = (1 << 3) # object type for the flag
+OBJECT_TYPE_LEVEL_GEOM = 0 # object type for the level geometry
 
 ############################
 ### SENSOR CONFIGURATION ###

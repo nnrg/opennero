@@ -19,7 +19,11 @@ class RTNEATAgent(AgentBrain):
         # AgentBrainPtr by C++
         AgentBrain.__init__(self)
         from NERO_Battle.module import getMod
-        self.team = getMod().curr_team
+        team_type = getMod().curr_team
+        if team_type == OBJECT_TYPE_TEAM_0:
+            self.team = 0
+        elif team_type == OBJECT_TYPE_TEAM_1:
+            self.team = 1
 
     def initialize(self, init_info):
         """
