@@ -166,7 +166,7 @@ namespace OpenNero
 
     uint32_t ConvertSimIdToSceneId(SimId sceneId, uint32_t type)
     {
-        Assert(type < (1 << (SceneObject::BITMASK_SIZE + 1)));
+        Assert(type < (1 << SceneObject::BITMASK_SIZE));
         return static_cast<uint32_t>( (sceneId << SceneObject::BITMASK_SIZE) | type );
     }
 

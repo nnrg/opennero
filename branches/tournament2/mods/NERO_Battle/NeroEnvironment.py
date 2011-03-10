@@ -79,8 +79,8 @@ class NeroEnvironment(Environment):
             algo.disable_evolution()
         print 'rtNEAT lifetime:', lifetime
         
-        set_ai("rtneat1", rtneat[0])
-        set_ai("rtneat2", rtneat[1])
+        set_ai("rtneat0", rtneat[0])
+        set_ai("rtneat1", rtneat[1])
         
         self.agent_info = AgentInitInfo(sbound, abound, rbound)
     
@@ -93,10 +93,10 @@ class NeroEnvironment(Environment):
         if agent.group == "Agent":
             dx = randrange(XDIM/20) - XDIM/40
             dy = randrange(XDIM/20) - XDIM/40
-            if agent.get_team() == 1:
+            if agent.get_team() == 0:
                 state.initial_position.x = getMod().spawn_x_1 + dx
                 state.initial_position.y = getMod().spawn_y_1 + dy
-            if agent.get_team() == 2:
+            if agent.get_team() == 1:
                 state.initial_position.x = getMod().spawn_x_2 + dx
                 state.initial_position.y = getMod().spawn_y_2 + dy
             agent.state.position = copy(state.initial_position)
@@ -151,8 +151,7 @@ class NeroEnvironment(Environment):
         """
         friend = []
         foe = []
-        other = 1
-        if agent.get_team() == 1: other = 2
+        other = abs(1-agent.get_team())
         if agent.get_team() in self.teams:
             friend = self.teams[agent.get_team()]
         if other in self.teams:
@@ -226,17 +225,17 @@ class NeroEnvironment(Environment):
         # Spawn more agents if there are more to spawn
         # TODO: don't spawn more than the initial team size
         
+        if get_ai("rtneat0").ready():
+            if getMod().getNumToAdd() > 0:
+                dx = randrange(XDIM/20) - XDIM/40
+                dy = randrange(XDIM/20) - XDIM/40
+                getMod().addAgent((getMod().spawn_x_1 + dx, getMod().spawn_y_1 + dy, 2),OBJECT_TYPE_TEAM_0)
+        
         if get_ai("rtneat1").ready():
             if getMod().getNumToAdd() > 0:
                 dx = randrange(XDIM/20) - XDIM/40
                 dy = randrange(XDIM/20) - XDIM/40
-                getMod().addAgent((getMod().spawn_x_1 + dx, getMod().spawn_y_1 + dy, 2),1)
-        
-        if get_ai("rtneat2").ready():
-            if getMod().getNumToAdd() > 0:
-                dx = randrange(XDIM/20) - XDIM/40
-                dy = randrange(XDIM/20) - XDIM/40
-                getMod().addAgent((getMod().spawn_x_2 + dx, getMod().spawn_y_2 + dy, 2),2)
+                getMod().addAgent((getMod().spawn_x_2 + dx, getMod().spawn_y_2 + dy, 2),OBJECT_TYPE_TEAM_1)
 
         # Update Damage totals
         state.total_damage += state.curr_damage
@@ -273,16 +272,23 @@ class NeroEnvironment(Environment):
         # calculate if we hit anyone
         hit = 0
         data = self.target(agent)
-        if data != None:#len(data) > 0:
-            objects = getSimContext().findInRay(position,data.state.position, OBJECT_TYPE_AGENT & OBJECT_TYPE_OBSTACLE ,True)
-            if len(objects) > 0: sim = objects[0]
-            else: sim = data
-            if len(objects) == 0 or objects[0] == sim:
+        if data != None:
+            if agent.state.type == OBJECT_TYPE_TEAM_0:
+                other_type = OBJECT_TYPE_TEAM_1
+            elif agent.state.type == OBJECT_TYPE_TEAM_1:
+                other_type = OBJECT_TYPE_TEAM_0
+            fire_from = copy(position)
+            fire_at = copy(data.state.position)
+            fire_from.z += 4
+            fire_at.z += 4
+            objects = getSimContext().findInRay(fire_from, fire_at, other_type | OBJECT_TYPE_OBSTACLE, True)
+            if len(objects) > 0 and objects[0].type & other_type:
+                print 'agent id:', agent.state.id, 'type:', agent.state.type, 'fired at:',data.state.id,'of type:', data.state.type, 'hit:', objects[0].id, 'of type:', objects[0].type
                 target = self.get_state(data)
                 if target != -1:
                     target.curr_damage += 1
                     hit = 1
-        
+
         # calculate friend/foe
         ffr = self.getFriendFoe(agent)
         if ffr[0] == ffr[1]: assert(false)

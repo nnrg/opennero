@@ -69,7 +69,7 @@ class NeroModule:
         self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag", type = OBJECT_TYPE_FLAG)
 
     def place_basic_turret(self, loc):
-        addObject("data/shapes/character/steve_basic_turret.xml",Vector3f(loc[0],loc[1],loc[2]),type = OBJECT_TYPE_AGENT + OBJECT_TYPE_TEAM_1)
+        addObject("data/shapes/character/steve_basic_turret.xml",Vector3f(loc[0],loc[1],loc[2]),type = OBJECT_TYPE_TEAM_1)
 
     #The following is run when the Deploy button is pressed
     def start_rtneat(self):
@@ -79,12 +79,12 @@ class NeroModule:
         dy = random.randrange(XDIM/20) - XDIM/40
         dx = random.randrange(XDIM/20) - XDIM/40
         dy = random.randrange(XDIM/20) - XDIM/40
-        self.addAgent((self.spawn_x_1 + dx, self.spawn_y_1 + dy, 2),1)
+        self.addAgent((self.spawn_x_1 + dx, self.spawn_y_1 + dy, 2),OBJECT_TYPE_TEAM_0)
         dx = random.randrange(XDIM/20) - XDIM/40
         dy = random.randrange(XDIM/20) - XDIM/40
         dx = random.randrange(XDIM/20) - XDIM/40
         dy = random.randrange(XDIM/20) - XDIM/40
-        self.addAgent((self.spawn_x_2 + dx, self.spawn_y_2 + dy, 2),2)
+        self.addAgent((self.spawn_x_2 + dx, self.spawn_y_2 + dy, 2),OBJECT_TYPE_TEAM_1)
         enable_ai()
         self.num_to_add -= 1
 
@@ -100,10 +100,10 @@ class NeroModule:
         global rtneat
         location = os.path.relpath("/") + location
         if os.path.exists(location):
-            print get_ai("rtneat1"), get_ai("rtneat2")
+            print get_ai("rtneat0"), get_ai("rtneat1")
             rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size, get_environment().agent_info.reward)
             set_ai("rtneat" + str(pop),rtneat)
-            print get_ai("rtneat1"), get_ai("rtneat2")
+            print get_ai("rtneat0"), get_ai("rtneat1")
     
     def set_speedup(self, speedup):
         self.speedup = speedup
@@ -168,12 +168,14 @@ class NeroModule:
     def addAgent(self,pos, team):
         self.num_to_add -= 1
         self.curr_team = team
-        if team == 1: 
-            print "spawning team 1"
-            addObject("data/shapes/character/steve_blue_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = OBJECT_TYPE_AGENT + OBJECT_TYPE_TEAM_0)
+        if team == OBJECT_TYPE_TEAM_0: 
+            print "spawning team",team
+            addObject("data/shapes/character/steve_blue_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = OBJECT_TYPE_TEAM_0)
+        elif team == OBJECT_TYPE_TEAM_1:
+            print "spawning team",team
+            addObject("data/shapes/character/steve_red_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = OBJECT_TYPE_TEAM_1)
         else:
-            print "spawning team 2"
-            addObject("data/shapes/character/steve_red_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = OBJECT_TYPE_AGENT + OBJECT_TYPE_TEAM_0)
+            assert(false)
 
 gMod = None
 
