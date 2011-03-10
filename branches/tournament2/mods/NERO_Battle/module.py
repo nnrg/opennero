@@ -100,8 +100,10 @@ class NeroModule:
         global rtneat
         location = os.path.relpath("/") + location
         if os.path.exists(location):
-            rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size)
-            set_ai("rtneat" + pop,rtneat)
+            print get_ai("rtneat1"), get_ai("rtneat2")
+            rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size, get_environment().agent_info.reward)
+            set_ai("rtneat" + str(pop),rtneat)
+            print get_ai("rtneat1"), get_ai("rtneat2")
     
     def set_speedup(self, speedup):
         self.speedup = speedup
