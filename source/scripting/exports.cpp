@@ -355,7 +355,9 @@ namespace OpenNero {
                 .def("has_organism", &RTNEAT::has_organism, "return true iff RTNEAT has an organism for this agent")
                 .def("set_weight", &RTNEAT::set_weight, "set weight i to value f")
                 .def("set_lifetime", &RTNEAT::set_lifetime, "set the lifetime of an agent")
-				.def("save_population", &RTNEAT::save_population, "save the population to a file");
+				.def("save_population", &RTNEAT::save_population, "save the population to a file")
+                .def("enable_evolution", &RTNEAT::enable_evolution, "turn evolution on")
+                .def("disable_evolution", &RTNEAT::disable_evolution, "turn evolution off");
 		}
 
 		/// the pickling suite for the Vector class
