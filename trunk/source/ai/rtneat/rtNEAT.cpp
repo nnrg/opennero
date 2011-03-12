@@ -56,6 +56,7 @@ namespace OpenNero
         , mTimeBetweenEvolutions(NEAT::time_alive_minimum)
         , mRewardInfo(reward_info)
         , mFitnessWeights(reward_info.size())
+        , mEvolutionEnabled(true)
     {
         NEAT::load_neat_params(Kernel::findResource(param_file));
         NEAT::pop_size = population_size;
@@ -96,6 +97,7 @@ namespace OpenNero
         , mTimeBetweenEvolutions(NEAT::time_alive_minimum)
         , mRewardInfo(reward_info)
         , mFitnessWeights(reward_info.size())
+        , mEvolutionEnabled(true)
     {
         NEAT::load_neat_params(Kernel::findResource(param_file));
         NEAT::pop_size = population_size;
@@ -187,8 +189,10 @@ namespace OpenNero
     
     void RTNEAT::deleteUnit(PyOrganismPtr brain)
     {
-        // Push the brain onto the back of the waiting brain queue
-        mWaitingBrainList.push(brain);
+        if (mEvolutionEnabled) {
+            // Push the brain onto the back of the waiting brain queue
+            mWaitingBrainList.push(brain);
+        }
 
         // get the body that belongs to this brain
         BrainBodyMap::right_map::const_iterator found = mBrainBodyMap.right.find(brain);
@@ -213,31 +217,17 @@ namespace OpenNero
 		++mSpawnTickCount;
 		++mEvolutionTickCount;
 
-        // iterate through the body id's and check to see if they have died
-        // if they have, we need to remove them from the books and put their
-        // brains back into the evaluation queue
-        // TODO: this is not needed in OpenNERO
-        BrainBodyMap::left_map::const_iterator iter = mBrainBodyMap.left.begin();
-        BrainBodyMap::left_map::const_iterator iend = mBrainBodyMap.left.end();
-        while (iter != iend)
-        {
-            AIObjectPtr body = iter->first;
-            PyOrganismPtr brain = iter->second;
-            brain->mStats.tally(body->getReward());
-            SimEntityPtr found = Kernel::instance().GetSimContext()->getSimulation()->Find(body->GetId());
-            ++iter; // iterate first, deleteUnit may invalidate our pointer by changing BBM!
-            if (!found) {
-                //deleteUnit(brain);
-				AssertMsg(false, "We should never falsely believe a body is in the sim");
-            }
+        if (mEvolutionEnabled) {
+            // Evaluate all brains' scores
+            evaluateAll();
         }
-
-        // Evaluate all brains' scores
-        evaluateAll();
 
         // If the total number of units spawned so far exceeds the threshold value AND enough
         // ticks have passed since the last evolution, then a new evolution may commence.
-        if (mTotalUnitsDeleted >= mUnitsToDeleteBeforeFirstJudgment && mEvolutionTickCount >= mTimeBetweenEvolutions) {
+        if (mEvolutionEnabled
+            && mTotalUnitsDeleted >= mUnitsToDeleteBeforeFirstJudgment
+            && mEvolutionTickCount >= mTimeBetweenEvolutions)
+        {
             //Judgment day!
             evolveAll();
             mEvolutionTickCount = 0;

@@ -1,12 +1,11 @@
 from OpenNero import *
 import random
 from time import time
-from Battle.constants import *
-
-FITNESS_OUT = False
+from constants import *
+from math import *
 
 def gettime():
-	return time() 
+    return time() 
 
 class RTNEATAgent(AgentBrain):
     """
@@ -16,66 +15,58 @@ class RTNEATAgent(AgentBrain):
         """
         Create an agent brain
         """
-        # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
+        # this line is crucial, otherwise the class is not recognized as an 
+        # AgentBrainPtr by C++
         AgentBrain.__init__(self)
+        from NERO_Battle.module import getMod
+        team_type = getMod().curr_team
+        if team_type == OBJECT_TYPE_TEAM_0:
+            self.team = 0
+        elif team_type == OBJECT_TYPE_TEAM_1:
+            self.team = 1
 
     def initialize(self, init_info):
         """
         Initialize an agent brain with sensor information
         """
-        from Battle.module import getMod;
         self.actions = init_info.actions # constraints for actions
         self.sensors = init_info.sensors # constraints for sensors
-        self.team = getMod().currTeam #Team ID
+        self.group = "Agent"
         return True
 
-    def get_rtneat(self):
-        return get_ai("neat%d" % self.team)
+    def get_org(self):
+        """
+        Returns the rtNEAT object for this agent
+        """
+        rtneat = get_ai("rtneat" + str(self.team))
+        return rtneat.get_organism(self)
+    
+    def display_health(self, h):
+        # the reward in battle tells us how much life we have left
+        # it is a value between 0 (no health) and 1 (full health)
+        # so we display it as a label consisting of round(r*10) characters
+        self.state.label = ''.join(['.' for x in range(round(h*10))])
 
     def start(self, time, sensors):
         """
         start of an episode
         """
-        from Battle.module import getMod
-        print "a brand new organism"
-        EXPLOIT_PROB = getMod().ee
-        rtneat = get_ai("neat%d" % self.team)
-        self.org = rtneat.next_organism(EXPLOIT_PROB)
-        self.state.label = "%.02f" % self.org.fitness
-        if FITNESS_OUT:    
-            self.file_out = []
-            self.file_out.append(str(gettime()))
-            self.file_out.append(",")
-        self.net = self.org.net
-        self.reward = 0
+        self.display_health(1)
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
         """
         a state transition
         """
-        self.reward += reward # store reward        
-        # return action
+        self.display_health(reward[0])
         return self.network_action(sensors)
 
     def end(self, time, reward):
         """
         end of an episode
         """
-        if FITNESS_OUT:
-            self.file_out.append(str(gettime()))
-            self.file_out.append(",")
-        self.reward += reward # store reward
-        self.org.fitness = self.reward # assign organism fitness for evolution
-        self.org.time_alive += 1
-        if FITNESS_OUT:
-            self.file_out.append(str(self.reward))
-            self.file_out.append('\n')
-            strn = "".join(self.file_out)
-            f = open('output.out' + str(self.team),'a')
-            f.write(strn)
-        #assert(self.org.fitness >= 0) # we have to have a non-negative fitness for rtNEAT to work
-        print  "Final reward: %f, cumulative: %f" % (reward, self.reward)
+        self.display_health(reward[0])
+        get_ai("rtneat" + str(self.team)).release_organism(self)
         return True
 
     def destroy(self):
@@ -84,10 +75,6 @@ class RTNEATAgent(AgentBrain):
         """
         return True
         
-    #TODO: REPLACE THIS WITH get_team
-    def getTeam(self):
-        return self.team
-   
     def get_team(self):
         return self.team
 
@@ -98,18 +85,26 @@ class RTNEATAgent(AgentBrain):
         Activate the network to produce the output
         Collect and interpret the outputs as valid maze actions
         """
+        # make sure we have the right number of sensors
+        assert(len(sensors)==N_SENSORS)
         # convert the sensors into the [0.0, 1.0] range
         sensors = self.sensors.normalize(sensors)
         # create the list of sensors
-        inputs = [sensor for sensor in sensors]
+        inputs = [sensor for sensor in sensors]        
         # add the bias value
         inputs.append(NEAT_BIAS)
+        # get the current organism we are using
+        org = self.get_org()
+        # increment the lifetime counter
+        org.time_alive += 1
+        # get the current network we are using
+        net = org.net
         # load the list of sensors into the network input layer
-        self.net.load_sensors(inputs)
+        net.load_sensors(inputs)
         # activate the network
-        self.net.activate()
+        net.activate()
         # get the list of network outputs
-        outputs = self.net.get_outputs()
+        outputs = net.get_outputs()
         # create a C++ vector for action values
         actions = self.actions.get_instance()
         # assign network outputs to action vector
@@ -117,4 +112,5 @@ class RTNEATAgent(AgentBrain):
             actions[i] = outputs[i]
         # convert the action vector back from [0.0, 1.0] range
         actions = self.actions.denormalize(actions)
+        #print "in:", inputs, "out:", outputs, "a:", actions
         return actions

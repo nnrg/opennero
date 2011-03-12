@@ -47,6 +47,7 @@ namespace OpenNero
         size_t mTimeBetweenEvolutions;    ///< time (in ticks) between rounds of evolution
         RewardInfo mRewardInfo; ///< the constraints that describe the per-step rewards
         FeatureVector mFitnessWeights; ///< fitness weights
+        bool mEvolutionEnabled; ///< whether the evolution is enabled
         
     public:
         /// Constructor
@@ -106,6 +107,15 @@ namespace OpenNero
         /// set the lifetime so that we can ensure that the units have been alive
         /// at least that long before evaluating them
         void set_lifetime(size_t lifetime);
+        
+        /// enable or disable evolution
+        /// @{
+        void enable_evolution() { mEvolutionEnabled = true; }
+        void disable_evolution() { mEvolutionEnabled = false; }
+        /// @}
+        
+        /// check if the evolution is enabled
+        bool is_evolution_enabled() const { return mEvolutionEnabled; }
         
         /// load info about this AI from the object template
         bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data) { return true; }
