@@ -56,7 +56,7 @@
 
 // breakpoint insertion
 #if NERO_PLATFORM_WINDOWS
-#if defined(_WIN64)	
+#if !defined(_WIN64)	
     #define NERO_BREAK __asm int 3
 #else
     #define NERO_BREAK
