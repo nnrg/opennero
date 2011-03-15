@@ -43,7 +43,11 @@ namespace OpenNero
     std::string ConvertNeroToSystemPath( const std::string& pathName )
     {
         fs::path p(pathName);
-        return p.generic_string();
+#if (BOOST_VERSION / 100 % 1000 < 46)
+        return p.native_directory_string();
+#else
+		return p.generic_string();
+#endif
     }
 
     /// Check for the existence of a file at a given path
