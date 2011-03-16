@@ -142,8 +142,12 @@ namespace OpenNero
         SimIdHashMap::const_iterator end = entities_to_tick.end();
         
         for( ; itr != end; ++itr ) {
-            AssertMsg( itr->second, "Attempting to process an invalid SimEntity with id: " << itr->first);
-            itr->second->ProcessTick(dt);
+			SimEntityPtr ent = itr->second;
+			bool was_removed = mRemoveSet.find(itr->first) != mRemoveSet.end();
+			if (!was_removed)
+			{
+				ent->ProcessTick(dt); // tick only if not removed
+			}
         }
         
         // the last step is to remove all the objects that were scheduled during the ticks
