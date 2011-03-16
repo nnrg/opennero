@@ -9,7 +9,9 @@
 #include "game/Kernel.h"
 #include "scripting/scripting.h"
 #include "tclap/CmdLine.h"
+#include "math/Random.h"
 #include <iostream>
+#include <sstream>
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
@@ -114,6 +116,13 @@ namespace OpenNero
             StencilBuffer = argStencilBuffer.getValue();
             VSync = argVSync.getValue();
             RandomSeeds = argRandomSeeds.getValue();
+
+			stringstream ss;
+			ss << RandomSeeds;
+			uint32_t first_seed;
+			ss >> first_seed;
+
+			RANDOM.seed(first_seed);
 
             return true;
         } catch (TCLAP::ArgException& e) {
