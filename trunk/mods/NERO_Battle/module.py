@@ -102,6 +102,11 @@ class NeroModule:
         if os.path.exists(location):
             print get_ai("rtneat0"), get_ai("rtneat1")
             rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size, get_environment().agent_info.reward)
+            # set the initial lifetime
+            # in Battle, the lifetime is basically infinite, unless they get killed
+            lifetime = sys.maxint
+            rtneat.set_lifetime(lifetime)
+            rtneat.disable_evolution()
             set_ai("rtneat" + str(pop),rtneat)
             print get_ai("rtneat0"), get_ai("rtneat1")
     
