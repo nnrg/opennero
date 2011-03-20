@@ -50,10 +50,10 @@ class NeroModule:
         self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag", type = OBJECT_TYPE_FLAG)
 
         # world walls
-        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2,0,HEIGHT+OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall0", type = OBJECT_TYPE_OBSTACLE  )
-        addObject("data/shapes/cube/Cube.xml", Vector3f(0, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall1", type = OBJECT_TYPE_OBSTACLE  )
-        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(1,YDIM,HEIGHT), label="World Wall2", type = OBJECT_TYPE_OBSTACLE  )
-        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM, HEIGHT +OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall3", type = OBJECT_TYPE_OBSTACLE  )
+        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2,0,HEIGHT+OFFSET), Vector3f(0, 0, 90), scale=Vector3f(10,XDIM,HEIGHT), label="World Wall0", type = OBJECT_TYPE_OBSTACLE  )
+        addObject("data/shapes/cube/Cube.xml", Vector3f(0, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(10,YDIM,HEIGHT), label="World Wall1", type = OBJECT_TYPE_OBSTACLE  )
+        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 0), scale=Vector3f(10,YDIM,HEIGHT), label="World Wall2", type = OBJECT_TYPE_OBSTACLE  )
+        addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM, HEIGHT +OFFSET), Vector3f(0, 0, 90), scale=Vector3f(10,XDIM,HEIGHT), label="World Wall3", type = OBJECT_TYPE_OBSTACLE  )
         # addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2, YDIM/2, HEIGHT + OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1, YDIM,HEIGHT), label="World Wall4", type = OBJECT_TYPE_OBSTACLE )
 
         # Add the surrounding Environment
@@ -211,10 +211,10 @@ def parseInput(strn):
     if loc == "EE": mod.eeChange(vali)
     if loc == "HP": mod.hpChange(vali)
     if loc == "SP": mod.set_speedup(vali)
-    if loc == "save1": mod.save_rtneat(val,1)
-    if loc == "load1": mod.load_rtneat(val,1)
-    if loc == "save2": mod.save_rtneat(val,2)
-    if loc == "load2": mod.load_rtneat(val,2)
+    if loc == "save1": mod.save_rtneat(val,0)
+    if loc == "load1": mod.load_rtneat(val,0)
+    if loc == "save2": mod.save_rtneat(val,1)
+    if loc == "load2": mod.load_rtneat(val,1)
     if loc == "deploy": toggle_ai_callback()
 
 def ServerMain():

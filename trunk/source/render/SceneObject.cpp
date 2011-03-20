@@ -706,10 +706,18 @@ namespace OpenNero
         // get the axis-aligned bounding boxes for both objects
         BBoxf my_box = mSceneNode->getTransformedBoundingBox(); // our irr a.a.b. box
         BBoxf other_box = other->mSceneNode->getTransformedBoundingBox(); // their irr a.a.b. box
+        
+        Vector3f my_prev_irr_rot(ConvertNeroToIrrlichtRotation(getRotation()));
+        Assert(GetSharedState());
+        Vector3f my_irr_rot(ConvertNeroToIrrlichtRotation(GetSharedState()->GetRotation()));
 
         Matrix4 translation;
         translation.setTranslation(my_irr_movement.getVector());
         translation.transformBox(my_box);
+        
+        Matrix4 rotation;
+        rotation.setRotationDegrees(my_irr_rot - my_prev_irr_rot);
+        rotation.transformBox(my_box);
         
         // check if our movement line crosses the bounding box of the other object
         if (other_box.intersectsWithLine(my_irr_movement))
@@ -911,6 +919,12 @@ namespace OpenNero
     {
         Assert( mSceneNode );
         return ConvertIrrlichtToNeroPosition(mSceneNode->getPosition());
+    }
+    
+    Vector3f SceneObject::getRotation() const
+    {
+        Assert( mSceneNode );
+        return ConvertIrrlichtToNeroRotation(mSceneNode->getRotation());
     }
 
     void SceneObject::attachCamera( CameraPtr cam )

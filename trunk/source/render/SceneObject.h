@@ -159,6 +159,9 @@ namespace OpenNero
         /// get object position
         Vector3f getPosition() const;
         
+        /// get object rotation
+        Vector3f getRotation() const;
+        
         /// are we colliding with the other object?
         bool isColliding(const Vector3f& new_pos, const SceneObjectPtr& other);
         
