@@ -185,4 +185,9 @@ namespace OpenNero
             LOG_MSG( "Cannot find the log config file, listening to all messages by default." );
         }
     }
+
+    const AppConfig& GetAppConfig()
+    {
+        Kernel::instance().getAppConfig();
+    }
 }; // end OpenNero

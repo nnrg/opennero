@@ -1066,7 +1066,7 @@ namespace OpenNero {
                 ;
             
             // this is how Python can access the C++ reference to SimContext
-            py::def("getSimContext", &GetSimContext, return_value_policy<reference_existing_object>());
+            py::def("getSimContext", &GetSimContext, return_value_policy<reference_existing_object>());            
         }
 
         /// Python Binder Method for the IOMap
@@ -1104,9 +1104,31 @@ namespace OpenNero {
                      "Attach to sim object by id" )
                 ;
         }
+
+        void ExportAppConfigScripts()
+        {
+            py::class_<AppConfig>("AppConfig", no_init)
+                .def_readonly("title", &AppConfig::Title)
+                .def_readonly("logfile", &AppConfig::LogFile)
+                .def_readonly("logconfigfile", &AppConfig::LogConfigFile)
+                .def_readonly("rendertype", &AppConfig::RenderType)
+                .def_readonly("startmod", &AppConfig::StartMod)
+                .def_readonly("startmoddir", &AppConfig::StartModDir)
+                .def_readonly("startcommand", &AppConfig::StartCommand)
+                .def_readonly("width", &AppConfig::Width)
+                .def_readonly("height", &AppConfig::Height)
+                .def_readonly("bpp", &AppConfig::BPP)
+                .def_readonly("fullscreen", &AppConfig::FullScreen)
+                .def_readonly("stencilbufer", &AppConfig::StencilBuffer)
+                .def_readonly("randomseeds", &AppConfig::RandomSeeds)
+                ;
+
+            py::def("getAppConfig", &GetAppConfig, return_value_policy<reference_existing_object>());            
+        }
         
         void ExportScripts() 
         {
+            ExportAppConfigScripts();
             ExportAIScripts();
             ExportAIManagerScripts();
             ExportAgentBrainScripts();
