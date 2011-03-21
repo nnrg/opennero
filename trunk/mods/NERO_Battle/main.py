@@ -5,22 +5,25 @@ from OpenNero import *
 
 import time
 
-def ModMain():
-    ClientMain()
-
-script_server = GetScriptServer()
+#script_server = GetScriptServer()
+script_server = None
 start_time = time.time()
 time_limit = None
 
+def ModMain():
+    ClientMain()
+
 def ModTick(dt):
     global time_limit, start_time
-    startScript("NERO_Battle/menu.py")
-    data = script_server.read_data()
-    while data:
-        parseInput(data.strip())
+    if script_server:
+        startScript("NERO_Battle/menu.py")
         data = script_server.read_data()
+        while data:
+            parseInput(data.strip())
+            data = script_server.read_data()
     if time_limit and time_limit < (time.time() - start_time):
         disable_ai()
+        getSimContext().killGame()
 
 def Fight1(team1, team2, timelimit = 5):
     global time_limit, start_time

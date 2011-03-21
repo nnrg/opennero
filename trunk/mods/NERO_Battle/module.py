@@ -40,7 +40,7 @@ class NeroModule:
             error("Environment already created")
             return
         
-        startScript('NERO_Battle/menu.py')
+        #startScript('NERO_Battle/menu.py')
         
         # create the environment - this also creates the rtNEAT object
         self.environment = NeroEnvironment()
