@@ -12,7 +12,7 @@ MAX_MOVEMENT_SPEED = 12
 MAX_VISION_RADIUS = 300
 
 # Population size
-pop_size = 40
+pop_size = 20
 
 # number of steps per lifetime
 lifetime = sys.maxint

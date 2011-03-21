@@ -1,20 +1,32 @@
 #import all client and server scripts
 from NERO_Battle.module import *
 from NERO_Battle.client import *
+from OpenNero import *
+
+import time
 
 def ModMain():
     ClientMain()
 
 script_server = GetScriptServer()
+start_time = time.time()
+time_limit = None
 
 def ModTick(dt):
+    global time_limit, start_time
     startScript("NERO_Battle/menu.py")
     data = script_server.read_data()
     while data:
         parseInput(data.strip())
         data = script_server.read_data()
+    if time_limit and time_limit < (time.time() - start_time):
+        disable_ai()
 
 def Fight1(team1, team2, timelimit = 5):
+    global time_limit, start_time
+    if timelimit:
+        start_time = time.time()
+        time_limit = timelimit * 60
     getMod().change_flag([XDIM/2, YDIM/2, HEIGHT])
     getMod().set_spawn_1(XDIM/2, 0.20 * YDIM)
     getMod().set_spawn_2(XDIM/2, 0.80 * YDIM)
@@ -23,6 +35,10 @@ def Fight1(team1, team2, timelimit = 5):
     toggle_ai_callback()
     
 def Fight2(team1, team2, timelimit = 5):
+    global time_limit, start_time
+    if timelimit:
+        start_time = time.time()
+        time_limit = timelimit * 60
     addObject("data/shapes/cube/Cube.xml", 
               Vector3f(XDIM/2, YDIM/2, HEIGHT + OFFSET), 
               Vector3f(0, 0, 90), 
@@ -37,6 +53,10 @@ def Fight2(team1, team2, timelimit = 5):
     toggle_ai_callback()
     
 def Fight3(team1, team2, timelimit = 5):
+    global time_limit, start_time
+    if timelimit:
+        start_time = time.time()
+        time_limit = timelimit * 60
     getMod().change_flag([XDIM/2, YDIM/2, HEIGHT])
     getMod().set_spawn_1(XDIM/2, 0.20 * YDIM)
     getMod().set_spawn_2(XDIM/2, 0.80 * YDIM)
