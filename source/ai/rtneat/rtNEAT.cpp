@@ -145,6 +145,7 @@ namespace OpenNero
         }
         else
         {
+            AssertMsg(ready(), "an agent requested an rtNEAT network, but all networks are already in use!");
             PyOrganismPtr brain = mWaitingBrainList.front();
             mWaitingBrainList.pop();
             mBrainBodyMap.insert(BrainBodyMap::value_type(agent->GetBody(), brain));

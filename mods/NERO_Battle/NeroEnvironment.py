@@ -193,6 +193,9 @@ class NeroEnvironment(Environment):
 
         return top
 
+    blue_score = None
+    red_score = None
+
     def step(self, agent, action):
         """
         2A step for an agent
@@ -202,12 +205,18 @@ class NeroEnvironment(Environment):
         assert(self.agent_info.actions.validate(action))
         
         state = self.get_state(agent)
-        
-        if 1 in self.teams and len(self.teams[1]) == 0:
-            print "Team 2 Wins!!"
+        if len(self.teams) == 2:
+            b = len(self.teams[0])
+            r = len(self.teams[1])
+            if b != NeroEnvironment.blue_score or r != NeroEnvironment.red_score:
+                NeroEnvironment.blue_score = b
+                NeroEnvironment.red_score = r
+                print 'Blue Team Score:', b, 'Red Team Score:', r
+        if 0 in self.teams and len(self.teams[0]) == 0:
+            print "Red Team Wins!!"
             disable_ai()
-        if 2 in self.teams and len(self.teams[2]) == 0:
-            print "Team 1 Wins!!"
+        if 1 in self.teams and len(self.teams[1]) == 0:
+            print "Blue Team Wins!!"
             disable_ai()
         
         # get the reward
@@ -226,16 +235,14 @@ class NeroEnvironment(Environment):
         # TODO: don't spawn more than the initial team size
         
         if get_ai("rtneat0").ready():
-            if getMod().getNumToAdd() > 0:
-                dx = randrange(XDIM/20) - XDIM/40
-                dy = randrange(XDIM/20) - XDIM/40
-                getMod().addAgent((getMod().spawn_x_1 + dx, getMod().spawn_y_1 + dy, 2),OBJECT_TYPE_TEAM_0)
+            dx = randrange(XDIM/20) - XDIM/40
+            dy = randrange(XDIM/20) - XDIM/40
+            getMod().addAgent((getMod().spawn_x_1 + dx, getMod().spawn_y_1 + dy, 2),OBJECT_TYPE_TEAM_0)
         
         if get_ai("rtneat1").ready():
-            if getMod().getNumToAdd() > 0:
-                dx = randrange(XDIM/20) - XDIM/40
-                dy = randrange(XDIM/20) - XDIM/40
-                getMod().addAgent((getMod().spawn_x_2 + dx, getMod().spawn_y_2 + dy, 2),OBJECT_TYPE_TEAM_1)
+            dx = randrange(XDIM/20) - XDIM/40
+            dy = randrange(XDIM/20) - XDIM/40
+            getMod().addAgent((getMod().spawn_x_2 + dx, getMod().spawn_y_2 + dy, 2),OBJECT_TYPE_TEAM_1)
 
         # Update Damage totals
         state.total_damage += state.curr_damage

@@ -23,7 +23,8 @@ class NeroModule:
         self.hp = 10
         self.flag_loc = Vector3f(0,0,0)
         self.flag_id = -1
-        self.num_to_add = pop_size
+        self.team0count = 0
+        self.team1count = 0
         (self.spawn_x_1,self.spawn_y_1) = (XDIM/2, YDIM/3)
         (self.spawn_x_2,self.spawn_y_2) = (XDIM/2, 2*YDIM/3)
 
@@ -86,7 +87,6 @@ class NeroModule:
         dy = random.randrange(XDIM/20) - XDIM/40
         self.addAgent((self.spawn_x_2 + dx, self.spawn_y_2 + dy, 2),OBJECT_TYPE_TEAM_1)
         enable_ai()
-        self.num_to_add -= 1
 
     #The following is run when the Save button is pressed
     def save_rtneat(self, location, pop):
@@ -166,21 +166,17 @@ class NeroModule:
         self.hp = value
         print 'Hit points:',value
 
-    def getNumToAdd(self):
-        return self.num_to_add
-
     #This is the function ran when an agent already in the field causes the generation of a new agent
     def addAgent(self,pos, team):
-        self.num_to_add -= 1
         self.curr_team = team
-        if team == OBJECT_TYPE_TEAM_0: 
+        if team == OBJECT_TYPE_TEAM_0 and self.team0count < pop_size: 
             print "spawning team",team
             addObject("data/shapes/character/steve_blue_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = OBJECT_TYPE_TEAM_0)
-        elif team == OBJECT_TYPE_TEAM_1:
+            self.team0count += 1
+        elif team == OBJECT_TYPE_TEAM_1 and self.team1count < pop_size:
             print "spawning team",team
             addObject("data/shapes/character/steve_red_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = OBJECT_TYPE_TEAM_1)
-        else:
-            assert(false)
+            self.team1count += 1
 
 gMod = None
 
