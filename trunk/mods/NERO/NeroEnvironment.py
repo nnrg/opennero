@@ -264,7 +264,7 @@ class NeroEnvironment(Environment):
         hit = 0
         data = self.target(agent)
         if data != None:#len(data) > 0:
-            objects = getSimContext().findInRay(position,data.state.position, OBJECT_TYPE_AGENT & OBJECT_TYPE_OBSTACLE ,True)
+            objects = getSimContext().findInRay(position,data.state.position, OBJECT_TYPE_OBSTACLE | OBJECT_TYPE_TEAM_0 | OBJECT_TYPE_TEAM_1, True)
             if len(objects) > 0: sim = objects[0]
             else: sim = data
             if len(objects) == 0 or objects[0] == sim:

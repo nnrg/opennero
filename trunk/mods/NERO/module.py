@@ -68,7 +68,7 @@ class NeroModule:
         self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag", type = OBJECT_TYPE_FLAG)
 
     def place_basic_turret(self, loc):
-        addObject("data/shapes/character/steve_basic_turret.xml",Vector3f(loc[0],loc[1],loc[2]),type = OBJECT_TYPE_AGENT + OBJECT_TYPE_TEAM_1)
+        addObject("data/shapes/character/steve_basic_turret.xml",Vector3f(loc[0],loc[1],loc[2]),type = OBJECT_TYPE_TEAM_1)
 
     #The following is run when the Deploy button is pressed
     def start_rtneat(self):
@@ -78,7 +78,7 @@ class NeroModule:
         dy = random.randrange(XDIM/20) - XDIM/40
         dx = random.randrange(XDIM/20) - XDIM/40
         dy = random.randrange(XDIM/20) - XDIM/40
-        id = addObject("data/shapes/character/steve_blue_armed.xml",Vector3f(self.spawn_x + dx,self.spawn_y + dy,2),type = OBJECT_TYPE_AGENT + OBJECT_TYPE_TEAM_0)
+        id = addObject("data/shapes/character/steve_blue_armed.xml",Vector3f(self.spawn_x + dx,self.spawn_y + dy,2),type = OBJECT_TYPE_TEAM_0)
         enable_ai()
         self.num_to_add -= 1
 
@@ -153,7 +153,7 @@ class NeroModule:
     #This is the function ran when an agent already in the field causes the generation of a new agent
     def addAgent(self,pos):
         self.num_to_add -= 1
-        addObject("data/shapes/character/steve_blue_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = OBJECT_TYPE_AGENT + OBJECT_TYPE_TEAM_0)
+        addObject("data/shapes/character/steve_blue_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = OBJECT_TYPE_TEAM_0)
 
 gMod = None
 
