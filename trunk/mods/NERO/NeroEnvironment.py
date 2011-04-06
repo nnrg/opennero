@@ -39,7 +39,7 @@ class NeroEnvironment(Environment):
         Environment.__init__(self) 
         
         self.curr_id = 0
-        self.step_delay = 0.25 # time between steps in seconds
+        self.step_delay = 1.0#0.25 # time between steps in seconds
         self.max_steps = 20
         self.time = time.time()
         self.MAX_DIST = hypot(XDIM, YDIM)
@@ -412,7 +412,30 @@ class NeroEnvironment(Environment):
     
     def is_active(self, agent):
         """ return true when the agent should act """
-        return True
+        state = self.get_state(agent)
+        # interpolate between prev_pose and pose
+        (x1, y1, h1) = state.prev_pose
+        (x2, y2, h2) = state.pose
+        if self.get_delay() != 0 and (x1 != x2 or y1 != y2 or self.get_delay() < time.time() - state.time):
+            fraction = 1.0
+            if self.get_delay() != 0:
+                fraction = min(1.0, float(time.time() - state.time) / self.get_delay())
+            pos = agent.state.position
+            pos.x = x1 * (1 - fraction) + x2 * fraction
+            pos.y = y1 * (1 - fraction) + y2 * fraction
+            agent.state.position = pos
+            self.set_animation(agent, state, 'run')
+        else:
+            pos = agent.state.position
+            pos.x = x2
+            pos.y = y2
+            agent.state.position = pos
+            self.set_animation(agent, state, 'stand')
+        if time.time() - state.time > self.get_delay():
+            state.time = time.time()
+            return True
+        else:
+            return False
     
     def is_episode_over(self, agent):
         """

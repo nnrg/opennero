@@ -202,7 +202,6 @@ class NeroPanel(wx.Panel, ScriptClient):
         grid.Add(self.hps,pos=(9,2))
         grid.Add(self.hpt,pos=(9,0))
 
-        """
         #Speedup Slider
         self.spt = wx.StaticText(self,label = "Speedup", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.sps = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
@@ -213,7 +212,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_SCROLL, self.OnSP,self.sps)
         grid.Add(self.sps,pos=(10,2))
         grid.Add(self.spt,pos=(10,0))
-        """
+        
 
         self.SetSizer(grid)
         grid.Fit(parent)
