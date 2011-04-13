@@ -47,8 +47,8 @@ class RTNEATAgent(AgentBrain):
         """
         a state transition
         """
+        self.set_display_hint()
         # return action
-        self.state.label = str(self.fitness)
         return self.network_action(sensors)
 
     def end(self, time, reward):
@@ -63,6 +63,32 @@ class RTNEATAgent(AgentBrain):
         the agent brain is discarded
         """
         return True
+        
+    def set_display_hint(self):
+        """
+        set the display hint above the agent's head (toggled with F2)
+        """
+        display_hint = getDisplayHint()
+        if display_hint:
+            org = self.get_org()
+            if display_hint == 'fitness':
+                self.state.label = ' '.join(['%.02g' % x for x in self.fitness])
+            elif display_hint == 'time alive':
+                self.state.label = str(org.time_alive)
+            elif display_hint == 'hit points':
+                self.state.label == 'hit points'
+            elif display_hint == 'genome id':
+                self.state.label = str(org.id)
+            elif display_hint == 'species id':
+                self.state.label = 'species id'
+            elif display_hint == 'champion':
+                self.state.label = 'champion'
+            elif display_hint == 'rank':
+                self.state.label = 'rank'
+            else:
+                self.state.label = '?'
+        else:
+            self.state.label = ""
         
     def get_team(self):
         return self.team

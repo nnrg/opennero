@@ -3,24 +3,25 @@
 *** TODO agents getting embedded in the walls
 *** TODO animation speed (Adam)
 *** TODO pieces off the board
-*** TODO no yellow sensors
+*** DONE no yellow sensors
 *** TODO don't fire if there is a wall in the way
 ** Overhead display
-*** TODO fitnesses
-*** TODO health
-*** TODO genome id #
+*** DONE fitnesses
+*** DONE time alive
+*** TODO hit points
+*** DONE genome id #
 *** TODO species id #
 *** TODO champ
 *** TODO rank
 ** Sensors
-*** TODO Add on-target sensor (offensive), (should not see through walls)
+*** DONE Add on-target sensor (offensive), (should not see through walls)
 *** TODO Add line-of-fire sensor (defensive), (should not see through walls)
 *** TODO Figure out firing mechanics
 Currently missing only if other agents move, combine firing scoring to happen equally for everyone
 depending on orientation of agent, casting ray at it either hits it or not
 *** TODO Need to have artificial firing noise
 ** General bugs
-*** TODO full path for log file crashes
+*** DONE full path for log file crashes
 ** Other general bugs
 | Issue # | Kind   | Priority | Summary                                                 | Tags            |
 |---------+--------+----------+---------------------------------------------------------+-----------------|

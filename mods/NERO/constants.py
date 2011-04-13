@@ -73,7 +73,6 @@ NEAT_BIAS = 0.3
 ### FITNESS CONFIGURATION ###
 #############################
 
-
 FITNESS_STAND_GROUND = "Stand ground"
 FITNESS_STICK_TOGETHER = "Stick together"
 FITNESS_APPROACH_ENEMY = "Approach enemy"
@@ -85,3 +84,15 @@ FITNESS_DIMENSIONS = [FITNESS_STAND_GROUND, FITNESS_STICK_TOGETHER,
     FITNESS_AVOID_FIRE]
 
 FITNESS_INDEX = dict([(f,i) for i,f in enumerate(FITNESS_DIMENSIONS)])
+
+import itertools
+DISPLAY_HINTS = itertools.cycle([None, 'fitness', 'time alive', 'hit points', 'genome id', 'species id', 'champion', 'rank'])
+DISPLAY_HINT = DISPLAY_HINTS.next()
+
+def getDisplayHint():
+    return DISPLAY_HINT
+
+def nextDisplayHint():
+    global DISPLAY_HINT
+    DISPLAY_HINT = DISPLAY_HINTS.next()
+    return DISPLAY_HINT

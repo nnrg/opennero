@@ -653,7 +653,9 @@ namespace OpenNero
             if (!mTextNode)
             {
                 Font* f = Kernel::GetSimContext()->GetFont();
-                mTextNode = GetSceneManager()->addTextSceneNode(f, wstr, SColor(255,128,0,0), mSceneNode, ConvertNeroToIrrlichtPosition(Vector3f(0,0,10)));
+                BBoxf bbox = mSceneNode->getTransformedBoundingBox();
+                float dY = bbox.MaxEdge.Y - bbox.MinEdge.Y;
+                mTextNode = GetSceneManager()->addTextSceneNode(f, wstr, SColor(255,255,255,255), mSceneNode, Vector3f(0,1.25 * dY,0));
             }
             else
             {
