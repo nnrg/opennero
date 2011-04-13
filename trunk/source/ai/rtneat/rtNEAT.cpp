@@ -276,7 +276,7 @@ namespace OpenNero
             }
         }
         
-        LOG_F_DEBUG("ai.rtneat", "brains: " << mBrainList.size() << " active: " << mBrainBodyMap.size() << " waiting: " << mWaitingBrainList.size() << " evaluated: " << evaluated);
+        //LOG_F_DEBUG("ai.rtneat", "brains: " << mBrainList.size() << " active: " << mBrainBodyMap.size() << " waiting: " << mWaitingBrainList.size() << " evaluated: " << evaluated);
         
         if (scoreHelper.getSampleSize() > 0 && evaluated > 0)
         {

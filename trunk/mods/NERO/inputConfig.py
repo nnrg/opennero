@@ -2,6 +2,7 @@ from OpenNero import *
 
 from common.module import openWiki
 from module import delMod
+from constants import *
 
 def switchToHub():
     delMod()
@@ -9,6 +10,9 @@ def switchToHub():
 
 def blank():
     pass
+    
+def toggleDisplayHint():
+    nextDisplayHint()
 
 def createInputMapping():
     from client import show_context_menu, mouse_action, reset_mouse_action
@@ -18,6 +22,7 @@ def createInputMapping():
     ioMap.ClearMappings()
     ioMap.BindKey( "KEY_ESCAPE", "onPress", switchToHub)
     ioMap.BindKey( "KEY_F1", "onPress", openWiki('NeroMod') )
+    ioMap.BindKey( "KEY_F2", "onPress", toggleDisplayHint )
     
     ioMap.BindMouseAction( "moveX", mouse_action)
     ioMap.BindMouseAction( "moveY", mouse_action)
