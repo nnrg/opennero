@@ -39,13 +39,13 @@ class NeroEnvironment(Environment):
         Environment.__init__(self) 
         
         self.curr_id = 0
-        self.step_delay = 1.0#0.25 # time between steps in seconds
+        self.step_delay = 0.1 # delay between AI decisions at speedup of 0
+        self.speedup = 0 # between 0 and 1.0
         self.max_steps = 20
         self.time = time.time()
         self.MAX_DIST = hypot(XDIM, YDIM)
         self.states = {}
         self.teams = {}
-        self.speedup = 0
         
         abound = FeatureVectorInfo() # actions
         sbound = FeatureVectorInfo() # sensors
@@ -308,10 +308,8 @@ class NeroEnvironment(Environment):
         new_position = copy(position)
         new_position.x, new_position.y = new_x, new_y
         
-        # make the calculated motion
-        agent.state.position = new_position
-        rotation.z = new_heading
-        agent.state.rotation = rotation
+        # tell the system to make the calculated motion
+        # this is actually done in is_active() and depends on speedup
         state.prev_pose = state.pose
         state.pose = (new_position.x, new_position.y, rotation.z)
         state.time = time.time()
@@ -416,23 +414,24 @@ class NeroEnvironment(Environment):
         # interpolate between prev_pose and pose
         (x1, y1, h1) = state.prev_pose
         (x2, y2, h2) = state.pose
-        if self.get_delay() != 0 and (x1 != x2 or y1 != y2 or self.get_delay() < time.time() - state.time):
-            fraction = 1.0
-            if self.get_delay() != 0:
-                fraction = min(1.0, float(time.time() - state.time) / self.get_delay())
-            pos = agent.state.position
-            pos.x = x1 * (1 - fraction) + x2 * fraction
-            pos.y = y1 * (1 - fraction) + y2 * fraction
-            agent.state.position = pos
-            self.set_animation(agent, state, 'run')
+        # speedup of 0 means adjust
+        delay = self.step_delay * (1.0 - self.speedup)
+        time_since_last = time.time() - state.time
+        if delay <= time_since_last:
+            f = 1.0
         else:
-            pos = agent.state.position
-            pos.x = x2
-            pos.y = y2
-            agent.state.position = pos
-            self.set_animation(agent, state, 'stand')
-        if time.time() - state.time > self.get_delay():
-            state.time = time.time()
+            f = float(time_since_last) / delay
+            self.set_animation(agent, state, 'run')
+        # f between p1 (0) and p2 (1)
+        x = x1 * (1 - f) + x2 * f
+        y = y1 * (1 - f) + y2 * f
+        h = h1 * (1 - f) + h2 * f
+        # set position and rotation 
+        pos = copy(agent.state.position)
+        pos.x = x
+        pos.y = y
+        agent.state.position = pos
+        if f >= 1.0:
             return True
         else:
             return False
@@ -461,9 +460,3 @@ class NeroEnvironment(Environment):
         """
         killScript('NERO/menu.py')
         return True
-
-    def get_delay(self):
-        """
-        Set simulation delay
-        """
-        return self.step_delay * (1.0 - self.speedup)
