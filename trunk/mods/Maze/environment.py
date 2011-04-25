@@ -46,7 +46,6 @@ class AgentState:
         self.time = time.time()
         self.start_time = self.time
         self.sensors = True
-        self.animation = 'stand'
         self.observation_history = deque([ [x] for x in range(HISTORY_LENGTH)])
         self.action_history = deque([ [x] for x in range(HISTORY_LENGTH)])
         self.reward_history = deque([ 0 for x in range(HISTORY_LENGTH)])
@@ -186,9 +185,8 @@ class MazeEnvironment(Environment):
         return self.agent_info
 
     def set_animation(self, agent, state, animation):
-        if state.animation != animation:
-            agent.state.setAnimation(animation)
-            state.animation = animation
+        if agent.state.animation != animation:
+            agent.state.animation = animation
 
     def step(self, agent, action):
         """

@@ -25,7 +25,6 @@ class AgentState:
         self.start_time = self.time
         self.total_damage = 0
         self.curr_damage = 0
-        self.animation = 'stand'
 
 class NeroEnvironment(Environment):
     """
@@ -311,6 +310,7 @@ class NeroEnvironment(Environment):
         # tell the system to make the calculated motion
         # this is actually done in is_active() and depends on speedup
         state.prev_pose = state.pose
+        rotation.z = new_heading
         state.pose = (new_position.x, new_position.y, rotation.z)
         state.time = time.time()
         
@@ -363,8 +363,9 @@ class NeroEnvironment(Environment):
         """
         Returns the distance of the current agent from the flag
         """
-        pos = self.get_state(agent).pose
-        return pow(pow(float(pos[0]) - self.flag_loc().x, 2) + pow(float(pos[1]) - self.flag_loc().y, 2), .5)
+        pos = agent.state.position
+        flag_loc = self.flag_loc()
+        return hypot(pos.x - flag_loc.x, pos.y - flag_loc.y)
 
     def distance(self, agloc, tgloc):
         """
@@ -404,9 +405,8 @@ class NeroEnvironment(Environment):
         """
         Sets current animation
         """
-        if state.animation != animation:
-            agent.state.setAnimation(animation)
-            state.animation = animation
+        if agent.state.animation != animation:
+            agent.state.animation = animation
     
     def is_active(self, agent):
         """ return true when the agent should act """
@@ -431,6 +431,9 @@ class NeroEnvironment(Environment):
         pos.x = x
         pos.y = y
         agent.state.position = pos
+        rot = copy(agent.state.rotation)
+        rot.z = h1 * (1-f) + h2 * f
+        agent.state.rotation = rot
         if f >= 1.0:
             return True
         else:

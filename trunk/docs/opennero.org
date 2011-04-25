@@ -30,4 +30,5 @@ depending on orientation of agent, casting ray at it either hits it or not
 |      63 | Task   | High     | Line of fire sensors need to be added to NERO mod       | *nero*          |
 |      65 | Task   | High     | Battle mod needs to reuse NERO environment              | *nero* *battle* |
 |      68 | Defect | Medium   | collision with tables in Roomba                         | *roomba*        |
-|      72 | Defect | Medium   | setObjectColor does not work                            |                 |
+
+   

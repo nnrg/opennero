@@ -137,32 +137,25 @@ namespace OpenNero
         void SetObjectScale( SimId id, const Vector3f& scale );
         void SetObjectLabel( SimId id, const std::string& label );
         void SetObjectColor( SimId id, const SColor& color );
-		bool SetObjectAnimation( SimId id, const std::string& animation_type );
+		bool SetObjectAnimation( SimId id, const std::string& animationType );
+        void SetObjectAnimationSpeed( SimId id, float32_t framesPerSecond );
         /// @}
-        
-        /// Get the position of the SimEntity specified by the id
+
+        /// These methods call the corresponding methods of the SimEntity specified by the id
+        /// @{
         Vector3f GetObjectPosition( SimId id ) const;
-
-        /// Get the rotation of the SimEntity specified by the id
         Vector3f GetObjectRotation( SimId id ) const;
-
-        /// Get the scale of the SimEntity specified by the id
         Vector3f GetObjectScale( SimId id ) const;
-
-        /// Get label of the SimEntity specified by the id
         std::string GetObjectLabel( SimId id ) const;
-
-        /// Get override color of the SimEntity specified by the id
         SColor GetObjectColor( SimId id ) const;
-
-        /// Get the bounding box min edge of the SimEntity specified by the netID
-        Vector3f GetObjectBBMinEdge( uint32_t netID ) const;
-
-        /// Get the bounding box max edge of the SimEntity specified by the netID
-        Vector3f GetObjectBBMaxEdge( uint32_t netID ) const;
+        std::string GetObjectAnimation( SimId id ) const;
+        F32 GetObjectAnimationSpeed( SimId id ) const;
+        Vector3f GetObjectBBMinEdge( SimId id ) const;
+        Vector3f GetObjectBBMaxEdge( SimId id ) const;
+        /// @}
 
         /// Transform the given vector by the matrix of the SimEntity specified by the netID
-        Vector3f TransformVector( uint32_t netID, const Vector3f& vect ) const;
+        Vector3f TransformVector( SimId id, const Vector3f& vect ) const;
 
         /// End the game
         void KillGame();

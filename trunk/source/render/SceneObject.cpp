@@ -31,19 +31,19 @@ namespace OpenNero
         {
             return Kernel::GetSimContext()->GetSceneManager();
         }
-
+        
         /// Converter function object that goes from std::string to IrrMaterialType
         class IrrMaterialTypeConverter
         {
         private:
-
+            
             SimFactoryPtr mFactory; /// The factory used to load shaders
-
+            
         public:
-
+            
             /// constructor that saves the SimFactoryPtr
             IrrMaterialTypeConverter( SimFactoryPtr fac ) : mFactory(fac) {}
-
+            
             /**
              * Converter function that transforms a string into a material type. If the
              * string is a key irrlicht shader type that it recognizes, it will assign that
@@ -51,16 +51,16 @@ namespace OpenNero
              * @param outType the output material type variable
              * @param typeString the material type string
              * @return true if we got a valid material
-            */
+             */
             bool operator() ( IrrMaterialType& outType, const std::string& typeString )
             {
                 // default value
                 outType = EMT_SOLID;
-
+                
                 // convert this string to lowercase
                 std::string lowString = typeString;
                 std::transform( lowString.begin(), lowString.end(), lowString.begin(), ::tolower );
-
+                
                 if(      lowString == "solid" )                     outType = EMT_SOLID;
                 else if( lowString == "lightmap" )                  outType = EMT_LIGHTMAP;
                 else if( lowString == "lightmapadd" )               outType = EMT_LIGHTMAP_ADD;
@@ -79,38 +79,38 @@ namespace OpenNero
                 else if( lowString == "transparent_refl_2layer" )   outType = EMT_TRANSPARENT_REFLECTION_2_LAYER;
                 else if( lowString == "normalmap" )                 outType = EMT_NORMAL_MAP_SOLID;
                 else if( lowString == "parallaxmap" )               outType = EMT_PARALLAX_MAP_SOLID;
-
-            // try to load a shader
-            else
-            {
-                IrrFactory& irrFac = mFactory->getIrrFactory();
-
-                if( int32_t shader = irrFac.LoadGlslShader( typeString + ".vert",
-                                                            typeString + ".frag" ) )
+                
+                // try to load a shader
+                else
                 {
-                    outType = (IrrMaterialType)shader;
+                    IrrFactory& irrFac = mFactory->getIrrFactory();
+                    
+                    if( int32_t shader = irrFac.LoadGlslShader( typeString + ".vert",
+                                                               typeString + ".frag" ) )
+                    {
+                        outType = (IrrMaterialType)shader;
+                    }
                 }
-            }
-
+                
                 return true;
             }
         };
-
+        
         /// converter function object that goes from std::string to an IrrMaterialFlag
         class IrrMaterialFlagConverter
         {
-            private:
-
+        private:
+            
             std::string mFlagName; /// The name of the flag to search for
-
-            public:
-
+            
+        public:
+            
             /// constructor which saves the flag name
             IrrMaterialFlagConverter( const std::string& flagName ) : mFlagName(flagName)
             {
                 std::transform( mFlagName.begin(), mFlagName.end(), mFlagName.begin(), ::toupper );
             }
-
+            
             /**
              * Converter operator which goes string -> IrrMaterialFlag.
              *  Checks if the flagname we constructed this with matches any of the
@@ -125,7 +125,7 @@ namespace OpenNero
                 std::string val = inVal;
                 std::transform( val.begin(), val.end(), val.begin(), ::tolower );
                 bool bVal = val == "true" || val == "1";
-
+                
                 // EMF_WIREFRAME   Draw as wireframe or filled triangles? Default: false.
                 if ( mFlagName == "WIREFRAME" ) outVal = IrrMaterialFlag( EMF_WIREFRAME, bVal );
                 // EMF_POINTCLOUD  Draw as point cloud or filled triangles? Default: false.
@@ -153,23 +153,23 @@ namespace OpenNero
                 // EMF_TEXTURE_WRAP    Access to all layers texture wrap settings. Overwrites separate layer settings.
                 else if ( mFlagName == "TEXTURE_WRAP" ) outVal = IrrMaterialFlag( EMF_TEXTURE_WRAP, bVal );
                 else outVal = IrrMaterialFlag();
-
+                
                 return true;
             }
         };
     }
-
+    
     SimId ConvertSceneIdToSimId(uint32_t id)
     {
         return static_cast<SimId>(id >> SceneObject::BITMASK_SIZE);
     }
-
+    
     uint32_t ConvertSimIdToSceneId(SimId sceneId, uint32_t type)
     {
         Assert(type < (1 << SceneObject::BITMASK_SIZE));
         return static_cast<uint32_t>( (sceneId << SceneObject::BITMASK_SIZE) | type );
     }
-
+    
     /// a template for footprints
 	struct FootprintTemplate
 	{
@@ -189,7 +189,7 @@ namespace OpenNero
         /// get the offset
 		Vector3f GetOffset();
 	};
-
+    
 	/// a template for a First Person camera
 	struct FPSCameraTemplate
 	{
@@ -199,20 +199,20 @@ namespace OpenNero
 		F32 far_plane;         ///< far plane of the camera
         Vector3f lastRotation; ///< last rotation
         Vector3f lastPosition; ///< last position
-
+        
 		/// construct the template from a property map
 		FPSCameraTemplate(const std::string& prefix, const PropertyMap& propMap)
-			: attach_point()
-			, target(100,0,0)
-			, near_plane(10)
-			, far_plane(1000)
+        : attach_point()
+        , target(100,0,0)
+        , near_plane(10)
+        , far_plane(1000)
 		{
 			propMap.getValue(attach_point, prefix + ".attach_point");
 			propMap.getValue(target, prefix+ ".target");
 			propMap.getValue(near_plane, prefix + ".near_plane");
 			propMap.getValue(far_plane, prefix + ".far_plane");
 		}
-
+        
 		/// Attach a camera to a sim entity - this has the effect of the camera
 		/// moving (and rotating) with the object.
 		/// @param cam camera to attach
@@ -250,15 +250,15 @@ namespace OpenNero
             lastPosition = sim->GetPosition();
         }
 	};
-
+    
 	std::ostream& operator<<(std::ostream& out, FPSCameraTemplatePtr a)
 	{
 		if (a)
 		{
 			out << "<FPSCamera attach_point=\"" << a->attach_point
-				<< "\" target=\"" << a->target
-				<< "\" near_plane=\"" << a->near_plane
-				<< "\" far_plane=\"" << a->far_plane << "\"/>";
+            << "\" target=\"" << a->target
+            << "\" near_plane=\"" << a->near_plane
+            << "\" far_plane=\"" << a->far_plane << "\"/>";
 		}
 		else
 		{
@@ -266,30 +266,30 @@ namespace OpenNero
 		}
 		return out;
 	}
-
+    
     /// copy ctor for scene object template
     SceneObjectTemplate::SceneObjectTemplate( const SceneObjectTemplate& objTempl )
-        : ObjectTemplate(objTempl)
-		, mScale(objTempl.mScale)
-		, mScaleTexture(objTempl.mScaleTexture)
-		, mTextures(objTempl.mTextures)
-		, mMaterialType(objTempl.mMaterialType)
-		, mHeightmap(objTempl.mHeightmap)
-		, mParticleSystem(objTempl.mParticleSystem)
-		, mAniMesh(objTempl.mAniMesh)
-		, mCastsShadow(objTempl.mCastsShadow)
-		, mDrawBoundingBox(objTempl.mDrawBoundingBox)
-		, mDrawLabel(objTempl.mDrawLabel)
-		, mFPSCamera(objTempl.mFPSCamera)
-		, mAnimationSpeed(objTempl.mAnimationSpeed)
-		, mFootprints(objTempl.mFootprints)
-		, mCollisionMask(objTempl.mCollisionMask)
+    : ObjectTemplate(objTempl)
+    , mScale(objTempl.mScale)
+    , mScaleTexture(objTempl.mScaleTexture)
+    , mTextures(objTempl.mTextures)
+    , mMaterialType(objTempl.mMaterialType)
+    , mHeightmap(objTempl.mHeightmap)
+    , mParticleSystem(objTempl.mParticleSystem)
+    , mAniMesh(objTempl.mAniMesh)
+    , mCastsShadow(objTempl.mCastsShadow)
+    , mDrawBoundingBox(objTempl.mDrawBoundingBox)
+    , mDrawLabel(objTempl.mDrawLabel)
+    , mFPSCamera(objTempl.mFPSCamera)
+    , mAnimationSpeed(objTempl.mAnimationSpeed)
+    , mFootprints(objTempl.mFootprints)
+    , mCollisionMask(objTempl.mCollisionMask)
     {
         // copy over the textures and the material flags
         std::copy( objTempl.mTextures.begin(), objTempl.mTextures.end(), mTextures.begin() );
         std::copy( objTempl.mMaterialFlags.begin(), objTempl.mMaterialFlags.end(), mMaterialFlags.begin() );
     }
-
+    
     /**
      * Factory method to create the appropriate type of SceneObjectTemplate depending on the XML data provided
      * @param factory SimFactory used to grab resources
@@ -302,69 +302,69 @@ namespace OpenNero
         SceneObjectTemplatePtr p(new SceneObjectTemplate(factory, propMap));
         return p;
     }
-
+    
     /// constructor
     SceneObjectTemplate::SceneObjectTemplate( SimFactoryPtr factory, const PropertyMap& propMap ) :
-		ObjectTemplate( factory, propMap ),
-		mScaleTexture(1,1),
-		mTextures(),
-		mMaterialFlags(),
-		mMaterialType( EMT_SOLID ),
-		mHeightmap(),
-		mParticleSystem(),
-		mAniMesh(NULL),
-        mCastsShadow(false),
-        mDrawBoundingBox(false),
-        mDrawLabel(false),
-        mFPSCamera(),
-        mAnimationSpeed(25.0f),
-        mFootprints(),
-		mCollisionMask(0)
+    ObjectTemplate( factory, propMap ),
+    mScaleTexture(1,1),
+    mTextures(),
+    mMaterialFlags(),
+    mMaterialType( EMT_SOLID ),
+    mHeightmap(),
+    mParticleSystem(),
+    mAniMesh(NULL),
+    mCastsShadow(false),
+    mDrawBoundingBox(false),
+    mDrawLabel(false),
+    mFPSCamera(),
+    mAnimationSpeed(25.0f),
+    mFootprints(),
+    mCollisionMask(0)
     {
         AssertMsg( factory, "Invalid sim factory" );
-
+        
         std::string val, aniMeshFile;
         IrrFactory& irrFac = factory->getIrrFactory();
-
+        
         // get the mesh (possibly)
         if( propMap.getValue( aniMeshFile, "Template.Render.AniMesh" ) )
         {
             mAniMesh = irrFac.LoadAniMesh( aniMeshFile.c_str() );
             SafeIrrGrab(mAniMesh);
         }
-
+        
         if( propMap.hasSection( "Template.Render.CastsShadow" ) )
         {
             propMap.getValue( mCastsShadow, "Template.Render.CastsShadow" );
         }
-
+        
         if( propMap.hasSection( "Template.Render.DrawBoundingBox" ) )
         {
             propMap.getValue( mDrawBoundingBox, "Template.Render.DrawBoundingBox" );
         }
-
+        
         if( propMap.hasSection( "Template.Render.DrawLabel" ) )
         {
             propMap.getValue( mDrawLabel, "Template.Render.DrawLabel" );
         }
-
+        
         if (propMap.hasSection( "Template.Render.FPSCamera" ) )
         {
 			mFPSCamera.reset(new FPSCameraTemplate("Template.Render.FPSCamera", propMap));
             LOG_F_DEBUG( "render", "object uses an FPS camera " << mFPSCamera );
         }
-
+        
         if (propMap.hasSection( "Template.Render.AnimationSpeed" ) )
         {
             propMap.getValue( mAnimationSpeed, "Template.Render.AnimationSpeed" );
             LOG_F_DEBUG( "render", "object animation speed: " << mAnimationSpeed );
         }
-
+        
 		if (propMap.hasSection( "Template.Render.Collision" ))
 		{
 			propMap.getValue( mCollisionMask, "Template.Render.Collision" );
 		}
-
+        
         static const std::string kFootprints("Template.Render.Footprints");
         if (propMap.hasSection( kFootprints ) )
         {
@@ -376,19 +376,19 @@ namespace OpenNero
             propMap.getValue(trail, kFootprints + ".Trail");
             mFootprints.reset(new FootprintTemplate(frames,trail,object));
         }
-
+        
         // get the heightmap (possibly)
         propMap.getValue( mHeightmap, "Template.Render.Terrain" );
-
+        
         // get the particle system (possibly)
         propMap.getValue( mParticleSystem, "Template.Render.ParticleSystem" );
-
+        
         PropertyMap::ChildPropVector renderProps;
         propMap.getPropChildren( renderProps, "Template.Render" );
-
+        
         PropertyMap::ChildPropVector::const_iterator itr = renderProps.begin();
         PropertyMap::ChildPropVector::const_iterator end = renderProps.end();
-
+        
         // get all the properties of Render
         for( ; itr != end; ++itr )
         {
@@ -401,28 +401,28 @@ namespace OpenNero
                     mTextures.push_back( ITexture_IPtr(tex) );
                 }
             }
-
+            
             // if it contains the word "MaterialFlag" in it( ex: MaterialFlagLighting, ... )
             if( itr->first.find("MaterialFlag") != std::string::npos )
             {
                 IrrMaterialFlag flag;
-
+                
                 IrrMaterialFlagConverter c( itr->first.substr(12) );
                 c( flag, itr->second );
-
+                
                 if( flag.mFlag != (E_MATERIAL_FLAG)-1 )
                     mMaterialFlags.push_back( flag );
             }
         }
-
+        
         // get the material type
         propMap.getValue( mMaterialType, "Template.Render.MaterialType", IrrMaterialTypeConverter(factory) );
-
+        
         // get the scale and texture scale
         propMap.getValue( mScale,           "Template.Render.Scale" );
         propMap.getValue( mScaleTexture,    "Template.Render.ScaleTexture" );
-
-    #if SCENEOBJECT_ENABLE_STATS
+        
+#if SCENEOBJECT_ENABLE_STATS
         // display debug scene object info
         if( mAniMesh )
         {
@@ -431,56 +431,58 @@ namespace OpenNero
             dim.X *= mScale.X;
             dim.Y *= mScale.Y;
             dim.Z *= mScale.Z;
-
+            
             float32_t vol = dim.X * dim.Y * dim.Z;
             vol = (vol<0) ? -vol : vol;
-
+            
             LOG_F_MSG( "render", "Loaded animated mesh " << aniMeshFile << " with custom scale (" << mScale << ")" );
             LOG_F_MSG( "render", "   Dim: (" << dim.X << ", " << dim.Y << ", " << dim.Z << ")" );
             LOG_F_MSG( "render", "   Volume: " << vol );
         }
-    #endif // SCENEOBJECT_ENABLE_STATS
+#endif // SCENEOBJECT_ENABLE_STATS
     }
-
+    
     /// destructor
     SceneObjectTemplate::~SceneObjectTemplate()
     {
         SafeIrrDrop( mAniMesh );
     }
-
+    
     /// constructor
     SceneObject::SceneObject(SimEntityPtr parent)
-		: SimEntityComponent(parent)
-		, mSceneNode(NULL)
-		, mAniSceneNode(NULL)
-		, mTerrSceneNode(NULL)
-		, mParticleSystemNode(NULL)
-        , mTextNode(NULL)
-		, mSceneObjectTemplate()
-        , mStartFrame(0)
-        , mEndFrame(0)
-        , mFootprints()
+    : SimEntityComponent(parent)
+    , mSceneNode(NULL)
+    , mAniSceneNode(NULL)
+    , mTerrSceneNode(NULL)
+    , mParticleSystemNode(NULL)
+    , mTextNode(NULL)
+    , mSceneObjectTemplate()
+    , mStartFrame(0)
+    , mEndFrame(0)
+    , mFootprints()
+    , mAnimation()
     {}
-
+    
     /**
      * The copy constructor should not be called
      */
     SceneObject::SceneObject( const SceneObject& so ) :
-    	SimEntityComponent(so.mParent.lock()),
-    	mSceneNode(NULL),
-    	mAniSceneNode(NULL),
-    	mTerrSceneNode(NULL),
-    	mParticleSystemNode(NULL),
-        mTextNode(NULL),
-    	mSceneObjectTemplate(),
-        mStartFrame(0),
-        mEndFrame(0),
-        mFootprints()
+        SimEntityComponent(so.mParent.lock())
+        , mSceneNode(NULL)
+        , mAniSceneNode(NULL)
+        , mTerrSceneNode(NULL)
+        , mParticleSystemNode(NULL)
+        , mTextNode(NULL)
+        , mSceneObjectTemplate()
+        , mStartFrame(0)
+        , mEndFrame(0)
+        , mFootprints()
+        , mAnimation()
     {
         // TODO : Add this if needed (be pointer safe)
         Assert(false);
     }
-
+    
     /// dtor
     SceneObject::~SceneObject()
     {
@@ -489,7 +491,7 @@ namespace OpenNero
         {
             // remove this node from the scene
             mSceneNode->remove();
-
+            
             // remove our reference to the node
             SafeIrrDrop(mSceneNode);
         }
@@ -503,7 +505,7 @@ namespace OpenNero
 			}
         }
     }
-
+    
     /// assignment operator, tracks references
     SceneObject& SceneObject::operator=( const SceneObject& obj )
     {
@@ -514,30 +516,30 @@ namespace OpenNero
         mSceneObjectTemplate    = obj.mSceneObjectTemplate;
         mParticleSystemNode     = obj.mParticleSystemNode;
         mSceneNode              = obj.mSceneNode;
-
+        
         // grab a ref to the scene node
         SafeIrrGrab(mSceneNode);
-
+        
         return *this;
     }
-
+    
     /**
      * Load this object from a template
      * @param objTemplate template to load from
      * @return true if success
-    */
+     */
     bool SceneObject::LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data )
     {
         if( !objTemplate )
             return false;
-            
+        
         Assert( objTemplate->mpSimFactory );
-
+        
         // cast to object template to the type we expect
         mSceneObjectTemplate = shared_static_cast< SceneObjectTemplate, ObjectTemplate>( objTemplate );
-
+        
         IrrFactory& irrFactory = mSceneObjectTemplate->mpSimFactory->getIrrFactory();
-
+        
         // are we an animated mesh?
         if( mSceneObjectTemplate->mAniMesh )
         {
@@ -547,13 +549,13 @@ namespace OpenNero
                 mAniSceneNode->addShadowVolumeSceneNode();
             }
             mFPSCamera = mSceneObjectTemplate->mFPSCamera; // reminder to attach camera later
-
+            
 			mAniSceneNode->setAnimationSpeed(0);
             mStartFrame = mAniSceneNode->getStartFrame();
             mEndFrame = mAniSceneNode->getEndFrame();
             mAniSceneNode->setFrameLoop(0,0);
             mAniSceneNode->setCurrentFrame(0);
-
+            
 			mSceneNode = mAniSceneNode;
             
             // add triangle selector for a mesh node
@@ -562,7 +564,7 @@ namespace OpenNero
             mAniSceneNode->setTriangleSelector(triangleSelector);
             SafeIrrDrop(triangleSelector);
 		}
-
+        
         // are we a terrain?
         else if( mSceneObjectTemplate->mHeightmap != "" )
         {
@@ -570,7 +572,7 @@ namespace OpenNero
             mSceneNode     = mTerrSceneNode;
             mTerrSceneNode->scaleTexture( mSceneObjectTemplate->mScaleTexture.X, mSceneObjectTemplate->mScaleTexture.Y );
         }
-
+        
         // are we a particle system?
         else if( mSceneObjectTemplate->mParticleSystem != "" )
         {
@@ -578,22 +580,22 @@ namespace OpenNero
             mSceneNode          = mParticleSystemNode;
             // don't add a triangle selector for a particle node
         }
-
+        
         if( mSceneNode )
         {
             // assign the textures
             for( uint32_t i = 0; i < (uint32_t)mSceneObjectTemplate->mTextures.size(); ++i )
                 mSceneNode->setMaterialTexture( i, mSceneObjectTemplate->mTextures[i].get() );
-
+            
             // set the material flags
             std::vector<IrrMaterialFlag>::const_iterator flagItr = mSceneObjectTemplate->mMaterialFlags.begin();
             std::vector<IrrMaterialFlag>::const_iterator flagEnd = mSceneObjectTemplate->mMaterialFlags.end();
             for( ; flagItr != flagEnd; ++flagItr )
                 mSceneNode->setMaterialFlag( flagItr->mFlag, flagItr->mValue );
-
+            
             // set the material type
             mSceneNode->setMaterialType( mSceneObjectTemplate->mMaterialType );
-
+            
             // set the node scale
             Vector3f scale = mSceneObjectTemplate->mScale;
             /// we can optionally multiply by a custom scale
@@ -607,34 +609,34 @@ namespace OpenNero
             
             // set the rotation of the object
             mSceneNode->setRotation( ConvertNeroToIrrlichtRotation(data.GetRotation()) );
-
+            
             // add a ref to the scene node
             SafeIrrGrab(mSceneNode);
             
             // make the id of the scene node the same as the SimId of our object
             mSceneNode->setID(ConvertSimIdToSceneId(data.GetId(), data.GetType()));
-
-        #if SCENEOBJECT_ENABLE_STATS
+            
+#if SCENEOBJECT_ENABLE_STATS
             // debug information
             if( mTerrSceneNode )
             {
                 const aabbox3df& bbox = mTerrSceneNode->getBoundingBox();
-
+                
                 vector3df  dim  = bbox.MaxEdge - bbox.MinEdge;
-
+                
                 float32_t vol = dim.X * dim.Y * dim.Z;
                 vol = (vol<0) ? -vol : vol;
-
+                
                 LOG_F_MSG( "render", "Added terrain with heightmap: " << mSceneObjectTemplate->mHeightmap );
                 LOG_F_MSG( "render", "   Dim: (" << dim.X << ", " << dim.Y << ", " << dim.Z << ")" );
                 LOG_F_MSG( "render", "   Volume: " << vol );
             }
-        #endif // end SCENEOBJECT_ENABLE_STATS
+#endif // end SCENEOBJECT_ENABLE_STATS
         }
         
         return true;
     }
-
+    
     void SceneObject::SetText(const std::string& str)
     {
         if (str.empty())
@@ -663,22 +665,22 @@ namespace OpenNero
             }
         }
     }
-
+    
     Vector3f FootprintTemplate::GetOffset()
     {
         return Vector3f(RANDOM.randF() - 0.5f, RANDOM.randF() - 0.5f, -1.5f);
     }
-
+    
     void SceneObject::LeaveFootprints()
     {
         if ( mSceneObjectTemplate->mFootprints->DoStep() )
         {
             // add footprint
             SimId id =
-                Kernel::GetSimContext()->AddObject(
-                  mSceneObjectTemplate->mFootprints->object,
-                  mSharedData->GetPosition() + mSceneObjectTemplate->mFootprints->GetOffset(),
-                  mSharedData->GetRotation() );
+            Kernel::GetSimContext()->AddObject(
+                                               mSceneObjectTemplate->mFootprints->object,
+                                               mSharedData->GetPosition() + mSceneObjectTemplate->mFootprints->GetOffset(),
+                                               mSharedData->GetRotation() );
             mFootprints.push_back(id);
             if (mFootprints.size() > mSceneObjectTemplate->mFootprints->trail)
             {
@@ -694,7 +696,7 @@ namespace OpenNero
     {
         return (mSceneObjectTemplate && mSceneObjectTemplate->mCollisionMask != 0);
     }
-
+    
     /// are we colliding with the other object?
     bool SceneObject::isColliding(const Vector3f& new_pos, const SceneObjectPtr& other)
     {
@@ -704,7 +706,7 @@ namespace OpenNero
         Line3f my_irr_movement(my_prev_irr_pos, my_irr_pos); // line from A to B
         
         if (my_irr_movement.getLengthSQ() == 0) return false;
-
+        
         // get the axis-aligned bounding boxes for both objects
         BBoxf my_box = mSceneNode->getTransformedBoundingBox(); // our irr a.a.b. box
         BBoxf other_box = other->mSceneNode->getTransformedBoundingBox(); // their irr a.a.b. box
@@ -712,7 +714,7 @@ namespace OpenNero
         Vector3f my_prev_irr_rot(ConvertNeroToIrrlichtRotation(getRotation()));
         Assert(GetSharedState());
         Vector3f my_irr_rot(ConvertNeroToIrrlichtRotation(GetSharedState()->GetRotation()));
-
+        
         Matrix4 translation;
         translation.setTranslation(my_irr_movement.getVector());
         translation.transformBox(my_box);
@@ -736,13 +738,13 @@ namespace OpenNero
             return false;
         }
     }
-
+    
     /// Move forward the simulation of this sim object by a time delta
     /// @param dt the amount of time to simulate forward
     void SceneObject::ProcessTick( float32_t dt )
     {
         Assert( mSharedData );
-
+        
         // set the position and rotation of our object
         if( mSceneNode )
         {
@@ -756,29 +758,29 @@ namespace OpenNero
                 {
                     mFPSCamera->UpdatePosition(mSharedData, mCamera);
                 }
-            
+                
                 // convert from open nero's coordinate system to irrlicht's
                 mSceneNode->setPosition( ConvertNeroToIrrlichtPosition(mSharedData->GetPosition()) );
-
+                
                 if (mAniSceneNode && mSceneObjectTemplate->mFootprints)
                 {
                     LeaveFootprints();
                 }
             }
-
+            
             if( mSharedData->IsDirty(SimEntityData::kDB_Rotation) )
             {
                 if (mCamera && mFPSCamera)
                 {
                     mFPSCamera->UpdateRotation(mSharedData, mCamera);
                 }
-
+                
                 // Irrlicht expects a left handed basis with the x-z plane being horizontal and y being up
                 // OpenNero uses a right handed basis with x-y plane being horizontal and z being up
                 mSceneNode->setRotation( ConvertNeroToIrrlichtRotation(mSharedData->GetRotation()) );
-
+                
             }
-
+            
             if ( mSharedData->IsDirty(SimEntityData::kDB_Scale) )
             {
                 // set the node scale
@@ -790,12 +792,12 @@ namespace OpenNero
                 // convert from open nero's coordinate system to irrlicht's
                 mSceneNode->setScale( ConvertNeroToIrrlichtPosition(scale) );
             }
-
+            
             if ( mSharedData->IsDirty(SimEntityData::kDB_Label) && mSceneObjectTemplate->mDrawLabel )
             {
                 SetText(mSharedData->GetLabel());
             }
-
+            
             if ( mSharedData->IsDirty(SimEntityData::kDB_Color) )
             {
                 if (mAniSceneNode) {
@@ -803,16 +805,16 @@ namespace OpenNero
                     mAniSceneNode->getMaterial(0).DiffuseColor = mSharedData->GetColor();
                 }
             }
-
+            
             // add our bounding box to the lineset
             if( mSceneNode && mSceneObjectTemplate->mDrawBoundingBox )
             {
                 BBoxf bbox = getTransformedBoundingBox();
                 const LineSet::LineColor kGreen(255,0,255,0);
-
+                
                 irr::core::vector3df verts[8];
                 bbox.getEdges(verts);
-
+                
                 LineSet::instance().AddSegment( verts[0], verts[1], kGreen );
                 LineSet::instance().AddSegment( verts[1], verts[3], kGreen );
                 LineSet::instance().AddSegment( verts[3], verts[2], kGreen );
@@ -826,29 +828,29 @@ namespace OpenNero
                 LineSet::instance().AddSegment( verts[6], verts[2], kGreen );
                 LineSet::instance().AddSegment( verts[7], verts[3], kGreen );
             }
-
+            
             if (mFPSCamera && !mCamera)
             {
                 Kernel::GetSimContext()->getActiveCamera()->attach(this->GetEntity());
             }
-
+            
             mSharedData->ClearDirtyBits();
         }
     }
-
+    
     /// get the object template this scene object uses
     ObjectTemplatePtr SceneObject::GetObjectTemplate()
     {
         return mSceneObjectTemplate;
     }
-
+    
     /// Setup a pointer to the shared data for the parent sim entity
     void SceneObject::SetSharedState( SimEntityData* sharedData )
     {
         Assert( sharedData );
         mSharedData = sharedData;
     }
-
+    
     /// Get the object space bounding box for the object
     BBoxf SceneObject::getBoundingBox() const
     {
@@ -856,12 +858,12 @@ namespace OpenNero
         {
             BBoxf box = mSceneNode->getBoundingBox();
             return BBoxf( ConvertIrrlichtToNeroPosition( box.MinEdge),
-                          ConvertIrrlichtToNeroPosition( box.MaxEdge) );
+                         ConvertIrrlichtToNeroPosition( box.MaxEdge) );
         }
-
+        
         return BBoxf();
     }
-
+    
     /// Get the world space bounding box for the object
     BBoxf SceneObject::getTransformedBoundingBox() const
     {
@@ -869,32 +871,32 @@ namespace OpenNero
         {
             BBoxf box = mSceneNode->getTransformedBoundingBox();
             return BBoxf( ConvertIrrlichtToNeroPosition( box.MinEdge),
-                          ConvertIrrlichtToNeroPosition( box.MaxEdge) );
+                         ConvertIrrlichtToNeroPosition( box.MaxEdge) );
         }
-
+        
         return BBoxf();
     }
-
+    
     /// Transform the given vector by applying the object's matrix
     Vector3f SceneObject::transformVector(const Vector3f& vect) const
     {
         if ( mSceneNode )
         {
-
+            
             Vector3f result;
             mSceneNode->getAbsoluteTransformation().transformVect(result, ConvertNeroToIrrlichtPosition(vect));
             return ConvertIrrlichtToNeroPosition(result);
         }
-
+        
         return Vector3f();
     }
-
+    
     // get the scene object id
     SceneObjectId SceneObject::GetId()
     {
         return mSceneNode? mSceneNode->getID() : -1;
     }
-
+    
     /// The the mesh buffer for this scene object
     bool SceneObject::getMeshBuffer(MeshBuffer &mb, S32 lod) const
     {
@@ -908,14 +910,14 @@ namespace OpenNero
             return false;
         }
     }
-
+    
     /// Get the current scaling factor for this object
     Vector3f SceneObject::getScale() const
     {
         Assert(mSceneNode);
         return ConvertIrrlichtToNeroPosition(mSceneNode->getScale());
     }
-
+    
     /// Get the current world position for this object
     Vector3f SceneObject::getPosition() const
     {
@@ -928,7 +930,7 @@ namespace OpenNero
         Assert( mSceneNode );
         return ConvertIrrlichtToNeroRotation(mSceneNode->getRotation());
     }
-
+    
     void SceneObject::attachCamera( CameraPtr cam )
     {
         AssertMsg( cam->getFunctionality() == Camera::kFunc_FPS, "Cannot attach non-FPS cameras" );
@@ -940,26 +942,48 @@ namespace OpenNero
             mCamera->setFunctionality(Camera::kFunc_Nero);
         }
     }
-
-  bool SceneObject::SetAnimation( const std::string& animation_type, const float32_t& animation_speed )
-  {
-    // (Note: As in previous iteration of code, animation_speed is not used here.  Should it be?)
-    if (mAniSceneNode) {
-      // If there is an animation node, tell it which animation to play.
-      bool setMD2Result = mAniSceneNode->setMD2Animation(animation_type.c_str());
-      if (setMD2Result == false) {
-	LOG_F_WARNING("render", "Could not set animation to " << animation_type);
-	return false;
-      }
-      else {
-	return true;
-      }
-    } else {
-      // If there is no animation node, indicate the error.
-      LOG_F_WARNING("render", "Node is not animated when trying to set animation to " << animation_type);
-      return false;
+    
+    bool SceneObject::SetAnimation( const std::string& animation_type )
+    {
+        if (mAniSceneNode) {
+            // If there is an animation node, tell it which animation to play.
+            bool setMD2Result = mAniSceneNode->setMD2Animation(animation_type.c_str());
+            if (setMD2Result) {
+                mAnimation = animation_type;
+                return true;
+            }
+            else {
+                LOG_F_WARNING("render", "Could not set animation to " << animation_type);
+                return false;
+            }
+        } else {
+            // If there is no animation node, indicate the error.
+            LOG_F_WARNING("render", "Node is not animated when trying to set animation to " << animation_type);
+            return false;
+        }
     }
 
-  }
+    std::string SceneObject::GetAnimation() const
+    {
+        return mAnimation;
+    }
+    
+    void SceneObject::SetAnimationSpeed( float32_t framesPerSecond )
+    {
+        if (mAniSceneNode) {
+            mAniSceneNode->setAnimationSpeed(framesPerSecond);
+        }
+    }
+    
+    /// Get the animation speed
+    float32_t SceneObject::GetAnimationSpeed() const
+    {
+        if (mAniSceneNode) {
+            return mAniSceneNode->getAnimationSpeed();
+        } else {
+            return 0;
+        }
+    }
+    
 
 };//end OpenNero

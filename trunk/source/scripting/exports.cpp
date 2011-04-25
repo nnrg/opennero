@@ -954,7 +954,8 @@ namespace OpenNero {
                               &SimEntityData::GetCollision,
                               &SimEntityData::SetCollision)
                 .add_property("id", &SimEntityData::GetId)
-                .def("setAnimation", &SimEntityData::SetAnimation, "set the animation of the object")
+                .add_property("animation", &SimEntityData::GetAnimation, &SimEntityData::SetAnimation)
+                .add_property("animation_speed", &SimEntityData::GetAnimationSpeed, &SimEntityData::SetAnimationSpeed)
                 ;
             
             py::class_<SimDataVector>("SimDataVector", "A vector of SimEntityData")
