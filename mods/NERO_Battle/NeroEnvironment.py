@@ -26,7 +26,6 @@ class AgentState:
         self.total_damage = 0
         self.curr_damage = 0
         self.team = 0
-        self.animation = 'stand'
 
 class NeroEnvironment(Environment):
     """
@@ -408,9 +407,8 @@ class NeroEnvironment(Environment):
         """
         Sets current animation
         """
-        if state.animation != animation:
-            agent.state.setAnimation(animation)
-            state.animation = animation
+        if agent.state.animation != animation:
+            agent.state.animation = animation
     
     def is_active(self, agent):
         """ return true when the agent should act """

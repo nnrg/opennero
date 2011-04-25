@@ -609,12 +609,20 @@ namespace OpenNero
     }
 
 	/// @brief Sets the animation on the SimEntity specified by id
-	bool SimContext::SetObjectAnimation( SimId id, const std::string& animation_type )
+	bool SimContext::SetObjectAnimation( SimId id, const std::string& animationType )
 	{
         SimEntityPtr ent = mpSimulation->Find(id);
         AssertMsg(ent, kCouldNotFindObjectWithId << id);
-		return ent->GetSceneObject()->SetAnimation(animation_type);
+		return ent->GetSceneObject()->SetAnimation(animationType);
 	}
+    
+    void SimContext::SetObjectAnimationSpeed( SimId id, float32_t framesPerSecond  )
+    {
+        SimEntityPtr ent = mpSimulation->Find(id);
+        AssertMsg(ent, kCouldNotFindObjectWithId << id);
+        ent->GetSceneObject()->SetAnimationSpeed(framesPerSecond);
+    }
+    
 
     /// @brief Return the position of the SimEntity specified by id
     Vector3f SimContext::GetObjectPosition( SimId id ) const 
@@ -654,6 +662,20 @@ namespace OpenNero
         SimEntityPtr ent = mpSimulation->Find(id);
         AssertMsg(ent, kCouldNotFindObjectWithId << id);
         return ent->GetColor();
+    }
+    
+    std::string SimContext::GetObjectAnimation( SimId id ) const
+    {
+        SimEntityPtr ent = mpSimulation->Find(id);
+        AssertMsg(ent, kCouldNotFindObjectWithId << id);
+        return ent->GetSceneObject()->GetAnimation();
+    }
+    
+    F32 SimContext::GetObjectAnimationSpeed( SimId id ) const
+    {
+        SimEntityPtr ent = mpSimulation->Find(id);
+        AssertMsg(ent, kCouldNotFindObjectWithId << id);
+        return ent->GetSceneObject()->GetAnimationSpeed();
     }
 
     /// @brief Return the bounding box min edge of the SimEntity specified by id

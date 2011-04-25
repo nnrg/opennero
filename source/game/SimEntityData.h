@@ -62,7 +62,8 @@ namespace OpenNero
         void SetColor( const SColor& color );         ///< Set the color of the entity
         void SetType( uint32_t t );                   ///< Type of this object (for sensors)
         void SetCollision( uint32_t mask );           ///< Set the collision mask for this object
-		bool SetAnimation( const std::string& animation ); ///< animation of the node
+        void SetAnimation( const std::string& animationType ); ///< Set the animation type of the object
+        void SetAnimationSpeed( float32_t framesPerSectiond ); ///< Set the speed of the animation
 
         /// make all the bits dirty (forces full update)
         void SetDirtyBits();
@@ -80,7 +81,9 @@ namespace OpenNero
         const SColor& GetColor() const;           ///< Returns the color of the entity
         SimId GetId() const;                      ///< Returns the id of the entity
         uint32_t GetType() const;                 ///< Type of this object (for sensors)
-        uint32_t GetCollision( ) const; ///< Get the collision mask
+        uint32_t GetCollision( ) const;           ///< Get the collision mask
+        std::string GetAnimation() const;         ///< Returns the animation type
+        float32_t GetAnimationSpeed() const;      ///< Returns the animation speed (frames per second)
 
         uint32_t GetDirtyBits() const;            ///< Retrieve the dirty bits
         bool IsDirty(DataBits bit) const;         ///< Flag to say if SimEntity is dirty

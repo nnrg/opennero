@@ -133,7 +133,10 @@ namespace OpenNero
         void SetText(const std::string& str);
 
 		/// set the animation of this node if we know how to do it
-		bool SetAnimation(const std::string& animation_type, const float32_t& animation_speed = 25.0f);
+		bool SetAnimation(const std::string& animation_type);
+        
+        /// set the animation speed fo this node
+        void SetAnimationSpeed(float32_t framesPerSecond);
 
         /// bounding box data
         BBoxf getBoundingBox() const;
@@ -161,6 +164,12 @@ namespace OpenNero
         
         /// get object rotation
         Vector3f getRotation() const;
+        
+        /// Get the animation name
+        std::string GetAnimation() const;
+        
+        /// Get the animation speed
+        float32_t GetAnimationSpeed() const;
         
         /// are we colliding with the other object?
         bool isColliding(const Vector3f& new_pos, const SceneObjectPtr& other);
@@ -196,6 +205,7 @@ namespace OpenNero
         std::list<SimId>                    mFootprints;            ///< footprints left behind
         CameraPtr                           mCamera;                ///< camera that is attached to us (if any)
 		FPSCameraTemplatePtr				mFPSCamera;			    ///< information about whether to attach a camera to this object
+        std::string                         mAnimation;             ///< current animation
     };
 
 };//end OpenNero

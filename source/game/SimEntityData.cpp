@@ -127,6 +127,16 @@ namespace OpenNero
             mDirtyBits |= kDB_Collision;
         }
     }
+    
+    void SimEntityData::SetAnimation( const std::string& animationType )
+    {
+        Kernel::GetSimContext()->SetObjectAnimation(mId, animationType);
+    }
+    
+    void SimEntityData::SetAnimationSpeed( float32_t framesPerSecond )
+    {
+        Kernel::GetSimContext()->SetObjectAnimationSpeed(mId, framesPerSecond);
+    }
 
     void SimEntityData::ClearDirtyBits()
     {
@@ -181,6 +191,16 @@ namespace OpenNero
     uint32_t SimEntityData::GetCollision() const
     {
         return mCollision;
+    }
+    
+    std::string SimEntityData::GetAnimation() const
+    {
+        return Kernel::GetSimContext()->GetObjectAnimation(mId);
+    }
+
+    float32_t SimEntityData::GetAnimationSpeed() const
+    {
+        return Kernel::GetSimContext()->GetObjectAnimationSpeed(mId);
     }
 
     uint32_t SimEntityData::GetDirtyBits() const
@@ -312,11 +332,6 @@ namespace OpenNero
     {
         return GetId() != x.GetId();
     }    
-
-	bool SimEntityData::SetAnimation( const std::string& animation )
-	{
-		return Kernel::instance().GetSimContext()->SetObjectAnimation(mId, animation);
-	}
 
 	/// output sim entity data to stream
 	std::ostream& operator<<(std::ostream& stream, const SimEntityData& data)
