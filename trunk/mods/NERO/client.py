@@ -254,7 +254,7 @@ def hp_adjusted(scroll, value):
 
 def sp_adjusted(scroll, value):
     value.text = str(scroll.getPos())
-    getMod().hpChange(float(scroll.getPos()))
+    getMod().set_speedup(float(scroll.getPos()))
     def closure():
         value.text = str(scroll.getPos())
         getMod().set_speedup(scroll.getPos())

@@ -407,6 +407,9 @@ class NeroEnvironment(Environment):
         """
         if agent.state.animation != animation:
             agent.state.animation = animation
+        animation_speed = 25.0 / (1.0 - self.speedup)
+        if agent.state.animation_speed != animation_speed:
+            agent.state.animation_speed = animation_speed
     
     def is_active(self, agent):
         """ return true when the agent should act """

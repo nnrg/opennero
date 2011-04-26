@@ -98,9 +98,9 @@ class NeroModule:
             set_ai("rtneat",rtneat)
     
     def set_speedup(self, speedup):
-        self.speedup = speedup
+        self.speedup = speedup/100.0
         if self.environment:
-            self.environment.speedup = speedup
+            self.environment.speedup = self.speedup
    
     def set_spawn(self, x, y):
         self.spawn_x = x
