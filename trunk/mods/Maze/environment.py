@@ -10,6 +10,9 @@ import observer
 
 class MazeRewardStructure:
     """ This defines the reward that the agents get for running the maze """
+    def null_move(self, state):
+        """ a null move is -1 """
+        return -1
     def valid_move(self, state):
         """ a valid move is just a -1 (to reward shorter routes) """
         return -1
@@ -66,7 +69,7 @@ class AgentState:
         self.prev_rc = self.rc
         self.rc = maze.xy2rc(pos.x, pos.y)
         self.prev_pose = self.pose
-        self.pose = (pos.x, pos.y, agent.state.rotation.z + self.initial_rotation.z)
+        self.pose = (pos.x, pos.y, agent.state.rotation.z)
         self.time = time.time()
         
     def record_action(self, action):
@@ -194,37 +197,59 @@ class MazeEnvironment(Environment):
         """
         state = self.get_state(agent)
         state.record_action(action)
+
+        # store prev r,c and prev pose
+        state.prev_rc = state.rc
+        state.prev_pose = state.pose
         if not self.agent_info.actions.validate(action):
-            state.prev_rc = state.rc
-            return 0
+            return state.record_reward(self.reward.null_move(state))
         if agent.step == 0:
             state.initial_position = agent.state.position
             state.initial_rotation = agent.state.rotation
+
         (r,c) = state.rc
+
+        # check for null action
         a = int(round(action[0]))
-        state.prev_rc = state.rc
-        if a == len(MazeEnvironment.MOVES): # null action
-            return state.record_reward(self.rewards.valid_move(state))
-        (dr,dc) = MazeEnvironment.MOVES[a]
-        new_r, new_c = r + dr, c + dc
-        if not self.maze.rc_bounds(new_r, new_c):
-            return state.record_reward(self.rewards.out_of_bounds(state))
-        elif self.maze.is_wall(r,c,dr,dc):
-            return state.record_reward(self.rewards.hit_wall(state))
-        state.rc = (new_r, new_c)
+        if a == len(MazeEnvironment.MOVES):
+            return state.record_reward(self.rewards.null_move(state))
+
+        # update to old pose
         (old_r,old_c) = state.prev_rc
         (old_x,old_y) = self.maze.rc2xy(old_r, old_c)
         pos0 = agent.state.position
-        pos0.x = old_x
-        pos0.y = old_y
+        pos0.x, pos0.y = old_x, old_y
         agent.state.position = pos0
-        relative_rotation = self.get_next_rotation((dr,dc))
-        agent.state.rotation = state.initial_rotation + relative_rotation
+
+        # calculate new pose
+        (dr, dc) = MazeEnvironment.MOVES[a]
+        new_r, new_c = r + dr, c + dc
+        (new_x, new_y) = self.maze.rc2xy(new_r, new_c)
+
+        # check if we are in bounds
+        if not self.maze.rc_bounds(new_r, new_c):
+            return state.record_reward(self.rewards.out_of_bounds(state))
+
+        # check if there is a wall in the way
+        elif self.maze.is_wall(r,c,dr,dc):
+            return state.record_reward(self.rewards.hit_wall(state))
+
+        # set new rc and pose
+        state.rc = (new_r, new_c)
+        next_rotation = self.get_next_rotation((dr,dc))
+        new_heading = state.initial_rotation.z + next_rotation.z
+        state.pose = (new_x, new_y, new_heading)
+
+        # check if we reached the goal
         if new_r == ROWS - 1 and new_c == COLS - 1:
             state.goal_reached = True
             return state.record_reward(self.rewards.goal_reached(state))
+
+        # check if we ran out of time
         elif agent.step >= self.max_steps - 1:
             return state.record_reward(self.rewards.last_reward(state))
+
+        # return a normal reward
         return state.record_reward(self.rewards.valid_move(state))
 
     def teleport(self, agent, r, c):
@@ -265,16 +290,42 @@ class MazeEnvironment(Environment):
         (r1,c1) = state.rc
         dr, dc = r1 - r0, c1 - c0
         if dr != 0 or dc != 0:
-            (x0,y0) = self.maze.rc2xy(r0,c0)
-            (x1,y1) = self.maze.rc2xy(r1,c1)
-            pos = agent.state.position
+            (x0,y0,h0) = state.prev_pose
+            (x1,y1,h1) = state.pose
             fraction = 1.0
+            rotation = copy(agent.state.rotation)
             if self.get_delay() != 0:
                 fraction = min(1.0,float(time.time() - state.time)/self.get_delay())
-            pos.x = x0 * (1 - fraction) + x1 * fraction
-            pos.y = y0 * (1 - fraction) + y1 * fraction
-            agent.state.position = pos
-            self.set_animation(agent, state, 'run')
+            if fraction < 0.5:
+                fraction = fraction * 2.0
+                animation_speed = 0
+                animation = 'stand'
+                T = self.get_delay()/2.0 # how much time to play back the turn
+                if T > 0:
+                    animation_speed = 60.0 / T
+                    if h1 - h0 == 90:
+                        animation = 'turn_l_xc'
+                    elif h0 - h1 == 90:
+                        animation = 'turn_r_xc'
+                    elif max(h0,h1) - min(h0,h1) == 180:
+                        animation = 'turn_r_xc'
+                        animation_speed = animation_speed * 2.0
+                        if fraction > 0.5:
+                            rotation.z = h0 * 0.5 + h1 * 0.5
+                            agent.state.rotation = rotation
+                if agent.state.animation != animation:
+                    agent.state.animation = animation
+                if agent.state.animation_speed != animation_speed:
+                    agent.state.animation_speed = animation_speed
+            else:
+                rotation.z = h1
+                agent.state.rotation = rotation
+                fraction = (fraction - 0.5) * 2.0
+                pos = agent.state.position
+                pos.x = x0 * (1 - fraction) + x1 * fraction
+                pos.y = y0 * (1 - fraction) + y1 * fraction
+                agent.state.position = pos
+                self.set_animation(agent, state, 'run')
         else:
             self.set_animation(agent, state, 'stand')
         if time.time() - state.time > self.get_delay():
@@ -289,8 +340,6 @@ class MazeEnvironment(Environment):
             return True
         elif state.goal_reached:
             return True
-        #elif self.shortcircuit and state.is_stuck():
-        #    return False
         else:
             return False
 
