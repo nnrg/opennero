@@ -37,6 +37,7 @@ namespace OpenNero
             kDB_Id              = (1<<8),
             kDB_Type            = (1<<9),
             kDB_Collision       = (1<<10),
+            kDB_Bumped          = (1<<11),
         };
         
     public:
@@ -62,6 +63,7 @@ namespace OpenNero
         void SetColor( const SColor& color );         ///< Set the color of the entity
         void SetType( uint32_t t );                   ///< Type of this object (for sensors)
         void SetCollision( uint32_t mask );           ///< Set the collision mask for this object
+        void SetBumped( bool bumped );                ///< Set the bumped flag
         void SetAnimation( const std::string& animationType ); ///< Set the animation type of the object
         void SetAnimationSpeed( float32_t framesPerSectiond ); ///< Set the speed of the animation
 
@@ -82,6 +84,7 @@ namespace OpenNero
         SimId GetId() const;                      ///< Returns the id of the entity
         uint32_t GetType() const;                 ///< Type of this object (for sensors)
         uint32_t GetCollision( ) const;           ///< Get the collision mask
+        bool GetBumped() const;                   ///< Get the bumped flag
         std::string GetAnimation() const;         ///< Returns the animation type
         float32_t GetAnimationSpeed() const;      ///< Returns the animation speed (frames per second)
 
@@ -105,6 +108,7 @@ namespace OpenNero
         SimId mId;              ///< The id of the object
         uint32_t mType;         ///< Type of this object (for sensors)
         uint32_t mCollision;    ///< The collision mask
+        bool mBumped;           ///< Bumped flag
         uint32_t mDirtyBits;    ///< The dirty bits of the object (specifying which data has changed)
     };
 

@@ -161,7 +161,7 @@ class NeroEnvironment(Environment):
             return None
 
         state = self.get_state(agent)
-        
+
         #sort in order of variance from 0~2 degrees (maybe more)
         valids = []
         for curr in alt:
@@ -198,7 +198,6 @@ class NeroEnvironment(Environment):
         
         # get the reward (which has multiple components)
         reward = self.agent_info.reward.get_instance()
-
 
         #Initilize Agent state
         if agent.step == 0 and agent.group != "Turret":
@@ -243,7 +242,7 @@ class NeroEnvironment(Environment):
         # get the actions of the agent
         move_by = action[0]
         turn_by = degrees(action[1])
-
+        
         # set animation speed
         if self.speedup < 1.0:
             animation_speed = move_by * 250.0 / (1.0 - self.speedup)
@@ -290,9 +289,6 @@ class NeroEnvironment(Environment):
         ff.append(self.nearest(state.pose, state.id, ffr[0]))
         ff.append(self.nearest(state.pose, state.id, ffr[1]))
         
-        st = 0
-        ae = 0
-        
         #calculate fitness accrued during this step
         R = dict([(f, 0) for f in FITNESS_DIMENSIONS])
         R[FITNESS_STAND_GROUND] = -action[0]
@@ -311,16 +307,13 @@ class NeroEnvironment(Environment):
         for (i,f) in enumerate(FITNESS_DIMENSIONS):
             reward[i] = R[f]
         
-        # calculate the motion
-        new_position = copy(position)
-        new_position.x, new_position.y = new_x, new_y
-        
         # tell the system to make the calculated motion
         # this is actually done in is_active() and depends on speedup
         state.prev_pose = state.pose
-        rotation.z = new_heading
-        state.pose = (new_position.x, new_position.y, rotation.z)
+        state.pose = (new_x, new_y, new_heading)
         state.time = time.time()
+
+        print 'NeroEnvironment::step:', agent.state.id, state.prev_pose, state.pose
         
         return reward
 
@@ -417,14 +410,21 @@ class NeroEnvironment(Environment):
             agent.state.animation = animation
     
     def is_active(self, agent):
-        """ return true when the agent should act """
+        """ 
+        Return true when the agent should consider what to do next
+        During the frames in-between, interpolate from previous
+        to current pose.
+        """
+        # get the agent state
         state = self.get_state(agent)
-        # interpolate between prev_pose and pose
-        (x1, y1, h1) = state.prev_pose
-        (x2, y2, h2) = state.pose
-        # speedup of 0 means adjust
+
+        # calculate desired delay and time since last update
         delay = self.step_delay * (1.0 - self.speedup)
         time_since_last = time.time() - state.time
+
+        # try to interpolate between prev_pose and pose
+        (x1, y1, h1) = state.prev_pose
+        (x2, y2, h2) = state.pose
         if delay <= time_since_last:
             f = 1.0
         else:
@@ -433,19 +433,24 @@ class NeroEnvironment(Environment):
         # f between p1 (0) and p2 (1)
         x = x1 * (1 - f) + x2 * f
         y = y1 * (1 - f) + y2 * f
-        h = h1 * (1 - f) + h2 * f
-        # set position and rotation 
+        # combine degrees carefully to avoid 'flips'
+        # see common/module.py for def
+        h = mix_angles(h1,h2,f)
+
+        # try to update position
         pos = copy(agent.state.position)
         pos.x = x
         pos.y = y
+        print 'NeroEnvironment::is_active:', agent.state.id, agent.state.position, pos
         agent.state.position = pos
+
+        # try to update rotation
         rot = copy(agent.state.rotation)
         rot.z = h1 * (1-f) + h2 * f
         agent.state.rotation = rot
-        if f >= 1.0:
-            return True
-        else:
-            return False
+
+        # return if ready for the next decision
+        return f >= 1.0
     
     def is_episode_over(self, agent):
         """

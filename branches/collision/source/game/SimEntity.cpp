@@ -94,6 +94,7 @@ namespace OpenNero
 
     void SimEntity::ProcessTick(float32_t incAmt)
     {
+        LOG_F_DEBUG("ivk", "  SimEntity::ProcessTick: " << mSharedData.GetId() << " at " << mSharedData.GetPosition());
         if (mSceneObject)
         {
             // This call will update the pose of the Irrlicht object to 
@@ -116,6 +117,9 @@ namespace OpenNero
             // act.
             mAIObject->ProcessTick(incAmt);
         }
+
+        // reset the bumped flag
+        SetBumped(false);
     }
 
 #if NERO_BUILD_AUDIO
@@ -240,6 +244,16 @@ namespace OpenNero
         return mSharedData.GetCollision();
     }
 
+    bool SimEntity::GetBumped() const
+    {
+        return mSharedData.GetBumped();
+    }
+
+    void SimEntity::SetBumped(bool bumped)
+    {
+        mSharedData.SetBumped(bumped);
+    }
+
     void SimEntity::SetPosition( const Vector3f& pos )
     {
         mSharedData.SetPosition(pos);
@@ -272,8 +286,9 @@ namespace OpenNero
     /// before (which is stored in mSceneObject).
     void SimEntity::ResolveCollision()
     {
-        //LOG_F_DEBUG("collision", "ResolveCollision id: " << GetSimId() << " old: " << GetPosition() << " new: " << mSceneObject->getPosition());
+        LOG_F_DEBUG("ivk", "  SimEntity::ResolveCollision: " << mSharedData.GetId() << " from " << GetPosition() << " to " << mSceneObject->getPosition());
 		SetPosition(mSceneObject->getPosition());
+        SetBumped(true);
     }
 
 
