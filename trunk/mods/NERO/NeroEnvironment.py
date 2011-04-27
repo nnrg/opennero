@@ -243,6 +243,14 @@ class NeroEnvironment(Environment):
         # get the actions of the agent
         move_by = action[0]
         turn_by = degrees(action[1])
+
+        # set animation speed
+        if self.speedup < 1.0:
+            animation_speed = move_by * 250.0 / (1.0 - self.speedup)
+            if agent.state.animation_speed != animation_speed:
+                agent.state.animation_speed = animation_speed
+        else:
+            agent.state.animation_speed = 250.0
         
         # figure out the new heading
         new_heading = wrap_degrees(heading, turn_by)
@@ -250,7 +258,7 @@ class NeroEnvironment(Environment):
         # figure out the new x,y location
         new_x = x + MAX_MOVEMENT_SPEED * cos(radians(new_heading)) * move_by
         new_y = y + MAX_MOVEMENT_SPEED * sin(radians(new_heading)) * move_by
-        
+
         # figure out the firing location
         fire_x = x + self.MAX_DIST * cos(radians(new_heading))
         fire_y = y + self.MAX_DIST * sin(radians(new_heading))
@@ -407,9 +415,6 @@ class NeroEnvironment(Environment):
         """
         if agent.state.animation != animation:
             agent.state.animation = animation
-        animation_speed = 25.0 / (1.0 - self.speedup)
-        if agent.state.animation_speed != animation_speed:
-            agent.state.animation_speed = animation_speed
     
     def is_active(self, agent):
         """ return true when the agent should act """
