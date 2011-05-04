@@ -14,22 +14,11 @@ class TowerRewardStructure:
     def valid_move(self, state):
         """ a valid move is just a -1 (to reward shorter routes) """
         return -1
-    def out_of_bounds(self, state):
-        """ reward for running out of bounds of the maze (hitting the outer wall) """
-        return -5
-    def hit_wall(self, state):
-        """ reward for hitting any other wall """
-        return -5
     def goal_reached(self, state):
         """ reward for reaching the goal """
         print 'GOAL REACHED!'
         # reaching a goal is great!
         return 100
-    def last_reward(self, state):
-        """ reward for ending without reaching the goal """
-        (r,c) = state.rc
-        print 'EPISODE ENDED AT', r, c
-        return 100.0*(r+c)/(ROWS+COLS)
 
 class BlockState:
     """
@@ -122,12 +111,6 @@ class TowerEnvironment(Environment):
     """
     The environment is a 2-D maze.
     In the discrete version, the agent moves from cell to cell.
-     * Actions (1 discrete action)
-        * 0 - move in the +r direction
-        * 1 - move in the -r direction
-        * 2 - move in the +c direction
-        * 3 - move in the -c direction
-        * 4 - do nothing
      * Observations (6 discrete observations)
         * o[0] - the current row position
         * o[1] - the current col position
@@ -153,13 +136,13 @@ class TowerEnvironment(Environment):
 
         from module import getMod
 
-        self.init_queue = [1,5,'#init']
-        self.atob = [5,1,4,3,4,1,5,2,'#ab']
-        self.btoa = [3,5,1,4,2,4,1,5,'#ba']
-        self.atoc = [5,1,4,3,4,1,1,5,2,5,1,4,'#ac']
-        self.ctoa = [4,1,5,3,5,1,1,4,2,4,1,5,'#ca']
-        self.btoc = [3,4,1,5,2,5,1,4,'#bc']
-        self.ctob = [4,1,5,3,5,1,4,2,'#cb']
+        self.init_queue = [1,5]
+        self.atob = [5,1,4,3,4,1,5,2,]
+        self.btoa = [3,5,1,4,2,4,1,5,]
+        self.atoc = [5,1,4,3,4,1,1,5,2,5,1,4,]
+        self.ctoa = [4,1,5,3,5,1,1,4,2,4,1,5,]
+        self.btoc = [3,4,1,5,2,5,1,4,]
+        self.ctob = [4,1,5,3,5,1,4,2,]
 
         self.action_queue = self.init_queue #0
         self.action_queue += (self.atob) #1
@@ -178,7 +161,6 @@ class TowerEnvironment(Environment):
         self.action_queue += (self.atoc) #14
         self.action_queue += (self.btoc) #15
 
-        print self.action_queue
 
         Environment.__init__(self)
         self.problem = Tower.generate(ROWS, COLS, GRID_DX, GRID_DY)
@@ -274,7 +256,6 @@ class TowerEnvironment(Environment):
     def get_top_block(self,r,c):
         curr = None
         for state in self.block_states:
-            print self.block_states[state].name , self.block_states[state].rc, r,c
             if self.block_states[state].rc == (r,c):
                 curr = self.block_states[state]
                 break
@@ -357,14 +338,12 @@ class TowerEnvironment(Environment):
         if len(self.action_queue) > 0:
             a = self.action_queue.pop(0)#int(round(action[0]))
             if type(a) != type(3):
-                print a
                 if len(self.action_queue) > 0:
                     a = self.action_queue.pop(0)
                 else:
                     a = 0
         else:
             a = 0
-        print a
         (dr,dc) = (0,0)
         state.prev_rc = state.rc
         if a == 0: # null action
@@ -438,7 +417,6 @@ class TowerEnvironment(Environment):
         pos0.y = old_y
         agent.state.position = pos0
         relative_rotation = self.get_next_rotation((dr,dc))
-        print  agent.state.rotation.z, state.holding
         #agent.state.rotation = state.initial_rotation + relative_rotation
         if new_r == ROWS - 1 and new_c == COLS - 1:
             state.goal_reached = True

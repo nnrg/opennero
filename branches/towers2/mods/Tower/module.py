@@ -140,13 +140,13 @@ class TowerMod:
         del self.wall_ids[:] # clear the ids
         set_environment(env)
         # world boundaries
-        for i in range(1,COLS+1):
-            self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(GRID_DX/2, i * GRID_DY, 2), Vector3f(0, 0, 90), type=OBSTACLE_MASK ))
-            self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(i * GRID_DX, GRID_DY/2, 2), Vector3f(0, 0, 0), type=OBSTACLE_MASK ))
-            self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(i * GRID_DX, COLS * GRID_DY + GRID_DY/2, 2), Vector3f(0, 0, 0), type=OBSTACLE_MASK ))
-            self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(ROWS * GRID_DX + GRID_DX/2, i * GRID_DY, 2), Vector3f(0, 0, 90), type=OBSTACLE_MASK ))
+        #for i in range(1,COLS+1):
+        #    self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(GRID_DX/2, i * GRID_DY, 2), Vector3f(0, 0, 90), type=OBSTACLE_MASK ))
+        #    self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(i * GRID_DX, GRID_DY/2, 2), Vector3f(0, 0, 0), type=OBSTACLE_MASK ))
+        #    self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(i * GRID_DX, COLS * GRID_DY + GRID_DY/2, 2), Vector3f(0, 0, 0), type=OBSTACLE_MASK ))
+        #    self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(ROWS * GRID_DX + GRID_DX/2, i * GRID_DY, 2), Vector3f(0, 0, 90), type=OBSTACLE_MASK ))
         # goal (red cube)
-        self.wall_ids.append(addObject("data/shapes/cube/RedCube.xml", Vector3f(ROWS * GRID_DX, COLS * GRID_DY, 5), Vector3f(45,45,45)))
+        #self.wall_ids.append(addObject("data/shapes/cube/RedCube.xml", Vector3f(ROWS * GRID_DX, COLS * GRID_DY, 5), Vector3f(45,45,45)))
 
         self.block_ids = []
         #self.block_ids.append(addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.5,2.5,2.5)))
@@ -154,9 +154,9 @@ class TowerMod:
         #self.block_ids.append(addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.3,2.3,2.3)))
         #self.block_ids.append(addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.2/2.5,2.2/2.5,2.2/2.5)))
 
-        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(3,3,.8))
-        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(2 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(3,3,.8))
-        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(3 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(3,3,.8))
+        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.3,.3,5))
+        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(2 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.3,.3,5))
+        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(3 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.3,.3,5))
 
     def reset_maze(self):
         """ reset the maze by removing the markers and starting the AI """
