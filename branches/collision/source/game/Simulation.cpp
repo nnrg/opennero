@@ -167,6 +167,7 @@ namespace OpenNero
             for (; itr != end; ++itr)
             {
                 SimEntityPtr ent = itr->second;
+                ent->SetBumped(false); // reset bumped flag
                 if (ent->CanCollide())
                     colliders.insert(ent);
             }

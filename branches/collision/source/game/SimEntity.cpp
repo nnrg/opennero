@@ -94,7 +94,6 @@ namespace OpenNero
 
     void SimEntity::ProcessTick(float32_t incAmt)
     {
-        LOG_F_DEBUG("ivk", "  SimEntity::ProcessTick: " << mSharedData.GetId() << " at " << mSharedData.GetPosition());
         if (mSceneObject)
         {
             // This call will update the pose of the Irrlicht object to 
@@ -117,9 +116,6 @@ namespace OpenNero
             // act.
             mAIObject->ProcessTick(incAmt);
         }
-
-        // reset the bumped flag
-        SetBumped(false);
     }
 
 #if NERO_BUILD_AUDIO

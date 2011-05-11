@@ -753,8 +753,6 @@ namespace OpenNero
     {
         Assert( mSharedData );
         
-        LOG_F_DEBUG("ivk", "   SceneObject::ProcessTick: " << mSharedData->GetId());
-
         // set the position and rotation of our object
         if( mSceneNode )
         {

@@ -17,6 +17,8 @@ class AgentState:
         self.pose = (0, 0, 0)
         # previous x, y, heading pose
         self.prev_pose = (0, 0, 0)
+        # previous command
+        self.prev_command_pose = None
         # starting position
         self.initial_position = Vector3f(0, 0, 0)
         # starting orientation
@@ -201,8 +203,8 @@ class NeroEnvironment(Environment):
 
         #Initilize Agent state
         if agent.step == 0 and agent.group != "Turret":
-            p = agent.state.position
-            r = agent.state.rotation
+            p = copy(agent.state.position)
+            r = copy(agent.state.rotation)
             if agent.group == "Agent":
                 r.z = randrange(360)
                 agent.state.rotation = r #Note the internal components of agent.state.rotation are immutable you need to make a copy, modify the copy, and set agent.state.rotation to be the copy.
@@ -232,8 +234,8 @@ class NeroEnvironment(Environment):
         friendly_fire = getMod().ff
 
         # the position and the rotation of the agent on-screen
-        position = agent.state.position
-        rotation = agent.state.rotation
+        position = copy(agent.state.position)
+        rotation = copy(agent.state.rotation)
         
         # get the current pose of the agent
         x, y, heading = position.x, position.y, rotation.z
@@ -313,6 +315,7 @@ class NeroEnvironment(Environment):
         state.pose = (new_x, new_y, new_heading)
         state.time = time.time()
 
+        state.prev_command_pose = None
         print 'NeroEnvironment::step:', agent.state.id, state.prev_pose, state.pose
         
         return reward
@@ -422,6 +425,13 @@ class NeroEnvironment(Environment):
         delay = self.step_delay * (1.0 - self.speedup)
         time_since_last = time.time() - state.time
 
+        # if the previous motion was a bump, we just repeat the previous request
+        # this is where "unstuck" code would go
+        if agent.state.bumped and state.prev_command_pose:
+            print 'NeroEnvironment::is_active:bumped:', agent.state.id, state.prev_command_pose
+            agent.state.position = state.prev_command_pose
+            return time_since_last > delay
+        
         # try to interpolate between prev_pose and pose
         (x1, y1, h1) = state.prev_pose
         (x2, y2, h2) = state.pose
@@ -442,6 +452,7 @@ class NeroEnvironment(Environment):
         pos.x = x
         pos.y = y
         print 'NeroEnvironment::is_active:', agent.state.id, agent.state.position, pos
+        state.prev_command_pose = pos
         agent.state.position = pos
 
         # try to update rotation
