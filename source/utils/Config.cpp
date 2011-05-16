@@ -188,6 +188,6 @@ namespace OpenNero
 
     const AppConfig& GetAppConfig()
     {
-        Kernel::instance().getAppConfig();
+        return Kernel::instance().getAppConfig();
     }
 }; // end OpenNero
