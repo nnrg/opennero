@@ -10,7 +10,6 @@ from OpenNero import *
 from common import *
 import world_handler
 from agent_handler import AgentState, AgentInit
-from kdtree import *
 
 # load agent script
 from roomba import RoombaBrain
@@ -65,7 +64,7 @@ class SandboxMod:
         setup the sandbox environment
         """
         global XDIM, YDIM, HEIGHT, OFFSET
-        self.environment = SandboxEnvironment(XDIM, YDIM)
+        self.environment = RoombaEnvironment(XDIM, YDIM)
         set_environment(self.environment)
     
     def reset_sandbox(self=None):
@@ -117,7 +116,7 @@ class SandboxMod:
     def start_rtneat(self, pop_size):
         " start the rtneat learning demo "
         disable_ai()
-        #self.environment = SandboxEnvironment(XDIM, YDIM, self)
+        #self.environment = RoombaEnvironment(XDIM, YDIM, self)
         #set_environment(self.environment)
         #self.reset_sandbox()
         # Create RTNEAT object
@@ -133,7 +132,7 @@ def in_bounds(x,y):
     return x > ROOMBA_RAD and x < XDIM - ROOMBA_RAD and y > ROOMBA_RAD and y < YDIM - ROOMBA_RAD
 
 #################################################################################        
-class SandboxEnvironment(Environment):
+class RoombaEnvironment(Environment):
     """
     Sample Environment for the Sandbox
     """
@@ -150,7 +149,6 @@ class SandboxEnvironment(Environment):
         self.crumbs = world_handler.pattern_cluster(500, "Roomba/world_config.txt")
         # only keep crumbs that are inside the walls
         self.crumbs = [c for c in self.crumbs if in_bounds(c.x,c.y)]
-        self.kdcrumbs = kdtree(self.crumbs)
 
         self.init_list = AgentInit()
         self.init_list.add_type("<class 'Roomba.roomba.RoombaBrain'>")
@@ -220,8 +218,6 @@ class SandboxEnvironment(Environment):
         self.crumbs = world_handler.read_pellets()
         # only keep crumbs that are inside the walls        
         self.crumbs = [c for c in self.crumbs if in_bounds(c.x,c.y)]
-        # keep in KD-tree for speedy nearest search
-        self.kdcrumbs = kdtree(self.crumbs)
 
     def add_crumb_sensors(self, roomba_sbound):
         """Add the crumb sensors, in order: x position of crumb (0 to XDIM,
@@ -237,8 +233,6 @@ class SandboxEnvironment(Environment):
         for pellet in self.crumbs:
             if not (pellet.x, pellet.y) in getMod().marker_map:
                 getMod().mark_blue(pellet.x, pellet.y)
-        # also reset the kdcrumbs
-        self.kdcrumbs = kdtree(self.crumbs)
 
     def reset(self, agent):
         """ reset the environment to its initial state """
@@ -328,14 +322,12 @@ class SandboxEnvironment(Environment):
         
         # remove all crumbs within ROOMBA_RAD of agent position
         pos = (position.x, position.y)
-        dist = 0
-        while dist <= ROOMBA_RAD:
-            closest = kdsearchnn(self.kdcrumbs, pos)
-            dist = sqrt(kddistance(closest, pos))
-            if closest and dist <= ROOMBA_RAD:  # if agent gets close enough to a crumb
-                getMod().unmark(closest.x, closest.y) # remove marker on map
-                self.kdcrumbs = kdremove(self.kdcrumbs, closest) # remove from the kd-tree
-                reward += closest.reward # normal reward for picking up a pellet
+        for crumb in self.crumbs:
+            if (crumb.x, crumb.y) in getMod().marker_map:
+                distance = sqrt((crumb[0] - pos[0])**2 + (crumb[1] - pos[1])**2)
+                if distance < ROOMBA_RAD:
+                    getMod().unmark(crumb.x, crumb.y)
+                    reward += crumb.reward
                 
         # check if agent has expended its step allowance
         if (self.max_steps != 0) and (state.step_count >= self.max_steps):
@@ -357,16 +349,8 @@ class SandboxEnvironment(Environment):
             sensors[1] = pos.x
             sensors[2] = pos.y
             
-            pos = (pos.x, pos.y)
-            closest = kdsearchnn(self.kdcrumbs, pos)
-            
-            if closest:
-                # freebie for scripted agents: tell agent the closest crumb!
-                sensors[3] = closest.x
-                sensors[4] = closest.y
-        
             # describe every other crumb on the field!
-            self.sense_crumbs(sensors, N_S_IN_BLOCK, N_FIXED_SENSORS)
+            self.sense_crumbs(sensors, N_S_IN_BLOCK, N_FIXED_SENSORS, agent)
 
         else:
             """ Copied over from creativeit branch """
@@ -427,32 +411,40 @@ class SandboxEnvironment(Environment):
             # and sensors that detect cubes/wall at zero distance will have value 1.
         return sensors
 
-    def sense_crumbs(self, sensors, num_sensors, start_sensor):
+    def sense_crumbs(self, sensors, num_sensors, start_sensor, agent):
         """
         Generate a (big) array of observations, num_sensors for each crumb
         and store them inside sensors starting at start_sensor.
         Each crumb is stored as: (x,y,exists?,reward)
         """
         i = start_sensor
+        closest = None
+        closest_distance = None
+        pos = agent.state.position
+        pos = (pos.x, pos.y)
         for pellet in self.crumbs:
             sensors[i] = pellet.x
             sensors[i+1] = pellet.y
             if (pellet.x, pellet.y) in getMod().marker_map:
                 sensors[i+2] = 1
+                distance = sqrt( (pellet.x - pos[0]) ** 2 + (pellet.y - pos[1]) ** 2 )
+                if closest is None or distance < closest_distance:
+                    closest = pellet
+                    closest_distance = distance
             else:
                 sensors[i+2] = 0 
             sensors[i+3] = pellet.reward
             i = i + num_sensors
+        if closest is not None:
+            print 'closest', closest, 'proximity', closest_distance
+            # freebie for scripted agents: tell agent the closest crumb!
+            sensors[3] = closest.x
+            sensors[4] = closest.y
         return True
                      
     def is_active(self, agent):
         """ return true when the agent should act """
-        state = self.get_state(agent)
-        if time.time() - state.time > STEP_DT:
-            state.time = time.time()
-            return True
-        else:
-            return False     
+        return True
     
     def is_episode_over(self, agent):
         """ is the current episode over for the agent? """
