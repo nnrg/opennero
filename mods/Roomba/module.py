@@ -280,8 +280,8 @@ class SandboxEnvironment(Environment):
                 # The first action specifies the distance to move in the forward direction
                 # and the second action specifies the angular change in the orientation of
                 # the agent.
-                delta_dist = action[0]*self.SPEED
-                delta_angle = action[1]*self.ANGULAR_SPEED
+                delta_dist = action[0]*MAX_SPEED
+                delta_angle = action[1]*ANGULAR_SPEED
             reward = self.update_position(agent, delta_dist, delta_angle)
         state.reward += reward
         return reward
@@ -370,12 +370,12 @@ class SandboxEnvironment(Environment):
 
         else:
             """ Copied over from creativeit branch """
-            sensors[0] = self.MAX_DISTANCE
-            sensors[1] = self.MAX_DISTANCE
-            sensors[2] = self.MAX_DISTANCE
-            sensors[3] = self.MAX_DISTANCE
+            sensors[0] = MAX_DISTANCE
+            sensors[1] = MAX_DISTANCE
+            sensors[2] = MAX_DISTANCE
+            sensors[3] = MAX_DISTANCE
             sensors[4] = -1
-            sensors[5] = self.MAX_DISTANCE
+            sensors[5] = MAX_DISTANCE
             
             # The first four sensors detect the distance to the nearest cube in each of the
             # four quadrants defined by the coordinate frame attached to the agent.  The
@@ -412,7 +412,7 @@ class SandboxEnvironment(Environment):
                                 
             # Any distance sensor that still has the value MAX_DISTANCE is set to -1.
             for i in range(0, 6):
-                if i != 4 and sensors[i] >= self.MAX_DISTANCE:
+                if i != 4 and sensors[i] >= MAX_DISTANCE:
                     sensors[i] = -1
 
             # Invert and normalize the remaining distance sensor values to [0, 1]
