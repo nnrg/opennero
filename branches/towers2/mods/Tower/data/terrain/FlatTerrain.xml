@@ -6,9 +6,8 @@
     <MaterialType>detail</MaterialType>
     <MaterialFlagLighting>false</MaterialFlagLighting>
     <Terrain>data/terrain/terrain-heightmap-flat.bmp</Terrain>
-    <Texture0>data/terrain/terrain-texture.jpg</Texture0>
-    <Texture1>data/terrain/detailmap3.jpg</Texture1>
-    <ScaleTexture>10 10</ScaleTexture>
-    <Scale>2.0 2.0 2.0</Scale>
+    <Texture0>data/terrain/flat-texture.jpg</Texture0>
+    <ScaleTexture>3 3</ScaleTexture>
+    <Scale>4.0 4.0 4.0</Scale>
   </Render>
 </Template>

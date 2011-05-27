@@ -16,12 +16,22 @@ def CreateGui(guiMan):
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")  
     
-    towerButton = gui.create_button(guiMan, 'tower', Pos2i(0,240), Pos2i(100,30), '')
-    towerButton.text = 'Towers of Hanoi'
-    towerButton.OnMouseLeftClick = lambda: getMod().start_tower()
+    towerButton3 = gui.create_button(guiMan, 'tower3', Pos2i(0,0), Pos2i(150,30), '')
+    towerButton3.text = '3 Layer Towers of Hanoi'
+    towerButton3.OnMouseLeftClick = lambda: getMod().start_tower(3)
 
-    agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(100, 400), 'Agent')
-    agentWindow.addChild(towerButton)
+    towerButton4 = gui.create_button(guiMan, 'tower4', Pos2i(0,30), Pos2i(150,30), '')
+    towerButton4.text = '4 Layer Towers of Hanoi'
+    towerButton4.OnMouseLeftClick = lambda: getMod().start_tower(4)
+    
+    towerButton5 = gui.create_button(guiMan, 'tower5', Pos2i(0,60), Pos2i(150,30), '')
+    towerButton5.text = '5 Layer Towers of Hanoi'
+    towerButton5.OnMouseLeftClick = lambda: getMod().start_tower(5)
+    
+    agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(150, 120), 'Agent')
+    agentWindow.addChild(towerButton3)
+    agentWindow.addChild(towerButton4)
+    agentWindow.addChild(towerButton5)
 
     epsilon_percent = int(INITIAL_EPSILON * 100)
     epsilonValue = gui.create_text(guiMan, 'epsilonEditBox', Pos2i(260,0), Pos2i(100,30), str(epsilon_percent))
@@ -101,8 +111,8 @@ def ClientMain():
     recenter_cam() # call the recenter function
 
     # load the background
-    addObject("data/terrain/Sea.xml", Vector3f(-3000 + NUDGE_X,-3000 + NUDGE_Y,-20))
-    addObject("data/terrain/IslandTerrain.xml", Vector3f(-1100 + NUDGE_X, -2400 + NUDGE_Y, -17), Vector3f(0,0,-45))
+    #addObject("data/terrain/Sea.xml", Vector3f(-3000 + NUDGE_X,-3000 + NUDGE_Y,-20))
+    addObject("data/terrain/FlatTerrain.xml", Vector3f(-500,-500,0), Vector3f(0,0,0)) #Vector3f(-1100 + NUDGE_X, -2400 + NUDGE_Y, -17), Vector3f(0,0,-45))
     addSkyBox("data/sky/irrlicht2")
 
     # load the maze

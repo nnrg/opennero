@@ -135,33 +135,7 @@ class TowerEnvironment(Environment):
         """
 
         from module import getMod
-
-        self.init_queue = [1,5]
-        self.atob = [5,1,4,3,4,1,5,2,]
-        self.btoa = [3,5,1,4,2,4,1,5,]
-        self.atoc = [5,1,4,3,4,1,1,5,2,5,1,4,]
-        self.ctoa = [4,1,5,3,5,1,1,4,2,4,1,5,]
-        self.btoc = [3,4,1,5,2,5,1,4,]
-        self.ctob = [4,1,5,3,5,1,4,2,]
-
-        self.action_queue = self.init_queue #0
-        self.action_queue += (self.atob) #1
-        self.action_queue += (self.atoc) #2
-        self.action_queue += (self.btoc) #3
-        self.action_queue += (self.atob) #4
-        self.action_queue += (self.ctoa) #5
-        self.action_queue += (self.ctob) #6
-        self.action_queue += (self.atob) #7
-        self.action_queue += (self.atoc) #8
-        self.action_queue += (self.btoc) #9
-        self.action_queue += (self.btoa) #10
-        self.action_queue += (self.ctoa) #11
-        self.action_queue += (self.btoc) #12
-        self.action_queue += (self.atob) #13
-        self.action_queue += (self.atoc) #14
-        self.action_queue += (self.btoc) #15
-
-
+        
         Environment.__init__(self)
         self.problem = Tower.generate(ROWS, COLS, GRID_DX, GRID_DY)
         self.rewards = TowerRewardStructure()
@@ -173,6 +147,7 @@ class TowerEnvironment(Environment):
         action_info.add_discrete(0, 5) # select from the moves we can make
         observation_info.add_discrete(0, ROWS-1)
         observation_info.add_discrete(0, COLS-1)
+        observation_info.add_discrete(0,360)
         observation_info.add_discrete(0,1)
         observation_info.add_discrete(0,1)
         observation_info.add_discrete(0,1)
@@ -184,15 +159,22 @@ class TowerEnvironment(Environment):
         self.speedup = 0
         self.shortcircuit = False
         
+
+    def initilize_blocks(self):
+        from module import getMod
+        num_towers = getMod().num_towers
         blue = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.75*2.5,.75*2.5,.75*2.5))
         green = addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.7*2.5,.7*2.5,.7*2.5))
         yellow = addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.65*2.5,.65*2.5,.65*2.5))
-        red = addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.6,.6,.6))
+        if num_towers > 3: red = addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.6,.6,.6))
+        if num_towers > 4: white = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 5 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.55*2.5,.55*2.5,.55*2.5))
         
+
         print "BLUE == ", blue
         print "GREEN == ", green
         print "YELLOW == ", yellow
-        print "RED == ", red
+        if num_towers > 3: print "RED == ", red
+        if num_towers > 4: print "WHITE == ", white
 
         #Can use id to set things. Use getSimContext().setObjectPosition()  from ID. 
 
@@ -218,34 +200,52 @@ class TowerEnvironment(Environment):
         gstate.obj = green
         gstate.mass = 4
         
-        self.block_states[yellow] = BlockState(self.problem)
-        ystate = self.block_states[yellow]
-        ystate.rc = (0,1)
-        ystate.height = 2
-        ystate.name = "yellow"
-        ystate.obj = yellow
-        ystate.mass = 3
-       
-        self.block_states[red] = BlockState(self.problem)
-        rstate = self.block_states[red]
-        rstate.rc = (0,1)
-        rstate.height = 3
-        rstate.name = "red"
-        rstate.obj = red
-        rstate.mass = 2
+        if num_towers > 2:
+            self.block_states[yellow] = BlockState(self.problem)
+            ystate = self.block_states[yellow]
+            ystate.rc = (0,1)
+            ystate.height = 2
+            ystate.name = "yellow"
+            ystate.obj = yellow
+            ystate.mass = 3
+    
+        if num_towers > 3:
+            self.block_states[red] = BlockState(self.problem)
+            rstate = self.block_states[red]
+            rstate.rc = (0,1)
+            rstate.height = 3
+            rstate.name = "red"
+            rstate.obj = red
+            rstate.mass = 2
         
+        if num_towers > 4:
+            self.block_states[white] = BlockState(self.problem)
+            wstate = self.block_states[white]
+            wstate.rc = (0,1)
+            wstate.height = 4
+            wstate.name = "white"
+            wstate.obj = white
+            wstate.mass = 1
+
         bstate.above = gstate
         gstate.below = bstate
         gstate.above = ystate
         ystate.below = gstate
-        ystate.above = rstate
-        rstate.below = ystate
+        if num_towers > 3: ystate.above = rstate
+        if num_towers > 3: rstate.below = ystate
+        if num_towers > 4: rstate.above = wstate
+        if num_towers > 4: wstate.below = rstate
 
 
         print 'Initialized TowerEnvironment'
         
-    def get_delay(self):
-        return self.step_delay * (1.0 - self.speedup)
+    def get_delay(self,ca):
+        if ca == "pickup" or ca == "set":
+            return 0
+        elif ca == "right" or ca == "left":
+            return (self.step_delay / 2.0) * (1.0 - self.speedup)
+        else:
+            return self.step_delay * (1.0 - self.speedup)
 
     def get_block_state(self,name):
         for state in self.block_states:
@@ -314,6 +314,8 @@ class TowerEnvironment(Environment):
         """
         Discrete version
         """
+        if len(self.block_states) == 0:
+            self.initilize_blocks()
         state = self.get_state(agent)
         state.record_action(action)
         if not self.agent_info.actions.validate(action):
@@ -335,22 +337,23 @@ class TowerEnvironment(Environment):
         state.prev_rotation = state.next_rotation
 
         (r,c) = state.rc
-        if len(self.action_queue) > 0:
-            a = self.action_queue.pop(0)#int(round(action[0]))
-            if type(a) != type(3):
-                if len(self.action_queue) > 0:
-                    a = self.action_queue.pop(0)
-                else:
-                    a = 0
-        else:
-            a = 0
+        a = int(round(action[0]))
+        #if len(self.action_queue) > 0:
+        #    a = self.action_queue.pop(0)#int(round(action[0]))
+        #    if type(a) != type(3):
+        #        if len(self.action_queue) > 0:
+        #            a = self.action_queue.pop(0)
+        #        else:
+        #            a = 0
+        #else:
+        #    a = 0
         (dr,dc) = (0,0)
         state.prev_rc = state.rc
         if a == 0: # null action
             state.current_action = 'stand'
             return state.record_reward(self.rewards.valid_move(state))
         if a == 1 or a == 2 or a == 3:
-            (dr,dc) = TowerEnvironment.MOVES[int(agent.state.rotation.z / 90)]
+            (dr,dc) = TowerEnvironment.MOVES[int((agent.state.rotation.z % 360) / 90)]
             index = int(agent.state.rotation.z / 90)
             state.current_action = 'walk'
         if a == 2:
@@ -360,6 +363,7 @@ class TowerEnvironment(Environment):
             (dr,dc) = TowerEnvironment.MOVES[int(agent.state.rotation.z / 90)]
             new_r, new_c = r + dr, c + dc
             curr_top = self.get_top_block(new_r,new_c)
+            state.current_action = 'set'
             if curr_top != None:
              if curr_top.mass > state.holding.mass:
                 curr_top.above = state.holding
@@ -385,6 +389,7 @@ class TowerEnvironment(Environment):
             if state.holding != None:
                 state.current_action = 'stand'
                 return state.record_reward(self.rewards.valid_move(state))
+            state.current_action = 'pickup'
             (dr,dc) = TowerEnvironment.MOVES[int(agent.state.rotation.z / 90)]
             new_r, new_c = r + dr, c + dc
             curr_top = self.get_top_block(new_r,new_c)
@@ -405,9 +410,7 @@ class TowerEnvironment(Environment):
             state.next_rotation += 90
             state.current_action = 'left'
         new_r, new_c = r + dr, c + dc
-        if not self.problem.rc_bounds(new_r, new_c):
-            return state.record_reward(self.rewards.out_of_bounds(state))
-        elif self.problem.is_wall(r,c,dr,dc):
+        if self.problem.is_wall(r,c,dr,dc):
             return state.record_reward(self.rewards.hit_wall(state))
         state.rc = (new_r, new_c)
         (old_r,old_c) = state.prev_rc
@@ -445,6 +448,7 @@ class TowerEnvironment(Environment):
         state = self.get_state(agent)
         obs[0] = state.rc[0]
         obs[1] = state.rc[1]
+        obs[2] = agent.state.rotation.z % 360
         offset = GRID_DX/10.0
         p0 = agent.state.position
         for i, (dr, dc) in enumerate(TowerEnvironment.MOVES):
@@ -464,15 +468,15 @@ class TowerEnvironment(Environment):
         (r1,c1) = state.rc
         dr, dc = r1 - r0, c1 - c0
         fraction = 1.0
-        if self.get_delay() != 0:
-            fraction = min(1.0,float(time.time() - state.time)/self.get_delay())
+        if self.get_delay(state.current_action) != 0:
+            fraction = min(1.0,float(time.time() - state.time)/self.get_delay(state.current_action))
         if dr != 0 or dc != 0:
             (x0,y0) = self.problem.rc2xy(r0,c0)
             (x1,y1) = self.problem.rc2xy(r1,c1)
             pos = agent.state.position
             fraction = 1.0
-            if self.get_delay() != 0:
-                fraction = min(1.0,float(time.time() - state.time)/self.get_delay())
+            if self.get_delay(state.current_action) != 0:
+                fraction = min(1.0,float(time.time() - state.time)/self.get_delay(state.current_action))
             pos.x = x0 * (1 - fraction) + x1 * fraction
             pos.y = y0 * (1 - fraction) + y1 * fraction
             agent.state.position = pos
@@ -514,7 +518,7 @@ class TowerEnvironment(Environment):
         else:
             if state.holding == None: self.set_animation(agent, state, 'stand')
             else: self.set_animation(agent,state,'hold_stand')
-        if time.time() - state.time > self.get_delay():
+        if time.time() - state.time > self.get_delay(state.current_action):
             state.time = time.time()
             return True # call the sense/act/step loop
         else:

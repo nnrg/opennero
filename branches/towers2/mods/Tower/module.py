@@ -173,8 +173,12 @@ class TowerMod:
         self.agent_id = None
         reset_ai()
 
-    def start_tower(self):
+    def num_towers(self):
+        return num_towers
+
+    def start_tower(self,n):
         """ start the q-learning demo """
+        self.num_towers = n
         disable_ai()
         self.reset_maze()
         if self.environment.__class__.__name__ != 'TowerEnvironment':

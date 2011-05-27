@@ -16,6 +16,6 @@
     <Scale>0.2 0.2 0.2</Scale>
   </Render>
   <AI>
-    <Python agent="Tower.agent.RandomAgent()" />
+    <Python agent="Tower.agent.TowerAgent()" />
   </AI>
 </Template>
