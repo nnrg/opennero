@@ -275,19 +275,20 @@ namespace OpenNero
 					maxAbsoluteScore = (*iter)->mAbsoluteScore;
             }
         }
-        
-        //LOG_F_DEBUG("ai.rtneat", "brains: " << mBrainList.size() << " active: " << mBrainBodyMap.size() << " waiting: " << mWaitingBrainList.size() << " evaluated: " << evaluated);
-        
+                
         if (scoreHelper.getSampleSize() > 0 && evaluated > 0)
         {
-            LOG_F_DEBUG("ai.rtneat", 
-                        "z-min: " << minAbsoluteScore <<
-                        " z-max: " << maxAbsoluteScore <<
-                        " r-min: " << scoreHelper.getMin() <<
-                        " r-max: " << scoreHelper.getMax() <<
-                        " w: " << mFitnessWeights <<
-                        " mean: " << scoreHelper.getAverage() <<
-                        " stdev: " << scoreHelper.getStandardDeviation());
+            LOG_F_DEBUG("ai.rtneat", "brains: " << mBrainList.size() << " active: " << mBrainBodyMap.size() << " waiting: " << mWaitingBrainList.size() << " evaluated: " << evaluated);
+            if (minAbsoluteScore != maxAbsoluteScore) {
+                LOG_F_DEBUG("ai.rtneat", 
+                            "z-min: " << minAbsoluteScore <<
+                            " z-max: " << maxAbsoluteScore <<
+                            " r-min: " << scoreHelper.getMin() <<
+                            " r-max: " << scoreHelper.getMax() <<
+                            " w: " << mFitnessWeights <<
+                            " mean: " << scoreHelper.getAverage() <<
+                            " stdev: " << scoreHelper.getStandardDeviation());
+            }
         }
 
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
