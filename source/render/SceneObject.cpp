@@ -170,6 +170,31 @@ namespace OpenNero
         return static_cast<uint32_t>( (sceneId << SceneObject::BITMASK_SIZE) | type );
     }
     
+    void DrawBBox(const BBoxf& box, const LineSet::LineColor& color, bool nativeCoords = false)
+    {
+        irr::core::vector3df verts[8];
+        if (nativeCoords) {
+            BBoxf onBox(
+                ConvertIrrlichtToNeroPosition(box.MinEdge),
+                ConvertIrrlichtToNeroPosition(box.MaxEdge));
+            onBox.getEdges(verts);
+        } else {
+            box.getEdges(verts);
+        }
+        LineSet::instance().AddSegment( verts[0], verts[1], color );
+        LineSet::instance().AddSegment( verts[1], verts[3], color );
+        LineSet::instance().AddSegment( verts[3], verts[2], color );
+        LineSet::instance().AddSegment( verts[2], verts[0], color );
+        LineSet::instance().AddSegment( verts[4], verts[5], color );
+        LineSet::instance().AddSegment( verts[5], verts[7], color );
+        LineSet::instance().AddSegment( verts[7], verts[6], color );
+        LineSet::instance().AddSegment( verts[6], verts[4], color );
+        LineSet::instance().AddSegment( verts[4], verts[0], color );
+        LineSet::instance().AddSegment( verts[5], verts[1], color );
+        LineSet::instance().AddSegment( verts[6], verts[2], color );
+        LineSet::instance().AddSegment( verts[7], verts[3], color );
+    }
+    
     /// a template for footprints
 	struct FootprintTemplate
 	{
@@ -708,28 +733,33 @@ namespace OpenNero
         if (my_irr_movement.getLengthSQ() == 0) return false;
         
         // get the axis-aligned bounding boxes for both objects
-        BBoxf my_box = mSceneNode->getTransformedBoundingBox(); // our irr a.a.b. box
-        BBoxf other_box = other->mSceneNode->getTransformedBoundingBox(); // their irr a.a.b. box
+        BBoxf my_box = mSceneNode->getTransformedBoundingBox(); // our irr a.a. box
+        BBoxf other_box = other->mSceneNode->getTransformedBoundingBox(); // their irr a.a. box
         
         // make the bounding box slightly larger to account for animation differences
-        Matrix4 scale;
-        scale.setScale(1.3);
-        scale.transformBox(my_box);
+        //Matrix4 scale;
+        //scale.setScale(1.3);
+        //scale.transformBox(my_box);
         
         // get the previous and current rotation in Irrlicht coords
-        Vector3f my_prev_irr_rot(ConvertNeroToIrrlichtRotation(getRotation()));
-        Assert(GetSharedState());
-        Vector3f my_irr_rot(ConvertNeroToIrrlichtRotation(GetSharedState()->GetRotation()));
+        //Vector3f my_prev_irr_rot(ConvertNeroToIrrlichtRotation(getRotation()));
+        //Assert(GetSharedState());
+        //Vector3f my_irr_rot(ConvertNeroToIrrlichtRotation(GetSharedState()->GetRotation()));
         
         // translate the bounding box with the move translation
         Matrix4 translation;
         translation.setTranslation(my_irr_movement.getVector());
-        translation.transformBox(my_box);
+        my_box = BBoxf(my_box.MinEdge + my_irr_movement.getVector(), my_box.MaxEdge + my_irr_movement.getVector());
         
         // rotate the bounding box with the move rotation
-        Matrix4 rotation;
-        rotation.setRotationDegrees(my_irr_rot - my_prev_irr_rot);
-        rotation.transformBox(my_box);
+        //Matrix4 rotation;
+        //rotation.setRotationDegrees(my_irr_rot - my_prev_irr_rot);
+        //rotation.transformBox(my_box);
+
+        { // draw the final box we are checking for collisions with
+            DrawBBox(my_box, LineSet::LineColor(255,255,128,128), true);
+            DrawBBox(other_box, LineSet::LineColor(255,255,64,64), true);
+        }
         
         // check if our movement line crosses the bounding box of the other object
         if (other_box.intersectsWithLine(my_irr_movement))
@@ -815,26 +845,10 @@ namespace OpenNero
             }
             
             // add our bounding box to the lineset
-            if( mSceneNode && mSceneObjectTemplate->mDrawBoundingBox )
+            if( mSceneNode )//&& mSceneObjectTemplate->mDrawBoundingBox )
             {
                 BBoxf bbox = getTransformedBoundingBox();
-                const LineSet::LineColor kGreen(255,0,255,0);
-                
-                irr::core::vector3df verts[8];
-                bbox.getEdges(verts);
-                
-                LineSet::instance().AddSegment( verts[0], verts[1], kGreen );
-                LineSet::instance().AddSegment( verts[1], verts[3], kGreen );
-                LineSet::instance().AddSegment( verts[3], verts[2], kGreen );
-                LineSet::instance().AddSegment( verts[2], verts[0], kGreen );
-                LineSet::instance().AddSegment( verts[4], verts[5], kGreen );
-                LineSet::instance().AddSegment( verts[5], verts[7], kGreen );
-                LineSet::instance().AddSegment( verts[7], verts[6], kGreen );
-                LineSet::instance().AddSegment( verts[6], verts[4], kGreen );
-                LineSet::instance().AddSegment( verts[4], verts[0], kGreen );
-                LineSet::instance().AddSegment( verts[5], verts[1], kGreen );
-                LineSet::instance().AddSegment( verts[6], verts[2], kGreen );
-                LineSet::instance().AddSegment( verts[7], verts[3], kGreen );
+                DrawBBox(bbox, LineSet::LineColor(255,0,255,0));
             }
             
             if (mFPSCamera && !mCamera)
