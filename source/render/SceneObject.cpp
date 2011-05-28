@@ -711,14 +711,22 @@ namespace OpenNero
         BBoxf my_box = mSceneNode->getTransformedBoundingBox(); // our irr a.a.b. box
         BBoxf other_box = other->mSceneNode->getTransformedBoundingBox(); // their irr a.a.b. box
         
+        // make the bounding box slightly larger to account for animation differences
+        Matrix4 scale;
+        scale.setScale(1.3);
+        scale.transformBox(my_box);
+        
+        // get the previous and current rotation in Irrlicht coords
         Vector3f my_prev_irr_rot(ConvertNeroToIrrlichtRotation(getRotation()));
         Assert(GetSharedState());
         Vector3f my_irr_rot(ConvertNeroToIrrlichtRotation(GetSharedState()->GetRotation()));
         
+        // translate the bounding box with the move translation
         Matrix4 translation;
         translation.setTranslation(my_irr_movement.getVector());
         translation.transformBox(my_box);
         
+        // rotate the bounding box with the move rotation
         Matrix4 rotation;
         rotation.setRotationDegrees(my_irr_rot - my_prev_irr_rot);
         rotation.transformBox(my_box);

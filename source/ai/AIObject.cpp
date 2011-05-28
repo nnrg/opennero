@@ -53,6 +53,9 @@ namespace OpenNero
     void AIObject::ProcessTick(float32_t dt)
     {
         Assert(getBrain());
+
+        LOG_F_DEBUG("ivk", "   AIObject::ProcessTick: " << mSharedData->GetId() << " at " << mSharedData->GetPosition());
+
         if (getBrain()->step == 0) // if first step
         {
             Observations observations = sense();

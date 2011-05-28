@@ -108,28 +108,18 @@ namespace OpenNero
 		/// Get a constant reference to the shared data for this SimEntity
         const SimEntityData& GetState() const { return mSharedData; }
 
-        /// get position of the object
+        /// Getters for properties
+        /// @{
         const Vector3f& GetPosition() const;
-
-        /// get orientation of the object
         const Vector3f& GetRotation() const;
-
-        /// get velocity of the object
         const Vector3f& GetVelocity() const;
-
-        /// get scale of the object
         const Vector3f& GetScale() const;
-
-        /// get label of the object
         const std::string& GetLabel() const;
-
-        /// get override color of the object
         const SColor& GetColor() const;
-        
-        /// get the type flag of the object
         uint32_t GetType() const;
-        
         uint32_t GetCollision() const;
+        bool GetBumped() const;
+        /// @}
 
 		/// Setters for properties
         /// @{
@@ -140,6 +130,7 @@ namespace OpenNero
         void SetLabel( const std::string& label );
         void SetColor( const SColor& color );
         void SetCollision( uint32_t mask );
+        void SetBumped(bool bumped);
         /// @}
         
     private:
