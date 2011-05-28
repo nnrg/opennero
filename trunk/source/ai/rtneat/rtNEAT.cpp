@@ -401,6 +401,18 @@ namespace OpenNero
 		}
     }
     
+    /// the id of the species of the organism
+    int PyOrganism::GetSpeciesId() const
+    {
+        return mOrganism->species.lock()->id;
+    }
+
+    /// whether the organism is a champion
+    bool PyOrganism::IsChampion() const
+    {
+        return mOrganism->champion;
+    }
+
     std::ostream& operator<<(std::ostream& output, const PyNetwork& net)
     {
         // TODO: currently this prints out the whole network in a Boost 

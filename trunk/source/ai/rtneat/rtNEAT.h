@@ -205,6 +205,10 @@ namespace OpenNero
         int GetTimeAlive() const { return mOrganism->time_alive; }
         /// get network of the organism
         PyNetworkPtr GetNetwork() const { return PyNetworkPtr(new PyNetwork(mOrganism->net)); }
+        /// the id of the species of the organism
+        int GetSpeciesId() const;
+        /// whether the organism is a champion
+        bool IsChampion() const;
         /// save this organism to a file
         bool Save(const std::string& fname) const { return mOrganism->print_to_file(fname); }
         /// Get the organism
