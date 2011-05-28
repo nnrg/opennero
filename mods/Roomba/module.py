@@ -436,7 +436,6 @@ class RoombaEnvironment(Environment):
             sensors[i+3] = pellet.reward
             i = i + num_sensors
         if closest is not None:
-            print 'closest', closest, 'proximity', closest_distance
             # freebie for scripted agents: tell agent the closest crumb!
             sensors[3] = closest.x
             sensors[4] = closest.y
