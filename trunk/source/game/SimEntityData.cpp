@@ -22,6 +22,7 @@ namespace OpenNero
         , mId()
         , mType()
         , mCollision()
+        , mBumped(false)
         , mDirtyBits(uint32_t(-1))
     {
     }
@@ -43,6 +44,7 @@ namespace OpenNero
         , mId(id)
         , mType(t)
         , mCollision(collision)
+        , mBumped(false)
         , mDirtyBits(uint32_t(-1))
     {
     }
@@ -127,6 +129,15 @@ namespace OpenNero
             mDirtyBits |= kDB_Collision;
         }
     }
+
+    void SimEntityData::SetBumped( bool bumped )
+    {
+        if (mBumped != bumped) 
+        {
+            mBumped = bumped;
+            mDirtyBits != kDB_Bumped;
+        }
+    }
     
     void SimEntityData::SetAnimation( const std::string& animationType )
     {
@@ -191,6 +202,11 @@ namespace OpenNero
     uint32_t SimEntityData::GetCollision() const
     {
         return mCollision;
+    }
+
+    bool SimEntityData::GetBumped() const
+    {
+        return mBumped;
     }
     
     std::string SimEntityData::GetAnimation() const

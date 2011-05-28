@@ -240,6 +240,16 @@ namespace OpenNero
         return mSharedData.GetCollision();
     }
 
+    bool SimEntity::GetBumped() const
+    {
+        return mSharedData.GetBumped();
+    }
+
+    void SimEntity::SetBumped(bool bumped)
+    {
+        mSharedData.SetBumped(bumped);
+    }
+
     void SimEntity::SetPosition( const Vector3f& pos )
     {
         mSharedData.SetPosition(pos);
@@ -272,8 +282,9 @@ namespace OpenNero
     /// before (which is stored in mSceneObject).
     void SimEntity::ResolveCollision()
     {
-        //LOG_F_DEBUG("collision", "ResolveCollision id: " << GetSimId() << " old: " << GetPosition() << " new: " << mSceneObject->getPosition());
+        LOG_F_DEBUG("ivk", "  SimEntity::ResolveCollision: " << mSharedData.GetId() << " from " << GetPosition() << " to " << mSceneObject->getPosition());
 		SetPosition(mSceneObject->getPosition());
+        SetBumped(true);
     }
 
 

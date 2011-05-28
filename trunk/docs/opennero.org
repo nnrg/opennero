@@ -1,7 +1,7 @@
 * OpenNERO todo list
 ** Fixes after NERO tournament
 *** TODO agents getting embedded in the walls
-*** TODO animation speed (Adam)
+*** DONE animation speed
 *** TODO pieces off the board
 *** DONE no yellow sensors
 *** TODO don't fire if there is a wall in the way
@@ -17,8 +17,8 @@
 *** DONE Add on-target sensor (offensive), (should not see through walls)
 *** TODO Add line-of-fire sensor (defensive), (should not see through walls)
 *** TODO Figure out firing mechanics
-Currently missing only if other agents move, combine firing scoring to happen equally for everyone
-depending on orientation of agent, casting ray at it either hits it or not
+    Currently missing only if other agents move, combine firing scoring to happen equally for everyone
+    depending on orientation of agent, casting ray at it either hits it or not
 *** TODO Need to have artificial firing noise
 ** General bugs
 *** DONE full path for log file crashes
@@ -30,5 +30,3 @@ depending on orientation of agent, casting ray at it either hits it or not
 |      63 | Task   | High     | Line of fire sensors need to be added to NERO mod       | *nero*          |
 |      65 | Task   | High     | Battle mod needs to reuse NERO environment              | *nero* *battle* |
 |      68 | Defect | Medium   | collision with tables in Roomba                         | *roomba*        |
-
-   
