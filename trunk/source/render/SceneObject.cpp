@@ -845,7 +845,7 @@ namespace OpenNero
             }
             
             // add our bounding box to the lineset
-            if( mSceneNode )//&& mSceneObjectTemplate->mDrawBoundingBox )
+            if( mSceneNode && mSceneObjectTemplate->mDrawBoundingBox )
             {
                 BBoxf bbox = getTransformedBoundingBox();
                 DrawBBox(bbox, LineSet::LineColor(255,0,255,0));
