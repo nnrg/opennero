@@ -5,21 +5,31 @@
 *** TODO pieces off the board
 *** DONE no yellow sensors
 *** TODO don't fire if there is a wall in the way
+*** TODO boxes
 ** Overhead display
 *** DONE fitnesses
 *** DONE time alive
-*** TODO hit points
+*** TODO hit points (DONE in battle)
 *** DONE genome id #
-*** TODO species id #
-*** TODO champ
+*** DONE species id #
+*** DONE champ
 *** TODO rank
+** Roomba
+*** TODO Table collisions
+** Binary release
+*** TODO new Boost
+*** TODO installer for windows
+*** TODO app for Mac OS X
+*** TODO Linux x86
 ** Sensors
 *** DONE Add on-target sensor (offensive), (should not see through walls)
 *** TODO Add line-of-fire sensor (defensive), (should not see through walls)
-*** TODO Figure out firing mechanics
+*** TODO Figure out firing mechanics and looks
     Currently missing only if other agents move, combine firing scoring to happen equally for everyone
     depending on orientation of agent, casting ray at it either hits it or not
 *** TODO Need to have artificial firing noise
+** Docs
+*** TODO Project descriptions for Roomba (Shimon)
 ** General bugs
 *** DONE full path for log file crashes
 ** Other general bugs

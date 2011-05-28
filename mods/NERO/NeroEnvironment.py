@@ -453,7 +453,6 @@ class NeroEnvironment(Environment):
         pos = copy(agent.state.position)
         pos.x = x
         pos.y = y
-        print 'NeroEnvironment::is_active:', agent.state.id, agent.state.position, pos
         state.prev_command_pose = pos
         agent.state.position = pos
 
@@ -476,7 +475,6 @@ class NeroEnvironment(Environment):
         if self.max_steps != 0 and agent.step >= self.max_steps:
             return True
         if not get_ai("rtneat").has_organism(agent):
-            print 'agent selected by evolution!'
             return True
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
             return True

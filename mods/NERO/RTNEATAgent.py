@@ -80,11 +80,16 @@ class RTNEATAgent(AgentBrain):
             elif display_hint == 'genome id':
                 self.state.label = str(org.id)
             elif display_hint == 'species id':
-                self.state.label = 'species id'
+                self.state.label = str(org.species_id)
             elif display_hint == 'champion':
-                self.state.label = 'champion'
+                if org.champion:
+                    self.state.label = 'champ!'
+                else:
+                    self.state.label = ''
             elif display_hint == 'rank':
-                self.state.label = 'rank'
+                self.state.label = str(org.rank)
+            elif display_hint == 'debug':
+                self.state.label = str(get_environment().get_state(self))
             else:
                 self.state.label = '?'
         else:

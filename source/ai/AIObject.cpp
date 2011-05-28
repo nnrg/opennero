@@ -33,7 +33,7 @@ namespace OpenNero
         }
         return AIObjectTemplatePtr();
     }
-
+    
     /// create a new AI object to live in the specified world
     AIObject::AIObject(EnvironmentPtr world, SimEntityPtr parent) 
         : SimEntityComponent(parent)
@@ -43,12 +43,12 @@ namespace OpenNero
         , mSensors(parent)
     {
     }
-
+    
     AIObject::~AIObject()
     {
         // nada
     }
-
+    
     /// get the AI move and apply it to the shared data
     void AIObject::ProcessTick(float32_t dt)
     {
