@@ -11,8 +11,8 @@ class AgentState:
     """
     State that we keep for each agent
     """
-    def __init__(self):
-        self.id = -1
+    def __init__(self, agent):
+        self.id = agent.state.id
         # current x, y, heading pose
         self.pose = (0, 0, 0)
         # previous x, y, heading pose
@@ -27,6 +27,11 @@ class AgentState:
         self.start_time = self.time
         self.total_damage = 0
         self.curr_damage = 0
+    def __str__(self):
+        x, y, h = self.pose
+        px, py, ph = self.prev_pose
+        return 'agent { id: %d, pose: (%.02f, %.02f, %.02f), prev_pose: (%.02f, %.02f, %.02f) }' % \
+            (self.id, x, y, h, px, py, ph)
 
 class NeroEnvironment(Environment):
     """
@@ -93,8 +98,10 @@ class NeroEnvironment(Environment):
         if agent.group == "Agent":
             dx = randrange(XDIM/20) - XDIM/40
             dy = randrange(XDIM/20) - XDIM/40
+            # TODO: initialization code should be inside AgentState
             state.initial_position.x = getMod().spawn_x + dx
             state.initial_position.y = getMod().spawn_y + dy
+            agent.prev_command_pose = None
             agent.state.position = copy(state.initial_position)
             agent.state.rotation = copy(state.initial_rotation)
             state.pose = (state.initial_position.x, state.initial_position.y, state.initial_rotation.z)
@@ -124,8 +131,7 @@ class NeroEnvironment(Environment):
         if agent in self.states:
             return self.states[agent]
         else:
-            self.states[agent] = AgentState()
-            self.states[agent].id = agent.state.id
+            self.states[agent] = AgentState(agent)
             if agent.get_team() not in  self.teams:
                 self.teams[agent.get_team()] = {}
             self.teams[agent.get_team()][agent] = self.states[agent]
@@ -207,10 +213,10 @@ class NeroEnvironment(Environment):
             r = copy(agent.state.rotation)
             if agent.group == "Agent":
                 r.z = randrange(360)
-                agent.state.rotation = r #Note the internal components of agent.state.rotation are immutable you need to make a copy, modify the copy, and set agent.state.rotation to be the copy.
+                agent.state.rotation = r
+            # TODO: move into a member function of state
             state.initial_position = p
             state.initial_rotation = r
-            #print 'initial_rotation:',state.initial_rotation, "group:", agent.group
             state.pose = (p.x, p.y, r.z)
             state.prev_pose = (p.x, p.y, r.z)
             return reward
@@ -223,11 +229,13 @@ class NeroEnvironment(Environment):
                 getMod().addAgent((getMod().spawn_x + dx, getMod().spawn_y + dy, 2))
 
         # Update Damage totals
+        # TODO: move into a member function of state
         state.total_damage += state.curr_damage
         damage = state.curr_damage
         state.curr_damage = 0
         
         #Fitness Function Parameters
+        # TODO: make these less opaque
         distance_st = getMod().dta
         distance_ae = getMod().dtb
         distance_af = getMod().dtc
@@ -241,11 +249,12 @@ class NeroEnvironment(Environment):
         x, y, heading = position.x, position.y, rotation.z
         state.pose = (x,y,heading)
         
-        # get the actions of the agent
+        # get the desired action of the agent
         move_by = action[0]
         turn_by = degrees(action[1])
         
         # set animation speed
+        # TODO: move constants into constants.py
         if self.speedup < 1.0:
             animation_speed = move_by * 250.0 / (1.0 - self.speedup)
             if agent.state.animation_speed != animation_speed:
@@ -280,7 +289,6 @@ class NeroEnvironment(Environment):
                 if target != -1:
                     target.curr_damage += 1
                     hit = 1
-                    #print "Target hit successfully Firing Group:", agent.group
         
         # calculate friend/foe
         ffr = self.getFriendFoe(agent)
@@ -314,10 +322,6 @@ class NeroEnvironment(Environment):
         state.prev_pose = state.pose
         state.pose = (new_x, new_y, new_heading)
         state.time = time.time()
-
-        state.prev_command_pose = None
-        print 'NeroEnvironment::step:', agent.state.id, state.prev_pose, state.pose
-        
         return reward
 
     def sense(self, agent, observations):
@@ -342,13 +346,12 @@ class NeroEnvironment(Environment):
         fh = 0
         if fd != 0:
             fh = ((degrees(atan2(yloc-state.pose[1],xloc - state.pose[0])) - state.pose[2]) % 360) - 180
-
+        
         if fd <= 15:
             observations[f-3] = fd/15.0
             observations[f-2] = fh/360.0
-
+        
         if observations[f-2] < 0: observations[f-2] += 1
-
         
         data = self.target(agent)
         observations[f-1] = 0
@@ -428,7 +431,6 @@ class NeroEnvironment(Environment):
         # if the previous motion was a bump, we just repeat the previous request
         # this is where "unstuck" code would go
         if agent.state.bumped and state.prev_command_pose:
-            print 'NeroEnvironment::is_active:bumped:', agent.state.id, state.prev_command_pose
             agent.state.position = state.prev_command_pose
             return time_since_last > delay
         
