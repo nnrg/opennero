@@ -48,7 +48,8 @@ namespace OpenNero
             
             namespace pt = boost::posix_time;
             pt::ptime t(pt::microsec_clock::local_time());
-            const string default_nero_log = "nero_log" + pt::to_iso_string(t) + ".txt";
+            //const string default_nero_log = "nero_log_" + pt::to_iso_string(t) + ".txt";
+            const string default_nero_log = "nero_log.txt";
             
             // construct command line argument specs
             TCLAP::ValueArg<std::string> 
