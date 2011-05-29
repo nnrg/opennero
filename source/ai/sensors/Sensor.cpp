@@ -17,21 +17,21 @@ namespace OpenNero
     
     double PySensor::getMax()
     {
-        double result;
+        double result = 0;
         TryOverride("getMax", result);
         return result;
     }
     
     bool PySensor::process(SimEntityPtr source, SimEntityPtr target)
     {
-        bool result;
+        bool result = false;
         TryOverride("process", result, source, target);
         return result;
     }
     
     double PySensor::getObservation(SimEntityPtr source)
     {
-        double result;
+        double result = 0;
         TryOverride("getObservation", result, source);
         return result;
     }

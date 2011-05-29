@@ -884,8 +884,8 @@ namespace OpenNero
 
         typedef bool (GuiBase::*ResponseFunctionPtr)( /*SEvent*/ );
 
-        GuiBase::ResponseFlag flagDown;
-        GuiBase::ResponseFlag flagClick;
+        GuiBase::ResponseFlag flagDown = GuiBase::kResponse_OnMouseLeftDown;
+        GuiBase::ResponseFlag flagClick = GuiBase::kResponse_OnMouseLeftClick;
         ResponseFunctionPtr   response = NULL;
 
         // determine the kind of receiver we are looking for

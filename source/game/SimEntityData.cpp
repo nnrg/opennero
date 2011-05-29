@@ -135,7 +135,7 @@ namespace OpenNero
         if (mBumped != bumped) 
         {
             mBumped = bumped;
-            mDirtyBits != kDB_Bumped;
+            mDirtyBits |= kDB_Bumped;
         }
     }
     
