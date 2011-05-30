@@ -35,8 +35,6 @@ class SandboxMod:
         id = addObject(marker, Vector3f(x, y, -1), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5), type = OBJECT_TYPE_MARKER)
         # remember the ID of the object we are about to create
         self.marker_map[(x, y)] = id
-        # ivk debugging
-        print 'adding pellet',id,'at',x,y
 	    
     def mark_blue(self, x, y):
         self.mark(x, y,"data/shapes/cube/BlueCube.xml")
@@ -53,7 +51,6 @@ class SandboxMod:
     def unmark(self, x, y):
         if (x, y) in self.marker_map:
             removeObject(self.marker_map[(x, y)])
-            print 'deleting pellet',self.marker_map[(x, y)],'from',x,y            
             del self.marker_map[(x, y)]
             return True
         else:
