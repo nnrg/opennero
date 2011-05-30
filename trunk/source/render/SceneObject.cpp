@@ -756,6 +756,7 @@ namespace OpenNero
         //rotation.setRotationDegrees(my_irr_rot - my_prev_irr_rot);
         //rotation.transformBox(my_box);
 
+        if( mSceneObjectTemplate && mSceneObjectTemplate->mDrawBoundingBox )
         { // draw the final box we are checking for collisions with
             DrawBBox(my_box, LineSet::LineColor(255,255,128,128), true);
             DrawBBox(other_box, LineSet::LineColor(255,255,64,64), true);
