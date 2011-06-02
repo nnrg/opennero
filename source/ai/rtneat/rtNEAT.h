@@ -122,6 +122,9 @@ namespace OpenNero
 
 	private:
 
+        /// tally the rewards of all the fielded agents
+        void tallyAll();
+
 		/// evaluate all brains by compiling their stats
 		void evaluateAll();
 

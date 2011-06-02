@@ -5,7 +5,7 @@
 namespace OpenNero {
 
     U32 Stats::s_RunningAverageSampleSize = 2;
-
+    
     ScoreHelper::ScoreHelper(const RewardInfo& reward_info)
         : m_SampleSize(0)
         , m_Zero(reward_info.getInstance())
@@ -26,7 +26,7 @@ namespace OpenNero {
     ScoreHelper::~ScoreHelper()
     {
     }
-
+    
     void ScoreHelper::reset()
     {
         m_SampleSize = 0;
@@ -50,9 +50,9 @@ namespace OpenNero {
     void ScoreHelper::calculateAverages()
     {
         if (m_SampleSize > 0) {
-          m_Average = m_Total / (double)m_SampleSize;
+            m_Average = m_Total / (double)m_SampleSize;
         } else {
-          m_Average = m_Zero;
+            m_Average = m_Zero;
         }
     }
     
@@ -66,7 +66,7 @@ namespace OpenNero {
             m_StandardDeviation = m_Zero;
         }
     }
-
+    
     /// add a reward sample
     void ScoreHelper::addSample(Reward sample)
     {
