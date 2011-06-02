@@ -7,6 +7,7 @@
     <Texture0>data/shapes/steve/steve_red.jpg</Texture0>
     <Scale>1.0 1.0 1.0</Scale>
     <DrawLabel>false</DrawLabel>
+    <DrawBoundingBox>false</DrawBoundingBox>
   </Render>
   <AI>
     <Python agent="RTNEATAgent()" />
