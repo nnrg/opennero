@@ -212,6 +212,20 @@ namespace OpenNero
         }
     }
     
+    void RTNEAT::tallyAll() {
+        // tally the rewards of all the fielded agents
+        typedef BrainBodyMap::left_map::const_iterator const_iterator;        
+        for( const_iterator 
+                 iter = mBrainBodyMap.left.begin(), 
+                 iend = mBrainBodyMap.left.end(); 
+             iter != iend; 
+             ++iter ) {
+            AIObjectPtr body = iter->first;
+            PyOrganismPtr brain = iter->second;
+            brain->mStats.tally(body->getReward());
+        }
+    }
+
     void RTNEAT::ProcessTick( float32_t incAmt )
     {
 		// Increment the spawn tick and evolution tick counters
@@ -219,6 +233,7 @@ namespace OpenNero
 		++mEvolutionTickCount;
 
         if (mEvolutionEnabled) {
+            tallyAll();
             // Evaluate all brains' scores
             evaluateAll();
         }
@@ -239,6 +254,7 @@ namespace OpenNero
     {
         // Calculate the Z-score
         ScoreHelper scoreHelper(mRewardInfo);
+
 
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
@@ -275,7 +291,7 @@ namespace OpenNero
 					maxAbsoluteScore = (*iter)->mAbsoluteScore;
             }
         }
-                
+
         if (scoreHelper.getSampleSize() > 0 && evaluated > 0)
         {
             LOG_F_DEBUG("ai.rtneat", "brains: " << mBrainList.size() << " active: " << mBrainBodyMap.size() << " waiting: " << mWaitingBrainList.size() << " evaluated: " << evaluated);
