@@ -7,7 +7,7 @@
     <Texture0>data/shapes/steve/steve_blue.jpg</Texture0>
     <Scale>1.0 1.0 1.0</Scale>
     <DrawLabel>true</DrawLabel>
-    <DrawBoundingBox>true</DrawBoundingBox>
+    <DrawBoundingBox>false</DrawBoundingBox>
     <Collision>1</Collision>
   </Render>
   <AI>
