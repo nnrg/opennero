@@ -1,16 +1,24 @@
 from OpenNero import *
-from nero_mod import list_mods
+from nero_mod import list_mods, list_bases
 from inputConfig import *
 
 from common import gui, getGuiManager, openWiki
 
 mods = list_mods()
+basenames = [x[1:] for x in list_bases()]
 
 def SwitchToSelectedMod(combo_box):
     def closure():
         i = combo_box.getSelected()
         modname = mods[i]
-        modpath = modname + ":common"
+        # create the path where to look for mod content
+        modpath = modname
+        # find and append any bases that look like this mod
+        for basename in basenames:
+            if modname.startswith(basename):
+                modpath += ':_' + basename
+        # always append the common directory
+        modpath += ":common"
         switchMod(modname, modpath)
     return closure
 
