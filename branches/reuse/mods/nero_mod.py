@@ -21,6 +21,7 @@ import sys
 
 TEMPLATE = 'TEMPLATE'
 SPECIAL_MOD_NAMES = ['TEMPLATE', 'common', 'hub']
+SPECIAL_MOD_PREFIX = '_'
 MOD_PATH = '.'
 
 def mod_path(name):
@@ -29,7 +30,7 @@ def mod_path(name):
 
 def is_special(name):
     " True if the mod name is reserved "
-    return name in SPECIAL_MOD_NAMES
+    return name in SPECIAL_MOD_NAMES or name.startswith(SPECIAL_MOD_PREFIX)
 
 def mod_exists(name):
     " True iff the mod exists "
