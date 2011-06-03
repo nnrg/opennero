@@ -21,6 +21,7 @@ import sys
 
 TEMPLATE = 'TEMPLATE'
 SPECIAL_MOD_NAMES = ['TEMPLATE', 'common', 'hub']
+SPECIAL_MOD_PREFIX = '_'
 MOD_PATH = '.'
 
 def mod_path(name):
@@ -29,11 +30,15 @@ def mod_path(name):
 
 def is_special(name):
     " True if the mod name is reserved "
-    return name in SPECIAL_MOD_NAMES
+    return name in SPECIAL_MOD_NAMES or name.startswith(SPECIAL_MOD_PREFIX)
 
 def mod_exists(name):
     " True iff the mod exists "
     return os.path.exists(name) and os.path.isdir(name)
+
+def mod_is_base(name):
+    " True iff the mod is actually a mod base "
+    return os.path.exists(name) and os.path.isdir(name) and name.startswith(SPECIAL_MOD_PREFIX)
 
 def create_mod(name):
     if is_special(name):
@@ -82,6 +87,13 @@ def list_mods():
         if mod_exists(f) and not is_special(f):
             mods.append(f)
     return mods
+
+def list_bases():
+    " list all available bases (directories starting with an underscore) "
+    bases = []
+    files = os.listdir(MOD_PATH)
+    bases = [f for f in files if mod_is_base(f)]
+    return bases
 
 def move_mod(name, new_name):
     return copy_mod(name, new_name) and delete_mod(name)
