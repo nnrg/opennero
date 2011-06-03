@@ -1,0 +1,18 @@
+#
+# Wavefront material file for obj file island.obj
+#
+# Exported by T2 (www.toymaker.info)
+#
+# Time/date of export: 5:7:6 on 13/1/2008 
+#
+
+newmtl default
+	Kd 1.0 1.0 1.0
+	Ks 1.0 1.0 1.0
+	Ka 1.0 1.0 1.0
+	d 1
+	Ns 0
+	illum 1
+	map_Kd island0.jpg
+
+# T2 MAT Export END
