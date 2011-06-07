@@ -1,7 +1,7 @@
 ROWS = 8 # rows in maze
 COLS = 8 # columns in maze
-GRID_DX = 20.0 # x-dimension of the grid world
-GRID_DY = 20.0 # y-dimension of the grid world
+GRID_DX = 20.0#20.0 # x-dimension of the grid world
+GRID_DY = 10.0#20.0 # y-dimension of the grid world
 GRID_DZ = 3.0 * .75 * .5# z-dimension of the grid world
 MAX_STEPS = ROWS * COLS * 2  * 90# max number of steps - no need to visit each cell more then twice!
 STEP_DELAY = 3.0 # number of seconds to wait between the sense-act-step repeats
