@@ -161,6 +161,8 @@ class TowerAgent(AgentBrain):
         y = sensors[1]
         rot = sensors[2]
         if len(self.action_queue) == 0:
+            self.action_queue.append(0)
+            """
             rand = random.randint(0,3)
             if rand == 0:
                 self.goto_1(x,y,rot,x+1,y)
@@ -170,6 +172,7 @@ class TowerAgent(AgentBrain):
                 self.goto_1(x,y,rot,x,y+1)
             if rand == 3:
                 self.goto_1(x,y,rot,x,y-1)
+            """
         return self.action_queue.pop(0)
 
     def end(self, time, reward):

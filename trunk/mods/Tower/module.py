@@ -154,9 +154,9 @@ class TowerMod:
         #self.block_ids.append(addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.3,2.3,2.3)))
         #self.block_ids.append(addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.2/2.5,2.2/2.5,2.2/2.5)))
 
-        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.3,.3,5))
-        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(2 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.3,.3,5))
-        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(3 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.3,.3,5))
+        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.25,.25,4))
+        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(2 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.25,.25,4))
+        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(3 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.25,.25,4))
 
     def reset_maze(self):
         """ reset the maze by removing the markers and starting the AI """
