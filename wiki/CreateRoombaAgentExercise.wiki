@@ -79,8 +79,8 @@ pythonw plot_server.py path/to/your/nero_log.txt
 ==Questions==
 
   # What are the method(s) of `RandomAgent` that define what it does (its actions)?
-  # What are the method(s) of `SandboxEnvironment` that define what the vacuum "feels"?
-  # What are the method(s) of the `SandboxEnvironment` that interpret the vacuum "actions"?
+  # What are the method(s) of `RoombaEnvironment` that define what the vacuum "feels"?
+  # What are the method(s) of the `RoombaEnvironment` that interpret the vacuum "actions"?
   # What are the things that Roomba "feels"?
   # What are the actions that are available to Roomba?
   # What is the average score you got from 10 random runs of Roomba? (**NOTE**: the reward gets printed after each episode to the console and to the nero_log.txt file)
