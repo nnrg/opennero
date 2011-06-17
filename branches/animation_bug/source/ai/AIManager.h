@@ -51,6 +51,9 @@ namespace OpenNero
 
         /// log the performance of AI agents
         void Log(SimId id, size_t episode, size_t step, Reward reward, Reward fitness);
+        
+        /// reset the ai (remove the ai systems)
+        void Reset();
 
         /// Shutdown and clean-up the AI subsystem
         void destroy();

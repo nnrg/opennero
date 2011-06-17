@@ -221,7 +221,7 @@ class MazeMod:
         enable_ai()
 
     def start_random(self):
-        """ start the rtneat learning demo """
+        """ start the random baseline demo """
         disable_ai()
         self.reset_maze()
         # ensure that we have the environment ready

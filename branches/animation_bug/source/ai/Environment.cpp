@@ -29,13 +29,6 @@ namespace OpenNero
         return result;
     }
 
-    bool PyEnvironment::is_active(AgentBrainPtr agent)
-    {
-        bool result(false);
-        TryOverride("is_active", result, agent);
-        return result;
-    }
-
     /// sense the agent's current environment
     Observations PyEnvironment::sense(AgentBrainPtr agent, Observations& observations)
     {

@@ -34,9 +34,6 @@ namespace OpenNero
         /// @brief perform agent actions in the environment and receive the reward
         virtual Reward step(AgentBrainPtr agent, Actions action) = 0;
 
-        /// called to find out if the agent is active and should act
-        virtual bool is_active(AgentBrainPtr agent) = 0;
-
         /// @brief check if the episode for the agent is over
         virtual bool is_episode_over(AgentBrainPtr agent) = 0;
 
@@ -68,9 +65,6 @@ namespace OpenNero
 
         /// perform agent actions in the environment and return their sensors
         virtual Reward step(AgentBrainPtr agent, Actions action);
-
-        /// called to find out if the agent is active and should act
-        virtual bool is_active(AgentBrainPtr agent);
 
         /// sense the agent's current environment
         virtual Observations sense(AgentBrainPtr agent, Observations& observations);

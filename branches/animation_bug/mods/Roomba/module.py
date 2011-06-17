@@ -177,8 +177,7 @@ class RoombaEnvironment(Environment):
 
         ### Bounds for RTNEAT ###
         # actions
-        rtneat_abound.add_continuous(-0.5, 0.5)
-        rtneat_abound.add_continuous(-0.5, 0.5)
+        rtneat_abound.add_continuous(-pi, pi) # amount to turn by
         
         # sensors
         rtneat_sbound.add_continuous(-1, 1)
@@ -268,11 +267,10 @@ class RoombaEnvironment(Environment):
                 delta_angle = degree_angle - agent.state.rotation.z
                 delta_dist = MAX_SPEED
             else:
-                # The first action specifies the distance to move in the forward direction
-                # and the second action specifies the angular change in the orientation of
-                # the agent.
-                delta_dist = action[0]*MAX_SPEED
-                delta_angle = action[1]*ANGULAR_SPEED
+                angle = action[0] # in range of -pi to pi
+                degree_angle = degrees(angle)
+                delta_angle = degree_angle - agent.state.rotation.z
+                delta_dist = MAX_SPEED
             reward = self.update_position(agent, delta_dist, delta_angle)
         state.reward += reward
         return reward
@@ -438,10 +436,6 @@ class RoombaEnvironment(Environment):
             sensors[4] = closest.y
         return True
                      
-    def is_active(self, agent):
-        """ return true when the agent should act """
-        return True
-    
     def is_episode_over(self, agent):
         """ is the current episode over for the agent? """
         state = self.get_state(agent)

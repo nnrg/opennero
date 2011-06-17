@@ -322,6 +322,19 @@ class NeroEnvironment(Environment):
         state.prev_pose = state.pose
         state.pose = (new_x, new_y, new_heading)
         state.time = time.time()
+
+        # try to update position
+        pos = copy(agent.state.position)
+        pos.x = new_x
+        pos.y = new_y
+        state.prev_command_pose = pos
+        agent.state.position = pos
+
+        # try to update rotation
+        rot = copy(agent.state.rotation)
+        rot.z = new_heading
+        agent.state.rotation = rot
+
         return reward
 
     def sense(self, agent, observations):
@@ -382,7 +395,8 @@ class NeroEnvironment(Environment):
 
     def angle(self, agloc, tgloc):
         """
-        returns the angle between agloc and tgloc (test before using to make sure it's returning what you think it is)
+        returns the angle between agloc and tgloc (test before using to make 
+        sure it's returning what you think it is)
         """
         if(agloc[1] == tgloc[1]):
             return 0
@@ -413,56 +427,7 @@ class NeroEnvironment(Environment):
         Sets current animation
         """
         if agent.state.animation != animation:
-            agent.state.animation = animation
-    
-    def is_active(self, agent):
-        """ 
-        Return true when the agent should consider what to do next
-        During the frames in-between, interpolate from previous
-        to current pose.
-        """
-        # get the agent state
-        state = self.get_state(agent)
-
-        # calculate desired delay and time since last update
-        delay = self.step_delay * (1.0 - self.speedup)
-        time_since_last = time.time() - state.time
-
-        # if the previous motion was a bump, we just repeat the previous request
-        # this is where "unstuck" code would go
-        if agent.state.bumped and state.prev_command_pose:
-            agent.state.position = state.prev_command_pose
-            return time_since_last > delay
-        
-        # try to interpolate between prev_pose and pose
-        (x1, y1, h1) = state.prev_pose
-        (x2, y2, h2) = state.pose
-        if delay <= time_since_last:
-            f = 1.0
-        else:
-            f = float(time_since_last) / delay
-            self.set_animation(agent, state, 'run')
-        # f between p1 (0) and p2 (1)
-        x = x1 * (1 - f) + x2 * f
-        y = y1 * (1 - f) + y2 * f
-        # combine degrees carefully to avoid 'flips'
-        # see common/module.py for def
-        h = mix_angles(h1,h2,f)
-
-        # try to update position
-        pos = copy(agent.state.position)
-        pos.x = x
-        pos.y = y
-        state.prev_command_pose = pos
-        agent.state.position = pos
-
-        # try to update rotation
-        rot = copy(agent.state.rotation)
-        rot.z = h1 * (1-f) + h2 * f
-        agent.state.rotation = rot
-
-        # return if ready for the next decision
-        return f >= 1.0
+            agent.state.animation = animation        
     
     def is_episode_over(self, agent):
         """
