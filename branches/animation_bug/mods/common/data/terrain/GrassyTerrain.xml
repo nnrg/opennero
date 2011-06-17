@@ -1,0 +1,13 @@
+<Template>
+  <ObjectTemplate>
+    <Name>Terrain</Name>
+  </ObjectTemplate>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <Terrain>data/terrain/terrain-heightmap-flat.bmp</Terrain>
+    <Texture0>data/terrain/grass.jpg</Texture0>    
+    <ScaleTexture>10 10</ScaleTexture>
+    <Scale>0.390625 0.390625 1</Scale>
+  </Render>
+</Template>
