@@ -11,7 +11,7 @@
 
 namespace OpenNero 
 {
-    SimEntityData::SimEntityData()
+    SimEntityData::SimEntityInternals::SimEntityInternals()
         : mPosition()
         , mRotation()
         , mVelocity()
@@ -19,21 +19,18 @@ namespace OpenNero
         , mAcceleration()
         , mLabel()
         , mColor(0xFF, 0xFF, 0xFF, 0xFF)
-        , mId()
         , mType()
         , mCollision()
         , mBumped(false)
-        , mDirtyBits(uint32_t(-1))
     {
     }
 
-    SimEntityData::SimEntityData(const Vector3f& pos, 
+    SimEntityData::SimEntityInternals::SimEntityInternals(const Vector3f& pos, 
                                  const Vector3f& rot, 
                                  const Vector3f& scale, 
                                  const std::string& label,
                                  uint32_t t,
-                                 uint32_t collision,
-                                 SimId id)
+                                 uint32_t collision)
         : mPosition(pos)
         , mRotation(rot)
         , mVelocity(0,0,0)
@@ -41,100 +38,121 @@ namespace OpenNero
         , mAcceleration(0,0,0)
         , mLabel(label)
         , mColor(0xFF, 0xFF, 0xFF, 0xFF)
-        , mId(id)
         , mType(t)
         , mCollision(collision)
         , mBumped(false)
-        , mDirtyBits(uint32_t(-1))
     {
     }
-
+    
+    SimEntityData::SimEntityData()
+        : mId()
+        , mDirtyBits(uint32_t(-1))
+        , mPrevious()
+        , mCurrent()
+    {
+    }
+    
+    SimEntityData::SimEntityData(
+        const Vector3f& pos, 
+        const Vector3f& rot, 
+        const Vector3f& scale, 
+        const std::string& label,
+        uint32_t t,
+        uint32_t collision,
+        SimId id)
+        : mId(id)
+        , mDirtyBits(uint32_t(-1))
+        , mPrevious(pos, rot, scale, label, t, collision)
+        , mCurrent(pos, rot, scale, label, t, collision)
+    {
+    }
+    
     void SimEntityData::SetPosition( const Vector3f& pos )
     {
-        if( pos != mPosition )
+        if( pos != mCurrent.mPosition )
         {
-            mPosition = pos;
+            mCurrent.mPosition = pos;
             mDirtyBits |= kDB_Position;
         }
     }
 
     void SimEntityData::SetRotation( const Vector3f& rot )
     {
-        if( rot != mRotation )
+        if( rot != mCurrent.mRotation )
         {
-            mRotation = rot;
+            mCurrent.mRotation = rot;
             mDirtyBits |= kDB_Rotation;
         }
     }
 
     void SimEntityData::SetVelocity( const Vector3f& vel )
     {
-        if( vel != mVelocity )
+        if( vel != mCurrent.mVelocity )
         {
-            mVelocity = vel;
+            mCurrent.mVelocity = vel;
             mDirtyBits |= kDB_Velocity;
         }
     }
 
     void SimEntityData::SetAcceleration(const Vector3f& acc)
     {
-        if (acc != mAcceleration )
+        if (acc != mCurrent.mAcceleration )
         {
-            mAcceleration = acc;
+            mCurrent.mAcceleration = acc;
             mDirtyBits |= kDB_Acceleration;
         }
     }
     
     void SimEntityData::SetLabel(const std::string& label)
     {
-        if (label != mLabel)
+        if (label != mCurrent.mLabel)
         {
-            mLabel = label;
+            mCurrent.mLabel = label;
             mDirtyBits |= kDB_Label;
         }
     }
 
     void SimEntityData::SetColor(const SColor& color)
     {
-        if (color != mColor)
+        if (color != mCurrent.mColor)
         {
-            mColor = color;
+            mCurrent.mColor = color;
             mDirtyBits |= kDB_Color;
         }
     }
 
     void SimEntityData::SetScale( const Vector3f& scale )
     {
-        if (scale != mScale )
+        if (scale != mCurrent.mScale )
         {
-            mScale = scale;
+            mCurrent.mScale = scale;
             mDirtyBits |= kDB_Scale;
         }
     }
     
     void SimEntityData::SetType( uint32_t t )
     {
-        if ( mType != t )
+        if ( mCurrent.mType != t )
         {
-            mType = t;
+            mCurrent.mType = t;
             mDirtyBits |= kDB_Type;
         }
     }
 
     void SimEntityData::SetCollision( uint32_t mask )
     {
-        if ( mCollision != mask )
+        if ( mCurrent.mCollision != mask )
         {
-            mCollision = mask;
+            mCurrent.mCollision = mask;
             mDirtyBits |= kDB_Collision;
         }
     }
 
     void SimEntityData::SetBumped( bool bumped )
     {
-        if (mBumped != bumped) 
+        if (mCurrent.mBumped != bumped) 
         {
-            mBumped = bumped;
+            mCurrent.mBumped = bumped;
             mDirtyBits |= kDB_Bumped;
         }
     }
@@ -156,37 +174,37 @@ namespace OpenNero
         
     const Vector3f& SimEntityData::GetPosition() const
     {
-        return mPosition;
+        return mCurrent.mPosition;
     }
 
     const Vector3f& SimEntityData::GetRotation() const
     {
-        return mRotation;
+        return mCurrent.mRotation;
     }
 
     const Vector3f& SimEntityData::GetVelocity() const
     {
-        return mVelocity;
+        return mCurrent.mVelocity;
     }
 
     const Vector3f& SimEntityData::GetAcceleration() const
     {
-        return mAcceleration;
+        return mCurrent.mAcceleration;
     }
 
     const Vector3f& SimEntityData::GetScale() const
     {
-        return mScale;
+        return mCurrent.mScale;
     }
     
     const std::string& SimEntityData::GetLabel() const
     {
-        return mLabel;
+        return mCurrent.mLabel;
     }
 
     const SColor& SimEntityData::GetColor() const
     {
-        return mColor;
+        return mCurrent.mColor;
     }
 
     SimId SimEntityData::GetId() const
@@ -196,17 +214,17 @@ namespace OpenNero
     
     uint32_t SimEntityData::GetType() const
     {
-        return mType;
+        return mCurrent.mType;
     }
 
     uint32_t SimEntityData::GetCollision() const
     {
-        return mCollision;
+        return mCurrent.mCollision;
     }
 
     bool SimEntityData::GetBumped() const
     {
-        return mBumped;
+        return mCurrent.mBumped;
     }
     
     std::string SimEntityData::GetAnimation() const
@@ -238,6 +256,17 @@ namespace OpenNero
     {
         return (mDirtyBits & bits) != 0;
     }
+    
+    void SimEntityData::ProcessTick(float32_t dt)
+    {
+        mPrevious = mCurrent;
+    }
+    
+    /// Get the previous state of this object
+    const SimEntityData::SimEntityInternals& SimEntityData::GetPrevious() const
+    {
+        return mPrevious;
+    }
 
     /// output a SimEntityData object to the Bitstream for packet transmission
     Bitstream& operator<<( Bitstream& stream, const SimEntityData& data)
@@ -250,39 +279,39 @@ namespace OpenNero
         stream << data.GetDirtyBits();
         if (data.mDirtyBits & SimEntityData::kDB_Position)
         {
-            stream << data.mPosition;
+            stream << data.mCurrent.mPosition;
         }
         if (data.mDirtyBits & SimEntityData::kDB_Rotation)
         {
-            stream << data.mRotation;
+            stream << data.mCurrent.mRotation;
         }
         if (data.mDirtyBits & SimEntityData::kDB_Velocity)
         {
-            stream << data.mVelocity;
+            stream << data.mCurrent.mVelocity;
         }
         if (data.mDirtyBits & SimEntityData::kDB_Scale)
         {
-            stream << data.mScale;
+            stream << data.mCurrent.mScale;
         }
         if (data.mDirtyBits & SimEntityData::kDB_Acceleration)
         {
-            stream << data.mAcceleration;
+            stream << data.mCurrent.mAcceleration;
         }
         if (data.mDirtyBits & SimEntityData::kDB_Label)
         {
-            stream << data.mLabel;
+            stream << data.mCurrent.mLabel;
         }
         if (data.mDirtyBits & SimEntityData::kDB_Color)
         {
-            stream << data.mColor;
+            stream << data.mCurrent.mColor;
         }
         if (data.mDirtyBits & SimEntityData::kDB_Type)
         {
-            stream << data.mType;
+            stream << data.mCurrent.mType;
         }
         if (data.mDirtyBits & SimEntityData::kDB_Collision)
         {
-            stream << data.mCollision;
+            stream << data.mCurrent.mCollision;
         }
         return stream;
     }
@@ -302,39 +331,39 @@ namespace OpenNero
         data.mDirtyBits = data.mDirtyBits | dirty_bits; // whatever was dirty before should remain dirty
         if (dirty_bits & SimEntityData::kDB_Position)
         {
-            stream >> data.mPosition;
+            stream >> data.mCurrent.mPosition;
         }
         if (dirty_bits & SimEntityData::kDB_Rotation)
         {
-            stream >> data.mRotation;
+            stream >> data.mCurrent.mRotation;
         }
         if (dirty_bits & SimEntityData::kDB_Velocity)
         {
-            stream >> data.mVelocity;
+            stream >> data.mCurrent.mVelocity;
         }
         if (dirty_bits & SimEntityData::kDB_Scale)
         {
-            stream >> data.mScale;
+            stream >> data.mCurrent.mScale;
         }
         if (dirty_bits & SimEntityData::kDB_Acceleration)
         {
-            stream >> data.mAcceleration;
+            stream >> data.mCurrent.mAcceleration;
         }
         if (dirty_bits & SimEntityData::kDB_Label)
         {
-            stream >> data.mLabel;
+            stream >> data.mCurrent.mLabel;
         }
         if (dirty_bits & SimEntityData::kDB_Color)
         {
-            stream >> data.mColor;
+            stream >> data.mCurrent.mColor;
         }
         if (dirty_bits & SimEntityData::kDB_Type)
         {
-            stream >> data.mType;
+            stream >> data.mCurrent.mType;
         }
         if (dirty_bits & SimEntityData::kDB_Collision)
         {
-            stream >> data.mCollision;
+            stream >> data.mCurrent.mCollision;
         }
         return stream;
     }

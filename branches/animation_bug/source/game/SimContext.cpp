@@ -271,8 +271,6 @@ namespace OpenNero
     /// @param dt the time to increment by
     void SimContext::ProcessTick(float32_t dt)
     {
-        // TODO: need to combine to speed up
-        
         // This will cause Irrlicht to render the objects
         UpdateRenderSystem(dt);
 
@@ -292,7 +290,26 @@ namespace OpenNero
         // as well as ModTick(dt) if it is defined
         UpdateScriptingSystem(dt);
     }
+    
+    /// Update all the objects and render
+    /// @param dt the time to increment by
+    void SimContext::ProcessAnimationTick(float32_t dt, float32_t frac)
+    {
+        // This will cause Irrlicht to render the objects
+        UpdateRenderSystem(dt);
 
+        // This will look at any input from the user that happened since the 
+        // previous call and run the corresponding (Python) actions. This can
+        // potentially change a lot of things such as which mod we want to run.
+        UpdateInputSystem(dt);
+        
+        // update the simulation
+        if( mpSimulation )
+        {
+            mpSimulation->ProcessAnimationTick(frac);
+        }
+    }
+    
 #if NERO_BUILD_AUDIO
     /// Update the audio manager system
     void SimContext::UpdateAudioSystem(float32_t dt)

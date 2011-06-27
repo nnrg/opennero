@@ -948,6 +948,12 @@ namespace OpenNero
         return ConvertIrrlichtToNeroPosition(mSceneNode->getPosition());
     }
     
+    void SceneObject::SetPosition(const Vector3f& pos)
+    {
+        Assert(mSceneNode);
+        mSceneNode->setPosition(ConvertNeroToIrrlichtPosition(pos));
+    }
+    
     Vector3f SceneObject::getRotation() const
     {
         Assert( mSceneNode );

@@ -137,6 +137,8 @@ namespace OpenNero
         
         /// set the animation speed fo this node
         void SetAnimationSpeed(float32_t framesPerSecond);
+        
+        void SetPosition(const Vector3f& pos);
 
         /// bounding box data
         BBoxf getBoundingBox() const;

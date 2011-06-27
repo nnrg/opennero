@@ -185,6 +185,9 @@ namespace OpenNero
 
         /// move the world forward by time dt
         void ProcessTick(float32_t dt);
+        
+        /// process the animation frame thats frac between two AI frames
+        void ProcessAnimationTick(float32_t dt, float32_t frac);
 
         /// return the simulation
         SimulationPtr getSimulation() { return mpSimulation; }

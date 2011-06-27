@@ -68,6 +68,9 @@ namespace OpenNero
         /// move the simulation forward by time dt
         void ProcessTick( float32_t dt );
         
+        /// update for animation only
+        void ProcessAnimationTick( float32_t frac );
+        
         /// detect and deal with collisions
         void DoCollisions();
         
