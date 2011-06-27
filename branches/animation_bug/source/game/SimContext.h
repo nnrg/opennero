@@ -194,6 +194,10 @@ namespace OpenNero
 
         /// return the next free Id
         SimId GetNextFreeId() const { return mpSimulation->GetNextFreeId(); }
+        
+        float32_t GetFrameDelay() const { return mpSimulation->GetFrameDelay(); }
+        
+        void SetFrameDelay(float32_t delay) { mpSimulation->SetFrameDelay(delay); }
 
     protected:
 
