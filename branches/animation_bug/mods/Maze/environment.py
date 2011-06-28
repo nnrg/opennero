@@ -210,6 +210,9 @@ class MazeEnvironment(Environment):
         (dr, dc) = MazeEnvironment.MOVES[a]
         new_r, new_c = r + dr, c + dc
         (new_x, new_y) = self.maze.rc2xy(new_r, new_c)
+        next_rotation = self.get_next_rotation((dr,dc))
+        new_heading = state.initial_rotation.z + next_rotation.z
+        prev_heading = state.pose[2]
 
         # check if we are in bounds
         if not self.maze.rc_bounds(new_r, new_c):
@@ -220,17 +223,20 @@ class MazeEnvironment(Environment):
             return state.record_reward(self.rewards.hit_wall(state))
 
         # set new rc and pose
-        state.rc = (new_r, new_c)
-        next_rotation = self.get_next_rotation((dr,dc))
-        new_heading = state.initial_rotation.z + next_rotation.z
-        state.pose = (new_x, new_y, new_heading)
-        (new_x,new_y) = self.maze.rc2xy(new_r, new_c)
-        pos0 = agent.state.position
-        pos0.x, pos0.y = new_x, new_y
-        agent.state.position = pos0
-        rot0 = copy(agent.state.rotation)
-        rot0.z = new_heading
-        agent.state.rotation = rot0
+        if new_heading == prev_heading:
+            # if the heading is right, change the position
+            state.rc = (new_r, new_c)
+            state.pose = (new_x, new_y, new_heading)
+            pos0 = agent.state.position
+            pos0.x, pos0.y = new_x, new_y
+            agent.state.position = pos0
+        else:
+            # if the heading is not right, just change the heading and return 0
+            state.pose = (state.pose[0], state.pose[1], new_heading)
+            rot0 = copy(agent.state.rotation)
+            rot0.z = new_heading
+            agent.state.rotation = rot0
+            return 0
 
         # check if we reached the goal
         if new_r == ROWS - 1 and new_c == COLS - 1:

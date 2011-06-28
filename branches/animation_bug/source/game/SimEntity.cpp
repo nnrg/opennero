@@ -137,11 +137,6 @@ namespace OpenNero
         //    }
         //    
             Vector3f rotation = InterpolateNeroRotation(mSharedData.GetPrevious().mRotation, mSharedData.GetRotation(), frac);
-            LOG_F_DEBUG("ivk", "InerpolateNeroRotation(" 
-                << mSharedData.GetPrevious().mRotation << ", " 
-                << mSharedData.GetRotation() << ", " 
-                << frac << ") --> " 
-                << rotation);
             // Irrlicht expects a left handed basis with the x-z plane being horizontal and y being up
             // OpenNero uses a right handed basis with x-y plane being horizontal and z being up
             mSceneObject->SetRotation( rotation );

@@ -70,10 +70,6 @@ namespace OpenNero
                 LineSet::instance().AddSegment(sourcePos, tp, SColor(255,255,0,0));
                 LineSet::instance().AddSegment(sourcePos, lp, SColor(255,255,255,255));
                 LineSet::instance().AddSegment(sourcePos, rp, SColor(255,255,255,255));
-                //LOG_F_DEBUG("ai.sensor", 
-                //            "h: " << myHeading << " yaw: " << yawToTarget
-                //            << " lb: " << leftbound << " rb: " << rightbound 
-                //            << " R: " << radius << " v: " << value);
             }
         }
         return true;
