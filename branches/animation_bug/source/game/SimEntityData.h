@@ -119,9 +119,6 @@ namespace OpenNero
         bool operator== ( SimEntityData const& x );
         bool operator!= ( SimEntityData const& x );
 
-        friend Bitstream& operator<<( Bitstream& stream, const SimEntityData& data);
-        friend Bitstream& operator>>( Bitstream& stream, SimEntityData& data);
-
     private:
         /// The id of the object
         SimId mId;
