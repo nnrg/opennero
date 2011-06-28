@@ -122,28 +122,30 @@ namespace OpenNero
     
     void SimEntity::ProcessAnimationTick(float32_t frac)
     {
-        Vector3f pos(mSharedData.GetPosition() * frac + mSharedData.GetPrevious().mPosition * (1.0 - frac));
-        //Vector3f rot(mSharedData.GetPrevious().mRotation * frac);
-        //Vector3f scale(mSharedData.GetScale() * (1.0-frac) + mSharedData.GetPrevious().mScale * frac);
-
         if( mSharedData.IsDirty(SimEntityData::kDB_Position) )
         {
+            Vector3f pos(mSharedData.GetPosition() * frac + mSharedData.GetPrevious().mPosition * (1.0 - frac));
             // convert from open nero's coordinate system to irrlicht's
             mSceneObject->SetPosition( pos );
         }
             
-        //if( mSharedData->IsDirty(SimEntityData::kDB_Rotation) )
-        //{
+        if( mSharedData.IsDirty(SimEntityData::kDB_Rotation) )
+        {
         //    if (mCamera && mFPSCamera)
         //    {
         //        mFPSCamera->UpdateRotation(mSharedData, mCamera);
         //    }
         //    
-        //    // Irrlicht expects a left handed basis with the x-z plane being horizontal and y being up
-        //    // OpenNero uses a right handed basis with x-y plane being horizontal and z being up
-        //    mSceneNode->setRotation( ConvertNeroToIrrlichtRotation(mSharedData->GetRotation()) );
-        //    
-        //}
+            Vector3f rotation = InterpolateNeroRotation(mSharedData.GetPrevious().mRotation, mSharedData.GetRotation(), frac);
+            LOG_F_DEBUG("ivk", "InerpolateNeroRotation(" 
+                << mSharedData.GetPrevious().mRotation << ", " 
+                << mSharedData.GetRotation() << ", " 
+                << frac << ") --> " 
+                << rotation);
+            // Irrlicht expects a left handed basis with the x-z plane being horizontal and y being up
+            // OpenNero uses a right handed basis with x-y plane being horizontal and z being up
+            mSceneObject->SetRotation( rotation );
+        }
             
         //if ( mSharedData->IsDirty(SimEntityData::kDB_Scale) )
         //{

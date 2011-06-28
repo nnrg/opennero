@@ -10,7 +10,7 @@ namespace OpenNero
 {
     /// Constructor - initialize variables
     Simulation::Simulation( const IrrHandles& irr )
-        : mIrr(irr), mMaxId(kFirstSimId), mFrameDelay(0.2)
+        : mIrr(irr), mMaxId(kFirstSimId), mFrameDelay(0.5)
     {
         // initialize entity types
         for (size_t i = 0; i < sizeof(uint32_t); ++i)

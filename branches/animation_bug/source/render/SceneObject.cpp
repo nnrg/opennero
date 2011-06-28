@@ -960,6 +960,12 @@ namespace OpenNero
         return ConvertIrrlichtToNeroRotation(mSceneNode->getRotation());
     }
     
+    void SceneObject::SetRotation(const Vector3f& rotation)
+    {
+        Assert(mSceneNode);
+        mSceneNode->setRotation(ConvertNeroToIrrlichtRotation(rotation));
+    }
+    
     void SceneObject::attachCamera( CameraPtr cam )
     {
         AssertMsg( cam->getFunctionality() == Camera::kFunc_FPS, "Cannot attach non-FPS cameras" );

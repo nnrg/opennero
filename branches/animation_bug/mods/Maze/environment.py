@@ -228,6 +228,9 @@ class MazeEnvironment(Environment):
         pos0 = agent.state.position
         pos0.x, pos0.y = new_x, new_y
         agent.state.position = pos0
+        rot0 = copy(agent.state.rotation)
+        rot0.z = new_heading
+        agent.state.rotation = rot0
 
         # check if we reached the goal
         if new_r == ROWS - 1 and new_c == COLS - 1:
