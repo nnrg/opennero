@@ -86,6 +86,7 @@ class NeroEnvironment(Environment):
         print 'rtNEAT lifetime:', lifetime
         
         set_ai("rtneat", rtneat)
+        print "get_ai(rtneat):",get_ai("rtneat")
         
         self.agent_info = AgentInitInfo(sbound, abound, rbound)
     
