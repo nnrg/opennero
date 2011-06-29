@@ -202,6 +202,7 @@ class MazeEnvironment(Environment):
         # check for null action
         a = int(round(action[0]))
         if a == len(MazeEnvironment.MOVES):
+            self.set_animation(agent, state, 'stand')
             return state.record_reward(self.rewards.null_move(state))
             
         (r,c) = state.rc
@@ -216,10 +217,12 @@ class MazeEnvironment(Environment):
 
         # check if we are in bounds
         if not self.maze.rc_bounds(new_r, new_c):
+            self.set_animation(agent, state, 'jump')
             return state.record_reward(self.rewards.out_of_bounds(state))
 
         # check if there is a wall in the way
         elif self.maze.is_wall(r,c,dr,dc):
+            self.set_animation(agent, state, 'hold_stand')
             return state.record_reward(self.rewards.hit_wall(state))
 
         # set new rc and pose
@@ -230,8 +233,27 @@ class MazeEnvironment(Environment):
             pos0 = agent.state.position
             pos0.x, pos0.y = new_x, new_y
             agent.state.position = pos0
+            if dr != 0 or dc != 0:
+                self.set_animation(agent, state, 'run')
         else:
+            # "run" "stand" "turn_r_xc" "turn_l_xc" "turn_r_lx" "turn_l_lx"
+            # "turn_r_xxx" "turn_l_xxx" "pick_up" "put_down" "hold_run"
+            # "hold_stand" "hold_r_xc" "hold_l_xc"
+            # "hold_turn_r_lx"
+            # "hold_turn_l_lx"
+            # "hold_turn_r_xxx"
+            # "hold_turn_l_xxx"
+            # "jump"
+            # "hold_jump"
             # if the heading is not right, just change the heading and return 0
+            if new_heading - prev_heading > 0:
+                if new_heading - prev_heading > 90:
+                    new_heading = prev_heading + 90
+                self.set_animation(agent, state, 'turn_r_xc')
+            else:
+                if new_heading - prev_heading < 90:
+                    new_heading = prev_heading - 90
+                self.set_animation(agent, state, 'turn_l_xc')
             state.pose = (state.pose[0], state.pose[1], new_heading)
             rot0 = copy(agent.state.rotation)
             rot0.z = new_heading
