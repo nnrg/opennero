@@ -236,23 +236,23 @@ namespace OpenNero
         /// Update rotation of camera
         /// @param cam camera
         /// @param rotation amount camera is rotated
-        void UpdateRotation(const SimEntityData* sim, CameraPtr cam)
+        void UpdateRotation(const SceneObject* scene_object, CameraPtr cam)
         {
-            Vector3f rotor(sim->GetRotation() - lastRotation);
-            Vector3f pos(sim->GetPosition());
+            Vector3f rotor(scene_object->getRotation() - lastRotation);
+            Vector3f pos(scene_object->getPosition());
             Vector3f t(cam->getTarget());
             t.rotateXYBy(rotor.Z, pos);
             cam->setTarget(t);
-            lastRotation = sim->GetRotation();
+            lastRotation = scene_object->getRotation();
         }
         
-        void UpdatePosition(const SimEntityData* sim, CameraPtr cam)
+        void UpdatePosition(const SceneObject* scene_object, CameraPtr cam)
         {
-            Vector3f displacement(sim->GetPosition() - lastPosition);
+            Vector3f displacement(scene_object->getPosition() - lastPosition);
             Vector3f target(cam->getTarget());
             target = target + displacement;
             cam->setTarget(target);
-            lastPosition = sim->GetPosition();
+            lastPosition = scene_object->getPosition();
         }
 	};
     
@@ -722,24 +722,14 @@ namespace OpenNero
             // causes them to flicker or disappear. Compare the position first and
             // update if necessary.
             if( mSharedData->IsDirty(SimEntityData::kDB_Position) )
-            {
-                if (mCamera && mFPSCamera)
-                {
-                    mFPSCamera->UpdatePosition(mSharedData, mCamera);
-                }
-                
+            {                
                 // convert from open nero's coordinate system to irrlicht's
                 mSceneNode->setPosition( ConvertNeroToIrrlichtPosition(mSharedData->GetPosition()) );
                 
             }
             
             if( mSharedData->IsDirty(SimEntityData::kDB_Rotation) )
-            {
-                if (mCamera && mFPSCamera)
-                {
-                    mFPSCamera->UpdateRotation(mSharedData, mCamera);
-                }
-                
+            {                
                 // Irrlicht expects a left handed basis with the x-z plane being horizontal and y being up
                 // OpenNero uses a right handed basis with x-y plane being horizontal and z being up
                 mSceneNode->setRotation( ConvertNeroToIrrlichtRotation(mSharedData->GetRotation()) );
@@ -877,6 +867,10 @@ namespace OpenNero
     void SceneObject::SetPosition(const Vector3f& pos)
     {
         Assert(mSceneNode);
+        if (mCamera && mFPSCamera)
+        {
+            mFPSCamera->UpdatePosition(this, mCamera);
+        }
         mSceneNode->setPosition(ConvertNeroToIrrlichtPosition(pos));
     }
     
@@ -889,6 +883,10 @@ namespace OpenNero
     void SceneObject::SetRotation(const Vector3f& rotation)
     {
         Assert(mSceneNode);
+        if (mCamera && mFPSCamera)
+        {
+            mFPSCamera->UpdateRotation(this, mCamera);
+        }
         mSceneNode->setRotation(ConvertNeroToIrrlichtRotation(rotation));
     }
     
