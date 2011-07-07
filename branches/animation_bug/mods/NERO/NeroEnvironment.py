@@ -256,12 +256,10 @@ class NeroEnvironment(Environment):
         
         # set animation speed
         # TODO: move constants into constants.py
-        if self.speedup < 1.0:
-            animation_speed = move_by * 250.0 / (1.0 - self.speedup)
-            if agent.state.animation_speed != animation_speed:
-                agent.state.animation_speed = animation_speed
-        else:
-            agent.state.animation_speed = 250.0
+        self.set_animation(agent, state, 'run')
+        delay = getSimContext().delay
+        if delay > 0.0: # if there is a need to show animation
+            agent.state.animation_speed = move_by * 28.0 / delay
         
         # figure out the new heading
         new_heading = wrap_degrees(heading, turn_by)
@@ -428,7 +426,7 @@ class NeroEnvironment(Environment):
         Sets current animation
         """
         if agent.state.animation != animation:
-            agent.state.animation = animation        
+            agent.state.animation = animation
     
     def is_episode_over(self, agent):
         """

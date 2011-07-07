@@ -99,6 +99,7 @@ class NeroModule:
     
     def set_speedup(self, speedup):
         self.speedup = speedup/100.0
+        getSimContext().delay = 1.0 - speedup
         if self.environment:
             self.environment.speedup = self.speedup
    
