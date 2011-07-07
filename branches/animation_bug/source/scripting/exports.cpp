@@ -1068,6 +1068,7 @@ namespace OpenNero {
                 .def("transformVector", 
                      &SimContext::TransformVector, 
                      "Transform the given vector by the matrix of the object specified by id")
+                .add_property("delay", &SimContext::GetFrameDelay, &SimContext::SetFrameDelay)
                 ;
             
             // this is how Python can access the C++ reference to SimContext

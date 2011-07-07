@@ -295,8 +295,8 @@ class MazeMod:
     def set_speedup(self, speedup):
         self.speedup = speedup
         print 'Speedup set to', self.speedup
-        if self.environment:
-            self.environment.speedup = speedup
+        # speed up between 0 (delay set to 1 second) and 1 (delay set to 0)
+        getSimContext().delay = 1.0 - speedup
     
     def set_shortcircuit(self, shortcircuit):
         self.shortcircuit = shortcircuit
