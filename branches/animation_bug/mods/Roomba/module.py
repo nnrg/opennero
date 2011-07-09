@@ -61,6 +61,7 @@ class SandboxMod:
         setup the sandbox environment
         """
         global XDIM, YDIM, HEIGHT, OFFSET
+        getSimContext().delay = 0.0
         self.environment = RoombaEnvironment(XDIM, YDIM)
         set_environment(self.environment)
     
