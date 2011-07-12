@@ -36,6 +36,7 @@ namespace OpenNero
         , StencilBuffer(false)
         , VSync(false)
         , RandomSeeds("12345")
+        , FrameDelay(0.5)
     {
     }
 
@@ -80,6 +81,8 @@ namespace OpenNero
                 argVSync("", "vsync", "Use VSync", false);
             TCLAP::ValueArg<std::string> 
                 argRandomSeeds("", "random", "Random seeds to use", false, "12345", "numbers");
+            TCLAP::ValueArg<float32_t>
+                argFrameDelay("", "delay", "the delay between AI frames to use for animation", false, 0.5, "seconds");
             
             // add them to CmdLine object
             cmd.add(argLogFile);
@@ -96,6 +99,7 @@ namespace OpenNero
             cmd.add(argStencilBuffer);
             cmd.add(argVSync);
             cmd.add(argRandomSeeds);
+            cmd.add(argFrameDelay);
                 
             // parse the command line
             cmd.parse( argc, argv );
@@ -106,6 +110,9 @@ namespace OpenNero
             LogConfigFile = argLogConfigFile.getValue();
             if (argHeadlessMode.getValue()) {
                 RenderType = "null";
+                FrameDelay = 0;
+            } else {
+                FrameDelay = argFrameDelay.getValue();
             }
             StartMod = argStartMod.getValue();
             StartModDir = argStartModDir.getValue();
