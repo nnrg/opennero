@@ -38,12 +38,6 @@ namespace OpenNero
         return mInitInfo.reward.getRandom();
     }
 
-    /// called to find out if the agent is active and should act
-    bool RandomEnvironment::is_active(AgentBrainPtr agent)
-    {
-        return true; // do nothing for now
-    }
-
     /// @brief passively sense the agent's environment
     Observations RandomEnvironment::sense(AgentBrainPtr agent, Observations& observations)
     {

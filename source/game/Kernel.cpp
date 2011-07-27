@@ -156,10 +156,18 @@ namespace OpenNero
 
             // get the current time
             static uint32_t prevTime = GetStaticTimer().getMilliseconds();
-            uint32_t        curTime  = GetStaticTimer().getMilliseconds();
-
-	        mCurMod->context->ProcessTick( (curTime - prevTime)/1000.0f );
-
+            static uint32_t prevFullFrameTime = GetStaticTimer().getMilliseconds();
+            uint32_t curTime  = GetStaticTimer().getMilliseconds();
+            float32_t dt = (curTime - prevTime)/1000.0f; // frame length in seconds
+            float32_t fullDT = (curTime - prevFullFrameTime)/1000.0f; // full frame length
+            float32_t frameDelay = mCurMod->context->GetFrameDelay(); // expected frame delay
+            
+            if (fullDT >= frameDelay) {
+                mCurMod->context->ProcessTick(dt);
+                prevFullFrameTime = curTime;
+            } else {
+                mCurMod->context->ProcessAnimationTick(dt, fullDT/frameDelay);
+            }
             prevTime = curTime;
 
             // yield to other processes

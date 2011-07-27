@@ -2,9 +2,9 @@
 	<Render>
 		<MaterialType>solid</MaterialType>
 		<MaterialFlagLighting>true</MaterialFlagLighting>
-		<AniMesh>data/shapes/character/sydney.md2</AniMesh>
+		<AniMesh>data/shapes/steve/steve_blue_unarmed.md2</AniMesh>
+		<Texture0>data/shapes/steve/steve_blue.jpg</Texture0>
 		<CastsShadow>true</CastsShadow>
-		<Texture0>data/shapes/character/sydney.bmp</Texture0>
 		<Scale>0.2 0.2 0.2</Scale>
 	</Render>
 	<AI>

@@ -185,6 +185,9 @@ namespace OpenNero
 
         /// move the world forward by time dt
         void ProcessTick(float32_t dt);
+        
+        /// process the animation frame thats frac between two AI frames
+        void ProcessAnimationTick(float32_t dt, float32_t frac);
 
         /// return the simulation
         SimulationPtr getSimulation() { return mpSimulation; }
@@ -194,6 +197,10 @@ namespace OpenNero
 
         /// return the next free Id
         SimId GetNextFreeId() const { return mpSimulation->GetNextFreeId(); }
+        
+        float32_t GetFrameDelay() const { return mpSimulation->GetFrameDelay(); }
+        
+        void SetFrameDelay(float32_t delay) { mpSimulation->SetFrameDelay(delay); }
 
     protected:
 

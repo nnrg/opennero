@@ -71,6 +71,9 @@ namespace OpenNero
 
         /// update our entity base on our object access mode
         void ProcessTick( float32_t incAmt );
+        
+        /// update our entity during an animation frame (no AI tick)
+        void ProcessAnimationTick( float32_t frac );
 
 #if NERO_BUILD_AUDIO
         // play an audio buffer if we have it

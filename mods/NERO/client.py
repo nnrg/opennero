@@ -14,7 +14,6 @@ def toggle_ai_callback():
     toggle_ai()
     if not ai_state:
         getMod().start_rtneat()
-        reset_ai()
         ai_state = 'Started'
     elif ai_state == 'Started':
         ai_state = 'Paused'

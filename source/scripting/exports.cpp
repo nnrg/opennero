@@ -276,6 +276,7 @@ namespace OpenNero {
 		/// reset environment
 		void reset_ai()
 		{
+            AIManager::instance().Reset();
 		}
 
 		/// get the currently running environment
@@ -315,7 +316,6 @@ namespace OpenNero {
 				.def("get_agent_info", pure_virtual(&Environment::get_agent_info), "Get the blueprint for creating new agents")
 				.def("sense", pure_virtual(&Environment::sense), "sense the agent's current environment" )
 				.def("is_episode_over", pure_virtual(&Environment::is_episode_over), "is the episode over for the specified agent?")
-				.def("is_active", pure_virtual(&Environment::is_active), "is the agent active and should it act")
 				.def("step", pure_virtual(&Environment::step), "Get a step for an agent")
 				.def("cleanup", pure_virtual(&Environment::cleanup), "Clean up when the environment is removed")
 				.def("reset", pure_virtual(&Environment::reset), "reset the environment to its initial state");
@@ -1068,6 +1068,7 @@ namespace OpenNero {
                 .def("transformVector", 
                      &SimContext::TransformVector, 
                      "Transform the given vector by the matrix of the object specified by id")
+                .add_property("delay", &SimContext::GetFrameDelay, &SimContext::SetFrameDelay)
                 ;
             
             // this is how Python can access the C++ reference to SimContext

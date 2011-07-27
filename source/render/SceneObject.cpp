@@ -195,26 +195,6 @@ namespace OpenNero
         LineSet::instance().AddSegment( verts[7], verts[3], color );
     }
     
-    /// a template for footprints
-	struct FootprintTemplate
-	{
-        /// number of frames
-		U32 frames;
-        /// footprint trail
-		U32 trail;
-        /// a string representing an object
-		std::string object;
-        /// counter variable
-		U32 counter;
-        /// constructor
-		FootprintTemplate(U32 f, U32 t, const std::string& o) :
-		frames(f), trail(t), object(o), counter(0) {}
-        /// perform a step
-		bool DoStep() { return counter++ % frames == 0; }
-        /// get the offset
-		Vector3f GetOffset();
-	};
-    
 	/// a template for a First Person camera
 	struct FPSCameraTemplate
 	{
@@ -256,23 +236,23 @@ namespace OpenNero
         /// Update rotation of camera
         /// @param cam camera
         /// @param rotation amount camera is rotated
-        void UpdateRotation(const SimEntityData* sim, CameraPtr cam)
+        void UpdateRotation(const SceneObject* scene_object, CameraPtr cam)
         {
-            Vector3f rotor(sim->GetRotation() - lastRotation);
-            Vector3f pos(sim->GetPosition());
+            Vector3f rotor(scene_object->getRotation() - lastRotation);
+            Vector3f pos(scene_object->getPosition());
             Vector3f t(cam->getTarget());
             t.rotateXYBy(rotor.Z, pos);
             cam->setTarget(t);
-            lastRotation = sim->GetRotation();
+            lastRotation = scene_object->getRotation();
         }
         
-        void UpdatePosition(const SimEntityData* sim, CameraPtr cam)
+        void UpdatePosition(const SceneObject* scene_object, CameraPtr cam)
         {
-            Vector3f displacement(sim->GetPosition() - lastPosition);
+            Vector3f displacement(scene_object->getPosition() - lastPosition);
             Vector3f target(cam->getTarget());
             target = target + displacement;
             cam->setTarget(target);
-            lastPosition = sim->GetPosition();
+            lastPosition = scene_object->getPosition();
         }
 	};
     
@@ -307,7 +287,6 @@ namespace OpenNero
     , mDrawLabel(objTempl.mDrawLabel)
     , mFPSCamera(objTempl.mFPSCamera)
     , mAnimationSpeed(objTempl.mAnimationSpeed)
-    , mFootprints(objTempl.mFootprints)
     , mCollisionMask(objTempl.mCollisionMask)
     {
         // copy over the textures and the material flags
@@ -343,7 +322,6 @@ namespace OpenNero
     mDrawLabel(false),
     mFPSCamera(),
     mAnimationSpeed(25.0f),
-    mFootprints(),
     mCollisionMask(0)
     {
         AssertMsg( factory, "Invalid sim factory" );
@@ -389,18 +367,6 @@ namespace OpenNero
 		{
 			propMap.getValue( mCollisionMask, "Template.Render.Collision" );
 		}
-        
-        static const std::string kFootprints("Template.Render.Footprints");
-        if (propMap.hasSection( kFootprints ) )
-        {
-            U32 frames = 0;
-            U32 trail = 0;
-            std::string object = "";
-            propMap.getValue(frames, kFootprints + ".Frames");
-            propMap.getValue(object, kFootprints + ".Object");
-            propMap.getValue(trail, kFootprints + ".Trail");
-            mFootprints.reset(new FootprintTemplate(frames,trail,object));
-        }
         
         // get the heightmap (possibly)
         propMap.getValue( mHeightmap, "Template.Render.Terrain" );
@@ -484,7 +450,6 @@ namespace OpenNero
     , mSceneObjectTemplate()
     , mStartFrame(0)
     , mEndFrame(0)
-    , mFootprints()
     , mAnimation()
     {}
     
@@ -501,7 +466,6 @@ namespace OpenNero
         , mSceneObjectTemplate()
         , mStartFrame(0)
         , mEndFrame(0)
-        , mFootprints()
         , mAnimation()
     {
         // TODO : Add this if needed (be pointer safe)
@@ -519,15 +483,6 @@ namespace OpenNero
             
             // remove our reference to the node
             SafeIrrDrop(mSceneNode);
-        }
-        std::list<SimId>::iterator iter;
-        for (iter = mFootprints.begin(); iter != mFootprints.end(); ++iter)
-        {
-			SimContextPtr context = Kernel::GetSimContext();
-			if (context) {
-				SimulationPtr simulation = context->getSimulation();
-				simulation->Remove(*iter);
-			}
         }
     }
     
@@ -691,31 +646,6 @@ namespace OpenNero
         }
     }
     
-    Vector3f FootprintTemplate::GetOffset()
-    {
-        return Vector3f(RANDOM.randF() - 0.5f, RANDOM.randF() - 0.5f, -1.5f);
-    }
-    
-    void SceneObject::LeaveFootprints()
-    {
-        if ( mSceneObjectTemplate->mFootprints->DoStep() )
-        {
-            // add footprint
-            SimId id =
-            Kernel::GetSimContext()->AddObject(
-                                               mSceneObjectTemplate->mFootprints->object,
-                                               mSharedData->GetPosition() + mSceneObjectTemplate->mFootprints->GetOffset(),
-                                               mSharedData->GetRotation() );
-            mFootprints.push_back(id);
-            if (mFootprints.size() > mSceneObjectTemplate->mFootprints->trail)
-            {
-                id = *mFootprints.begin();
-                mFootprints.pop_front();
-                Kernel::GetSimContext()->getSimulation()->Remove(id);
-            }
-        }
-    }
-    
     /// can we possibly collide with any other object?
     bool SceneObject::canCollide() const
     {
@@ -792,28 +722,14 @@ namespace OpenNero
             // causes them to flicker or disappear. Compare the position first and
             // update if necessary.
             if( mSharedData->IsDirty(SimEntityData::kDB_Position) )
-            {
-                if (mCamera && mFPSCamera)
-                {
-                    mFPSCamera->UpdatePosition(mSharedData, mCamera);
-                }
-                
+            {                
                 // convert from open nero's coordinate system to irrlicht's
                 mSceneNode->setPosition( ConvertNeroToIrrlichtPosition(mSharedData->GetPosition()) );
                 
-                if (mAniSceneNode && mSceneObjectTemplate->mFootprints)
-                {
-                    LeaveFootprints();
-                }
             }
             
             if( mSharedData->IsDirty(SimEntityData::kDB_Rotation) )
-            {
-                if (mCamera && mFPSCamera)
-                {
-                    mFPSCamera->UpdateRotation(mSharedData, mCamera);
-                }
-                
+            {                
                 // Irrlicht expects a left handed basis with the x-z plane being horizontal and y being up
                 // OpenNero uses a right handed basis with x-y plane being horizontal and z being up
                 mSceneNode->setRotation( ConvertNeroToIrrlichtRotation(mSharedData->GetRotation()) );
@@ -948,10 +864,30 @@ namespace OpenNero
         return ConvertIrrlichtToNeroPosition(mSceneNode->getPosition());
     }
     
+    void SceneObject::SetPosition(const Vector3f& pos)
+    {
+        Assert(mSceneNode);
+        if (mCamera && mFPSCamera)
+        {
+            mFPSCamera->UpdatePosition(this, mCamera);
+        }
+        mSceneNode->setPosition(ConvertNeroToIrrlichtPosition(pos));
+    }
+    
     Vector3f SceneObject::getRotation() const
     {
         Assert( mSceneNode );
         return ConvertIrrlichtToNeroRotation(mSceneNode->getRotation());
+    }
+    
+    void SceneObject::SetRotation(const Vector3f& rotation)
+    {
+        Assert(mSceneNode);
+        if (mCamera && mFPSCamera)
+        {
+            mFPSCamera->UpdateRotation(this, mCamera);
+        }
+        mSceneNode->setRotation(ConvertNeroToIrrlichtRotation(rotation));
     }
     
     void SceneObject::attachCamera( CameraPtr cam )

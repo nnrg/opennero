@@ -84,7 +84,10 @@ namespace irr
             stream << obj.MinEdge.X << " " << obj.MinEdge.Y << " " << obj.MinEdge.Z << " " 
                    << obj.MaxEdge.X << " " << obj.MaxEdge.Y << " " << obj.MaxEdge.Z;
             return stream;
-        } 
+        }
+
+        /// output a quaternion to a stream
+        std::ostream& operator<<( std::ostream& stream, const quaternion& q);
 
 
     } // namespace core

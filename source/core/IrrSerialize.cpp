@@ -11,6 +11,16 @@
 
 namespace irr
 {
+    namespace core
+    {
+        std::ostream& operator<<( std::ostream& stream, const quaternion& q)
+        {
+            stream << q.X << " " << q.Y << " " << q.Z << " " << q.W;
+            return stream;
+        }
+    
+    }
+
     namespace video
     {
         std::istream& operator>>( std::istream& stream, SColor& obj )

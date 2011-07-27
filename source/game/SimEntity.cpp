@@ -94,6 +94,8 @@ namespace OpenNero
 
     void SimEntity::ProcessTick(float32_t incAmt)
     {
+        mSharedData.ProcessTick(incAmt);
+    
         if (mSceneObject)
         {
             // This call will update the pose of the Irrlicht object to 
@@ -116,6 +118,42 @@ namespace OpenNero
             // act.
             mAIObject->ProcessTick(incAmt);
         }
+    }
+    
+    void SimEntity::ProcessAnimationTick(float32_t frac)
+    {
+        if( mSharedData.IsDirty(SimEntityData::kDB_Position) )
+        {
+            Vector3f pos(mSharedData.GetPosition() * frac + mSharedData.GetPrevious().mPosition * (1.0 - frac));
+            // convert from open nero's coordinate system to irrlicht's
+            mSceneObject->SetPosition( pos );
+        }
+            
+        if( mSharedData.IsDirty(SimEntityData::kDB_Rotation) )
+        {
+        //    if (mCamera && mFPSCamera)
+        //    {
+        //        mFPSCamera->UpdateRotation(mSharedData, mCamera);
+        //    }
+        //    
+            Vector3f rotation = InterpolateNeroRotation(mSharedData.GetPrevious().mRotation, mSharedData.GetRotation(), frac);
+            // Irrlicht expects a left handed basis with the x-z plane being horizontal and y being up
+            // OpenNero uses a right handed basis with x-y plane being horizontal and z being up
+            mSceneObject->SetRotation( rotation );
+        }
+            
+        //if ( mSharedData->IsDirty(SimEntityData::kDB_Scale) )
+        //{
+        //    // set the node scale
+        //    Vector3f scale = mSceneObjectTemplate->mScale;
+        //    /// we can optionally multiply by a custom scale
+        //    scale.X = scale.X * mSharedData->GetScale().X;
+        //    scale.Y = scale.Y * mSharedData->GetScale().Y;
+        //    scale.Z = scale.Z * mSharedData->GetScale().Z;
+        //    // convert from open nero's coordinate system to irrlicht's
+        //    mSceneNode->setScale( ConvertNeroToIrrlichtPosition(scale) );
+        //}
+
     }
 
 #if NERO_BUILD_AUDIO
