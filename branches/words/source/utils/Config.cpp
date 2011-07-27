@@ -129,7 +129,7 @@ namespace OpenNero
 			ss << RandomSeeds;
 			uint32_t first_seed;
 			ss >> first_seed;
-
+            std::cout << "Running with random seed " << first_seed << std::endl;
 			RANDOM.seed(first_seed);
 
             return true;

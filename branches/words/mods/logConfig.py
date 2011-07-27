@@ -24,3 +24,8 @@ ignore('game')
 # detailed logging about each ai agent's reinforcement (and then plot it using
 # plot_server.py
 ignore('ai.tick')
+
+# unless ignored,
+# this will print out a message saying exactly which element of an invalid 
+# feature vector was out of bounds
+ignore('ai.validate')

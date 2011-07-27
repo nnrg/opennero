@@ -11,3 +11,6 @@ INITIAL_EPSILON = 0.1
 HISTORY_LENGTH = 5 # number of state-action pairs used to determine if the agent is stuck
 OBSTACLE_MASK = 1 #0b0001
 AGENT_MASK = 2 #0b0010
+maze_random_seed = 5
+WORD_FEATURES = ['left','right','go','straight','turn','strafe','forward','way','take','wall']
+N_WORD_FEATURES = len(WORD_FEATURES)

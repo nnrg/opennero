@@ -1,4 +1,8 @@
 import time
+import random
+import numpy as np
+from os import path
+from pprint import pprint
 from math import *
 from copy import copy
 from mazer import Maze
@@ -113,13 +117,22 @@ class MazeEnvironment(Environment):
         * o[3] - obstacle in the -r direction?
         * o[4] - obstacle in the +c direction?
         * o[5] - obstacle in the -c direction?
+        * o[6]-o[15] - word hints from NLP experiment
     """
-    def __init__(self):
+    def __init__(self, random_seed = None):
         """
         generate the maze
         """
         Environment.__init__(self)
+        self.words = None
+        if random_seed:
+            random.seed(random_seed)
+            print 'Generating maze #', random_seed
+            self.words = self.get_words(random_seed)
+            print 'min words',np.min(self.words,0)
+            print 'max words',np.max(self.words,0)
         self.maze = Maze.generate(ROWS, COLS, GRID_DX, GRID_DY)
+        print self.maze
         self.rewards = MazeRewardStructure()
         self.states = {}
         action_info = FeatureVectorInfo()
@@ -132,14 +145,66 @@ class MazeEnvironment(Environment):
         observation_info.add_discrete(0,1)
         observation_info.add_discrete(0,1)
         observation_info.add_discrete(0,1)
+        for i in range(N_WORD_FEATURES):
+            observation_info.add_discrete(0,1)
         reward_info.add_continuous(-100,100)
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
         self.max_steps = MAX_STEPS
         self.step_delay = STEP_DELAY
         self.speedup = 0
         self.shortcircuit = False
+        self.word_features = np.zeros(N_WORD_FEATURES)
         print 'Initialized MazeEnvironment'
-        
+
+    def get_words(self, random_seed):
+        words = []
+        fname = 'Maze/data/ai/words/maze%d.txt' % random_seed
+        if path.exists(fname):
+            print 'found words in', fname
+            with open(fname) as f:
+                for line in f:
+                    xx = [float(x) for x in line.strip().split()]
+                    words.append(xx)
+        return np.array(words)
+    
+    def get_word_features(self, agent):
+        pos = agent.state.position
+        rot = agent.state.rotation
+        x, y, h = pos.x, pos.y, rot.z
+        if self.words is None:
+            return self.word_features
+        (r,c) = self.maze.xy2rc(x,y)
+        (xr,yc) = self.maze.rc2xy(r,c)
+        xmin,ymin = xr-GRID_DX/2.0, yc-GRID_DY/2.0
+        xmax,ymax = xr+GRID_DX/2.0, yc+GRID_DY/2.0
+        hdir = (h + 360.0) % 360.0
+        hdir = int(round(hdir/90.0)) # closest cardinal direction
+        cond = (self.words[:,0]>xmin)
+        cond &= (self.words[:,0]<xmax)
+        cond &= (self.words[:,1]>ymin)
+        cond &= (self.words[:,1]<ymax)
+        subset = self.words[cond]
+        if np.size(subset,0) == 0:
+            return np.zeros(N_WORD_FEATURES)
+        if hdir == 0:
+            cond = (subset[:,3]<45)
+            cond |= (subset[:,3]>215)
+        else:
+            cond = (subset[:,3]<(hdir*90+45))
+            cond |= (subset[:,3]>(hdir*90-45))
+        subset = subset[cond]
+        if np.size(subset,0) == 0:
+            return np.zeros(N_WORD_FEATURES)
+        subset = np.max(subset,0)
+        words = []
+        subset = subset[4:]
+        for i in range(len(subset)):
+            if subset[i] > 0:
+                words.append(WORD_FEATURES[i])
+        if (subset != self.word_features).all:
+            print 'words used here:',' '.join(words)
+        return subset
+
     def get_delay(self):
         return self.step_delay * (1.0 - self.speedup)
 
@@ -289,8 +354,9 @@ class MazeEnvironment(Environment):
         Discrete version
         """
         state = self.get_state(agent)
-        obs[0] = state.rc[0]
-        obs[1] = state.rc[1]
+        o = 0
+        obs[o] = state.rc[0]; o+=1
+        obs[o] = state.rc[1]; o+=1
         offset = GRID_DX/10.0
         p0 = agent.state.position
         for i, (dr, dc) in enumerate(MazeEnvironment.MOVES):
@@ -298,7 +364,10 @@ class MazeEnvironment(Environment):
             ray = (p0 + direction * offset, p0 + direction * GRID_DX)
             # we only look for objects of type 1, which means walls
             objects = getSimContext().findInRay(ray[0], ray[1], 1, True)
-            obs[2 + i] = int(len(objects) > 0)
+            obs[o] = int(len(objects) > 0); o+= 1
+        self.word_features = self.get_word_features(agent)
+        for i in range(N_WORD_FEATURES):
+            obs[o] = self.word_features[i]; o += 1
         state.record_observation(obs)
         return obs
 
@@ -336,11 +405,11 @@ class ContMazeEnvironment(MazeEnvironment):
         * o[3] - the distance to the target
         * o[4] - o[7] - ray sensors cast around the agent (starting with straight ahead and going clockwise)
     """
-    def __init__(self):
+    def __init__(self, random_seed = None):
         """
         generate the maze
         """
-        MazeEnvironment.__init__(self)
+        MazeEnvironment.__init__(self, random_seed)
         action_info = FeatureVectorInfo() # describes the actions
         observation_info = FeatureVectorInfo() # describes the observations
         reward_info = FeatureVectorInfo() # describes the rewards
@@ -353,6 +422,8 @@ class ContMazeEnvironment(MazeEnvironment):
         observation_info.add_continuous(-180, 180) # angle to target
         for i in range(ContMazeEnvironment.N_RAYS):
             observation_info.add_continuous(0,1) # ray sensor
+        for i in range(N_WORD_FEATURES):
+            observation_info.add_discrete(0,1)
         reward_info.add_continuous(-100,100)
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
         self.max_steps = MAX_STEPS * 15 # allow 15 actions per cell
@@ -384,6 +455,7 @@ class ContMazeEnvironment(MazeEnvironment):
         state = self.get_state(agent)
         state.record_action(action)
         if not self.agent_info.actions.validate(action):
+            state.update(agent, self.maze)
             return 0
         a = int(round(action[0]))
         (x,y,heading) = state.pose # current pose
@@ -437,14 +509,15 @@ class ContMazeEnvironment(MazeEnvironment):
         """
         state = self.get_state(agent)
         (x,y,heading) = state.pose # current agent pose
-        obs[0] = x # the agent can observe its position
-        obs[1] = y # the agent can observe its position
+        o = 0
+        obs[o] = x; o += 1 # the agent can observe its position
+        obs[o] = y; o += 1 # the agent can observe its position
         (tx, ty) = self.maze.rc2xy(ROWS-1,COLS-1) # coordinates of target
         tx, ty = tx - x, ty - y # line to target
-        obs[2] = hypot(tx, ty) # distance to target
+        obs[o] = hypot(tx, ty); o += 1 # distance to target
         angle_to_target = degrees(atan2(ty, tx)) # angle to target from +x, in degrees
         angle_to_target = wrap_degrees(angle_to_target, -heading) # heading to target relative to us
-        obs[3] = angle_to_target
+        obs[o] = angle_to_target; o += 1
         d_angle = 360.0 / ContMazeEnvironment.N_RAYS
         p0 = agent.state.position
         for i in range(ContMazeEnvironment.N_RAYS):
@@ -459,11 +532,14 @@ class ContMazeEnvironment(MazeEnvironment):
                 len1 = (ray[1] - ray[0]).getLength() # max extent
                 len2 = (hit - ray[0]).getLength() # actual extent
                 if len1 != 0:
-                    obs[4+i] = len2/len1
+                    obs[o] = len2/len1; o += 1
                 else:
-                    obs[4+i] = 0
+                    obs[o] = 0; o += 1
             else:
-                obs[4+i] = 1
+                obs[o] = 1; o += 1
+        self.word_features = self.get_word_features(agent)
+        for i in range(N_WORD_FEATURES):
+            obs[o] = self.word_features[i]; o += 1
         if not self.agent_info.sensors.validate(obs):
             print 'ERROR: incorect observation!', obs
             print '       should be:', self.agent_info.sensors
