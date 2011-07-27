@@ -13,15 +13,17 @@ namespace OpenNero
 
     Quaternion ConvertNeroRotationToIrrlichtQuaternion( const Vector3f& euler )
     {
-        return Quaternion(ConvertNeroToIrrlichtRotation(euler * DEG_2_RAD));
+        Quaternion neroQuat(euler * DEG_2_RAD);
+        return Quaternion(neroQuat.X, neroQuat.Z, neroQuat.Y, neroQuat.W);
     }
     
     Vector3f ConvertIrrlichtQuaternionToNeroRotation( const Quaternion& q )
     {
+        Quaternion neroQuat(q.X, q.Z, q.Y, q.W);
         Vector3f euler;
-        q.toEuler(euler);
-        euler = euler * RAD_2_DEG;
-        return ConvertIrrlichtToNeroRotation(euler);
+        neroQuat.toEuler(euler);
+        euler *= RAD_2_DEG;
+        return euler;
     }
     
     Vector3f InterpolateNeroRotation( const Vector3f& r1, const Vector3f& r2, F32 f)
