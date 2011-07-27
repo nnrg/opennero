@@ -135,6 +135,7 @@ namespace OpenNero
         {
             mCamera = ICameraSceneNode_IPtr( mIrr.mpSceneManager->addCameraSceneNodeNeroFP(scene_object->mSceneNode));
             scene_object->attachCamera(shared_from_this());
+			mCamera->bindTargetAndRotation(true);
         }
         else
         {

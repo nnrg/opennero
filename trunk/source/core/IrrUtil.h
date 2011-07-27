@@ -245,6 +245,12 @@ namespace OpenNero
         // Note: These two functions are inverses
         return ConvertNeroToIrrlichtRotation(vec);
     }
+    
+    Quaternion ConvertNeroRotationToIrrlichtQuaternion( const Vector3f& euler );
+    
+    Vector3f ConvertIrrlichtQuaternionToNeroRotation( const Quaternion& quat );
+    
+    Vector3f InterpolateNeroRotation( const Vector3f& r1, const Vector3f& r2, F32 f);
   
 }; // end OpenNero
 

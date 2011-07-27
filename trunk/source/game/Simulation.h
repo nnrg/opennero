@@ -65,11 +65,20 @@ namespace OpenNero
 
         ///@}
 
-        // move the simulation forward by time dt
+        /// move the simulation forward by time dt
         void ProcessTick( float32_t dt );
         
-        // detect and deal with collisions
+        /// update for animation only
+        void ProcessAnimationTick( float32_t frac );
+        
+        /// detect and deal with collisions
         void DoCollisions();
+        
+        /// get the time (in seconds) to animate for between AI frames
+        float32_t GetFrameDelay() const { return mFrameDelay; }
+        
+        /// set the time (in seconds) to animate for between AI frames
+        void SetFrameDelay(float32_t delay) { mFrameDelay = delay; }
 
     protected:
 
@@ -94,6 +103,9 @@ namespace OpenNero
         EnvironmentPtr      mWorld;                 ///< The AI World interface
 
         SimId               mMaxId;                 ///< The maximum id of the objects in the simulation
+        
+        float32_t           mFrameDelay;            ///< The time (in seconds) to animate for between AI frames
+
     };
 
 } //end OpenNero

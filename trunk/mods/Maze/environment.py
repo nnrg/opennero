@@ -39,10 +39,8 @@ class AgentState:
     """
     def __init__(self, maze):
         self.rc = (0, 0)
-        self.prev_rc = (0, 0)
         (x,y) = maze.rc2xy(0,0)
         self.pose = (x,y,0)
-        self.prev_pose = (x,y,0)
         self.initial_position = Vector3f(x, y, 0)
         self.initial_rotation = Vector3f(0, 0, 0)
         self.goal_reached = False
@@ -55,7 +53,6 @@ class AgentState:
         
     def reset(self):
         self.rc = (0,0)
-        self.prev_rc = (0,0)
         self.goal_reached = False
         self.observation_history = deque([ [x] for x in range(HISTORY_LENGTH)])
         self.action_history = deque([ [x] for x in range(HISTORY_LENGTH)])
@@ -66,9 +63,7 @@ class AgentState:
         Update the state of the agent
         """
         pos = copy(agent.state.position)
-        self.prev_rc = self.rc
         self.rc = maze.xy2rc(pos.x, pos.y)
-        self.prev_pose = self.pose
         self.pose = (pos.x, pos.y, agent.state.rotation.z)
         self.time = time.time()
         
@@ -190,6 +185,10 @@ class MazeEnvironment(Environment):
     def set_animation(self, agent, state, animation):
         if agent.state.animation != animation:
             agent.state.animation = animation
+            delay = getSimContext().delay
+            animation_speed = agent.state.animation_speed
+            if delay > 0:
+                agent.state.animation_speed = animation_speed / delay
 
     def step(self, agent, action):
         """
@@ -198,47 +197,68 @@ class MazeEnvironment(Environment):
         state = self.get_state(agent)
         state.record_action(action)
 
-        # store prev r,c and prev pose
-        state.prev_rc = state.rc
-        state.prev_pose = state.pose
         if not self.agent_info.actions.validate(action):
-            return state.record_reward(self.reward.null_move(state))
+            return state.record_reward(self.rewards.null_move(state))
         if agent.step == 0:
             state.initial_position = agent.state.position
             state.initial_rotation = agent.state.rotation
 
-        (r,c) = state.rc
-
         # check for null action
         a = int(round(action[0]))
         if a == len(MazeEnvironment.MOVES):
+            self.set_animation(agent, state, 'stand')
             return state.record_reward(self.rewards.null_move(state))
-
-        # update to old pose
-        (old_r,old_c) = state.prev_rc
-        (old_x,old_y) = self.maze.rc2xy(old_r, old_c)
-        pos0 = agent.state.position
-        pos0.x, pos0.y = old_x, old_y
-        agent.state.position = pos0
+            
+        (r,c) = state.rc
 
         # calculate new pose
         (dr, dc) = MazeEnvironment.MOVES[a]
         new_r, new_c = r + dr, c + dc
         (new_x, new_y) = self.maze.rc2xy(new_r, new_c)
+        next_rotation = self.get_next_rotation((dr,dc))
+        new_heading = state.initial_rotation.z + next_rotation.z
+        prev_heading = state.pose[2]
 
         # check if we are in bounds
         if not self.maze.rc_bounds(new_r, new_c):
+            self.set_animation(agent, state, 'jump')
             return state.record_reward(self.rewards.out_of_bounds(state))
 
         # check if there is a wall in the way
         elif self.maze.is_wall(r,c,dr,dc):
+            self.set_animation(agent, state, 'jump')
             return state.record_reward(self.rewards.hit_wall(state))
 
         # set new rc and pose
-        state.rc = (new_r, new_c)
-        next_rotation = self.get_next_rotation((dr,dc))
-        new_heading = state.initial_rotation.z + next_rotation.z
-        state.pose = (new_x, new_y, new_heading)
+        if new_heading == prev_heading:
+            # if the heading is right, change the position
+            state.rc = (new_r, new_c)
+            state.pose = (new_x, new_y, new_heading)
+            pos0 = agent.state.position
+            pos0.x, pos0.y = new_x, new_y
+            agent.state.position = pos0
+            if dr != 0 or dc != 0:
+                self.set_animation(agent, state, 'run')
+        else:
+            # "run" "stand" "turn_r_xc" "turn_l_xc" "turn_r_lx" "turn_l_lx"
+            # "turn_r_xxx" "turn_l_xxx" "pick_up" "put_down" 
+            # "hold_run" "hold_stand" "hold_r_xc" "hold_l_xc"
+            # "hold_turn_r_lx" "hold_turn_l_lx" "hold_turn_r_xxx" "hold_turn_l_xxx"
+            # "jump" "hold_jump"
+            # if the heading is not right, just change the heading and return 0
+            if new_heading - prev_heading > 0:
+                if new_heading - prev_heading > 90:
+                    new_heading = prev_heading + 90
+                self.set_animation(agent, state, 'turn_l_xc')
+            else:
+                if new_heading - prev_heading < 90:
+                    new_heading = prev_heading - 90
+                self.set_animation(agent, state, 'turn_r_xc')
+            state.pose = (state.pose[0], state.pose[1], new_heading)
+            rot0 = copy(agent.state.rotation)
+            rot0.z = new_heading
+            agent.state.rotation = rot0
+            return 0
 
         # check if we reached the goal
         if new_r == ROWS - 1 and new_c == COLS - 1:
@@ -257,7 +277,6 @@ class MazeEnvironment(Environment):
         move the agent to a new location
         """
         state = self.get_state(agent)
-        state.prev_rc = (r,c)
         state.rc = (r,c)
         (x,y) = self.maze.rc2xy(r,c)
         pos0 = agent.state.position
@@ -282,57 +301,6 @@ class MazeEnvironment(Environment):
             obs[2 + i] = int(len(objects) > 0)
         state.record_observation(obs)
         return obs
-
-    def is_active(self, agent):
-        state = self.get_state(agent)
-        # here, we interpolate between state.prev_rc and state.rc
-        (r0,c0) = state.prev_rc
-        (r1,c1) = state.rc
-        dr, dc = r1 - r0, c1 - c0
-        if dr != 0 or dc != 0:
-            (x0,y0,h0) = state.prev_pose
-            (x1,y1,h1) = state.pose
-            fraction = 1.0
-            rotation = copy(agent.state.rotation)
-            if self.get_delay() != 0:
-                fraction = min(1.0,float(time.time() - state.time)/self.get_delay())
-            if fraction < 0.5:
-                fraction = fraction * 2.0
-                animation_speed = 0
-                animation = 'stand'
-                T = self.get_delay()/2.0 # how much time to play back the turn
-                if T > 0:
-                    animation_speed = 60.0 / T
-                    if h1 - h0 == 90:
-                        animation = 'turn_l_xc'
-                    elif h0 - h1 == 90:
-                        animation = 'turn_r_xc'
-                    elif max(h0,h1) - min(h0,h1) == 180:
-                        animation = 'turn_r_xc'
-                        animation_speed = animation_speed * 2.0
-                        if fraction > 0.5:
-                            rotation.z = h0 * 0.5 + h1 * 0.5
-                            agent.state.rotation = rotation
-                if agent.state.animation != animation:
-                    agent.state.animation = animation
-                if agent.state.animation_speed != animation_speed:
-                    agent.state.animation_speed = animation_speed
-            else:
-                rotation.z = h1
-                agent.state.rotation = rotation
-                fraction = (fraction - 0.5) * 2.0
-                pos = agent.state.position
-                pos.x = x0 * (1 - fraction) + x1 * fraction
-                pos.y = y0 * (1 - fraction) + y1 * fraction
-                agent.state.position = pos
-                self.set_animation(agent, state, 'run')
-        else:
-            self.set_animation(agent, state, 'stand')
-        if time.time() - state.time > self.get_delay():
-            state.time = time.time()
-            return True # call the sense/act/step loop
-        else:
-            return False
 
     def is_episode_over(self, agent):
         state = self.get_state(agent)
@@ -501,18 +469,6 @@ class ContMazeEnvironment(MazeEnvironment):
             print '       should be:', self.agent_info.sensors
         state.record_observation(obs)
         return obs
-
-    def is_active(self, agent):
-        state = self.get_state(agent)
-        # TODO: interpolate
-        fraction = 1.0
-        if self.get_delay() != 0:
-            fraction = min(1.0,float(time.time() - state.time)/self.get_delay())
-        if time.time() - state.time > self.get_delay():
-            state.time = time.time()
-            return True # call the sense/act/step loop
-        else:
-            return False
 
 def is_uniform(vv):
     """ return true iff all the feature vectors in v are identical """

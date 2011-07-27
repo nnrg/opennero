@@ -23,6 +23,29 @@ namespace OpenNero
     class SimEntityData
     {
     public:
+    
+        struct SimEntityInternals {
+            Vector3f mPosition;     ///< Position of the object
+            Vector3f mRotation;     ///< Euler rotation angles of the object
+            Vector3f mVelocity;     ///< Linear velocity of the object
+            Vector3f mScale;        ///< Scale of the object (in x,y,z)
+            Vector3f mAcceleration; ///< Linear acceleration of the object
+            std::string mLabel;     ///< Text label for the object
+            SColor mColor;          ///< Color of the object
+            uint32_t mType;         ///< Type of this object (for sensors)
+            uint32_t mCollision;    ///< The collision mask
+            bool mBumped;           ///< Bumped flag
+            
+            SimEntityInternals();
+            SimEntityInternals(
+                const Vector3f& pos, 
+                const Vector3f& rot, 
+                const Vector3f& scale, 
+                const std::string& label,
+                uint32_t t,
+                uint32_t collision);
+            
+        };
 
         /// Declaration of how bits in a binary string correspond to data
         enum DataBits
@@ -87,29 +110,28 @@ namespace OpenNero
         bool GetBumped() const;                   ///< Get the bumped flag
         std::string GetAnimation() const;         ///< Returns the animation type
         float32_t GetAnimationSpeed() const;      ///< Returns the animation speed (frames per second)
+        
+        const SimEntityInternals& GetPrevious() const; ///< Get the previous state of this object
+        void ProcessTick(float32_t dt); ///< Assign the current state to previous state
 
         uint32_t GetDirtyBits() const;            ///< Retrieve the dirty bits
         bool IsDirty(DataBits bit) const;         ///< Flag to say if SimEntity is dirty
         bool operator== ( SimEntityData const& x );
         bool operator!= ( SimEntityData const& x );
 
-        friend Bitstream& operator<<( Bitstream& stream, const SimEntityData& data);
-        friend Bitstream& operator>>( Bitstream& stream, SimEntityData& data);
-
     private:
+        /// The id of the object
+        SimId mId;
 
-        Vector3f mPosition;     ///< Position of the object
-        Vector3f mRotation;     ///< Euler rotation angles of the object
-        Vector3f mVelocity;     ///< Linear velocity of the object
-        Vector3f mScale;        ///< Scale of the object (in x,y,z)
-        Vector3f mAcceleration; ///< Linear acceleration of the object
-        std::string mLabel;     ///< Text label for the object
-        SColor mColor;          ///< Color of the object
-        SimId mId;              ///< The id of the object
-        uint32_t mType;         ///< Type of this object (for sensors)
-        uint32_t mCollision;    ///< The collision mask
-        bool mBumped;           ///< Bumped flag
-        uint32_t mDirtyBits;    ///< The dirty bits of the object (specifying which data has changed)
+        /// The bitmask of the object (which data has changed)
+        uint32_t mDirtyBits;
+    
+        /// Previous state
+        SimEntityInternals mPrevious;
+
+        /// Current state
+        SimEntityInternals mCurrent;
+        
     };
 
     /// vector of SimEntityData objects

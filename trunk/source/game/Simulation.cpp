@@ -1,4 +1,6 @@
 #include "core/Common.h"
+#include "utils/Config.h"
+
 #include <vector>
 
 #include "game/Simulation.h"
@@ -10,7 +12,9 @@ namespace OpenNero
 {
     /// Constructor - initialize variables
     Simulation::Simulation( const IrrHandles& irr )
-        : mIrr(irr), mMaxId(kFirstSimId)
+        : mIrr(irr)
+        , mMaxId(kFirstSimId)
+        , mFrameDelay(GetAppConfig().FrameDelay)
     {
         // initialize entity types
         for (size_t i = 0; i < sizeof(uint32_t); ++i)
@@ -152,6 +156,19 @@ namespace OpenNero
         
         // the last step is to remove all the objects that were scheduled during the ticks
         RemoveAllScheduled();
+    }
+    
+    void Simulation::ProcessAnimationTick( float32_t frac )
+    {
+        // this step will allow mSimIdHashedEntities to be modified during the ticks
+        SimIdHashMap entities_to_tick(mSimIdHashedEntities.begin(), mSimIdHashedEntities.end());
+        SimIdHashMap::const_iterator itr = entities_to_tick.begin();
+        SimIdHashMap::const_iterator end = entities_to_tick.end();
+        
+        for( ; itr != end; ++itr ) {
+			SimEntityPtr ent = itr->second;
+            ent->ProcessAnimationTick(frac); // tick only if not removed
+        }
     }
     
     /// @brief Detect and deal with collisions

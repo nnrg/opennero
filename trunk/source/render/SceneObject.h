@@ -47,7 +47,6 @@ namespace OpenNero
     };
 
     /// @cond
-    BOOST_SHARED_STRUCT(FootprintTemplate);
 	BOOST_SHARED_STRUCT(FPSCameraTemplate);
     /// @endcond
 
@@ -85,7 +84,6 @@ namespace OpenNero
         bool                            mDrawLabel;         ///< whether or not to draw the object's label
         FPSCameraTemplatePtr            mFPSCamera;         ///< information about camera attachment
         float32_t                       mAnimationSpeed;    ///< animation speed
-        FootprintTemplatePtr            mFootprints;        ///< footprint template
 		uint32_t                        mCollisionMask;     ///< mask of objects this object collides with
     };
 
@@ -137,6 +135,12 @@ namespace OpenNero
         
         /// set the animation speed fo this node
         void SetAnimationSpeed(float32_t framesPerSecond);
+        
+        /// set the position of this scene object
+        void SetPosition(const Vector3f& pos);
+        
+        /// set the rotation of this scene object
+        void SetRotation(const Vector3f& rotation);
 
         /// bounding box data
         BBoxf getBoundingBox() const;
@@ -186,8 +190,6 @@ namespace OpenNero
         // TODO : Should there be a copy constructor?
         SceneObject& operator=( const SceneObject& obj );
 
-        void LeaveFootprints();
-
         // this points to the actual node in use
         ISceneNode*                         mSceneNode;             ///< Irr Scene node
 
@@ -202,7 +204,6 @@ namespace OpenNero
 
         S32                                 mStartFrame;            ///< starting animation frame
         S32                                 mEndFrame;              ///< ending animation frame
-        std::list<SimId>                    mFootprints;            ///< footprints left behind
         CameraPtr                           mCamera;                ///< camera that is attached to us (if any)
 		FPSCameraTemplatePtr				mFPSCamera;			    ///< information about whether to attach a camera to this object
         std::string                         mAnimation;             ///< current animation

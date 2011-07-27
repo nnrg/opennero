@@ -85,9 +85,6 @@ class SensorTestEnvironment(Environment):
     def step(self, agent, actions):
         return 1.0
         
-    def is_active(self, agent):
-        return True
-        
     def is_episode_over(self, agent):
         if self.counter > N_STEPS:
             print 'SensorTestEnvironment: episode is over'

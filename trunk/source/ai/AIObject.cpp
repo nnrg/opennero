@@ -64,20 +64,17 @@ namespace OpenNero
         else
         {
             Assert(getWorld());
-            if (getWorld()->is_active(getBrain()))
-            {
-                if (getWorld()->is_episode_over(getBrain())) {
-                    getBrain()->end(dt, getReward());
-                    getWorld()->reset(getBrain());
-                    getBrain()->episode++;
-                    getBrain()->step = 0;
-                    getBrain()->fitness = getInitInfo().reward.getInstance();
-                } else {
-                    Observations observations = sense();
-                    setActions(getBrain()->act(dt, observations, getReward()));
-                    setReward(getWorld()->step(getBrain(), getActions()));
-                    getBrain()->step++;
-                }
+            if (getWorld()->is_episode_over(getBrain())) {
+                getBrain()->end(dt, getReward());
+                getWorld()->reset(getBrain());
+                getBrain()->episode++;
+                getBrain()->step = 0;
+                getBrain()->fitness = getInitInfo().reward.getInstance();
+            } else {
+                Observations observations = sense();
+                setActions(getBrain()->act(dt, observations, getReward()));
+                setReward(getWorld()->step(getBrain(), getActions()));
+                getBrain()->step++;
             }
         }
     }

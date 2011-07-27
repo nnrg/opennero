@@ -33,6 +33,7 @@ namespace OpenNero
         bool        StencilBuffer;      ///< Should we use a stencil buffer for shadows?
         bool        VSync;              ///< Should we use vsync?
         std::string RandomSeeds;        ///< Random seed buffer
+        float32_t   FrameDelay;         ///< the delay between AI frames to use for animation (in seconds)
 
         /// Constructor
         AppConfig();
@@ -57,6 +58,7 @@ namespace OpenNero
             ar & BOOST_SERIALIZATION_NVP(StencilBuffer);
             ar & BOOST_SERIALIZATION_NVP(VSync);
             ar & BOOST_SERIALIZATION_NVP(RandomSeeds);
+            ar & BOOST_SERIALIZATION_NVP(FrameDelay);
         }
     };
 

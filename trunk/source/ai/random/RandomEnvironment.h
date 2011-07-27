@@ -43,9 +43,6 @@ namespace OpenNero
         /// @brief perform agent actions in the environment and receive the reward
         Reward step(AgentBrainPtr agent, Actions action);
 
-        /// called to find out if the agent is active and should act
-        bool is_active(AgentBrainPtr agent);
-
         /// @brief passively sense the agent's environment
         Observations sense(AgentBrainPtr agent, Observations& observations);
 

@@ -99,4 +99,10 @@ namespace OpenNero
             }
         }
     }
+    
+    /// reset the ai (remove the ai systems)
+    void AIManager::Reset()
+    {
+        mAIs.clear();
+    }
 }
