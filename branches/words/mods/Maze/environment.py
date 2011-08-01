@@ -28,14 +28,14 @@ class MazeRewardStructure:
         return -5
     def goal_reached(self, state):
         """ reward for reaching the goal """
-        print 'GOAL REACHED!'
-        # reaching a goal is great!
+        print 'GOAL REACHED: 100!'
         return 100
     def last_reward(self, state):
         """ reward for ending without reaching the goal """
         (r,c) = state.rc
-        print 'EPISODE ENDED AT', r, c
-        return 100.0*(r+c)/(ROWS+COLS)
+        res = 100.0*(r+c)/(ROWS+COLS)
+        print 'EPISODE ENDED AT', r, c, res
+        return res
 
 class AgentState:
     """
@@ -202,7 +202,7 @@ class MazeEnvironment(Environment):
             if subset[i] > 0:
                 words.append(WORD_FEATURES[i])
         if (subset != self.word_features).all:
-            print 'words used here:',' '.join(words)
+            print 'words here:',' '.join(words)
         return subset
 
     def get_delay(self):
@@ -388,7 +388,6 @@ class ContMazeEnvironment(MazeEnvironment):
     WALK_BY = 2.5 # how many units to advance by every step forward
     ACTIONS = {'FWD':0, 'CW':1, 'CCW':2, 'BCK':3}
     N_ACTIONS = 4 # number of actions
-    N_RAYS = 4 # number of rays around the agent, starting from the front
     MAX_DISTANCE = hypot(ROWS*GRID_DX, COLS*GRID_DY) # max distance within the maze
     """
     The environment is a 2-D maze.
@@ -420,7 +419,7 @@ class ContMazeEnvironment(MazeEnvironment):
         observation_info.add_continuous(ymin, ymax) # y-coord
         observation_info.add_continuous(0, ContMazeEnvironment.MAX_DISTANCE ) # distance to target
         observation_info.add_continuous(-180, 180) # angle to target
-        for i in range(ContMazeEnvironment.N_RAYS):
+        for i in range(N_RAYS):
             observation_info.add_continuous(0,1) # ray sensor
         for i in range(N_WORD_FEATURES):
             observation_info.add_discrete(0,1)
@@ -518,14 +517,14 @@ class ContMazeEnvironment(MazeEnvironment):
         angle_to_target = degrees(atan2(ty, tx)) # angle to target from +x, in degrees
         angle_to_target = wrap_degrees(angle_to_target, -heading) # heading to target relative to us
         obs[o] = angle_to_target; o += 1
-        d_angle = 360.0 / ContMazeEnvironment.N_RAYS
+        d_angle = 360.0 / N_RAYS
         p0 = agent.state.position
-        for i in range(ContMazeEnvironment.N_RAYS):
+        for i in range(N_RAYS):
             angle = radians(heading + i * d_angle)
             direction = Vector3f(cos(angle), sin(angle), 0) # direction of ray
             ray = (p0, p0 + direction * GRID_DX)
             # we only look for objects of type 1, which means walls
-            result = getSimContext().findInRay(ray[0], ray[1], 1, True)
+            result = getSimContext().findInRay(ray[0], ray[1], OBSTACLE_MASK, True)
             # we can now return a continuous sensor since FindInRay returns the hit point
             if len(result) > 0:
                 (sim, hit) = result
@@ -537,6 +536,7 @@ class ContMazeEnvironment(MazeEnvironment):
                     obs[o] = 0; o += 1
             else:
                 obs[o] = 1; o += 1
+        print 'sensors here: ' + str(obs[0:o])
         self.word_features = self.get_word_features(agent)
         for i in range(N_WORD_FEATURES):
             obs[o] = self.word_features[i]; o += 1

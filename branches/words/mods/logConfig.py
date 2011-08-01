@@ -23,7 +23,8 @@ ignore('game')
 # you want to comment this out (allowing ai.tick messages) if you want to get 
 # detailed logging about each ai agent's reinforcement (and then plot it using
 # plot_server.py
-ignore('ai.tick')
+# ignore('ai.tick')
+ignore('python')
 
 # unless ignored,
 # this will print out a message saying exactly which element of an invalid 

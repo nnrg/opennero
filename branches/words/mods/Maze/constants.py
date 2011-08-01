@@ -14,3 +14,4 @@ AGENT_MASK = 2 #0b0010
 maze_random_seed = 5
 WORD_FEATURES = ['left','right','go','straight','turn','strafe','forward','way','take','wall']
 N_WORD_FEATURES = len(WORD_FEATURES)
+N_RAYS = 4 # number of rays around the agent, starting from the front

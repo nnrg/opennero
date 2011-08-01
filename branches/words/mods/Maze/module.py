@@ -225,8 +225,8 @@ class MazeMod:
         disable_ai()
         self.reset_maze()
         # ensure that we have the environment ready
-        if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment(maze_random_seed))
+        if self.environment.__class__.__name__ != 'ContMazeEnvironment':
+            self.set_environment(ContMazeEnvironment(maze_random_seed))
         enable_ai()
         self.agent_id = addObject("data/shapes/character/SydneyRandom.xml",Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
 
@@ -234,8 +234,8 @@ class MazeMod:
         """ start the rtneat learning demo """
         disable_ai()
         self.reset_maze()
-        if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment(maze_random_seed))
+        if self.environment.__class__.__name__ != 'ContMazeEnvironment':
+            self.set_environment(ContMazeEnvironment(maze_random_seed))
         agent_info = get_environment().agent_info
 
         # Create an rtNEAT object appropriate for the environment
@@ -269,8 +269,8 @@ class MazeMod:
         """ start the rtneat learning demo """
         disable_ai()
         self.reset_maze()
-        if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment(maze_random_seed))
+        if self.environment.__class__.__name__ != 'ContMazeEnvironment':
+            self.set_environment(ContMazeEnvironment(maze_random_seed))
         self.agent_id = addObject("data/shapes/character/SydneySarsa.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         enable_ai()
 
@@ -278,8 +278,8 @@ class MazeMod:
         """ start the q-learning demo """
         disable_ai()
         self.reset_maze()
-        if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment(maze_random_seed))
+        if self.environment.__class__.__name__ != 'ContMazeEnvironment':
+            self.set_environment(ContMazeEnvironment(maze_random_seed))
         self.agent_id = addObject("data/shapes/character/SydneyQLearning.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         enable_ai()
 
