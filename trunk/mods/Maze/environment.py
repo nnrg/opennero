@@ -196,21 +196,21 @@ class MazeEnvironment(Environment):
         """
         state = self.get_state(agent)
         state.record_action(action)
-
+        
         if not self.agent_info.actions.validate(action):
             return state.record_reward(self.rewards.null_move(state))
         if agent.step == 0:
             state.initial_position = agent.state.position
             state.initial_rotation = agent.state.rotation
-
+        
         # check for null action
         a = int(round(action[0]))
         if a == len(MazeEnvironment.MOVES):
             self.set_animation(agent, state, 'stand')
             return state.record_reward(self.rewards.null_move(state))
-            
+        
         (r,c) = state.rc
-
+        
         # calculate new pose
         (dr, dc) = MazeEnvironment.MOVES[a]
         new_r, new_c = r + dr, c + dc
@@ -218,12 +218,12 @@ class MazeEnvironment(Environment):
         next_rotation = self.get_next_rotation((dr,dc))
         new_heading = state.initial_rotation.z + next_rotation.z
         prev_heading = state.pose[2]
-
+        
         # check if we are in bounds
         if not self.maze.rc_bounds(new_r, new_c):
             self.set_animation(agent, state, 'jump')
             return state.record_reward(self.rewards.out_of_bounds(state))
-
+        
         # check if there is a wall in the way
         elif self.maze.is_wall(r,c,dr,dc):
             self.set_animation(agent, state, 'jump')
@@ -258,7 +258,7 @@ class MazeEnvironment(Environment):
             rot0 = copy(agent.state.rotation)
             rot0.z = new_heading
             agent.state.rotation = rot0
-            return 0
+            return state.record_reward(self.rewards.valid_move(state))
 
         # check if we reached the goal
         if new_r == ROWS - 1 and new_c == COLS - 1:
