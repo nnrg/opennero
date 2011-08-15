@@ -89,26 +89,26 @@ class NeroModule:
         enable_ai()
 
     #The following is run when the Save button is pressed
-    def save_rtneat(self, location, pop):
+    def save_rtneat(self, location, team):
         import os
         location = os.path.relpath("/") + location
-        get_ai("rtneat" + str(pop)).save_population(str(location))
+        get_ai("rtneat" + team).save_population(str(location))
 
     #The following is run when the Load button is pressed
-    def load_rtneat(self, location , pop):
+    def load_rtneat(self, location, team):
         import os
         global rtneat
         location = os.path.relpath("/") + location
         if os.path.exists(location):
-            print get_ai("rtneat0"), get_ai("rtneat1")
+            print TEAM0,get_ai("rtneat" + TEAM0),TEAM1,get_ai("rtneat" + TEAM1)
             rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size, get_environment().agent_info.reward)
             # set the initial lifetime
             # in Battle, the lifetime is basically infinite, unless they get killed
             lifetime = sys.maxint
             rtneat.set_lifetime(lifetime)
             rtneat.disable_evolution()
-            set_ai("rtneat" + str(pop),rtneat)
-            print get_ai("rtneat0"), get_ai("rtneat1")
+            set_ai("rtneat" + team,rtneat)
+            print TEAM0,get_ai("rtneat" + TEAM0),TEAM1,get_ai("rtneat" + TEAM1)
     
     def set_speedup(self, speedup):
         self.speedup = speedup
@@ -118,7 +118,7 @@ class NeroModule:
     def set_spawn_1(self, x, y):
         self.spawn_x_1 = x
         self.spawn_y_1 = y
-    
+   
     def set_spawn_2(self, x, y):
         self.spawn_x_2 = x
         self.spawn_y_2 = y
@@ -127,20 +127,19 @@ class NeroModule:
     def set_weight(self, key, value):
         i = FITNESS_INDEX[key]
         value = (value - 100) / 100.0 # value in [-1,1]
-        for pop in range(1,3):
-         rtneat = get_ai("rtneat" + str(pop))
-         if rtneat:
+        for team in TEAMS:
+            rtneat = get_ai("rtneat" + team)
+            assert(rtneat)
             rtneat.set_weight(i, value)
         print key, value
-        
+
     def ltChange(self,value):
         self.lt = value
-        for pop in range(1,3):
-         rtneat = get_ai("rtneat" + +str(pop))
-         print 'lifetime:',value
-         if rtneat:
+        for team in TEAMS:
+            rtneat = get_ai("rtneat" + team)
+            assert(rtneat)
             rtneat.set_lifetime(value)
-            print 'rtNEAT lifetime:',value
+        print 'rtNEAT lifetime:',value
 
     def dtaChange(self,value):
         self.dta = value
@@ -166,8 +165,11 @@ class NeroModule:
         self.hp = value
         print 'Hit points:',value
 
-    #This is the function ran when an agent already in the field causes the generation of a new agent
-    def addAgent(self,pos, team):
+    def getNumToAdd(self):
+        return self.num_to_add
+
+    # This is the function run when an agent already in the field causes the generation of a new agent
+    def addAgent(self, pos, team):
         self.curr_team = team
         if team == OBJECT_TYPE_TEAM_0 and self.team0count < pop_size: 
             print "spawning team",team
@@ -212,10 +214,10 @@ def parseInput(strn):
     if loc == "EE": mod.eeChange(vali)
     if loc == "HP": mod.hpChange(vali)
     if loc == "SP": mod.set_speedup(vali)
-    if loc == "save1": mod.save_rtneat(val,0)
-    if loc == "load1": mod.load_rtneat(val,0)
-    if loc == "save2": mod.save_rtneat(val,1)
-    if loc == "load2": mod.load_rtneat(val,1)
+    if loc == "save1": mod.save_rtneat(val,TEAM0)
+    if loc == "load1": mod.load_rtneat(val,TEAM0)
+    if loc == "save2": mod.save_rtneat(val,TEAM1)
+    if loc == "load2": mod.load_rtneat(val,TEAM1)
     if loc == "deploy": toggle_ai_callback()
 
 def ServerMain():

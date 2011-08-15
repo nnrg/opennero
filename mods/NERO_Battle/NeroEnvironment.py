@@ -11,8 +11,8 @@ class AgentState:
     """
     State that we keep for each agent
     """
-    def __init__(self):
-        self.id = -1
+    def __init__(self, agent):
+        self.id = agent.state.id
         # current x, y, heading pose
         self.pose = (0, 0, 0)
         # previous x, y, heading pose
@@ -26,6 +26,11 @@ class AgentState:
         self.total_damage = 0
         self.curr_damage = 0
         self.team = 0
+    def __str__(self):
+        x, y, h = self.pose
+        px, py, ph = self.prev_pose
+        return 'agent { id: %d, pose: (%.02f, %.02f, %.02f), prev_pose: (%.02f, %.02f, %.02f) }' % \
+            (self.id, x, y, h, px, py, ph)
 
 class NeroEnvironment(Environment):
     """
@@ -58,7 +63,7 @@ class NeroEnvironment(Environment):
         # sensor dimensions
         for a in range(N_SENSORS):
             sbound.add_continuous(0,1);
-        
+
         # Rewards
         # In battle mode, we tell each agent how much health it has left
         rbound.add_continuous(0,1)
@@ -68,20 +73,21 @@ class NeroEnvironment(Environment):
         # output layer has enough values for all the actions
         # population size matches ours
         # 1.0 is the weight initialization noise
-        rtneat = [RTNEAT("data/ai/neat-params.dat", N_SENSORS, N_ACTIONS, pop_size, 1.0, rbound), RTNEAT("data/ai/neat-params.dat", N_SENSORS, N_ACTIONS, pop_size, 1.0, rbound)]
+        rtneat = {
+            TEAM0: RTNEAT("data/ai/neat-params.dat", N_SENSORS, N_ACTIONS, pop_size, 1.0, rbound), 
+            TEAM1: RTNEAT("data/ai/neat-params.dat", N_SENSORS, N_ACTIONS, pop_size, 1.0, rbound)
+        }
+        
+        self.agent_info = AgentInitInfo(sbound, abound, rbound)
         
         # set the initial lifetime
         # in Battle, the lifetime is basically infinite, unless they get killed
         lifetime = sys.maxint
-        for algo in rtneat: 
+        for team in rtneat:
+            algo = rtneat[team]
             algo.set_lifetime(lifetime)
             algo.disable_evolution()
-        print 'rtNEAT lifetime:', lifetime
-        
-        set_ai("rtneat0", rtneat[0])
-        set_ai("rtneat1", rtneat[1])
-        
-        self.agent_info = AgentInitInfo(sbound, abound, rbound)
+            set_ai("rtneat" + team, algo)
     
     def reset(self, agent):
         """
@@ -92,10 +98,10 @@ class NeroEnvironment(Environment):
         if agent.group == "Agent":
             dx = randrange(XDIM/20) - XDIM/40
             dy = randrange(XDIM/20) - XDIM/40
-            if agent.get_team() == 0:
+            if agent.get_team() == TEAM0:
                 state.initial_position.x = getMod().spawn_x_1 + dx
                 state.initial_position.y = getMod().spawn_y_1 + dy
-            if agent.get_team() == 1:
+            if agent.get_team() == TEAM1:
                 state.initial_position.x = getMod().spawn_x_2 + dx
                 state.initial_position.y = getMod().spawn_y_2 + dy
             agent.state.position = copy(state.initial_position)
@@ -116,8 +122,10 @@ class NeroEnvironment(Environment):
         for (a0, a1) in FLAG_RADAR_SENSORS:
             agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_FLAG, False))
         for (a0, a1) in ENEMY_RADAR_SENSORS:
-            if agent.get_team() == 0: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_1, False))
-            if agent.get_team() == 1: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_0, False))
+            if agent.get_team() == TEAM0:
+                agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_1, False))
+            if agent.get_team() == TEAM1:
+                agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_0, False))
         return self.agent_info
    
     def get_state(self, agent):
@@ -127,9 +135,8 @@ class NeroEnvironment(Environment):
         if agent in self.states:
             return self.states[agent]
         else:
-            self.states[agent] = AgentState()
-            self.states[agent].id = agent.state.id
-            if agent.get_team() not in  self.teams:
+            self.states[agent] = AgentState(agent)
+            if agent.get_team() not in self.teams:
                 self.teams[agent.get_team()] = {}
             self.teams[agent.get_team()][agent] = self.states[agent]
             return self.states[agent]
@@ -150,11 +157,14 @@ class NeroEnvironment(Environment):
         """
         friend = []
         foe = []
-        other = abs(1-agent.get_team())
+        if agent.get_team() == TEAM0:
+            enemy_team = TEAM1
+        else:
+            enemy_team = TEAM0
         if agent.get_team() in self.teams:
             friend = self.teams[agent.get_team()]
-        if other in self.teams:
-            foe = self.teams[other]
+        if enemy_team in self.teams:
+            foe = self.teams[enemy_team]
         else:
             foe = []
         return (friend, foe)
@@ -167,7 +177,7 @@ class NeroEnvironment(Environment):
             return None
 
         state = self.get_state(agent)
-        
+
         #sort in order of variance from 0~2 degrees (maybe more)
         valids = []
         for curr in alt:
@@ -205,16 +215,16 @@ class NeroEnvironment(Environment):
         
         state = self.get_state(agent)
         if len(self.teams) == 2:
-            b = len(self.teams[0])
-            r = len(self.teams[1])
+            b = len(self.teams[TEAM0])
+            r = len(self.teams[TEAM1])
             if b != NeroEnvironment.blue_score or r != NeroEnvironment.red_score:
                 NeroEnvironment.blue_score = b
                 NeroEnvironment.red_score = r
                 print 'Blue Team Score:', b, 'Red Team Score:', r
-        if 0 in self.teams and len(self.teams[0]) == 0:
+        if TEAM0 in self.teams and len(self.teams[TEAM0]) == 0:
             print "Red Team Wins!!"
             disable_ai()
-        if 1 in self.teams and len(self.teams[1]) == 0:
+        if TEAM1 in self.teams and len(self.teams[TEAM1]) == 0:
             print "Blue Team Wins!!"
             disable_ai()
         
@@ -233,12 +243,12 @@ class NeroEnvironment(Environment):
         # Spawn more agents if there are more to spawn
         # TODO: don't spawn more than the initial team size
         
-        if get_ai("rtneat0").ready():
+        if get_ai("rtneat" + TEAM0).ready():
             dx = randrange(XDIM/20) - XDIM/40
             dy = randrange(XDIM/20) - XDIM/40
             getMod().addAgent((getMod().spawn_x_1 + dx, getMod().spawn_y_1 + dy, 2),OBJECT_TYPE_TEAM_0)
-        
-        if get_ai("rtneat1").ready():
+
+        if get_ai("rtneat" + TEAM1).ready():
             dx = randrange(XDIM/20) - XDIM/40
             dy = randrange(XDIM/20) - XDIM/40
             getMod().addAgent((getMod().spawn_x_2 + dx, getMod().spawn_y_2 + dy, 2),OBJECT_TYPE_TEAM_1)
@@ -260,13 +270,20 @@ class NeroEnvironment(Environment):
         move_by = action[0]
         turn_by = degrees(action[1])
         
+        # set animation speed
+        # TODO: move constants into constants.py
+        self.set_animation(agent, state, 'run')
+        delay = getSimContext().delay
+        if delay > 0.0: # if there is a need to show animation
+            agent.state.animation_speed = move_by * 28.0 / delay
+        
         # figure out the new heading
         new_heading = wrap_degrees(heading, turn_by)
         
         # figure out the new x,y location
         new_x = x + MAX_MOVEMENT_SPEED * cos(radians(new_heading)) * move_by
         new_y = y + MAX_MOVEMENT_SPEED * sin(radians(new_heading)) * move_by
-        
+
         # figure out the firing location
         fire_x = x + self.MAX_DIST * cos(radians(new_heading))
         fire_y = y + self.MAX_DIST * sin(radians(new_heading))
@@ -294,7 +311,7 @@ class NeroEnvironment(Environment):
                 if target != -1:
                     target.curr_damage += 1
                     hit = 1
-
+        
         # calculate friend/foe
         ffr = self.getFriendFoe(agent)
         if ffr[0] == ffr[1]: assert(false)
@@ -312,7 +329,19 @@ class NeroEnvironment(Environment):
         state.prev_pose = state.pose
         state.pose = (new_position.x, new_position.y, rotation.z)
         state.time = time.time()
-        
+
+        # try to update position
+        pos = copy(agent.state.position)
+        pos.x = new_x
+        pos.y = new_y
+        state.prev_command_pose = pos
+        agent.state.position = pos
+
+        # try to update rotation
+        rot = copy(agent.state.rotation)
+        rot.z = new_heading
+        agent.state.rotation = rot
+
         return reward
 
     def sense(self, agent, observations):
@@ -341,18 +370,15 @@ class NeroEnvironment(Environment):
         fh = 0
         if fd != 0:
             fh = ((degrees(atan2(yloc-state.pose[1],xloc - state.pose[0])) - state.pose[2]) % 360) - 180
-        
         if fd <= 15:
             observations[f-3] = fd/15.0
             observations[f-2] = fh/360.0
-        
-        if observations[f-2] < 0: observations[f-2] += 1
-        
-        
+        if observations[f-2] < 0:
+            observations[f-2] += 1
         data = self.target(agent)
         observations[f-1] = 0
         if data != None: observations[f-1] = 1
-        
+
         return observations
    
     def flag_loc(self):
@@ -423,15 +449,14 @@ class NeroEnvironment(Environment):
         self.max_steps = getMod().lt
         state = self.get_state(agent)
         if self.max_steps != 0 and agent.step >= self.max_steps:
-            return False#True
-        if not get_ai("rtneat" + str(agent.get_team())).has_organism(agent):
-            print 'agent selected by evolution!'
-            return False#True
+            return False
+        if not get_ai("rtneat" + agent.get_team()).has_organism(agent):
+            return False
         if getMod().hp != 0 and state.total_damage >= getMod().hp:
             agent.state.position = Vector3f(100,100,100)
             state.pose = (agent.state.position.x, agent.state.position.y, agent.state.rotation.z)
             if agent in self.teams[agent.get_team()]: self.teams[agent.get_team()].pop(agent)
-            return False#True
+            return False
         else:
             return False
     

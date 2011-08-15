@@ -20,12 +20,6 @@ def toggle_ai_callback():
     elif ai_state == 'Paused':
         ai_state = 'Started'
 
-def save_ai_call():
-    getMod().save_rtneat()
-
-def load_ai_call():
-    getMod().load_rtneat()
-
 def recenter(cam):
     def closure():
         cam.setPosition(Vector3f(0, 0, 100))
@@ -114,11 +108,11 @@ def show_context_menu():
         turretButton = gui.create_button(guiMan, 'b_turret', Pos2i(0,0), Pos2i(0,0), '')
         turretButton.OnMouseLeftClick = lambda: place_basic_turret()
         contextMenu.addItem('Place Basic Turret', turretButton)
-        
+
         spawn1Button = gui.create_button(guiMan, 'blue spawn', Pos2i(0,0), Pos2i(0,0), '')
         spawn1Button.OnMouseLeftClick = lambda: set_spawn_1()
         contextMenu.addItem('Set Blue Spawn Location', spawn1Button)
-        
+
         spawn2Button = gui.create_button(guiMan, 'red spawn', Pos2i(0,0), Pos2i(0,0), '')
         spawn2Button.OnMouseLeftClick = lambda: set_spawn_2()
         contextMenu.addItem('Set Red Spawn Location', spawn2Button)
@@ -261,7 +255,7 @@ def hp_adjusted(scroll, value):
 
 def sp_adjusted(scroll, value):
     value.text = str(scroll.getPos())
-    getMod().hpChange(float(scroll.getPos()))
+    getMod().set_speedup(float(scroll.getPos()))
     def closure():
         value.text = str(scroll.getPos())
         getMod().set_speedup(scroll.getPos())
