@@ -6,7 +6,7 @@ try:
     import wx
 except:
     import tkMessageBox
-    tkMessageBox.showwarning('Warning!', 'Could not start the external menu for NERO_Battle because wxPython is not installed.')
+    tkMessageBox.showwarning('Warning!', 'Could not start the external menu for NERO because wxPython is not installed.')
     sys.exit()
 
 class NeroPanel(wx.Panel, ScriptClient):
@@ -170,7 +170,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_SCROLL, self.OnFF,self.ffs)
         grid.Add(self.ffs,pos=(8,2))
         grid.Add(self.fft,pos=(8,0))
-        
+
 
         #Explore/Exploit Slider
         self.eet = wx.StaticText(self,label = "Explore/Exploit", pos=wx.DefaultPosition, size=wx.DefaultSize)
@@ -205,7 +205,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_SCROLL, self.OnSP,self.sps)
         grid.Add(self.sps,pos=(2,2))
         grid.Add(self.spt,pos=(2,0))
-
+        
         self.SetSizer(grid)
         grid.Fit(parent)
 

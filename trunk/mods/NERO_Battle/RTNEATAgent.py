@@ -21,9 +21,9 @@ class RTNEATAgent(AgentBrain):
         from NERO_Battle.module import getMod
         team_type = getMod().curr_team
         if team_type == OBJECT_TYPE_TEAM_0:
-            self.team = 0
+            self.team = TEAM0
         elif team_type == OBJECT_TYPE_TEAM_1:
-            self.team = 1
+            self.team = TEAM1
 
     def initialize(self, init_info):
         """
@@ -40,7 +40,7 @@ class RTNEATAgent(AgentBrain):
         """
         rtneat = get_ai("rtneat" + str(self.team))
         return rtneat.get_organism(self)
-    
+
     def display_health(self, h):
         # the reward in battle tells us how much life we have left
         # it is a value between 0 (no health) and 1 (full health)
@@ -66,7 +66,7 @@ class RTNEATAgent(AgentBrain):
         end of an episode
         """
         self.display_health(reward[0])
-        get_ai("rtneat" + str(self.team)).release_organism(self)
+        get_ai("rtneat" + self.team).release_organism(self)
         return True
 
     def destroy(self):
@@ -74,7 +74,7 @@ class RTNEATAgent(AgentBrain):
         the agent brain is discarded
         """
         return True
-        
+
     def get_team(self):
         return self.team
 

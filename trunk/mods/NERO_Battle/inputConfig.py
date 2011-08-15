@@ -9,7 +9,7 @@ def switchToHub():
 
 def blank():
     pass
-
+    
 def createInputMapping():
     from client import show_context_menu, mouse_action, reset_mouse_action
     # create an io map
