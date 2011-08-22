@@ -144,15 +144,18 @@ class MazeEnvironment(Environment):
         return self.step_delay * (1.0 - self.speedup)
 
     def get_state(self, agent):
+        state = None
         if agent in self.states:
-            return self.states[agent]
+            state = self.states[agent]
         else:
             self.states[agent] = AgentState(self.maze)
             assert(self.states[agent].sensors)
-            if hasattr(agent, 'epsilon'):
-                print 'epsilon:', self.epsilon
-                agent.epsilon = self.epsilon
-            return self.states[agent]
+            state = self.states[agent]
+        if hasattr(agent, 'epsilon') and agent.epsilon != self.epsilon:
+            agent.epsilon = self.epsilon
+            print 'new value for epsilon:', agent.epsilon
+        return state
+
 
     def can_move(self, state, move):
         """
