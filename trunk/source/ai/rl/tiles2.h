@@ -52,7 +52,7 @@ void GetTiles(
     int num_ints);             ///< number of integer variables
 
 int hash_UNH(int *ints, int num_ints, long m, int increment);
-int hash(int *ints, int num_ints, collision_table *ctable);
+int hashfunction(int *ints, int num_ints, collision_table *ctable);
 
 // no ints
 void GetTiles(int tiles[],int nt,int memory,float floats[],int nf);
