@@ -8,6 +8,9 @@
 #ifndef _CORE_BOOST_H_
 #define _CORE_BOOST_H_
 
+// this prevents a compilation problem on Mac OS X
+#define BOOST_DATE_TIME_NO_LOCALE 1
+
 //common includes
 #include <boost/shared_ptr.hpp>
 #include <boost/weak_ptr.hpp>
