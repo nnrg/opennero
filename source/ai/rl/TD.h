@@ -20,10 +20,11 @@ namespace OpenNero
         double mAlpha;   ///< learning rate (between 0 and 1)
         double mEpsilon; ///< parameter for the epsilon-greedy policy (between 0 and 1)
         AgentInitInfo mInfo; ///< initialization info
+        std::vector< Actions > action_list; ///< list of possible actions
         ApproximatorPtr mApproximator; ///< function approximator we are using
-        Actions action;                 ///< previous action taken
-        Observations state;                  ///< previous state
-        Actions new_action;             ///< new action
+        Actions action;      ///< previous action taken
+        Observations state;  ///< previous state
+        Actions new_action;  ///< new action
     	// predicts reinforcement for current round
     	virtual double predict(const Observations& new_state) = 0;
     public:

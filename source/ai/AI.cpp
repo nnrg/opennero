@@ -151,16 +151,16 @@ namespace OpenNero
     }
     
     /// enumerate all possible feature vectors (if all-discrete)
-    std::list< FeatureVector > FeatureVectorInfo::enumerate() const
+    std::vector< FeatureVector > FeatureVectorInfo::enumerate() const
     {
-        std::list< FeatureVector > result;
+        std::vector< FeatureVector > result;
         // enumerate all possible actions
         result.push_back(getInstance());
         for (size_t i = 0; i < size(); ++i)
         {
             AssertMsg(isDiscrete(i), "Cannot enumerate continuous features");
-            std::list< Actions > new_action_list;
-            std::list< Actions >::const_iterator iter;
+            std::vector< Actions > new_action_list;
+            std::vector< Actions >::const_iterator iter;
             for (iter = result.begin(); iter != result.end(); ++iter)
             {
                 for (int a = (int)getMin(i); a <= (int)getMax(i); ++a)

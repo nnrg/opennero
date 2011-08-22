@@ -27,7 +27,8 @@ namespace OpenNero
     bool SarsaBrain::end(const TimeType& time, const Reward& reward)
     {
         ++n_episodes;
-        LOG_F_DEBUG("ai", "TDBrain cumulative reward: "<< cumulative_reward << " after " << n_episodes);
+        cumulative_reward += reward[0];
+        LOG_F_DEBUG("ai", "Sarsa cumulative reward: " << cumulative_reward << " after " << n_episodes);
         return TDBrain::end(time, reward);
     }
 

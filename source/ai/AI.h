@@ -8,7 +8,6 @@
 #define _OPENNERO_AI_AI_H_
 
 #include <vector>
-#include <list>
 #include <string>
 #include <iostream>
 #include <set>
@@ -104,7 +103,7 @@ namespace OpenNero {
         FeatureVector getRandom() const;
 
         /// enumerate all possible feature vectors (if all-discrete)
-        std::list< FeatureVector > enumerate() const;
+        std::vector< FeatureVector > enumerate() const;
 
         /// get the bounds on a particular element
         Bound getBound(size_t i);
