@@ -3,7 +3,8 @@
 #include "Approximator.h"
 #include "TD.h"
 #include <cfloat>
-#include <list>
+#include <vector>
+#include <algorithm>
 
 namespace OpenNero
 {
@@ -12,8 +13,10 @@ namespace OpenNero
     bool TDBrain::initialize(const AgentInitInfo& init)
     {
         mInfo = init;
+        action_list = init.actions.enumerate();
         this->fitness = mInfo.reward.getInstance();
         mApproximator.reset(new TableApproximator(mInfo)); // initialize the function approximator
+        //mApproximator.reset(new TilesApproximator(mInfo)); // initialize the function approximator
         return true;
     }
 
@@ -62,10 +65,10 @@ namespace OpenNero
         }
         // enumerate all possible actions (actions must be discrete!)
         new_action = mInfo.actions.getInstance();
-        std::list< FeatureVector > action_list = mInfo.actions.enumerate();
-        // select the greedy action
+        // select the greedy action in random order
+        std::random_shuffle(action_list.begin(), action_list.end());
         double max_value = -DBL_MAX;
-        std::list< Actions >::const_iterator iter;
+        std::vector< Actions >::const_iterator iter;
         for (iter = action_list.begin(); iter != action_list.end(); ++iter)
         {
             double value = mApproximator->predict(new_state, *iter);
