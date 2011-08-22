@@ -18,10 +18,10 @@ class MazeRewardStructure:
         return -1
     def out_of_bounds(self, state):
         """ reward for running out of bounds of the maze (hitting the outer wall) """
-        return -5
+        return -1
     def hit_wall(self, state):
         """ reward for hitting any other wall """
-        return -5
+        return -1
     def goal_reached(self, state):
         """ reward for reaching the goal """
         print 'GOAL REACHED!'
@@ -201,7 +201,11 @@ class MazeEnvironment(Environment):
         state.record_action(action)
         
         if not self.agent_info.actions.validate(action):
-            return state.record_reward(self.rewards.null_move(state))
+            # check if we ran out of time
+            if agent.step >= self.max_steps - 1:
+                return state.record_reward(self.rewards.last_reward(state))
+            else:
+                return state.record_reward(self.rewards.null_move(state))
         if agent.step == 0:
             state.initial_position = agent.state.position
             state.initial_rotation = agent.state.rotation
@@ -285,6 +289,7 @@ class MazeEnvironment(Environment):
         pos0 = agent.state.position
         pos0.x = x
         pos0.y = y
+        agent.state.position = pos0
         agent.state.position = pos0
 
     def sense(self, agent, obs):
@@ -387,7 +392,10 @@ class ContMazeEnvironment(MazeEnvironment):
         state = self.get_state(agent)
         state.record_action(action)
         if not self.agent_info.actions.validate(action):
-            return 0
+            if agent.step >= self.max_steps - 1:
+                return self.rewards.last_reward(state)
+            else:
+                return self.rewards.invalid_move(state)
         a = int(round(action[0]))
         (x,y,heading) = state.pose # current pose
         new_x, new_y, new_heading = x, y, heading # pose to be computed
