@@ -395,7 +395,7 @@ class ContMazeEnvironment(MazeEnvironment):
             if agent.step >= self.max_steps - 1:
                 return self.rewards.last_reward(state)
             else:
-                return self.rewards.invalid_move(state)
+                return self.rewards.null_move(state)
         a = int(round(action[0]))
         (x,y,heading) = state.pose # current pose
         new_x, new_y, new_heading = x, y, heading # pose to be computed
