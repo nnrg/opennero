@@ -45,7 +45,7 @@ class OptionalUnlabeledTracker
 };
 
 
-void OptionalUnlabeledTracker::check( bool req, const std::string& argName )
+inline void OptionalUnlabeledTracker::check( bool req, const std::string& argName )
 {
     if ( OptionalUnlabeledTracker::alreadyOptional() )
         throw( SpecificationException(

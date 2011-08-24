@@ -58,8 +58,8 @@ class UnlabeledValueArg : public ValueArg<T>
 
 		/**
 		 * UnlabeledValueArg constructor.
-		 * \param name - A one word name for the argument.  Can be
-		 * used as a long flag on the command line.
+		 * \param name - A one word name for the argument.  Note that this is used for
+		 * identification, not as a long flag.
 		 * \param desc - A description of what the argument is for or
 		 * does.
 		 * \param req - Whether the argument is required on the command
@@ -87,8 +87,8 @@ class UnlabeledValueArg : public ValueArg<T>
 
 		/**
 		 * UnlabeledValueArg constructor.
-		 * \param name - A one word name for the argument.  Can be
-		 * used as a long flag on the command line.
+		 * \param name - A one word name for the argument.  Note that this is used for
+		 * identification, not as a long flag.
 		 * \param desc - A description of what the argument is for or
 		 * does.
 		 * \param req - Whether the argument is required on the command
@@ -118,8 +118,8 @@ class UnlabeledValueArg : public ValueArg<T>
 						
 		/**
 		 * UnlabeledValueArg constructor.
-		 * \param name - A one word name for the argument.  Can be
-		 * used as a long flag on the command line.
+		 * \param name - A one word name for the argument.  Note that this is used for
+		 * identification, not as a long flag.
 		 * \param desc - A description of what the argument is for or
 		 * does.
 		 * \param req - Whether the argument is required on the command
@@ -146,8 +146,8 @@ class UnlabeledValueArg : public ValueArg<T>
 		
 		/**
 		 * UnlabeledValueArg constructor.
-		 * \param name - A one word name for the argument.  Can be
-		 * used as a long flag on the command line.
+		 * \param name - A one word name for the argument.  Note that this is used for
+		 * identification, not as a long flag.
 		 * \param desc - A description of what the argument is for or
 		 * does.
 		 * \param req - Whether the argument is required on the command
@@ -300,9 +300,8 @@ bool UnlabeledValueArg<T>::processArg(int *i, std::vector<std::string>& args)
 template<class T>
 std::string UnlabeledValueArg<T>::shortID(const std::string& val) const
 {
-	std::string id = "<" + _typeDesc + ">";
-
-	return id;
+	static_cast<void>(val); // Ignore input, don't warn
+	return std::string("<") + _typeDesc + ">";
 }
 
 /**
@@ -311,12 +310,12 @@ std::string UnlabeledValueArg<T>::shortID(const std::string& val) const
 template<class T>
 std::string UnlabeledValueArg<T>::longID(const std::string& val) const
 {
+	static_cast<void>(val); // Ignore input, don't warn
+
 	// Ideally we would like to be able to use RTTI to return the name
 	// of the type required for this argument.  However, g++ at least, 
 	// doesn't appear to return terribly useful "names" of the types.  
-	std::string id = "<" + _typeDesc + ">";
-
-	return id;	
+	return std::string("<") + _typeDesc + ">";
 }
 
 /**
