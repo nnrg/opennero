@@ -133,7 +133,7 @@ def ClientMain():
     # add a camera
     camRotateSpeed = 100
     camMoveSpeed   = 3000
-    camZoomSpeed   = 100
+    camZoomSpeed   = 500
     cam = getSimContext().addCamera(camRotateSpeed, camMoveSpeed, camZoomSpeed)
     cam.setFarPlane(5000)
     cam.setEdgeScroll(False)
