@@ -45,6 +45,11 @@ class MultiSwitchArg : public SwitchArg
 		 */
 		int _value;
 
+		/**
+		 * Used to support the reset() method so that ValueArg can be
+		 * reset to their constructed value.
+		 */
+		int _default;
 
 	public:
 
@@ -114,6 +119,9 @@ class MultiSwitchArg : public SwitchArg
 		 * Returns the longID for this Arg.
 		 */
 		std::string longID(const std::string& val) const;
+		
+		void reset();
+
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -125,7 +133,8 @@ inline MultiSwitchArg::MultiSwitchArg(const std::string& flag,
 					int init,
 					Visitor* v )
 : SwitchArg(flag, name, desc, false, v),
-_value( init )
+_value( init ),
+_default( init )
 { }
 
 inline MultiSwitchArg::MultiSwitchArg(const std::string& flag,
@@ -135,7 +144,8 @@ inline MultiSwitchArg::MultiSwitchArg(const std::string& flag,
 					int init,
 					Visitor* v )
 : SwitchArg(flag, name, desc, false, v),
-_value( init )
+_value( init ),
+_default( init )
 { 
 	parser.add( this );
 }
@@ -179,18 +189,22 @@ inline bool MultiSwitchArg::processArg(int *i, std::vector<std::string>& args)
 		return false;
 }
 
-std::string MultiSwitchArg::shortID(const std::string& val) const
+inline std::string 
+MultiSwitchArg::shortID(const std::string& val) const
 {
-	std::string id = Arg::shortID() + " ... ";
-
-	return id;
+	return Arg::shortID(val) + " ... ";
 }
 
-std::string MultiSwitchArg::longID(const std::string& val) const
+inline std::string 
+MultiSwitchArg::longID(const std::string& val) const
 {
-	std::string id = Arg::longID() + "  (accepted multiple times)";
+	return Arg::longID(val) + "  (accepted multiple times)";
+}
 
-	return id;
+inline void
+MultiSwitchArg::reset()
+{
+	MultiSwitchArg::_value = MultiSwitchArg::_default;
 }
 
 //////////////////////////////////////////////////////////////////////

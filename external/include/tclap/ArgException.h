@@ -1,3 +1,4 @@
+// -*- Mode: c++; c-basic-offset: 4; tab-width: 4; -*-
 
 /****************************************************************************** 
  * 
@@ -181,6 +182,16 @@ class SpecificationException : public ArgException
 							std::string("developer." )) 
 		{ }
 
+};
+
+class ExitException {
+public:
+	ExitException(int estat) : _estat(estat) {}
+
+	int getExitStatus() const { return _estat; }
+
+private:
+	int _estat;
 };
 
 } // namespace TCLAP
