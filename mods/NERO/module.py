@@ -46,7 +46,7 @@ class NeroModule:
         set_environment(self.environment)
         
         # flag placement
-        self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag", type = OBJECT_TYPE_FLAG)
+        self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag", scale=Vector3f(1,1,10), type = OBJECT_TYPE_FLAG)
 
         # world walls
         addObject("data/shapes/cube/Cube.xml", Vector3f(XDIM/2,0,HEIGHT+OFFSET), Vector3f(0, 0, 90), scale=Vector3f(1,XDIM,HEIGHT), label="World Wall0", type = OBJECT_TYPE_OBSTACLE  )
@@ -65,7 +65,7 @@ class NeroModule:
         
         removeObject(self.flag_id)
         
-        self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag", type = OBJECT_TYPE_FLAG)
+        self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag", scale=Vector3f(1,1,10), type = OBJECT_TYPE_FLAG)
 
     def place_basic_turret(self, loc):
         addObject("data/shapes/character/steve_basic_turret.xml",Vector3f(loc[0],loc[1],loc[2]),type = OBJECT_TYPE_TEAM_1)
