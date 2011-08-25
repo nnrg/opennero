@@ -333,6 +333,8 @@ class TowerEnvironment(Environment):
         """
         Discrete version
         """
+        actions = ["Do Nothing", "Walk Forward", "Set Down", "Pick Up", "Turn Right", "Turn Left"]
+
         if len(self.block_states) == 0:
             self.initilize_blocks()
         state = self.get_state(agent)
@@ -369,12 +371,17 @@ class TowerEnvironment(Environment):
         (dr,dc) = (0,0)
         state.prev_rc = state.rc
         if a == 0: # null action
-            state.current_action = 'stand'
+            state.current_action = 'jump'
+            self.set_animation(agent,state,'stand')
             return state.record_reward(self.rewards.valid_move(state))
+        if a == 1:
+            if state.holding == None:
+                self.set_animation(agent,state,'run')
+            else:
+                self.set_animation(agent,state,'hold_run');
         if a == 1 or a == 2 or a == 3:
             (dr,dc) = TowerEnvironment.MOVES[int((agent.state.rotation.z % 360) / 90)]
             index = int(agent.state.rotation.z / 90)
-            state.current_action = 'walk'
         if a == 2:
             if state.holding == None:
                 state.current_action = 'stand'
@@ -383,6 +390,7 @@ class TowerEnvironment(Environment):
             new_r, new_c = r + dr, c + dc
             curr_top = self.get_top_block(new_r,new_c)
             state.current_action = 'set'
+            self.set_animation(agent,state,'stand')
             if curr_top != None:
              if curr_top.mass > state.holding.mass:
                 curr_top.above = state.holding
@@ -409,6 +417,7 @@ class TowerEnvironment(Environment):
                 state.current_action = 'stand'
                 return state.record_reward(self.rewards.valid_move(state))
             state.current_action = 'pickup'
+            self.set_animation(agent,state,'hold_stand');
             (dr,dc) = TowerEnvironment.MOVES[int(agent.state.rotation.z / 90)]
             new_r, new_c = r + dr, c + dc
             curr_top = self.get_top_block(new_r,new_c)
@@ -419,15 +428,29 @@ class TowerEnvironment(Environment):
                 curr_top.below = None
                 curr_top.above = None
                 state.holding = curr_top
+                pos = getSimContext().getObjectPosition(curr_top.obj)
+                pos.x = agent.state.position.x + 6 * cos(radians(agent.state.rotation.z))
+                pos.y = agent.state.position.y + 6 * sin(radians(agent.state.rotation.z))
+                pos.z = agent.state.position.z + 7
+                getSimContext().setObjectPosition(state.holding.obj,pos)
+
                 return state.record_reward(self.rewards.valid_move(state))
         if a == 4:
             state.next_rotation = agent.state.rotation.z
             state.next_rotation -= 90
             state.current_action = 'right'
+            if state.holding == None:
+                self.set_animation(agent,state,'stand')
+            else:
+                self.set_animation(agent,state,'hold_stand');
         if a == 5:
             state.next_rotation = agent.state.rotation.z
             state.next_rotation += 90
             state.current_action = 'left'
+            if state.holding == None:
+                self.set_animation(agent,state,'stand')
+            else:
+                self.set_animation(agent,state,'hold_stand');
         new_r, new_c = r + dr, c + dc
         state.rc = (new_r, new_c)
         (old_r,old_c) = state.prev_rc
@@ -437,6 +460,19 @@ class TowerEnvironment(Environment):
         pos0.y = old_y
         agent.state.position = pos0
         relative_rotation = self.get_next_rotation((dr,dc))
+        rot = agent.state.rotation
+        rot.z = state.next_rotation
+        agent.state.rotation = rot
+        pos = agent.state.position
+        (pos.x,pos.y) = self.rc2xy(new_r,new_c)
+        agent.state.position = pos
+                
+        if state.holding != None:
+                pos = getSimContext().getObjectPosition(state.holding.obj)
+                pos.x = agent.state.position.x + 6 * cos(radians(agent.state.rotation.z))
+                pos.y = agent.state.position.y + 6 * sin(radians(agent.state.rotation.z))
+                pos.z = agent.state.position.z + 7
+                getSimContext().setObjectPosition(state.holding.obj,pos)
         #agent.state.rotation = state.initial_rotation + relative_rotation
         if new_r == ROWS - 1 and new_c == COLS - 1:
             state.goal_reached = True
@@ -485,6 +521,8 @@ class TowerEnvironment(Environment):
         (r1,c1) = state.rc
         dr, dc = r1 - r0, c1 - c0
         fraction = 1.0
+        if state.current_action == 'jump':
+            self.set_animation(agent,state,'jump')
         if self.get_delay(state.current_action) != 0:
             fraction = min(1.0,float(time.time() - state.time)/self.get_delay(state.current_action))
         if dr != 0 or dc != 0:
