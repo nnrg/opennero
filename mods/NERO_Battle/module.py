@@ -111,9 +111,10 @@ class NeroModule:
             print TEAM0,get_ai("rtneat" + TEAM0),TEAM1,get_ai("rtneat" + TEAM1)
     
     def set_speedup(self, speedup):
-        self.speedup = speedup
+        self.speedup = speedup/100.0
+        getSimContext().delay = 1.0 - self.speedup
         if self.environment:
-            self.environment.speedup = speedup
+            self.environment.speedup = self.speedup
    
     def set_spawn_1(self, x, y):
         self.spawn_x_1 = x
