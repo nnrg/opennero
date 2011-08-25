@@ -42,6 +42,7 @@ class TowerAgent(AgentBrain):
         self.ctoa = [4,1,5,3,5,1,1,4,2,4,1,5,]
         self.btoc = [3,4,1,5,2,5,1,4,]
         self.ctob = [4,1,5,3,5,1,4,2,]
+        self.end_queue = [0,0,0,5,5,1]
 
         from module import getMod
         num_towers = getMod().num_towers
@@ -55,6 +56,7 @@ class TowerAgent(AgentBrain):
             self.action_queue += (self.btoa)
             self.action_queue += (self.btoc)
             self.action_queue += (self.atoc)
+            self.action_queue += (self.end_queue)
 
         if num_towers == 4:
             self.action_queue = self.init_queue #0
@@ -73,6 +75,7 @@ class TowerAgent(AgentBrain):
             self.action_queue += (self.atob) #13
             self.action_queue += (self.atoc) #14
             self.action_queue += (self.btoc) #15
+            self.action_queue += (self.end_queue)
 
     	if num_towers == 5:
             self.action_queue = self.init_queue #0
@@ -107,6 +110,7 @@ class TowerAgent(AgentBrain):
             self.action_queue += (self.btoa)
             self.action_queue += (self.btoc)
             self.action_queue += (self.atoc)
+            self.action_queue += (self.end_queue)
 
     def initialize(self,init_info):
         # Create new Agent
@@ -161,7 +165,7 @@ class TowerAgent(AgentBrain):
         y = sensors[1]
         rot = sensors[2]
         if len(self.action_queue) == 0:
-            self.action_queue.append(0)
+            self.action_queue.append(1)
             """
             rand = random.randint(0,3)
             if rand == 0:
