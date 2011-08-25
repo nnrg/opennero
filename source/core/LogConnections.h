@@ -71,7 +71,9 @@ namespace OpenNero
 			/// log a debug message
 			void LogDebug( const char* msg )
 			{
-				dump(msg);	
+#if NERO_DEBUG
+				dump(msg);
+#endif
 			}
 
             /// log a message
