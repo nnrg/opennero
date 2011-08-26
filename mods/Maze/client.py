@@ -33,33 +33,33 @@ def CreateGui(guiMan):
     aStarButton3.OnMouseLeftClick = lambda: getMod().start_astar3()
     
     fpsButton = gui.create_button(guiMan, 'fps', Pos2i(0,120), Pos2i(100,30), '')
-    fpsButton.text = 'First Person Control'
+    fpsButton.text = 'First Person'
     fpsButton.OnMouseLeftClick = lambda: getMod().start_fps()
 
     randomButton = gui.create_button(guiMan, 'random', Pos2i(0,150), Pos2i(100,30), '')
     randomButton.text = 'Random Baseline'
     randomButton.OnMouseLeftClick = lambda: getMod().start_random()
 
-    rtneatButton = gui.create_button(guiMan, 'rtneat', Pos2i(0,180), Pos2i(100,30), '')
-    rtneatButton.text = 'Neuroevolution'
-    rtneatButton.OnMouseLeftClick = lambda: getMod().start_rtneat()
+    #rtneatButton = gui.create_button(guiMan, 'rtneat', Pos2i(0,180), Pos2i(100,30), '')
+    #rtneatButton.text = 'Neuroevolution'
+    #rtneatButton.OnMouseLeftClick = lambda: getMod().start_rtneat()
 
-    sarsaButton = gui.create_button(guiMan, 'sarsa', Pos2i(0,210), Pos2i(100,30), '')
+    sarsaButton = gui.create_button(guiMan, 'sarsa', Pos2i(0,180), Pos2i(100,30), '')
     sarsaButton.text = 'Sarsa'
     sarsaButton.OnMouseLeftClick = lambda: getMod().start_sarsa()
 
-    qlearningButton = gui.create_button(guiMan, 'qlearning', Pos2i(0,240), Pos2i(100,30), '')
+    qlearningButton = gui.create_button(guiMan, 'qlearning', Pos2i(0,210), Pos2i(100,30), '')
     qlearningButton.text = 'Q-Learning'
     qlearningButton.OnMouseLeftClick = lambda: getMod().start_qlearning()
 
-    agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(100, 400), 'Agent')
+    agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(100, 260), 'Agent')
     agentWindow.addChild(dfsButton)
     agentWindow.addChild(aStarButton)
     agentWindow.addChild(aStarButton2)
     agentWindow.addChild(aStarButton3)
     agentWindow.addChild(fpsButton)
     agentWindow.addChild(randomButton)
-    agentWindow.addChild(rtneatButton)
+    #agentWindow.addChild(rtneatButton)
     agentWindow.addChild(sarsaButton)
     agentWindow.addChild(qlearningButton)
 
