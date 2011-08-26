@@ -150,7 +150,7 @@ class TowerMod:
         return num_towers
 
     def start_tower(self,n):
-        """ start the q-learning demo """
+        """ start the tower demo """
         self.num_towers = n
         disable_ai()
         if self.environment.__class__.__name__ != 'TowerEnvironment':

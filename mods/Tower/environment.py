@@ -6,8 +6,6 @@ from OpenNero import *
 from collections import deque
 from common import *
 
-import observer
-
 class TowerRewardStructure:
     """ This defines the reward that the agents get for running the maze """
     def valid_move(self, state):
@@ -170,17 +168,17 @@ class TowerEnvironment(Environment):
     def initilize_blocks(self):
         from module import getMod
         num_towers = getMod().num_towers
-        #blue = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.75*2.5,.75*2.5,.75*2.5))
-        #green = addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.7*2.5,.7*2.5,.7*2.5))
-        #yellow = addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.65*2.5,.65*2.5,.65*2.5))
-        #if num_towers > 3: red = addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.6,.6,.6))
-        #if num_towers > 4: white = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 5 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.55*2.5,.55*2.5,.55*2.5))
+        #blue = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), scale=Vector3f(.75*2.5,.75*2.5,.75*2.5))
+        #green = addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), scale=Vector3f(.7*2.5,.7*2.5,.7*2.5))
+        #yellow = addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), scale=Vector3f(.65*2.5,.65*2.5,.65*2.5))
+        #if num_towers > 3: red = addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), scale=Vector3f(.6,.6,.6))
+        #if num_towers > 4: white = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 5 * GRID_DZ), scale=Vector3f(.55*2.5,.55*2.5,.55*2.5))
         
-        blue = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(1.0*2.5,1.0*2.5,.25*2.5))
-        green = addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.9*2.5,.9*2.5,.25*2.5))
-        yellow = addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.8*2.5,.8*2.5,.25*2.5))
-        if num_towers > 3: red = addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.7,.7,.25))
-        if num_towers > 4: white = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 5 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.6*2.5,.6*2.5,.25*2.5))
+        blue = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), scale=Vector3f(1.0*2.5,1.0*2.5,.25*2.5))
+        green = addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), scale=Vector3f(.9*2.5,.9*2.5,.25*2.5))
+        yellow = addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), scale=Vector3f(.8*2.5,.8*2.5,.25*2.5))
+        if num_towers > 3: red = addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), scale=Vector3f(.7,.7,.25))
+        if num_towers > 4: white = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 5 * GRID_DZ), scale=Vector3f(.6*2.5,.6*2.5,.25*2.5))
 
         print "BLUE == ", blue
         print "GREEN == ", green
@@ -191,10 +189,10 @@ class TowerEnvironment(Environment):
         #Can use id to set things. Use getSimContext().setObjectPosition()  from ID. 
 
         """
-        blue = '''getMod().'''addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.5,2.5,2.5))
-        green = '''getMod().'''addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.4,2.4,2.4))
-        yellow = '''getMod().'''addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.3,2.3,2.3))
-        red = '''getMod().'''addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.2/2.5,2.2/2.5,2.2/2.5))
+        blue = '''getMod().'''addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), scale=Vector3f(2.5,2.5,2.5))
+        green = '''getMod().'''addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), scale=Vector3f(2.4,2.4,2.4))
+        yellow = '''getMod().'''addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), scale=Vector3f(2.3,2.3,2.3))
+        red = '''getMod().'''addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), scale=Vector3f(2.2/2.5,2.2/2.5,2.2/2.5))
         """
         self.block_states[blue] = BlockState(self.problem)
         bstate = self.block_states[blue]
@@ -259,14 +257,6 @@ class TowerEnvironment(Environment):
         "convert row, col to x,y"
         return ((r+1) * GRID_DX, (c+1) * GRID_DY)
     
-    def get_delay(self,ca):
-        if ca == "pickup" or ca == "set":
-            return 0
-        elif ca == "right" or ca == "left":
-            return (self.step_delay / 6.0) * (1.0 - self.speedup)
-        else:
-            return (self.step_delay / 2.0) * (1.0 - self.speedup)
-
     def get_block_state(self,name):
         for state in self.block_states:
             if self.block_states[state].name == name:

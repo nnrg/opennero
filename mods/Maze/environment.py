@@ -188,6 +188,7 @@ class MazeEnvironment(Environment):
 
     def set_animation(self, agent, state, animation):
         if agent.state.animation != animation:
+            print animation, animation_speed
             agent.state.animation = animation
             delay = getSimContext().delay
             animation_speed = agent.state.animation_speed
