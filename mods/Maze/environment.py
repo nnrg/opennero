@@ -114,7 +114,7 @@ class MazeEnvironment(Environment):
         * o[4] - obstacle in the +c direction?
         * o[5] - obstacle in the -c direction?
     """
-    def __init__(self):
+    def __init__(self, loop = True):
         """
         generate the maze
         """
@@ -122,6 +122,7 @@ class MazeEnvironment(Environment):
         self.maze = Maze.generate(ROWS, COLS, GRID_DX, GRID_DY)
         self.rewards = MazeRewardStructure()
         self.states = {}
+        self.loop = loop
         action_info = FeatureVectorInfo()
         observation_info = FeatureVectorInfo()
         reward_info = FeatureVectorInfo()
@@ -315,6 +316,11 @@ class MazeEnvironment(Environment):
         if self.max_steps != 0 and agent.step >= self.max_steps:
             return True
         elif state.goal_reached:
+            if not self.loop:
+                disable_ai() # stop running
+                if hasattr(agent, "highlight_path"):
+                    agent.highlight_path() # mark the final path
+                self.set_animation(agent, state, 'stand') # stop animation
             return True
         else:
             return False
