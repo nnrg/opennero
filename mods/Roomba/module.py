@@ -136,10 +136,17 @@ def furniture_collide_all(x,y):
     this is a manual list of collisions with furniture in the room
     TODO: replace with actual collision
     """
+    for (cx,cy) in CHAIR_LIST:
+        if chair_collide(x,y,cx,cy):
+            return True
     for (fx,fy) in FURNITURE_LIST:
         if furniture_collide(x,y,fx,fy):
             return True
     return False
+    
+def chair_collide(x,y,cx,cy):
+    (cx,cy) = furniture(cx,cy)
+    return hypot(x-cx,y-cy) < ROOMBA_RAD*2
 
 def furniture_collide(x,y,fx,fy):
     (fx,fy) = furniture(fx,fy)
