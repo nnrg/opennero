@@ -229,18 +229,16 @@ class MazeEnvironment(Environment):
         new_heading = state.initial_rotation.z + next_rotation.z
         prev_heading = state.pose[2]
         
-        # check if we are in bounds
-        if not self.maze.rc_bounds(new_r, new_c):
-            self.set_animation(agent, state, 'jump')
-            return state.record_reward(self.rewards.out_of_bounds(state))
-        
-        # check if there is a wall in the way
-        elif self.maze.is_wall(r,c,dr,dc):
-            self.set_animation(agent, state, 'jump')
-            return state.record_reward(self.rewards.hit_wall(state))
-
-        # set new rc and pose
+        # if the heading is right
         if new_heading == prev_heading:
+            # check if we are in bounds
+            if not self.maze.rc_bounds(new_r, new_c):
+                self.set_animation(agent, state, 'jump')
+                return state.record_reward(self.rewards.out_of_bounds(state))        
+            # check if there is a wall in the way
+            elif self.maze.is_wall(r,c,dr,dc):
+                self.set_animation(agent, state, 'jump')
+                return state.record_reward(self.rewards.hit_wall(state))
             # if the heading is right, change the position
             state.rc = (new_r, new_c)
             state.pose = (new_x, new_y, new_heading)
@@ -250,12 +248,12 @@ class MazeEnvironment(Environment):
             if dr != 0 or dc != 0:
                 self.set_animation(agent, state, 'run')
         else:
+            # if the heading is not right, just change the heading and return 0
             # "run" "stand" "turn_r_xc" "turn_l_xc" "turn_r_lx" "turn_l_lx"
             # "turn_r_xxx" "turn_l_xxx" "pick_up" "put_down" 
             # "hold_run" "hold_stand" "hold_r_xc" "hold_l_xc"
             # "hold_turn_r_lx" "hold_turn_l_lx" "hold_turn_r_xxx" "hold_turn_l_xxx"
             # "jump" "hold_jump"
-            # if the heading is not right, just change the heading and return 0
             if new_heading - prev_heading > 0:
                 if new_heading - prev_heading > 90:
                     new_heading = prev_heading + 90
