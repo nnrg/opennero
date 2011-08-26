@@ -447,7 +447,7 @@ class TowerEnvironment(Environment):
                 self.set_animation(agent,state,'turn_r_lx')
             else:
                 #self.set_animation(agent,state,'hold_stand');
-                self.set_animation(agent,state,'hold_r_lx');
+                self.set_animation(agent,state,'hold_turn_r_lx');
             rot = agent.state.rotation
             rot.z = state.next_rotation
             agent.state.rotation = rot
@@ -461,7 +461,7 @@ class TowerEnvironment(Environment):
                 self.set_animation(agent,state,'turn_l_lx')
             else:
                 #self.set_animation(agent,state,'hold_stand');
-                self.set_animation(agent,state,'hold_l_lx');
+                self.set_animation(agent,state,'hold_turn_l_lx');
             rot = agent.state.rotation
             rot.z = state.next_rotation
             agent.state.rotation = rot
