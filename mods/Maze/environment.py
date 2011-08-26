@@ -206,6 +206,7 @@ class MazeEnvironment(Environment):
             if agent.step >= self.max_steps - 1:
                 return state.record_reward(self.rewards.last_reward(state))
             else:
+                self.set_animation(agent, state, 'stand')
                 return state.record_reward(self.rewards.null_move(state))
         if agent.step == 0:
             state.initial_position = agent.state.position

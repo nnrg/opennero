@@ -371,6 +371,7 @@ class CloningAStarSearchAgent(FrontAStarSearchAgent):
         return v # return the action
 
     def mark_the_front(self, r, c, r2, c2):
+        Maze.module.getMod().mark_maze_green(r2,c2)
         Maze.module.getMod().mark_maze_agent("data/shapes/character/SydneyStatic.xml", r, c, r2, c2)
 
     def mark_visited(self, r, c):
@@ -419,7 +420,7 @@ class MoveForwardAndStopAgent(AgentBrain):
         self.idle_action = self.actions.get_instance()
         self.idle_action[0] = -1 # do-nothing action
         return True
-    def start(self, time, sensors):
+    def get_action(self):
         v = self.actions.get_instance()
         state = get_environment().get_state(self) # our state
         maze = get_environment().maze # the maze we are in
@@ -432,11 +433,13 @@ class MoveForwardAndStopAgent(AgentBrain):
         action = get_action_index( (dr, dc) )
         if action:
             v[0] = action
+            return v
         else:
-            v[0] = 4
-        return v
+            return self.idle_action
+    def start(self, time, sensors):
+        return self.get_action()
     def act(self, time, sensors, reward):
-        return self.idle_action
+        return self.get_action()
     def end(self, time, reward):
         return self.idle_action
     def destroy(self):
