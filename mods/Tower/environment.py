@@ -451,6 +451,7 @@ class TowerEnvironment(Environment):
                 self.set_animation(agent,state,'stand')
             else:
                 self.set_animation(agent,state,'hold_stand');
+
         new_r, new_c = r + dr, c + dc
         state.rc = (new_r, new_c)
         (old_r,old_c) = state.prev_rc
@@ -512,72 +513,6 @@ class TowerEnvironment(Environment):
             obs[2 + i] = int(len(objects) > 0)
         state.record_observation(obs)
         return obs
-
-    def is_active(self, agent):
-        state = self.get_state(agent)
-        # here, we interpolate between state.prev_rc and state.rc
-        #if state.holding == None: state.holding = self.get_block_state("red")
-        (r0,c0) = state.prev_rc
-        (r1,c1) = state.rc
-        dr, dc = r1 - r0, c1 - c0
-        fraction = 1.0
-        if state.current_action == 'jump':
-            self.set_animation(agent,state,'jump')
-        if self.get_delay(state.current_action) != 0:
-            fraction = min(1.0,float(time.time() - state.time)/self.get_delay(state.current_action))
-        if dr != 0 or dc != 0:
-            (x0,y0) = self.rc2xy(r0,c0)
-            (x1,y1) = self.rc2xy(r1,c1)
-            pos = agent.state.position
-            fraction = 1.0
-            if self.get_delay(state.current_action) != 0:
-                fraction = min(1.0,float(time.time() - state.time)/self.get_delay(state.current_action))
-            pos.x = x0 * (1 - fraction) + x1 * fraction
-            pos.y = y0 * (1 - fraction) + y1 * fraction
-            agent.state.position = pos
-            if state.holding == None: self.set_animation(agent, state, 'run')
-            else:
-                self.set_animation(agent,state,'hold_run')
-                pos = getSimContext().getObjectPosition(state.holding.obj)
-                pos.x = agent.state.position.x + 6 * cos(radians(agent.state.rotation.z))
-                pos.y = agent.state.position.y + 6 * sin(radians(agent.state.rotation.z))
-                pos.z = agent.state.position.z + 7
-                getSimContext().setObjectPosition(state.holding.obj,pos)
-        elif state.current_action == 'left':
-                curr_rot = agent.state.rotation
-                curr_rot.z = (state.prev_rotation * (1-fraction) + state.next_rotation * fraction)#%360
-                agent.state.rotation = curr_rot
-                if state.holding == None: self.set_animation(agent,state,'stand')
-                else:
-                    self.set_animation(agent,state,'hold_stand')
-                    pos = getSimContext().getObjectPosition(state.holding.obj)
-                    pos.x = agent.state.position.x + 6 * cos(radians(curr_rot.z))
-                    pos.y = agent.state.position.y + 6 * sin(radians(curr_rot.z))
-                    pos.z = agent.state.position.z + 5
-                    getSimContext().setObjectRotation(state.holding.obj,curr_rot)
-                    getSimContext().setObjectPosition(state.holding.obj,pos)
-        elif state.current_action == 'right':
-                self.set_animation(agent,state,'stand')
-                curr_rot = agent.state.rotation
-                curr_rot.z = (state.prev_rotation * (1-fraction) + state.next_rotation * fraction)#%360
-                agent.state.rotation = curr_rot
-                if state.holding == None: self.set_animation(agent,state,'stand')
-                else:
-                    self.set_animation(agent,state,'hold_stand')
-                    pos = getSimContext().getObjectPosition(state.holding.obj)
-                    pos.x = agent.state.position.x + 6 * cos(radians(agent.state.rotation.z))
-                    pos.y = agent.state.position.y + 6 * sin(radians(agent.state.rotation.z))
-                    pos.z = agent.state.position.z + 5
-                    getSimContext().setObjectRotation(state.holding.obj,agent.state.rotation)
-                    getSimContext().setObjectPosition(state.holding.obj,pos)
-        else:
-            if state.holding == None: self.set_animation(agent, state, 'stand')
-            else: self.set_animation(agent,state,'hold_stand')
-        if time.time() - state.time > self.get_delay(state.current_action):
-            state.time = time.time()
-            return True # call the sense/act/step loop
-        else:
-            return False
 
     def is_episode_over(self, agent):
         state = self.get_state(agent)

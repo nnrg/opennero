@@ -139,39 +139,12 @@ class TowerMod:
             removeObject(id)
         del self.wall_ids[:] # clear the ids
         set_environment(env)
-        # world boundaries
-        #for i in range(1,COLS+1):
-        #    self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(GRID_DX/2, i * GRID_DY, 2), Vector3f(0, 0, 90), type=OBSTACLE_MASK ))
-        #    self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(i * GRID_DX, GRID_DY/2, 2), Vector3f(0, 0, 0), type=OBSTACLE_MASK ))
-        #    self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(i * GRID_DX, COLS * GRID_DY + GRID_DY/2, 2), Vector3f(0, 0, 0), type=OBSTACLE_MASK ))
-        #    self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(ROWS * GRID_DX + GRID_DX/2, i * GRID_DY, 2), Vector3f(0, 0, 90), type=OBSTACLE_MASK ))
-        # goal (red cube)
-        #self.wall_ids.append(addObject("data/shapes/cube/RedCube.xml", Vector3f(ROWS * GRID_DX, COLS * GRID_DY, 5), Vector3f(45,45,45)))
 
         self.block_ids = []
-        #self.block_ids.append(addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.5,2.5,2.5)))
-        #self.block_ids.append(addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.4,2.4,2.4)))
-        #self.block_ids.append(addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.3,2.3,2.3)))
-        #self.block_ids.append(addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.2/2.5,2.2/2.5,2.2/2.5)))
 
         addObject("data/shapes/cube/WhiteCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.25,.25,4))
         addObject("data/shapes/cube/WhiteCube.xml", Vector3f(2 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.25,.25,4))
         addObject("data/shapes/cube/WhiteCube.xml", Vector3f(3 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.25,.25,4))
-
-    def reset_maze(self):
-        """ reset the maze by removing the markers and starting the AI """
-        # remove the marker blocks
-        for id in self.marker_map.values():
-            removeObject(id)
-        self.marker_map = {}
-        for id in self.agent_map.values():
-            removeObject(id)
-        self.agent_map = {}
-        # remove the agent
-        if self.agent_id is not None:
-            removeObject(self.agent_id)
-        self.agent_id = None
-        reset_ai()
 
     def num_towers(self):
         return num_towers
@@ -180,7 +153,6 @@ class TowerMod:
         """ start the q-learning demo """
         self.num_towers = n
         disable_ai()
-        self.reset_maze()
         if self.environment.__class__.__name__ != 'TowerEnvironment':
             self.set_environment(TowerEnvironment())
         self.agent_id = addObject("data/shapes/character/SydneyQLearning.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK,scale=Vector3f(3,3,3))
