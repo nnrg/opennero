@@ -91,7 +91,7 @@ def CreateGui(guiMan):
     getMod().set_speedup(0)
     speedupScroll.OnScrollBarChange = speedup_adjusted(speedupScroll, speedupValue)
     
-    paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 500), Pos2i(300,100), 'Parameters')
+    paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 500), Pos2i(260,75), 'Parameters')
     paramWindow.addChild(epsilonLabel)
     paramWindow.addChild(epsilonScroll)
     paramWindow.addChild(epsilonValue)
