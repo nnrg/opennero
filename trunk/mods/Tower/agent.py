@@ -5,14 +5,6 @@ import random
 from Tower.environment import TowerEnvironment
 from Tower.constants import *
 
-from heapq import heappush, heappop
-
-def dfs_heuristic(r,c):
-    return 0
-
-def manhattan_heuristic(r,c):
-    return (ROWS - r) + (COLS - c)
-
 def get_action_index(move):
     if move in TowerEnvironment.MOVES:
         action = TowerEnvironment.MOVES.index(move)
