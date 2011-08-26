@@ -188,7 +188,7 @@ class MazeEnvironment(Environment):
 
     def set_animation(self, agent, state, animation):
         if agent.state.animation != animation:
-            print animation, animation_speed
+            print agent.state.animation, agent.state.animation_speed, animation
             agent.state.animation = animation
             delay = getSimContext().delay
             animation_speed = agent.state.animation_speed
@@ -259,11 +259,11 @@ class MazeEnvironment(Environment):
             if new_heading - prev_heading > 0:
                 if new_heading - prev_heading > 90:
                     new_heading = prev_heading + 90
-                self.set_animation(agent, state, 'turn_l_xc')
+                self.set_animation(agent, state, 'turn_l_lx')
             else:
                 if new_heading - prev_heading < 90:
                     new_heading = prev_heading - 90
-                self.set_animation(agent, state, 'turn_r_xc')
+                self.set_animation(agent, state, 'turn_r_lx')
             state.pose = (state.pose[0], state.pose[1], new_heading)
             rot0 = copy(agent.state.rotation)
             rot0.z = new_heading
