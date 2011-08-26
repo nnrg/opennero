@@ -443,17 +443,29 @@ class TowerEnvironment(Environment):
             state.next_rotation -= 90
             state.current_action = 'right'
             if state.holding == None:
-                self.set_animation(agent,state,'stand')
+                #self.set_animation(agent,state,'stand')
+                self.set_animation(agent,state,'turn_r_lx')
             else:
-                self.set_animation(agent,state,'hold_stand');
+                #self.set_animation(agent,state,'hold_stand');
+                self.set_animation(agent,state,'hold_r_lx');
+            rot = agent.state.rotation
+            rot.z = state.next_rotation
+            agent.state.rotation = rot
+            agent.state.rotation = rot
         if a == 5:
             state.next_rotation = agent.state.rotation.z
             state.next_rotation += 90
             state.current_action = 'left'
             if state.holding == None:
-                self.set_animation(agent,state,'stand')
+                #self.set_animation(agent,state,'stand')
+                self.set_animation(agent,state,'turn_l_lx')
             else:
-                self.set_animation(agent,state,'hold_stand');
+                #self.set_animation(agent,state,'hold_stand');
+                self.set_animation(agent,state,'hold_l_lx');
+            rot = agent.state.rotation
+            rot.z = state.next_rotation
+            agent.state.rotation = rot
+            agent.state.rotation = rot
 
         new_r, new_c = r + dr, c + dc
         state.rc = (new_r, new_c)
