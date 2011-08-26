@@ -169,17 +169,7 @@ class TowerEnvironment(Environment):
         #if num_towers > 3: red = addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.6,.6,.6))
         #if num_towers > 4: white = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 5 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.55*2.5,.55*2.5,.55*2.5))
         
-        blue = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.75*2.5,.75*2.5,.25*2.5))
-        green = addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.7*2.5,.7*2.5,.25*2.5))
-        yellow = addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.65*2.5,.65*2.5,.25*2.5))
-        if num_towers > 3: red = addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.6,.6,.25))
-        if num_towers > 4: white = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 5 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.55*2.5,.55*2.5,.25*2.5))
 
-        print "BLUE == ", blue
-        print "GREEN == ", green
-        print "YELLOW == ", yellow
-        if num_towers > 3: print "RED == ", red
-        if num_towers > 4: print "WHITE == ", white
 
         #Can use id to set things. Use getSimContext().setObjectPosition()  from ID. 
 
@@ -189,6 +179,7 @@ class TowerEnvironment(Environment):
         yellow = '''getMod().'''addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.3,2.3,2.3))
         red = '''getMod().'''addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(2.2/2.5,2.2/2.5,2.2/2.5))
         """
+        blue = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.75*2.5,.75*2.5,.25*2.5))
         self.block_states[blue] = BlockState(self.problem)
         bstate = self.block_states[blue]
         bstate.rc = (0,1)
@@ -197,6 +188,7 @@ class TowerEnvironment(Environment):
         bstate.obj = blue
         bstate.mass = 5
        
+        green = addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.7*2.5,.7*2.5,.25*2.5))
         self.block_states[green] = BlockState(self.problem)
         gstate = self.block_states[green]
         gstate.rc = (0,1)
@@ -205,6 +197,7 @@ class TowerEnvironment(Environment):
         gstate.obj = green
         gstate.mass = 4
         
+        yellow = addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.65*2.5,.65*2.5,.25*2.5))
         if num_towers > 2:
             self.block_states[yellow] = BlockState(self.problem)
             ystate = self.block_states[yellow]
@@ -214,6 +207,7 @@ class TowerEnvironment(Environment):
             ystate.obj = yellow
             ystate.mass = 3
     
+        if num_towers > 3: red = addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.6,.6,.25))
         if num_towers > 3:
             self.block_states[red] = BlockState(self.problem)
             rstate = self.block_states[red]
@@ -223,6 +217,7 @@ class TowerEnvironment(Environment):
             rstate.obj = red
             rstate.mass = 2
         
+        if num_towers > 4: white = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 5 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.55*2.5,.55*2.5,.25*2.5))
         if num_towers > 4:
             self.block_states[white] = BlockState(self.problem)
             wstate = self.block_states[white]
@@ -236,10 +231,17 @@ class TowerEnvironment(Environment):
         gstate.below = bstate
         gstate.above = ystate
         ystate.below = gstate
+    
         if num_towers > 3: ystate.above = rstate
         if num_towers > 3: rstate.below = ystate
         if num_towers > 4: rstate.above = wstate
         if num_towers > 4: wstate.below = rstate
+        
+        print "BLUE == ", blue
+        print "GREEN == ", green
+        print "YELLOW == ", yellow
+        if num_towers > 3: print "RED == ", red
+        if num_towers > 4: print "WHITE == ", white
 
 
         print 'Initialized TowerEnvironment'
