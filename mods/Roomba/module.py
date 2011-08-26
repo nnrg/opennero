@@ -131,6 +131,27 @@ class SandboxMod:
         enable_ai()
         self.distribute_bots(pop_size, "data/shapes/roomba/RoombaRTNEAT.xml")
 
+def furniture_collide_all(x,y):
+    """
+    this is a manual list of collisions with furniture in the room
+    TODO: replace with actual collision
+    """
+    for (fx,fy) in FURNITURE_LIST:
+        if furniture_collide(x,y,fx,fy):
+            return True
+    return False
+
+def furniture_collide(x,y,fx,fy):
+    (fx,fy) = furniture(fx,fy)
+    return hypot(x-fx, y-fy) < ROOMBA_RAD
+
+def furniture(x,y):
+    """
+    convert from furniture space to roomba space
+    """
+    return (XDIM * x, YDIM * (1-y))    
+    
+
 def in_bounds(x,y):
     return x > ROOMBA_RAD and x < XDIM - ROOMBA_RAD and y > ROOMBA_RAD and y < YDIM - ROOMBA_RAD and (x > XDIM * 0.174 or y < YDIM * (1.0 - 0.309))
 
@@ -312,6 +333,9 @@ class RoombaEnvironment(Environment):
             if (position.y) > self.YDIM:
                 position.y -= 2 * delta_dist*sin(radians(rotation.z))
         elif position.x < self.XDIM * 0.174 and position.y > self.YDIM * (1.0 - 0.309):
+            position.x -= 2 * delta_dist*cos(radians(rotation.z))
+            position.y -= 2 * delta_dist*sin(radians(rotation.z))
+        elif furniture_collide_all(position.x, position.y):
             position.x -= 2 * delta_dist*cos(radians(rotation.z))
             position.y -= 2 * delta_dist*sin(radians(rotation.z))
                 
