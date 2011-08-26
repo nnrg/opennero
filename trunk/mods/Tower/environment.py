@@ -369,9 +369,13 @@ class TowerEnvironment(Environment):
         #    a = 0
         (dr,dc) = (0,0)
         state.prev_rc = state.rc
+        getSimContext().delay = 1.0 - self.speedup
         if a == 0: # null action
             state.current_action = 'jump'
             self.set_animation(agent,state,'jump')
+            agent.state.animation_speed = 30.0
+            getSimContext().delay = 5.0
+            print "JUMP"
             return state.record_reward(self.rewards.valid_move(state))
         if a == 1:
             if state.holding == None:
