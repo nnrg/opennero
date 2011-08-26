@@ -47,12 +47,12 @@ def CreateGui(guiMan):
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")
     
-    botTypeBox = gui.create_edit_box(guiMan, 'botType', Pos2i(10,10), Pos2i(90,30), 'rtNEAT')
+    botTypeBox = gui.create_edit_box(guiMan, 'botType', Pos2i(10,10), Pos2i(90,30), 'Script')
 
     numBotBox = gui.create_edit_box(guiMan, 'numBot', Pos2i(110,10), Pos2i(30,30), '5')
     
     changeBotButton = gui.create_button(guiMan, 'changeBot', Pos2i(10,50), Pos2i(130,30), '')
-    changeBotButton.text = "Switch to Script"
+    changeBotButton.text = "Switch to rtNEAT"
     changeBotButton.OnMouseLeftClick = lambda:toggle_bot_type(changeBotButton, botTypeBox)
 
     pauseButton = gui.create_button( guiMan, 'pause', Pos2i(10,90), Pos2i(95,30), '' )

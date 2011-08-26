@@ -90,12 +90,17 @@ class SandboxMod:
         N_TILES = 10
         tiles = [ (r,c) for r in range(N_TILES) for c in range(N_TILES)]
         random.shuffle(tiles)
-        for i in range(num_bots):
+        bots_to_add = num_bots
+        while bots_to_add > 0:
             (r,c) = tiles.pop() # random tile
             x, y = r * XDIM / float(N_TILES), c * YDIM / float(N_TILES) # position within tile
             x, y = x + random.random() * XDIM * 0.5 / N_TILES, y + random.random() * YDIM * 0.5 / N_TILES # random offset
-            agent_id = addObject(bot_type, Vector3f(x, y, 0), Vector3f(0.5, 0.5, 0.5), type = OBJECT_TYPE_ROOMBA, collision = OBJECT_TYPE_ROOMBA)
-            self.agent_ids.append(agent_id)
+            if in_bounds(x,y):
+                agent_id = addObject(bot_type, Vector3f(x, y, 0), scale=Vector3f(1, 1, 1), type = OBJECT_TYPE_ROOMBA, collision = OBJECT_TYPE_ROOMBA)
+                self.agent_ids.append(agent_id)
+                bots_to_add -= 1
+            else:
+                pass # if a tile caused a bad starting point, we won't see it again
         
 
     def add_bots(self, bot_type, num_bots):
@@ -127,7 +132,7 @@ class SandboxMod:
         self.distribute_bots(pop_size, "data/shapes/roomba/RoombaRTNEAT.xml")
 
 def in_bounds(x,y):
-    return x > ROOMBA_RAD and x < XDIM - ROOMBA_RAD and y > ROOMBA_RAD and y < YDIM - ROOMBA_RAD
+    return x > ROOMBA_RAD and x < XDIM - ROOMBA_RAD and y > ROOMBA_RAD and y < YDIM - ROOMBA_RAD and (x > XDIM * 0.174 or y < YDIM * (1.0 - 0.309))
 
 #################################################################################        
 class RoombaEnvironment(Environment):
@@ -297,17 +302,19 @@ class RoombaEnvironment(Environment):
         # if yes, back-track to correct position
         if (position.x) < 0 or (position.y) < 0 or \
            (position.x) > self.XDIM or (position.y) > self.YDIM:
-
             # correct position
             if (position.x) < 0:
-                position.x -= delta_dist*cos(radians(rotation.z))    
+                position.x -= 2 * delta_dist*cos(radians(rotation.z))
             if (position.y) < 0:
-                position.y -= delta_dist*sin(radians(rotation.z))
+                position.y -= 2 * delta_dist*sin(radians(rotation.z))
             if (position.x) > self.XDIM:
-                position.x -= delta_dist*cos(radians(rotation.z))
+                position.x -= 2 * delta_dist*cos(radians(rotation.z))
             if (position.y) > self.YDIM:
-                position.y -= delta_dist*sin(radians(rotation.z))
-            
+                position.y -= 2 * delta_dist*sin(radians(rotation.z))
+        elif position.x < self.XDIM * 0.174 and position.y > self.YDIM * (1.0 - 0.309):
+            position.x -= 2 * delta_dist*cos(radians(rotation.z))
+            position.y -= 2 * delta_dist*sin(radians(rotation.z))
+                
         # register new position
         state.position = position
         state.rotation = rotation
