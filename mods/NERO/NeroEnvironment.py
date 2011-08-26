@@ -227,7 +227,7 @@ class NeroEnvironment(Environment):
             if getMod().getNumToAdd() > 0:
                 dx = randrange(XDIM/20) - XDIM/40
                 dy = randrange(XDIM/20) - XDIM/40
-                getMod().addAgent((getMod().spawn_x + dx, getMod().spawn_y + dy, 2))
+                getMod().addAgent((getMod().spawn_x + dx, getMod().spawn_y + dy, 0))
 
         # Update Damage totals
         # TODO: move into a member function of state
@@ -390,7 +390,7 @@ class NeroEnvironment(Environment):
         """
         Returns the distance between agloc and tgloc
         """
-        return pow(pow(float(agloc[0] - tgloc[0]), 2) + pow(float(agloc[1] - tgloc[1]), 2), .5)
+        return hypot(float(agloc[0] - tgloc[0]), float(agloc[1] - tgloc[1]))
 
     def angle(self, agloc, tgloc):
         """
