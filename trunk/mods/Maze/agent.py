@@ -163,7 +163,6 @@ class DFSSearchAgent(SearchAgent):
 
     def end(self, time, reward):
         print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
-        self.highlight_path()
         self.reset()
         return True
 
@@ -187,7 +186,6 @@ class AStarSearchAgent(SearchAgent):
         self.reset()
 
     def reset(self):
-        self.highlight_path()
         self.adjlist = {}
         self.parents = {}
         self.pq = [] # empty priority queue

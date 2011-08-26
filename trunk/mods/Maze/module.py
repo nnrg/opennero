@@ -176,7 +176,9 @@ class MazeMod:
         disable_ai()
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment())
+            self.set_environment(MazeEnvironment(False))
+        else:
+            self.environment.loop = False
         self.agent_id = addObject("data/shapes/character/SydneyDFS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
@@ -186,7 +188,9 @@ class MazeMod:
         disable_ai()
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment())
+            self.set_environment(MazeEnvironment(False))
+        else:
+            self.environment.loop = False
         self.agent_id = addObject("data/shapes/character/SydneyAStar.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
@@ -196,7 +200,9 @@ class MazeMod:
         disable_ai()
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment())
+            self.set_environment(MazeEnvironment(False))
+        else:
+            self.environment.loop = False
         self.agent_id = addObject("data/shapes/character/SydneyAStar2.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
@@ -206,7 +212,9 @@ class MazeMod:
         disable_ai()
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment())
+            self.set_environment(MazeEnvironment(False))
+        else:
+            self.environment.loop = False
         self.agent_id = addObject("data/shapes/character/SydneyAStar3.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
@@ -217,6 +225,8 @@ class MazeMod:
         self.reset_maze()
         if self.environment.__class__.__name__ != 'ContMazeEnvironment':
             self.set_environment(ContMazeEnvironment())
+        else:
+            self.environment.loop = True
         self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         enable_ai()
 
@@ -227,6 +237,8 @@ class MazeMod:
         # ensure that we have the environment ready
         if self.environment.__class__.__name__ != 'MazeEnvironment':
             self.set_environment(MazeEnvironment())
+        else:
+            self.environment.loop = True
         enable_ai()
         self.agent_id = addObject("data/shapes/character/SydneyRandom.xml",Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
 
@@ -236,6 +248,8 @@ class MazeMod:
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
             self.set_environment(MazeEnvironment())
+        else:
+            self.environment.loop = True
         agent_info = get_environment().agent_info
 
         # Create an rtNEAT object appropriate for the environment
@@ -271,6 +285,8 @@ class MazeMod:
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
             self.set_environment(MazeEnvironment())
+        else:
+            self.environment.loop = True
         self.agent_id = addObject("data/shapes/character/SydneySarsa.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         enable_ai()
 
@@ -280,6 +296,8 @@ class MazeMod:
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
             self.set_environment(MazeEnvironment())
+        else:
+            self.environment.loop = True
         self.agent_id = addObject("data/shapes/character/SydneyQLearning.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         enable_ai()
 
