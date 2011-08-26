@@ -115,7 +115,7 @@ class MazeMod:
         # remove the previous object, if necessary
         self.unmark_maze_agent(r2,c2)
         # add a new marker object
-        agent_id = addObject(agent, Vector3f( (r1+1) * GRID_DX, (c1+1) * GRID_DY, 2) )
+        agent_id = addObject(agent, Vector3f( (r1+1) * GRID_DX, (c1+1) * GRID_DY, 0) )
         self.marker_states[agent_id] = ((r1, c1), (r2, c2))
         self.agent_map[(r2,c2)] = agent_id
 
@@ -208,7 +208,7 @@ class MazeMod:
         enable_ai()
 
     def start_astar3(self):
-        """ start the A* search demo with teleporting agents """
+        """ start the A* search demo with teleporting agents and a front marked by moving agents """
         disable_ai()
         self.reset_maze()
         if self.environment.__class__.__name__ != 'MazeEnvironment':
