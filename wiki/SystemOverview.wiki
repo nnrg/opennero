@@ -7,6 +7,8 @@ For example, there are the [MazeMod Maze mod], the [NeroMod NERO mod]
 and the [RoombaMod Roomba mod] - see [RunningOpenNero Running OpenNERO]
 for more details.
 
+<img src=http://opennero.googlecode.com/svn/wiki/agent-environment-loop.png height=300 width=400></img>
+
 Since OpenNERO is all about designing intelligent agents, it has an 
 API for adding new _agents_ and new _environments_ to test them in. 
 An agent can interact with an environment by receiving _observations_ 
