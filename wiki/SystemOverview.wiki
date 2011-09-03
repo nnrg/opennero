@@ -26,3 +26,10 @@ The main interfaces (which are defined in C++ and exported into Python) look lik
   * *is_episode_over*(agent): boolean
   * *cleanup*(agent)
   * *reset*(agent)
+
+===[http://code.google.com/p/opennero/source/browse/trunk/source/ai/AgentBrain.h AgentBrain]===
+  * *initialize*(agent_init_info)
+  * *start*(time, observations): `Actions`
+  * *act*(time, observations, reward): `Actions`
+  * *end*(time, observations, reward): `Actions`
+  * *end*(time, observations, reward)
