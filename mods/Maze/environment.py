@@ -31,7 +31,9 @@ class MazeRewardStructure:
         """ reward for ending without reaching the goal """
         (r,c) = state.rc
         print 'EPISODE ENDED AT', r, c
-        return 100.0*(r+c)/(ROWS+COLS)
+        reward1 = 0 if state.reached_goal else 100.0*(r+c)/(ROWS+COLS)
+        reward2 = 0 if state.reached_goal2 else 100.0*(r+COLS-c)/(ROWS+COLS)
+        return reward1 + reward2
 
 class AgentState:
     """
@@ -44,6 +46,7 @@ class AgentState:
         self.initial_position = Vector3f(x, y, 0)
         self.initial_rotation = Vector3f(0, 0, 0)
         self.goal_reached = False
+        self.goal_reached2 = False
         self.time = time.time()
         self.start_time = self.time
         self.sensors = True
@@ -54,6 +57,7 @@ class AgentState:
     def reset(self):
         self.rc = (0,0)
         self.goal_reached = False
+        self.goal_reached2 = False
         self.observation_history = deque([ [x] for x in range(HISTORY_LENGTH)])
         self.action_history = deque([ [x] for x in range(HISTORY_LENGTH)])
         self.reward_history = deque([ 0 for x in range(HISTORY_LENGTH)])
@@ -269,8 +273,12 @@ class MazeEnvironment(Environment):
             return state.record_reward(self.rewards.valid_move(state))
 
         # check if we reached the goal
-        if new_r == ROWS - 1 and new_c == COLS - 1:
+        if new_r == ROWS - 1 and new_c == COLS - 1 and not state.goal_reached:
             state.goal_reached = True
+            return state.record_reward(self.rewards.goal_reached(state))
+	 
+        elif new_r == ROWS - 1 and new_c == 0 and not state.goal_reached2:
+            state.goal_reached2 = True
             return state.record_reward(self.rewards.goal_reached(state))
 
         # check if we ran out of time
@@ -315,7 +323,7 @@ class MazeEnvironment(Environment):
         state = self.get_state(agent)
         if self.max_steps != 0 and agent.step >= self.max_steps:
             return True
-        elif state.goal_reached:
+        elif state.goal_reached and state.goal_reached2:
             if not self.loop:
                 disable_ai() # stop running
                 if hasattr(agent, "highlight_path"):
@@ -388,6 +396,7 @@ class ContMazeEnvironment(MazeEnvironment):
         agent.state.position = copy(state.initial_position)
         agent.state.rotation = copy(state.initial_rotation)
         state.goal_reached = False
+        state.goal_reached2 = False
         print 'Episode %d complete' % agent.episode
         return True
 
@@ -441,8 +450,11 @@ class ContMazeEnvironment(MazeEnvironment):
         # update agent state
         state.update(agent, self.maze)
         (new_r, new_c) = state.rc
-        if new_r == ROWS - 1 and new_c == COLS - 1:
+        if new_r == ROWS - 1 and new_c == COLS - 1 and not self.goal_reached:
             state.goal_reached = True
+            return self.rewards.goal_reached(state)
+        elif new_r == ROWS - 1 and new_c == 0 and not self.goal_reached2:
+            state.goal_reached2 = True
             return self.rewards.goal_reached(state)
         elif agent.step >= self.max_steps - 1:
             return self.rewards.last_reward(state)
