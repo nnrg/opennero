@@ -31,5 +31,5 @@ The main interfaces (which are defined in C++ and exported into Python) look lik
   * *initialize*(agent_init_info)
   * *start*(time, observations): `Actions`
   * *act*(time, observations, reward): `Actions`
-  * *end*(time, observations, reward): `Actions`
   * *end*(time, observations, reward)
+  * *destroy*()
