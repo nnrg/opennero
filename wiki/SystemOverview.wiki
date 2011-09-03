@@ -20,16 +20,16 @@ environments can be written in Python or in C++.
 The main interfaces (which are defined in C++ and exported into Python) look like this:
 
 ===[http://code.google.com/p/opennero/source/browse/trunk/source/ai/Environment.h Environment]===
-  * *sense*(agent): `Observations`
-  * *step*(agent, action): `Reward`
-  * *get_agent_info*(agent): `AgentInitInfo`
-  * *is_episode_over*(agent): boolean
-  * *cleanup*(agent)
-  * *reset*(agent)
+  * *sense*(agent): `Observations` <font color=green>// produce the observations that the agent 'sees'</font>
+  * *step*(agent, action): `Reward` <font color=green>// perform the action requested by the agent and return the reward</font> 
+  * *get_agent_info*(agent): `AgentInitInfo` <font color=green>// return the initialization information describing the state and action spaces for the agent</font>
+  * *is_episode_over*(agent): boolean <font color=green>// return true iff the episode is over for the agent</font>
+  * *cleanup*(agent) <font color=green>// clean up the environment before exiting</font>
+  * *reset*(agent) <font color=green>// return the environment to its initial state</font>
 
 ===[http://code.google.com/p/opennero/source/browse/trunk/source/ai/AgentBrain.h AgentBrain]===
-  * *initialize*(agent_init_info)
-  * *start*(time, observations): `Actions`
-  * *act*(time, observations, reward): `Actions`
-  * *end*(time, observations, reward)
-  * *destroy*()
+  * *initialize*(agent_init_info) <font color=green>// initialize the agent with the `AgentInitInfo` from the environment</font>
+  * *start*(time, observations): `Actions` <font color=green>// determine the first action the agent should take given its initial observations</font>
+  * *act*(time, observations, reward): `Actions` <font color=green>// determine the consequent actions the agent should take given the observations</font>
+  * *end*(time, observations, reward) <font color=green>// get information about the final observation and reward from the environment</font>
+  * *destroy*() <font color=green>// destroy the agent and release its resources</font>
