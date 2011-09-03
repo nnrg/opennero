@@ -78,6 +78,8 @@ class MazeMod:
         self.marker_states = {} # states of the marker agents that run for one cell and stop
         self.agent_map = {} # agents active on the map
         self.wall_ids = [] # walls on the map
+        self.target1 = None
+        self.target2 = None
 
     def __del__(self):
         print 'Deleting MazeMod'
@@ -137,6 +139,12 @@ class MazeMod:
         self.environment.shortcircuit = self.shortcircuit
         for id in self.wall_ids: # delete the walls
             removeObject(id)
+        if self.target1:
+            removeObject(self.target1)
+            self.target1 = None
+        if self.target2:
+            removeObject(self.target2)
+            self.target2 = None
         del self.wall_ids[:] # clear the ids
         set_environment(env)
         for ((r1, c1), (r2, c2)) in env.maze.walls:
@@ -154,7 +162,8 @@ class MazeMod:
             self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(i * GRID_DX, COLS * GRID_DY + GRID_DY/2, 2), Vector3f(0, 0, 0), type=OBSTACLE_MASK ))
             self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(ROWS * GRID_DX + GRID_DX/2, i * GRID_DY, 2), Vector3f(0, 0, 90), type=OBSTACLE_MASK ))
         # goal (red cube)
-        self.wall_ids.append(addObject("data/shapes/cube/RedCube.xml", Vector3f(ROWS * GRID_DX, COLS * GRID_DY, 5), Vector3f(45,45,45)))
+        self.target1 = addObject("data/shapes/cube/RedCube.xml", Vector3f(ROWS * GRID_DX, 1 * GRID_DY, 5), Vector3f(45,45,45))
+        self.target2 = addObject("data/shapes/cube/RedCube.xml", Vector3f(ROWS * GRID_DX, COLS * GRID_DY, 5), Vector3f(45,45,45))
 
     def reset_maze(self):
         """ reset the maze by removing the markers and starting the AI """
