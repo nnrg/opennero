@@ -16,3 +16,13 @@ from it, sending it _actions_, and receiving _rewards_ for those
 actions. Agents in OpenNERO extend the class `AgentBrain`. 
 Environments extend the `Environment` class. Both agents and 
 environments can be written in Python or in C++.
+
+The main interfaces (which are defined in C++ and exported into Python) look like this:
+
+===[http://code.google.com/p/opennero/source/browse/trunk/source/ai/Environment.h Environment]===
+  * *sense*(agent): Observations
+  * *step*(agent, action): Reward
+  * *get_agent_info*(agent): AgentInitInfo
+  * *is_episode_over*(agent): boolean
+  * *cleanup*(agent)
+  * *reset*(agent)
