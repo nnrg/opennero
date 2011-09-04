@@ -7,8 +7,6 @@ For example, there are the [MazeMod Maze mod], the [NeroMod NERO mod]
 and the [RoombaMod Roomba mod] - see [RunningOpenNero Running OpenNERO]
 for more details.
 
-<img src=http://opennero.googlecode.com/svn/wiki/agent-environment-loop.png height=300 width=400></img>
-
 Since OpenNERO is all about designing intelligent agents, it has an 
 API for adding new _agents_ and new _environments_ to test them in. 
 An agent can interact with an environment by receiving _observations_ 
@@ -16,6 +14,8 @@ from it, sending it _actions_, and receiving _rewards_ for those
 actions. Agents in OpenNERO extend the class `AgentBrain`. 
 Environments extend the `Environment` class. Both agents and 
 environments can be written in Python or in C++.
+
+<img src=http://opennero.googlecode.com/svn/wiki/agent-environment-loop.png height=300 width=400></img>
 
 The main interfaces (which are defined in C++ and exported into Python) look like this:
 
