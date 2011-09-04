@@ -38,13 +38,16 @@ The main interfaces (which are defined in C++ and exported into Python) look lik
 
 The basic types OpenNERO uses to pass around information between `Environment` and `Agent` are defined in [http://code.google.com/p/opennero/source/browse/trunk/source/ai/AI.h AI.h]. Both `Actions` and `Observations` are actually a `FeatureVector` - an array of one or more double values. Conceptually, a `FeatureVector` carries discrete or continuous values within a certain range. In order to describe the possible values for a particular `FeatureVector`, a `FeatureVectorInfo` is used:
 
-===FeatureVectorInfo===
-  * addDiscrete(min, max): integer
-  * addContinuous(min, max): integer
-  * getBounds(i): `Bounds`
+===`FeatureVectorInfo`===
+  * size(): integer <font color=green>// number of elements in the vector</font>
+  * addDiscrete(min, max): integer <font color=green> // add a discrete feature</font>
+  * addContinuous(min, max): integer <font color=green> // add a continuous feature</font>
+  * getBounds(i): `Bounds` <font color=green> // get the bounds of the ith feature</font>
   * getMin(i): double <font color=green>// min of ith element</font>
   * getMax(i): double <font color=green>// max of ith element</font>
-  * isDiscrete(i): boolean
-  * isContinuous(i): boolean
-  * validate(feature_vector): boolean
+  * isDiscrete(i): boolean <font color=green>// return true iff the ith feature is discrete</font>
+  * isContinuous(i): boolean <font color=green>// return true iff the ith feature is continous</font>
+  * validate(feature_vector): boolean <font color=green>// check that feature_vector is in compliance with these bounds</font>
+  * getInstance(): `FeatureVector` <font color=green>// get a zero instance of this feature vector</font>
+  * getRandom(): `FeatureVector` <font color=green>// get a random instance of this feature vector</font>
   
