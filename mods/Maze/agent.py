@@ -42,7 +42,7 @@ class RandomAgent(AgentBrain):
         self.action_info = init_info.actions
         return True
 
-    def start(self, time, sensors):
+    def start(self, time, observations):
         """
         return first action given the first observations
         """
@@ -51,7 +51,7 @@ class RandomAgent(AgentBrain):
     def reset(self):
         pass
 
-    def act(self, time, sensors, reward):
+    def act(self, time, observations, reward):
         """
         return an action given the reward for the previous action and the new observations
         """
@@ -103,15 +103,15 @@ class DFSSearchAgent(SearchAgent):
         self.parents = {}
         self.backpointers = {}
 
-    def dfs_action(self, sensors):
-        r = sensors[0]
-        c = sensors[1]
+    def dfs_action(self, observations):
+        r = observations[0]
+        c = observations[1]
         # if we have not been here before, build a list of other places we can go
         if (r,c) not in self.visited:
             tovisit = []
             for m, (dr,dc) in enumerate(MazeEnvironment.MOVES):
                 r2, c2 = r+dr, c+dc
-                if not sensors[2 + m]: # can we go that way?
+                if not observations[2 + m]: # can we go that way?
                     if (r2,c2) not in self.visited:
                         tovisit.append( (r2,c2) )
                         self.parents[ (r2,c2) ] = (r,c)
@@ -141,12 +141,9 @@ class DFSSearchAgent(SearchAgent):
         self.constraints = init_info.actions
         return True
 
-    def start(self, time, sensors):
-        # interpret the sensors
-        row = int(sensors[0])
-        col = int(sensors[1])
+    def start(self, time, observations):
         # return action
-        return self.dfs_action(sensors)
+        return self.dfs_action(observations)
 
     def reset(self):
         self.visited = set([])
@@ -154,12 +151,9 @@ class DFSSearchAgent(SearchAgent):
         self.parents = {}
         self.backpointers = {}
 
-    def act(self, time, sensors, reward):
-        # interpret the sensors
-        row = int(sensors[0])
-        col = int(sensors[1])
+    def act(self, time, observations, reward):
         # return action
-        return self.dfs_action(sensors)
+        return self.dfs_action(observations)
 
     def end(self, time, reward):
         print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
@@ -215,7 +209,7 @@ class AStarSearchAgent(SearchAgent):
             back2.append((r,c))
         return self.backpointers[(r1,c1)]
 
-    def get_action(self, r, c, sensors):
+    def get_action(self, r, c, observations):
         """
         Given: 
          - some places we could go in our queue
@@ -232,7 +226,7 @@ class AStarSearchAgent(SearchAgent):
         action = get_action_index((dr,dc))
         v = self.constraints.get_instance() # make the action vector to return
         # first, is the node reachable in one action?
-        if action is not None and sensors[2 + action] == 0:
+        if action is not None and observations[2 + action] == 0:
             v[0] = action # if yes, do that action!
         else:
             # if not, we have to figure out a path to get there from the backtracking dictionary
@@ -241,7 +235,7 @@ class AStarSearchAgent(SearchAgent):
             v[0] = get_action_index((dr,dc)) # what action is that?
         return v # return the action
 
-    def visit(self, row, col, sensors):
+    def visit(self, row, col, observations):
         """
         visit the node row, col and decide where we can go from there
         """
@@ -256,7 +250,7 @@ class AStarSearchAgent(SearchAgent):
             self.goal = None
         # then we queue up some places to go next
         for i, (dr,dc) in enumerate(MazeEnvironment.MOVES):
-            if sensors[2+i] == 0: # are we free to perform this action?
+            if observations[2+i] == 0: # are we free to perform this action?
                 # the action index should correspond to sensor index - 2
                 r2 = row + dr # compute the row we could move to
                 c2 = col + dc # compute the col we could move to
@@ -267,32 +261,32 @@ class AStarSearchAgent(SearchAgent):
                     assert self.backpointers.get((row,col)) != (r2,c2)
                     self.backpointers[(r2,c2)] = row, col # remember where we (would) come from
     
-    def start(self, time, sensors):
+    def start(self, time, observations):
         """
         Choose initial action after receiving the first sensor vector.
         For the manual A* search, we enqueue the neighboring nodes and move to one of them.
         """
-        # interpret the sensors
-        row = int(sensors[0])
-        col = int(sensors[1])
+        # interpret the observations
+        row = int(observations[0])
+        col = int(observations[1])
         # first, visit the node we are in and queue up some places to go
-        self.visit(row, col, sensors)
+        self.visit(row, col, observations)
         # now we have some candidate states and a way to return if we don't like it there, so let's try one!
-        return self.get_action(row,col,sensors)
+        return self.get_action(row,col,observations)
 
-    def act(self, time, sensors, reward):
+    def act(self, time, observations, reward):
         """
         Choose an action after receiving the current sensor vector and the instantaneous reward from the previous time step.
         For the manual A* search, we deque our next node and check if we can go there. If we can, we do, and mark the node visited. 
         If we cannot, we have to follow the path to the goal.
         """
-        # interpret the sensors
-        row = int(sensors[0])
-        col = int(sensors[1])
+        # interpret the observations
+        row = int(observations[0])
+        col = int(observations[1])
         # first, visit the node we are in and queue up some places to go
-        self.visit(row, col, sensors)
+        self.visit(row, col, observations)
         # now we have some candidate states and a way to return if we don't like it there, so let's try one!
-        return self.get_action(row,col,sensors)
+        return self.get_action(row,col,observations)
 
     def end(self, time, reward):
         """
@@ -324,7 +318,7 @@ class FrontAStarSearchAgent(AStarSearchAgent):
     """
     Egocentric A* algorithm with teleportation between fronts
     """
-    def get_action(self, r, c, sensors):
+    def get_action(self, r, c, observations):
         if not self.goal: # first, figure out where we are trying to go
             cell = heappop(self.pq)
             h, r2, c2 = cell.h, cell.r, cell.c
@@ -337,7 +331,7 @@ class FrontAStarSearchAgent(AStarSearchAgent):
         action = get_action_index((dr,dc)) # try to find the action (will return None if it's not there)
         v = self.constraints.get_instance() # make the action vector to return
         # first, is the node reachable in one action?
-        if action is not None and sensors[2 + action] == 0:
+        if action is not None and observations[2 + action] == 0:
             v[0] = action # if yes, do that action!
         else:
             # if not, we should teleport and return null action
@@ -349,7 +343,7 @@ class CloningAStarSearchAgent(FrontAStarSearchAgent):
     """
     Egocentric A* algorithm with teleportation between fronts and fronts marked by stationary agents
     """
-    def get_action(self, r, c, sensors):
+    def get_action(self, r, c, observations):
         if not self.goal: # first, figure out where we are trying to go
             cell = heappop(self.pq)
             h, r2, c2 = cell.h, cell.r, cell.c
@@ -362,7 +356,7 @@ class CloningAStarSearchAgent(FrontAStarSearchAgent):
         action = get_action_index((dr,dc)) # try to find the action (will return None if it's not there)
         v = self.constraints.get_instance() # make the action vector to return
         # first, is the node reachable in one action?
-        if action is not None and sensors[2 + action] == 0:
+        if action is not None and observations[2 + action] == 0:
             v[0] = action # if yes, do that action!
         else:
             # if not, we should teleport and return null action
@@ -399,9 +393,9 @@ class FirstPersonAgent(AgentBrain):
         else:
             action[0] = -1
         return action
-    def start(self, time, sensors):
+    def start(self, time, observations):
         return self.key_action()
-    def act(self, time, sensors, reward):
+    def act(self, time, observations, reward):
         return self.key_action()
     def end(self, time, reward):
         return True
@@ -428,7 +422,7 @@ class MoveForwardAndStopAgent(AgentBrain):
         if self.state.id in Maze.module.getMod().marker_states:
             ((r1, c1), (r2, c2)) = Maze.module.getMod().marker_states[self.state.id] # what are we marking?
             state.prev_rc, state.rc = (r1,c1), (r1,c1) # pretend like we were always there
-            state.sensors = False # don't want sensors
+            state.observations = False # don't want observations
             dr, dc = r2 - r1, c2 - c1 # figure out where we are going
         action = get_action_index( (dr, dc) )
         if action:
@@ -436,9 +430,9 @@ class MoveForwardAndStopAgent(AgentBrain):
             return v
         else:
             return self.idle_action
-    def start(self, time, sensors):
+    def start(self, time, observations):
         return self.get_action()
-    def act(self, time, sensors, reward):
+    def act(self, time, observations, reward):
         return self.get_action()
     def end(self, time, reward):
         return self.idle_action
@@ -461,21 +455,21 @@ class RTNEATAgent(AgentBrain):
         Initialize an agent brain with sensor information
         """
         self.actions = init_info.actions # constraints for actions
-        self.sensors = init_info.sensors # constraints for sensors
+        self.observations = init_info.observations # constraints for observations
         return True
 
-    def start(self, time, sensors):
+    def start(self, time, observations):
         """
         start of an episode
         """
-        return self.network_action(sensors)
+        return self.network_action(observations)
 
-    def act(self, time, sensors, reward):
+    def act(self, time, observations, reward):
         """
         a state transition
         """
         # return action
-        return self.network_action(sensors)
+        return self.network_action(observations)
 
     def end(self, time, reward):
         """
@@ -491,15 +485,15 @@ class RTNEATAgent(AgentBrain):
         """
         return True
         
-    def network_action(self, sensors):
+    def network_action(self, observations):
         """
         Take the current network
-        Feed the sensors into it
+        Feed the observations into it
         Activate the network to produce the output
         Collect and interpret the outputs as valid maze actions
         """
-        assert(self.sensors.validate(sensors))
-        inputs = Maze.module.input_to_neurons(self.sensors, sensors)
+        assert(self.observations.validate(observations))
+        inputs = Maze.module.input_to_neurons(self.observations, observations)
         org = get_ai("rtneat").get_organism(self)
         org.time_alive += 1
         net = org.net
