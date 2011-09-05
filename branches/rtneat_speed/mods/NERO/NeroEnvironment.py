@@ -45,8 +45,6 @@ class NeroEnvironment(Environment):
         Environment.__init__(self) 
         
         self.curr_id = 0
-        self.step_delay = 0.1 # delay between AI decisions at speedup of 0
-        self.speedup = 0 # between 0 and 1.0
         self.max_steps = 20
         self.time = time.time()
         self.MAX_DIST = hypot(XDIM, YDIM)
@@ -317,7 +315,6 @@ class NeroEnvironment(Environment):
             reward[i] = R[f]
         
         # tell the system to make the calculated motion
-        # this is actually done in is_active() and depends on speedup
         state.prev_pose = state.pose
         state.pose = (new_x, new_y, new_heading)
         state.time = time.time()

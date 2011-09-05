@@ -1,3 +1,5 @@
+from math import hypot
+
 # Dimensions of the arena
 XDIM = 800
 YDIM = 800
@@ -7,13 +9,13 @@ HEIGHT = 20
 OFFSET = -HEIGHT/2
 
 MAX_MOVEMENT_SPEED = 12
-MAX_VISION_RADIUS = 300
+MAX_VISION_RADIUS = hypot(XDIM,YDIM)
 
 # Population size
 pop_size = 20
 
 # number of steps per lifetime
-lifetime = 1000
+DEFAULT_LIFETIME = int(1000*18/80.0)
 
 OBJECT_TYPE_OBSTACLE  = (1 << 0) # object type for walls
 OBJECT_TYPE_TEAM_0 = (1 << 1) # object type for team 1

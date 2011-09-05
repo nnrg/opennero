@@ -24,6 +24,7 @@ class NeroModule:
         self.flag_loc = Vector3f(0,0,0)
         self.flag_id = -1
         self.num_to_add = pop_size
+        self.weights = {}
         (self.spawn_x,self.spawn_y) = (XDIM/2, YDIM/3)
 
     def setup_map(self):
@@ -100,8 +101,6 @@ class NeroModule:
     def set_speedup(self, speedup):
         self.speedup = speedup/100.0
         getSimContext().delay = 1.0 - self.speedup
-        if self.environment:
-            self.environment.speedup = self.speedup
    
     def set_spawn(self, x, y):
         self.spawn_x = x
@@ -114,6 +113,7 @@ class NeroModule:
         rtneat = get_ai("rtneat")
         if rtneat:
             rtneat.set_weight(i, value)
+            self.weights[i] = value
         print key, value
         
     def ltChange(self,value):

@@ -69,25 +69,27 @@ class RTNEATAgent(AgentBrain):
         set the display hint above the agent's head (toggled with F2)
         """
         display_hint = getDisplayHint()
+        from NERO.module import getMod
+        weights = getMod().weights
         if display_hint:
             org = self.get_org()
             if display_hint == 'fitness':
-                self.state.label = ' '.join(['%.02g' % x for x in self.fitness])
+                self.state.label = 'f: ' + ' '.join(['%.02f' % self.fitness[i] for i in range(len(self.fitness)) if i in weights and weights[i] != 0])
             elif display_hint == 'time alive':
-                self.state.label = str(org.time_alive)
+                self.state.label = 'ta: ' + str(org.time_alive)
             elif display_hint == 'hit points':
-                self.state.label == 'hit points'
+                self.state.label == 'hp'
             elif display_hint == 'genome id':
-                self.state.label = str(org.id)
+                self.state.label = 'gid: ' + str(org.id)
             elif display_hint == 'species id':
-                self.state.label = str(org.species_id)
+                self.state.label = 'sid: ' + str(org.species_id)
             elif display_hint == 'champion':
                 if org.champion:
                     self.state.label = 'champ!'
                 else:
                     self.state.label = ''
             elif display_hint == 'rank':
-                self.state.label = str(org.rank)
+                self.state.label = 'rank: ' + str(org.rank)
             elif display_hint == 'debug':
                 self.state.label = str(get_environment().get_state(self))
             else:
