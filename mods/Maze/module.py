@@ -179,7 +179,7 @@ class MazeMod:
             self.set_environment(MazeEnvironment(False))
         else:
             self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyDFS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneyDFS.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
 
@@ -191,7 +191,7 @@ class MazeMod:
             self.set_environment(MazeEnvironment(False))
         else:
             self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyAStar.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneyAStar.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
 
@@ -203,7 +203,7 @@ class MazeMod:
             self.set_environment(MazeEnvironment(False))
         else:
             self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyAStar2.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneyAStar2.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
 
@@ -215,7 +215,7 @@ class MazeMod:
             self.set_environment(MazeEnvironment(False))
         else:
             self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyAStar3.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneyAStar3.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
 
@@ -227,7 +227,7 @@ class MazeMod:
             self.set_environment(ContMazeEnvironment())
         else:
             self.environment.loop = True
-        self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         enable_ai()
 
     def start_random(self):
@@ -240,7 +240,7 @@ class MazeMod:
         else:
             self.environment.loop = True
         enable_ai()
-        self.agent_id = addObject("data/shapes/character/SydneyRandom.xml",Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneyRandom.xml",Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
 
     def start_rtneat(self):
         """ start the rtneat learning demo """
@@ -277,7 +277,7 @@ class MazeMod:
         rtneat.set_weight(0,1) # we only have one reward, so we better count it!
         enable_ai()
         for i in range(0, pop_on_field_size):
-            self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK)
+            self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK)
 
     def start_sarsa(self):
         """ start the rtneat learning demo """
@@ -287,7 +287,7 @@ class MazeMod:
             self.set_environment(MazeEnvironment())
         else:
             self.environment.loop = True
-        self.agent_id = addObject("data/shapes/character/SydneySarsa.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneySarsa.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         enable_ai()
 
     def start_qlearning(self):
@@ -298,7 +298,7 @@ class MazeMod:
             self.set_environment(MazeEnvironment())
         else:
             self.environment.loop = True
-        self.agent_id = addObject("data/shapes/character/SydneyQLearning.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneyQLearning.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         enable_ai()
 
     def control_fps(self,key):
