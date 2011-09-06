@@ -128,7 +128,7 @@ class DFSSearchAgent(SearchAgent):
         else: # otherwise visit the next place
             current = adjlist[k]
         self.visited.add((r,c)) # add this location to visited list
-        Maze.module.getMod().mark_maze_blue(r, c) # mark it as blue on the maze
+        get_environment().mark_maze_blue(r, c) # mark it as blue on the maze
         v = self.constraints.get_instance() # make the action vector to return
         dr, dc = current[0] - r, current[1] - c # the move we want to make
         v[0] = get_action_index( (dr, dc) )
@@ -164,7 +164,7 @@ class DFSSearchAgent(SearchAgent):
         return True
         
     def mark_path(self, r, c):
-        Maze.module.getMod().mark_maze_white(r,c)
+        get_environment().mark_maze_white(r,c)
 
 class AStarSearchAgent(SearchAgent):
     """
@@ -303,16 +303,16 @@ class AStarSearchAgent(SearchAgent):
         return True
 
     def mark_the_front(self, r, c, r2, c2):
-        Maze.module.getMod().mark_maze_green(r2,c2)
+        get_environment().mark_maze_green(r2,c2)
         
     def mark_target(self, r, c):
-        Maze.module.getMod().mark_maze_yellow(r,c)
+        get_environment().mark_maze_yellow(r,c)
     
     def mark_visited(self, r, c):
-        Maze.module.getMod().mark_maze_blue(r,c)
+        get_environment().mark_maze_blue(r,c)
         
     def mark_path(self, r, c):
-        Maze.module.getMod().mark_maze_white(r,c)
+        get_environment().mark_maze_white(r,c)
 
 class FrontAStarSearchAgent(AStarSearchAgent):
     """
@@ -322,8 +322,8 @@ class FrontAStarSearchAgent(AStarSearchAgent):
         if not self.goal: # first, figure out where we are trying to go
             cell = heappop(self.pq)
             h, r2, c2 = cell.h, cell.r, cell.c
-            Maze.module.getMod().unmark_maze_agent(r2,c2)
-            Maze.module.getMod().mark_maze_yellow(r2,c2)
+            get_environment().unmark_maze_agent(r2,c2)
+            get_environment().mark_maze_yellow(r2,c2)
             self.goal = (r2, c2)
         # then, check if we can get there
         r2, c2 = self.goal
@@ -347,8 +347,8 @@ class CloningAStarSearchAgent(FrontAStarSearchAgent):
         if not self.goal: # first, figure out where we are trying to go
             cell = heappop(self.pq)
             h, r2, c2 = cell.h, cell.r, cell.c
-            Maze.module.getMod().unmark_maze_agent(r2,c2)
-            Maze.module.getMod().mark_maze_yellow(r2,c2)
+            get_environment().unmark_maze_agent(r2,c2)
+            get_environment().mark_maze_yellow(r2,c2)
             self.goal = (r2, c2)
         # then, check if we can get there
         r2, c2 = self.goal
@@ -365,12 +365,12 @@ class CloningAStarSearchAgent(FrontAStarSearchAgent):
         return v # return the action
 
     def mark_the_front(self, r, c, r2, c2):
-        Maze.module.getMod().mark_maze_green(r2,c2)
-        Maze.module.getMod().mark_maze_agent("data/shapes/character/SydneyStatic.xml", r, c, r2, c2)
+        get_environment().mark_maze_green(r2,c2)
+        get_environment().mark_maze_agent("data/shapes/character/SydneyStatic.xml", r, c, r2, c2)
 
     def mark_visited(self, r, c):
-        Maze.module.getMod().unmark_maze_agent(r,c)
-        Maze.module.getMod().mark_maze_blue(r,c)
+        get_environment().unmark_maze_agent(r,c)
+        get_environment().mark_maze_blue(r,c)
 
 class FirstPersonAgent(AgentBrain):
     """
@@ -391,7 +391,7 @@ class FirstPersonAgent(AgentBrain):
             action[0] = FirstPersonAgent.action_map[FirstPersonAgent.key_pressed]
             FirstPersonAgent.key_pressed = None
         else:
-            action[0] = -1
+            action[0] = MazeEnvironment.NULL_MOVE
         return action
     def start(self, time, observations):
         return self.key_action()
@@ -405,35 +405,28 @@ class FirstPersonAgent(AgentBrain):
 class MoveForwardAndStopAgent(AgentBrain):
     """
     Just move forward and stop!
-    Warning, this messes with the environment internals
     """
     def __init__(self):
         AgentBrain.__init__(self) # do not remove!
     def initialize(self, init_info):
         self.actions = init_info.actions # action constraints
         self.idle_action = self.actions.get_instance()
-        self.idle_action[0] = -1 # do-nothing action
+        self.idle_action[0] = MazeEnvironment.NULL_MOVE # do-nothing action
         return True
-    def get_action(self):
-        v = self.actions.get_instance()
-        state = get_environment().get_state(self) # our state
-        maze = get_environment().maze # the maze we are in
-        dr, dc = 0, 0
-        if self.state.id in Maze.module.getMod().marker_states:
-            ((r1, c1), (r2, c2)) = Maze.module.getMod().marker_states[self.state.id] # what are we marking?
-            state.prev_rc, state.rc = (r1,c1), (r1,c1) # pretend like we were always there
-            state.observations = False # don't want observations
-            dr, dc = r2 - r1, c2 - c1 # figure out where we are going
-        action = get_action_index( (dr, dc) )
-        if action:
-            v[0] = action
-            return v
-        else:
-            return self.idle_action
     def start(self, time, observations):
-        return self.get_action()
+        marker_states = get_environment().marker_states
+        if self.state.id in marker_states:
+            ((r1,c1), (r2,c2)) = marker_states[self.state.id]
+            v = self.actions.get_instance()
+            dr, dc = r2-r1, c2-c1
+            a = get_action_index( (dr, dc) )
+            if a:
+                # return the action in the (dr,dc) direction
+                v[0] = a
+                return v
+        return self.idle_action
     def act(self, time, observations, reward):
-        return self.get_action()
+        return self.idle_action
     def end(self, time, reward):
         return self.idle_action
     def destroy(self):
