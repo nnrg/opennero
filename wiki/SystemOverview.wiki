@@ -60,7 +60,7 @@ The basic types OpenNERO uses to pass around information between `Environment` a
 
 <img src=http://opennero.googlecode.com/svn/wiki/agent-environment-sequence.png height=864 width=553></img>
 (Generated using [http://www.websequencediagrams.com/] from diagram text:
-{{
+{{{
 note left of Environment: get_init_info()
 Environment->Agent: AgentInitInfo info
 note right of Agent: initialize(info)
@@ -81,4 +81,4 @@ Agent->Environment: Actions A, True
 note left of Environment: sense(), step(A)
 Environment->Agent: Observations O, Reward R
 note right of Agent: end(O,R)
-}}
+}}}
