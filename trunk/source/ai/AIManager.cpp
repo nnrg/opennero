@@ -103,6 +103,9 @@ namespace OpenNero
     /// reset the ai (remove the ai systems)
     void AIManager::Reset()
     {
+        if (mEnvironment) {
+            mEnvironment->cleanup();
+        }
         mAIs.clear();
     }
 }
