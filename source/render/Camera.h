@@ -17,8 +17,9 @@ namespace OpenNero
     BOOST_SHARED_DECL(Camera);
 
     /**
-     * The camera class is an abstraction for the underlying rendering engine camera. It allows us to remain
-     * api independent while still harnessing the power of the underlying api.
+     * The camera class is an abstraction for the underlying rendering engine 
+     * camera. It allows us to remain api independent while still harnessing 
+     * the power of the underlying api.
     */
     class Camera : public BOOST_SHARED_THIS(Camera)
     {
@@ -87,6 +88,9 @@ namespace OpenNero
 
         /// attach the camera to the specified sim entity for the lifetime of the object
         bool attach( SimEntityPtr entity );
+        
+        /// detach the camera and switch to the specified functionality
+        void detach( Functionality f = kFunc_Nero);
 
         /// output information about the camera to human-readable stream
         friend std::ostream& operator<<(std::ostream& output, const CameraPtr camera);
