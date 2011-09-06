@@ -1,4 +1,4 @@
-#summary A-star Search demo
+#summary A demonstration of the heuristic search concepts
 #labels Demo
 #sidebar TableOfContents
 
