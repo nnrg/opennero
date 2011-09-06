@@ -7,15 +7,15 @@
 
 Often, we know something about which general direction to search a graph. Such an intuition is called a _heuristic_, and a search algorithm can find the shortest path faster than it can in the case of [BruteForceSearch brute force search].
 
-The most famous heuristic search method is the [http://en.wikipedia.org/wiki/A*_search_algorithm A* Search Algorithm] (see section 3.5.2 of [http://aima.cs.berkeley.edu/contents.html AIMA]). A* is a way to sift through a graph or a tree in order to find something. When given an appropriate _heuristic_ the algorithm will try to expand the most promising branches of the graph first. It is routinely used for pathfinding in games, and has many extensions and modifications for dealing with various applications.
+The most famous heuristic search method is the [http://en.wikipedia.org/wiki/A*_search_algorithm `A*` Search Algorithm] (see section 3.5.2 of [http://aima.cs.berkeley.edu/contents.html AIMA]). `A*` is a way to sift through a graph or a tree in order to find something. When given an appropriate _heuristic_ the algorithm will try to expand the most promising branches of the graph first. It is routinely used for pathfinding in games, and has many extensions and modifications for dealing with various applications.
 
 =Running the Demo=
 
   # [RunningOpenNero Start OpenNERO]
   # Select the Maze mod
-  # Click on the Single Agent A* agent and run to completion
-  # Click on the Teleporting A* agent and run to completion
-  # Click on the Front A* agent and run to completion
+  # Click on the Single Agent `A*` agent and run to completion
+  # Click on the Teleporting `A*` agent and run to completion
+  # Click on the Front `A*` agent and run to completion
 
 =Ways of visualizing `A*`=
 
