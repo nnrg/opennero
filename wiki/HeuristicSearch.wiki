@@ -1,18 +1,25 @@
 #summary A-star Search demo
-#labels Demo
 #sidebar TableOfContents
 
 <wiki:toc />
 
 =Introduction=
 
-The [http://en.wikipedia.org/wiki/A*_search_algorithm A* Search Algorithm] (described in section 3.5.2 of [http://aima.cs.berkeley.edu/contents.html AIMA]) is a way to sift through a graph or a tree in order to find something. When given an appropriate _heuristic_ the algorithm will try to expand the most promising branches of the graph first.
+Often, we know something about which general direction to search a graph. Such an intuition is called a _heuristic_, and a search algorithm can find the shortest path faster than it can in the case of [BruteForceSearch brute force search].
 
-In OpenNERO, there are three different visualizations of this algorithm in the MazeMod. All of them start at one end of the maze and try to find the goal (red cube) at the opposite end.
+The most famous heuristic search method is the [http://en.wikipedia.org/wiki/A*_search_algorithm A* Search Algorithm] (see section 3.5.2 of [http://aima.cs.berkeley.edu/contents.html AIMA]). A* is a way to sift through a graph or a tree in order to find something. When given an appropriate _heuristic_ the algorithm will try to expand the most promising branches of the graph first. It is routinely used for pathfinding in games, and has many extensions and modifications for dealing with various applications.
 
-Yellow lines emanating from the agent indicate sensor rays cast that did not encounter an obstacle. Red lines indicate sensors that have hit a wall. This is the information that the agent uses to construct and search the graph. 
+=Running the Demo=
+
+  # [RunningOpenNero Start OpenNERO]
+  # Select the Maze mod
+  # Click on the Single Agent A* agent and run to completion
+  # Click on the Teleporting A* agent and run to completion
+  # Click on the Front A* agent and run to completion
 
 =Ways of visualizing `A*`=
+
+In OpenNERO, there are three different visualizations of this algorithm in the MazeMod. All of them start at one corner of the maze and try to find the goal (red cube) at the opposite corner. Yellow lines emanating from the agent indicate sensor rays cast that did not encounter an obstacle. Red lines indicate sensors that have hit a wall. This is the information that the agent uses to construct and search the graph. 
 
 ==Single Agent `A*`==
 
@@ -20,9 +27,9 @@ To start this visualization, start OpenNERO and click on the Maze button. After 
 
 This visualization shows what would happen if the agent was a physical robot that has to move in order to get to and expand the next node in the graph. As the agent runs around the maze, it marks the cells with three different kinds of markers:
 
- * <font color="blue">blue</font> - visited node
- * <font color="yellow">yellow</font> - next node to expand
- * <font color="green">green</font> - active node (that may be expanded later)
+ * <font color="blue">BLUE</font> - visited node
+ * <font color="yellow">YELLOW</font> - next node to expand
+ * <font color="green">GREEN</font> - active node (that may be expanded later)
 
 ==Teleporting `A*`==
 
@@ -30,9 +37,9 @@ To start this visualization, start OpenNERO and click on the Maze button. After 
 
 If the agent can teleport (or consider teleporting) from any explored place to any other explored place in the maze, it can perform the search more efficiently. Here, the markers are the same:
 
- * <font color="blue">blue</font> - visited node
- * <font color="yellow">yellow</font> - next node to expand
- * <font color="green">green</font> - active node (that may be expanded later)
+ * <font color="blue">BLUE</font> - visited node
+ * <font color="yellow">YELLOW</font> - next node to expand
+ * <font color="green">GREEN</font> - active node (that may be expanded later)
 
 But this time the agent does not need to physically travel from a dead-end to the next green-turned-yellow node - instead, it can just appear there. This saves a lot of time!
 
@@ -42,11 +49,18 @@ To start this visualization, start OpenNERO and click on the Maze button. After 
 
 Finally, if you have a small army of agents at your disposal, you can try to explore the graph by cloning them. In this visualization, there are only two types of markers:
 
- * <font color="blue">blue</font> - visited node
- * <font color="yellow">yellow</font> - next node to expand
+ * <font color="blue">BLUE</font> - visited node
+ * <font color="yellow">YELLOW</font> - next node to expand
+ * <font color="green">GREEN</font> - active node (that may be expanded later)
 
-And the active nodes are replaced with waiting copies of the agent. When the agent has found a dead-end, it is removed and the next-most-likely agent is activated to continue the search.
+Additionally the active nodes are marked with waiting copies of the agent. When the agent has found a dead-end, it is removed and the next-most-likely agent is activated to continue the search.
 
 =Code=
 
-The `A*` agent is implemented in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py mods/Maze/agent.py].
+The `A*` agent is implemented in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py mods/Maze/agent.py]. The three variants are:
+
+  * `AStarSearchAgent`
+  * `FrontAStarSearchAgent`
+  * `TeleportingAStarSearchAgent`
+
+See SystemOverview for general information on how OpenNERO agents work.
