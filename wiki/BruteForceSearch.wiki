@@ -30,13 +30,24 @@ To run the demo:
 
 [http://en.wikipedia.org/wiki/Depth-first_search Depth-First Search] (see section 3.4.3 of [http://aima.cs.berkeley.edu/ AIMA]) is a technique for searching a graph or a tree-like structure. MazeMod includes an agent that searches for the target (red square) by expanding the graph representing the maze in a depth-first manner.
 
-Here is how to run Depth First Search in OpenNERO:
-
-  # start OpenNERO and select Maze.
-  # Once the maze is displayed, click Depth First Search.
-  # The agent marks the locations on the maze where it has been with blue marker boxes.
-  # If the agent reaches a dead-end, it will retrace its steps to the most recent un-expanded branch of the graph representing the maze.
-
 ==Source Code==
 
 The source code for this and other Maze agents is in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py agent.py].
+
+The Breadth First Search is implemented in the `BFSSearchAgent` class, which actually extends `GenericSearchAlgorithm` along with `AStarSearch`. Depth First search is implemented in `DFSSearchAgent`. See SystemOverview for a general description of how agents work.
+
+==Next Steps==
+
+There are other varieties of search. For example, [http://aima.cs.berkeley.edu/ AI: A Modern Approach] describes the following uninformed search strategies:
+
+  * 3.4. Uninformed Search Strategies ... 81 
+    * 3.4.1. Breadth-first search ... 81 
+    * 3.4.2. Uniform-cost search ... 83 
+    * 3.4.3. Depth-first search ... 85 
+    * 3.4.4. Depth-limited search ... 87 
+    * 3.4.5. Iterative deepening depth-first search ... 88 
+    * 3.4.6. Bidirectional search ... 90 
+
+We encourage you to implement one of these in OpenNERO as a programming assignment - you really understand something when you build it!
+
+After you understand all there is to know about these uninformed search agents, you can check out the HeuristicSearch demo page.
