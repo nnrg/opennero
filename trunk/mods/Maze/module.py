@@ -79,10 +79,6 @@ class MazeMod:
     def __del__(self):
         print 'Deleting MazeMod'
 
-    # add a set of coordinate axes
-    def addAxes(self):
-        getSimContext().addAxes()
-
     def add_maze(self):
         """Add a randomly generated maze"""
         if self.environment:
@@ -180,7 +176,7 @@ class MazeMod:
             self.set_environment(ContMazeEnvironment())
         else:
             self.environment.loop = True
-        self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         enable_ai()
 
     def start_random(self):

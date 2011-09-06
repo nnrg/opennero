@@ -218,21 +218,6 @@ namespace OpenNero
 			propMap.getValue(far_plane, prefix + ".far_plane");
 		}
         
-		/// Attach a camera to a sim entity - this has the effect of the camera
-		/// moving (and rotating) with the object.
-		/// @param cam camera to attach
-		/// @param sim SimEntity to attach to
-        void AttachCamera(CameraPtr cam, SimEntityDataPtr sim)
-        {
-            lastPosition = sim->GetPosition();
-            lastRotation = sim->GetRotation();
-            cam->setPosition( attach_point );
-            cam->setTarget( target );
-            cam->setNearPlane( near_plane );
-            cam->setFarPlane( far_plane );
-            LOG_F_MSG("render", "attached camera " << cam);
-        }
-        
         /// Update rotation of camera
         /// @param cam camera
         /// @param rotation amount camera is rotated
@@ -475,6 +460,11 @@ namespace OpenNero
     /// dtor
     SceneObject::~SceneObject()
     {
+        if (mFPSCamera && mCamera)
+        {
+            mCamera->detach();
+        }
+    
         // allow irrlicht to clean up
         if( mSceneNode )
         {
@@ -895,11 +885,6 @@ namespace OpenNero
         AssertMsg( cam->getFunctionality() == Camera::kFunc_FPS, "Cannot attach non-FPS cameras" );
 		AssertMsg( mFPSCamera, "missing information about how to attach the camera" );
         mCamera = cam;
-        if (mCamera && mCamera != cam)
-        {
-            // if we have another camera attached, detach it first
-            mCamera->setFunctionality(Camera::kFunc_Nero);
-        }
     }
     
     bool SceneObject::SetAnimation( const std::string& animation_type )

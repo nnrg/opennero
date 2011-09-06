@@ -115,12 +115,8 @@ namespace OpenNero
     {
         if( f != getFunctionality() )
         {   
-            Assert( mIrr.mpSceneManager );            
+            Assert( mIrr.mpSceneManager );
 
-            mFuncCameras[f]->setPosition(   mCamera->getAbsolutePosition() );
-            mFuncCameras[f]->setTarget(     mCamera->getTarget() );
-            mFuncCameras[f]->setFarValue(   mCamera->getFarValue() );
-            mFuncCameras[f]->setNearValue(  mCamera->getNearValue() );
             mCamera = mFuncCameras[f];
 
             mIrr.mpSceneManager->setActiveCamera( mCamera.get() );            
@@ -136,6 +132,7 @@ namespace OpenNero
             mCamera = ICameraSceneNode_IPtr( mIrr.mpSceneManager->addCameraSceneNodeNeroFP(scene_object->mSceneNode));
             scene_object->attachCamera(shared_from_this());
 			mCamera->bindTargetAndRotation(true);
+            setFunctionality(Camera::kFunc_FPS);
         }
         else
         {
@@ -144,7 +141,13 @@ namespace OpenNero
         }
         return true;
     }
-
+    
+    /// detach the camera and switch to the specified functionality
+    void Camera::detach( Functionality f )
+    {
+        setFunctionality(f);
+    }
+    
 	void Camera::setNearPlane( F32 nearPlane )
 	{
         Assert(mCamera);
