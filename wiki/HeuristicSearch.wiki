@@ -1,27 +1,28 @@
 #summary A-star Search demo
+#labels Demo
 #sidebar TableOfContents
 
 <wiki:toc />
 
-=Introduction=
+==Introduction==
 
 Often, we know something about which general direction to search a graph. Such an intuition is called a _heuristic_, and a search algorithm can find the shortest path faster than it can in the case of [BruteForceSearch brute force search].
 
 The most famous heuristic search method is the [http://en.wikipedia.org/wiki/A*_search_algorithm `A*` Search Algorithm] (see section 3.5.2 of [http://aima.cs.berkeley.edu/contents.html AIMA]). `A*` is a way to sift through a graph or a tree in order to find something. When given an appropriate _heuristic_ the algorithm will try to expand the most promising branches of the graph first. It is routinely used for pathfinding in games, and has many extensions and modifications for dealing with various applications.
 
-=Running the Demo=
+==Running the Demo==
 
   # [RunningOpenNero Start OpenNERO]
-  # Select the Maze mod
+  # Select the [MazeMod Maze mod]
   # Click on the Single Agent `A*` agent and run to completion
   # Click on the Teleporting `A*` agent and run to completion
   # Click on the Front `A*` agent and run to completion
 
-=Ways of visualizing `A*`=
+==Ways of visualizing `A*`==
 
 In OpenNERO, there are three different visualizations of this algorithm in the MazeMod. All of them start at one corner of the maze and try to find the goal (red cube) at the opposite corner. Yellow lines emanating from the agent indicate sensor rays cast that did not encounter an obstacle. Red lines indicate sensors that have hit a wall. This is the information that the agent uses to construct and search the graph. 
 
-==Single Agent `A*`==
+===Single Agent `A*`===
 
 To start this visualization, start OpenNERO and click on the Maze button. After the maze loads, click on the *Single Agent `A*`* button.
 
@@ -31,7 +32,7 @@ This visualization shows what would happen if the agent was a physical robot tha
  * <font color="yellow">YELLOW</font> - next node to expand
  * <font color="green">GREEN</font> - active node (that may be expanded later)
 
-==Teleporting `A*`==
+===Teleporting `A*`===
 
 To start this visualization, start OpenNERO and click on the Maze button. After the maze loads, click on the *Teleporting `A*`* button.
 
@@ -43,7 +44,7 @@ If the agent can teleport (or consider teleporting) from any explored place to a
 
 But this time the agent does not need to physically travel from a dead-end to the next green-turned-yellow node - instead, it can just appear there. This saves a lot of time!
 
-==Front `A*`==
+===Front Cloning `A*`===
 
 To start this visualization, start OpenNERO and click on the Maze button. After the maze loads, click on the *Front `A*`* button.
 
@@ -55,7 +56,7 @@ Finally, if you have a small army of agents at your disposal, you can try to exp
 
 Additionally the active nodes are marked with waiting copies of the agent. When the agent has found a dead-end, it is removed and the next-most-likely agent is activated to continue the search.
 
-=Code=
+==Code==
 
 The `A*` agent is implemented in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py mods/Maze/agent.py]. The three variants are:
 
@@ -64,3 +65,12 @@ The `A*` agent is implemented in [http://code.google.com/p/opennero/source/brows
   * `TeleportingAStarSearchAgent`
 
 See SystemOverview for general information on how OpenNERO agents work.
+
+==Next Steps==
+
+The world of search doesn't end here! For example, for `A*`, there are a many variants that have been adapted to particular types of search problems. Among some of the most interesting are:
+
+  * [http://en.wikipedia.org/wiki/D* `D*`] for cases when the cost function can change while the agent is searching for a route (this search strategy is the basis for prototype systems tested on Mars rovers Opportunity and Spirit and the navigation system of the winning entry in the DARPA Urban Challenge).
+  * [http://en.wikipedia.org/wiki/IDA* `IDA*`] - iterative deepening `A*` - for large graphs where memory is a limiting factor
+
+We encourage you to implement one of these other variants as a programming assignment.
