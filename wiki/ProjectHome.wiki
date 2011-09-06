@@ -18,8 +18,8 @@ You can download a binary build of OpenNERO for your platform, or checkout the c
 
  * [BuildingOpenNero Building from source]
  * [OpenNeroDemos Demos]
-   * [DepthFirstSearch Depth First Search]
-   * [AStarSearch `A*` Search]
+   * [BruteForceSearch Brute Force (Uninformed) Search] in MazeMod.
+   * [HeuristicSearch Heurisic (Informed) Search] in three varieties is demonstrated in the MazeMod.
    * [QLearning Q-Learning]
    * [SarsaLearning Sarsa(λ)]
    * [NeuroEvolution Neuroevolution]
