@@ -4,6 +4,7 @@ from copy import copy
 from mazer import Maze
 from constants import *
 from OpenNero import *
+from common import *
 from collections import deque
 
 import observer
@@ -96,6 +97,7 @@ class AgentState:
 
 class MazeEnvironment(Environment):
     MOVES = [(1,0), (-1,0), (0,1), (0,-1)]
+    NULL_MOVE = len(MOVES)
 
     """
     The environment is a 2-D maze.
@@ -139,6 +141,9 @@ class MazeEnvironment(Environment):
         self.step_delay = STEP_DELAY
         self.speedup = 0
         self.shortcircuit = False
+        self.marker_map = {} # a map of cells and markers so that we don't have more than one per cell
+        self.marker_states = {} # states of the marker agents that run for one cell and stop
+        self.agent_map = {} # agents active on the map        
         print 'Initialized MazeEnvironment'
         
     def get_delay(self):
@@ -187,6 +192,9 @@ class MazeEnvironment(Environment):
         return self.agent_info
 
     def set_animation(self, agent, state, animation):
+        """
+        set the agent's animation sequence to that named by animation
+        """
         if agent.state.animation != animation:
             print agent.state.animation, agent.state.animation_speed, animation
             agent.state.animation = animation
@@ -194,6 +202,22 @@ class MazeEnvironment(Environment):
             animation_speed = agent.state.animation_speed
             if delay > 0:
                 agent.state.animation_speed = animation_speed / delay
+    
+    def set_position(self, agent, state, new_pose):
+        """
+        set the next agent position to new_pose = (r,c,h)
+        """
+        new_r, new_c, new_heading = new_pose
+        (new_x, new_y) = self.maze.rc2xy(new_r, new_c)
+        state.rc = (new_r, new_c)
+        state.pose = (new_x, new_y, new_heading)
+        pos = agent.state.position
+        if pos.x == new_x and pos.y == new_y:
+            self.set_animation(agent, state, 'stand')
+        else:
+            pos.x, pos.y = new_x, new_y
+            agent.state.position = pos
+            self.set_animation(agent, state, 'run')
 
     def step(self, agent, action):
         """
@@ -210,25 +234,29 @@ class MazeEnvironment(Environment):
                 self.set_animation(agent, state, 'stand')
                 return state.record_reward(self.rewards.null_move(state))
         if agent.step == 0:
-            state.initial_position = agent.state.position
-            state.initial_rotation = agent.state.rotation
+            state.initial_position = copy(agent.state.position)
+            state.initial_rotation = copy(agent.state.rotation)
         
         # check for null action
         a = int(round(action[0]))
-        if a == len(MazeEnvironment.MOVES):
+        if a == MazeEnvironment.NULL_MOVE:
             self.set_animation(agent, state, 'stand')
             return state.record_reward(self.rewards.null_move(state))
         
-        (r,c) = state.rc
+        (r,c) = self.maze.xy2rc(agent.state.position.x, agent.state.position.y)
         
         # calculate new pose
         (dr, dc) = MazeEnvironment.MOVES[a]
         new_r, new_c = r + dr, c + dc
-        (new_x, new_y) = self.maze.rc2xy(new_r, new_c)
         next_rotation = self.get_next_rotation((dr,dc))
         new_heading = state.initial_rotation.z + next_rotation.z
         prev_heading = state.pose[2]
         
+        # if the agent is a marker, just change the position
+        if agent.state.id in self.marker_states:
+            self.set_position(agent, state, (new_r, new_c, new_heading))
+            return 0
+
         # if the heading is right
         if new_heading == prev_heading:
             # check if we are in bounds
@@ -240,15 +268,10 @@ class MazeEnvironment(Environment):
                 self.set_animation(agent, state, 'jump')
                 return state.record_reward(self.rewards.hit_wall(state))
             # if the heading is right, change the position
-            state.rc = (new_r, new_c)
-            state.pose = (new_x, new_y, new_heading)
-            pos0 = agent.state.position
-            pos0.x, pos0.y = new_x, new_y
-            agent.state.position = pos0
-            if dr != 0 or dc != 0:
-                self.set_animation(agent, state, 'run')
+            self.set_position(agent, state, (new_r, new_c, new_heading))
         else:
-            # if the heading is not right, just change the heading and return 0
+            # if the heading is not right, just change the heading and run the 
+            # rotation animation:
             # "run" "stand" "turn_r_xc" "turn_l_xc" "turn_r_lx" "turn_l_lx"
             # "turn_r_xxx" "turn_l_xxx" "pick_up" "put_down" 
             # "hold_run" "hold_stand" "hold_r_xc" "hold_l_xc"
@@ -324,9 +347,54 @@ class MazeEnvironment(Environment):
             return True
         else:
             return False
+            
+    def mark_maze(self, r, c, marker):
+        """ mark a maze cell with the specified color """
+        # remove the previous object, if necessary
+        if (r,c) in self.marker_map:
+            removeObject(self.marker_map[(r,c)])
+        # remember the ID of the marker
+        self.marker_map[(r,c)] = addObject(marker, Vector3f( (r+1) * GRID_DX, (c+1) * GRID_DY, -1))
+
+    def mark_maze_blue(self, r, c):
+        self.mark_maze(r,c,"data/shapes/cube/BlueCube.xml")
+
+    def mark_maze_green(self, r, c):
+        self.mark_maze(r,c,"data/shapes/cube/GreenCube.xml")
+
+    def mark_maze_yellow(self, r, c):
+        self.mark_maze(r,c,"data/shapes/cube/YellowCube.xml")
+
+    def mark_maze_white(self, r, c):
+        self.mark_maze(r,c,"data/shapes/cube/WhiteCube.xml")
+
+    def unmark_maze_agent(self, r, c):
+        """ mark a maze cell with the specified color """
+        # remove the previous object, if necessary
+        if (r,c) in self.agent_map:
+            removeObject(self.agent_map[(r,c)])
+            del self.marker_states[self.agent_map[(r,c)]]
+            del self.agent_map[(r,c)]
+
+    def mark_maze_agent(self, agent, r1, c1, r2, c2):
+        """ mark a maze cell with an agent moving from r1, c1 to r2, c2 """
+        # remove the previous object, if necessary
+        self.unmark_maze_agent(r2,c2)
+        # add a new marker object
+        position = Vector3f( (r1+1) * GRID_DX, (c1+1) * GRID_DY, 0)
+        rotation = self.get_next_rotation( (r2-r1, c2-c1) )
+        agent_id = addObject(agent, position = position, rotation = rotation)
+        self.marker_states[agent_id] = ((r1, c1), (r2, c2))
+        self.agent_map[(r2,c2)] = agent_id
 
     def cleanup(self):
-        pass
+        # remove the marker blocks
+        for id in self.marker_map.values():
+            removeObject(id)
+        self.marker_map = {}
+        for id in self.agent_map.values():
+            removeObject(id)
+        self.agent_map = {}
 
 class ContMazeEnvironment(MazeEnvironment):
     TURN_BY = 30 # how many degrees to turn by every time
