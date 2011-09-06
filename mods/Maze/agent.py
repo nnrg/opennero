@@ -165,14 +165,14 @@ class DFSSearchAgent(SearchAgent):
         
     def mark_path(self, r, c):
         get_environment().mark_maze_white(r,c)
-
-class AStarSearchAgent(SearchAgent):
+        
+class GenericSearchAlgorithm(SearchAgent):
     """
-    Egocentric A* algorithm
+    Generic search algorithm with retrace and a heuristic function
     """
     def __init__(self):
         """
-        A new Agent
+        constructor
         """
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
         SearchAgent.__init__(self) 
@@ -180,18 +180,20 @@ class AStarSearchAgent(SearchAgent):
         self.reset()
 
     def reset(self):
+        """
+        Reset the agent
+        """
         self.adjlist = {}
         self.parents = {}
-        self.pq = [] # empty priority queue
+        self.queue = [] # queue of cells to visit (front)
         self.visited = set([]) # set of nodes we have visited
         self.enqueued = set([]) # set of things in the queue (superset of visited)
         self.backpointers = {} # a dictionary from nodes to their predecessors
         self.goal = None # we have no idea where to go at first
-        self.heuristic = manhattan_heuristic # minimize the Manhattan distance
 
     def initialize(self, init_info):
         """
-        A new soul
+        initialize the agent with sensor and action info
         """
         self.constraints = init_info.actions
         return True
@@ -209,15 +211,22 @@ class AStarSearchAgent(SearchAgent):
             back2.append((r,c))
         return self.backpointers[(r1,c1)]
 
+    def enque(self, cell ):
+        self.queue.append( cell )
+    
+    def deque(self):
+        return self.queue.pop(0)
+        
     def get_action(self, r, c, observations):
         """
         Given: 
          - some places we could go in our queue
          - some backtracking links on how we got there
+        Return:
+         - The next step for the agent to take
         """
         if not self.goal: # first, figure out where we are trying to go
-            cell = heappop(self.pq)
-            h, r2, c2 = cell.h, cell.r, cell.c
+            (r2, c2) = self.deque()
             self.mark_target(r2,c2)
             self.goal = (r2, c2)
         # then, check if we can get there
@@ -257,7 +266,7 @@ class AStarSearchAgent(SearchAgent):
                 if (r2,c2) not in self.enqueued:
                     self.mark_the_front(row,col,r2,c2)
                     self.enqueued.add((r2,c2))
-                    heappush(self.pq, Cell(self.heuristic(r2, c2), r2, c2))
+                    self.enque( (r2,c2) )
                     assert self.backpointers.get((row,col)) != (r2,c2)
                     self.backpointers[(r2,c2)] = row, col # remember where we (would) come from
     
@@ -314,14 +323,30 @@ class AStarSearchAgent(SearchAgent):
     def mark_path(self, r, c):
         get_environment().mark_maze_white(r,c)
 
-class FrontAStarSearchAgent(AStarSearchAgent):
+class BFSSearchAgent(GenericSearchAlgorithm):
     """
-    Egocentric A* algorithm with teleportation between fronts
+    Egocentric Breadth First Search algorithm.
+    The only change is that we use a simple queue instead of a priority queue
     """
+    def __init__(self):
+        """
+        A new Agent
+        """
+        # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
+        GenericSearchAlgorithm.__init__(self) 
+
+    def enque(self, cell ):
+        self.queue.append(cell)
+    
+    def deque(self):
+        return self.queue.pop(0)
+        
     def get_action(self, r, c, observations):
+        """
+        we override the get_action method so that we can teleport from place to place
+        """
         if not self.goal: # first, figure out where we are trying to go
-            cell = heappop(self.pq)
-            h, r2, c2 = cell.h, cell.r, cell.c
+            (r2, c2) = self.deque()
             get_environment().unmark_maze_agent(r2,c2)
             get_environment().mark_maze_yellow(r2,c2)
             self.goal = (r2, c2)
@@ -336,7 +361,59 @@ class FrontAStarSearchAgent(AStarSearchAgent):
         else:
             # if not, we should teleport and return null action
             get_environment().teleport(self, r2, c2)
-            v[0] = 4
+            v[0] = MazeEnvironment.NULL_MOVE
+        return v # return the action
+
+class AStarSearchAgent(GenericSearchAlgorithm):
+    """
+    Egocentric A* algorithm - actually it is just like BFS but the queue is a priority queue
+    """
+    def __init__(self):
+        """
+        A new Agent
+        """
+        # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
+        GenericSearchAlgorithm.__init__(self) 
+
+    def reset(self):
+        GenericSearchAlgorithm.reset(self)
+        # minimize the Manhattan distance
+        self.heuristic = manhattan_heuristic
+
+    def enque(self, cell ):
+        (r,c) = cell
+        heappush(self.queue, Cell(self.heuristic(r, c), r, c))
+    
+    def deque(self):
+        cell = heappop(self.queue)
+        h, r, c = cell.h, cell.r, cell.c
+        return (r,c)
+
+class FrontAStarSearchAgent(AStarSearchAgent):
+    """
+    Egocentric A* algorithm with teleportation between fronts
+    """
+    def get_action(self, r, c, observations):
+        """
+        we override the get_action method so that we can teleport from place to place
+        """
+        if not self.goal: # first, figure out where we are trying to go
+            (r2, c2) = self.deque()
+            get_environment().unmark_maze_agent(r2,c2)
+            get_environment().mark_maze_yellow(r2,c2)
+            self.goal = (r2, c2)
+        # then, check if we can get there
+        r2, c2 = self.goal
+        dr, dc = r2 - r, c2 - c
+        action = get_action_index((dr,dc)) # try to find the action (will return None if it's not there)
+        v = self.constraints.get_instance() # make the action vector to return
+        # first, is the node reachable in one action?
+        if action is not None and observations[2 + action] == 0:
+            v[0] = action # if yes, do that action!
+        else:
+            # if not, we should teleport and return null action
+            get_environment().teleport(self, r2, c2)
+            v[0] = MazeEnvironment.NULL_MOVE
         return v # return the action
 
 class CloningAStarSearchAgent(FrontAStarSearchAgent):
@@ -344,9 +421,11 @@ class CloningAStarSearchAgent(FrontAStarSearchAgent):
     Egocentric A* algorithm with teleportation between fronts and fronts marked by stationary agents
     """
     def get_action(self, r, c, observations):
+        """
+        we override the get_action method so that we can spawn marker agents and teleport
+        """
         if not self.goal: # first, figure out where we are trying to go
-            cell = heappop(self.pq)
-            h, r2, c2 = cell.h, cell.r, cell.c
+            (r2,c2) = self.deque()
             get_environment().unmark_maze_agent(r2,c2)
             get_environment().mark_maze_yellow(r2,c2)
             self.goal = (r2, c2)
