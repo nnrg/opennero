@@ -55,4 +55,30 @@ The basic types OpenNERO uses to pass around information between `Environment` a
   * *validate*(feature_vector): boolean <font color=green>// check that feature_vector is in compliance with these bounds</font>
   * *getInstance*(): `FeatureVector` <font color=green>// get a zero instance of this feature vector</font>
   * *getRandom*(): `FeatureVector` <font color=green>// get a random instance of this feature vector</font>
-  
+
+== Agent-Environment interaction diagram ==
+
+<img src=http://opennero.googlecode.com/svn/wiki/agent-environment-sequence.png height=864 width=553></img>
+(Generated using [http://www.websequencediagrams.com/] from diagram text:
+{{
+note left of Environment: get_init_info()
+Environment->Agent: AgentInitInfo info
+note right of Agent: initialize(info)
+note left of Environment: sense()
+Environment->Agent: Observations O
+note right of Agent: start(O)
+Agent->Environment: Actions A
+loop until is_episode_over
+  note left of Environment: sense(), step(A)
+  Environment->Agent: Observations O, Reward R
+  note right of Agent: act(O,R), is_episode_over?
+  Agent->Environment: Actions A, False
+end
+note left of Environment: sense(), step(A)
+Environment->Agent: Observations O, Reward R
+note right of Agent: act(O,R), is_episode_over?
+Agent->Environment: Actions A, True
+note left of Environment: sense(), step(A)
+Environment->Agent: Observations O, Reward R
+note right of Agent: end(O,R)
+}}
