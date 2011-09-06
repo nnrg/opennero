@@ -132,6 +132,18 @@ class MazeMod:
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
 
+    def start_bfs(self):
+        """ start the breadth first search demo """
+        disable_ai()
+        self.reset_maze()
+        if self.environment.__class__.__name__ != 'MazeEnvironment':
+            self.set_environment(MazeEnvironment(False))
+        else:
+            self.environment.loop = False
+        self.agent_id = addObject("data/shapes/character/SydneyBFS.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
+        getSimContext().setObjectAnimation(self.agent_id, 'run')
+        enable_ai()
+
     def start_astar(self):
         """ start the A* search demo """
         disable_ai()

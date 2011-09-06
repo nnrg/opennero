@@ -226,10 +226,16 @@ class MazeEnvironment(Environment):
         state = self.get_state(agent)
         state.record_action(action)
         
+        (r,c) = self.maze.xy2rc(agent.state.position.x, agent.state.position.y)
+        
         if not self.agent_info.actions.validate(action):
             # check if we ran out of time
             if agent.step >= self.max_steps - 1:
                 return state.record_reward(self.rewards.last_reward(state))
+            # check if we reached the goal
+            elif r == ROWS - 1 and c == COLS - 1:
+                state.goal_reached = True
+                return state.record_reward(self.rewards.goal_reached(state))
             else:
                 self.set_animation(agent, state, 'stand')
                 return state.record_reward(self.rewards.null_move(state))
@@ -242,8 +248,6 @@ class MazeEnvironment(Environment):
         if a == MazeEnvironment.NULL_MOVE:
             self.set_animation(agent, state, 'stand')
             return state.record_reward(self.rewards.null_move(state))
-        
-        (r,c) = self.maze.xy2rc(agent.state.position.x, agent.state.position.y)
         
         # calculate new pose
         (dr, dc) = MazeEnvironment.MOVES[a]
