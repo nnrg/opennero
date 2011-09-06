@@ -59,6 +59,7 @@ The basic types OpenNERO uses to pass around information between `Environment` a
 == Agent-Environment interaction diagram ==
 
 <img src=http://opennero.googlecode.com/svn/wiki/agent-environment-sequence.png height=864 width=553></img>
+
 (Generated using [http://www.websequencediagrams.com/] from diagram text:
 {{{
 note left of Environment: get_init_info()
