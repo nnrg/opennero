@@ -96,6 +96,8 @@ namespace OpenNero
 
         SimEntitySet        mEntities;              ///< Set of all the sim entities
         
+        SimEntityList       mEntitiesAdded;         ///< Entities are added to this list at first, so that they can be ticked immediately
+        
         hash_map<uint32_t, SimEntitySet> mEntityTypes; ///< entity sets by type
 
         SimIdSet            mRemoveSet;             ///< SimId's to remove after next ProcessTick

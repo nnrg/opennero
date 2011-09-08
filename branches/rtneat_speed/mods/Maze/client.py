@@ -15,45 +15,62 @@ from Maze.constants import *
 def CreateGui(guiMan):
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")  
+
+    i = 0
     
-    dfsButton = gui.create_button(guiMan, 'dfs', Pos2i(0, 0), Pos2i(100, 30), '')
+    dfsButton = gui.create_button(guiMan, 'dfs', Pos2i(0, i*30), Pos2i(100, 30), '')
     dfsButton.text = 'Depth First Search'
     dfsButton.OnMouseLeftClick = lambda: getMod().start_dfs()
+    i += 1
 
-    aStarButton = gui.create_button(guiMan, 'astar', Pos2i(0, 30), Pos2i(100, 30), '')
+    bfsButton = gui.create_button(guiMan, 'bfs', Pos2i(0, i*30), Pos2i(100, 30), '')
+    bfsButton.text = 'Breadth First Search'
+    bfsButton.OnMouseLeftClick = lambda: getMod().start_bfs()
+    i += 1
+
+    aStarButton = gui.create_button(guiMan, 'astar', Pos2i(0, i*30), Pos2i(100, 30), '')
     aStarButton.text = 'Single Agent A*'
     aStarButton.OnMouseLeftClick = lambda: getMod().start_astar()
+    i += 1
     
-    aStarButton2 = gui.create_button(guiMan, 'astar2', Pos2i(0, 60), Pos2i(100, 30), '')
+    aStarButton2 = gui.create_button(guiMan, 'astar2', Pos2i(0, i*30), Pos2i(100, 30), '')
     aStarButton2.text = 'Teleporting A*'
     aStarButton2.OnMouseLeftClick = lambda: getMod().start_astar2()
+    i += 1
 
-    aStarButton3 = gui.create_button(guiMan, 'astar3', Pos2i(0, 90), Pos2i(100, 30), '')
+    aStarButton3 = gui.create_button(guiMan, 'astar3', Pos2i(0, i*30), Pos2i(100, 30), '')
     aStarButton3.text = 'Front A*'
     aStarButton3.OnMouseLeftClick = lambda: getMod().start_astar3()
+    i += 1
     
-    fpsButton = gui.create_button(guiMan, 'fps', Pos2i(0,120), Pos2i(100,30), '')
+    fpsButton = gui.create_button(guiMan, 'fps', Pos2i(0,i*30), Pos2i(100,30), '')
     fpsButton.text = 'First Person'
     fpsButton.OnMouseLeftClick = lambda: getMod().start_fps()
+    i += 1
 
-    randomButton = gui.create_button(guiMan, 'random', Pos2i(0,150), Pos2i(100,30), '')
+    randomButton = gui.create_button(guiMan, 'random', Pos2i(0,i*30), Pos2i(100,30), '')
     randomButton.text = 'Random Baseline'
     randomButton.OnMouseLeftClick = lambda: getMod().start_random()
+    i += 1
 
-    #rtneatButton = gui.create_button(guiMan, 'rtneat', Pos2i(0,180), Pos2i(100,30), '')
+    #rtneatButton = gui.create_button(guiMan, 'rtneat', Pos2i(0,i*30), Pos2i(100,30), '')
     #rtneatButton.text = 'Neuroevolution'
     #rtneatButton.OnMouseLeftClick = lambda: getMod().start_rtneat()
+    #i += 1
 
-    sarsaButton = gui.create_button(guiMan, 'sarsa', Pos2i(0,180), Pos2i(100,30), '')
+    sarsaButton = gui.create_button(guiMan, 'sarsa', Pos2i(0,i*30), Pos2i(100,30), '')
     sarsaButton.text = 'Sarsa'
     sarsaButton.OnMouseLeftClick = lambda: getMod().start_sarsa()
+    i += 1
 
-    qlearningButton = gui.create_button(guiMan, 'qlearning', Pos2i(0,210), Pos2i(100,30), '')
+    qlearningButton = gui.create_button(guiMan, 'qlearning', Pos2i(0,i*30), Pos2i(100,30), '')
     qlearningButton.text = 'Q-Learning'
     qlearningButton.OnMouseLeftClick = lambda: getMod().start_qlearning()
+    i += 1
 
-    agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(100, 260), 'Agent')
+    agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(100, i*30+20), 'Agent')
     agentWindow.addChild(dfsButton)
+    agentWindow.addChild(bfsButton)
     agentWindow.addChild(aStarButton)
     agentWindow.addChild(aStarButton2)
     agentWindow.addChild(aStarButton3)

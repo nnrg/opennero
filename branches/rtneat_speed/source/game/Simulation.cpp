@@ -45,6 +45,7 @@ namespace OpenNero
         AssertMsg( !Find( ent->GetSimId() ), "Entity with id " << ent->GetSimId() << " already exists in the simulation" );
         mSimIdHashedEntities[ ent->GetSimId() ] = ent;
         mEntities.insert(ent);
+        mEntitiesAdded.push_back(ent);
         uint32_t ent_type = ent->GetType();
         for (size_t i = 0; i < sizeof(uint32_t); ++i) {
             uint32_t t = 1 << i;
@@ -106,7 +107,7 @@ namespace OpenNero
 
         mRemoveSet.clear();
     }
-
+    
     /// Remove all sim entities from our simulation
     void Simulation::clear()
     {
@@ -153,6 +154,19 @@ namespace OpenNero
 				ent->ProcessTick(dt); // tick only if not removed
 			}
         }
+        
+        for (SimEntityList::const_iterator new_entity_iter = mEntitiesAdded.begin();
+            new_entity_iter != mEntitiesAdded.end();
+            ++new_entity_iter)
+        {
+            SimEntityPtr ent = *new_entity_iter;
+            if (mRemoveSet.find(ent->GetSimId()) == mRemoveSet.end())
+            {
+                ent->ProcessTick(dt);
+            }
+        }
+        
+        mEntitiesAdded.clear();
         
         // the last step is to remove all the objects that were scheduled during the ticks
         RemoveAllScheduled();

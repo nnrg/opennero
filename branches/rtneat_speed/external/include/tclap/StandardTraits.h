@@ -136,6 +136,8 @@ struct ArgTraits<size_t> {
 
 
 #ifdef HAVE_LONG_LONG
+// ivk: on MS Windows 7 64-bit size_t and unsigned long long are the same type
+#if !defined(_MSC_VER) || !defined(_M_X64)
 /**
  * unsigned long longs have value-like semantics.
  */
@@ -143,6 +145,7 @@ template<>
 struct ArgTraits<unsigned long long> {
     typedef ValueLike ValueCategory;
 };
+#endif
 #endif
 
 // ======================================================================

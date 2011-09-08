@@ -74,54 +74,10 @@ class MazeMod:
         self.shortcircuit = False
         self.environment = None
         self.agent_id = None # the ID of the agent
-        self.marker_map = {} # a map of cells and markers so that we don't have more than one per cell
-        self.marker_states = {} # states of the marker agents that run for one cell and stop
-        self.agent_map = {} # agents active on the map
         self.wall_ids = [] # walls on the map
 
     def __del__(self):
         print 'Deleting MazeMod'
-
-    def mark_maze(self, r, c, marker):
-        """ mark a maze cell with the specified color """
-        # remove the previous object, if necessary
-        if (r,c) in self.marker_map:
-            removeObject(self.marker_map[(r,c)])
-        # remember the ID of the marker
-        self.marker_map[(r,c)] = addObject(marker, Vector3f( (r+1) * GRID_DX, (c+1) * GRID_DY, -1))
-
-    def mark_maze_blue(self, r, c):
-        self.mark_maze(r,c,"data/shapes/cube/BlueCube.xml")
-
-    def mark_maze_green(self, r, c):
-        self.mark_maze(r,c,"data/shapes/cube/GreenCube.xml")
-
-    def mark_maze_yellow(self, r, c):
-        self.mark_maze(r,c,"data/shapes/cube/YellowCube.xml")
-
-    def mark_maze_white(self, r, c):
-        self.mark_maze(r,c,"data/shapes/cube/WhiteCube.xml")
-
-    def unmark_maze_agent(self, r, c):
-        """ mark a maze cell with the specified color """
-        # remove the previous object, if necessary
-        if (r,c) in self.agent_map:
-            removeObject(self.agent_map[(r,c)])
-            del self.marker_states[self.agent_map[(r,c)]]
-            del self.agent_map[(r,c)]
-
-    def mark_maze_agent(self, agent, r1, c1, r2, c2):
-        """ mark a maze cell with the specified color """
-        # remove the previous object, if necessary
-        self.unmark_maze_agent(r2,c2)
-        # add a new marker object
-        agent_id = addObject(agent, Vector3f( (r1+1) * GRID_DX, (c1+1) * GRID_DY, 0) )
-        self.marker_states[agent_id] = ((r1, c1), (r2, c2))
-        self.agent_map[(r2,c2)] = agent_id
-
-    # add a set of coordinate axes
-    def addAxes(self):
-        getSimContext().addAxes()
 
     def add_maze(self):
         """Add a randomly generated maze"""
@@ -158,13 +114,6 @@ class MazeMod:
 
     def reset_maze(self):
         """ reset the maze by removing the markers and starting the AI """
-        # remove the marker blocks
-        for id in self.marker_map.values():
-            removeObject(id)
-        self.marker_map = {}
-        for id in self.agent_map.values():
-            removeObject(id)
-        self.agent_map = {}
         # remove the agent
         if self.agent_id is not None:
             removeObject(self.agent_id)
@@ -179,7 +128,19 @@ class MazeMod:
             self.set_environment(MazeEnvironment(False))
         else:
             self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyDFS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneyDFS.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
+        getSimContext().setObjectAnimation(self.agent_id, 'run')
+        enable_ai()
+
+    def start_bfs(self):
+        """ start the breadth first search demo """
+        disable_ai()
+        self.reset_maze()
+        if self.environment.__class__.__name__ != 'MazeEnvironment':
+            self.set_environment(MazeEnvironment(False))
+        else:
+            self.environment.loop = False
+        self.agent_id = addObject("data/shapes/character/SydneyBFS.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
 
@@ -191,7 +152,7 @@ class MazeMod:
             self.set_environment(MazeEnvironment(False))
         else:
             self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyAStar.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneyAStar.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
 
@@ -203,7 +164,7 @@ class MazeMod:
             self.set_environment(MazeEnvironment(False))
         else:
             self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyAStar2.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneyAStar2.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
 
@@ -215,7 +176,7 @@ class MazeMod:
             self.set_environment(MazeEnvironment(False))
         else:
             self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyAStar3.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneyAStar3.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         getSimContext().setObjectAnimation(self.agent_id, 'run')
         enable_ai()
 
@@ -240,7 +201,7 @@ class MazeMod:
         else:
             self.environment.loop = True
         enable_ai()
-        self.agent_id = addObject("data/shapes/character/SydneyRandom.xml",Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneyRandom.xml",Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
 
     def start_rtneat(self):
         """ start the rtneat learning demo """
@@ -277,7 +238,7 @@ class MazeMod:
         rtneat.set_weight(0,1) # we only have one reward, so we better count it!
         enable_ai()
         for i in range(0, pop_on_field_size):
-            self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK)
+            self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK)
 
     def start_sarsa(self):
         """ start the rtneat learning demo """
@@ -287,7 +248,7 @@ class MazeMod:
             self.set_environment(MazeEnvironment())
         else:
             self.environment.loop = True
-        self.agent_id = addObject("data/shapes/character/SydneySarsa.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneySarsa.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         enable_ai()
 
     def start_qlearning(self):
@@ -298,7 +259,7 @@ class MazeMod:
             self.set_environment(MazeEnvironment())
         else:
             self.environment.loop = True
-        self.agent_id = addObject("data/shapes/character/SydneyQLearning.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        self.agent_id = addObject("data/shapes/character/SydneyQLearning.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         enable_ai()
 
     def control_fps(self,key):
