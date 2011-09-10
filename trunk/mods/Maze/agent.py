@@ -326,10 +326,10 @@ class BFSSearchAgent(GenericSearchAlgorithm):
         
     def get_action(self, r, c, observations):
         """
-        we override the get_action method so that we can teleport from place to place
+        we override the get_action method so that we can spawn marker agents and teleport
         """
         if not self.goal: # first, figure out where we are trying to go
-            (r2, c2) = self.deque()
+            (r2,c2) = self.deque()
             get_environment().unmark_maze_agent(r2,c2)
             get_environment().mark_maze_yellow(r2,c2)
             self.goal = (r2, c2)
@@ -344,8 +344,16 @@ class BFSSearchAgent(GenericSearchAlgorithm):
         else:
             # if not, we should teleport and return null action
             get_environment().teleport(self, r2, c2)
-            v[0] = MazeEnvironment.NULL_MOVE
+            v[0] = 4
         return v # return the action
+
+    def mark_the_front(self, r, c, r2, c2):
+        get_environment().mark_maze_green(r2,c2)
+        get_environment().mark_maze_agent("data/shapes/character/SydneyStatic.xml", r, c, r2, c2)
+
+    def mark_visited(self, r, c):
+        get_environment().unmark_maze_agent(r,c)
+        get_environment().mark_maze_blue(r,c)
 
 class AStarSearchAgent(GenericSearchAlgorithm):
     """
