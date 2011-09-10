@@ -64,12 +64,6 @@ class RandomAgent(AgentBrain):
         print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
         return True
 
-    def destroy(self):
-        """
-        called when the agent is done
-        """
-        return True
-
 class SearchAgent(AgentBrain):
     """ Base class for maze search agents """
     
@@ -159,9 +153,6 @@ class DFSSearchAgent(SearchAgent):
         self.reset()
         return True
 
-    def destroy(self):
-        return True
-        
     def mark_path(self, r, c):
         get_environment().mark_maze_white(r,c)
         
@@ -301,12 +292,6 @@ class GenericSearchAlgorithm(SearchAgent):
         """
         print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
         self.reset()
-        return True
-
-    def destroy(self):
-        """
-        After one or more episodes, this agent can be disposed of
-        """
         return True
 
     def mark_the_front(self, r, c, r2, c2):
@@ -476,8 +461,6 @@ class FirstPersonAgent(AgentBrain):
         return self.key_action()
     def end(self, time, reward):
         return True
-    def destroy(self):
-        return True
 
 class MoveForwardAndStopAgent(AgentBrain):
     """
@@ -506,8 +489,6 @@ class MoveForwardAndStopAgent(AgentBrain):
         return self.idle_action
     def end(self, time, reward):
         return self.idle_action
-    def destroy(self):
-        return True
 
 class RTNEATAgent(AgentBrain):
     """
@@ -547,12 +528,6 @@ class RTNEATAgent(AgentBrain):
         """
         print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
         get_ai("rtneat").release_organism(self)
-        return True
-        
-    def destroy(self):
-        """
-        the agent brain is discarded
-        """
         return True
         
     def network_action(self, observations):
