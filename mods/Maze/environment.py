@@ -318,7 +318,7 @@ class MazeEnvironment(Environment):
         pos0.x = x
         pos0.y = y
         agent.state.position = pos0
-        agent.state.position = pos0
+        agent.state.update_immediately()
 
     def sense(self, agent, obs):
         """

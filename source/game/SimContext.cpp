@@ -135,7 +135,7 @@ namespace OpenNero
         // initialize the creation data
         SimId new_id = GetNextFreeId();
         SimEntityData data(pos, rot, scale, label, type, collision, new_id);
-        data.SetDirtyBits();
+        data.SetAllDirtyBits();
         SimEntityPtr simEnt = SimEntity::CreateSimEntity(data, templateName, shared_from_this());
         if( simEnt )
         {

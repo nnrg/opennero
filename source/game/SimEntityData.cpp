@@ -242,9 +242,10 @@ namespace OpenNero
         return mDirtyBits;
     }
 
-    void SimEntityData::SetDirtyBits()
+    void SimEntityData::SetAllDirtyBits()
     {
         mDirtyBits = uint32_t(-1); // all ones
+        mPrevious = mCurrent;
     }
 
     void SimEntityData::SetDirtyBits(uint32_t bits)
