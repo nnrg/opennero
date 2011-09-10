@@ -147,7 +147,6 @@ class DFSSearchAgent(SearchAgent):
 
     def reset(self):
         self.visited = set([])
-        self.adjlist = {}
         self.parents = {}
         self.backpointers = {}
 
@@ -183,7 +182,6 @@ class GenericSearchAlgorithm(SearchAgent):
         """
         Reset the agent
         """
-        self.adjlist = {}
         self.parents = {}
         self.queue = [] # queue of cells to visit (front)
         self.visited = set([]) # set of nodes we have visited
@@ -322,7 +320,7 @@ class GenericSearchAlgorithm(SearchAgent):
         
     def mark_path(self, r, c):
         get_environment().mark_maze_white(r,c)
-
+        
 class BFSSearchAgent(GenericSearchAlgorithm):
     """
     Egocentric Breadth First Search algorithm.
