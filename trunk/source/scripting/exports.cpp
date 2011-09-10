@@ -927,7 +927,7 @@ namespace OpenNero {
                 .def("close", &PyErrLogWriter::close, "close the python log writer")
                 .def("flush", &PyErrLogWriter::flush, "flush the OpenNERO log");
         }
-
+        
         void ExportSimEntityDataScripts()
         {
             py::class_<SimEntityData>("SimEntityData", no_init)
@@ -960,6 +960,7 @@ namespace OpenNero {
                 .add_property("id", &SimEntityData::GetId)
                 .add_property("animation", &SimEntityData::GetAnimation, &SimEntityData::SetAnimation)
                 .add_property("animation_speed", &SimEntityData::GetAnimationSpeed, &SimEntityData::SetAnimationSpeed)
+                .def("update_immediately", &SimEntityData::SetAllDirtyBits)
                 ;
             
             py::class_<SimDataVector>("SimDataVector", "A vector of SimEntityData")

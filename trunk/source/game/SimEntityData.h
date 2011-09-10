@@ -91,7 +91,7 @@ namespace OpenNero
         void SetAnimationSpeed( float32_t framesPerSectiond ); ///< Set the speed of the animation
 
         /// make all the bits dirty (forces full update)
-        void SetDirtyBits();
+        void SetAllDirtyBits();
         /// make certain bits dirty
         void SetDirtyBits(uint32_t bits);
         /// clear all the bits
