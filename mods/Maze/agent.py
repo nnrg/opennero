@@ -488,7 +488,7 @@ class MoveForwardAndStopAgent(AgentBrain):
             v = self.actions.get_instance()
             dr, dc = r2-r1, c2-c1
             a = get_action_index( (dr, dc) )
-            if a:
+            if a is not None:
                 # return the action in the (dr,dc) direction
                 v[0] = a
                 return v
