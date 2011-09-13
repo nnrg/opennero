@@ -496,7 +496,7 @@ class MoveForwardAndStopAgent(AgentBrain):
     def act(self, time, observations, reward):
         return self.idle_action
     def end(self, time, reward):
-        return self.idle_action
+        return True
 
 class RTNEATAgent(AgentBrain):
     """
