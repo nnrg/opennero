@@ -29,7 +29,8 @@ class BlockState:
         self.name = ''
         self.obj = None
         self.mass = 0
-
+    def __str__(self):
+        return "Block '%s' r: %d, c: %d, h: %f, mass: %s" % (self.name, self.rc[0], self.rc[1], self.height, self.mass)
 
 class AgentState:
     """
@@ -82,27 +83,6 @@ class AgentState:
         self.prev_pose = self.pose
         self.pose = (pos.x, pos.y, agent.state.rotation.z + self.initial_rotation.z)
         self.time = time.time()
-        
-    def record_action(self, action):
-        self.action_history.popleft()
-        self.action_history.append(action)
-        
-    def record_observation(self, observation):
-        self.observation_history.popleft()
-        self.observation_history.append(observation)
-    
-    def record_reward(self, reward):
-        self.reward_history.popleft()
-        self.reward_history.append(reward)
-        return reward
-    
-    def is_stuck(self):
-        """ for now the only way to get stuck is to have the same state-action pair """
-        if not is_uniform(self.action_history):
-            return False
-        if not is_uniform(self.observation_history):
-            return False
-        return True
         
     def get_reward(self):
         r0 = self.reward_history.popleft()
@@ -335,7 +315,6 @@ class TowerEnvironment(Environment):
         if len(self.block_states) == 0:
             self.initilize_blocks()
         state = self.get_state(agent)
-        state.record_action(action)
         if not self.agent_info.actions.validate(action):
             state.prev_rc = state.rc
             return 0
@@ -376,7 +355,7 @@ class TowerEnvironment(Environment):
             agent.state.animation_speed = 30.0
             getSimContext().delay = 5.0
             print "JUMP"
-            return state.record_reward(self.rewards.valid_move(state))
+            return self.rewards.valid_move(state)
         if a == 1:
             if state.holding == None:
                 self.set_animation(agent,state,'run')
@@ -388,7 +367,7 @@ class TowerEnvironment(Environment):
         if a == 2:
             if state.holding == None:
                 state.current_action = 'stand'
-                return state.record_reward(self.rewards.valid_move(state))
+                return self.rewards.valid_move(state)
             (dr,dc) = TowerEnvironment.MOVES[int(agent.state.rotation.z / 90)]
             new_r, new_c = r + dr, c + dc
             curr_top = self.get_top_block(new_r,new_c)
@@ -403,10 +382,10 @@ class TowerEnvironment(Environment):
                 state.holding.rc = (new_r,new_c)
                 getSimContext().setObjectPosition(state.holding.obj,Vector3f((new_r + 1) * GRID_DX, (new_c + 1) * GRID_DY, (state.holding.height + 1) * GRID_DZ))
                 state.holding = None
-                return state.record_reward(self.rewards.valid_move(state))
+                return self.rewards.valid_move(state)
 
              else:
-                return state.record_reward(self.rewards.valid_move(state))
+                return self.rewards.valid_move(state)
             else:
                 state.holding.below = None
                 state.holding.above = None
@@ -414,18 +393,18 @@ class TowerEnvironment(Environment):
                 state.holding.rc = (new_r,new_c)
                 getSimContext().setObjectPosition(state.holding.obj,Vector3f((new_r + 1) * GRID_DX, (new_c + 1) * GRID_DY, (state.holding.height + 1) * GRID_DZ))
                 state.holding = None
-                return state.record_reward(self.rewards.valid_move(state))
+                return self.rewards.valid_move(state)
         if a == 3:
             if state.holding != None:
                 state.current_action = 'stand'
-                return state.record_reward(self.rewards.valid_move(state))
+                return self.rewards.valid_move(state)
             state.current_action = 'pickup'
             self.set_animation(agent,state,'hold_stand');
             (dr,dc) = TowerEnvironment.MOVES[int(agent.state.rotation.z / 90)]
             new_r, new_c = r + dr, c + dc
             curr_top = self.get_top_block(new_r,new_c)
             if curr_top == None:
-                return state.record_reward(self.rewards.valid_move(state))
+                return self.rewards.valid_move(state)
             else:
                 if curr_top.below: curr_top.below.above = None
                 curr_top.below = None
@@ -437,7 +416,7 @@ class TowerEnvironment(Environment):
                 pos.z = agent.state.position.z + 7
                 getSimContext().setObjectPosition(state.holding.obj,pos)
 
-                return state.record_reward(self.rewards.valid_move(state))
+                return self.rewards.valid_move(state)
         if a == 4:
             state.next_rotation = agent.state.rotation.z
             state.next_rotation -= 90
@@ -492,10 +471,10 @@ class TowerEnvironment(Environment):
         #agent.state.rotation = state.initial_rotation + relative_rotation
         if new_r == ROWS - 1 and new_c == COLS - 1:
             state.goal_reached = True
-            return state.record_reward(self.rewards.goal_reached(state))
+            return self.rewards.goal_reached(state)
         elif agent.step >= self.max_steps - 1:
-            return state.record_reward(self.rewards.last_reward(state))
-        return state.record_reward(self.rewards.valid_move(state))
+            return self.rewards.last_reward(state)
+        return self.rewards.valid_move(state)
 
     def teleport(self, agent, r, c):
         """
@@ -526,7 +505,6 @@ class TowerEnvironment(Environment):
             # we only look for objects of type 1, which means walls
             objects = getSimContext().findInRay(ray[0], ray[1], 1, True)
             obs[2 + i] = int(len(objects) > 0)
-        state.record_observation(obs)
         return obs
 
     def is_episode_over(self, agent):
@@ -542,23 +520,3 @@ class TowerEnvironment(Environment):
 
     def cleanup(self):
         pass
-
-def is_uniform(vv):
-    """ return true iff all the feature vectors in v are identical """
-    l = len(vv)
-    if l == 0:
-        return False
-    v0 = [x for x in vv[0]]
-    for i in range(1, len(vv)):
-        vi = [x for x in vv[i]]
-        if v0 != vi:
-            return False
-    return True
-
-def wrap_degrees(a,da):
-    a2 = a + da
-    if a2 > 180:
-        a2 = -180 + (a2 % 180)
-    elif a2 < -180:
-        a2 = 180 - (abs(a2) % 180)
-    return a2
