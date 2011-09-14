@@ -3,10 +3,10 @@
 #sidebar TableOfContents
 
 When you [http://code.google.com/p/opennero/downloads/ download] and [RunningOpenNero run] OpenNERO
- * Search
+ * [SearchDemo Search]
    * [BruteForceSearch Brute Force (Uninformed) Search] in MazeMod.
    * [HeuristicSearch Heurisic (Informed) Search] in three varieties is demonstrated in the MazeMod.
- * Reinforcement learning
+ * [RLearningDemo Reinforcement learning]
    * [QLearning Q-Learning] with ε-greedy policy
    * [SarsaLearning Sarsa(λ)] with ε-greedy policy
  * Neuroevolution
