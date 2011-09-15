@@ -38,6 +38,7 @@ class MazeRewardStructure:
 class MazeEnvironment(Environment):
     MOVES = [(1,0), (-1,0), (0,1), (0,-1)]
     NULL_MOVE = len(MOVES)
+    maze = Maze.generate(ROWS, COLS, GRID_DX, GRID_DY)
 
     """
     The environment is a 2-D maze.
@@ -61,7 +62,6 @@ class MazeEnvironment(Environment):
         generate the maze
         """
         Environment.__init__(self)
-        self.maze = Maze.generate(ROWS, COLS, GRID_DX, GRID_DY)
         self.rewards = MazeRewardStructure()
         self.loop = loop
         action_info = FeatureVectorInfo()
@@ -94,9 +94,9 @@ class MazeEnvironment(Environment):
         Figure out if the agent can make the specified move
         """
         pos = agent.state.position
-        (r,c) = self.maze.xy2rc(pos.x, pos.y)
+        (r,c) = MazeEnvironment.maze.xy2rc(pos.x, pos.y)
         (dr,dc) = move
-        return self.maze.rc_bounds(r+dc, c+dc) and not self.maze.is_wall(r,c,dr,dc)
+        return MazeEnvironment.maze.rc_bounds(r+dc, c+dc) and not MazeEnvironment.maze.is_wall(r,c,dr,dc)
 
     def get_next_rotation(self, move):
         """
@@ -109,7 +109,7 @@ class MazeEnvironment(Environment):
         reset the environment to its initial state
         """
         print 'Episode %d complete' % agent.episode
-        (x,y) = self.maze.rc2xy(0,0)
+        (x,y) = MazeEnvironment.maze.rc2xy(0,0)
         pos = Vector3f(x,y,0)
         agent.state.position = pos
         agent.state.rotation = Vector3f(0,0,0)
@@ -135,7 +135,7 @@ class MazeEnvironment(Environment):
         set the next agent position to new_pose = (r,c,h)
         """
         new_r, new_c, new_heading = new_pose
-        (new_x, new_y) = self.maze.rc2xy(new_r, new_c)
+        (new_x, new_y) = MazeEnvironment.maze.rc2xy(new_r, new_c)
         pos = agent.state.position
         if pos.x == new_x and pos.y == new_y:
             self.set_animation(agent, 'stand')
@@ -148,7 +148,7 @@ class MazeEnvironment(Environment):
         """
         Discrete version
         """
-        (r,c) = self.maze.xy2rc(agent.state.position.x, agent.state.position.y)
+        (r,c) = MazeEnvironment.maze.xy2rc(agent.state.position.x, agent.state.position.y)
         
         if not self.agent_info.actions.validate(action):
             # check if we ran out of time
@@ -184,11 +184,11 @@ class MazeEnvironment(Environment):
         # if the heading is right
         if new_heading == prev_heading:
             # check if we are in bounds
-            if not self.maze.rc_bounds(new_r, new_c):
+            if not MazeEnvironment.maze.rc_bounds(new_r, new_c):
                 self.set_animation(agent, 'jump')
                 return self.rewards.out_of_bounds(agent)
             # check if there is a wall in the way
-            elif self.maze.is_wall(r,c,dr,dc):
+            elif MazeEnvironment.maze.is_wall(r,c,dr,dc):
                 self.set_animation(agent, 'jump')
                 return self.rewards.hit_wall(agent)
             # if the heading is right, change the position
@@ -230,7 +230,7 @@ class MazeEnvironment(Environment):
         """
         move the agent to a new location
         """
-        (x,y) = self.maze.rc2xy(r,c)
+        (x,y) = MazeEnvironment.maze.rc2xy(r,c)
         pos = agent.state.position
         pos.x = x
         pos.y = y
@@ -242,7 +242,7 @@ class MazeEnvironment(Environment):
         Discrete version
         """
         p0 = agent.state.position
-        (r,c) = self.maze.xy2rc(p0.x, p0.y)
+        (r,c) = MazeEnvironment.maze.xy2rc(p0.x, p0.y)
         obs[0] = r
         obs[1] = c
         offset = GRID_DX/10.0
@@ -256,7 +256,7 @@ class MazeEnvironment(Environment):
 
     def is_episode_over(self, agent):
         pos = agent.state.position
-        (r,c) = self.maze.xy2rc(pos.x, pos.y)
+        (r,c) = MazeEnvironment.maze.xy2rc(pos.x, pos.y)
         if self.max_steps != 0 and agent.step >= self.max_steps:
             return True
         elif r == ROWS-1 and c == COLS-1:
@@ -348,7 +348,7 @@ class ContMazeEnvironment(MazeEnvironment):
         observation_info = FeatureVectorInfo() # describes the observations
         reward_info = FeatureVectorInfo() # describes the rewards
         action_info.add_discrete(0, ContMazeEnvironment.N_ACTIONS-1) # action
-        ( (xmin, ymin), (xmax, ymax) ) = self.maze.xy_limits()
+        ( (xmin, ymin), (xmax, ymax) ) = MazeEnvironment.maze.xy_limits()
         print 'MAZE LIMITS', ( (xmin, ymin), (xmax, ymax) )
         observation_info.add_continuous(xmin, xmax) # x-coord
         observation_info.add_continuous(ymin, ymax) # y-coord
@@ -372,7 +372,7 @@ class ContMazeEnvironment(MazeEnvironment):
         """
         reset the environment to its initial state
         """
-        (x,y) = self.maze.rc2xy(0,0)
+        (x,y) = MazeEnvironment.maze.rc2xy(0,0)
         agent.state.position = Vector3f(x,y,0)
         agent.state.rotation = Vector3f(0,0,0)
         if agent in self.agents_at_goal:
@@ -408,11 +408,11 @@ class ContMazeEnvironment(MazeEnvironment):
         if dx or dy:
             test_x, test_y = x + 1.5 * dx, y + 1.5 * dy # leave a buffer of space
             new_x, new_y = x + dx, y + dy
-            if not self.maze.xy_bounds(test_x, test_y):
+            if not MazeEnvironment.maze.xy_bounds(test_x, test_y):
                 # could not move, out of bounds
                 self.set_animation(agent, 'stand')
                 return self.rewards.out_of_bounds(agent)
-            elif not self.maze.xy_valid(x,y,test_x,test_y):
+            elif not MazeEnvironment.maze.xy_valid(x,y,test_x,test_y):
                 # could not move, hit a wall
                 self.set_animation(agent, 'stand')
                 return self.rewards.hit_wall(agent)
@@ -424,7 +424,7 @@ class ContMazeEnvironment(MazeEnvironment):
         pos0.x = new_x
         pos0.y = new_y
         agent.state.position = pos0
-        (new_r, new_c) = self.maze.xy2rc(new_x, new_y)
+        (new_r, new_c) = MazeEnvironment.maze.xy2rc(new_x, new_y)
         if new_r == ROWS - 1 and new_c == COLS - 1:
             self.agents_at_goal.add(agent)
             return self.rewards.goal_reached(agent)
@@ -441,7 +441,7 @@ class ContMazeEnvironment(MazeEnvironment):
         (x,y,heading) = (pos.x, pos.y, rot.z) # current pose
         obs[0] = x # the agent can observe its position
         obs[1] = y # the agent can observe its position
-        (tx, ty) = self.maze.rc2xy(ROWS-1,COLS-1) # coordinates of target
+        (tx, ty) = MazeEnvironment.maze.rc2xy(ROWS-1,COLS-1) # coordinates of target
         tx, ty = tx - x, ty - y # line to target
         obs[2] = hypot(tx, ty) # distance to target
         angle_to_target = degrees(atan2(ty, tx)) # angle to target from +x, in degrees

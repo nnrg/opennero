@@ -95,9 +95,9 @@ class MazeMod:
             removeObject(id)
         del self.wall_ids[:] # clear the ids
         set_environment(env)
-        for ((r1, c1), (r2, c2)) in env.maze.walls:
-            (x1,y1) = env.maze.rc2xy(r1,c1)
-            (x2,y2) = env.maze.rc2xy(r2,c2)
+        for ((r1, c1), (r2, c2)) in MazeEnvironment.maze.walls:
+            (x1,y1) = MazeEnvironment.maze.rc2xy(r1,c1)
+            (x2,y2) = MazeEnvironment.maze.rc2xy(r2,c2)
             pos = Vector3f( (x1 + x2) / 2, (y1 + y2) / 2, 2.5 )
             z_rotation = 0
             if r1 != r2:
