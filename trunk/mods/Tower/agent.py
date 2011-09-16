@@ -27,6 +27,9 @@ class TowerAgent(AgentBrain):
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
+        self.queue_init()
+
+    def queue_init(self):
         self.init_queue = [1,5]
         self.atob = [5,1,4,3,4,1,5,2,]
         self.btoa = [3,5,1,4,2,4,1,5,]
@@ -116,7 +119,7 @@ class TowerAgent(AgentBrain):
         return self.action_queue.pop(0)
 
     def reset(self):
-        pass
+        self.queue_init()
 
     def face_at(self,x,y,z,nx,ny):
         if(x - nx) == -1:
