@@ -10,7 +10,7 @@ def switchToHub():
 
 def blank():
     pass
-    
+
 def toggleDisplayHint():
     nextDisplayHint()
 
@@ -23,7 +23,7 @@ def createInputMapping():
     ioMap.BindKey( "KEY_ESCAPE", "onPress", switchToHub)
     ioMap.BindKey( "KEY_F1", "onPress", openWiki('NeroMod') )
     ioMap.BindKey( "KEY_F2", "onPress", toggleDisplayHint )
-    
+
     ioMap.BindMouseAction( "moveX", mouse_action)
     ioMap.BindMouseAction( "moveY", mouse_action)
     ioMap.BindMouseButton( "left"  , "onPress"    , reset_mouse_action)

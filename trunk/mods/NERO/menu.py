@@ -13,7 +13,7 @@ class NeroPanel(wx.Panel, ScriptClient):
     def __init__(self,parent):
         wx.Panel.__init__(self,parent)
         ScriptClient.__init__(self)
-        
+
         grid = wx.GridBagSizer(hgap = 5, vgap = 5)
 
         # Panel for the buttons
@@ -29,7 +29,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.save = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Save Pop')# 1')
         buttonGrid.Add(self.save,pos=(0,1) )
         self.Bind(wx.EVT_BUTTON, self.OnSave1, self.save)
-        
+
         #Load1 Button
         self.load = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Load Pop')# 1')
         buttonGrid.Add(self.load, pos = (0,2) )
@@ -39,7 +39,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.save2 = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Save Pop 2')
         buttonGrid.Add(self.save2,pos=(0,3) )
         self.Bind(wx.EVT_BUTTON, self.OnSave2, self.save2)
-        
+
         #Load2 Button
         self.load2 = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Load Pop 2')
         buttonGrid.Add(self.load2, pos = (0,4) )
@@ -131,7 +131,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         grid.Add(self.fds,pos=(4,6))
         grid.Add(self.fdt,pos=(4,4))
         """
-        
+
         #Hit Target Slider
         self.htt = wx.StaticText(self,label = "Hit Target", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.hts = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
@@ -212,7 +212,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_SCROLL, self.OnSP,self.sps)
         grid.Add(self.sps,pos=(10,2))
         grid.Add(self.spt,pos=(10,0))
-        
+
 
         self.SetSizer(grid)
         grid.Fit(parent)
@@ -227,7 +227,7 @@ class NeroPanel(wx.Panel, ScriptClient):
             filename = dlg.GetFilename()
             dirname = dlg.GetPath()
             self.send("save1 %s" % dirname)
-    
+
     def OnLoad1(self,event):
         dirname = ""
         dlg = wx.FileDialog(self, "Load Population File", dirname, "", "*.*", wx.FD_OPEN)
@@ -243,7 +243,7 @@ class NeroPanel(wx.Panel, ScriptClient):
             filename = dlg.GetFilename()
             dirname = dlg.GetPath()
             self.send("save2 %s" % dirname)
-    
+
     def OnLoad2(self,event):
         dirname = ""
         dlg = wx.FileDialog(self, "Load Population File", dirname, "", "*.*", wx.FD_OPEN)
@@ -287,7 +287,7 @@ class NeroPanel(wx.Panel, ScriptClient):
     def OnVF(self,event):
         self.vfl.SetLabel(str(event.Position - 100))
         self.send("VF %d" % event.Position)
-    
+
     def OnLT(self,event):
         self.ltl.SetLabel(str(event.Position))
         self.send("LT %d" % event.Position)

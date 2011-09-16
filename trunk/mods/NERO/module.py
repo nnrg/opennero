@@ -31,20 +31,20 @@ class NeroModule:
         setup the test environment
         """
         global XDIM, YDIM, HEIGHT, OFFSET
-        
+
         disable_ai()
-        
+
         if self.environment:
             error("Environment already created")
             return
-        
+
         startScript('NERO/menu.py')
-        
+
         # create the environment - this also creates the rtNEAT object
         self.environment = NeroEnvironment()
 
         set_environment(self.environment)
-        
+
         # flag placement
         self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag", scale=Vector3f(1,1,10), type = OBJECT_TYPE_FLAG)
 
@@ -57,14 +57,14 @@ class NeroModule:
 
         # Add the surrounding Environment
         addObject("data/terrain/NeroWorld.xml", Vector3f(XDIM/2, YDIM/2, 0), scale=Vector3f(1, 1, 1), label="NeroWorld", type = OBJECT_TYPE_LEVEL_GEOM)
-        
+
         return True
 
     def change_flag(self, new_loc):
         self.flag_loc = Vector3f(new_loc[0],new_loc[1],new_loc[2])
-        
+
         removeObject(self.flag_id)
-        
+
         self.flag_id = addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag", scale=Vector3f(1,1,10), type = OBJECT_TYPE_FLAG)
 
     def place_basic_turret(self, loc):
@@ -96,17 +96,17 @@ class NeroModule:
         if os.path.exists(location):
             rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size, get_environment().agent_info.reward)
             set_ai("rtneat",rtneat)
-    
+
     def set_speedup(self, speedup):
         self.speedup = speedup/100.0
         getSimContext().delay = 1.0 - self.speedup
         if self.environment:
             self.environment.speedup = self.speedup
-   
+
     def set_spawn(self, x, y):
         self.spawn_x = x
         self.spawn_y = y
-   
+
     #The following functions are used to let the client update the fitness function
     def set_weight(self, key, value):
         i = FITNESS_INDEX[key]
@@ -115,7 +115,7 @@ class NeroModule:
         if rtneat:
             rtneat.set_weight(i, value)
         print key, value
-        
+
     def ltChange(self,value):
         self.lt = value
         rtneat = get_ai("rtneat")
@@ -181,7 +181,7 @@ def parseInput(strn):
     if loc == "TD": mod.dtaChange(vali)
     if loc == "AE": mod.set_weight(FITNESS_APPROACH_ENEMY,vali)
     if loc == "ED": mod.dtbChange(vali)
-    if loc == "AF": mod.set_weight(FITNESS_APPROACH_FLAG,vali) 
+    if loc == "AF": mod.set_weight(FITNESS_APPROACH_FLAG,vali)
     if loc == "FD": mod.dtcChange(vali)
     if loc == "HT": mod.set_weight(FITNESS_HIT_TARGET,vali)
     if loc == "VF": mod.set_weight(FITNESS_AVOID_FIRE,vali)

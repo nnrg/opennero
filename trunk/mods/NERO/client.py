@@ -42,7 +42,7 @@ def show_context_menu():
         return
 
     guiMan.setTransparency(1.0)
-    
+
     sim_context = getSimContext()
 
     # find the screen position at which to open the context menu
@@ -90,7 +90,7 @@ def show_context_menu():
         scaleButton = gui.create_button(guiMan, 'scale', Pos2i(0,0), Pos2i(0,0), '')
         scaleButton.OnMouseLeftClick = lambda: scale_object()
         contextMenu.addItem('Scale Object', scaleButton)
-        
+
         moveButton = gui.create_button(guiMan, 'move', Pos2i(0,0), Pos2i(0,0), '')
         moveButton.OnMouseLeftClick = lambda: move_object()
         contextMenu.addItem('Move Object', moveButton)
@@ -107,7 +107,7 @@ def show_context_menu():
         flagButton = gui.create_button(guiMan, 'flag', Pos2i(0,0), Pos2i(0,0), '')
         flagButton.OnMouseLeftClick = lambda: place_flag()
         contextMenu.addItem('Place Flag', flagButton)
-       
+
         turretButton = gui.create_button(guiMan, 'b_turret', Pos2i(0,0), Pos2i(0,0), '')
         turretButton.OnMouseLeftClick = lambda: place_basic_turret()
         contextMenu.addItem('Place Basic Turret', turretButton)
@@ -154,7 +154,7 @@ def mouse_action():
         # scale < 1 if local coordinate is -ve and scale > 1 otherwise
         scalex = 1 + math.fabs(localx)
         scaley = 1 + math.fabs(localy)
-        
+
         if localx < 0: scalex = 1/scalex
         if localy < 0: scaley = 1/scaley
 
@@ -163,7 +163,7 @@ def mouse_action():
 
 #########################################################
 
-def CreateGui(guim): 
+def CreateGui(guim):
     global mode
     global modify_object_id
     global object_ids
@@ -206,4 +206,4 @@ def ClientMain():
     ioMap.BindKey( "KEY_SPACE", "onPress", recenter_cam )
     getSimContext().setInputMapping(ioMap)
 
-    
+

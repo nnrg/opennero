@@ -4,7 +4,7 @@ from time import time
 from constants import *
 
 def gettime():
-    return time() 
+    return time()
 
 class RTNEATAgent(AgentBrain):
     """
@@ -14,7 +14,7 @@ class RTNEATAgent(AgentBrain):
         """
         Create an agent brain
         """
-        # this line is crucial, otherwise the class is not recognized as an 
+        # this line is crucial, otherwise the class is not recognized as an
         # AgentBrainPtr by C++
         AgentBrain.__init__(self)
         self.team = 0
@@ -63,7 +63,7 @@ class RTNEATAgent(AgentBrain):
         the agent brain is discarded
         """
         return True
-        
+
     def set_display_hint(self):
         """
         set the display hint above the agent's head (toggled with F2)
@@ -94,7 +94,7 @@ class RTNEATAgent(AgentBrain):
                 self.state.label = '?'
         else:
             self.state.label = ""
-        
+
     def get_team(self):
         return self.team
 
@@ -110,7 +110,7 @@ class RTNEATAgent(AgentBrain):
         # convert the sensors into the [0.0, 1.0] range
         sensors = self.sensors.normalize(sensors)
         # create the list of sensors
-        inputs = [sensor for sensor in sensors]        
+        inputs = [sensor for sensor in sensors]
         # add the bias value
         inputs.append(NEAT_BIAS)
         # get the current organism we are using
