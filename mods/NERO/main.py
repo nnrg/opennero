@@ -3,7 +3,7 @@ from NERO.module import *
 from NERO.client import *
 
 def ModMain():
-    ClientMain()  
+    ClientMain()
 
 script_server = GetScriptServer()
 
