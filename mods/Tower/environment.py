@@ -27,7 +27,7 @@ class BlockState:
     """
     State that we keep for each block
     """
-    def __init__(self, maze):
+    def __init__(self, problem):
         self.rc = (0,0)
         self.height = 0
         self.below = None
@@ -50,6 +50,7 @@ class AgentState:
         self.prev_pose = (x,y,0)
         self.initial_position = Vector3f(x, y, 0)
         self.initial_rotation = Vector3f(0, 0, 0)
+        self.inited = False
         self.goal_reached = False
         self.time = time.time()
         self.start_time = self.time
@@ -59,7 +60,7 @@ class AgentState:
         self.next_rotation = 0
         self.prev_rotation = 0
         self.holding = None
-    
+
     def xy2rc(self, x, y):
         "convert x y to row col"
         return (int(round(x/GRID_DX))-1, int(round(y/GRID_DY))-1)
@@ -72,6 +73,8 @@ class AgentState:
         self.rc = (0,0)
         self.prev_rc = (0,0)
         self.goal_reached = False
+        self.holding = None
+        self.next_rotation = self.initial_rotation.z
 
     def update(self, agent):
         """
@@ -85,36 +88,17 @@ class AgentState:
         self.time = time.time()
 
 class TowerEnvironment(Environment):
+    """
+    Towers of Hanoi environment
+    """
     MOVES = [(1,0), (0,1), (-1,0), (0,-1)]
 
-    """
-    The environment is a 2-D maze.
-    In the discrete version, the agent moves from cell to cell.
-     * Observations (6 discrete observations)
-        * o[0] - the current row position
-        * o[1] - the current col position
-        * o[2] - obstacle in the +r direction?
-        * o[3] - obstacle in the -r direction?
-        * o[4] - obstacle in the +c direction?
-        * o[5] - obstacle in the -c direction?
-
-
-        IGNORE THE ABOVE:
-        Actions (1 discrete action)
-        * 0 do nothing
-        * 1 walk forward
-        * 2 walk forward and set down
-        * 3 walk forward and pick up
-        * 4 turn right
-        * 5 turn left
-    """
     def __init__(self):
         """
-        generate the maze
+        Constructor for the tower environment
         """
-
         from module import getMod
-        
+
         Environment.__init__(self)
         self.problem = None#Tower.generate(ROWS, COLS, GRID_DX, GRID_DY)
         self.rewards = TowerRewardStructure()
@@ -147,59 +131,99 @@ class TowerEnvironment(Environment):
 
         from module import getMod
         num_towers = getMod().num_towers
-        
+
         addObject("data/shapes/cube/BlueCube.xml",Vector3f(1000,1000,1000), scale = Vector3f(.1,.1,.1))
         addObject("data/shapes/cube/BlueCube.xml",Vector3f(1000,1000,1000), scale = Vector3f(.1,.1,.1))
         addObject("data/shapes/cube/BlueCube.xml",Vector3f(1000,1000,1000), scale = Vector3f(.1,.1,.1))
-        
-        blue = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), scale=Vector3f(1.0*2.5,1.0*2.5,.25*2.5))
-        self.block_states[blue] = BlockState(self.problem)
-        bstate = self.block_states[blue]
+
+        if len(self.block_states) < 1:
+         blue = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), scale=Vector3f(1.0*2.5,1.0*2.5,.25*2.5))
+         self.block_states[blue] = BlockState(self.problem)
+         bstate = self.block_states[blue]
+         bstate.obj = blue
+        else:
+         bstate = self.get_block_state('blue')
+         getSimContext().setObjectPosition(bstate.obj,Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ))
         bstate.rc = (0,1)
         bstate.height = 0
         bstate.name = "blue"
-        bstate.obj = blue
         bstate.mass = 5
-        
-        green = addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), scale=Vector3f(.9*2.5,.9*2.5,.25*2.5))
-        self.block_states[green] = BlockState(self.problem)
-        gstate = self.block_states[green]
+        bstate.above = None
+        bstate.below = None
+        if len(self.block_states) < 2:
+         green = addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), scale=Vector3f(.9*2.5,.9*2.5,.25*2.5))
+         self.block_states[green] = BlockState(self.problem)
+         gstate = self.block_states[green]
+         gstate.obj = green
+        else:
+         gstate = self.get_block_state('green')
+         getSimContext().setObjectPosition(gstate.obj,Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ))
         gstate.rc = (0,1)
         gstate.height = 1
         gstate.name = "green"
-        gstate.obj = green
         gstate.mass = 4
-        
+        gstate.above = None
+        gstate.below = None
+
         if num_towers > 2:
-            yellow = addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), scale=Vector3f(.8*2.5,.8*2.5,.25*2.5))
-            self.block_states[yellow] = BlockState(self.problem)
-            ystate = self.block_states[yellow]
+            if len(self.block_states) < 3:
+             yellow = addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), scale=Vector3f(.8*2.5,.8*2.5,.25*2.5))
+             self.block_states[yellow] = BlockState(self.problem)
+             ystate = self.block_states[yellow]
+             ystate.obj = yellow
+            else:
+             ystate = self.get_block_state('yellow')
+             getSimContext().setObjectPosition(ystate.obj,Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ))
             ystate.rc = (0,1)
             ystate.height = 2
             ystate.name = "yellow"
-            ystate.obj = yellow
             ystate.mass = 3
-    
-        if num_towers > 3: red = addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), scale=Vector3f(.7,.7,.25))
+            ystate.above = None
+            ystate.below = None
+        elif self.get_block_state('yellow'):
+            removeObject(self.get_block_state('yellow').obj)
+            self.block_states.pop(self.get_block_state('yellow').obj)
+
         if num_towers > 3:
-            self.block_states[red] = BlockState(self.problem)
-            rstate = self.block_states[red]
+            if len(self.block_states) < 4:
+             red = addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), scale=Vector3f(.7,.7,.25))
+             self.block_states[red] = BlockState(self.problem)
+             rstate = self.block_states[red]
+             rstate.obj = red
+            else:
+             rstate = self.get_block_state('red')
+             getSimContext().setObjectPosition(rstate.obj,Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ))
+            ystate.rc = (0,1)
             rstate.rc = (0,1)
             rstate.height = 3
             rstate.name = "red"
-            rstate.obj = red
             rstate.mass = 2
-        
-        
-        if num_towers > 4: white = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 5 * GRID_DZ), scale=Vector3f(.6*2.5,.6*2.5,.25*2.5))
+            rstate.above = None
+            rstate.below = None
+        elif self.get_block_state('red'):
+            removeObject(self.get_block_state('red').obj)
+            self.block_states.pop(self.get_block_state('red').obj)
+
+
         if num_towers > 4:
-            self.block_states[white] = BlockState(self.problem)
-            wstate = self.block_states[white]
+            if len(self.block_states) < 5:
+             white = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 5 * GRID_DZ), scale=Vector3f(.6*2.5,.6*2.5,.25*2.5))
+             self.block_states[white] = BlockState(self.problem)
+             wstate = self.block_states[white]
+             wstate.obj = white
+            else:
+             wstate = self.get_block_state('white')
+             getSimContext().setObjectPosition(wstate.obj,Vector3f(1 * GRID_DX, 2 * GRID_DY, 5 * GRID_DZ))
+            ystate.rc = (0,1)
             wstate.rc = (0,1)
             wstate.height = 4
             wstate.name = "white"
-            wstate.obj = white
             wstate.mass = 1
+            wstate.above = None
+            wstate.below = None
+        elif self.get_block_state('white'):
+            removeObject(self.get_block_state('white').obj)
+            self.block_states.pop(self.get_block_state('white').obj)
 
         bstate.above = gstate
         gstate.below = bstate
@@ -210,15 +234,8 @@ class TowerEnvironment(Environment):
         if num_towers > 4: rstate.above = wstate
         if num_towers > 4: wstate.below = rstate
 
-        print "BLUE == ", blue, dir(blue)
-        print "GREEN == ", green
-        print "YELLOW == ", yellow
-        if num_towers > 3: print "RED == ", red
-        if num_towers > 4: print "WHITE == ", white
-
         print 'Initialized TowerEnvironment'
 
-        
     def xy2rc(self, x, y):
         "convert x y to row col"
         return (int(round(x/GRID_DX))-1, int(round(y/GRID_DY))-1)
@@ -226,7 +243,7 @@ class TowerEnvironment(Environment):
     def rc2xy(self, r, c):
         "convert row, col to x,y"
         return ((r+1) * GRID_DX, (c+1) * GRID_DY)
-    
+
     def get_block_state(self,name):
         for state in self.block_states:
             if self.block_states[state].name == name:
@@ -245,6 +262,15 @@ class TowerEnvironment(Environment):
             curr = curr.above
 
         return curr
+
+    def add_block(self, color,x,y,z,mass,name):
+        block = addObject("data/shapes/cube/" + color + "Cube.xml",Vector3f(x * GRID_DX, y * GRID_DY, z * GRID_DZ), scale=Vector3f(mass * .5, mass * .5, mass * .5))
+        self.block_states[block] = BlockState(self.problem)
+        self.block_states[block].rc = (x,y)
+        self.block_states[block].height = z
+        self.block_states[block].name = name
+        self.block_states[block].obj = block
+        self.block_states[block].mass = mass
 
     def get_state(self, agent):
         if agent in self.states:
@@ -275,11 +301,14 @@ class TowerEnvironment(Environment):
         """
         reset the environment to its initial state
         """
+        print "RESET"
         state = self.get_state(agent)
-        print 'Episode %d complete' % agent.episode
         state.reset()
+
+        self.initilize_blocks()
         agent.state.position = copy(state.initial_position)
-        agent.state.rotation = copy(state.initial_rotation)
+        agent.state.rotation = Vector3f(0,0,0)#copy(state.initial_rotation)
+        agent.reset()
         return True
 
     def get_agent_info(self, agent):
@@ -301,11 +330,13 @@ class TowerEnvironment(Environment):
         if not self.agent_info.actions.validate(action):
             state.prev_rc = state.rc
             return 0
-        if agent.step == 0:
+        if state.inited == False:
             state.initial_position = agent.state.position
             state.initial_rotation = agent.state.rotation
+            print "init_rot:", state.initial_rotation, type(state.initial_rotation)
             state.next_rotation = state.initial_rotation.z
-        
+            state.inited = True
+
 
         #print "block states:", state.holding
         #for block in self.block_states:
@@ -314,11 +345,15 @@ class TowerEnvironment(Environment):
         print state.holding
 
         rot = agent.state.rotation
+
         rot.z = state.next_rotation
         agent.state.rotation = rot
         state.prev_rotation = state.next_rotation
 
         (r,c) = state.rc
+
+        print "STATE.RC: ", r , c, rot.z
+
         a = int(round(action[0]))
         #if len(self.action_queue) > 0:
         #    a = self.action_queue.pop(0)#int(round(action[0]))
@@ -331,7 +366,7 @@ class TowerEnvironment(Environment):
         #    a = 0
         (dr,dc) = (0,0)
         state.prev_rc = state.rc
-        getSimContext().delay = 1.0 - self.speedup
+        #getSimContext().delay = 1.0 - self.speedup
         if a == 0: # null action
             state.current_action = 'jump'
             self.set_animation(agent,state,'jump')
@@ -444,7 +479,7 @@ class TowerEnvironment(Environment):
         pos = agent.state.position
         (pos.x,pos.y) = self.rc2xy(new_r,new_c)
         agent.state.position = pos
-                
+
         if state.holding != None:
                 pos = getSimContext().getObjectPosition(state.holding.obj)
                 pos.x = agent.state.position.x + 6 * cos(radians(agent.state.rotation.z))
