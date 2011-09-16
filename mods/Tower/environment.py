@@ -7,14 +7,20 @@ from collections import deque
 from common import *
 
 class TowerRewardStructure:
-    """ This defines the reward that the agents get for running the maze """
+    """
+    This class defines the rewards that are awarded to the agent
+    """
     def valid_move(self, state):
-        """ a valid move is just a -1 (to reward shorter routes) """
+        """
+        Any valid move is -1, which makes shorter paths
+        to the goal more valuable.
+        """
         return -1
     def goal_reached(self, state):
-        """ reward for reaching the goal """
+        """
+        A large positive reward for reaching the goal
+        """
         print 'GOAL REACHED!'
-        # reaching a goal is great!
         return 100
 
 class BlockState:
@@ -50,9 +56,6 @@ class AgentState:
         self.sensors = True
         self.animation = 'stand'
         self.current_action = 'stand'
-        self.observation_history = deque([ [x] for x in range(HISTORY_LENGTH)])
-        self.action_history = deque([ [x] for x in range(HISTORY_LENGTH)])
-        self.reward_history = deque([ 0 for x in range(HISTORY_LENGTH)])
         self.next_rotation = 0
         self.prev_rotation = 0
         self.holding = None
@@ -69,9 +72,6 @@ class AgentState:
         self.rc = (0,0)
         self.prev_rc = (0,0)
         self.goal_reached = False
-        self.observation_history = deque([ [x] for x in range(HISTORY_LENGTH)])
-        self.action_history = deque([ [x] for x in range(HISTORY_LENGTH)])
-        self.reward_history = deque([ 0 for x in range(HISTORY_LENGTH)])
 
     def update(self, agent):
         """
@@ -83,12 +83,6 @@ class AgentState:
         self.prev_pose = self.pose
         self.pose = (pos.x, pos.y, agent.state.rotation.z + self.initial_rotation.z)
         self.time = time.time()
-        
-    def get_reward(self):
-        r0 = self.reward_history.popleft()
-        for r in self.reward_history:
-            assert(r == r0)
-        return r0
 
 class TowerEnvironment(Environment):
     MOVES = [(1,0), (0,1), (-1,0), (0,-1)]
@@ -142,32 +136,21 @@ class TowerEnvironment(Environment):
         self.max_steps = MAX_STEPS
         self.step_delay = STEP_DELAY
         self.speedup = 0
-        self.shortcircuit = False
-        
 
     def initilize_blocks(self):
-        from module import getMod
-        num_towers = getMod().num_towers
-        #blue = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), scale=Vector3f(.75*2.5,.75*2.5,.75*2.5))
-        #green = addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), scale=Vector3f(.7*2.5,.7*2.5,.7*2.5))
-        #yellow = addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), scale=Vector3f(.65*2.5,.65*2.5,.65*2.5))
-        #if num_towers > 3: red = addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), scale=Vector3f(.6,.6,.6))
-        #if num_towers > 4: white = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 5 * GRID_DZ), scale=Vector3f(.55*2.5,.55*2.5,.55*2.5))
-
-
-        #Can use id to set things. Use getSimContext().setObjectPosition()  from ID. 
-
         """
         blue = '''getMod().'''addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), scale=Vector3f(2.5,2.5,2.5))
         green = '''getMod().'''addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), scale=Vector3f(2.4,2.4,2.4))
         yellow = '''getMod().'''addObject("data/shapes/cube/YellowCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 3 * GRID_DZ), scale=Vector3f(2.3,2.3,2.3))
         red = '''getMod().'''addObject("data/shapes/cube/RedCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 4 * GRID_DZ), scale=Vector3f(2.2/2.5,2.2/2.5,2.2/2.5))
         """
+
+        from module import getMod
+        num_towers = getMod().num_towers
         
         addObject("data/shapes/cube/BlueCube.xml",Vector3f(1000,1000,1000), scale = Vector3f(.1,.1,.1))
         addObject("data/shapes/cube/BlueCube.xml",Vector3f(1000,1000,1000), scale = Vector3f(.1,.1,.1))
         addObject("data/shapes/cube/BlueCube.xml",Vector3f(1000,1000,1000), scale = Vector3f(.1,.1,.1))
-        #addObject("data/shapes/cube/BlueCube.xml",Vector3f(1000,1000,1000), scale = Vector3f(.1,.1,.1))
         
         blue = addObject("data/shapes/cube/BlueCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 1 * GRID_DZ), scale=Vector3f(1.0*2.5,1.0*2.5,.25*2.5))
         self.block_states[blue] = BlockState(self.problem)
@@ -177,7 +160,7 @@ class TowerEnvironment(Environment):
         bstate.name = "blue"
         bstate.obj = blue
         bstate.mass = 5
-       
+        
         green = addObject("data/shapes/cube/GreenCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 2 * GRID_DZ), scale=Vector3f(.9*2.5,.9*2.5,.25*2.5))
         self.block_states[green] = BlockState(self.problem)
         gstate = self.block_states[green]
@@ -476,19 +459,6 @@ class TowerEnvironment(Environment):
             return self.rewards.last_reward(state)
         return self.rewards.valid_move(state)
 
-    def teleport(self, agent, r, c):
-        """
-        move the agent to a new location
-        """
-        state = self.get_state(agent)
-        state.prev_rc = (r,c)
-        state.rc = (r,c)
-        (x,y) = self.rc2xy(r,c)
-        pos0 = agent.state.position
-        pos0.x = x
-        pos0.y = y
-        agent.state.position = pos0
-
     def sense(self, agent, obs):
         """
         Discrete version
@@ -513,8 +483,6 @@ class TowerEnvironment(Environment):
             return True
         elif state.goal_reached:
             return True
-        #elif self.shortcircuit and state.is_stuck():
-        #    return False
         else:
             return False
 
