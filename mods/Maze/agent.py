@@ -66,7 +66,7 @@ class RandomAgent(AgentBrain):
 
 class SearchAgent(AgentBrain):
     """ Base class for maze search agents """
-    
+
     def __init__(self):
         """ constructor """
         AgentBrain.__init__(self)
@@ -91,7 +91,7 @@ class DFSSearchAgent(SearchAgent):
         A new Agent
         """
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
-        SearchAgent.__init__(self) 
+        SearchAgent.__init__(self)
         self.visited = set([])
         self.adjlist = {}
         self.parents = {}
@@ -155,7 +155,7 @@ class DFSSearchAgent(SearchAgent):
 
     def mark_path(self, r, c):
         get_environment().mark_maze_white(r,c)
-        
+
 class GenericSearchAlgorithm(SearchAgent):
     """
     Generic search algorithm with retrace and a heuristic function
@@ -165,7 +165,7 @@ class GenericSearchAlgorithm(SearchAgent):
         constructor
         """
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
-        SearchAgent.__init__(self) 
+        SearchAgent.__init__(self)
         self.backpointers = {}
         self.reset()
 
@@ -202,13 +202,13 @@ class GenericSearchAlgorithm(SearchAgent):
 
     def enque(self, cell ):
         self.queue.append( cell )
-    
+
     def deque(self):
         return self.queue.pop(0)
-        
+
     def get_action(self, r, c, observations):
         """
-        Given: 
+        Given:
          - some places we could go in our queue
          - some backtracking links on how we got there
         Return:
@@ -244,7 +244,7 @@ class GenericSearchAlgorithm(SearchAgent):
         self.enqueued.add((row,col)) # just in case
         # if we have reached our current subgoal, mark it visited
         if self.goal == (row, col):
-            print  'reached goal: ' + str((row, col)) 
+            print  'reached goal: ' + str((row, col))
             self.goal = None
         # then we queue up some places to go next
         for i, (dr,dc) in enumerate(MazeEnvironment.MOVES):
@@ -258,7 +258,7 @@ class GenericSearchAlgorithm(SearchAgent):
                     self.enque( (r2,c2) )
                     assert self.backpointers.get((row,col)) != (r2,c2)
                     self.backpointers[(r2,c2)] = row, col # remember where we (would) come from
-    
+
     def start(self, time, observations):
         """
         Choose initial action after receiving the first sensor vector.
@@ -275,7 +275,7 @@ class GenericSearchAlgorithm(SearchAgent):
     def act(self, time, observations, reward):
         """
         Choose an action after receiving the current sensor vector and the instantaneous reward from the previous time step.
-        For the manual A* search, we deque our next node and check if we can go there. If we can, we do, and mark the node visited. 
+        For the manual A* search, we deque our next node and check if we can go there. If we can, we do, and mark the node visited.
         If we cannot, we have to follow the path to the goal.
         """
         # interpret the observations
@@ -296,16 +296,16 @@ class GenericSearchAlgorithm(SearchAgent):
 
     def mark_the_front(self, r, c, r2, c2):
         get_environment().mark_maze_green(r2,c2)
-        
+
     def mark_target(self, r, c):
         get_environment().mark_maze_yellow(r,c)
-    
+
     def mark_visited(self, r, c):
         get_environment().mark_maze_blue(r,c)
-        
+
     def mark_path(self, r, c):
         get_environment().mark_maze_white(r,c)
-        
+
 class BFSSearchAgent(GenericSearchAlgorithm):
     """
     Egocentric Breadth First Search algorithm.
@@ -316,14 +316,14 @@ class BFSSearchAgent(GenericSearchAlgorithm):
         A new Agent
         """
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
-        GenericSearchAlgorithm.__init__(self) 
+        GenericSearchAlgorithm.__init__(self)
 
     def enque(self, cell ):
         self.queue.append(cell)
-    
+
     def deque(self):
         return self.queue.pop(0)
-        
+
     def get_action(self, r, c, observations):
         """
         we override the get_action method so that we can spawn marker agents and teleport
@@ -364,7 +364,7 @@ class AStarSearchAgent(GenericSearchAlgorithm):
         A new Agent
         """
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
-        GenericSearchAlgorithm.__init__(self) 
+        GenericSearchAlgorithm.__init__(self)
 
     def reset(self):
         GenericSearchAlgorithm.reset(self)
@@ -374,7 +374,7 @@ class AStarSearchAgent(GenericSearchAlgorithm):
     def enque(self, cell ):
         (r,c) = cell
         heappush(self.queue, Cell(self.heuristic(r, c), r, c))
-    
+
     def deque(self):
         cell = heappop(self.queue)
         h, r, c = cell.h, cell.r, cell.c
@@ -537,7 +537,7 @@ class RTNEATAgent(AgentBrain):
         print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
         get_ai("rtneat").release_organism(self)
         return True
-        
+
     def network_action(self, observations):
         """
         Take the current network

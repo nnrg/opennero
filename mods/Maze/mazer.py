@@ -54,7 +54,7 @@ class Maze:
             walls.add(((r, cols - 1), (r, cols))) # east wall
         for c in xrange(cols):
             walls.add(((rows - 1, c), (rows, c))) # south wall
-        wall_list = list(walls) 
+        wall_list = list(walls)
         random.shuffle(wall_list) # randomly order the walls
         for (cell1, cell2) in wall_list:
             if not cells.joined(cell1, cell2):
@@ -152,12 +152,12 @@ class Grouper(object):
     This class provides a lightweight way to group arbitrary objects
     together into disjoint sets when a full-blown graph data structure
     would be overkill.
-    """   
+    """
     def __init__(self, init=[]):
         mapping = self._mapping = {}
         for x in init:
             mapping[x] = [x]
-        
+
     def join(self, a, *args):
         """
         Join given arguments into the same set.
@@ -165,7 +165,7 @@ class Grouper(object):
         """
         mapping = self._mapping
         set_a = mapping.setdefault(a, [a])
-        
+
         for arg in args:
             set_b = mapping.get(arg)
             if set_b is None:
