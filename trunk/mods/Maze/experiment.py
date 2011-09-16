@@ -29,7 +29,7 @@ class Group:
         self.session = session
         self.maps = maps
         self.condition = 0
-        
+
     def next(self):
         if self.condition < len(self.session):
             print 'Starting condition %d' % self.condition

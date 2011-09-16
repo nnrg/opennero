@@ -18,10 +18,10 @@ def count_neurons(constraints):
         else:
             n_neurons += 1
     return n_neurons
-    
+
 def input_to_neurons(constraints, input):
     """
-    Convert to the ANN coding required to represent the given feature vector. 
+    Convert to the ANN coding required to represent the given feature vector.
     For continuous values, scale to a single neuron. For discrete
     values, use (max - min) neurons for a 1-of-N encoding.
     """
@@ -41,7 +41,7 @@ def input_to_neurons(constraints, input):
 
 def neurons_to_output(constraints, neurons):
     """
-    Convert each continuous value from a neuron output to its range, and each 
+    Convert each continuous value from a neuron output to its range, and each
     discrete value from it's max-of-N output encoding (where N = Max - Min).
     """
     result = constraints.get_instance()
@@ -226,7 +226,7 @@ class MazeMod:
 
         # For outputs, the number of neurons depends on the action constraints
         n_outputs = count_neurons(agent_info.actions)
-        
+
         print 'RTNEAT, inputs: %d, outputs: %d' % (n_inputs, n_outputs)
 
         rbound = FeatureVectorInfo() # rewards
@@ -270,13 +270,13 @@ class MazeMod:
         print 'Epsilon set to', self.epsilon
         if self.environment:
             self.environment.epsilon = epsilon
-            
+
     def set_speedup(self, speedup):
         self.speedup = speedup
         print 'Speedup set to', self.speedup
         # speed up between 0 (delay set to 1 second) and 1 (delay set to 0)
         getSimContext().delay = 1.0 - speedup
-    
+
     def set_shortcircuit(self, shortcircuit):
         self.shortcircuit = shortcircuit
         print 'Short-circuit set to', self.shortcircuit

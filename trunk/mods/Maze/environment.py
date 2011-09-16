@@ -82,7 +82,7 @@ class MazeEnvironment(Environment):
         self.shortcircuit = False
         self.marker_map = {} # a map of cells and markers so that we don't have more than one per cell
         self.marker_states = {} # states of the marker agents that run for one cell and stop
-        self.agent_map = {} # agents active on the map        
+        self.agent_map = {} # agents active on the map
         self.agents_at_goal = set() # the set of agents that have reached the goal
         print 'Initialized MazeEnvironment'
 
@@ -149,7 +149,7 @@ class MazeEnvironment(Environment):
         Discrete version
         """
         (r,c) = MazeEnvironment.maze.xy2rc(agent.state.position.x, agent.state.position.y)
-        
+
         if not self.agent_info.actions.validate(action):
             # check if we ran out of time
             if agent.step >= self.max_steps - 1:
@@ -161,13 +161,13 @@ class MazeEnvironment(Environment):
             else:
                 self.set_animation(agent, 'stand')
                 return self.rewards.null_move(agent)
-        
+
         # check for null action
         a = int(round(action[0]))
         if a == MazeEnvironment.NULL_MOVE:
             self.set_animation(agent, 'stand')
             return self.rewards.null_move(agent)
-        
+
         # calculate new pose
         (dr, dc) = MazeEnvironment.MOVES[a]
         new_r, new_c = r + dr, c + dc
@@ -175,7 +175,7 @@ class MazeEnvironment(Environment):
         new_heading = next_rotation.z
         rotation = agent.state.rotation
         prev_heading = rotation.z
-        
+
         # if the agent is a marker, just change the position
         if agent.state.id in self.marker_states:
             self.set_position(agent, (new_r, new_c, new_heading))
@@ -194,10 +194,10 @@ class MazeEnvironment(Environment):
             # if the heading is right, change the position
             self.set_position(agent, (new_r, new_c, new_heading))
         else:
-            # if the heading is not right, just change the heading and run the 
+            # if the heading is not right, just change the heading and run the
             # rotation animation:
             # "run" "stand" "turn_r_xc" "turn_l_xc" "turn_r_lx" "turn_l_lx"
-            # "turn_r_xxx" "turn_l_xxx" "pick_up" "put_down" 
+            # "turn_r_xxx" "turn_l_xxx" "pick_up" "put_down"
             # "hold_run" "hold_stand" "hold_r_xc" "hold_l_xc"
             # "hold_turn_r_lx" "hold_turn_l_lx" "hold_turn_r_xxx" "hold_turn_l_xxx"
             # "jump" "hold_jump"
@@ -268,7 +268,7 @@ class MazeEnvironment(Environment):
             return True
         else:
             return False
-            
+
     def mark_maze(self, r, c, marker):
         """ mark a maze cell with the specified color """
         # remove the previous object, if necessary

@@ -42,7 +42,7 @@ class MazeObserver(Thread):
 
     def dimensions(self):
         return (self.width, self.height)
-    
+
     def dxdy(self):
         """
         size of cell on the canvas
@@ -91,13 +91,13 @@ class MazeObserver(Thread):
         self.canvas.delete(ALL)
         self.me = None
         self.me_dir = None
-        
+
         (x,y) = self.rc2canvas(0,0) # start circle
         self.canvas.create_oval(x-rad, y-rad, x+rad, y+rad, fill='blue', width=0)
 
         (x,y) = self.rc2canvas(self.maze.rows - 1, self.maze.cols - 1) # finish circle
         self.canvas.create_oval(x-rad, y-rad, x+rad, y+rad, fill='red', width=0)
-        
+
         for r in range(self.maze.rows):
             for c in range(self.maze.cols):
                 for (dr,dc) in [(-1,0),(0,-1),(1,0),(0,1)]:
@@ -306,6 +306,6 @@ def main():
         observer.server = server
         server.serve_forever()
 
-# start the maze observer if run directly    
+# start the maze observer if run directly
 if __name__=='__main__':
     main()
