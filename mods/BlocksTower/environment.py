@@ -95,7 +95,7 @@ class TowerEnvironment(Environment):
         from module import getMod
 
         Environment.__init__(self)
-        self.problem = None#Tower.generate(ROWS, COLS, GRID_DX, GRID_DY)
+        self.problem = None#BlocksTower.generate(ROWS, COLS, GRID_DX, GRID_DY)
         self.rewards = TowerRewardStructure()
         self.states = {}
         self.block_states = {}

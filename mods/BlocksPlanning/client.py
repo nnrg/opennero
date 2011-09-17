@@ -7,15 +7,15 @@ from inputConfig import createInputMapping
 from common import *
 import common.gui as gui
 
-from Tower.module import getMod, delMod
-from Tower.constants import *
+from BlocksPlanning.module import getMod, delMod
+from BlocksPlanning.constants import *
 
 #########################################################
 
 def CreateGui(guiMan):
     guiMan.setTransparency(1.0)
-    guiMan.setFont("data/gui/fonthaettenschweiler.bmp")  
-    
+    guiMan.setFont("data/gui/fonthaettenschweiler.bmp")
+
     towerButton3 = gui.create_button(guiMan, 'tower3', Pos2i(0,0), Pos2i(150,30), '')
     towerButton3.text = '3 Layer Towers of Hanoi'
     towerButton3.OnMouseLeftClick = lambda: getMod().start_tower(3)
@@ -23,11 +23,11 @@ def CreateGui(guiMan):
     towerButton4 = gui.create_button(guiMan, 'tower4', Pos2i(0,30), Pos2i(150,30), '')
     towerButton4.text = '4 Layer Towers of Hanoi'
     towerButton4.OnMouseLeftClick = lambda: getMod().start_tower(4)
-    
+
     towerButton5 = gui.create_button(guiMan, 'tower5', Pos2i(0,60), Pos2i(150,30), '')
     towerButton5.text = '5 Layer Towers of Hanoi'
     towerButton5.OnMouseLeftClick = lambda: getMod().start_tower(5)
-    
+
     agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(150, 120), 'Agent')
     agentWindow.addChild(towerButton3)
     agentWindow.addChild(towerButton4)
@@ -38,7 +38,7 @@ def CreateGui(guiMan):
 
     epsilonLabel = gui.create_text(guiMan, 'epsilonLabel', Pos2i(10,0), Pos2i(100,30), 'Exploit-Explore:')
 
-    # this can be used to adjust the exploration-exploitation tradeoff (fraction of 
+    # this can be used to adjust the exploration-exploitation tradeoff (fraction of
     # champion organisms in the case of rt-NEAT and fraction of greedy actions in the case
     # of the epsilon-greedy RL methods like Sarsa and Q-learning)
     epsilonScroll = gui.create_scroll_bar(guiMan, 'epsilonScroll', Pos2i(100,0), Pos2i(150,20), True)
@@ -48,11 +48,11 @@ def CreateGui(guiMan):
     epsilonScroll.setPos(epsilon_percent)
     getMod().set_epsilon(INITIAL_EPSILON)
     epsilonScroll.OnScrollBarChange = epsilon_adjusted(epsilonScroll, epsilonValue)
-    
+
     speedupValue = gui.create_text(guiMan, 'speedupEditBox', Pos2i(260, 30), Pos2i(100, 30), str(0))
-    
+
     speedupLabel = gui.create_text(guiMan, 'speedupLabel', Pos2i(10, 30), Pos2i(100, 30), 'Speedup:')
-    
+
     speedupScroll = gui.create_scroll_bar(guiMan, 'speedupScroll', Pos2i(100, 30), Pos2i(150,20), True)
     speedupScroll.setMax(100)
     speedupScroll.setLargeStep(10)
@@ -60,7 +60,7 @@ def CreateGui(guiMan):
     speedupScroll.setPos(0)
     getMod().set_speedup(0)
     speedupScroll.OnScrollBarChange = speedup_adjusted(speedupScroll, speedupValue)
-    
+
     paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 500), Pos2i(300,100), 'Parameters')
     paramWindow.addChild(epsilonLabel)
     paramWindow.addChild(epsilonScroll)
