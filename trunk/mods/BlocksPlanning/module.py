@@ -156,7 +156,7 @@ class TowerMod:
         if self.environment.__class__.__name__ != 'TowerEnvironment':
             self.set_environment(TowerEnvironment())
         if len(self.environment.block_states) == 0:
-         self.agent_id = addObject("data/shapes/character/SydneyQLearning.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK,scale=Vector3f(3,3,3))
+         self.agent_id = addObject("data/shapes/character/BlocksRobot.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK,scale=Vector3f(3,3,3))
         else:
             for obj in self.environment.states: self.environment.reset(obj)
         enable_ai()
