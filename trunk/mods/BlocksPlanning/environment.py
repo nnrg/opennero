@@ -95,7 +95,7 @@ class TowerEnvironment(Environment):
         from module import getMod
 
         Environment.__init__(self)
-        self.problem = None#Tower.generate(ROWS, COLS, GRID_DX, GRID_DY)
+        self.problem = None#BlocksPlanning.generate(ROWS, COLS, GRID_DX, GRID_DY)
         self.rewards = TowerRewardStructure()
         self.states = {}
         self.block_states = {}
@@ -153,10 +153,10 @@ class TowerEnvironment(Environment):
                 self.add_block('data/shapes/cube/RedCube.xml', 0, 1, 3, 2, 'red', scaler = (1.0/2.5))
             else:
                 self.set_block('red',0,1,3,2)
-        
+
         elif self.get_block_state('red'):
             self.remove_block('red')
-        
+
         rstate = self.get_block_state('red')
 
         if num_towers >=  5:
@@ -164,12 +164,12 @@ class TowerEnvironment(Environment):
                 self.add_block('data/shapes/cube/BlueCube.xml', 0, 1, 4, 1, 'white')
             else:
                 self.set_block('white',0,1,4,1)
-        
+
         elif self.get_block_state('white'):
             self.remove_block('white')
-        
+
         wstate = self.get_block_state('white')
-        
+
         bstate.above = gstate
         gstate.below = bstate
         gstate.above = ystate
@@ -306,17 +306,17 @@ class TowerEnvironment(Environment):
         (r,c) = state.rc
 
         a = int(round(action[0]))
-        
+
         (dr,dc) = (0,0)
         state.prev_rc = state.rc
-        
+
         if a == 0: # null action / Jump
             state.current_action = 'jump'
             self.set_animation(agent,state,'jump')
             agent.state.animation_speed = 30.0
             getSimContext().delay = 5.0
             return self.rewards.valid_move(state)
-        
+
         if a == 1: # Move Forward
             if state.holding == None:
                 self.set_animation(agent,state,'run')
@@ -429,7 +429,7 @@ class TowerEnvironment(Environment):
                 pos.y = agent.state.position.y + 6 * sin(radians(agent.state.rotation.z))
                 pos.z = agent.state.position.z + 7
                 getSimContext().setObjectPosition(state.holding.obj,pos)
-        
+
         if new_r == ROWS - 1 and new_c == COLS - 1:
             state.goal_reached = True
             return self.rewards.goal_reached(state)

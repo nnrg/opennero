@@ -1,9 +1,9 @@
 from OpenNero import *
 from common import *
-import Tower
+import BlocksPlanning
 import random
-from Tower.environment import TowerEnvironment
-from Tower.constants import *
+from BlocksPlanning.environment import TowerEnvironment
+from BlocksPlanning.constants import *
 
 def get_action_index(move):
     if move in TowerEnvironment.MOVES:
@@ -26,7 +26,7 @@ class Cell:
 # Action definitions:
 # 0 Jump
 # 1 Move Forward
-# 2 Put Down 
+# 2 Put Down
 # 3 Pick Up
 # 4 Rotate Right
 # 5 Rotate Left
@@ -124,7 +124,7 @@ class TowerAgent(AgentBrain):
         # Create new Agent
         self.action_info = init_info.actions
         return True
-    
+
     def start(self, time, sensors):
         """
         return first action given the first observations
@@ -164,16 +164,16 @@ class TowerAgent(AgentBrain):
 
     def setdown(self):
         self.action_queue += [2]
-    
+
     def act(self, time, sensors, reward):
         """
         return an action given the reward for the previous action and the new observations
         """
-        
+
         # Make sure that there's always something on the queue to be popped
         if len(self.action_queue) == 0:
             self.action_queue.append(1)
-        
+
         # Pop the last action and continue
         return self.action_queue.pop(0)
 
