@@ -142,10 +142,6 @@ class TowerMod:
 
         self.block_ids = []
 
-        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(1 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.25,.25,4))
-        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(2 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.25,.25,4))
-        addObject("data/shapes/cube/WhiteCube.xml", Vector3f(3 * GRID_DX, 2 * GRID_DY, 0 * GRID_DZ), Vector3f(0,0,0),scale=Vector3f(.25,.25,4))
-
     def num_towers(self):
         return num_towers
 
