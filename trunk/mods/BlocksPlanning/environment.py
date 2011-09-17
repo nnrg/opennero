@@ -120,10 +120,6 @@ class TowerEnvironment(Environment):
         from module import getMod
         num_towers = getMod().num_towers
 
-        addObject("data/shapes/cube/BlueCube.xml",Vector3f(1000,1000,1000), scale = Vector3f(.1,.1,.1))
-        addObject("data/shapes/cube/BlueCube.xml",Vector3f(1000,1000,1000), scale = Vector3f(.1,.1,.1))
-        addObject("data/shapes/cube/BlueCube.xml",Vector3f(1000,1000,1000), scale = Vector3f(.1,.1,.1))
-
         if num_towers >= 1:
             if not self.get_block_state('blue'):
                 self.add_block("data/shapes/cube/BlueCube.xml", 0, 1, 0, 5, 'blue')
