@@ -121,8 +121,9 @@ class MazeMod:
         self.environment.epsilon = self.epsilon
         self.environment.speedup = self.speedup
         self.environment.shortcircuit = self.shortcircuit
+        self.delete_maze_objects()
         set_environment(env)
-        self.generate_new_maze()
+        self.add_maze_objects()
 
     def reset_maze(self):
         """ reset the maze by removing the markers and starting the AI """
