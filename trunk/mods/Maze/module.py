@@ -2,6 +2,7 @@ from math import *
 from OpenNero import *
 from common import *
 from constants import *
+from mazer import Maze
 from Maze.environment import MazeEnvironment, ContMazeEnvironment
 from Maze.agent import FirstPersonAgent
 
@@ -86,15 +87,18 @@ class MazeMod:
             return
         self.set_environment(MazeEnvironment())
 
-    def set_environment(self,env):
-        self.environment = env
-        self.environment.epsilon = self.epsilon
-        self.environment.speedup = self.speedup
-        self.environment.shortcircuit = self.shortcircuit
+    def delete_maze_objects(self):
         for id in self.wall_ids: # delete the walls
             removeObject(id)
         del self.wall_ids[:] # clear the ids
-        set_environment(env)
+
+    def generate_new_maze(self):
+        self.delete_maze_objects()
+        MazeEnvironment.maze = Maze.generate(ROWS, COLS, GRID_DX, GRID_DY)
+        self.add_maze_objects()
+        self.reset_maze()
+
+    def add_maze_objects(self):
         for ((r1, c1), (r2, c2)) in MazeEnvironment.maze.walls:
             (x1,y1) = MazeEnvironment.maze.rc2xy(r1,c1)
             (x2,y2) = MazeEnvironment.maze.rc2xy(r2,c2)
@@ -111,6 +115,14 @@ class MazeMod:
             self.wall_ids.append(addObject(WALL_TEMPLATE, Vector3f(ROWS * GRID_DX + GRID_DX/2, i * GRID_DY, 2), Vector3f(0, 0, 90), type=OBSTACLE_MASK ))
         # goal (red cube)
         self.wall_ids.append(addObject("data/shapes/cube/RedCube.xml", Vector3f(ROWS * GRID_DX, COLS * GRID_DY, 5), Vector3f(45,45,45)))
+
+    def set_environment(self,env):
+        self.environment = env
+        self.environment.epsilon = self.epsilon
+        self.environment.speedup = self.speedup
+        self.environment.shortcircuit = self.shortcircuit
+        set_environment(env)
+        self.generate_new_maze()
 
     def reset_maze(self):
         """ reset the maze by removing the markers and starting the AI """
