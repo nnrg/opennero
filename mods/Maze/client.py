@@ -110,13 +110,18 @@ def CreateGui(guiMan):
     getMod().set_speedup(0)
     speedupScroll.OnScrollBarChange = speedup_adjusted(speedupScroll, speedupValue)
 
-    paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 500), Pos2i(260,75), 'Parameters')
+    newMazeButton = gui.create_button(guiMan, 'newMazeButton', Pos2i(10,60), Pos2i(button_w,30), '')
+    newMazeButton.text = 'Generate New Maze'
+    newMazeButton.OnMouseLeftClick = lambda: getMod().generate_new_maze()
+
+    paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 450), Pos2i(260,125), 'Parameters')
     paramWindow.addChild(epsilonLabel)
     paramWindow.addChild(epsilonScroll)
     paramWindow.addChild(epsilonValue)
     paramWindow.addChild(speedupLabel)
     paramWindow.addChild(speedupScroll)
     paramWindow.addChild(speedupValue)
+    paramWindow.addChild(newMazeButton)
 
 def epsilon_adjusted(scroll, value):
     # generate a closure that will be called whenever the epsilon slider is adjusted
