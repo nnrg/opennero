@@ -152,10 +152,10 @@ class MazeEnvironment(Environment):
 
         if not self.agent_info.actions.validate(action):
             # check if we ran out of time
-            if agent.step >= self.max_steps - 1:
+            if agent.step >= self.max_steps - 1 and agent.__class__.__name__ != 'MoveForwardAndStopAgent':
                 return self.rewards.last_reward(agent)
             # check if we reached the goal
-            elif r == ROWS - 1 and c == COLS - 1:
+            elif r == ROWS - 1 and c == COLS - 1 and agent.__class__.__name__ != 'MoveForwardAndStopAgent':
                 self.agents_at_goal.add(agent)
                 return self.rewards.goal_reached(agent)
             else:
@@ -215,12 +215,12 @@ class MazeEnvironment(Environment):
             return self.rewards.valid_move(agent)
 
         # check if we reached the goal
-        if new_r == ROWS - 1 and new_c == COLS - 1:
+        if new_r == ROWS - 1 and new_c == COLS - 1 and agent.__class__.__name__ != 'MoveForwardAndStopAgent':
             self.agents_at_goal.add(agent)
             return self.rewards.goal_reached(agent)
 
         # check if we ran out of time
-        elif agent.step >= self.max_steps - 1:
+        elif agent.step >= self.max_steps - 1 and agent.__class__.__name__ != 'MoveForwardAndStopAgent':
             return self.rewards.last_reward(agent)
 
         # return a normal reward
@@ -259,6 +259,8 @@ class MazeEnvironment(Environment):
         (r,c) = MazeEnvironment.maze.xy2rc(pos.x, pos.y)
         if self.max_steps != 0 and agent.step >= self.max_steps:
             return True
+        elif agent.__class__.__name__ == 'MoveForwardAndStopAgent':
+            return False
         elif r == ROWS-1 and c == COLS-1:
             if not self.loop:
                 disable_ai() # stop running
@@ -375,8 +377,7 @@ class ContMazeEnvironment(MazeEnvironment):
         (x,y) = MazeEnvironment.maze.rc2xy(0,0)
         agent.state.position = Vector3f(x,y,0)
         agent.state.rotation = Vector3f(0,0,0)
-        if agent in self.agents_at_goal:
-            del self.agents_at_goal[agent]
+        self.agents_at_goal.discard(agent)
         print 'Episode %d complete' % agent.episode
         return True
 
