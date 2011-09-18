@@ -81,6 +81,8 @@ class SearchAgent(AgentBrain):
             next_node = self.backpointers[node]
             del self.backpointers[node]
             node = next_node
+            if node == (0,0):
+                break
 
 class DFSSearchAgent(SearchAgent):
     """
