@@ -218,6 +218,8 @@ namespace OpenNero
         OrganismPtr GetOrganism() { return mOrganism; }
         /// Set the organism
         void SetOrganism(OrganismPtr organism) { mOrganism = organism; mAbsoluteScore = 0; }
+        /// output this organism in Graphviz Dot format
+        void ToDot(std::ostream& output) const;
         /// operator to push to an output stream
         friend std::ostream& operator<<(std::ostream& output, const PyOrganism& net);
     };

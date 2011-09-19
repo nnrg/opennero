@@ -1,6 +1,7 @@
 import os
 import sys
 from menu_utils import ScriptClient
+from constants import *
 
 try:
     import wx
@@ -158,7 +159,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.ltt = wx.StaticText(self,label = "Lifetime", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.lts = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
         self.lts.SetScrollbar(wx.HORIZONTAL,0,1000,1000)
-        self.lts.SetThumbPosition(1000)
+        self.lts.SetThumbPosition(DEFAULT_LIFETIME)
         self.ltl = wx.StaticText(self,label = str(self.lts.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
         grid.Add(self.ltl,pos=(7,1))
         self.Bind(wx.EVT_SCROLL, self.OnLT,self.lts)

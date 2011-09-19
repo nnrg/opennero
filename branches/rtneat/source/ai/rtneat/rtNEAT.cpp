@@ -429,6 +429,26 @@ namespace OpenNero
     {
         return mOrganism->champion;
     }
+    
+    /// output this organism in Graphviz Dot format
+    void PyOrganism::ToDot(std::ostream& output) const
+    {
+        if (mOrganism && mOrganism->gnome)
+        {
+            // get the genome of this organism
+            GenomePtr gnome = mOrganism->gnome;
+            std::vector<GenePtr>::const_iterator iter;
+            // iterate over the genes (links)
+            for (iter = gnome->genes.begin(); iter != gnome->genes.end(); ++iter)
+            {
+                GenePtr gene(*iter);
+                LinkPtr link(gene->lnk);
+                NNodePtr in_node(link->get_in_node());
+                NNodePtr out_node(link->get_out_node());
+            }
+        }
+    }
+
 
     std::ostream& operator<<(std::ostream& output, const PyNetwork& net)
     {
