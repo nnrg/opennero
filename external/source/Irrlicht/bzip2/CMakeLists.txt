@@ -1,4 +1,4 @@
-ADD_LIBRARY(bz2
+ADD_LIBRARY(bz2 SHARED
 blocksort.c
 bzcompress.c
 bzlib.c
