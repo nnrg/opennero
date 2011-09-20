@@ -1,4 +1,4 @@
-ADD_LIBRARY(png SHARED
+ADD_LIBRARY(png
 png.c
 pngerror.c
 pnggccrd.c
