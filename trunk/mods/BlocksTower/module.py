@@ -70,7 +70,6 @@ class TowerMod:
     def __init__(self):
         print 'Creating TowerMod'
         self.epsilon = 0.5
-        self.speedup = 0.0
         self.shortcircuit = False
         self.environment = None
         self.agent_id = None # the ID of the agent
@@ -133,7 +132,6 @@ class TowerMod:
     def set_environment(self,env):
         self.environment = env
         self.environment.epsilon = self.epsilon
-        self.environment.speedup = self.speedup
         self.environment.shortcircuit = self.shortcircuit
         for id in self.wall_ids: # delete the walls
             removeObject(id)
@@ -171,8 +169,7 @@ class TowerMod:
             self.environment.epsilon = epsilon
 
     def set_speedup(self, speedup):
-        self.speedup = speedup
-        print 'Speedup set to', self.speedup
+        print 'Speedup set to', speedup
         # speed up between 0 (delay set to 1 second) and 1 (delay set to 0)
         getSimContext().delay = 1.0 - speedup
 

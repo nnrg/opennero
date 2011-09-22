@@ -113,8 +113,6 @@ class TowerEnvironment(Environment):
         reward_info.add_continuous(-100,100)
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
         self.max_steps = MAX_STEPS
-        self.step_delay = STEP_DELAY
-        self.speedup = 0
 
     def initilize_blocks(self):
         from module import getMod
@@ -314,7 +312,6 @@ class TowerEnvironment(Environment):
             state.current_action = 'jump'
             self.set_animation(agent,state,'jump')
             agent.state.animation_speed = 30.0
-            getSimContext().delay = 5.0
             return self.rewards.valid_move(state)
         
         if a == 1: # Move Forward
@@ -442,14 +439,15 @@ class TowerEnvironment(Environment):
         obs[0] = state.rc[0]
         obs[1] = state.rc[1]
         obs[2] = agent.state.rotation.z % 360
-        offset = GRID_DX/10.0
-        p0 = agent.state.position
-        for i, (dr, dc) in enumerate(TowerEnvironment.MOVES):
-            direction = Vector3f(dr, dc, 0)
-            ray = (p0 + direction * offset, p0 + direction * GRID_DX)
-            # we only look for objects of type 1, which means walls
-            objects = getSimContext().findInRay(ray[0], ray[1], 1, True)
-            obs[2 + i] = int(len(objects) > 0)
+        # don't worry about walls for now
+        #offset = GRID_DX/10.0
+        #p0 = agent.state.position
+        #for i, (dr, dc) in enumerate(TowerEnvironment.MOVES):
+        #    direction = Vector3f(dr, dc, 0)
+        #    ray = (p0 + direction * offset, p0 + direction * GRID_DX)
+        #    # we only look for objects of type 1, which means walls
+        #    objects = getSimContext().findInRay(ray[0], ray[1], 1, False)
+        #    obs[2 + i] = int(len(objects) > 0)
         return obs
 
     def is_episode_over(self, agent):
