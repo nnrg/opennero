@@ -13,6 +13,7 @@ from BlocksTower.constants import *
 #########################################################
 
 def CreateGui(guiMan):
+    print 'CreateGui'
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")
 
