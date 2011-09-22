@@ -42,9 +42,6 @@ namespace OpenNero
         /// @param id the id of type to remove by
         void Remove( SimId id );
 
-        /// Remove all SimEntity's scheduled for removal
-        void RemoveAllScheduled();
-
         // remove all entities
         void clear();
 
@@ -56,7 +53,7 @@ namespace OpenNero
 
         /// Get the set of all the entities in the simulation
         const SimEntitySet GetEntities() const { return mEntities; }
-        
+
         /// Get the set of all the entities of the specified type
         const SimEntitySet GetEntities( size_t types ) const;
 
@@ -67,16 +64,16 @@ namespace OpenNero
 
         /// move the simulation forward by time dt
         void ProcessTick( float32_t dt );
-        
+
         /// update for animation only
         void ProcessAnimationTick( float32_t frac );
-        
+
         /// detect and deal with collisions
         void DoCollisions();
-        
+
         /// get the time (in seconds) to animate for between AI frames
         float32_t GetFrameDelay() const { return mFrameDelay; }
-        
+
         /// set the time (in seconds) to animate for between AI frames
         void SetFrameDelay(float32_t delay) { mFrameDelay = delay; }
 
@@ -95,17 +92,15 @@ namespace OpenNero
         SimIdHashMap        mSimIdHashedEntities;   ///< Our entities hashed by SimId
 
         SimEntitySet        mEntities;              ///< Set of all the sim entities
-        
-        SimEntityList       mEntitiesAdded;         ///< Entities are added to this list at first, so that they can be ticked immediately
-        
-        hash_map<uint32_t, SimEntitySet> mEntityTypes; ///< entity sets by type
 
-        SimIdSet            mRemoveSet;             ///< SimId's to remove after next ProcessTick
+        SimEntityList       mEntitiesAdded;         ///< Entities are added to this list at first, so that they can be ticked immediately
+
+        hash_map<uint32_t, SimEntitySet> mEntityTypes; ///< entity sets by type
 
         EnvironmentPtr      mWorld;                 ///< The AI World interface
 
         SimId               mMaxId;                 ///< The maximum id of the objects in the simulation
-        
+
         float32_t           mFrameDelay;            ///< The time (in seconds) to animate for between AI frames
 
     };
