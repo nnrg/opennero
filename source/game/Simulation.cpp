@@ -8,6 +8,8 @@
 
 #include "render/SceneObject.h"
 
+#include "ai/AIManager.h"
+
 namespace OpenNero
 {
     /// Constructor - initialize variables
@@ -63,51 +65,12 @@ namespace OpenNero
      */
     void Simulation::Remove( SimId id )
     {
-        mRemoveSet.insert(id);
-    }
-
-    /**
-     * Remove the SimEntity's currently scheduled for removal
-     */
-	void Simulation::RemoveAllScheduled()
-	{
-        SimIdSet::const_iterator removeItr = mRemoveSet.begin();
-
-        for (; removeItr != mRemoveSet.end(); ++removeItr) {
-
-            SimId id = *removeItr;
-            
-            SimIdHashMap::iterator simItr = mSimIdHashedEntities.find(id);
-            
-            if( simItr != mSimIdHashedEntities.end() ) {
-                SimEntityPtr simE = simItr->second;
-                AssertMsg( simE, "Invalid SimEntity stored in our simulation!" );
-                // remove also from entities set
-                SimEntitySet::iterator simInSet = mEntities.find(simE);
-                if (simInSet != mEntities.end()) {
-                    mEntities.erase(simInSet);
-                }
-                // remove also from the type-indexed set
-                uint32_t ent_type = simE->GetType();
-                for (size_t i = 0; i < sizeof(uint32_t); ++i) {
-                    uint32_t t = 1 << i;
-                    if (ent_type & t) {
-                        simInSet = mEntityTypes[t].find(simE);
-                        if (simInSet != mEntityTypes[t].end()) {
-                            mEntityTypes[t].erase(simE);
-                        }
-                    }
-                }
-
-                mSimIdHashedEntities.erase(simItr);
-            }            
-
-            AssertMsg( !Find(id), "Did not properly remove entity from simulation!" );
+        SimEntityPtr ent = Find(id);
+        if (ent) {
+            ent->SetRemoved();
         }
-
-        mRemoveSet.clear();
     }
-    
+
     /// Remove all sim entities from our simulation
     void Simulation::clear()
     {
@@ -143,33 +106,75 @@ namespace OpenNero
     {
         // this step will allow mSimIdHashedEntities to be modified during the ticks
         SimIdHashMap entities_to_tick(mSimIdHashedEntities.begin(), mSimIdHashedEntities.end());
-        SimIdHashMap::const_iterator itr = entities_to_tick.begin();
-        SimIdHashMap::const_iterator end = entities_to_tick.end();
+        SimIdHashMap::const_iterator itr;
         
-        for( ; itr != end; ++itr ) {
+        // render all objects
+        for(itr = entities_to_tick.begin() ; itr != entities_to_tick.end(); ++itr ) {
 			SimEntityPtr ent = itr->second;
-			bool was_removed = mRemoveSet.find(itr->first) != mRemoveSet.end();
-			if (!was_removed)
-			{
-				ent->ProcessTick(dt); // tick only if not removed
-			}
-        }
-        
-        for (SimEntityList::const_iterator new_entity_iter = mEntitiesAdded.begin();
-            new_entity_iter != mEntitiesAdded.end();
-            ++new_entity_iter)
-        {
-            SimEntityPtr ent = *new_entity_iter;
-            if (mRemoveSet.find(ent->GetSimId()) == mRemoveSet.end())
-            {
-                ent->ProcessTick(dt);
+            if (!ent->IsRemoved()) {
+                ent->BeforeTick(dt);
+                ent->TickScene(dt);
             }
         }
         
+        // make AI decisions
+        if (AIManager::instance().IsEnabled())
+        {
+            for(itr = entities_to_tick.begin() ; itr != entities_to_tick.end(); ++itr ) {
+                SimEntityPtr ent = itr->second;
+                if (!ent->IsRemoved()) {
+                    ent->TickAI(dt);
+                }
+            }
+            SimEntityList::const_iterator added_itr;
+            
+            // iterate over the freshly added entities as well to ensure that they move if they need to
+            for (added_itr = mEntitiesAdded.begin(); added_itr != mEntitiesAdded.end(); ++added_itr)
+            {
+                SimEntityPtr ent = *added_itr;
+                if (!ent->IsRemoved())
+                {
+                    ent->BeforeTick(dt);
+                    ent->TickAI(dt);
+                }
+            }
+        }                
+        
         mEntitiesAdded.clear();
         
-        // the last step is to remove all the objects that were scheduled during the ticks
-        RemoveAllScheduled();
+        // iterate over all the entities deleting those marked for removal
+        for (itr = entities_to_tick.begin(); itr != entities_to_tick.end(); ++itr) {
+            SimId id = itr->first;
+            SimEntityPtr ent = itr->second;
+            if (ent->IsRemoved()) {
+                SimIdHashMap::iterator simItr = mSimIdHashedEntities.find(id);
+                
+                if( simItr != mSimIdHashedEntities.end() ) {
+                    SimEntityPtr simE = simItr->second;
+                    AssertMsg( simE, "Invalid SimEntity stored in our simulation!" );
+                    // remove also from entities set
+                    SimEntitySet::iterator simInSet = mEntities.find(simE);
+                    if (simInSet != mEntities.end()) {
+                        mEntities.erase(simInSet);
+                    }
+                    // remove also from the type-indexed set
+                    uint32_t ent_type = simE->GetType();
+                    for (size_t i = 0; i < sizeof(uint32_t); ++i) {
+                        uint32_t t = 1 << i;
+                        if (ent_type & t) {
+                            simInSet = mEntityTypes[t].find(simE);
+                            if (simInSet != mEntityTypes[t].end()) {
+                                mEntityTypes[t].erase(simE);
+                            }
+                        }
+                    }
+
+                    mSimIdHashedEntities.erase(simItr);
+                }
+
+                AssertMsg( !Find(id), "Did not properly remove entity from simulation!" );
+            }         
+        }
     }
     
     void Simulation::ProcessAnimationTick( float32_t frac )

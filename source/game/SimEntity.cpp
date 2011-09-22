@@ -26,7 +26,8 @@ namespace OpenNero
 #endif /// NERO_BUILD_AUDIO
 		mSceneObject(),
 		mSharedData(data),
-		mCreationTemplate(templateName)
+		mCreationTemplate(templateName),
+        mRemoved(false)
 	{
 	}
 
@@ -91,26 +92,25 @@ namespace OpenNero
         }
         ent->SetCreationTemplate( templateName );
     }
-
-    void SimEntity::ProcessTick(float32_t incAmt)
+    
+    void SimEntity::BeforeTick(float32_t incAmt)
     {
         mSharedData.ProcessTick(incAmt);
+    }
     
+    void SimEntity::TickScene(float32_t incAmt)
+    {
         if (mSceneObject)
         {
             // This call will update the pose of the Irrlicht object to 
             // correspond to our mSharedData
             mSceneObject->ProcessTick(incAmt);
         }
-
-#if NERO_BUILD_AUDIO
-        if (mAudioObject )
-        {   
-            mAudioObject->ProcessTick(incAmt);
-        }
-#endif // NERO_BUILD_AUDIO
-
-        if (mAIObject && AIManager::const_instance().IsEnabled())
+    }
+    
+    void SimEntity::TickAI(float32_t incAmt)
+    {
+        if (mAIObject)
         {
             // This call is the meat and potatoes of OpenNERO proper:
             // if this object has a decision to make will ask the 
@@ -119,7 +119,7 @@ namespace OpenNero
             mAIObject->ProcessTick(incAmt);
         }
     }
-    
+
     void SimEntity::ProcessAnimationTick(float32_t frac)
     {
         if( mSharedData.IsDirty(SimEntityData::kDB_Position) )

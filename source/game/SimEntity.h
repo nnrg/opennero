@@ -69,9 +69,15 @@ namespace OpenNero
 		/// default destructor
         ~SimEntity();
 
-        /// update our entity base on our object access mode
-        void ProcessTick( float32_t incAmt );
+        /// called before the simulation tick takes place
+        void BeforeTick( float32_t incAmt );
         
+        /// called to tick the rendering component
+        void TickScene( float32_t incAmt);
+        
+        /// called to tick the AI component
+        void TickAI( float32_t incAmt);
+
         /// update our entity during an animation frame (no AI tick)
         void ProcessAnimationTick( float32_t frac );
 
@@ -135,7 +141,12 @@ namespace OpenNero
         void SetCollision( uint32_t mask );
         void SetBumped(bool bumped);
         /// @}
+
+        /// Is the object marked for removal
+        bool IsRemoved() const { return mRemoved; }
         
+        /// Mark the object for removal
+        void SetRemoved() { mRemoved = true; }
     private:
         /// Will moving the entity to new_pos cause it to collide with others?
         bool IsColliding( const SimEntitySet& others);
@@ -173,6 +184,9 @@ namespace OpenNero
 
         /// the template that we were loaded from
         std::string     mCreationTemplate;
+        
+        /// removed flag
+        bool            mRemoved;
     };
 
 } //end OpenNero
