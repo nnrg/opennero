@@ -75,7 +75,7 @@ IF (APPLE)
   SET(OpenNERO_APP_RESOURCES "${OpenNERO_LOCATION}.app/Contents/Resources")
   ADD_CUSTOM_TARGET(CopyStuff ALL
     COMMAND mkdir -p ${OpenNERO_APP_RESOURCES}
-    COMMAND rsync -auv --delete-excluded --exclude='.svn' ${OpenNERO_SOURCE_DIR}/mods/* ${OpenNERO_APP_RESOURCES}
+    COMMAND rsync -auv --delete-excluded --exclude='.svn' --exclude='.git' ${OpenNERO_SOURCE_DIR}/mods/* ${OpenNERO_APP_RESOURCES}
     COMMAND cp -f ${CMAKE_CURRENT_BINARY_DIR}/Info.plist ${OpenNERO_LOCATION}.app/Contents
     COMMAND find ${OpenNERO_LOCATION}.app/Contents -name "\".svn\"" | xargs rm -rf)
   ADD_CUSTOM_TARGET(BundleStuff ALL
@@ -86,7 +86,7 @@ ELSEIF (UNIX)
   SET(OpenNERO_APP_RESOURCES "${EXECUTABLE_OUTPUT_PATH}")
   # CopyStuff will always run - it copies any updated resources from the source tree into the runtime directory
   ADD_CUSTOM_TARGET(CopyStuff ALL
-    COMMAND rsync -auv --delete-excluded --exclude='.svn' ${OpenNERO_SOURCE_DIR}/mods/* ${OpenNERO_APP_RESOURCES})
+    COMMAND rsync -auv --delete-excluded --exclude='.svn' --exclude='.git' ${OpenNERO_SOURCE_DIR}/mods/* ${OpenNERO_APP_RESOURCES})
 ELSE (APPLE)
   ADD_EXECUTABLE(OpenNERO main.cc ${OpenNERO_sources} ${OpenNERO_headers})
 ENDIF(APPLE)
@@ -152,4 +152,5 @@ INSTALL(DIRECTORY ${OpenNERO_SOURCE_DIR}/mods/
         DESTINATION "."
         USE_SOURCE_PERMISSIONS
         PATTERN ".svn" EXCLUDE
+	PATTERN ".git" EXCLUDE
     )
