@@ -196,7 +196,7 @@ namespace OpenNero
         const SimulationPtr getSimulation() const { return mpSimulation; }
 
         /// return the next free Id
-        SimId GetNextFreeId() const { return mpSimulation->GetNextFreeId(); }
+        SimId ReserveNewId() { return mpSimulation->ReserveNewId(); }
         
         float32_t GetFrameDelay() const { return mpSimulation->GetFrameDelay(); }
         
