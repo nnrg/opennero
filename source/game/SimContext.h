@@ -140,6 +140,9 @@ namespace OpenNero
 		bool SetObjectAnimation( SimId id, const std::string& animationType );
         void SetObjectAnimationSpeed( SimId id, float32_t framesPerSecond );
         /// @}
+        
+        /// Push the changes made to the object without animation
+        void UpdateObjectImmediately( SimId id );
 
         /// These methods call the corresponding methods of the SimEntity specified by the id
         /// @{

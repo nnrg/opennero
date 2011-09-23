@@ -639,7 +639,14 @@ namespace OpenNero
         AssertMsg(ent, kCouldNotFindObjectWithId << id);
         ent->GetSceneObject()->SetAnimationSpeed(framesPerSecond);
     }
-    
+
+    /// Push the changes made to the object without animation
+    void SimContext::UpdateObjectImmediately( SimId id )
+    {
+        SimEntityPtr ent = mpSimulation->Find(id);
+        AssertMsg(ent, kCouldNotFindObjectWithId << id);
+        ent->UpdateImmediately();
+    }
 
     /// @brief Return the position of the SimEntity specified by id
     Vector3f SimContext::GetObjectPosition( SimId id ) const 

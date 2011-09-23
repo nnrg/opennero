@@ -141,6 +141,8 @@ namespace OpenNero
         void SetCollision( uint32_t mask );
         void SetBumped(bool bumped);
         /// @}
+        
+        void UpdateImmediately() { mSharedData.SetAllDirtyBits(); }
 
         /// Is the object marked for removal
         bool IsRemoved() const { return mRemoved; }

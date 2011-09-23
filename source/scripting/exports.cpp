@@ -1045,6 +1045,9 @@ namespace OpenNero {
                 .def("setObjectAnimation", 
                      &SimContext::SetObjectAnimation, 
                      "Set the animation of the object specified by its id")
+                .def("updateObjectImmediately",
+                     &SimContext::UpdateObjectImmediately,
+                     "Push the changes made to the object without animation")
                 .def("getObjectPosition", 
                      &SimContext::GetObjectPosition, 
                      "Get the position of an object specified by its id")
