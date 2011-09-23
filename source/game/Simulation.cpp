@@ -40,9 +40,6 @@ namespace OpenNero
     */
     void Simulation::AddSimEntity( SimEntityPtr ent )
     {
-        if (ent->GetSimId() >= mMaxId) {
-            mMaxId = ent->GetSimId();
-        }
         AssertMsg( ent, "Adding a null entity to the simulation!" );
         AssertMsg( !Find( ent->GetSimId() ), "Entity with id " << ent->GetSimId() << " already exists in the simulation" );
         mSimIdHashedEntities[ ent->GetSimId() ] = ent;

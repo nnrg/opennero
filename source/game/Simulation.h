@@ -58,7 +58,7 @@ namespace OpenNero
         const SimEntitySet GetEntities( size_t types ) const;
 
         /// Get the next free SimId
-        SimId GetNextFreeId() const { return mMaxId + 1; }
+        SimId ReserveNewId() { mMaxId += 1; return mMaxId; }
 
         ///@}
 

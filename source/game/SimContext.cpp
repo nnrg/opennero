@@ -133,7 +133,7 @@ namespace OpenNero
         Assert( mpSimulation );
 
         // initialize the creation data
-        SimId new_id = GetNextFreeId();
+        SimId new_id = ReserveNewId();
         SimEntityData data(pos, rot, scale, label, type, collision, new_id);
         data.SetAllDirtyBits();
         SimEntityPtr simEnt = SimEntity::CreateSimEntity(data, templateName, shared_from_this());
