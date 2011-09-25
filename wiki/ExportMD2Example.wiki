@@ -7,19 +7,19 @@
 global string $_write_obj_sequence_path;
 
 global proc int _write_obj_sequence_callback(string $filename, string $fileType) {
-	global string $_write_obj_sequence_path;	
+	global string $_write_obj_sequence_path;
 
 	$_write_obj_sequence_path = $filename;
 	return 1;
 }
 
 proc writeFrame(int $frameNumber, string $filename) {
-	global string $_write_obj_sequence_path;	
+	global string $_write_obj_sequence_path;
 	string $filenameWrittenTo;
 	string $filenamePlusPath;
 
 	currentTime($frameNumber);
-	
+
 	$filenamePlusPath = $_write_obj_sequence_path + "/" + $filename;
 	$filenameWrittenTo = file("-op", "groups=1;ptgroups=1;materials=1;smoothing=1;normals=1",
 		"-typ", "OBJexport", "-pr", "-ea", $filenamePlusPath);
@@ -43,7 +43,7 @@ proc writeSequence(int $startFrameNumber, int $endFrameNumber, string $baseFilen
 		$n3 = $local_i - ($n1 * 100) - ($n2 * 10);
 		$filename = $baseFilename + ((string) $n1) + ((string) $n2) + ((string) $n3);
 		writeFrame($i, $filename);
-	} 
+	}
 }
 
 fileBrowserDialog -m 4 -fc "_write_obj_sequence_callback" -an "Choose destination folder.";
@@ -55,7 +55,7 @@ fileBrowserDialog -m 4 -fc "_write_obj_sequence_callback" -an "Choose destinatio
 // usage: writeSequence(first_frame, last_frame, base_filename);
 //
 // example:
-//   writeSequence(89, 102, "run"); 
+//   writeSequence(89, 102, "run");
 //   writeSequence(201, 215, "stand");
 //   ...
 //

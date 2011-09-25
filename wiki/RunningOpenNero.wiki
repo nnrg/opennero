@@ -26,6 +26,9 @@ The controls can be easily redefined, but in general, the following keys should 
   * *F* - tilt camera down
   * *space bar* - recenter camera to origin
   * *ESC* - exit the currently running mod
+  * *Mouse Scroll* - zoom in or zoom out
+  * *Z* - zoom in
+  * *C* - zoom out
 
 = The Mods in more detail =
 
