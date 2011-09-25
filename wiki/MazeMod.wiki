@@ -22,13 +22,15 @@ environment, as well as a first-person search setting.
 ==User Interface==
 
 The button panel lists the different types of agents available for the Maze:
-  * Depth First Search - starts the depth first search agent
-  * Breadth First Search - starts the breadth first search agent
+  * *Depth First Search* - starts the depth first search agent
+  * *Breadth First Search* - starts the breadth first search agent
   * `A*` search with three different types of visualizations
-    * Single-Agent A* - the agent has to navi
-  * First person control - use the arrow keys to try to solve the maze yourself!
-  * Random baseline - the agent picks actions randomly, just to see how well that will work
-  * SARSA - the agent learns from reinforcement signal using the on-policy learning algorithm (tabular, no approximation)
+    * Single Agent `A*` Search - the agent has to navigate through the maze both to make progress and to back-track to move on
+    * Teleporting `A*` Search - the agent can search for solutions faster by teleporting to the next open node instead of having to backtrack
+    * Ftont `A*` Search - the agent now has the ability to produce several new agents when faced with different alternatives. These agents are marking the front of the search.
+  * *First Person Control* - use the arrow keys to try to solve the maze yourself!
+  * *Random Baseline* - the agent picks actions randomly, just to see how well that will work
+  * *SARSA* - the agent learns from reinforcement signal using the on-policy learning algorithm (tabular, no approximation)
   * Q-Learning - the agent learns from reinforcement signal using the off-policy learning algorithm (tabular, no approximation)
 
 The parameters panel shows additional controls for adjusting simulation parameters:
