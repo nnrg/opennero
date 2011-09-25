@@ -17,17 +17,19 @@ More environments, problems, and methods, as well as demos and exercises illustr
 You can download a binary build of OpenNERO for your platform, or checkout the current source and [BuildingOpenNero build it yourself]. You can then [OpenNeroDemos try out the various demos], [OpenNeroExercises work on the exercises], or explore the various mods on your own.
 
  * [BuildingOpenNero Building from source]
- * [OpenNeroDemos Demos]
-   * [BruteForceSearch Brute Force (Uninformed) Search] in MazeMod.
-   * [HeuristicSearch Heurisic (Informed) Search] in three varieties is demonstrated in the MazeMod.
-   * [QLearning Q-Learning]
-   * [SarsaLearning Sarsa(λ)]
+ * [OpenNeroDemos Demonstrations]
+   * [SearchDemo Search]
+     * [FirstPersonSearch Introduction: First Person Search
+     * [BruteForceSearch Uninformed Search]
+     * [HeuristicSearch Heurisic Search]
+   * [LearningDemo Learning]
+     * [QLearning Q-Learning]
+     * [SarsaLearning Sarsa(λ)]
    * [NeuroEvolution Neuroevolution]
-   * [CoEvolution Co-evolution]
-   * [HumanSolutions Human-generated solutions]
  * [OpenNeroExercises Exercises]
  * [RunningOpenNero Running]
    * [MazeMod The Maze mod] <br/> [http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.png http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png]
+   * [TowerMod The Towers of Hanoi mod]
    * [RoombaMod The Roomba mod] <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.png http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png]
    * [NeroMod The NERO mod] <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png]
 

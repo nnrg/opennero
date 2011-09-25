@@ -9,7 +9,6 @@
      * [QLearning Q-Learning]
      * [SarsaLearning Sarsa(λ)]
    * [NeuroEvolution Neuroevolution]
-   * [HumanSolutions Human-generated solutions]
  * [OpenNeroExercises Exercises]
     * RunningOpenNeroExercise
     * AddingStuffExercise
@@ -21,5 +20,6 @@
     * NEROSensorExercise
  * [RunningOpenNero Running]
    * [MazeMod The Maze mod]
+   * [TowerMod The Towers of Hanoi mod]
    * [RoombaMod The Roomba mod]
    * [NeroMod The NERO mod]
