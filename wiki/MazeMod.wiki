@@ -31,7 +31,7 @@ The button panel lists the different types of agents available for the Maze:
   * *First Person Control* - use the arrow keys to try to solve the maze yourself!
   * *Random Baseline* - the agent picks actions randomly, just to see how well that will work
   * *SARSA* - the agent learns from reinforcement signal using the on-policy learning algorithm (tabular, no approximation)
-  * Q-Learning - the agent learns from reinforcement signal using the off-policy learning algorithm (tabular, no approximation)
+  * *Q-Learning* - the agent learns from reinforcement signal using the off-policy learning algorithm (tabular, no approximation)
 
 The parameters panel shows additional controls for adjusting simulation parameters:
   * *The Exploit/Explore Slider* - this is applicable only to the learning methods such as SARSA and Q-Learning. Because these methods 
