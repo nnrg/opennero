@@ -3,37 +3,36 @@
 
 =Maze Mod=
 
-The Maze is a simple 2-D grid world with a variety of search, learning, and first person agents implemented.
+is a 2-D grid world embedded in a 3-D simulation. Grid locations
+correspond to potential intersections in the maze; the maze is
+randomly generated and contains a single shortest path to the goal, no
+loops. Various search and learning agents are implemented in the Maze
+environment, as well as a first-person search setting.
 
 <img src=http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.png height=300 width=400></img>
 
-==Controls==
-
- * *Esc* - exit the Maze and return to the Hub
- * *F1* - get help by opening the web browser and navigating to this page
- * *A* - move camera left
- * *D* - move camera right
- * *W* - move camera forward
- * *S* - move camera back
- * *Q* - pan camera left
- * *E* - pan camera right
- * *space bar* - recenter camera to origin
-
 ==What the display means==
 
- * Red cube - goal position (opposite of the starting position)
- * Yellow marker - next location the agent is going to
- * Blue marker - past locations the agent has already visited
- * Green markers - active locations the agent may return to
- * White markers - found path
+  * Red cube - goal position (opposite of the starting position)
+  * Yellow marker - next location the agent is going to
+  * Blue marker - past locations the agent has already expanded, i.e. whose successors have already been generated
+  * Green markers - generated (but not yet expanded) locations the agent may return to
+  * White markers - found path
 
 ==User Interface==
 
 The button panel lists the different types of agents available for the Maze:
- * Depth First Search - starts the depth first search agent   
- * `A*` search with three different types of visualizations
- * First person control - use the arrow keys to try to solve the maze yourself!
- * Random baseline - the agent picks actions randomly, just to see how well that will work
- * Neuroevolution - the agent is controlled by neural networks whose structure and weights are evolved using the rtNEAT neuroevolution algorithm according to the fitness function that rewards getting to the goal without hitting the walls
- * Sarsa - the agent learns from reinforcement signal using the on-policy learning algorithm (tabular, no approximation)
- * Q-Learning - the agent learns from reinforcement signal using the off-policy learning algorithm (tabular, no approximation)
+  * Depth First Search - starts the depth first search agent
+  * Breadth First Search - starts the breadth first search agent
+  * `A*` search with three different types of visualizations
+    * Single-Agent A* - the agent has to navi
+  * First person control - use the arrow keys to try to solve the maze yourself!
+  * Random baseline - the agent picks actions randomly, just to see how well that will work
+  * SARSA - the agent learns from reinforcement signal using the on-policy learning algorithm (tabular, no approximation)
+  * Q-Learning - the agent learns from reinforcement signal using the off-policy learning algorithm (tabular, no approximation)
+
+The parameters panel shows additional controls for adjusting simulation parameters:
+  * *The Exploit/Explore Slider* - this is applicable only to the learning methods such as SARSA and Q-Learning. Because these methods 
+start out knowing nothing about the best actions and learn from experience, they face an _exploration-exploitation trade-off_ during learning, where they have to decide how much of the time to do the best thing they know how to do (exploit) and how much of the time to try to seek new experience (explore). The exploit/explore slider lets you make this decision for them - side it to the right to encourage exploration and slide it to the left to see what the best learned policy so far looks like.
+  * *The Speedup Slider* - this slider controls another tradeoff: one between displaying the simulation slowly enough to see robot animations and movements from cell to cell, and as quickly as the computer running OpenNERO can handle it. The speedup slider is again particularly useful when running the learning agents, because they may require a large amount of experience before finding the optimal path through the maze. To progress through the learning faster, slide the Speedup slider to the right.
+  * *Generate New Maze Button* - this button allows you to mix things up by generating a new random maze. Some mazes take longer than others, and some are more suited to particular search techniques.
