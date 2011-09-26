@@ -16,16 +16,18 @@ To run the demo, first:
 
   # [RunningOpenNero start OpenNERO]
   # Start the [MazeMod Maze mod]
+  # Click on the Depth First Search button to run DFS
+  # Click on the Bredth First Search button to run BFS
 
 Then, read about and run each type of agent:
 
 ==Depth First Search==
 
-[http://en.wikipedia.org/wiki/Depth-first_search Depth-First Search] (see section 3.4.3 of [http://aima.cs.berkeley.edu/ AIMA]) is a technique for searching a graph or a tree-like structure. MazeMod includes an agent that searches for the target (red square) by expanding the graph representing the maze in a depth-first manner.
+[http://en.wikipedia.org/wiki/Depth-first_search Depth-First Search] (see section 3.4.3 of [http://aima.cs.berkeley.edu/ AIMA]) is a technique for searching a graph or a tree-like structure. MazeMod includes an agent that searches for the target (red cube) by expanding the graph representing the maze in a depth-first manner.
 
   # Click on Depth First Search and observe the resulting behavior. Note:
     # The maze can be abstracted as a graph of cells connected by edges where there are no walls
-    # Blue square markers represent visited nodes
+    # Blue square markers represent expanded nodes
     # When the agent runs into a dead-end, it has to retrace its steps to get to the next branch
     # When the agent reaches to goal, it displays the path to it with white square markers
 
@@ -33,14 +35,14 @@ Then, read about and run each type of agent:
 
 ==Breadth First Search==
 
-[http://en.wikipedia.org/wiki/Breadth-first_search Breadth-First Search] (see section 3.4.1 of [http://aima.cs.berkeley.edu/ AIMA]) is a technique for searching a graph or a tree-like structure by exploring all leaves of the same depth first. MazeMod includes an agent that searches for the target (red square) by expanding the graph representing the maze in a breadth-first manner.
+[http://en.wikipedia.org/wiki/Breadth-first_search Breadth-First Search] (see section 3.4.1 of [http://aima.cs.berkeley.edu/ AIMA]) is a technique for searching a graph or a tree-like structure by exploring all leaves of the same depth first. MazeMod includes an agent that searches for the target (red cube) by expanding the graph representing the maze in a breadth-first manner.
 
   # Click on Breadth First Search and observe the resulting behavior. Note:
     # The maze can be abstracted as a graph of cells connected by edges where there are no walls
-    # Blue square markers represent visited nodes
-    # Green squares mark the node of the same depth that the agent still needs to visit
+    # Blue square markers represent expanded nodes
+    #Green squares mark the nodes that have been generated but not yet expanded (i.e. their successors have not been generated)
     # Yellow square marks the node where the agent needs to go next
-    # Since there is a lot more retracing the agent would need to do for a Breadth First exploration, we allow it to "Teleport" from place to place.
+    # Since there is a lot more retracing the agent would need to do for a Breadth First exploration, we allow it to "Teleport" from its current position to the yellow square.
     # When the agent reaches to goal, it displays the path to it with white square markers
 
 <wiki:video url="http://www.youtube.com/watch?v=SzAj7s4P2zo"/>
