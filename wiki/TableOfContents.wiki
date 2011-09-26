@@ -3,6 +3,7 @@
  * [SystemOverview System Overview]
  * [OpenNeroDemos Demonstrations]
    * [SearchDemo Search]
+     * [FirstPersonSearch Introduction: First Person Search]
      * [BruteForceSearch Uninformed Search]
      * [HeuristicSearch Heurisic Search]
    * [LearningDemo Learning]
