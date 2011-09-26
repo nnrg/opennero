@@ -15,6 +15,8 @@ Then, read about and run each type of agent:
 
 ==Depth First Search==
 
+<wiki:video url="http://www.youtube.com/watch?v=3EG2OmjZ4wg"/>
+
 [http://en.wikipedia.org/wiki/Depth-first_search Depth-First Search] (see section 3.4.3 of [http://aima.cs.berkeley.edu/ AIMA]) is a technique for searching a graph or a tree-like structure. MazeMod includes an agent that searches for the target (red square) by expanding the graph representing the maze in a depth-first manner.
 
   # Click on Depth First Search and observe the resulting behavior. Note:
@@ -24,6 +26,8 @@ Then, read about and run each type of agent:
     # When the agent reaches to goal, it displays the path to it with white square markers
 
 ==Breadth First Search==
+
+<wiki:video url="http://www.youtube.com/watch?v=SzAj7s4P2zo"/>
 
 [http://en.wikipedia.org/wiki/Breadth-first_search Breadth-First Search] (see section 3.4.1 of [http://aima.cs.berkeley.edu/ AIMA]) is a technique for searching a graph or a tree-like structure by exploring all leaves of the same depth first. MazeMod includes an agent that searches for the target (red square) by expanding the graph representing the maze in a breadth-first manner.
 
