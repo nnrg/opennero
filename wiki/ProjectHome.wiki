@@ -1,37 +1,67 @@
-#summary OpenNERO Project Home
-#sidebar TableOfContents
-
 ----
 
+<font color="red">NOTE:</font> as with any active project, OpenNERO is a work in progress
+and many [http://code.google.com/p/opennero/updates/ updates] are frequently being made. If you have
+trouble with OpenNERO, check the [http://groups.google.com/group/opennero discussion group] and
+then consider submitting an [http://code.google.com/p/opennero/issues issue]. We also welcome any
+helpful comments or suggestions on this site or the platform at
+[mailto:opennero-questions@googlegroups.com opennero-questions]. And of course, if you would like
+to contribute, let us know!
+
 ==About OpenNERO==
-[http://nn.cs.utexas.edu/?opennero OpenNERO] is an open source software platform designed for research and education in Artificial Intelligence. The project is based on the [http://www.nerogame.org/ Neuro-Evolving Robotic Operatives (NERO) game] developed by graduate and undergraduate students at the  [http://nn.cs.utexas.edu/ Neural Networks Research Group] and [http://www.cs.utexas.edu/ Department of Computer Science] at the [http://www.utexas.edu/ University of Texas at Austin].
+[http://nn.cs.utexas.edu/?opennero OpenNERO] is an open source software platform designed for
+research and education in Artificial Intelligence. The project is based on the
+[http://www.nerogame.org/ Neuro-Evolving Robotic Operatives (NERO) game] developed by graduate
+and undergraduate students at the  [http://nn.cs.utexas.edu/ Neural Networks Research Group] and
+[http://www.cs.utexas.edu/ Department of Computer Science] at the
+[http://www.utexas.edu/ University of Texas at Austin].
 
-In particular, OpenNERO has been used to implement several demos and exercises for the Russell and Norvig's textbook [http://aima.cs.berkeley.edu/ Artificial Intelligence: A Modern Approach].  These demos and exercises illustrate AI methods such as brute-force search, heuristic search, scripting, reinforcement learning, and evolutionary computation, and AI problems such as maze running, vacuuming, and robotic battle. The methods and problems are implemented in three different environments (or "mods"), as described below.
+In particular, OpenNERO has been used to implement several demos and exercises for the Russell
+and Norvig's textbook [http://aima.cs.berkeley.edu/ Artificial Intelligence: A Modern Approach].  These
+demos and exercises illustrate AI methods such as brute-force search, heuristic search, scripting,
+reinforcement learning, and evolutionary computation, and AI problems such as maze running,
+vacuuming, and robotic battle. The methods and problems are implemented in three different
+environments (or "mods"), as described below.
 
-More environments, problems, and methods, as well as demos and exercises illustrating them, will be added in the future. The current ones are intended to serve as a starting point on which new ones can be built, by us, but also by the community at large. If you'd like to contribute something you have built, you can reach project managers at [mailto:opennero-questions@googlegroups.com opennero-questions].
+More environments, problems, and methods, as well as demos and exercises illustrating them, will
+be added in the future. The current ones are intended to serve as a starting point on which new
+ones can be built, by us, but also by the community at large. If you'd like to contribute
+something you have built, you can reach project managers at
+[mailto:opennero-questions@googlegroups.com opennero-questions].
 
 ----
 
 ==Getting started==
 
-You can download a binary build of OpenNERO for your platform, or checkout the current source and [BuildingOpenNero build it yourself]. You can then [OpenNeroDemos try out the various demos], [OpenNeroExercises work on the exercises], or explore the various mods on your own.
+You can download a binary build of OpenNERO for your platform, or checkout the current
+source and [BuildingOpenNero build it yourself]. You can then
+[OpenNeroDemos try out the various demos], [OpenNeroExercises work on the exercises],
+or [RunningOpenNero explore the various mods] on your own.
 
- * [BuildingOpenNero Building from source]
- * [OpenNeroDemos Demonstrations]
-   * [SearchDemo Search]
-     * [FirstPersonSearch Introduction: First Person Search
-     * [BruteForceSearch Uninformed Search]
-     * [HeuristicSearch Heurisic Search]
-   * [LearningDemo Learning]
-     * [QLearning Q-Learning]
-     * [SarsaLearning Sarsa(λ)]
-   * [NeuroEvolution Neuroevolution]
- * [OpenNeroExercises Exercises]
- * [RunningOpenNero Running]
-   * [MazeMod The Maze mod] <br/> [http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.png http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png]
-   * [TowerMod The Towers of Hanoi mod]
-   * [RoombaMod The Roomba mod] <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.png http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png]
-   * [NeroMod The NERO mod] <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png]
+  * [BuildingOpenNero Building from source]
+  * [SystemOverview System Overview]
+  * [OpenNeroDemos Demos]
+    * [SearchDemo Search]
+      * [FirstPersonSearch Introduction and First Person Search]
+      * [BruteForceSearch Brute Force (Uninformed) Search]
+      * [HeuristicSearch Heurisic (Informed) Search]
+    * [LearningDemo Reinforcement Learning]
+      * [QLearning Q-Learning]
+      * [SarsaLearning Sarsa(λ)]
+    * [NeuroEvolution Neuroevolution]
+    * [CoEvolution Co-evolution]
+  * [OpenNeroExercises Exercises]
+    * RunningOpenNeroExercise
+    * AddingStuffExercise
+    * CreateRoombaAgentExercise
+    * MazeGeneratorExercise
+    * MazeSolverExercise
+    * MazeLearnerExercise
+  * [RunningOpenNero Running]
+    * [MazeMod The Maze mod] <br/> [http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.png http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png]
+    * [TowersMod The Towers of Hanoi mod] <br/>
+    * [RoombaMod The Roomba mod] <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.png http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png]
+    * [NeroMod The NERO mod] <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png]
 
 ----
 
