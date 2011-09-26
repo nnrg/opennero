@@ -2,6 +2,8 @@
 #labels Demo
 #sidebar TableOfContents
 
+<wiki:video url="http://www.youtube.com/watch?v=FlLHmXlqwAU"/>
+
 <wiki:toc />
 
 ==Introduction==
