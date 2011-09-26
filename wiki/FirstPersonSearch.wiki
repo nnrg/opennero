@@ -12,8 +12,6 @@ You can try new mazes by pressing the "Generate New Maze" button.
 
 ==First-Person Search==
 
-<iframe width="420" height="315" src="" frameborder="0" allowfullscreen></iframe>
-
 <wiki:video url="http://www.youtube.com/embed/ZktDYB94vFo"/>
 
 Before exploring the different search methods, you may want to try to
