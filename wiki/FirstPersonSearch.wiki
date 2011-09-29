@@ -39,3 +39,5 @@ are really good at it!
 After you are familiar with the search task, try 
 [BruteForceSearch Brute Force methods]
 and [HeuristicSearch Heuristic methods] on it.
+Later on, you may also want to try 
+[LearningDemo methods for learning to run the maze].
