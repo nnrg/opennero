@@ -10,7 +10,7 @@ When you [http://code.google.com/p/opennero/downloads/ download] and [RunningOpe
    * [QLearning Q-Learning] with ε-greedy policy
    * [SarsaLearning Sarsa(λ)] with ε-greedy policy
  * Evolutionary Algorithms
-   * [NeuroEvolution Neuroevolution] agents are available in MazeMod, NeroMod and RoombaMod.
-   * [CoEvolution Co-evolution] of two populations is demonstrated in NeroMod.
+   * [NeuroEvolution Neuroevolution] agents are available in NeroMod and RoombaMod.
+   * [CoEvolution Co-evolution] of two populations as demonstrated in NeroMod.
  * Other
    * An agent that selects actions uniformly at random is demonstrated in the MazeMod.
