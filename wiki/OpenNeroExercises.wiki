@@ -1,7 +1,7 @@
 #summary Student exercises using OpenNERO
 #sidebar TableOfContents
 
-This page will list exercises for using OpenNERO to learn more about Artificial Intelligence, as well as to learn about how to modify OpenNERO itself. Some of these were introduced and tested in the [http://www.cs.utexas.edu/users/risto/cs378i Computational Intelligence in Game Design] stream of the [http://cns.utexas.edu/fri Freshman Research Initiative], and others in the [http://www.cs.utexas.edu/users/risto/cs343 Artificial Intelligence class] at UT Austin. Suggestions for further exercises are listed at the end of each demo page as well.
+This page will list exercises for using OpenNERO to learn more about Artificial Intelligence, as well as to learn about how to modify OpenNERO itself. Some of these were introduced and tested in the [http://www.cs.utexas.edu/users/risto/cs378i Computational Intelligence in Game Design] stream of the [http://cns.utexas.edu/fri Freshman Research Initiative] at UT Austin, and others in the [http://www.cs.utexas.edu/users/risto/cs343 Artificial Intelligence class] at UT Austin. Suggestions for further exercises are listed at the end of each demo page as well.
 
  * RunningOpenNeroExercise - Introduction and getting started. Makes sure that everyone knows how to run OpenNERO and how to modify its parts and where to find its output.
  * AddingStuffExercise - The point of OpenNERO is that you can make new games and new experiments with it. In this exercise you will add a landscape, an object, and an agent to OpenNERO.
