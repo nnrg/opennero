@@ -5,7 +5,7 @@
    * Search
      * [FirstPersonSearch Introduction: First Person Search]
      * [BruteForceSearch Uninformed Search]
-     * [HeuristicSearch Heurisic Search]
+     * [HeuristicSearch Heuristic Search]
    * Learning
      * [QLearning Q-Learning]
      * [SarsaLearning Sarsa(λ)]

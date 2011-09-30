@@ -1,7 +1,3 @@
-----
-
-<font color="red">NOTE:</font> as with any active project, OpenNERO is a work in progress and many [http://code.google.com/p/opennero/updates/ updates] are frequently being made. If you have trouble with OpenNERO, check the [http://groups.google.com/group/opennero discussion group] and then consider submitting an [http://code.google.com/p/opennero/issues issue]. We also welcome any helpful comments or suggestions on this site or the platform at [mailto:opennero-questions@googlegroups.com opennero-questions]. And of course, if you would like to contribute, let us know!
-
 == About OpenNERO ==
 
 [http://nn.cs.utexas.edu/?opennero OpenNERO] is an open source software platform designed for
@@ -39,7 +35,7 @@ or [RunningOpenNero explore the various mods] on your own.
     * Search
       * [FirstPersonSearch Introduction and First Person Search]
       * [BruteForceSearch Brute Force (Uninformed) Search]
-      * [HeuristicSearch Heurisic (Informed) Search]
+      * [HeuristicSearch Heuristic (Informed) Search]
     * Reinforcement Learning
       * [QLearning Q-Learning]
       * [SarsaLearning Sarsa(λ)]
@@ -62,3 +58,6 @@ or [RunningOpenNero explore the various mods] on your own.
 Many people have contributed to OpenNERO, including [http://www.cs.utexas.edu/~ikarpov/ Igor V. Karpov], [http://www.jbsheblak.com/ John B. Sheblak], Adam Dziuk, Minh Phan, Dan Lessin, Wes Tansey, Risto Miikkulainen, members of the [http://nn.cs.utexas.edu/ Neural Networks Research Group] at [http://www.utexas.edu/ UT Austin], students and alumni of the Computational Intelligence and Game Design stream of the [http://fri.cns.utexas.edu/ Freshman Research Initiative] at [http://www.utexas.edu/ UT Austin].
 
 ----
+
+<font color="red">NOTE:</font> as with any active project, OpenNERO is a work in progress and many [http://code.google.com/p/opennero/updates/ updates] are frequently being made. If you have trouble with OpenNERO, check the [http://groups.google.com/group/opennero discussion group] and then consider submitting an [http://code.google.com/p/opennero/issues issue]. We also welcome any helpful comments or suggestions on this site or the platform at [mailto:opennero-questions@googlegroups.com opennero-questions]. And of course, if you would like to contribute, let us know!
+
