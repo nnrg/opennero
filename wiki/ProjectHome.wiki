@@ -1,14 +1,9 @@
 ----
 
-<font color="red">NOTE:</font> as with any active project, OpenNERO is a work in progress
-and many [http://code.google.com/p/opennero/updates/ updates] are frequently being made. If you have
-trouble with OpenNERO, check the [http://groups.google.com/group/opennero discussion group] and
-then consider submitting an [http://code.google.com/p/opennero/issues issue]. We also welcome any
-helpful comments or suggestions on this site or the platform at
-[mailto:opennero-questions@googlegroups.com opennero-questions]. And of course, if you would like
-to contribute, let us know!
+<font color="red">NOTE:</font> as with any active project, OpenNERO is a work in progress and many [http://code.google.com/p/opennero/updates/ updates] are frequently being made. If you have trouble with OpenNERO, check the [http://groups.google.com/group/opennero discussion group] and then consider submitting an [http://code.google.com/p/opennero/issues issue]. We also welcome any helpful comments or suggestions on this site or the platform at [mailto:opennero-questions@googlegroups.com opennero-questions]. And of course, if you would like to contribute, let us know!
 
-==About OpenNERO==
+== About OpenNERO ==
+
 [http://nn.cs.utexas.edu/?opennero OpenNERO] is an open source software platform designed for
 research and education in Artificial Intelligence. The project is based on the
 [http://www.nerogame.org/ Neuro-Evolving Robotic Operatives (NERO) game] developed by graduate
@@ -20,7 +15,7 @@ In particular, OpenNERO has been used to implement several demos and exercises f
 and Norvig's textbook [http://aima.cs.berkeley.edu/ Artificial Intelligence: A Modern Approach].  These
 demos and exercises illustrate AI methods such as brute-force search, heuristic search, scripting,
 reinforcement learning, and evolutionary computation, and AI problems such as maze running,
-vacuuming, and robotic battle. The methods and problems are implemented in three different
+vacuuming, and robotic battle. The methods and problems are implemented in several different
 environments (or "mods"), as described below.
 
 More environments, problems, and methods, as well as demos and exercises illustrating them, will
@@ -31,47 +26,34 @@ something you have built, you can reach project managers at
 
 ----
 
-==Getting started==
+== Get Started ==
 
 You can download a  [http://code.google.com/p/opennero/downloads/list binary build of OpenNERO] for
 your platform, or checkout the current source and [BuildingOpenNero build it yourself]. You
 can then [OpenNeroDemos try out the various demos], [OpenNeroExercises work on the exercises],
 or [RunningOpenNero explore the various mods] on your own.
 
-  * [BuildingOpenNero Building from source]
-  * [SystemOverview System Overview]
+  * [http://code.google.com/p/opennero/downloads/list Download an executable]
+  * [RunningOpenNero Running]
   * [OpenNeroDemos Demos]
-    * [SearchDemo Search]
+    * Search
       * [FirstPersonSearch Introduction and First Person Search]
       * [BruteForceSearch Brute Force (Uninformed) Search]
       * [HeuristicSearch Heurisic (Informed) Search]
-    * [LearningDemo Reinforcement Learning]
+    * Reinforcement Learning
       * [QLearning Q-Learning]
       * [SarsaLearning Sarsa(λ)]
-    * [NeuroEvolution Neuroevolution]
-    * [CoEvolution Co-evolution]
-  * [OpenNeroExercises Exercises]
-    * RunningOpenNeroExercise
-    * AddingStuffExercise
-    * CreateRoombaAgentExercise
-    * MazeGeneratorExercise
-    * MazeSolverExercise
-    * MazeLearnerExercise
-  * [RunningOpenNero Running]
-    * [MazeMod The Maze mod] <br/> [http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.png http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png]
-    * [TowersMod The Towers of Hanoi mod] <br/>
-    * [RoombaMod The Roomba mod] <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.png http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png]
-    * [NeroMod The NERO mod] <br> [http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png]
+    * Evolutionary Computation
+      * [NeuroEvolution Neuroevolution]
+      * [CoEvolution Co-evolution]
 
 ----
 
-==Components==
+== Find Out More ==
 
-OpenNERO is built using open source components, including:
- * [http://irrlicht.sourceforge.net/ Irrlicht 3D Engine] - released under the [http://irrlicht.sourceforge.net/license.html Irrlicht Engine License]
- * [http://www.boost.org/ Boost C++ libraries] - governed by the [http://www.boost.org/users/license.html Boost Software License]
- * [http://www.python.org/ Python scripting language] - governed by the [http://www.python.org/psf/license/ Python License]
- * [http://nn.cs.utexas.edu/?rtNEAT rtNEAT algorithm] - created by [http://www.cs.ucf.edu/~kstanley/ Ken Stanley] and [http://www.cs.utexas.edu/~risto/ Risto Miikkulainen] at UT Austin.
+  * [SystemOverview System Overview]
+  * [BuildingOpenNero Building from Source]
+  * [OpenNeroExercises Game-building Exercises]
 
 ----
 
