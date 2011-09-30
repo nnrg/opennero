@@ -10,7 +10,7 @@
      * [QLearning Q-Learning]
      * [SarsaLearning Sarsa(λ)]
    * Evolutionary Computation
-     * [Neuroevolution Neuroevolution]
+     * [NeuroEvolution Neuroevolution]
      * [CoEvolution CoEvolution]
  * [OpenNeroExercises Exercises]
     * RunningOpenNeroExercise
