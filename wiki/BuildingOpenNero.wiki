@@ -1,5 +1,4 @@
 #summary This page describes how to build OpenNERO from source for a variety of platforms.
-#labels Featured
 #sidebar TableOfContents
 ----
 = Overview =
