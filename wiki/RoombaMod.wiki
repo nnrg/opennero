@@ -39,4 +39,9 @@ Changing Blue cube distribution:
     * The first number ("1") is the amount of reward the robot gets for picking up this particular Blue cube
     * "cluster" specify the kind of distribution that this Blue cube belong to. In the case of "cluster", this cube will be placed randomly but close to a certain point. If we have bunch of cubes with identical information, they will "cluster" together, thus the name. The other options for this field are "manual" and "random" (uniform randomization).
     * The numbers that follow are other pieces of information used to generate the position of this Blue cube. Here, from left to right, we have the x and y coordinate of the cluster center, and about 1/3 of the x and y spread, respectively.
-    
+
+==Scripted Roomba==
+
+In RoombaMod, one simple strategy is the greedy vacuum cleaner that detects and drives to the nearest piece of litter. In order to start this demonstration, first select the Roomba mod from the main menu and then *Switch to Script* and *Add Bots*.
+
+There are a number of strategies that a student can use to write a script for the Roomba robot. These range from simple greedy solutions that always work to scripts that use some knowledge about e.g. the shape of the room or the distribution of the dirt in it. They of course also include learning methods such as RL or rtNEAT, but the difference is that those methods can _improve with experience_.
