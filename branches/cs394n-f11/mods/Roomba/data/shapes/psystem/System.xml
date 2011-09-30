@@ -1,0 +1,13 @@
+<Template>
+  <Audio>    
+  </Audio>
+  <Render>
+    <MaterialType>transparentaddcolor</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <MaterialFlagZWrite>false</MaterialFlagZWrite>
+	<ParticleSystem>data/shapes/psystem/RedSystem.xml</ParticleSystem>
+	<Texture0>data/particles/fire.bmp</Texture0>
+    <Scale>1 1 1</Scale>
+    <Rotation>0 0 0</Rotation>
+  </Render>  
+</Template>
