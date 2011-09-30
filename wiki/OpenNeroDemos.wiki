@@ -1,5 +1,5 @@
 #summary AI techniques that can be demonstrated in OpenNERO
-#labels Featured
+#labels Deprecated
 #sidebar TableOfContents
 
 When you [http://code.google.com/p/opennero/downloads/ download] and [RunningOpenNero run] OpenNERO
