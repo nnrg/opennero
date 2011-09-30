@@ -77,13 +77,12 @@ OpenNERO is built using open source components, including:
 
 ==Contributors==
 
-There are many people who have contributed and continue to contribute to OpenNERO. Here is a list in progress.
- * [http://www.cs.utexas.edu/~ikarpov/ Igor V. Karpov]
- * [http://www.jbsheblak.com/ John B. Sheblak]
- * Adam Dziuk
- * Minh Pham
- * Dan Lessin
- * Members of the [http://nn.cs.utexas.edu/ Neural Networks Research Group] at UT Austin
- * Students and alumni of the [http://web3.cns.utexas.edu/fri/ Freshman Research Initiative] Computational Intelligence and Game Design stream.
+Let's change "Contributors" to "Contributing to OpenNERO", and make it
+ Many people have contributed to OpenNERO, including 
+[http://www.cs.utexas.edu/~ikarpov/ Igor V. Karpov],
+ [http://www.jbsheblak.com/ John B. Sheblak], Adam Dziuk, Minh Phan, Dan Lessin, Wes Tansey, Risto
+ Miikkulainen, members of the [http://nn.cs.utexas.edu/ Neural Networks Research Group] at [http://www.utexas.edu/ UT
+ Austin], students and alumni of the Computational Intelligence and
+ Game Design stream of the [http://fri.cns.utexas.edu/ Freshman Research Initiative] at [http://www.utexas.edu/ UT Austin].
 
 ----
