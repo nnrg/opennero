@@ -1,7 +1,7 @@
  * [http://code.google.com/p/opennero/ Introduction]
  * [BuildingOpenNero Building]
  * [SystemOverview System Overview]
- * [OpenNeroDemos Demonstrations]
+ * Demonstrations
    * Search
      * [FirstPersonSearch Introduction: First Person Search]
      * [BruteForceSearch Uninformed Search]
