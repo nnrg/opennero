@@ -2,14 +2,16 @@
  * [BuildingOpenNero Building]
  * [SystemOverview System Overview]
  * [OpenNeroDemos Demonstrations]
-   * [SearchDemo Search]
+   * Search
      * [FirstPersonSearch Introduction: First Person Search]
      * [BruteForceSearch Uninformed Search]
      * [HeuristicSearch Heurisic Search]
-   * [LearningDemo Learning]
+   * Learning
      * [QLearning Q-Learning]
      * [SarsaLearning Sarsa(λ)]
-   * [NeuroEvolution Neuroevolution]
+   * Evolutionary Computation
+     * [Neuroevolution Neuroevolution]
+     * [CoEvolution CoEvolution]
  * [OpenNeroExercises Exercises]
     * RunningOpenNeroExercise
     * AddingStuffExercise
