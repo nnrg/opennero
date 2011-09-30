@@ -33,9 +33,9 @@ something you have built, you can reach project managers at
 
 ==Getting started==
 
-You can download a binary build of OpenNERO for your platform, or checkout the current
-source and [BuildingOpenNero build it yourself]. You can then
-[OpenNeroDemos try out the various demos], [OpenNeroExercises work on the exercises],
+You can download a  [http://code.google.com/p/opennero/downloads/list binary build of OpenNERO] for
+your platform, or checkout the current source and [BuildingOpenNero build it yourself]. You
+can then [OpenNeroDemos try out the various demos], [OpenNeroExercises work on the exercises],
 or [RunningOpenNero explore the various mods] on your own.
 
   * [BuildingOpenNero Building from source]
