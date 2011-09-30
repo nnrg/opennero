@@ -21,6 +21,6 @@
     * NEROSensorExercise
  * [RunningOpenNero Running]
    * [MazeMod The Maze mod]
-   * [TowerMod The Towers of Hanoi mod]
+   * [BlocksWorldMod Blocks World mod]
    * [RoombaMod The Roomba mod]
    * [NeroMod The NERO mod]
