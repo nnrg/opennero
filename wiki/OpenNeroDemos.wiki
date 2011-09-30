@@ -3,18 +3,14 @@
 #sidebar TableOfContents
 
 When you [http://code.google.com/p/opennero/downloads/ download] and [RunningOpenNero run] OpenNERO
- * [SearchDemo Search]
+ * Search
    * [BruteForceSearch Brute Force (Uninformed) Search] in MazeMod.
    * [HeuristicSearch Heurisic (Informed) Search] in three varieties is demonstrated in the MazeMod.
- * [RLearningDemo Reinforcement learning]
+ * Reinforcement learning
    * [QLearning Q-Learning] with ε-greedy policy
    * [SarsaLearning Sarsa(λ)] with ε-greedy policy
- * Neuroevolution
+ * Evolutionary Algorithms
    * [NeuroEvolution Neuroevolution] agents are available in MazeMod, NeroMod and RoombaMod.
- * Co-Evolution
    * [CoEvolution Co-evolution] of two populations is demonstrated in NeroMod.
- * [HumanSolutions Human-generated solutions]
-   * A scripted solution (greedy policy) is available in the RoombaMod.
-   * A human can try to manually solve the MazeMod task by using the first person mode.
  * Other
    * An agent that selects actions uniformly at random is demonstrated in the MazeMod.
