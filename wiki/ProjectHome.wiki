@@ -1,3 +1,5 @@
+http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png  http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png
+
 == About OpenNERO ==
 
 [http://nn.cs.utexas.edu/?opennero OpenNERO] is an open source software platform designed for
