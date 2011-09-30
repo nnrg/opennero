@@ -9,3 +9,4 @@ This page will list exercises for using OpenNERO to learn more about Artificial 
  * MazeGeneratorExercise - Games are all about puzzles. In this exercise, you are asked to come up with a bunch of puzzles for our agents to solve. See how hard you can make them!
  * MazeSolverExercise - Now that you have all these new puzzles, can you write an agent that always finds the goal?
  * MazeLearnerExercise - Modern AI is all about _machine learning_ - algorithms that improve with experience. This exercise will introduce you to ways of running, comparing, and writing learning algorithms in OpenNERO.
+ * AdvancedMazeExercise - write a creative learning algorithm to produce maze solutions.
