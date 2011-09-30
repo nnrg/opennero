@@ -10,8 +10,6 @@ OpenNERO consists of a the core program and a collection of one or more *mods*. 
   * [RoombaMod Roomba] - a messy computer lab which gets cleaner with the help of some cleaning robots.
   * [NeroMod NERO] - an implementation of [http://www.nerogame.org/ Neuro Evolving Robotic Operatives (NERO)], where you can evolve your own team of neural network-driven robots along a variety of fitness criteria.
 
-[http://opennero.googlecode.com/svn/wiki/OpenNERO-hub.png http://opennero.googlecode.com/svn/wiki/OpenNERO-hub.tiny.png]
-
 = Controls =
 
 The controls can be easily redefined, but in general, the following keys should work:
