@@ -1,5 +1,4 @@
 #summary This page describes how to run OpenNERO starting from the binary distribution or from a custom build.
-#labels Featured
 #sidebar TableOfContents
 
 = Introduction =
