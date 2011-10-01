@@ -1,4 +1,4 @@
-http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png  http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png
+http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.tiny.png http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png  http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png
 
 == About OpenNERO ==
 
