@@ -1,0 +1,10 @@
+#summary Help for Blocks World mod of OpenNERO
+#sidebar TableOfContents
+
+=Blocks World Mod=
+
+Blocks World is a classical test problem for traditional AI techniques such as symbolic planning, natural language understanding, and even robotics. The idea is to manipulate simple objects (blocks) that can be moved around and stacked on top of each other. While it is a relatively simple domain, it hides some surprising challenges and provides a good illustration for some fundamental principles of AI.
+
+<img src=http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.png height=300 width=400></img>
+
+Blocks world is the newest addition to OpenNERO and further documentation is forthcoming.
