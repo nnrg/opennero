@@ -3,7 +3,7 @@
 
 = Introduction =
 
-OpenNERO consists of a the core program and a collection of one or more *mods*. A mod is a logically separate unit of OpenNERO that can be a custom game, an AI experiment, or both. Each mod is defined as a directory next to the application. When you start OpenNERO, it shows a menu with existing mods and an option to exit. Currently, there are three mods:
+OpenNERO consists of a the core program and a collection of one or more *mods*. A mod is a logically separate unit of OpenNERO that can be a custom game, an AI experiment, or both. Each mod is defined as a directory next to the application. When you start OpenNERO, it shows a menu with existing mods and an option to exit. Currently, the following mods are included:
   * [MazeMod Maze] - a simple maze world on an island, with search, learning and first-person agents.
   * [BlocksWorldMod Blocks World] - a classic AI problem for planning and natural language understanding.
   * [RoombaMod Roomba] - a messy computer lab which gets cleaner with the help of some cleaning robots.
