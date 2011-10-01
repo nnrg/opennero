@@ -34,6 +34,10 @@ The controls can be easily redefined, but in general, the following keys should 
 
 [http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.png http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png]
 
+== [BlocksWorldMod Blocks World] ==
+
+[http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.png http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.tiny.png]
+
 == [RoombaMod Roomba] ==
 
 [http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.png http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png]
