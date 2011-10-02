@@ -26,10 +26,10 @@ The following steps should help get you up and running in OpenNERO:
 
 ==Creating your agent==
 
-To create your `IDA*` agent, open the [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py agent.py] file (located in <tt>trunk/mods/Maze</tt>). Notice that there are
+To create your `IDA*` agent, open the [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py agent.py] file (located in `trunk/mods/Maze`). Notice that there are
 several agents implemented here, including a DFS agent
-(<tt>DFSSearchAgent</tt>) and an `A*` agent
-(<tt>AStarSearchAgent</tt>).
+(`DFSSearchAgent`) and an `A*` agent
+(`AStarSearchAgent`).
 
 ===Agent class===
 Create a new class called `IdaStarAgent` with the same code as below:
@@ -73,28 +73,28 @@ class IdaStarSearchAgent(SearchAgent):
         return True
 }}}
 
-Your agent is operating in a 2-D maze and is capable of moving from cell to cell. In the <tt>start</tt> and <tt>act</tt> methods, your agent receives a collection of <tt>observations</tt> about the world:
+Your agent is operating in a 2-D maze and is capable of moving from cell to cell. In the `start` and `act` methods, your agent receives a collection of `observations` about the world:
 
-  * <tt>`observations[0]`</tt> -- The current row position of your agent.
-  * <tt>`observations[1]`</tt> -- The current column position of your agent.
-  * <tt>`observations[2]`</tt> -- 1 if there is an obstacle in the row above your position, otherwise 0.
-  * <tt>`observations[3]`</tt> -- 1 if there is an obstacle in the row below your position, otherwise 0.
-  * <tt>`observations[4]`</tt> -- 1 if there is an obstacle in the column to the right of your position, otherwise 0.
-  * <tt>`observations[5]`</tt> -- 1 if there is an obstacle in the column to the left of your position, otherwise 0.
+  * `observations[0]` -- The current row position of your agent.
+  * `observations[1]` -- The current column position of your agent.
+  * `observations[2]` -- 1 if there is an obstacle in the row above your position, otherwise 0.
+  * `observations[3]` -- 1 if there is an obstacle in the row below your position, otherwise 0.
+  * `observations[4]` -- 1 if there is an obstacle in the column to the right of your position, otherwise 0.
+  * `observations[5]` -- 1 if there is an obstacle in the column to the left of your position, otherwise 0.
 
-In these methods, you are required to return an <tt>action</tt> -- an integer corresponding to the desired move:
+In these methods, you are required to return an `action` -- an integer corresponding to the desired move:
 
-  * 0 -- Move to the row above. <tt>(row, column) &rarr; (row + 1, column)</tt>
-  * 1 -- Move to the row below. <tt>(row, column) &rarr; (row - 1, column)</tt>
-  * 2 -- Move to the column to the right. <tt>(row, column) &rarr; (row, column + 1)</tt>
-  * 3 -- Move to the column to the left. <tt>(row, column) &rarr; (row, column - 1)</tt>
+  * 0 -- Move to the row above. `(row, column) → (row + 1, column)`
+  * 1 -- Move to the row below. `(row, column) → (row - 1, column)`
+  * 2 -- Move to the column to the right. `(row, column) → (row, column + 1)`
+  * 3 -- Move to the column to the left. `(row, column) → (row, column - 1)`
   * 4 -- Do nothing.
 
-The class above is an empty skeleton. Refer to the other agent implementations in <tt>agent.py</tt> for guidance on how to implement in your agent. 
+The class above is an empty skeleton. Refer to the other agent implementations in `agent.py` for guidance on how to implement in your agent. 
 
 ===Configuration file===
 
-Once you've created your agent, you'll need to add it to the configuration file for the OpenNERO maze mod. To do this, locate the SydneyAStar.xml file (<tt>Maze/data/shapes/character/SydneyAStar.xml</tt>) and change the following line:
+Once you've created your agent, you'll need to add it to the configuration file for the OpenNERO maze mod. To do this, locate the SydneyAStar.xml file (`Maze/data/shapes/character/SydneyAStar.xml`) and change the following line:
 
 {{{
 <Python agent="Maze.agent.AStarSearchAgent()">
