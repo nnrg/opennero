@@ -10,4 +10,4 @@ This page will list exercises for using OpenNERO to learn more about Artificial 
  * MazeSolverExercise - Now that you have all these new puzzles, can you write an agent that always finds the goal?
  * MazeLearnerExercise - Modern AI is all about _machine learning_ - algorithms that improve with experience. This exercise will introduce you to ways of running, comparing, and writing learning algorithms in OpenNERO.
  * AdvancedMazeExercise - Write a creative learning algorithm to produce maze solutions.
- * HeuristicSearchExercise - Modify existing DFS and A* algorithms to implement Iterative-Deepening A* (IDA*).
+ * HeuristicSearchExercise - Modify existing DFS and A\* algorithms to implement Iterative-Deepening A\* (IDA\*).
