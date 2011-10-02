@@ -84,7 +84,7 @@ Your agent is operating in a 2-D maze and is capable of moving from cell to cell
 
 In these methods, you are required to return an <tt>action</tt> -- an integer corresponding to the desired move:
 
-  * 0 -- Move to the row above. <tt>(row, column)</tt> &rarr; <tt>(row + 1, column)</tt>
+  * 0 -- Move to the row above. <tt>(row, column) &rarr; (row + 1, column)</tt>
   * 1 -- Move to the row below. <tt>(row, column) &rarr; (row - 1, column)</tt>
   * 2 -- Move to the column to the right. <tt>(row, column) &rarr; (row, column + 1)</tt>
   * 3 -- Move to the column to the left. <tt>(row, column) &rarr; (row, column - 1)</tt>
@@ -96,11 +96,14 @@ The class above is an empty skeleton. Refer to the other agent implementations i
 
 Once you've created your agent, you'll need to add it to the configuration file for the OpenNERO maze mod. To do this, locate the SydneyAStar.xml file (<tt>Maze/data/shapes/character/SydneyAStar.xml</tt>) and change the following line:
 
+<pre>
 &lt Python agent=&quot;Maze.agent.AStarSearchAgent()&quot; /&gt;
+</pre>
 
 to:
+<pre>
 &lt;Python agent=&quot;Maze.agent.`IdaStarSearchAgent`()&quot; /&gt;
-
+</pre>
 
 Once you've configured this line, pressing the <tt>Single Agent `A*`</tt> button in the Maze mod will run your agent.
 
