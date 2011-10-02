@@ -35,12 +35,12 @@ several agents implemented here, including a DFS agent
 Create a new class called `IdaStarAgent` with the same code as below:
 
 {{{
-class `IdaStarSearchAgent`(`SearchAgent`):
+class IdaStarSearchAgent(SearchAgent):
     """
     IDA* algorithm
     """
     def __init__(self):
-        # this line is crucial, otherwise the class is not recognized as an `AgentBrainPtr` by C++
+        # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
         SearchAgent.__init__(self)
 
     def initialize(self, init_info):
@@ -62,7 +62,7 @@ class `IdaStarSearchAgent`(`SearchAgent`):
         """
         at the end of an episode, the environment tells us the final reward
         """
-        print  "Final reward: %f, cumulative: %f" % (`reward[0]`, `self.fitness[0]`)
+        print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
         self.reset()
         return True
 
