@@ -34,14 +34,14 @@ several agents implemented here, including a DFS agent
 ===Agent class===
 Create a new class called `IdaStarAgent` with the same code as below:
 
-<pre>
+{{{
 class `IdaStarSearchAgent`(`SearchAgent`):
     """
-    `IDA*` algorithm
+    IDA* algorithm
     """
     def __init__(self):
         # this line is crucial, otherwise the class is not recognized as an `AgentBrainPtr` by C++
-        `SearchAgent`.__init__(self)
+        SearchAgent.__init__(self)
 
     def initialize(self, init_info):
         """
@@ -71,7 +71,7 @@ class `IdaStarSearchAgent`(`SearchAgent`):
         After one or more episodes, this agent can be disposed of
         """
         return True
-</pre>
+}}}
 
 Your agent is operating in a 2-D maze and is capable of moving from cell to cell. In the <tt>start</tt> and <tt>act</tt> methods, your agent receives a collection of <tt>observations</tt> about the world:
 
@@ -96,20 +96,21 @@ The class above is an empty skeleton. Refer to the other agent implementations i
 
 Once you've created your agent, you'll need to add it to the configuration file for the OpenNERO maze mod. To do this, locate the SydneyAStar.xml file (<tt>Maze/data/shapes/character/SydneyAStar.xml</tt>) and change the following line:
 
-<pre>
-&lt Python agent=&quot;Maze.agent.AStarSearchAgent()&quot; /&gt;
-</pre>
+{{{
+<Python agent="Maze.agent.AStarSearchAgent()">
+}}}
 
 to:
-<pre>
-&lt;Python agent=&quot;Maze.agent.`IdaStarSearchAgent`()&quot; /&gt;
-</pre>
 
-Once you've configured this line, pressing the <tt>Single Agent `A*`</tt> button in the Maze mod will run your agent.
+{{{
+<Python agent="Maze.agent.IdaStarSearchAgent()">
+}}}
+
+Once you've configured this line, pressing the `Single Agent A*` button in the Maze mod will run your agent.
 
 ===Debugging===
 
 If you run into any bugs in your program, you can find the error log file for OpenNERO at one of the following locations:
 
-  * *Linux or Mac:* <tt>~/.opennero/nero_log.txt</tt>
-  * *Windows:* <tt>"`AppData`\Local\OpenNERO\nero_log.txt"</tt> or <tt>"Local Settings\Application Data\OpenNERO\nero_log.txt"</tt> depending on the version of Windows you have.
+  * *Linux or Mac:* `~/.opennero/nero_log.txt`
+  * *Windows:* `"AppData\Local\OpenNERO\nero_log.txt"` or `"Local Settings\Application Data\OpenNERO\nero_log.txt"` depending on the version of Windows you have.
