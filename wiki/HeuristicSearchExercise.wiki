@@ -2,8 +2,8 @@
 #sidebar TableOfContents
 
 =Iterative Deepening `A*` Search=
-
-In this assignment, you will be implementing the Iterative Deepening
+ 
+In this exercise, you will be implementing the Iterative Deepening
 `A*` (`IDA*`) search algorithm in the OpenNERO platform. You'll use
 the existing implementations of Depth First Search (DFS) and `A*`
 search as starting points, and modify and extend them to implement
@@ -18,15 +18,10 @@ complexity of the algorithm.
 The following steps should help get you up and running in OpenNERO:
 
   * Either:
-    * Install it on your own machine by downloading one of the
-      [http://code.google.com/p/opennero/downloads/list prebuilt
-      binaries]
-    * [BuildingOpenNero Build OpenNERO] on your own machine using the source
-      code.
-  * Read the [SystemOverview system overview] to understand the
-    interaction between the platform and the AI agents.
-  * Look at the demos for [BruteForceSearch Brute Force] (uninformed)
-    and [HeuristicSearch Heuristic] (informed) search.
+    * Install it on your own machine by downloading one of the [http://code.google.com/p/opennero/downloads/list prebuilt binaries]
+    * [BuildingOpenNero Build OpenNERO] on your own machine using the source code.
+  * Read the [SystemOverview system overview] to understand the interaction between the platform and the AI agents.
+  * Look at the demos for [BruteForceSearch Brute Force] (uninformed) and [HeuristicSearch Heuristic] (informed) search.
 
 
 ==Creating your agent==
@@ -42,82 +37,66 @@ several agents implemented here, including a DFS agent
 Create a new class called IdaStarAgent with the same code as below:
 
 <pre>
-class IdaStarSearchAgent(SearchAgent):
-    """                                                                         
-    IDA* algorithm                                                              
+class `IdaStarSearchAgent`(`SearchAgent`):
+    """
+    `IDA*` algorithm
     """
     def __init__(self):
-        # this line is crucial, otherwise the class is not recognized as an Age\
-ntBrainPtr by C++
-        SearchAgent.__init__(self)
+        # this line is crucial, otherwise the class is not recognized as an `AgentBrainPtr` by C++
+        `SearchAgent`.__init__(self)
 
     def initialize(self, init_info):
-        """                                                                     
-        Initializes the agent upon reset                                        
+        """
+        Initializes the agent upon reset
         """
 
     def start(self, time, observations):
-        """                                                                     
-        Called on the first move                                                
         """
-
+        Called on the first move
+        """
+    
     def act(self, time, observations, reward):
-        """                                                                     
-        Called every time the agent needs to take an action                     
+        """
+        Called every time the agent needs to take an action
         """
 
     def end(self, time, reward):
-        """                                                                     
-        at the end of an episode, the environment tells us the final reward     
         """
-        print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0]\
-)
+        at the end of an episode, the environment tells us the final reward
+        """
+        print  "Final reward: %f, cumulative: %f" % (`reward[0]`, `self.fitness[0]`)
         self.reset()
         return True
 
     def destroy(self):
-        """                                                                     
-        After one or more episodes, this agent can be disposed of               
+        """
+        After one or more episodes, this agent can be disposed of
         """
         return True
 </pre>
 
-Your agent is operating in a 2-D maze and is capable of moving from cell to cel\
-l. In the <tt>start</tt> and <tt>act</tt> methods, your agent receives a collec\
-tion of <tt>observations</tt> about the world:
+Your agent is operating in a 2-D maze and is capable of moving from cell to cell. In the <tt>start</tt> and <tt>act</tt> methods, your agent receives a collection of <tt>observations</tt> about the world:
 
-  * <tt>observations[0]</tt> &ndash; The current row position of your agent.
-  * <tt>observations[1]</tt> &ndash; The current column position of your agent.
-  * <tt>observations[2]</tt> &ndash; 1 if there is an obstacle in the row above\
- your position, otherwise 0.
-  * <tt>observations[3]</tt> &ndash; 1 if there is an obstacle in the row below\
- your position, otherwise 0.
-  * <tt>observations[4]</tt> &ndash; 1 if there is an obstacle in the column to\
- the right of your position, otherwise 0.
-  * <tt>observations[5]</tt> &ndash; 1 if there is an obstacle in the column to\
- the left of your position, otherwise 0.
+  * <tt>`observations[0]`</tt> -- The current row position of your agent.
+  * <tt>`observations[1]`</tt> -- The current column position of your agent.
+  * <tt>`observations[2]`</tt> -- 1 if there is an obstacle in the row above your position, otherwise 0.
+  * <tt>`observations[3]`</tt> -- 1 if there is an obstacle in the row below your position, otherwise 0.
+  * <tt>`observations[4]`</tt> -- 1 if there is an obstacle in the column to the right of your position, otherwise 0.
+  * <tt>`observations[5]`</tt> -- 1 if there is an obstacle in the column to the left of your position, otherwise 0.
 
-In these methods, you are required to return an <tt>action</tt> &ndash; an inte\
-ger corresponding to the desired move:
+In these methods, you are required to return an <tt>action</tt> -- an integer corresponding to the desired move:
 
-  * 0 &ndash; Move to the row above. <tt>(row, column) &rarr; (row + 1, column)\
-</tt>
-  * 1 &ndash; Move to the row below. <tt>(row, column) &rarr; (row - 1, column)\
-</tt>
-  * 2 &ndash; Move to the column to the right. <tt>(row, column) &rarr; (row, c\
-olumn + 1)</tt>
-  * 3 &ndash; Move to the column to the left. <tt>(row, column) &rarr; (row, co\
-lumn - 1)</tt>
-  * 4 &ndash; Do nothing.
+  * 0 -- Move to the row above. <tt>(row, column) &rarr; (row + 1, column)</tt>
+  * 1 -- Move to the row below. <tt>(row, column) &rarr; (row - 1, column)</tt>
+  * 2 -- Move to the column to the right. <tt>(row, column) &rarr; (row, column + 1)</tt>
+  * 3 -- Move to the column to the left. <tt>(row, column) &rarr; (row, column - 1)</tt>
+  * 4 -- Do nothing.
 
-The class above is an empty skeleton. Refer to the other agent implementations \
-in <tt>agent.py</tt> for guidance on how to implement in your agent.
+The class above is an empty skeleton. Refer to the other agent implementations in <tt>agent.py</tt> for guidance on how to implement in your agent. 
 
 ===Configuration file===
 
-Once you've created your agent, you'll need to add it to the configuration file\
- for the OpenNERO maze mod. To do this, locate the SydneyAStar.xml file (<tt>Ma\
-ze/data/shapes/character/SydneyAStar.xml</tt>) and change the following line:
+Once you've created your agent, you'll need to add it to the configuration file for the OpenNERO maze mod. To do this, locate the SydneyAStar.xml file (<tt>Maze/data/shapes/character/SydneyAStar.xml</tt>) and change the following line:
 
 <pre>
 &lt;Python agent=&quot;Maze.agent.AStarSearchAgent()&quot; /&gt;
@@ -125,18 +104,14 @@ ze/data/shapes/character/SydneyAStar.xml</tt>) and change the following line:
 
 to:
 <pre>
-&lt;Python agent=&quot;Maze.agent.IdaStarSearchAgent()&quot; /&gt;
+&lt;Python agent=&quot;Maze.agent.`IdaStarSearchAgent`()&quot; /&gt;
 </pre>
 
-Once you've configured this line, pressing the <tt>Single Agent `A*`</tt> butto\
-n in the Maze mod will run your agent.
+Once you've configured this line, pressing the <tt>Single Agent `A*`</tt> button in the Maze mod will run your agent.
 
 ===Debugging===
 
-If you run into any bugs in your program, you can find the error log file for O\
-penNERO at one of the following locations:
+If you run into any bugs in your program, you can find the error log file for OpenNERO at one of the following locations:
 
   * *Linux or Mac:* <tt>~/.opennero/nero_log.txt</tt>
-  * *Windows:* <tt>"AppData\Local\OpenNERO\nero_log.txt"</tt> or <tt>"Local Set\
-tings\Application Data\OpenNERO\nero_log.txt"</tt> depending on the version of \
-Windows you have.
+  * *Windows:* <tt>"`AppData`\Local\OpenNERO\nero_log.txt"</tt> or <tt>"Local Settings\Application Data\OpenNERO\nero_log.txt"</tt> depending on the version of Windows you have.
