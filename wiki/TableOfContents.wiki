@@ -18,9 +18,9 @@
     * CreateRoombaAgentExercise
     * MazeGeneratorExercise
     * MazeSolverExercise
+    * HeuristicSearchExercise
     * MazeLearnerExercise
     * AdvancedMazeExercise
-    * NEROSensorExercise
  * [RunningOpenNero Running]
    * [MazeMod The Maze mod]
    * [BlocksWorldMod Blocks World mod]
