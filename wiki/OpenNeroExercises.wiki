@@ -3,11 +3,14 @@
 
 This page will list exercises for using OpenNERO to learn more about Artificial Intelligence, as well as to learn about how to modify OpenNERO itself. Some of these were introduced and tested in the [http://nn.cs.utexas.edu/classes/cig Computational Intelligence in Game Design] stream of the [http://cns.utexas.edu/fri Freshman Research Initiative] at UT Austin, and others in the [http://www.cs.utexas.edu/users/risto/cs343 Artificial Intelligence class] at UT Austin. Suggestions for further exercises are listed at the end of each demo page as well.
 
+Extending OpenNERO
  * RunningOpenNeroExercise - Introduction and getting started. Makes sure that everyone knows how to run OpenNERO and how to modify its parts and where to find its output.
  * AddingStuffExercise - The point of OpenNERO is that you can make new games and new experiments with it. In this exercise you will add a landscape, an object, and an agent to OpenNERO.
  * CreateRoombaAgentExercise - Once we add an agent, we have to program it. Traditionally this is done by writing a script that describes what the agent does. In this exercise, you will write a script for a virtual vacuum cleaner that cleans the floor of a messy computer lab.
  * MazeGeneratorExercise - Games are all about puzzles. In this exercise, you are asked to come up with a bunch of puzzles for our agents to solve. See how hard you can make them!
+
+AI Exercises
  * MazeSolverExercise - Now that you have all these new puzzles, can you write an agent that always finds the goal?
+ * HeuristicSearchExercise - Modify existing DFS and `A*` algorithms in the Maze environment to implement Iterative-Deepening `A*` (`IDA`).
  * MazeLearnerExercise - Modern AI is all about _machine learning_ - algorithms that improve with experience. This exercise will introduce you to ways of running, comparing, and writing learning algorithms in OpenNERO.
  * AdvancedMazeExercise - Write a creative learning algorithm to produce maze solutions.
- * HeuristicSearchExercise - Modify existing DFS and `A*` algorithms in the Maze environment to implement Iterative-Deepening `A*` (`IDA`).
