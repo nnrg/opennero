@@ -1,7 +1,6 @@
 from OpenNero import *
 from common import *
 import Maze
-from Maze.environment import MazeEnvironment, ContMazeEnvironment
 from Maze.constants import *
 
 from heapq import heappush, heappop
@@ -13,8 +12,8 @@ def manhattan_heuristic(r,c):
     return (ROWS - r) + (COLS - c)
 
 def get_action_index(move):
-    if move in MazeEnvironment.MOVES:
-        action = MazeEnvironment.MOVES.index(move)
+    if move in MAZE_MOVES:
+        action = MAZE_MOVES.index(move)
         print 'Picking action', action, 'for move', move
         return action
     else:
@@ -48,9 +47,6 @@ class RandomAgent(AgentBrain):
         """
         return self.action_info.random()
 
-    def reset(self):
-        pass
-
     def act(self, time, observations, reward):
         """
         return an action given the reward for the previous action and the new observations
@@ -62,6 +58,74 @@ class RandomAgent(AgentBrain):
         receive the reward for the last observation
         """
         print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
+        return True
+
+class CustomRLAgent(AgentBrain):
+    """
+    Write your custom reinforcement learning agent here!
+    """
+    def __init__(self, gamma, alpha, epsilon):
+        """
+        Constructor that is called from CustomRLRobot.xml
+        Parameters:
+        @param gamma reward discount factor (between 0 and 1)
+        @param alpha learning rate (between 0 and 1)
+        @param epsilon parameter for the epsilon-greedy policy (between 0 and 1)
+        """
+        AgentBrain.__init__(self) # initialize the superclass
+        self.gamma = gamma
+        self.alpha = alpha
+        self.epsilon = epsilon
+        print 'CustomRLAgent started with gamma: %g, alpha: %g, epsilon: %g' % (gamma, alpha, epsilon)
+
+    def initialize(self, init_info):
+        """
+        Create a new agent using the init_info sent by the environment
+        """
+        self.action_info = init_info.actions
+        self.sensor_info = init_info.sensors
+        print 'CutomRLAgent initialize method called'
+        print '             action space:', self.action_info
+        print '             state space:', self.sensor_info
+        return True
+
+    def start(self, time, observations):
+        """
+        Called to figure out the first action given the first observations
+        @param time current time
+        @param observations a DoubleVector of observations for the agent (use len() and [])
+        """
+        # right now just get a random action and do it
+        action_to_return = self.action_info.random()
+        # could also decide to do something else:
+        # action_to_return = self.action_info.get_instance()
+        # action_to_return[0] = the_best_action
+        return action_to_return
+
+    def act(self, time, observations, reward):
+        """
+        return an action given the reward for the previous action and the new observations
+        @param time current time
+        @param observations a DoubleVector of observations for the agent (use len() and [])
+        @param the reward for the agent
+        """
+        # get the reward
+        reward_received = reward[0]
+        print 'CustomRL reward:',reward_received
+        # right now just get a random action and do it
+        action_to_return = self.action_info.random()
+        # could also decide to do something else:
+        # action_to_return = self.action_info.get_instance()
+        # action_to_return[0] = the_best_action
+        return action_to_return
+
+    def end(self, time, reward):
+        """
+        receive the reward for the last observation
+        """
+        # get the reward
+        reward_received = reward[0]
+        print 'CustomRL final reward:',reward_received
         return True
 
 class SearchAgent(AgentBrain):
@@ -105,7 +169,7 @@ class DFSSearchAgent(SearchAgent):
         # if we have not been here before, build a list of other places we can go
         if (r,c) not in self.visited:
             tovisit = []
-            for m, (dr,dc) in enumerate(MazeEnvironment.MOVES):
+            for m, (dr,dc) in enumerate(MAZE_MOVES):
                 r2, c2 = r+dr, c+dc
                 if not observations[2 + m]: # can we go that way?
                     if (r2,c2) not in self.visited:
@@ -249,7 +313,7 @@ class GenericSearchAlgorithm(SearchAgent):
             print  'reached goal: ' + str((row, col))
             self.goal = None
         # then we queue up some places to go next
-        for i, (dr,dc) in enumerate(MazeEnvironment.MOVES):
+        for i, (dr,dc) in enumerate(MAZE_MOVES):
             if observations[2+i] == 0: # are we free to perform this action?
                 # the action index should correspond to sensor index - 2
                 r2 = row + dr # compute the row we could move to
@@ -406,7 +470,7 @@ class FrontAStarSearchAgent(AStarSearchAgent):
         else:
             # if not, we should teleport and return null action
             get_environment().teleport(self, r2, c2)
-            v[0] = MazeEnvironment.NULL_MOVE
+            v[0] = MAZE_NULL_MOVE
         return v # return the action
 
 class CloningAStarSearchAgent(FrontAStarSearchAgent):
@@ -449,7 +513,7 @@ class FirstPersonAgent(AgentBrain):
     A human-controlled agent
     """
     key_pressed = None
-    action_map = ContMazeEnvironment.ACTIONS
+    action_map = CONT_MAZE_ACTIONS
     def __init__(self):
         AgentBrain.__init__(self) # do not remove!
         self.time = 0
@@ -463,7 +527,7 @@ class FirstPersonAgent(AgentBrain):
             action[0] = FirstPersonAgent.action_map[FirstPersonAgent.key_pressed]
             FirstPersonAgent.key_pressed = None
         else:
-            action[0] = MazeEnvironment.NULL_MOVE
+            action[0] = MAZE_NULL_MOVE
         return action
     def start(self, time, observations):
         return self.key_action()
@@ -481,7 +545,7 @@ class MoveForwardAndStopAgent(AgentBrain):
     def initialize(self, init_info):
         self.actions = init_info.actions # action constraints
         self.idle_action = self.actions.get_instance()
-        self.idle_action[0] = MazeEnvironment.NULL_MOVE # do-nothing action
+        self.idle_action[0] = MAZE_NULL_MOVE # do-nothing action
         return True
     def start(self, time, observations):
         marker_states = get_environment().marker_states

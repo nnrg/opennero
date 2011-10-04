@@ -132,72 +132,43 @@ class MazeMod:
             removeObject(self.agent_id)
         self.agent_id = None
         reset_ai()
+        
+    def start_agent(self, xml, env_class):
+        """ start an agent """
+        disable_ai()
+        self.reset_maze()
+        if not isinstance(self.environment, env_class):
+            self.set_environment(env_class())
+        else:
+            self.environment.loop = True
+        self.agent_id = addObject(xml, Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
+        enable_ai()
 
     def start_dfs(self):
         """ start the depth first search demo """
-        disable_ai()
-        self.reset_maze()
-        if self.environment.__class__.__name__ != MazeEnvironment.__name__:
-            self.set_environment(MazeEnvironment(False))
-        else:
-            self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyDFS.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
-        getSimContext().setObjectAnimation(self.agent_id, 'run')
-        enable_ai()
+        self.start_agent("data/shapes/character/SydneyDFS.xml", MazeEnvironment)
 
     def start_bfs(self):
         """ start the breadth first search demo """
-        disable_ai()
-        self.reset_maze()
-        if self.environment.__class__.__name__ != MazeEnvironment.__name__:
-            self.set_environment(MazeEnvironment(False))
-        else:
-            self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyBFS.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
-        getSimContext().setObjectAnimation(self.agent_id, 'run')
-        enable_ai()
+        self.start_agent("data/shapes/character/SydneyBFS.xml", MazeEnvironment)
 
     def start_astar(self):
         """ start the A* search demo """
-        disable_ai()
-        self.reset_maze()
-        if self.environment.__class__.__name__ != MazeEnvironment.__name__:
-            self.set_environment(MazeEnvironment(False))
-        else:
-            self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyAStar.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
-        getSimContext().setObjectAnimation(self.agent_id, 'run')
-        enable_ai()
+        self.start_agent("data/shapes/character/SydneyAStar.xml", MazeEnvironment)
 
     def start_astar2(self):
         """ start the A* search demo with teleporting agents """
-        disable_ai()
-        self.reset_maze()
-        if self.environment.__class__.__name__ != MazeEnvironment.__name__:
-            self.set_environment(MazeEnvironment(False))
-        else:
-            self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyAStar2.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
-        getSimContext().setObjectAnimation(self.agent_id, 'run')
-        enable_ai()
+        self.start_agent("data/shapes/character/SydneyAStar2.xml", MazeEnvironment)
 
     def start_astar3(self):
         """ start the A* search demo with teleporting agents and a front marked by moving agents """
-        disable_ai()
-        self.reset_maze()
-        if self.environment.__class__.__name__ != MazeEnvironment.__name__:
-            self.set_environment(MazeEnvironment(False))
-        else:
-            self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyAStar3.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
-        getSimContext().setObjectAnimation(self.agent_id, 'run')
-        enable_ai()
+        self.start_agent("data/shapes/character/SydneyAStar3.xml", MazeEnvironment)
 
     def start_fps(self):
         """ start the FPS navigation demo for the natural language experiment """
         disable_ai()
         self.reset_maze()
-        if self.environment.__class__.__name__ != ContMazeEnvironment.__name__:
+        if not isinstance(self.environment, ContMazeEnvironment):
             self.set_environment(ContMazeEnvironment())
         else:
             self.environment.loop = True
@@ -206,37 +177,19 @@ class MazeMod:
 
     def start_random(self, env_class = MazeEnvironment):
         """ start the random baseline demo """
-        disable_ai()
-        self.reset_maze()
-        # ensure that we have the environment ready
-        if self.environment.__class__.__name__ != env_class.__name__:
-            self.set_environment(env_class())
-        else:
-            self.environment.loop = True
-        enable_ai()
-        self.agent_id = addObject("data/shapes/character/SydneyRandom.xml",Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
+        self.start_agent("data/shapes/character/SydneyRandom.xml", env_class)
 
     def start_sarsa(self, env_class = MazeEnvironment):
         """ start the Sarsa RL demo """
-        disable_ai()
-        self.reset_maze()
-        if self.environment.__class__.__name__ != env_class.__name__:
-            self.set_environment(env_class())
-        else:
-            self.environment.loop = True
-        self.agent_id = addObject("data/shapes/character/SydneySarsa.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
-        enable_ai()
+        self.start_agent("data/shapes/character/SydneySarsa.xml", env_class)
 
     def start_qlearning(self, env_class = MazeEnvironment):
         """ start the Q-Learning RL demo """
-        disable_ai()
-        self.reset_maze()
-        if self.environment.__class__.__name__ != env_class.__name__:
-            self.set_environment(env_class())
-        else:
-            self.environment.loop = True
-        self.agent_id = addObject("data/shapes/character/SydneyQLearning.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
-        enable_ai()
+        self.start_agent("data/shapes/character/SydneyQLearning.xml", env_class)
+
+    def start_customrl(self, env_class = MazeEnvironment):
+        """ start the Custom RL demo """
+        self.start_agent("data/shapes/character/CustomRLRobot.xml", env_class)
 
     def control_fps(self,key):
         FirstPersonAgent.key_pressed = key
