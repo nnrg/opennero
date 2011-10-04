@@ -17,6 +17,12 @@ environments can be written in Python or in C++.
 
 <img src=http://opennero.googlecode.com/svn/wiki/agent-environment-loop.png height=300 width=400></img>
 
+== Agent-Environment interaction diagram ==
+
+<img src=http://opennero.googlecode.com/svn/wiki/agent-environment-sequence.png height=864 width=553></img>
+
+== Agent-Environment interface classes ==
+
 The main interfaces (which are defined in C++ and exported into Python) look like this:
 
 === [http://code.google.com/p/opennero/source/browse/trunk/source/ai/Environment.h Environment] ===
@@ -55,10 +61,6 @@ The basic types OpenNERO uses to pass around information between `Environment` a
   * *validate*(feature_vector): boolean <font color=green>// check that feature_vector is in compliance with these bounds</font>
   * *getInstance*(): `FeatureVector` <font color=green>// get a zero instance of this feature vector</font>
   * *getRandom*(): `FeatureVector` <font color=green>// get a random instance of this feature vector</font>
-
-== Agent-Environment interaction diagram ==
-
-<img src=http://opennero.googlecode.com/svn/wiki/agent-environment-sequence.png height=864 width=553></img>
 
 == Components ==
 
