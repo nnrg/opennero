@@ -81,12 +81,12 @@ class ScriptServer:
                     self.outputs.remove(e)
         return None
 
-def GetScriptServer():
+def GetScriptServer(port=PORT):
     """
     Only allow the code to create one script server
     """
     try:
-        theServer = ScriptServer()
+        theServer = ScriptServer(port)
     except ScriptServer, s:
         theServer = s
     return theServer

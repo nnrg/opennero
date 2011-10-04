@@ -100,7 +100,7 @@ class NeroModule:
         global rtneat
         location = os.path.relpath("/") + location
         if os.path.exists(location):
-            print TEAM0,get_ai("rtneat" + TEAM0),TEAM1,get_ai("rtneat" + TEAM1)
+            print 'loading population', location, 'for', team
             rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size, get_environment().agent_info.reward)
             # set the initial lifetime
             # in Battle, the lifetime is basically infinite, unless they get killed
@@ -108,7 +108,6 @@ class NeroModule:
             rtneat.set_lifetime(lifetime)
             rtneat.disable_evolution()
             set_ai("rtneat" + team,rtneat)
-            print TEAM0,get_ai("rtneat" + TEAM0),TEAM1,get_ai("rtneat" + TEAM1)
     
     def set_speedup(self, speedup):
         self.speedup = speedup/100.0
