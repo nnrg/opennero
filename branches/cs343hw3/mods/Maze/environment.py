@@ -320,7 +320,7 @@ class MazeEnvironment(Environment):
         self.agent_map = {}
 
 class ContMazeEnvironment(MazeEnvironment):
-    TURN_BY = 30 # how many degrees to turn by every time
+    TURN_BY = 90 # how many degrees to turn by every time
     WALK_BY = 2.5 # how many units to advance by every step forward
     ACTIONS = {'FWD':0, 'CW':1, 'CCW':2, 'BCK':3}
     N_ACTIONS = 4 # number of actions

@@ -9,6 +9,7 @@ import common.gui as gui
 
 from Maze.module import getMod, delMod
 from Maze.constants import *
+from Maze.environment import ContMazeEnvironment
 
 #########################################################
 
@@ -55,11 +56,6 @@ def CreateGui(guiMan):
     randomButton.OnMouseLeftClick = lambda: getMod().start_random()
     button_i += 1
 
-    #rtneatButton = gui.create_button(guiMan, 'rtneat', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
-    #rtneatButton.text = 'Neuroevolution'
-    #rtneatButton.OnMouseLeftClick = lambda: getMod().start_rtneat()
-    #button_i += 1
-
     sarsaButton = gui.create_button(guiMan, 'sarsa', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
     sarsaButton.text = 'Sarsa'
     sarsaButton.OnMouseLeftClick = lambda: getMod().start_sarsa()
@@ -70,6 +66,21 @@ def CreateGui(guiMan):
     qlearningButton.OnMouseLeftClick = lambda: getMod().start_qlearning()
     button_i += 1
 
+    randomButton2 = gui.create_button(guiMan, 'random2', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
+    randomButton2.text = 'Hard Random Baseline'
+    randomButton2.OnMouseLeftClick = lambda: getMod().start_random(ContMazeEnvironment)
+    button_i += 1
+
+    sarsaButton2 = gui.create_button(guiMan, 'sarsa2', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
+    sarsaButton2.text = 'Hard Sarsa'
+    sarsaButton2.OnMouseLeftClick = lambda: getMod().start_sarsa(ContMazeEnvironment)
+    button_i += 1
+
+    qlearningButton2 = gui.create_button(guiMan, 'qlearning2', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
+    qlearningButton2.text = 'Hard Q-Learning'
+    qlearningButton2.OnMouseLeftClick = lambda: getMod().start_qlearning(ContMazeEnvironment)
+    button_i += 1
+
     agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(button_w, button_i*button_h+20), 'Agent')
     agentWindow.addChild(dfsButton)
     agentWindow.addChild(bfsButton)
@@ -78,9 +89,11 @@ def CreateGui(guiMan):
     agentWindow.addChild(aStarButton3)
     agentWindow.addChild(fpsButton)
     agentWindow.addChild(randomButton)
-    #agentWindow.addChild(rtneatButton)
     agentWindow.addChild(sarsaButton)
     agentWindow.addChild(qlearningButton)
+    agentWindow.addChild(randomButton2)
+    agentWindow.addChild(sarsaButton2)
+    agentWindow.addChild(qlearningButton2)
 
     epsilon_percent = int(INITIAL_EPSILON * 100)
     epsilonValue = gui.create_text(guiMan, 'epsilonEditBox', Pos2i(260,0), Pos2i(100,30), str(epsilon_percent))
