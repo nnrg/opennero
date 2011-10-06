@@ -9,78 +9,70 @@ import common.gui as gui
 
 from Maze.module import getMod, delMod
 from Maze.constants import *
+from Maze.environment import ContMazeEnvironment
 
-#########################################################
+# Agents and the functions that start them
+
+AGENTS = [
+    ('Depth First Search', lambda: getMod().start_dfs()),
+    ('Breadth First Search', lambda: getMod().start_bfs()),
+    ('Single Agent A*', lambda: getMod().start_astar()),
+    ('Teleporting A*', lambda: getMod().start_astar2()),
+    ('Front A*', lambda: getMod().start_astar3()),
+    ('First Person', lambda: getMod().start_fps()),
+    ('Random Baseline', lambda: getMod().start_random()),
+    ('Sarsa', lambda: getMod().start_sarsa()),
+    ('Q-Learning', lambda: getMod().start_qlearning()),
+#    ('CustomRL', lambda: getMod().start_customrl()),
+#    ('Harder Q-Learning', lambda: getMod().start_qlearning(ContMazeEnvironment)),
+#    ('Harder CustomRL', lambda: getMod().start_customrl(ContMazeEnvironment)),
+]
 
 def CreateGui(guiMan):
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")
 
-    button_i = 0   # button counter
-    button_w = 120 # button width
+    button_w = 250 # button width
     button_h = 30  # button height
 
-    dfsButton = gui.create_button(guiMan, 'dfs', Pos2i(0, button_i*button_h), Pos2i(button_w, button_h), '')
-    dfsButton.text = 'Depth First Search'
-    dfsButton.OnMouseLeftClick = lambda: getMod().start_dfs()
-    button_i += 1
+    agentComboBox = gui.create_combo_box(guiMan, "agentComboBox", Pos2i(5,button_h + 5), Pos2i(button_w-10, button_h - 10))
 
-    bfsButton = gui.create_button(guiMan, 'bfs', Pos2i(0, button_i*button_h), Pos2i(button_w, button_h), '')
-    bfsButton.text = 'Breadth First Search'
-    bfsButton.OnMouseLeftClick = lambda: getMod().start_bfs()
-    button_i += 1
+    for agent_name, agent_function in AGENTS:
+        agentComboBox.addItem(agent_name)
 
-    aStarButton = gui.create_button(guiMan, 'astar', Pos2i(0, button_i*button_h), Pos2i(button_w, button_h), '')
-    aStarButton.text = 'Single Agent A*'
-    aStarButton.OnMouseLeftClick = lambda: getMod().start_astar()
-    button_i += 1
+    newMazeButton = gui.create_button(guiMan, 'newMazeButton', Pos2i(5,5), Pos2i(button_w/3-10, button_h-10), '')
+    newMazeButton.text = 'New Maze'
+    newMazeButton.OnMouseLeftClick = lambda: getMod().generate_new_maze()
+    
+    def startAgent():
+        i = agentComboBox.getSelected()
+        (agent_name, agent_function) = AGENTS[i]
+        print 'Starting', agent_name
+        agent_function()
 
-    aStarButton2 = gui.create_button(guiMan, 'astar2', Pos2i(0, button_i*button_h), Pos2i(button_w, button_h), '')
-    aStarButton2.text = 'Teleporting A*'
-    aStarButton2.OnMouseLeftClick = lambda: getMod().start_astar2()
-    button_i += 1
+    startAgentButton = gui.create_button(guiMan, 'startAgentButton', Pos2i(button_w/3+5, 5), Pos2i(button_w/3-10, button_h-10), '')
+    startAgentButton.text = 'Start'
+    startAgentButton.OnMouseLeftClick = startAgent
+                
+    def pauseAgent(pauser):
+        def closure():
+            if pauser.text == 'Continue':
+                pauser.text = 'Pause'
+                enable_ai()
+            else:
+                pauser.text = 'Continue'
+                disable_ai()
+        return closure
 
-    aStarButton3 = gui.create_button(guiMan, 'astar3', Pos2i(0, button_i*button_h), Pos2i(button_w, button_h), '')
-    aStarButton3.text = 'Front A*'
-    aStarButton3.OnMouseLeftClick = lambda: getMod().start_astar3()
-    button_i += 1
-
-    fpsButton = gui.create_button(guiMan, 'fps', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
-    fpsButton.text = 'First Person'
-    fpsButton.OnMouseLeftClick = lambda: getMod().start_fps()
-    button_i += 1
-
-    randomButton = gui.create_button(guiMan, 'random', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
-    randomButton.text = 'Random Baseline'
-    randomButton.OnMouseLeftClick = lambda: getMod().start_random()
-    button_i += 1
-
-    #rtneatButton = gui.create_button(guiMan, 'rtneat', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
-    #rtneatButton.text = 'Neuroevolution'
-    #rtneatButton.OnMouseLeftClick = lambda: getMod().start_rtneat()
-    #button_i += 1
-
-    sarsaButton = gui.create_button(guiMan, 'sarsa', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
-    sarsaButton.text = 'Sarsa'
-    sarsaButton.OnMouseLeftClick = lambda: getMod().start_sarsa()
-    button_i += 1
-
-    qlearningButton = gui.create_button(guiMan, 'qlearning', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
-    qlearningButton.text = 'Q-Learning'
-    qlearningButton.OnMouseLeftClick = lambda: getMod().start_qlearning()
-    button_i += 1
-
-    agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(button_w, button_i*button_h+20), 'Agent')
-    agentWindow.addChild(dfsButton)
-    agentWindow.addChild(bfsButton)
-    agentWindow.addChild(aStarButton)
-    agentWindow.addChild(aStarButton2)
-    agentWindow.addChild(aStarButton3)
-    agentWindow.addChild(fpsButton)
-    agentWindow.addChild(randomButton)
-    #agentWindow.addChild(rtneatButton)
-    agentWindow.addChild(sarsaButton)
-    agentWindow.addChild(qlearningButton)
+    pauseAgentButton = gui.create_button(guiMan, 'pauseAgentButton', Pos2i(2*button_w/3+5, 5), Pos2i(button_w/3-10, button_h-10), '')
+    pauseAgentButton.text = 'Pause'
+    pauseAgentButton.OnMouseLeftClick = pauseAgent(pauseAgentButton)
+    
+    agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(button_w, 2*button_h+25), 'Agent')
+    agentWindow.addChild(agentComboBox)
+    agentWindow.addChild(newMazeButton)
+    agentWindow.addChild(startAgentButton)
+    agentWindow.addChild(pauseAgentButton)
 
     epsilon_percent = int(INITIAL_EPSILON * 100)
     epsilonValue = gui.create_text(guiMan, 'epsilonEditBox', Pos2i(260,0), Pos2i(100,30), str(epsilon_percent))
@@ -110,18 +102,13 @@ def CreateGui(guiMan):
     getMod().set_speedup(0)
     speedupScroll.OnScrollBarChange = speedup_adjusted(speedupScroll, speedupValue)
 
-    newMazeButton = gui.create_button(guiMan, 'newMazeButton', Pos2i(10,60), Pos2i(button_w,30), '')
-    newMazeButton.text = 'Generate New Maze'
-    newMazeButton.OnMouseLeftClick = lambda: getMod().generate_new_maze()
-
-    paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 450), Pos2i(260,125), 'Parameters')
+    paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 500), Pos2i(260,75), 'Parameters')
     paramWindow.addChild(epsilonLabel)
     paramWindow.addChild(epsilonScroll)
     paramWindow.addChild(epsilonValue)
     paramWindow.addChild(speedupLabel)
     paramWindow.addChild(speedupScroll)
     paramWindow.addChild(speedupValue)
-    paramWindow.addChild(newMazeButton)
 
 def epsilon_adjusted(scroll, value):
     # generate a closure that will be called whenever the epsilon slider is adjusted

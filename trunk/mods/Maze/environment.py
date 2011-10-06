@@ -6,6 +6,7 @@ from constants import *
 from OpenNero import *
 from common import *
 from collections import deque
+from Maze.agent import MoveForwardAndStopAgent
 
 import observer
 
@@ -36,8 +37,6 @@ class MazeRewardStructure:
         return 100.0*(r+c)/(ROWS+COLS)
 
 class MazeEnvironment(Environment):
-    MOVES = [(1,0), (-1,0), (0,1), (0,-1)]
-    NULL_MOVE = len(MOVES)
     maze = Maze.generate(ROWS, COLS, GRID_DX, GRID_DY)
 
     """
@@ -67,7 +66,7 @@ class MazeEnvironment(Environment):
         action_info = FeatureVectorInfo()
         observation_info = FeatureVectorInfo()
         reward_info = FeatureVectorInfo()
-        action_info.add_discrete(0, len(MazeEnvironment.MOVES)-1) # select from the moves we can make
+        action_info.add_discrete(0, len(MAZE_MOVES)-1) # select from the moves we can make
         observation_info.add_discrete(0, ROWS-1)
         observation_info.add_discrete(0, COLS-1)
         observation_info.add_discrete(0,1)
@@ -123,7 +122,6 @@ class MazeEnvironment(Environment):
         set the agent's animation sequence to that named by animation
         """
         if agent.state.animation != animation:
-            print agent.state.animation, agent.state.animation_speed, animation
             agent.state.animation = animation
             delay = getSimContext().delay
             animation_speed = agent.state.animation_speed
@@ -150,12 +148,22 @@ class MazeEnvironment(Environment):
         """
         (r,c) = MazeEnvironment.maze.xy2rc(agent.state.position.x, agent.state.position.y)
 
+        # check if we reached the goal
+        if r == ROWS - 1 and c == COLS - 1 and not isinstance(agent, MoveForwardAndStopAgent):
+            self.agents_at_goal.add(agent)
+            return self.rewards.goal_reached(agent)
+
+        # check if we ran out of time
+        elif agent.step >= self.max_steps - 1 and not isinstance(agent, MoveForwardAndStopAgent):
+            return self.rewards.last_reward(agent)
+
+
         if not self.agent_info.actions.validate(action):
             # check if we ran out of time
-            if agent.step >= self.max_steps - 1 and agent.__class__.__name__ != 'MoveForwardAndStopAgent':
+            if agent.step >= self.max_steps - 1 and not isinstance(agent, MoveForwardAndStopAgent):
                 return self.rewards.last_reward(agent)
             # check if we reached the goal
-            elif r == ROWS - 1 and c == COLS - 1 and agent.__class__.__name__ != 'MoveForwardAndStopAgent':
+            elif r == ROWS - 1 and c == COLS - 1 and not isinstance(agent, MoveForwardAndStopAgent):
                 self.agents_at_goal.add(agent)
                 return self.rewards.goal_reached(agent)
             else:
@@ -164,12 +172,12 @@ class MazeEnvironment(Environment):
 
         # check for null action
         a = int(round(action[0]))
-        if a == MazeEnvironment.NULL_MOVE:
+        if a == MAZE_NULL_MOVE:
             self.set_animation(agent, 'stand')
             return self.rewards.null_move(agent)
 
         # calculate new pose
-        (dr, dc) = MazeEnvironment.MOVES[a]
+        (dr, dc) = MAZE_MOVES[a]
         new_r, new_c = r + dr, c + dc
         next_rotation = self.get_next_rotation((dr,dc))
         new_heading = next_rotation.z
@@ -215,12 +223,12 @@ class MazeEnvironment(Environment):
             return self.rewards.valid_move(agent)
 
         # check if we reached the goal
-        if new_r == ROWS - 1 and new_c == COLS - 1 and agent.__class__.__name__ != 'MoveForwardAndStopAgent':
+        if new_r == ROWS - 1 and new_c == COLS - 1 and not isinstance(agent, MoveForwardAndStopAgent):
             self.agents_at_goal.add(agent)
             return self.rewards.goal_reached(agent)
 
         # check if we ran out of time
-        elif agent.step >= self.max_steps - 1 and agent.__class__.__name__ != 'MoveForwardAndStopAgent':
+        elif agent.step >= self.max_steps - 1 and not isinstance(agent, MoveForwardAndStopAgent):
             return self.rewards.last_reward(agent)
 
         # return a normal reward
@@ -246,11 +254,11 @@ class MazeEnvironment(Environment):
         obs[0] = r
         obs[1] = c
         offset = GRID_DX/10.0
-        for i, (dr, dc) in enumerate(MazeEnvironment.MOVES):
+        for i, (dr, dc) in enumerate(MAZE_MOVES):
             direction = Vector3f(dr, dc, 0)
             ray = (p0 + direction * offset, p0 + direction * GRID_DX)
             # we only look for objects of type 1, which means walls
-            objects = getSimContext().findInRay(ray[0], ray[1], 1, True)
+            objects = getSimContext().findInRay(ray[0], ray[1], 1, False)
             obs[2 + i] = int(len(objects) > 0)
         return obs
 
@@ -320,12 +328,6 @@ class MazeEnvironment(Environment):
         self.agent_map = {}
 
 class ContMazeEnvironment(MazeEnvironment):
-    TURN_BY = 30 # how many degrees to turn by every time
-    WALK_BY = 2.5 # how many units to advance by every step forward
-    ACTIONS = {'FWD':0, 'CW':1, 'CCW':2, 'BCK':3}
-    N_ACTIONS = 4 # number of actions
-    N_RAYS = 4 # number of rays around the agent, starting from the front
-    MAX_DISTANCE = hypot(ROWS*GRID_DX, COLS*GRID_DY) # max distance within the maze
     """
     The environment is a 2-D maze.
     This is a slightly more continous version
@@ -349,14 +351,14 @@ class ContMazeEnvironment(MazeEnvironment):
         action_info = FeatureVectorInfo() # describes the actions
         observation_info = FeatureVectorInfo() # describes the observations
         reward_info = FeatureVectorInfo() # describes the rewards
-        action_info.add_discrete(0, ContMazeEnvironment.N_ACTIONS-1) # action
+        action_info.add_discrete(0, CONT_MAZE_N_ACTIONS-1) # action
         ( (xmin, ymin), (xmax, ymax) ) = MazeEnvironment.maze.xy_limits()
         print 'MAZE LIMITS', ( (xmin, ymin), (xmax, ymax) )
         observation_info.add_continuous(xmin, xmax) # x-coord
         observation_info.add_continuous(ymin, ymax) # y-coord
-        observation_info.add_continuous(0, ContMazeEnvironment.MAX_DISTANCE ) # distance to target
+        observation_info.add_continuous(0, CONT_MAZE_MAX_DISTANCE ) # distance to target
         observation_info.add_continuous(-180, 180) # angle to target
-        for i in range(ContMazeEnvironment.N_RAYS):
+        for i in range(CONT_MAZE_N_RAYS):
             observation_info.add_continuous(0,1) # ray sensor
         reward_info.add_continuous(-100,100)
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
@@ -387,7 +389,7 @@ class ContMazeEnvironment(MazeEnvironment):
         """
         if not self.agent_info.actions.validate(action):
             if agent.step >= self.max_steps - 1:
-                return self.rewards.last_reward(agent)
+                return self.max_steps * self.rewards.last_reward(agent)
             else:
                 return self.rewards.null_move(agent)
         a = int(round(action[0]))
@@ -396,16 +398,16 @@ class ContMazeEnvironment(MazeEnvironment):
         (x,y,heading) = (pos.x, pos.y, rot.z) # current pose
         new_x, new_y, new_heading = x, y, heading # pose to be computed
         dx, dy = None, None
-        if a == ContMazeEnvironment.ACTIONS['CW']: # clockwise
-            new_heading = wrap_degrees(heading, -ContMazeEnvironment.TURN_BY)
-        elif a == ContMazeEnvironment.ACTIONS['CCW']: # counter-clockwise
-            new_heading = wrap_degrees(heading, ContMazeEnvironment.TURN_BY)
-        elif a == ContMazeEnvironment.ACTIONS['FWD']: # forward
-            dx = ContMazeEnvironment.WALK_BY * cos(radians(new_heading))
-            dy = ContMazeEnvironment.WALK_BY * sin(radians(new_heading))
-        elif a == ContMazeEnvironment.ACTIONS['BCK']: # backward
-            dx = -ContMazeEnvironment.WALK_BY * cos(radians(new_heading))
-            dy = -ContMazeEnvironment.WALK_BY * sin(radians(new_heading))
+        if a == CONT_MAZE_ACTIONS['CW']: # clockwise
+            new_heading = wrap_degrees(heading, -CONT_MAZE_TURN_BY)
+        elif a == CONT_MAZE_ACTIONS['CCW']: # counter-clockwise
+            new_heading = wrap_degrees(heading, CONT_MAZE_TURN_BY)
+        elif a == CONT_MAZE_ACTIONS['FWD']: # forward
+            dx = CONT_MAZE_WALK_BY * cos(radians(new_heading))
+            dy = CONT_MAZE_WALK_BY * sin(radians(new_heading))
+        elif a == CONT_MAZE_ACTIONS['BCK']: # backward
+            dx = -CONT_MAZE_WALK_BY * cos(radians(new_heading))
+            dy = -CONT_MAZE_WALK_BY * sin(radians(new_heading))
         if dx or dy:
             test_x, test_y = x + 1.5 * dx, y + 1.5 * dy # leave a buffer of space
             new_x, new_y = x + dx, y + dy
@@ -428,9 +430,9 @@ class ContMazeEnvironment(MazeEnvironment):
         (new_r, new_c) = MazeEnvironment.maze.xy2rc(new_x, new_y)
         if new_r == ROWS - 1 and new_c == COLS - 1:
             self.agents_at_goal.add(agent)
-            return self.rewards.goal_reached(agent)
+            return self.max_steps * self.rewards.goal_reached(agent)
         elif agent.step >= self.max_steps - 1:
-            return self.rewards.last_reward(agent)
+            return self.max_steps * self.rewards.last_reward(agent)
         return self.rewards.valid_move(agent)
 
     def sense(self, agent, obs):
@@ -448,14 +450,14 @@ class ContMazeEnvironment(MazeEnvironment):
         angle_to_target = degrees(atan2(ty, tx)) # angle to target from +x, in degrees
         angle_to_target = wrap_degrees(angle_to_target, -heading) # heading to target relative to us
         obs[3] = angle_to_target
-        d_angle = 360.0 / ContMazeEnvironment.N_RAYS
+        d_angle = 360.0 / CONT_MAZE_N_RAYS
         p0 = agent.state.position
-        for i in range(ContMazeEnvironment.N_RAYS):
+        for i in range(CONT_MAZE_N_RAYS):
             angle = radians(heading + i * d_angle)
             direction = Vector3f(cos(angle), sin(angle), 0) # direction of ray
             ray = (p0, p0 + direction * GRID_DX)
             # we only look for objects of type 1, which means walls
-            result = getSimContext().findInRay(ray[0], ray[1], 1, True)
+            result = getSimContext().findInRay(ray[0], ray[1], 1, False)
             # we can now return a continuous sensor since FindInRay returns the hit point
             if len(result) > 0:
                 (sim, hit) = result
