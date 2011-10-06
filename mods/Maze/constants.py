@@ -1,3 +1,5 @@
+import math
+
 ROWS = 8 # rows in maze
 COLS = 8 # columns in maze
 GRID_DX = 20.0 # x-dimension of the grid world
@@ -11,3 +13,15 @@ INITIAL_EPSILON = 0.1
 HISTORY_LENGTH = 5 # number of state-action pairs used to determine if the agent is stuck
 OBSTACLE_MASK = 1 #0b0001
 AGENT_MASK = 2 #0b0010
+
+# maze environment
+MAZE_MOVES = [(1,0), (-1,0), (0,1), (0,-1)]
+MAZE_NULL_MOVE = len(MAZE_MOVES)
+
+# continuous environment
+CONT_MAZE_TURN_BY = 90 # how many degrees to turn by every time
+CONT_MAZE_WALK_BY = 2.5 # how many units to advance by every step forward
+CONT_MAZE_ACTIONS = {'FWD':0, 'CW':1, 'CCW':2, 'BCK':3}
+CONT_MAZE_N_ACTIONS = 4 # number of actions
+CONT_MAZE_N_RAYS = 4 # number of rays around the agent, starting from the front
+CONT_MAZE_MAX_DISTANCE = math.hypot(ROWS*GRID_DX, COLS*GRID_DY) # max distance within the maze
