@@ -44,17 +44,17 @@ def CreateGui(guiMan):
     newMazeButton.text = 'New Maze'
     newMazeButton.OnMouseLeftClick = lambda: getMod().generate_new_maze()
     
-    def startAgent():
-        i = agentComboBox.getSelected()
-        (agent_name, agent_function) = AGENTS[i]
-        print 'Starting', agent_name
-        agent_function()
+    def startAgent(starter, pauser):
+        def closure():
+            i = agentComboBox.getSelected()
+            (agent_name, agent_function) = AGENTS[i]
+            print 'Starting', agent_name
+            agent_function()
+            if pauser.text == 'Continue':
+                pauser.text = 'Pause'
+        return closure
 
-    startAgentButton = gui.create_button(guiMan, 'startAgentButton', Pos2i(button_w/3+5, 5), Pos2i(button_w/3-10, button_h-10), '')
-    startAgentButton.text = 'Start'
-    startAgentButton.OnMouseLeftClick = startAgent
-                
-    def pauseAgent(pauser):
+    def pauseAgent(starter, pauser):
         def closure():
             if pauser.text == 'Continue':
                 pauser.text = 'Pause'
@@ -64,9 +64,12 @@ def CreateGui(guiMan):
                 disable_ai()
         return closure
 
+    startAgentButton = gui.create_button(guiMan, 'startAgentButton', Pos2i(button_w/3+5, 5), Pos2i(button_w/3-10, button_h-10), '')
     pauseAgentButton = gui.create_button(guiMan, 'pauseAgentButton', Pos2i(2*button_w/3+5, 5), Pos2i(button_w/3-10, button_h-10), '')
+    startAgentButton.text = 'Start'
     pauseAgentButton.text = 'Pause'
-    pauseAgentButton.OnMouseLeftClick = pauseAgent(pauseAgentButton)
+    startAgentButton.OnMouseLeftClick = startAgent(startAgentButton, pauseAgentButton)
+    pauseAgentButton.OnMouseLeftClick = pauseAgent(startAgentButton, pauseAgentButton)
     
     agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(button_w, 2*button_h+25), 'Agent')
     agentWindow.addChild(agentComboBox)
