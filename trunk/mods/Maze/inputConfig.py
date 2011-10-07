@@ -32,4 +32,5 @@ def createInputMapping():
     ioMap.BindKey( "KEY_UP", "onPress", first_person_control('FWD') )
     ioMap.BindKey( "KEY_DOWN", "onPress", first_person_control('BCK') )
     ioMap.BindKey( "KEY_F1", "onPress", openWiki('MazeMod') )
+    ioMap.BindKey( "KEY_KEY_H", "onPress", openWiki('MazeMod') )
     return ioMap
