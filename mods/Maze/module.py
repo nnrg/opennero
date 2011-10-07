@@ -132,7 +132,14 @@ class MazeMod:
             removeObject(self.agent_id)
         self.agent_id = None
         reset_ai()
-        
+
+    def stop_maze(self):
+        """ stop the maze agent and reset the environment """
+        if self.agent_id is not None:
+            removeObject(self.agent_id)
+        self.agent_id = None
+        disable_ai()
+
     def start_agent(self, xml, env_class):
         """ start an agent """
         disable_ai()
