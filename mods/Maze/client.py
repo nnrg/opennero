@@ -15,18 +15,18 @@ from Maze.environment import ContMazeEnvironment
 # Agents and the functions that start them
 
 AGENTS = [
-    ('Depth First Search',      lambda: getMod().start_dfs(),           False),
-    ('Breadth First Search',    lambda: getMod().start_bfs(),           False),
-    ('Single Agent A*',         lambda: getMod().start_astar(),         False),
-    ('Teleporting A*',          lambda: getMod().start_astar2(),        False),
-    ('Front A*',                lambda: getMod().start_astar3(),        False),
-    ('First Person',            lambda: getMod().start_fps(),           False),
+    #('Depth First Search',      lambda: getMod().start_dfs(),           False),
+    #('Breadth First Search',    lambda: getMod().start_bfs(),           False),
+    #('Single Agent A*',         lambda: getMod().start_astar(),         False),
+    #('Teleporting A*',          lambda: getMod().start_astar2(),        False),
+    #('Front A*',                lambda: getMod().start_astar3(),        False),
+    #('First Person',            lambda: getMod().start_fps(),           False),
     ('Random Baseline',         lambda: getMod().start_random(),        False),
     ('Sarsa',                   lambda: getMod().start_sarsa(),         True),
     ('Q-Learning',              lambda: getMod().start_qlearning(),     True),
-#    ('CustomRL',               lambda: getMod().start_customrl(),      True),
-#    ('Harder Q-Learning',      lambda: getMod().start_qlearning(ContMazeEnvironment), True),
-#    ('Harder CustomRL',        lambda: getMod().start_customrl(ContMazeEnvironment), True),
+    ('CustomRL',               lambda: getMod().start_customrl(),      True),
+    ('Harder Q-Learning',      lambda: getMod().start_qlearning(ContMazeEnvironment), True),
+    ('Harder CustomRL',        lambda: getMod().start_customrl(ContMazeEnvironment), True),
 ]
 
 class UI:
@@ -144,6 +144,7 @@ def startAgent(ui):
             ui.pauseAgentButton.text = 'Pause'
             ui.pauseAgentButton.enabled = True
             ui.startAgentButton.text = 'Reset'
+            ui.agentComboBox.enabled = False
         else:
             getMod().stop_maze()
             disable_ai()
@@ -155,6 +156,7 @@ def startAgent(ui):
             ui.startAgentButton.text = 'Start'
             ui.pauseAgentButton.text = 'Pause'
             ui.pauseAgentButton.enabled = False
+            ui.agentComboBox.enabled = True
     return closure
 
 def pauseAgent(ui):
