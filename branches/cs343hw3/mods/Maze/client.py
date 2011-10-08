@@ -10,7 +10,7 @@ from common.module import openWiki
 
 from Maze.module import getMod, delMod
 from Maze.constants import *
-from Maze.environment import ContMazeEnvironment
+from Maze.environment import ContMazeEnvironment, GranularMazeEnvironment
 
 # Agents and the functions that start them
 
@@ -25,8 +25,8 @@ AGENTS = [
     ('Sarsa',                   lambda: getMod().start_sarsa(),         True),
     ('Q-Learning',              lambda: getMod().start_qlearning(),     True),
     ('CustomRL',               lambda: getMod().start_customrl(),      True),
-    ('Harder Q-Learning',      lambda: getMod().start_qlearning(ContMazeEnvironment), True),
-    ('Harder CustomRL',        lambda: getMod().start_customrl(ContMazeEnvironment), True),
+    ('Harder Q-Learning',      lambda: getMod().start_qlearning(GranularMazeEnvironment), True),
+    ('Harder CustomRL',        lambda: getMod().start_customrl(GranularMazeEnvironment), True),
 ]
 
 class UI:
