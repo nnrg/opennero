@@ -50,6 +50,7 @@ namespace OpenNero
     {
         StateActionPair key(observation,action);
         table[key] = target;
+        LOG_F_MSG("ai.rl", "RL::update " << observation << " " << action << " " << target);
     }
 
     /// Create a new tiles approximator based on the agent description provided
