@@ -56,13 +56,12 @@ class MazeEnvironment(Environment):
         * o[4] - obstacle in the +c direction?
         * o[5] - obstacle in the -c direction?
     """
-    def __init__(self, loop = True):
+    def __init__(self):
         """
         generate the maze
         """
         Environment.__init__(self)
         self.rewards = MazeRewardStructure()
-        self.loop = loop
         action_info = FeatureVectorInfo()
         observation_info = FeatureVectorInfo()
         reward_info = FeatureVectorInfo()
@@ -270,10 +269,9 @@ class MazeEnvironment(Environment):
         elif agent.__class__.__name__ == 'MoveForwardAndStopAgent':
             return False
         elif r == ROWS-1 and c == COLS-1:
-            if not self.loop:
+            if hasattr(agent, "highlight_path"):
                 disable_ai() # stop running
-                if hasattr(agent, "highlight_path"):
-                    agent.highlight_path() # mark the final path
+                agent.highlight_path() # mark the final path
                 self.set_animation(agent, 'stand') # stop animation
             return True
         else:
