@@ -1,0 +1,13 @@
+<Template>
+	<Render>
+		<MaterialType>solid</MaterialType>
+		<MaterialFlagLighting>true</MaterialFlagLighting>
+		<AniMesh>data/shapes/steve/steve_blue_unarmed.md2</AniMesh>
+		<Texture0>data/shapes/steve/steve_blue.jpg</Texture0>
+		<CastsShadow>true</CastsShadow>
+		<Scale>0.4 0.4 0.4</Scale>
+	</Render>
+	<AI>
+	  <Python agent="Maze.agent.MoveForwardAndStopAgent()" />
+	</AI>
+</Template>

@@ -1,0 +1,14 @@
+<Template>
+  <ObjectTemplate>
+    <Name>Terrain</Name>
+  </ObjectTemplate>
+  <Render>
+    <MaterialType>detail</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <Terrain>data/terrain/terrain-heightmap.bmp</Terrain>
+    <Texture0>data/terrain/terrain-texture.jpg</Texture0>
+    <Texture1>data/terrain/detailmap3.jpg</Texture1>
+    <ScaleTexture>1.0 100.0</ScaleTexture>
+    <Scale>2 2 0.1</Scale>
+  </Render>
+</Template>
