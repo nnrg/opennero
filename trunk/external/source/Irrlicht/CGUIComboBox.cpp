@@ -410,7 +410,7 @@ void CGUIComboBox::openCloseMenu()
 		IGUISkin* skin = Environment->getSkin();
 		s32 h = Items.size();
 
-		if (h > 5)
+		if (h > 10)
 			h = 5;
 		if (h == 0)
 			h = 1;
