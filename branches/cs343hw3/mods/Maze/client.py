@@ -10,7 +10,7 @@ from common.module import openWiki
 
 from Maze.module import getMod, delMod
 from Maze.constants import *
-from Maze.environment import ContMazeEnvironment, GranularMazeEnvironment
+from Maze.environment import EgocentricMazeEnvironment, GranularMazeEnvironment
 
 # Agents and the functions that start them
 

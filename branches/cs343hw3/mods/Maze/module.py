@@ -3,7 +3,7 @@ from OpenNero import *
 from common import *
 from constants import *
 from mazer import Maze
-from Maze.environment import MazeEnvironment, ContMazeEnvironment
+from Maze.environment import MazeEnvironment, EgocentricMazeEnvironment
 from Maze.agent import FirstPersonAgent
 
 def count_neurons(constraints):
@@ -175,8 +175,8 @@ class MazeMod:
         """ start the FPS navigation demo for the natural language experiment """
         disable_ai()
         self.reset_maze()
-        if not isinstance(self.environment, ContMazeEnvironment):
-            self.set_environment(ContMazeEnvironment())
+        if not isinstance(self.environment, EgocentricMazeEnvironment):
+            self.set_environment(EgocentricMazeEnvironment())
         else:
             self.environment.loop = True
         self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
