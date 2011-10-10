@@ -17,13 +17,13 @@ from Maze.environment import ContMazeEnvironment
 AGENTS = [
     ('Depth First Search',      lambda: getMod().start_dfs(),           False),
     ('Breadth First Search',    lambda: getMod().start_bfs(),           False),
-    ('Single Agent A*',         lambda: getMod().start_astar(),         False),
-    ('Teleporting A*',          lambda: getMod().start_astar2(),        False),
-    ('Front A*',                lambda: getMod().start_astar3(),        False),
-    ('First Person',            lambda: getMod().start_fps(),           False),
-    ('Random Baseline',         lambda: getMod().start_random(),        False),
-    ('Sarsa',                   lambda: getMod().start_sarsa(),         True),
-    ('Q-Learning',              lambda: getMod().start_qlearning(),     True),
+    ('Single Agent A* Search',  lambda: getMod().start_astar(),         False),
+    ('Teleporting A* Search',   lambda: getMod().start_astar2(),        False),
+    ('Front A* Search',         lambda: getMod().start_astar3(),        False),
+    ('First Person Search',     lambda: getMod().start_fps(),           False),
+    ('Random Actions',          lambda: getMod().start_random(),        False),
+    ('Sarsa TD-Learning',       lambda: getMod().start_sarsa(),         True),
+    ('Q TD-Learning',           lambda: getMod().start_qlearning(),     True),
 #    ('CustomRL',               lambda: getMod().start_customrl(),      True),
 #    ('Harder Q-Learning',      lambda: getMod().start_qlearning(ContMazeEnvironment), True),
 #    ('Harder CustomRL',        lambda: getMod().start_customrl(ContMazeEnvironment), True),
@@ -38,23 +38,24 @@ def CreateGui(guiMan):
 
     ui = UI()
 
-    window_w = 350 # width
-    button_h = 30  # height
+    window_width = 300 # width
+    control_height = 30  # height
 
-    x, y = 5, 3 * button_h + 5
-
-    ui.agentComboBox = gui.create_combo_box(guiMan, "agentComboBox", Pos2i(x, y), Pos2i(window_w-10, button_h - 10))
-
+    # AGENT SELECTION BOX
+    x, y = 5, 4 * control_height + 5
+    w, h = window_width - 15, control_height - 10
+    ui.agentBoxLabel = gui.create_text(guiMan, 'agentLabel', Pos2i(x,y), Pos2i(3*w/10,h), 'Agent Type:')
+    ui.agentComboBox = gui.create_combo_box(guiMan, "agentComboBox", Pos2i(x + 5 + 3*w/10, y), Pos2i(7*w/10, h))
     for agent_name, agent_function, ee_enabled in AGENTS:
         ui.agentComboBox.addItem(agent_name)
 
-    x, y = 5, 0 * button_h
-
-    # this can be used to adjust the exploration-exploitation tradeoff
+    # EXPLORE/EXPLOIT TRADE-OFF SLIDER
+    x, y = 5, 0 * control_height + 5
+    w, h = window_width - 20, control_height - 5
     epsilon_percent = int(INITIAL_EPSILON * 100)
-    ui.epsilonLabel = gui.create_text(guiMan, 'epsilonLabel', Pos2i(x, y), Pos2i(100,30), 'Exploit-Explore:')
-    ui.epsilonScroll = gui.create_scroll_bar(guiMan, 'epsilonScroll', Pos2i(x + 100, y), Pos2i(190, 20), True)
-    ui.epsilonValue = gui.create_text(guiMan, 'epsilonEditBox', Pos2i(x + window_w - 50, y), Pos2i(50,30), str(epsilon_percent))
+    ui.epsilonLabel = gui.create_text(guiMan, 'epsilonLabel', Pos2i(x, y), Pos2i(3*w/10, h), 'Exploit-Explore:')
+    ui.epsilonScroll = gui.create_scroll_bar(guiMan, 'epsilonScroll', Pos2i(x + 3*w/10 + 5, y), Pos2i(6*w/10, h - 5), True)
+    ui.epsilonValue = gui.create_text(guiMan, 'epsilonEditBox', Pos2i(x + 9*w/10 + 10, y), Pos2i(w/10, h), str(epsilon_percent))
     ui.epsilonScroll.setMax(100)
     ui.epsilonScroll.setLargeStep(10)
     ui.epsilonScroll.setSmallStep(1)
@@ -66,30 +67,36 @@ def CreateGui(guiMan):
     getMod().set_epsilon(INITIAL_EPSILON)
     ui.epsilonScroll.OnScrollBarChange = epsilon_adjusted(ui)
 
-    x, y = 5, 2 * button_h
-
-    ui.startAgentButton = gui.create_button(guiMan, 'startAgentButton', Pos2i(x + 0*(window_w-20)/4, y), Pos2i(window_w/4-10, button_h-5), '')
-    ui.pauseAgentButton = gui.create_button(guiMan, 'pauseAgentButton', Pos2i(x + 1*(window_w-20)/4, y), Pos2i(window_w/4-10, button_h-5), '')
+    # START/RESET AND PAUSE/CONTINUE AGENT BUTTONS
+    x, y = 5, 3 * control_height
+    w, h = (window_width - 15) / 2, control_height - 5
+    ui.startAgentButton = gui.create_button(guiMan, 'startAgentButton', Pos2i(x, y), Pos2i(w, h), '')
+    ui.pauseAgentButton = gui.create_button(guiMan, 'pauseAgentButton', Pos2i(x + w + 5, y), Pos2i(w, h), '')
     ui.startAgentButton.text = 'Start'
     ui.pauseAgentButton.text = 'Pause'
     ui.pauseAgentButton.enabled = False
     ui.startAgentButton.OnMouseLeftClick = startAgent(ui)
     ui.pauseAgentButton.OnMouseLeftClick = pauseAgent(ui)
 
-    ui.newMazeButton = gui.create_button(guiMan, 'newMazeButton', Pos2i(x + 2*(window_w-20)/4, y), Pos2i(window_w/4-10, button_h-5), '')
-    ui.newMazeButton.text = 'New Maze'
-    ui.newMazeButton.OnMouseLeftClick = lambda: getMod().generate_new_maze()
-
-    ui.helpButton = gui.create_button(guiMan, 'helpButton', Pos2i(x + 3*(window_w-20)/4, y), Pos2i(window_w/4-10, button_h-5), '')
+    # HELP BUTTON
+    w, h = (window_width - 15) / 2, control_height - 5
+    x, y = 5, 2 * control_height
+    ui.helpButton = gui.create_button(guiMan, 'helpButton', Pos2i(x, y), Pos2i(w, h), '')
     ui.helpButton.text = 'Help'
     ui.helpButton.OnMouseLeftClick = openWiki('MazeMod')
 
-    x, y = 5, 1 * button_h
+    # NEW MAZE BUTTON
+    x = 10 + w
+    ui.newMazeButton = gui.create_button(guiMan, 'newMazeButton', Pos2i(x, y), Pos2i(w, h), '')
+    ui.newMazeButton.text = 'New Maze'
+    ui.newMazeButton.OnMouseLeftClick = lambda: getMod().generate_new_maze()
 
-    # this can adjust the speed of the simulation
-    ui.speedupLabel = gui.create_text(guiMan, 'speedupLabel', Pos2i(x, y), Pos2i(100, 30), 'Speedup:')
-    ui.speedupScroll = gui.create_scroll_bar(guiMan, 'speedupScroll', Pos2i(x + 100, y), Pos2i(190,20), True)
-    ui.speedupValue = gui.create_text(guiMan, 'speedupEditBox', Pos2i(x + window_w - 50, y), Pos2i(50, 30), str(0))
+    # SPEEDUP SLIDER
+    x, y = 5, 1 * control_height
+    w, h = window_width - 20, control_height - 5
+    ui.speedupLabel = gui.create_text(guiMan, 'speedupLabel', Pos2i(x, y), Pos2i(3*w/10, h), 'Speedup:')
+    ui.speedupScroll = gui.create_scroll_bar(guiMan, 'speedupScroll', Pos2i(x + 5 + 3*w/10, y), Pos2i(3*w/5, h-5), True)
+    ui.speedupValue = gui.create_text(guiMan, 'speedupEditBox', Pos2i(x + 10 + 9*w/10, y), Pos2i(w/10, h), str(0))
     ui.speedupScroll.setMax(100)
     ui.speedupScroll.setLargeStep(10)
     ui.speedupScroll.setSmallStep(1)
@@ -97,7 +104,9 @@ def CreateGui(guiMan):
     getMod().set_speedup(0)
     ui.speedupScroll.OnScrollBarChange = speedup_adjusted(ui)
 
-    ui.agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(window_w, 4*button_h+25), 'Agent')
+    # THE WINDOW THAT HOLDS ALL THE CONTROLS ABOVE
+    ui.agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(window_width, 5*control_height+25), 'Agent')
+    ui.agentWindow.addChild(ui.agentBoxLabel)
     ui.agentWindow.addChild(ui.agentComboBox)
     ui.agentWindow.addChild(ui.newMazeButton)
     ui.agentWindow.addChild(ui.startAgentButton)
@@ -111,19 +120,21 @@ def CreateGui(guiMan):
     ui.agentWindow.addChild(ui.speedupValue)
 
 def epsilon_adjusted(ui):
-    # generate a closure that will be called whenever the epsilon slider is adjusted
+    """ generate a closure that will be called whenever the epsilon slider is adjusted """
     ui.epsilonValue.text = str(ui.epsilonScroll.getPos())
     getMod().set_epsilon(float(ui.epsilonScroll.getPos())/100)
     def closure():
+        """called whenever the epsilon slider is adjusted"""
         ui.epsilonValue.text = str(ui.epsilonScroll.getPos())
         getMod().set_epsilon(float(ui.epsilonScroll.getPos())/100)
     return closure
 
 def speedup_adjusted(ui):
-    # generate a closure that will be called whenever the speedup slider is adjusted
+    """generate a closure that will be called whenever the speedup slider is adjusted"""
     ui.speedupValue.text = str(ui.speedupScroll.getPos())
     getMod().set_speedup(float(ui.speedupScroll.getPos())/100)
     def closure():
+        """called whenever the speedup slider is adjusted"""
         ui.speedupValue.text = str(ui.speedupScroll.getPos())
         getMod().set_speedup(float(ui.speedupScroll.getPos())/100)
     return closure
@@ -131,6 +142,7 @@ def speedup_adjusted(ui):
 def startAgent(ui):
     """ return a function that starts or stops the agent """
     def closure():
+        """starts or stops the agent"""
         if ui.startAgentButton.text == 'Start':
             i = ui.agentComboBox.getSelected()
             (agent_name, agent_function, ee_enabled) = AGENTS[i]
@@ -160,6 +172,7 @@ def startAgent(ui):
 def pauseAgent(ui):
     """ return a function that pauses and continues the agent """
     def closure():
+        """pauses and continues the agent"""
         if ui.pauseAgentButton.text == 'Continue':
             ui.pauseAgentButton.text = 'Pause'
             enable_ai()
@@ -171,6 +184,7 @@ def pauseAgent(ui):
 def recenter(cam):
     """ return a function that recenters the camera """
     def closure():
+        """recenters the camera"""
         cam.setPosition(Vector3f(0, 0, 80))
         cam.setTarget(Vector3f(GRID_DX * ROWS / 2, GRID_DY * COLS / 2, 0))
     return closure
