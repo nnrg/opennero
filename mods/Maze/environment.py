@@ -321,7 +321,7 @@ class MazeEnvironment(Environment):
             removeObject(id)
         self.agent_map = {}
 
-class ContMazeEnvironment(MazeEnvironment):
+class EgocentricMazeEnvironment(MazeEnvironment):
     """
     The environment is a 2-D maze.
     This is a slightly more continous version
@@ -357,7 +357,7 @@ class ContMazeEnvironment(MazeEnvironment):
         reward_info.add_continuous(-100,100)
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
         self.max_steps = MAX_STEPS * 15 # allow 15 actions per cell
-        print 'Initialized ContMazeEnvironment'
+        print 'Initialized EgocentricMazeEnvironment'
 
     def reset(self, agent):
         """
@@ -396,14 +396,14 @@ class ContMazeEnvironment(MazeEnvironment):
             dx = -CONT_MAZE_WALK_BY * cos(radians(new_heading))
             dy = -CONT_MAZE_WALK_BY * sin(radians(new_heading))
         if dx or dy:
-            test_x, test_y = x + 1.5 * dx, y + 1.5 * dy # leave a buffer of space
+            test_x, test_y = x + dx, y + dy # leave a buffer of space
             new_x, new_y = x + dx, y + dy
             if not MazeEnvironment.maze.xy_bounds(test_x, test_y):
-                # could not move, out of bounds
+                print "could not move, out of bounds"
                 self.set_animation(agent, 'stand')
                 return self.rewards.out_of_bounds(agent)
             elif not MazeEnvironment.maze.xy_valid(x,y,test_x,test_y):
-                # could not move, hit a wall
+                print "could not move, hit a wall", x, y, test_x, test_y
                 self.set_animation(agent, 'stand')
                 return self.rewards.hit_wall(agent)
             if new_x != x or new_y != y:
