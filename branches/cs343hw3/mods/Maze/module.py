@@ -146,8 +146,6 @@ class MazeMod:
         self.reset_maze()
         if not isinstance(self.environment, env_class):
             self.set_environment(env_class())
-        else:
-            self.environment.loop = True
         self.agent_id = addObject(xml, Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         enable_ai()
 
@@ -171,14 +169,12 @@ class MazeMod:
         """ start the A* search demo with teleporting agents and a front marked by moving agents """
         self.start_agent("data/shapes/character/SydneyAStar3.xml", MazeEnvironment)
 
-    def start_fps(self):
-        """ start the FPS navigation demo for the natural language experiment """
+    def start_fps(self, env_class = EgocentricMazeEnvironment):
+        """ start the FPS navigation demo """
         disable_ai()
         self.reset_maze()
         if not isinstance(self.environment, EgocentricMazeEnvironment):
             self.set_environment(EgocentricMazeEnvironment())
-        else:
-            self.environment.loop = True
         self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         enable_ai()
 

@@ -21,7 +21,7 @@ AGENTS = [
 #    ('Teleporting A* Search',   lambda: getMod().start_astar2(),        False),
 #    ('Front A* Search',         lambda: getMod().start_astar3(),        False),
     ('First Person',            lambda: getMod().start_fps(),           False),
-    ('First Person (large)',    lambda: getMod().start_fps_large(),     False),
+#    ('First Person (large)',    lambda: getMod().start_fps_large(),     False),
 #    ('Random Actions',          lambda: getMod().start_random(),        False),
 #    ('Sarsa RL',                lambda: getMod().start_sarsa(),         True),
     ('Q-Learning RL',           lambda: getMod().start_qlearning(),     True),
