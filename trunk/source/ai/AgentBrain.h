@@ -37,10 +37,12 @@ namespace OpenNero
             size_t step; ///< step count
             
             Reward fitness; ///< cumulative reward for the current episode
+            
+            mutable bool skip_flag; ///< causes the next call to act to be skipped
 
         public:
             /// constructor
-            AgentBrain() : mBody(), name(), episode(0), step(0), fitness(0) {}
+            AgentBrain() : mBody(), name(), episode(0), step(0), fitness(0), skip_flag(false) {}
 
             /// destructor
             virtual ~AgentBrain() {}
@@ -65,6 +67,12 @@ namespace OpenNero
 
             /// add a sensor to this agent's body
             size_t add_sensor(SensorPtr s) { return GetBody()->add_sensor(s); }
+            
+            /// Causes the next call to act to be skipped
+            void Skip() { skip_flag = true; }
+            
+            /// Should the next call to act be skipped? (clears the flag)
+            bool GetSkip() const;
 
             /// set the body associated with this agent
             virtual void SetBody(AIObjectPtr body) { mBody = body; }

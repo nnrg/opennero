@@ -64,12 +64,13 @@ namespace OpenNero {
 				.def("end", pure_virtual(&AgentBrain::end), "Called at the end of a learning episode")
 				.def("destroy", pure_virtual(&AgentBrain::destroy), "Called after learning ends")
                 .def("add_sensor", &AgentBrain::add_sensor, "Add a sensor for this agent")
-				.def_readonly("step", &AgentBrain::step, "Current step count")
+                .def("skip", &AgentBrain::Skip, "Causes the next call to act to be skipped")
+                .def_readonly("step", &AgentBrain::step, "Current step count")
 				.def_readonly("episode", &AgentBrain::episode, "Current episode count")
 				.def_readonly("fitness", &AgentBrain::fitness, "Cumulative reward for this episode")
 				.add_property("state", make_function(&AgentBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
 			// export the interface to python so that we can override its methods there
-			py::class_<TDBrain, noncopyable, bases<AgentBrain>, TDBrainPtr >("TDBrain", "CMAC tile coding Time-Difference RL agent", no_init )
+			py::class_<TDBrain, noncopyable, bases<AgentBrain>, TDBrainPtr >("TDBrain", "Time-Difference RL agent", no_init )
 				.def("initialize", &TDBrain::initialize, "Called before learning starts")
 				.def("start", &TDBrain::start, "Called at the beginning of a learning episode")
 				.def("act", &TDBrain::act, "Called for every step of the state-action loop")
@@ -80,7 +81,7 @@ namespace OpenNero {
 				.add_property("gamma", &TDBrain::getGamma, &TDBrain::setGamma)
 				.add_property("state", make_function(&TDBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
 			// export the interface to python so that we can override its methods there
-			py::class_<SarsaBrain, bases<TDBrain>, SarsaBrainPtr >("SarsaBrain", "CMAC tile coding SARSA RL agent", init<double, double, double, double>() )
+			py::class_<SarsaBrain, bases<TDBrain>, SarsaBrainPtr >("SarsaBrain", "SARSA RL agent", init<double, double, double, double>() )
 				.def("initialize", &SarsaBrain::initialize, "Called before learning starts")
 				.def("start", &SarsaBrain::start, "Called at the beginning of a learning episode")
 				.def("act", &SarsaBrain::act, "Called for every step of the state-action loop")
@@ -91,7 +92,7 @@ namespace OpenNero {
 				.add_property("gamma", &TDBrain::getGamma, &TDBrain::setGamma)
 				.add_property("state", make_function(&SarsaBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
 			// export the interface to python so that we can override its methods there
-			py::class_<QLearningBrain, bases<TDBrain>, QLearningBrainPtr >("QLearningBrain", "CMAC tile coding Q-Learning RL agent", init<double, double, double>() )
+			py::class_<QLearningBrain, bases<TDBrain>, QLearningBrainPtr >("QLearningBrain", "Q-Learning RL agent", init<double, double, double>() )
 				.def("initialize", &QLearningBrain::initialize, "Called before learning starts")
 				.def("start", &QLearningBrain::start, "Called at the beginning of a learning episode")
 				.def("act", &QLearningBrain::act, "Called for every step of the state-action loop")

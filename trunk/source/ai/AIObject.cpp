@@ -72,7 +72,8 @@ namespace OpenNero
                 getBrain()->fitness = getInitInfo().reward.getInstance();
             } else {
                 Observations observations = sense();
-                setActions(getBrain()->act(dt, observations, getReward()));
+                if (!getBrain()->GetSkip()) // only generate new actions when not skipping
+                    setActions(getBrain()->act(dt, observations, getReward()));
                 setReward(getWorld()->step(getBrain(), getActions()));
                 getBrain()->step++;
             }

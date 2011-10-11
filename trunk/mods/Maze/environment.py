@@ -75,7 +75,6 @@ class MazeEnvironment(Environment):
         reward_info.add_continuous(-100,100)
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
         self.max_steps = MAX_STEPS
-        self.step_delay = STEP_DELAY
         self.speedup = 0
         self.shortcircuit = False
         self.marker_map = {} # a map of cells and markers so that we don't have more than one per cell
@@ -83,9 +82,6 @@ class MazeEnvironment(Environment):
         self.agent_map = {} # agents active on the map
         self.agents_at_goal = set() # the set of agents that have reached the goal
         print 'Initialized MazeEnvironment'
-
-    def get_delay(self):
-        return self.step_delay * (1.0 - self.speedup)
 
     def can_move(self, agent, move):
         """
@@ -183,11 +179,6 @@ class MazeEnvironment(Environment):
         rotation = agent.state.rotation
         prev_heading = rotation.z
 
-        # if the agent is a marker, just change the position
-        if agent.state.id in self.marker_states:
-            self.set_position(agent, (new_r, new_c, new_heading))
-            return 0
-
         # if the heading is right
         if new_heading == prev_heading:
             # check if we are in bounds
@@ -219,6 +210,7 @@ class MazeEnvironment(Environment):
             rot0 = copy(agent.state.rotation)
             rot0.z = new_heading
             agent.state.rotation = rot0
+            agent.skip() # don't get a new action, just retry this one
             return self.rewards.valid_move(agent)
 
         # check if we reached the goal
@@ -325,7 +317,7 @@ class MazeEnvironment(Environment):
             removeObject(id)
         self.agent_map = {}
 
-class ContMazeEnvironment(MazeEnvironment):
+class EgocentricMazeEnvironment(MazeEnvironment):
     """
     The environment is a 2-D maze.
     This is a slightly more continous version
@@ -361,14 +353,7 @@ class ContMazeEnvironment(MazeEnvironment):
         reward_info.add_continuous(-100,100)
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
         self.max_steps = MAX_STEPS * 15 # allow 15 actions per cell
-        self.step_delay = STEP_DELAY/10.0 # smaller actions, but faster
-        print 'Initialized ContMazeEnvironment'
-
-    def get_next_rotation(self, move):
-        """
-        Figure out which way the agent should be facing in order to make the specified move
-        """
-        return Vector3f(0,0,degrees(atan2(move[1], move[0])))
+        print 'Initialized EgocentricMazeEnvironment'
 
     def reset(self, agent):
         """
@@ -407,14 +392,14 @@ class ContMazeEnvironment(MazeEnvironment):
             dx = -CONT_MAZE_WALK_BY * cos(radians(new_heading))
             dy = -CONT_MAZE_WALK_BY * sin(radians(new_heading))
         if dx or dy:
-            test_x, test_y = x + 1.5 * dx, y + 1.5 * dy # leave a buffer of space
+            test_x, test_y = x + dx, y + dy # leave a buffer of space
             new_x, new_y = x + dx, y + dy
             if not MazeEnvironment.maze.xy_bounds(test_x, test_y):
-                # could not move, out of bounds
+                print "could not move, out of bounds"
                 self.set_animation(agent, 'stand')
                 return self.rewards.out_of_bounds(agent)
             elif not MazeEnvironment.maze.xy_valid(x,y,test_x,test_y):
-                # could not move, hit a wall
+                print "could not move, hit a wall", x, y, test_x, test_y
                 self.set_animation(agent, 'stand')
                 return self.rewards.hit_wall(agent)
             if new_x != x or new_y != y:
@@ -472,17 +457,182 @@ class ContMazeEnvironment(MazeEnvironment):
             print '       should be:', self.agent_info.sensors
         return obs
 
-def is_uniform(vv):
-    """ return true iff all the feature vectors in v are identical """
-    l = len(vv)
-    if l == 0:
-        return False
-    v0 = [x for x in vv[0]]
-    for i in range(1, len(vv)):
-        vi = [x for x in vv[i]]
-        if v0 != vi:
-            return False
-    return True
+class GranularMazeEnvironment(MazeEnvironment):
+    """
+    The environment is a 2-D maze.
+    In the discrete version, the agent moves from cell to cell.
+     * Actions (1 discrete action)
+        * 0 - move in the +r direction
+        * 1 - move in the -r direction
+        * 2 - move in the +c direction
+        * 3 - move in the -c direction
+     * Observations (6 discrete observations)
+        * o[0] - the current x position
+        * o[1] - the current y position
+        * o[2] - obstacle in the +r direction?
+        * o[3] - obstacle in the -r direction?
+        * o[4] - obstacle in the +c direction?
+        * o[5] - obstacle in the -c direction?
+    """
+    def __init__(self, granularity = 8):
+        """
+        generate the maze
+        """
+        MazeEnvironment.__init__(self)
+        action_info = FeatureVectorInfo() # describes the actions
+        observation_info = FeatureVectorInfo() # describes the observations
+        reward_info = FeatureVectorInfo() # describes the rewards
+        action_info.add_discrete(0, CONT_MAZE_N_ACTIONS-1) # action
+        ( (xmin, ymin), (xmax, ymax) ) = MazeEnvironment.maze.xy_limits()
+        print 'MAZE LIMITS', ( (xmin, ymin), (xmax, ymax) )
+        observation_info.add_continuous(xmin, xmax) # x-coord
+        observation_info.add_continuous(ymin, ymax) # y-coord
+        for (dr, dc) in MAZE_MOVES:
+            observation_info.add_continuous(0,1) # movement sensor
+        reward_info.add_continuous(-100,100)
+        self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
+        self.max_steps = MAX_STEPS * (granularity * 2) # allow 2x granularity steps per cell
+        self.granularity = granularity
+        print 'Initialized GranularMazeEnvironment'
+
+    def reset(self, agent):
+        """
+        reset the environment to its initial state
+        """
+        (x,y) = MazeEnvironment.maze.rc2xy(0,0)
+        agent.state.position = Vector3f(x,y,0)
+        agent.state.rotation = Vector3f(0,0,0)
+        self.agents_at_goal.discard(agent)
+        print 'Episode %d complete' % agent.episode
+        return True
+
+    def set_position(self, agent, new_pose):
+        """
+        set the next agent position to new_pose = (x,y,h)
+        """
+        new_x, new_y, new_heading = new_pose
+        pos = agent.state.position
+        if pos.x == new_x and pos.y == new_y:
+            self.set_animation(agent, 'stand')
+        else:
+            pos.x, pos.y = new_x, new_y
+            agent.state.position = pos
+            self.set_animation(agent, 'run')
+
+    def step(self, agent, action):
+        """
+        Granular version
+        """
+        (x,y) = agent.state.position.x, agent.state.position.y
+        (r,c) = MazeEnvironment.maze.xy2rc(x, y)
+        a = int(action[0])
+
+        # check if we reached the goal
+        if r == ROWS - 1 and c == COLS - 1:
+            self.agents_at_goal.add(agent)
+            return self.rewards.goal_reached(agent) * self.max_steps
+
+        # check if we ran out of time
+        elif agent.step >= self.max_steps - 1:
+            return self.rewards.last_reward(agent) * self.max_steps
+
+        # check if the action was a null action
+        if not self.agent_info.actions.validate(action):
+            # check if we ran out of time
+            if agent.step >= self.max_steps - 1:
+                return self.rewards.last_reward(agent) * self.max_steps
+            # check if we reached the goal
+            elif r == ROWS - 1 and c == COLS - 1:
+                self.agents_at_goal.add(agent)
+                return self.rewards.goal_reached(agent) * self.max_steps
+            else:
+                self.set_animation(agent, 'stand')
+                return self.rewards.null_move(agent)
+
+        # calculate new pose
+        (dr, dc) = MAZE_MOVES[a]
+        dx, dy = dr * GRID_DX / self.granularity, dc * GRID_DY / self.granularity
+        new_x, new_y = x + dx, y + dy
+        (new_r, new_c) = MazeEnvironment.maze.xy2rc(new_x, new_y)
+        next_rotation = self.get_next_rotation((dx,dy))
+        new_heading = next_rotation.z
+        rotation = agent.state.rotation
+        prev_heading = rotation.z
+        
+        # if the heading is right
+        if new_heading == prev_heading:
+            # check if we are in bounds
+            if not MazeEnvironment.maze.xy_bounds(new_x, new_y):
+                self.set_animation(agent, 'jump')
+                return self.rewards.out_of_bounds(agent)
+            # check if there is a wall in the way
+            elif MazeEnvironment.maze.is_wall(r,c, new_r - r, new_c - c):
+                self.set_animation(agent, 'jump')
+                return self.rewards.hit_wall(agent)
+            # if the heading is right, change the position
+            self.set_position(agent, (new_x, new_y, new_heading))
+        else:
+            # if the heading is not right, just change the heading and run the
+            # rotation animation:
+            # "run" "stand" "turn_r_xc" "turn_l_xc" "turn_r_lx" "turn_l_lx"
+            # "turn_r_xxx" "turn_l_xxx" "pick_up" "put_down"
+            # "hold_run" "hold_stand" "hold_r_xc" "hold_l_xc"
+            # "hold_turn_r_lx" "hold_turn_l_lx" "hold_turn_r_xxx" "hold_turn_l_xxx"
+            # "jump" "hold_jump"
+            if new_heading - prev_heading > 0:
+                if new_heading - prev_heading > 90:
+                    new_heading = prev_heading + 90
+                self.set_animation(agent, 'turn_l_lx')
+            else:
+                if new_heading - prev_heading < 90:
+                    new_heading = prev_heading - 90
+                self.set_animation(agent, 'turn_r_lx')
+            rot0 = copy(agent.state.rotation)
+            rot0.z = new_heading
+            agent.state.rotation = rot0
+            print 'skip', agent.__class__.__name__
+            agent.skip() # don't get a new action, just retry this one
+            return self.rewards.valid_move(agent)
+
+        # check if we reached the goal
+        if new_r == ROWS - 1 and new_c == COLS - 1:
+            self.agents_at_goal.add(agent)
+            return self.rewards.goal_reached(agent) * self.max_steps
+
+        # check if we ran out of time
+        elif agent.step >= self.max_steps - 1:
+            return self.rewards.last_reward(agent) * self.max_steps
+
+        # return a normal reward
+        return self.rewards.valid_move(agent)
+
+    def sense(self, agent, obs):
+        """
+        Granular version
+        """
+        pos = agent.state.position # current position
+        rot = agent.state.rotation # current rotation
+        (x,y,heading) = (pos.x, pos.y, rot.z) # current pose
+        i_obs = 0
+        obs[i_obs] = x; i_obs += 1 # the agent can observe its position
+        obs[i_obs] = y; i_obs += 1 # the agent can observe its position
+        p0 = agent.state.position
+        for (dr, dc) in MAZE_MOVES:
+            direction = Vector3f(dr, dc, 0)
+            ray = (p0, p0 + direction * GRID_DX / self.granularity)
+            result = getSimContext().findInRay(ray[0], ray[1], 1, True)
+            if len(result) > 0:
+                (sim, hit) = result
+                len1 = (ray[1] - ray[0]).getLength() # max extent
+                len2 = (hit - ray[0]).getLength() # actual extent
+                if len1 != 0:
+                    obs[i_obs] = len2/len1; i_obs += 1
+                else:
+                    obs[i_obs] = 0; i_obs += 1
+        if not self.agent_info.sensors.validate(obs):
+            print 'ERROR: incorect observation!', obs
+            print '       should be:', self.agent_info.sensors
+        return obs
 
 def wrap_degrees(a,da):
     a2 = a + da
