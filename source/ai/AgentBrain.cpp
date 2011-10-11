@@ -9,6 +9,17 @@ namespace OpenNero
 {
     using namespace boost::python;
 
+    /// Should the next call to act be skipped? (clears the flag)
+    bool AgentBrain::GetSkip() const
+    {
+        if (skip_flag) {
+            skip_flag = false;
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     /// called right before the agent is born
     bool PyAgentBrain::initialize(const AgentInitInfo& init_info)
     {
@@ -34,7 +45,7 @@ namespace OpenNero
         TryOverride("act", result, time, observations, reward);
         return result;
     }
-
+    
     /// called to tell agent about its last reward
     bool PyAgentBrain::end(const TimeType& time, const Reward& reward)
     {

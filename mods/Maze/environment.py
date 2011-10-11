@@ -179,11 +179,6 @@ class MazeEnvironment(Environment):
         rotation = agent.state.rotation
         prev_heading = rotation.z
 
-        # if the agent is a marker, just change the position
-        if agent.state.id in self.marker_states:
-            self.set_position(agent, (new_r, new_c, new_heading))
-            return 0
-
         # if the heading is right
         if new_heading == prev_heading:
             # check if we are in bounds
@@ -215,6 +210,7 @@ class MazeEnvironment(Environment):
             rot0 = copy(agent.state.rotation)
             rot0.z = new_heading
             agent.state.rotation = rot0
+            agent.skip() # don't get a new action, just retry this one
             return self.rewards.valid_move(agent)
 
         # check if we reached the goal
@@ -562,17 +558,41 @@ class GranularMazeEnvironment(MazeEnvironment):
         new_heading = next_rotation.z
         rotation = agent.state.rotation
         prev_heading = rotation.z
-
-        # check if we are in bounds
-        if not MazeEnvironment.maze.xy_bounds(new_x, new_y):
-            self.set_animation(agent, 'jump')
-            return self.rewards.out_of_bounds(agent)
-        # check if there is a wall in the way
-        elif MazeEnvironment.maze.is_wall(r,c,new_r-r,new_c-c):
-            self.set_animation(agent, 'jump')
-            return self.rewards.hit_wall(agent)
-        # if the heading is right, change the position
-        self.set_position(agent, (new_x, new_y, new_heading))
+        
+        # if the heading is right
+        if new_heading == prev_heading:
+            # check if we are in bounds
+            if not MazeEnvironment.maze.xy_bounds(new_x, new_y):
+                self.set_animation(agent, 'jump')
+                return self.rewards.out_of_bounds(agent)
+            # check if there is a wall in the way
+            elif MazeEnvironment.maze.is_wall(r,c, new_r - r, new_c - c):
+                self.set_animation(agent, 'jump')
+                return self.rewards.hit_wall(agent)
+            # if the heading is right, change the position
+            self.set_position(agent, (new_x, new_y, new_heading))
+        else:
+            # if the heading is not right, just change the heading and run the
+            # rotation animation:
+            # "run" "stand" "turn_r_xc" "turn_l_xc" "turn_r_lx" "turn_l_lx"
+            # "turn_r_xxx" "turn_l_xxx" "pick_up" "put_down"
+            # "hold_run" "hold_stand" "hold_r_xc" "hold_l_xc"
+            # "hold_turn_r_lx" "hold_turn_l_lx" "hold_turn_r_xxx" "hold_turn_l_xxx"
+            # "jump" "hold_jump"
+            if new_heading - prev_heading > 0:
+                if new_heading - prev_heading > 90:
+                    new_heading = prev_heading + 90
+                self.set_animation(agent, 'turn_l_lx')
+            else:
+                if new_heading - prev_heading < 90:
+                    new_heading = prev_heading - 90
+                self.set_animation(agent, 'turn_r_lx')
+            rot0 = copy(agent.state.rotation)
+            rot0.z = new_heading
+            agent.state.rotation = rot0
+            print 'skip', agent.__class__.__name__
+            agent.skip() # don't get a new action, just retry this one
+            return self.rewards.valid_move(agent)
 
         # check if we reached the goal
         if new_r == ROWS - 1 and new_c == COLS - 1:
