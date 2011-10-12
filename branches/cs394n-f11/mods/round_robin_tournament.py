@@ -6,11 +6,9 @@ import logging
 import multiprocessing as mp
 import optparse
 import os
-import random
 import re
 import subprocess
 import sys
-import threading
 import time
 
 FLAGS = optparse.OptionParser(usage='%s [OPTIONS] POPULATION-FILE...' % sys.argv[0])
@@ -24,37 +22,13 @@ FLAGS.add_option('-r', '--rounds', default=1, type=int, metavar='N',
 FLAGS.add_option('-v', '--verbose', action='store_true', help='be more verbose')
 
 
-def kill_after(process, delay):
-    '''Kill a process after some delay.'''
-    time.sleep(delay)
-    logging.info('sending TERM to %s', process)
-    process.terminate()
-    time.sleep(2)
-    if process.poll() is None:
-        logging.info('sending KILL to %s', process)
-        process.kill()
-
-
 def run_battle_locally(team1, team2, duration):
     '''Run a battle locally (i.e. on the local CPU) for duration seconds.'''
     logging.info('running battle locally: %s vs %s', team1, team2)
-    team1 = os.path.abspath(team1)
-    team2 = os.path.abspath(team2)
-    battle = subprocess.Popen([
-        './OpenNERO',
-        '--mod', 'NERO_Battle',
-        '--modpath', 'NERO_Battle:_NERO:common',
-        '--headless',
-        '--command', 'Match(%r, %r)' % (team1, team2),
-        ],
-        stdout=subprocess.PIPE,
-        )
-
-    # kill the battle after some duration.
-    t = threading.Thread(target=kill_after, args=(battle, duration))
-    t.isDaemon = True
-    t.start()
-
+    opa = os.path.abspath
+    battle = subprocess.Popen(
+        ['./condor_battle.sh', opa(team1), opa(team2), str(duration)],
+        stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return battle.communicate()[0]
 
 
@@ -75,11 +49,10 @@ Queue 1
 
 def run_battle_on_condor(team1, team2, duration):
     '''Run a battle on condor for duration seconds.'''
-    logfile = '%s_%s_%d_%d' % (re.sub(r'\W+', '_', team1),
-                               re.sub(r'\W+', '_', team2),
-                               time.time(),
-                               os.getpid())
-
+    def fmt(s):
+        return re.sub(r'\W+', '_', os.path.splitext(s)[0])
+    logfile = 'nero_battle_%s_%s_%d_%d' % (
+        fmt(team1), fmt(team2), time.time(), os.getpid())
     logging.info('running battle on condor: %s', logfile)
 
     submit = subprocess.Popen(
