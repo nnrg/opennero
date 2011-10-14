@@ -1,3 +1,4 @@
+import random
 from OpenNero import *
 from common import *
 import Maze
@@ -76,31 +77,66 @@ class CustomRLAgent(AgentBrain):
         self.gamma = gamma
         self.alpha = alpha
         self.epsilon = epsilon
+        """
+        Our Q-function table. Maps from a tuple of observations (state) to 
+        another map of actions to Q-values. To look up a Q-value, call the predict method.
+        """
+        self.Q = {} # our Q-function table
         print 'CustomRLAgent started with gamma: %g, alpha: %g, epsilon: %g' % (gamma, alpha, epsilon)
-
+    
     def initialize(self, init_info):
         """
         Create a new agent using the init_info sent by the environment
         """
         self.action_info = init_info.actions
         self.sensor_info = init_info.sensors
-        print 'CutomRLAgent initialize method called'
-        print '             action space:', self.action_info
-        print '             state space:', self.sensor_info
         return True
+    
+    def predict(self, observations, action):
+        """
+        Look up the Q-value for the given state (observations), action pair.
+        """
+        o = tuple([x for x in observations])
+        if o not in self.Q:
+            return 0
+        else:
+            return self.Q[o][action]
 
+    def update(self, observations, action, new_value):
+        """
+        Update the Q-function table with the new value for the (state, action) pair
+        and update the blocks drawing.
+        """
+        o = tuple([x for x in observations])
+        aMin = self.action_info.min(0)
+        aMax = self.action_info.max(0)
+        actions = range(aMin, aMax+1)
+        if o not in self.Q:
+            self.Q[o] = [0 for a in actions]
+        self.Q[o][action] = new_value
+        self.draw_q(o)
+    
+    def draw_q(self, o):
+        e = get_environment()
+        if hasattr(e, 'draw_q'):
+            e.draw_q(o, self.Q)
+
+    def get_possible_actions(self, observations):
+        """
+        Get the possible actions that can be taken given the state (observations)
+        """
+        aMin = self.action_info.min(0)
+        aMax = self.action_info.max(0)
+        actions = range(aMin, aMax+1)
+        return actions
+    
     def start(self, time, observations):
         """
         Called to figure out the first action given the first observations
         @param time current time
         @param observations a DoubleVector of observations for the agent (use len() and [])
         """
-        # right now just get a random action and do it
-        action_to_return = self.action_info.random()
-        # could also decide to do something else:
-        # action_to_return = self.action_info.get_instance()
-        # action_to_return[0] = the_best_action
-        return action_to_return
+        return None
 
     def act(self, time, observations, reward):
         """
@@ -109,24 +145,37 @@ class CustomRLAgent(AgentBrain):
         @param observations a DoubleVector of observations for the agent (use len() and [])
         @param the reward for the agent
         """
-        # get the reward
+        # get the reward from the previous action
         reward_received = reward[0]
-        print 'CustomRL reward:',reward_received
-        # right now just get a random action and do it
-        action_to_return = self.action_info.random()
-        # could also decide to do something else:
-        # action_to_return = self.action_info.get_instance()
-        # action_to_return[0] = the_best_action
-        return action_to_return
+
+        # get the updated epsilon, in case the slider was changed by the user
+        self.epsilon = get_environment().epsilon
+
+        # get the old Q value
+
+        # get the max expected value for our possible actions
+
+        # update the Q value
+
+        # select the action to take
+
+        # return that action
+        return None
 
     def end(self, time, reward):
         """
         receive the reward for the last observation
         """
-        # get the reward
+        # get the reward from the last action
         reward_received = reward[0]
-        print 'CustomRL final reward:',reward_received
+
+        # get the updated epsilon, in case the slider was changed by the user
+        self.epsilon = get_environment().epsilon
+
+        # Update the Q value
+
         return True
+
 
 class SearchAgent(AgentBrain):
     """ Base class for maze search agents """
