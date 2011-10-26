@@ -31,10 +31,11 @@ class MazeRewardStructure:
         return 100
     def last_reward(self, agent):
         """ reward for ending without reaching the goal """
-        pos = agent.state.position
-        (r,c) = get_environment().maze.xy2rc(pos.x, pos.y)
-        print 'EPISODE ENDED AT', r, c
-        return 100.0*(r+c)/(ROWS+COLS)
+        #pos = agent.state.position
+        #(r,c) = get_environment().maze.xy2rc(pos.x, pos.y)
+        #print 'EPISODE ENDED AT', r, c
+        #return 100.0*(r+c)/(ROWS+COLS)
+        return -1
 
 class MazeEnvironment(Environment):
     maze = Maze.generate(ROWS, COLS, GRID_DX, GRID_DY)
@@ -339,18 +340,24 @@ class MazeEnvironment(Environment):
             else: p.x += dr*value
             if dc == 0: dc = 0.1
             else: p.y += dc*value
-            if self.handles[o][a] is None:
+            if value == 0 and self.handles[o][a] is not None:
+                # don't show 0 values
+                removeObject(self.handles[o][a])
+                self.handles[o][a] = None
+            elif self.handles[o][a] is None:
+                # create the cube to show the value
                 self.handles[o][a] = \
                     addObject("data/shapes/cube/BlueCube.xml", \
                     p, Vector3f(0, 0, 0), scale=Vector3f(0.5, 0.5, 0.5))
             else:
+                # move the existing cube
                 getSimContext().setObjectPosition(self.handles[o][a], p)
         center = len(MAZE_MOVES)
         if self.handles[o][center] is None:
             self.handles[o][center] = \
                 addObject("data/shapes/cube/YellowCube.xml", \
                     Vector3f(x, y, 0), \
-                    scale=Vector3f(0.4,0.4,0.4))
+                    scale=Vector3f(0.6,0.6,0.6))
 
 class EgocentricMazeEnvironment(MazeEnvironment):
     """
@@ -429,11 +436,11 @@ class EgocentricMazeEnvironment(MazeEnvironment):
             dx = -CONT_MAZE_WALK_BY * cos(radians(new_heading)) / self.granularity
             dy = -CONT_MAZE_WALK_BY * sin(radians(new_heading)) / self.granularity
         if dx or dy:
-            # leave a buffer of space in the right direction
-            #if dx != 0: dx += 0.5 * GRID_DX * dx / (dx * self.granularity)
-            #if dy: dy += 0.5 * GRID_DY * dy / (dy * self.granularity)
-            test_x, test_y = x + dx, y + dy
-            new_x, new_y = x + dx, y + dy
+            new_x, new_y = x + dx, y + dy # this is where we are moving to
+            # leave a buffer of space to check in the right direction
+            if dx != 0: dx += 2.5 * dx / dx # 2.5 of the right sign
+            if dy != 0: dy += 2.5 * dy / dy # 2.5 of the right sign
+            test_x, test_y = x + dx, y + dy # this is to check if there are walls there
             if not MazeEnvironment.maze.xy_bounds(test_x, test_y):
                 print "could not move, out of bounds"
                 self.set_animation(agent, 'stand')
@@ -673,7 +680,7 @@ class GranularMazeEnvironment(MazeEnvironment):
             print 'ERROR: incorect observation!', obs
             print '       should be:', self.agent_info.sensors
         return obs
-        
+
     def draw_q(self, o, Q):
         aa = Q[o] # get the action values
         min_a = min(aa) # minimum of the action values
