@@ -716,7 +716,7 @@ namespace OpenNero
             if( mSharedData->IsDirty(SimEntityData::kDB_Position) )
             {                
                 // convert from open nero's coordinate system to irrlicht's
-                mSceneNode->setPosition( ConvertNeroToIrrlichtPosition(mSharedData->GetPosition()) );
+                SetPosition( mSharedData->GetPosition() );
                 
             }
             
@@ -724,7 +724,7 @@ namespace OpenNero
             {                
                 // Irrlicht expects a left handed basis with the x-z plane being horizontal and y being up
                 // OpenNero uses a right handed basis with x-y plane being horizontal and z being up
-                mSceneNode->setRotation( ConvertNeroToIrrlichtRotation(mSharedData->GetRotation()) );
+                SetRotation( mSharedData->GetRotation() );
                 
             }
             

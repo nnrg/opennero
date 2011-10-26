@@ -87,10 +87,10 @@ class Maze:
         "return ( (xmin, ymin), (xmax, ymax) )"
         (xmin, ymin) = self.rc2xy(0,0)
         (xmax, ymax) = self.rc2xy(self.rows - 1, self.cols - 1)
-        xmin -= 0.49 * self.dx
-        ymin -= 0.49 * self.dy
-        xmax += 0.49 * self.dx
-        ymax += 0.49 * self.dy
+        xmin -= 0.5 * self.dx
+        ymin -= 0.5 * self.dy
+        xmax += 0.5 * self.dx
+        ymax += 0.5 * self.dy
         return ( (xmin, ymin), (xmax, ymax) )
 
     def xy_valid(self, x1, y1, x2, y2):
