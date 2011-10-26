@@ -21,7 +21,6 @@ To run the demo,
   # Click on the Start button to start the demo
 
 You can also
-  # Click on the Start button to start the demo
   # Click Pause to temporarily suspend the method
   # Click Reset to terminate the method
   # Click New Maze to try again with a different maze
