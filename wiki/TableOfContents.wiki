@@ -18,6 +18,7 @@
     * MazeGeneratorExercise
     * MazeSolverExercise
     * HeuristicSearchExercise
+    * QLearnerExercise
     * MazeLearnerExercise
     * AdvancedMazeExercise
  * [RunningOpenNero Running]
