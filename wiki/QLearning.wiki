@@ -18,6 +18,8 @@ To run the demo,
     # Q-Learning (Coarse) runs the coarse-grained (easy) version
     # Q-Learning (Fine) runs the fine-grained (more difficult) version
     # First Person Coarse/Fine allows you to solve the maze yourself
+
+You can also
   # Click on the Start button to start the demo
   # Click Pause to temporarily suspend the method
   # Click Reset to terminate the method
