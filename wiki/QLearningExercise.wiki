@@ -1,4 +1,5 @@
 #summary Extending Q-learning with a simple function approximator
+#labels Exercise
 #sidebar TableOfContents
 
 = Extending Q-learning with Function Approximation =
