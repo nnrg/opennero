@@ -4,7 +4,7 @@
 
 ==Introduction==
 
-[http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node65.html Q-Learning] (section 21.2.3 of [http://aima.cs.berkeley.edu/ AIMA]) is a type of temporal difference Reinforcement Learning that uses a _value function_ to pick the best action. In this demo, a Q-Learning agent leans to navigate the maze from experience: It learns how likely each possible move (east, west, north, south) at each location of the maze is to lead to the goal. The video below shows how it works; you can also run OpenNERO yourself to test it interactively.
+[http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node65.html Q-Learning] (section 21.2.3 of [http://aima.cs.berkeley.edu/ AIMA]) is a type of temporal difference Reinforcement Learning that uses a _value function_ to pick the best action. In this demo, a Q-Learning agent leans to navigate the maze from experience: It learns how likely each possible move (north, south, west, east) at each location of the maze is to lead to the goal. The video below shows how it works; you can also run OpenNERO yourself to test it interactively.
 
 <wiki:video url="http://www.youtube.com/watch?v=X33xYf4UlVw"/>
 
