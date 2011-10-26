@@ -424,7 +424,7 @@ class EgocentricMazeEnvironment(MazeEnvironment):
         rot = agent.state.rotation # current rotation
         (x,y,heading) = (pos.x, pos.y, rot.z) # current pose
         new_x, new_y, new_heading = x, y, heading # pose to be computed
-        dx, dy = None, None
+        dx, dy = 0, 0
         if a == CONT_MAZE_ACTIONS['CW']: # clockwise
             new_heading = wrap_degrees(heading, -CONT_MAZE_TURN_BY)
         elif a == CONT_MAZE_ACTIONS['CCW']: # counter-clockwise
@@ -435,18 +435,20 @@ class EgocentricMazeEnvironment(MazeEnvironment):
         elif a == CONT_MAZE_ACTIONS['BCK']: # backward
             dx = -CONT_MAZE_WALK_BY * cos(radians(new_heading)) / self.granularity
             dy = -CONT_MAZE_WALK_BY * sin(radians(new_heading)) / self.granularity
-        if dx or dy:
+        if dx != 0 or dy != 0:
             new_x, new_y = x + dx, y + dy # this is where we are moving to
+            print 'move test', x, y, dx, dy,
             # leave a buffer of space to check in the right direction
-            if dx != 0: dx += 2.5 * dx / dx # 2.5 of the right sign
-            if dy != 0: dy += 2.5 * dy / dy # 2.5 of the right sign
+            if dx != 0: dx = dx * 1.1 # leave a buffer for testing
+            if dy != 0: dy += dy * 1.1 # leave a buffer for testing
             test_x, test_y = x + dx, y + dy # this is to check if there are walls there
+            print dx, dy, test_x, test_y
             if not MazeEnvironment.maze.xy_bounds(test_x, test_y):
                 print "could not move, out of bounds"
                 self.set_animation(agent, 'stand')
                 return self.rewards.out_of_bounds(agent)
             elif not MazeEnvironment.maze.xy_valid(x,y,test_x,test_y):
-                print "could not move, hit a wall", x, y, test_x, test_y
+                print "could not move, hit a wall"
                 self.set_animation(agent, 'stand')
                 return self.rewards.hit_wall(agent)
             if new_x != x or new_y != y:
