@@ -105,7 +105,7 @@ def CreateGui(guiMan):
     ui.speedupScroll.OnScrollBarChange = speedup_adjusted(ui)
 
     # THE WINDOW THAT HOLDS ALL THE CONTROLS ABOVE
-    ui.agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(window_width, 5*control_height+25), 'Agent')
+    ui.agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(10, 10), Pos2i(window_width, 5*control_height+25), 'Agent')
     ui.agentWindow.addChild(ui.agentBoxLabel)
     ui.agentWindow.addChild(ui.agentComboBox)
     ui.agentWindow.addChild(ui.newMazeButton)
@@ -187,7 +187,7 @@ def recenter(cam):
     """ return a function that recenters the camera """
     def closure():
         """recenters the camera"""
-        cam.setPosition(Vector3f(0, 0, 80))
+        cam.setPosition(Vector3f(-20, -20, 80))
         cam.setTarget(Vector3f(GRID_DX * ROWS / 2, GRID_DY * COLS / 2, 0))
     return closure
 
