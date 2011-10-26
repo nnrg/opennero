@@ -221,21 +221,23 @@ namespace OpenNero
         /// Update rotation of camera
         /// @param cam camera
         /// @param rotation amount camera is rotated
-        void UpdateRotation(const SceneObject* scene_object, CameraPtr cam)
+        void UpdateRotation(const SceneObject* scene_object, CameraPtr cam, Vector3f new_rotation)
         {
-            Vector3f rotor(scene_object->getRotation() - lastRotation);
+            Vector3f rotor(new_rotation - scene_object->getRotation());
             Vector3f pos(scene_object->getPosition());
             Vector3f t(cam->getTarget());
             t.rotateXYBy(rotor.Z, pos);
+            //LOG_F_DEBUG("ivk", "CAMERA SET TARGET " << t << " from " << cam->getTarget() << " after turn by " << rotor.Z);
             cam->setTarget(t);
             lastRotation = scene_object->getRotation();
         }
         
-        void UpdatePosition(const SceneObject* scene_object, CameraPtr cam)
+        void UpdatePosition(const SceneObject* scene_object, CameraPtr cam, Vector3f new_position)
         {
-            Vector3f displacement(scene_object->getPosition() - lastPosition);
+            Vector3f displacement(new_position - scene_object->getPosition());
             Vector3f target(cam->getTarget());
             target = target + displacement;
+            //LOG_F_DEBUG("ivk", "CAMERA SET TARGET " << target << " from " << cam->getTarget() << " after move by " << displacement);
             cam->setTarget(target);
             lastPosition = scene_object->getPosition();
         }
@@ -574,17 +576,17 @@ namespace OpenNero
             scale.Z = scale.Z * data.GetScale().Z;
             mSceneNode->setScale( ConvertNeroToIrrlichtPosition(scale) );
             
-            // set the position of the object
-            mSceneNode->setPosition( ConvertNeroToIrrlichtPosition(data.GetPosition()) );
-            
-            // set the rotation of the object
-            mSceneNode->setRotation( ConvertNeroToIrrlichtRotation(data.GetRotation()) );
-            
             // add a ref to the scene node
             SafeIrrGrab(mSceneNode);
             
             // make the id of the scene node the same as the SimId of our object
             mSceneNode->setID(ConvertSimIdToSceneId(data.GetId(), data.GetType()));
+
+            // set the position of the object
+            SetPosition( data.GetPosition() );
+            
+            // set the rotation of the object
+            SetRotation( data.GetRotation() );
             
 #if SCENEOBJECT_ENABLE_STATS
             // debug information
@@ -859,7 +861,7 @@ namespace OpenNero
         Assert(mSceneNode);
         if (mCamera && mFPSCamera)
         {
-            mFPSCamera->UpdatePosition(this, mCamera);
+            mFPSCamera->UpdatePosition(this, mCamera, pos);
         }
         mSceneNode->setPosition(ConvertNeroToIrrlichtPosition(pos));
     }
@@ -875,7 +877,7 @@ namespace OpenNero
         Assert(mSceneNode);
         if (mCamera && mFPSCamera)
         {
-            mFPSCamera->UpdateRotation(this, mCamera);
+            mFPSCamera->UpdateRotation(this, mCamera, rotation);
         }
         mSceneNode->setRotation(ConvertNeroToIrrlichtRotation(rotation));
     }
@@ -885,6 +887,12 @@ namespace OpenNero
         AssertMsg( cam->getFunctionality() == Camera::kFunc_FPS, "Cannot attach non-FPS cameras" );
 		AssertMsg( mFPSCamera, "missing information about how to attach the camera" );
         mCamera = cam;
+        if (mCamera && mFPSCamera)
+        {
+            mFPSCamera->UpdatePosition(this, mCamera, getPosition());
+            mFPSCamera->UpdateRotation(this, mCamera, getRotation());
+        }
+
     }
     
     bool SceneObject::SetAnimation( const std::string& animation_type )
