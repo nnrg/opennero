@@ -24,11 +24,11 @@ Create a new class called `MyRLAgent` by copying the existing `CustomRLAgent`. V
 
  Then try running your agent on the fine-grained version. This environment divides the world into much smaller steps (64x64), resulting in a substantially larger state space. You'll likely notice that your agent is not performing as well with the larger state. In such cases, it's helpful to implement a function approximator that abstracts the large state space into something more manageable. You will implement two such approximators.
 
-=Tiling Approximator=
+===Tiling Approximator===
 
 Begin by implementing a simple tiling approximator. This function should simply map the current state back to the standard 8x8 space.
 
-=Nearest-Neighbors Approximator=
+===Nearest-Neighbors Approximator===
 
 Once this is completed and verified, implement a nearest-neighbors approximator. This function should interpolate between the values of the three nearest 8x8 locations. Note that each location should only be interpolated if it is reachable– don't interpolate across walls! Below is an example of how the nearest-neighbors approximator should work.
 
@@ -43,11 +43,11 @@ if ((3,4), (3,5)) in get_environment().maze.walls:
 
 The walls set uses the coarse-grained (8x8) mapping for rows and columns, which should work out well for your approximator.
 
-=Switching between approaches=
+===Switching between approaches===
 
 All three approaches (pure tabular, tiling, and nearest neighbors) should be implemented such that they can be easily switched between (e.g., by commenting out a piece of python code or passing a different parameter) so that it is easy to check that each works.
 
-===Debugging===
+==Debugging==
 
 If you run into any bugs in your program, you can find the error log file for OpenNERO at one of the following locations:
 
