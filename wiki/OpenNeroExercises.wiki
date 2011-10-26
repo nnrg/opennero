@@ -12,6 +12,6 @@ Extending OpenNERO
 
 AI Exercises
  * HeuristicSearchExercise - Modify existing DFS and `A*` algorithms in the Maze environment to implement Iterative-Deepening `A*` (`IDA`).
- * QLearningExercise - Modify the existing Q-learning agent to utilize a simple function approximator, in order to scale it to a more continuous state space.
+ * [QLearningExercise] - Modify the existing Q-learning agent to utilize a simple function approximator, in order to scale it to a more continuous state space.
  * MazeLearnerExercise - Modern AI is all about _machine learning_ - algorithms that improve with experience. This exercise will introduce you to ways of running, comparing, and writing learning algorithms in OpenNERO.
  * AdvancedMazeExercise - Write a creative learning algorithm to produce maze solutions.
