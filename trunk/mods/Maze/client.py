@@ -1,5 +1,4 @@
 from OpenNero import *
-from random import seed, randint
 
 # add the key and mouse bindings
 from inputConfig import createInputMapping
@@ -17,17 +16,17 @@ from Maze.environment import EgocentricMazeEnvironment, GranularMazeEnvironment
 AGENTS = [
     ('Depth First Search',      lambda: getMod().start_dfs(),           False),
     ('Breadth First Search',    lambda: getMod().start_bfs(),           False),
-    ('Single Agent A* Search',  lambda: getMod().start_astar(),         False),
-    ('Teleporting A* Search',   lambda: getMod().start_astar2(),        False),
-    ('Front A* Search',         lambda: getMod().start_astar3(),        False),
-    ('First Person',            lambda: getMod().start_fps(),           False),
-#    ('First Person (large)',    lambda: getMod().start_fps_large(),     False),
-    ('Random Actions',          lambda: getMod().start_random(),        False),
-    ('Sarsa RL',                lambda: getMod().start_sarsa(),         True),
-    ('Q-Learning RL',           lambda: getMod().start_qlearning(),     True),
-#    ('Q-Learning RL (large)',   lambda: getMod().start_qlearning(GranularMazeEnvironment), True),
-#    ('Custom RL',               lambda: getMod().start_customrl(),      True),
-#    ('Custom RL (large)',       lambda: getMod().start_customrl(GranularMazeEnvironment), True),
+    ('A* Search with Single Agent',  lambda: getMod().start_astar(),         False),
+    ('A* Search with Teleporting Agent',   lambda: getMod().start_astar2(),        False),
+    ('A* Search with multiple agents',         lambda: getMod().start_astar3(),        False),
+#    ('Random Actions',          lambda: getMod().start_random(),        False),
+#    ('Sarsa RL',                lambda: getMod().start_sarsa(),         True),
+#    ('Q-Learning RL',           lambda: getMod().start_qlearning(),     True),
+#    ('Q-Learning RL (more continuous)',   lambda: getMod().start_qlearning(GranularMazeEnvironment), True),
+    ('Q-Learning RL (discrete)',               lambda: getMod().start_customrl(),      True),
+    ('First Person (discrete)',       lambda: getMod().start_fps(),           False),
+    ('Q-Learning RL (more continous)',       lambda: getMod().start_customrl(GranularMazeEnvironment), True),
+    ('First Person (more continous)', lambda: getMod().start_fps_granular(),     False),
 ]
 
 class UI:

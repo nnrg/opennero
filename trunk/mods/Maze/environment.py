@@ -76,11 +76,11 @@ class MazeEnvironment(Environment):
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
         self.max_steps = MAX_STEPS
         self.speedup = 0
-        self.shortcircuit = False
         self.marker_map = {} # a map of cells and markers so that we don't have more than one per cell
         self.marker_states = {} # states of the marker agents that run for one cell and stop
         self.agent_map = {} # agents active on the map
         self.agents_at_goal = set() # the set of agents that have reached the goal
+        self.handles = {} # handes for the objects used to draw q-values
         print 'Initialized MazeEnvironment'
 
     def can_move(self, agent, move):
@@ -315,7 +315,42 @@ class MazeEnvironment(Environment):
         self.marker_map = {}
         for id in self.agent_map.values():
             removeObject(id)
+        for o in self.handles:
+            for a in range(len(self.handles[o])):
+                h = self.handles[o][a]
+                if h is not None:
+                    removeObject(h)
+        self.handles = {}
         self.agent_map = {}
+
+    def draw_q(self, o, Q):
+        aa = Q[o] # get the action values
+        min_a = min(aa) # minimum of the action values
+        aa = [a - min_a for a in aa] # shift to make all >= 0
+        sum_a = sum(aa) # sum of action values
+        if sum_a != 0: aa = [a/sum_a for a in aa] # normalize
+        if o not in self.handles: # create handles list
+            self.handles[o] = [None, None, None, None, None]
+        (x, y) = self.maze.rc2xy(o[0], o[1])
+        for a, (dr, dc) in enumerate(MAZE_MOVES):
+            p = Vector3f(x, y, 0)
+            value = aa[a] * 5
+            if dr == 0: dr = 0.1
+            else: p.x += dr*value
+            if dc == 0: dc = 0.1
+            else: p.y += dc*value
+            if self.handles[o][a] is None:
+                self.handles[o][a] = \
+                    addObject("data/shapes/cube/BlueCube.xml", \
+                    p, Vector3f(0, 0, 0), scale=Vector3f(0.5, 0.5, 0.5))
+            else:
+                getSimContext().setObjectPosition(self.handles[o][a], p)
+        center = len(MAZE_MOVES)
+        if self.handles[o][center] is None:
+            self.handles[o][center] = \
+                addObject("data/shapes/cube/YellowCube.xml", \
+                    Vector3f(x, y, 0), \
+                    scale=Vector3f(0.4,0.4,0.4))
 
 class EgocentricMazeEnvironment(MazeEnvironment):
     """
@@ -333,9 +368,10 @@ class EgocentricMazeEnvironment(MazeEnvironment):
         * o[3] - the distance to the target
         * o[4] - o[7] - ray sensors cast around the agent (starting with straight ahead and going clockwise)
     """
-    def __init__(self):
+    def __init__(self, granularity = 1):
         """
-        generate the maze
+        Constructor
+        @param granularity - the number of steps it takes to cover the whole WALK_BY distance
         """
         MazeEnvironment.__init__(self)
         action_info = FeatureVectorInfo() # describes the actions
@@ -352,7 +388,8 @@ class EgocentricMazeEnvironment(MazeEnvironment):
             observation_info.add_continuous(0,1) # ray sensor
         reward_info.add_continuous(-100,100)
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
-        self.max_steps = MAX_STEPS * 15 # allow 15 actions per cell
+        self.granularity = granularity
+        self.max_steps = MAX_STEPS * 15 * self.granularity # allow 15 * g actions per cell
         print 'Initialized EgocentricMazeEnvironment'
 
     def reset(self, agent):
@@ -386,13 +423,16 @@ class EgocentricMazeEnvironment(MazeEnvironment):
         elif a == CONT_MAZE_ACTIONS['CCW']: # counter-clockwise
             new_heading = wrap_degrees(heading, CONT_MAZE_TURN_BY)
         elif a == CONT_MAZE_ACTIONS['FWD']: # forward
-            dx = CONT_MAZE_WALK_BY * cos(radians(new_heading))
-            dy = CONT_MAZE_WALK_BY * sin(radians(new_heading))
+            dx = CONT_MAZE_WALK_BY * cos(radians(new_heading)) / self.granularity
+            dy = CONT_MAZE_WALK_BY * sin(radians(new_heading)) / self.granularity
         elif a == CONT_MAZE_ACTIONS['BCK']: # backward
-            dx = -CONT_MAZE_WALK_BY * cos(radians(new_heading))
-            dy = -CONT_MAZE_WALK_BY * sin(radians(new_heading))
+            dx = -CONT_MAZE_WALK_BY * cos(radians(new_heading)) / self.granularity
+            dy = -CONT_MAZE_WALK_BY * sin(radians(new_heading)) / self.granularity
         if dx or dy:
-            test_x, test_y = x + dx, y + dy # leave a buffer of space
+            # leave a buffer of space in the right direction
+            #if dx != 0: dx += 0.5 * GRID_DX * dx / (dx * self.granularity)
+            #if dy: dy += 0.5 * GRID_DY * dy / (dy * self.granularity)
+            test_x, test_y = x + dx, y + dy
             new_x, new_y = x + dx, y + dy
             if not MazeEnvironment.maze.xy_bounds(test_x, test_y):
                 print "could not move, out of bounds"
@@ -633,6 +673,34 @@ class GranularMazeEnvironment(MazeEnvironment):
             print 'ERROR: incorect observation!', obs
             print '       should be:', self.agent_info.sensors
         return obs
+        
+    def draw_q(self, o, Q):
+        aa = Q[o] # get the action values
+        min_a = min(aa) # minimum of the action values
+        aa = [a - min_a for a in aa] # shift to make all >= 0
+        sum_a = sum(aa) # sum of action values
+        if sum_a != 0: aa = [a/sum_a for a in aa] # normalize
+        if o not in self.handles: # create handles list
+            self.handles[o] = [None, None, None, None, None]
+        x, y = o[0], o[1]
+        for a, (dr, dc) in enumerate(MAZE_MOVES):
+            p = Vector3f(x, y, 0)
+            value = aa[a] * 10 / self.granularity
+            p.x += dr*value
+            p.y += dc*value
+            if self.handles[o][a] is None:
+                self.handles[o][a] = \
+                    addObject("data/shapes/cube/BlueCube.xml", \
+                    p, Vector3f(0, 0, 0), \
+                    scale=Vector3f(0.5, 0.5, 0.5)/self.granularity)
+            else:
+                getSimContext().setObjectPosition(self.handles[o][a], p)
+        center = len(MAZE_MOVES)
+        if self.handles[o][center] is None:
+            self.handles[o][center] = \
+                addObject("data/shapes/cube/YellowCube.xml", \
+                    Vector3f(x, y, 0), \
+                    scale=Vector3f(0.4,0.4,0.4)/self.granularity)
 
 def wrap_degrees(a,da):
     a2 = a + da
