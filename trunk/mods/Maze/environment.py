@@ -440,7 +440,7 @@ class EgocentricMazeEnvironment(MazeEnvironment):
             print 'move test', x, y, dx, dy,
             # leave a buffer of space to check in the right direction
             if dx != 0: dx = dx * 1.1 # leave a buffer for testing
-            if dy != 0: dy += dy * 1.1 # leave a buffer for testing
+            if dy != 0: dy = dy * 1.1 # leave a buffer for testing
             test_x, test_y = x + dx, y + dy # this is to check if there are walls there
             print dx, dy, test_x, test_y
             if not MazeEnvironment.maze.xy_bounds(test_x, test_y):
