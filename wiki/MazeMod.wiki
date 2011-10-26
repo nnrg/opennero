@@ -49,12 +49,12 @@ The controls can be easily redefined, but in general, the following keys should 
 The pull-down menu lists the different types of agents available for the Maze:
   * *Depth First Search* - starts the depth first search agent
   * *Breadth First Search* - starts the breadth first search agent
-  * `A*` search with three different types of visualizations
+  * *`A*` search* with three different types of visualizations
     * Single Agent `A*` Search - the agent has to navigate through the maze both to make progress and to back-track to move on
     * Teleporting `A*` Search - the agent can search for solutions faster by teleporting to the next open node instead of having to backtrack
     * Front `A*` Search - the agent now has the ability to produce several new agents when faced with different alternatives. These agents are marking the front of the search.
+  * *Q-Learning, coarse and fine* - the agent learns from reinforcement signal using the off-policy learning algorithm (tabular, no function approximation; the coarse version is based on a 8x8 and the fine version on a 64x64 location table).
   * *First Person Control, coarse and fine* - use the arrow keys to try to solve the maze yourself! The coarse version corresponds to the search agents and the coarse Q-learning agent, and the fine version corresponds to the fine Q-learning agent.
-  * *Q-Learning, coarse and fine* - the agent learns from reinforcement signal using the off-policy learning algorithm (tabular, no approximation; there are 8x8 and 64x64 versions of the tables).
 
 The control panel includes additional controls:
   * *The Exploit/Explore Slider* - this is applicable only to the learning methods such as SARSA and Q-Learning. Because these methods start out knowing nothing about the best actions and learn from experience, they face an _exploration-exploitation trade-off_ during learning, where they have to decide how much of the time to do the best thing they know how to do (exploit) and how much of the time to try to seek new experience (explore). The exploit/explore slider lets you make this decision for them - side it to the right to encourage exploration and slide it to the left to see what the best learned policy so far looks like.
