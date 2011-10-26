@@ -8,7 +8,6 @@
      * [HeuristicSearch Heuristic Search]
    * Reinforcement Learning
      * [QLearning Q-Learning]
-     * [SarsaLearning Sarsa(λ)]
    * Evolutionary Computation
      * [NeuroEvolution Neuroevolution]
      * [CoEvolution CoEvolution]
