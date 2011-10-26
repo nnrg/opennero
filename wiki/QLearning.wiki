@@ -18,14 +18,16 @@ To run the demo,
     # Q-Learning (Coarse) runs the coarse-grained (easy) version
     # Q-Learning (Fine) runs the fine-grained (more difficult) version
     # First Person Coarse/Fine allows you to solve the maze yourself
+  # Click on the Start button to start the demo
 
 You can also
   # Click on the Start button to start the demo
   # Click Pause to temporarily suspend the method
   # Click Reset to terminate the method
   # Click New Maze to try again with a different maze
-
-Using the Exploit-Explore slider (that appears once you start the Q-learning agent), you can adjust the fraction of the actions taken greedily (i.e. those with the best Q-values) vs. actions taken to explore the environment (i.e. randomly selected actions). Using the Speedup slider, you can run the visualization faster or slower. You can also move in the environment using the keyboard controls described in the [RunningOpenNero Running OpenNERO page].
+  # Use the Exploit-Explore slider (that appears once you start the Q-learning agent) to adjust the fraction of the actions taken greedily (i.e. those with the best Q-values) vs. actions taken to explore the environment (i.e. randomly selected actions).
+  # Use the Speedup slider to run the visualization faster or slower
+  # Use the keyboard controls described in the [RunningOpenNero Running OpenNERO page] to move around in the environment.
 
 The details of each method are described below.
 
