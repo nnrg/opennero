@@ -70,7 +70,6 @@ class TowerMod:
     def __init__(self):
         print 'Creating TowerMod'
         self.epsilon = 0.5
-        self.shortcircuit = False
         self.environment = None
         self.agent_id = None # the ID of the agent
         self.marker_map = {} # a map of cells and markers so that we don't have more than one per cell

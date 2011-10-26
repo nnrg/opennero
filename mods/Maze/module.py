@@ -6,73 +6,12 @@ from mazer import Maze
 from Maze.environment import MazeEnvironment, EgocentricMazeEnvironment
 from Maze.agent import FirstPersonAgent
 
-def count_neurons(constraints):
-    """
-    Count the number of neurons required to represent the given feature vector
-    constraints. For continuous values, scale to a single neuron. For discrete
-    values, use (max - min) neurons for a 1-of-N encoding.
-    """
-    n_neurons = 0
-    for i in range(len(constraints)):
-        if constraints.discrete(i):
-            n_neurons += int(constraints.max(i) - constraints.min(i) + 1)
-        else:
-            n_neurons += 1
-    return n_neurons
-
-def input_to_neurons(constraints, input):
-    """
-    Convert to the ANN coding required to represent the given feature vector.
-    For continuous values, scale to a single neuron. For discrete
-    values, use (max - min) neurons for a 1-of-N encoding.
-    """
-    neurons = []
-    for i in range(len(constraints)):
-        if constraints.discrete(i):
-            section_size = int(constraints.max(i) - constraints.min(i) + 1)
-            section = [0 for x in range(section_size)]
-            index = int(input[i] - constraints.min(i))
-            section[index] = 1
-            neurons.extend(section)
-        else:
-            delta = constraints.max(i) - constraints.min(i)
-            neurons.append(neurons[neuron_i] - constraints.min(i)) / delta
-    assert(len(neurons) == count_neurons(constraints))
-    return neurons
-
-def neurons_to_output(constraints, neurons):
-    """
-    Convert each continuous value from a neuron output to its range, and each
-    discrete value from it's max-of-N output encoding (where N = Max - Min).
-    """
-    result = constraints.get_instance()
-    neuron_i = 0
-    for result_i in range(len(constraints)):
-        assert(neuron_i < len(neurons))
-        assert(neuron_i >= result_i)
-        if constraints.discrete(result_i):
-            # section of the neurons coding for this output
-            section_size = int(constraints.max(result_i) - constraints.min(result_i) + 1)
-            section_values = neurons[neuron_i:(neuron_i + section_size)]
-            # the maximally activated neuron in this section
-            max_neuron = max(section_values)
-            max_index = section_values.index(max_neuron)
-            # the result output
-            result[result_i] = constraints.min(result_i) + max_index
-            neuron_i += section_size
-        else:
-            delta = constraints.max(result_i) - constraints.min(result_i)
-            result[result_i] = constraints.min(i) + neurons[neuron_i] * delta
-            neuron_i += 1
-    return result
-
 class MazeMod:
     # initializer
     def __init__(self):
         print 'Creating MazeMod'
         self.epsilon = 0.5
         self.speedup = 0.0
-        self.shortcircuit = False
         self.environment = None
         self.agent_id = None # the ID of the agent
         self.wall_ids = [] # walls on the map
@@ -120,7 +59,6 @@ class MazeMod:
         self.environment = env
         self.environment.epsilon = self.epsilon
         self.environment.speedup = self.speedup
-        self.environment.shortcircuit = self.shortcircuit
         self.delete_maze_objects()
         set_environment(env)
         self.add_maze_objects()
@@ -144,7 +82,7 @@ class MazeMod:
         """ start an agent """
         disable_ai()
         self.reset_maze()
-        if not isinstance(self.environment, env_class):
+        if self.environment.__class__.__name__ != env_class.__name__:
             self.set_environment(env_class())
         self.agent_id = addObject(xml, Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         enable_ai()
@@ -173,8 +111,17 @@ class MazeMod:
         """ start the FPS navigation demo """
         disable_ai()
         self.reset_maze()
-        if not isinstance(self.environment, EgocentricMazeEnvironment):
-            self.set_environment(EgocentricMazeEnvironment())
+        #if self.environment.__class__.__name__ != env_class.__name__:
+        self.set_environment(env_class())
+        self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        enable_ai()
+
+    def start_fps_granular(self):
+        """ start the FPS navigation demo with a more continous environment """
+        disable_ai()
+        self.reset_maze()
+        #if self.environment.__class__.__name__ != EgocentricMazeEnvironment.__name__:
+        self.set_environment(EgocentricMazeEnvironment(granularity=8))
         self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         enable_ai()
 
@@ -208,12 +155,6 @@ class MazeMod:
         print 'Speedup set to', self.speedup
         # speed up between 0 (delay set to 1 second) and 1 (delay set to 0)
         getSimContext().delay = 1.0 - speedup
-
-    def set_shortcircuit(self, shortcircuit):
-        self.shortcircuit = shortcircuit
-        print 'Short-circuit set to', self.shortcircuit
-        if self.environment:
-            self.environment.shortcircuit = shortcircuit
 
 gMod = None
 
