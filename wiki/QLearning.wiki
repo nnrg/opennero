@@ -2,15 +2,57 @@
 #labels Demo
 #sidebar TableOfContents
 
-[http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node65.html Q-Learning] is a type of temporal difference [http://webdocs.cs.ualberta.ca/~sutton/book/the-book.html Reinforcement Learning] (section 21.2.3 of [http://aima.cs.berkeley.edu/ AIMA]) that uses a _value function_ to pick the best action.
+==Introduction==
 
-In MazeMod, a Q-Learning reinforcement agent leans to navigate the maze from experience. To start this demonstration, start OpenNERO and click on the Maze button. Once the maze loads, click the Q-Learning button. You can adjust the fraction of the actions taken greedily vs actions taken to explore the environment using the explore-exploit slider.
+[http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node65.html Q-Learning] (section 21.2.3 of [http://aima.cs.berkeley.edu/ AIMA]) is a type of temporal difference Reinforcement Learning that uses a _value function_ to pick the best action. In this demo, a Q-Learning agent leans to navigate the maze from experience: It learns how likely each possible move (east, west, north, south) at each location of the maze is to lead to the goal. The video below shows how it works; you can also run OpenNERO yourself to test it interactively.
 
 <wiki:video url="http://www.youtube.com/watch?v=X33xYf4UlVw"/>
 
-Time-difference reinforcement learning agents can optionally use a _function approximator_ such as an ANN. In the simple case of the maze, the methods do not use an approximator and store a value for each state-action pair (tabular case).
+==Running the Demo==
 
-Implementation of this method can be found in [http://code.google.com/p/opennero/source/browse/trunk/source/ai/rl/QLearning.h QLearning.h] and [http://code.google.com/p/opennero/source/browse/trunk/source/ai/rl/QLearning.cpp QLearning.cpp].
+To run the demo,
+
+  # [RunningOpenNero start OpenNERO]
+  # Start the [MazeMod Maze mod]
+  # Select the method you want to run from the pull-down menu:
+    # Q-Learning (Coarse) runs the coarse-grained (easy) version
+    # Q-Learning (Fine) runs the fine-grained (more difficult) version
+    # First Person Coarse/Fine allows you to solve the maze yourself
+  # Click on the Start button to start the demo
+  # Click Pause to temporarily suspend the method
+  # Click Reset to terminate the method
+  # Click New Maze to try again with a different maze
+
+Using the Exploit-Explore slider (that appears once you start the Q-learning agent), you can adjust the fraction of the actions taken greedily (i.e. those with the best Q-values) vs. actions taken to explore the environment (i.e. randomly selected actions). Using the Speedup slider, you can run the visualization faster or slower. You can also move in the environment using the keyboard controls described in the [RunningOpenNero Running OpenNERO page].
+
+The details of each method are described below.
+
+
+==Q-Learning (Coarse) ==
+
+In the coarse-grained version, the maze consists of 8x8 discrete locations. At each location, the agent can select from four actions: North, south, west, and east. The learning therefore consists of learning Q-values for each action at each location. The Q-learner uses a tabular representation, which is appropriate and effective for such a small state and action space.
+
+The locations are shown by yellow squares, and the Q-values as blue squares in the four directions around it. The distance of each blue square from the yellow square indicates how large the Q-value is.  The values are initially small and random, and you can see how they gradually change as a result of learning.  The agent receives a reward of 100 when it reaches the goal and other states return a reward of 0. As soon as the agent reaches the goal for the first time, you should see that the values near the goal start to point in the right direction, and the learning proceeds gradually towards the start location.  After learning, the pattern of blue squares at each location thus forms an arrow pointing at the best direction of movement.
+
+
+==Q-Learning (Fine) ==
+
+In the fine-grained version, the maze has 64x64 locations, and there are the same four actions (north, south, west, each) at each location. As a result, the agent moves much more continuously within the maze; on the other hand, the space is much larger and more difficult to learn. Because the state and action space is still represented as a table, it takes a very long time for the agent to explore all states and eventually learn Q-values for them (probably too long for you to watch).
+
+To overcome the state explosion problem, Q-learning agents typically use a _function approximator_ such as a neural network to represent the fine grained space with a smaller Q-value table. Constructing such an approximator is left as an exercise for the reader.
+
+The locations and Q-values are represented as before as yellow and blue squares, however you may need to move closer to the maze to see them. The agent's movement is also slowed down so that it is easier to see the progress of the algorithm.
+
+
+==First Person Control ==
+
+The Coarse version of first person control is the same as in the Search demos: you can use the arrow keys to move forward and backward and to turn left and right, or the keys w (forward), a (left), d (right), s (back). Each move forward and backward gets you to one 8x8 grid location to the next, and each turn is 90 degrees. In this manner, the coarse first-person control corresponds to the task that the coarse Q-learner faces.
+
+The Fine version is similar, but moves from one 64x64 location to the next, corresponding to the Fine version of the Q-learner. As you can see, you can move around the space in a more continuous and natural fashion, but it also takes many more actions to get to the goal.
+
+==Source Code==
+
+Implementation of the Q-learning methods can be found in [http://code.google.com/p/opennero/source/browse/trunk/source/ai/rl/QLearning.py QLearning.py].
 
 Additional parameters can be set in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/data/shapes/character/SydneyQLearning.xml SydneyQLearning.xml] by changing the AI section:
 
@@ -25,3 +67,10 @@ The parameters passed to the QLearningBrain constructor are:
  * γ (gamma) - reward discount factor (between 0 and 1)
  * α (alpha) - learning rate (between 0 and 1)
  * ε (epsilon) - parameter for the epsilon-greedy policy (between 0 and 1)
+
+
+==Next Steps==
+
+An important next step is to implement a function approximator that allows learning more fine-grained behavior. There are many varieties of such approximators: a simple example is a linear approximator in the [QLearningExercise Q-learning exercise page]. A neural network can also be trained to approximate a continuous space based on a discrete Q-table. Coming up with better function approximators is an active area of reinforcement learning research.
+
+Other reinforcement learning methods are possible to implement in OpenNERO as well, such as Sarsa, policy iteration, etc.; see e.g. Chapter 21 in [http://aima.cs.berkeley.edu/ AIMA] for details.
