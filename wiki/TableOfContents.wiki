@@ -6,7 +6,7 @@
      * [FirstPersonSearch Introduction: First Person Search]
      * [BruteForceSearch Uninformed Search]
      * [HeuristicSearch Heuristic Search]
-   * Learning
+   * Reinforcement Learning
      * [QLearning Q-Learning]
      * [SarsaLearning Sarsa(λ)]
    * Evolutionary Computation
