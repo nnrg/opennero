@@ -22,7 +22,7 @@ Create a new class called `MyRLAgent` by copying the existing `CustomRLAgent`. V
 
 ==The fine-grained maze and function approximators==
 
- Then try running your agent on the fine-grained version. This environment divides the world into much smaller steps (64x64), resulting in a substantially larger state space. You'll likely notice that your agent is not performing as well with the larger state. In such cases, it's helpful to implement a function approximator that abstracts the large state space into something more manageable. You will implement two such approximators.
+Then try running your agent on the fine-grained version. This environment divides the world into much smaller steps (64x64), resulting in a substantially larger state space. You'll likely notice that your agent is not performing as well with the larger state. In such cases, it's helpful to implement a function approximator that abstracts the large state space into something more manageable. You will implement two such approximators.
 
 ===Tiling Approximator===
 
