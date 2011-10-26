@@ -55,7 +55,7 @@ The Fine version is similar, but moves from one 64x64 location to the next, corr
 
 ==Source Code==
 
-Implementation of the Q-learning methods can be found in [http://code.google.com/p/opennero/source/browse/trunk/source/ai/rl/QLearning.py QLearning.py].
+A Python implementation of the basic tabular Q-Learning agent can be found in the CustomRLAgent in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py agent.py].
 
 Additional parameters can be set in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/data/shapes/character/SydneyQLearning.xml SydneyQLearning.xml] by changing the AI section:
 
@@ -70,7 +70,6 @@ The parameters passed to the QLearningBrain constructor are:
  * γ (gamma) - reward discount factor (between 0 and 1)
  * α (alpha) - learning rate (between 0 and 1)
  * ε (epsilon) - parameter for the epsilon-greedy policy (between 0 and 1)
-
 
 ==Next Steps==
 
