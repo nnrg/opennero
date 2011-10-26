@@ -36,7 +36,7 @@ In the figure, your agent is currently at state Y and is considering taking the 
 
 If X has a larger value than the tiles below or to the right of Y, (Y, Left) will be chosen as the epsilon-greedy (state, action) pair, and that is the value we must use to update the approximator tiles (A, B, and C). To do this, we simply take the reward received at X and perform the standard Q-learning update to all the approximator tiles.
 
-In order to detect walls, your approximator can call get_environment().maze.walls to access the set of tuples containing the walls. The format for the walls set is ((r1,c1), (r2,c2)). For instance, to check if there is a wall between (3,4) and (3,5), your approximator could ask:
+In order to detect walls, your approximator can call {{{get_environment().maze.walls}}} to access the set of tuples containing the walls. The format for the walls set is (('r1','c1'), (`r2`,`c2`)). For instance, to check if there is a wall between (3,4) and (3,5), your approximator could ask:
 
 {{{
 if ((3,4), (3,5)) in get_environment().maze.walls:
