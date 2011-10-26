@@ -225,9 +225,9 @@ namespace OpenNero
         {
             Vector3f rotor(scene_object->getRotation() - lastRotation);
             Vector3f pos(scene_object->getPosition());
-            Vector3f t(cam->getTarget());
-            t.rotateXYBy(rotor.Z, pos);
-            cam->setTarget(t);
+            //Vector3f t(cam->getTarget());
+            //t.rotateXYBy(rotor.Z, pos);
+            //cam->setTarget(t);
             lastRotation = scene_object->getRotation();
         }
         
