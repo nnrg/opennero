@@ -1,13 +1,55 @@
 #summary Extending Q-learning with a simple function approximator
+#sidebar TableOfContents
 
-= Introduction =
+= Extending Q-learning with Function Approximation =
+
+In this exercise, you will implement a function approximator for the Python Q-learning agent. It will abstract a more fine-grained version of the problem space, making the problem tractable for the Q-Learner. 
+
+==The OpenNERO Platform==
+
+The following steps should help get you up and running in OpenNERO:
+
+  * Either:
+    * Install it on your own machine by downloading one of the [http://code.google.com/p/opennero/downloads/list prebuilt binaries]
+    * [BuildingOpenNero Build OpenNERO] on your own machine using the source code.
+
+==Creating your agent==
+
+To create your RL agent, open the [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py agent.py] file (located in `trunk/mods/Maze`). Just as in the search exercise, you will be creating your own agent. However, in this case, you will inherit from the `AgentBrain` class, since there is no need to highlight a final path.
+
+Create a new class called `MyRLAgent` by copying the existing `CustomRLAgent`. Verify that your agent works correctly by comparing its behavior to the built-in RL agent in the coarse version.
 
 
+==The fine-grained maze and function approximators==
 
+ Then try running your agent on the fine-grained version. This environment divides the world into much smaller steps (64x64), resulting in a substantially larger state space. You'll likely notice that your agent is not performing as well with the larger state. In such cases, it's helpful to implement a function approximator that abstracts the large state space into something more manageable. You will implement two such approximators.
 
-= Details =
+=Tiling Approximator=
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+Begin by implementing a simple tiling approximator. This function should simply map the current state back to the standard 8x8 space.
+
+=Nearest-Neighbors Approximator=
+
+Once this is completed and verified, implement a nearest-neighbors approximator. This function should interpolate between the values of the three nearest 8x8 locations. Note that each location should only be interpolated if it is reachable– don't interpolate across walls! Below is an example of how the nearest-neighbors approximator should work.
+
+In the figure, your agent is currently at state Y and is considering taking the action to move left to X. The function approximator would calculate the Q-value at X by interpolating the values of A, B, and C based on their Euclidean distance to X. For instance, X is 3.5 rows up and 1.5 rows to the left of A, so its distance is sqrt(3.5^2 + 1.5^2). Note that since the tiling of the approximator does not line up perfectly with the fine-grained space, every node in the fine-grained (64x64) space will be at least 0.5 rows and columns away from the nearest approximator (8x8) tile.
+
+If X has a larger value than the tiles below or to the right of Y, (Y, Left) will be chosen as the epsilon-greedy (state, action) pair, and that is the value we must use to update the approximator tiles (A, B, and C). To do this, we simply take the reward received at X and perform the standard Q-learning update to all the approximator tiles.
+
+In order to detect walls, your approximator can call get_environment().maze.walls to access the set of tuples containing the walls. The format for the walls set is ((r1,c1), (r2,c2)). For instance, to check if there is a wall between (3,4) and (3,5), your approximator could ask:
+
+if ((3,4), (3,5)) in get_environment().maze.walls:
+    print "There is a wall between (3,4) and (3,5)!"
+
+The walls set uses the coarse-grained (8x8) mapping for rows and columns, which should work out well for your approximator.
+
+=Switching between approaches=
+
+All three approaches (pure tabular, tiling, and nearest neighbors) should be implemented such that they can be easily switched between (e.g., by commenting out a piece of python code or passing a different parameter) so that it is easy to check that each works.
+
+===Debugging===
+
+If you run into any bugs in your program, you can find the error log file for OpenNERO at one of the following locations:
+
+  * *Linux or Mac:* `~/.opennero/nero_log.txt`
+  * *Windows:* `"AppData\Local\OpenNERO\nero_log.txt"` or `"Local Settings\Application Data\OpenNERO\nero_log.txt"` depending on the version of Windows you have.
