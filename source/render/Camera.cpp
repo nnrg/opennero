@@ -130,10 +130,9 @@ namespace OpenNero
         if (scene_object && scene_object->mSceneNode)
         {
             mCamera = ICameraSceneNode_IPtr( mIrr.mpSceneManager->addCameraSceneNodeNeroFP(scene_object->mSceneNode));
-			mCamera->bindTargetAndRotation(true);
             scene_object->attachCamera(shared_from_this());
+			mCamera->bindTargetAndRotation(true);
             setFunctionality(Camera::kFunc_FPS);
-            LOG_F_DEBUG("render", "Attached camera " << mCamera << " to object " << entity);
         }
         else
         {
