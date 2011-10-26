@@ -13,11 +13,17 @@ environment, as well as a first-person search setting.
 
 == What the display means ==
 
+In the search demo:
   * Red cube - goal position (opposite of the starting position)
   * Yellow marker - next location the agent is going to
   * Blue marker - past locations the agent has already expanded, i.e. whose successors have already been generated
   * Green markers - generated (but not yet expanded) locations the agent may return to
   * White markers - found path
+
+In the Q-learning demo:
+ * Yellow cube - location of a (discrete) state
+ * Blue cube - Q-value of the action in that state (direction from the yellow cube identifies the direction of the action (NSWE), and distance from the yellow cube corresponds to the actual Q-value: the further the blue cube is, the higher the corresponding Q-value
+
 
 == Controls ==
 
@@ -40,19 +46,20 @@ The controls can be easily redefined, but in general, the following keys should 
 
 ==User Interface==
 
-The button panel lists the different types of agents available for the Maze:
+The pull-down menu lists the different types of agents available for the Maze:
   * *Depth First Search* - starts the depth first search agent
   * *Breadth First Search* - starts the breadth first search agent
   * `A*` search with three different types of visualizations
     * Single Agent `A*` Search - the agent has to navigate through the maze both to make progress and to back-track to move on
     * Teleporting `A*` Search - the agent can search for solutions faster by teleporting to the next open node instead of having to backtrack
-    * Ftont `A*` Search - the agent now has the ability to produce several new agents when faced with different alternatives. These agents are marking the front of the search.
-  * *First Person Control* - use the arrow keys to try to solve the maze yourself!
-  * *Random Baseline* - the agent picks actions randomly, just to see how well that will work
-  * *SARSA* - the agent learns from reinforcement signal using the on-policy learning algorithm (tabular, no approximation)
-  * *Q-Learning* - the agent learns from reinforcement signal using the off-policy learning algorithm (tabular, no approximation)
+    * Front `A*` Search - the agent now has the ability to produce several new agents when faced with different alternatives. These agents are marking the front of the search.
+  * *First Person Control, coarse and fine* - use the arrow keys to try to solve the maze yourself! The coarse version corresponds to the search agents and the coarse Q-learning agent, and the fine version corresponds to the fine Q-learning agent.
+  * *Q-Learning, coarse and fine* - the agent learns from reinforcement signal using the off-policy learning algorithm (tabular, no approximation; there are 8x8 and 64x64 versions of the tables).
 
-The parameters panel shows additional controls for adjusting simulation parameters:
+The control panel includes additional controls:
   * *The Exploit/Explore Slider* - this is applicable only to the learning methods such as SARSA and Q-Learning. Because these methods start out knowing nothing about the best actions and learn from experience, they face an _exploration-exploitation trade-off_ during learning, where they have to decide how much of the time to do the best thing they know how to do (exploit) and how much of the time to try to seek new experience (explore). The exploit/explore slider lets you make this decision for them - side it to the right to encourage exploration and slide it to the left to see what the best learned policy so far looks like.
   * *The Speedup Slider* - this slider controls another tradeoff: one between displaying the simulation slowly enough to see robot animations and movements from cell to cell, and as quickly as the computer running OpenNERO can handle it. The speedup slider is again particularly useful when running the learning agents, because they may require a large amount of experience before finding the optimal path through the maze. To progress through the learning faster, slide the Speedup slider to the right.
   * *Generate New Maze Button* - this button allows you to mix things up by generating a new random maze. Some mazes take longer than others, and some are more suited to particular search techniques.
+  * *Pause/Continue* - Pause will temporarily suspend the execution of the algorithm; the button changes to *Continue* and hitting it will resume execution.
+  * *Start/Reset* - Start will begin running the selected algorithm; the button changes to Reset and hitting it will terminate the algorithm.
+  * *Help* - will get you to this page.
