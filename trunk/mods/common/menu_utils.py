@@ -101,6 +101,9 @@ class ScriptClient:
             print 'ScriptClient connected to ScriptServer at (%s, %d)' % (self.host, self.port)
         except socket.error, e:
             print 'ScriptClient could not connect to ScriptServer'
+    def __del__(self):
+        print 'ScriptClient closing socket...'
+        self.sock.close()
     def send(self, data):
         if data and self.sock:
             send(self.sock, data)
