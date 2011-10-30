@@ -134,6 +134,9 @@ def main(opts, teams):
         if s1 is not None and s2 is not None:
             dashboard[team1] += s1 - s2
             dashboard[team2] += s2 - s1
+        else:  # give a small penalty to both teams for not getting any score.
+            dashboard[team1] -= 1
+            dashboard[team2] -= 1
 
     # clean up the workers.
     [team_queue.put(None) for w in workers]
