@@ -25,6 +25,8 @@ namespace OpenNero
         Actions action;      ///< previous action taken
         Observations state;  ///< previous state
         Actions new_action;  ///< new action
+        int action_bins; ///< number of discrete bins for action space.
+        int state_bins; ///< number of discrete bins for state space.
     	// predicts reinforcement for current round
     	virtual double predict(const Observations& new_state) = 0;
     public:
@@ -42,6 +44,8 @@ namespace OpenNero
         , action()
         , state()
         , new_action()
+        , action_bins()
+        , state_bins()
         {}
 
         /// copy constructor
@@ -55,6 +59,8 @@ namespace OpenNero
         , action(agent.action)
         , state(agent.state)
         , new_action(agent.new_action)
+        , action_bins(agent.action_bins)
+        , state_bins(agent.state_bins)
         {}
 
         /// destructor
@@ -64,10 +70,10 @@ namespace OpenNero
         virtual bool initialize(const AgentInitInfo& init);
 
         /// called for agent to take its first step
-        virtual Actions start(const TimeType& time, const Observations& observations);
+        virtual Actions start(const TimeType& time, const Observations& new_state);
 
         /// act based on time, sensor arrays, and last reward
-        virtual Actions act(const TimeType& time, const Observations& observations, const Reward& reward);
+        virtual Actions act(const TimeType& time, const Observations& new_state, const Reward& reward);
 
         /// called to tell agent about its last reward
         virtual bool end(const TimeType& time, const Reward& reward);
@@ -102,9 +108,27 @@ namespace OpenNero
         /// select action according to policy
         double epsilon_greedy(const Observations& new_state);
 
+        /// quantize continuous state or action vectors
+        FeatureVector quantize_action(const FeatureVector& continuous) const;
+        FeatureVector quantize_state(const FeatureVector& continuous) const;
+
         /// load this object from a template
         bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data ) 
 			{ return false; /* TODO: implement when we have better template */ }
+
+        /// serialize this object to/from a Boost serialization archive
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            //LOG_F_DEBUG("rtNEAT", "serialize::tdbrain");
+            ar & BOOST_SERIALIZATION_NVP(mGamma);
+            ar & BOOST_SERIALIZATION_NVP(mAlpha);
+            ar & BOOST_SERIALIZATION_NVP(mEpsilon);
+            ar & BOOST_SERIALIZATION_NVP(action_list);
+            ar & BOOST_SERIALIZATION_NVP(mApproximator);
+            ar & BOOST_SERIALIZATION_NVP(action_bins);
+            ar & BOOST_SERIALIZATION_NVP(state_bins);
+        }
     };
 
 } // namespace OpenNero

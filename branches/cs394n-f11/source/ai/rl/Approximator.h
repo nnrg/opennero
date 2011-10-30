@@ -6,6 +6,7 @@
 #include "core/HashMap.h"
 #include <boost/unordered_map.hpp>
 #include <boost/functional/hash.hpp>
+#include <boost/serialization/serialization.hpp>
 
 namespace OpenNero
 {
@@ -61,6 +62,14 @@ namespace OpenNero
 
         /// update the value associated with a particular feature vector
         void update(const FeatureVector& sensors, const FeatureVector& actions, double target);
+
+        /// serialize this object to/from a Boost serialization archive
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            //LOG_F_DEBUG("rtNEAT", "serialize::tableapproximator");
+            ar & BOOST_SERIALIZATION_NVP(table);
+        }
     };
 
     /// A CMAC tile coding function approximator
@@ -96,6 +105,22 @@ namespace OpenNero
 
         /// update the value associated with a particular feature vector
         void update(const FeatureVector& sensors, const FeatureVector& actions, double target);
+
+        /// serialize this object to/from a Boost serialization archive
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            //LOG_F_DEBUG("rtNEAT", "serialize::tilesapproximator");
+            ar & BOOST_SERIALIZATION_NVP(mAlpha);
+            ar & BOOST_SERIALIZATION_NVP(ints_index);
+            ar & BOOST_SERIALIZATION_NVP(floats_index);
+            ar & BOOST_SERIALIZATION_NVP(num_tilings);
+            ar & BOOST_SERIALIZATION_NVP(num_weights);
+            ar & BOOST_SERIALIZATION_NVP(ints);
+            ar & BOOST_SERIALIZATION_NVP(floats);
+            ar & BOOST_SERIALIZATION_NVP(tiles);
+            ar & BOOST_SERIALIZATION_NVP(weights);
+        }
     };
 }
 

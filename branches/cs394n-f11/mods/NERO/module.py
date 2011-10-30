@@ -2,6 +2,7 @@ from common import *
 from OpenNero import getSimContext
 from NERO.NeroEnvironment import *
 from NERO.RTNEATAgent import *
+from NERO.RLAgent import *
 from NERO.Turret import *
 from constants import *
 import subprocess
@@ -73,14 +74,8 @@ class NeroModule:
     #The following is run when the Deploy button is pressed
     def start_rtneat(self):
         """ start the rtneat learning stuff"""
-        # Generate an initial rtNEAT Agent
-        dx = random.randrange(XDIM/20) - XDIM/40
-        dy = random.randrange(XDIM/20) - XDIM/40
-        dx = random.randrange(XDIM/20) - XDIM/40
-        dy = random.randrange(XDIM/20) - XDIM/40
-        id = addObject("data/shapes/character/steve_blue_armed.xml",Vector3f(self.spawn_x + dx,self.spawn_y + dy,2),type = OBJECT_TYPE_TEAM_0)
+        self.addAgent()
         enable_ai()
-        self.num_to_add -= 1
 
     #The following is run when the Save button is pressed
     def save_rtneat(self, location, pop):
@@ -152,9 +147,18 @@ class NeroModule:
         return self.num_to_add
 
     #This is the function ran when an agent already in the field causes the generation of a new agent
-    def addAgent(self,pos):
+    def addAgent(self):
+        which = 'blue_armed'
+        if self.environment and self.environment.ai_flavor == 'qlearning':
+            which = 'qlearning'
+        dx = random.randrange(XDIM/20) - XDIM/40
+        dy = random.randrange(XDIM/20) - XDIM/40
+        dx = random.randrange(XDIM/20) - XDIM/40
+        dy = random.randrange(XDIM/20) - XDIM/40
+        id = addObject("data/shapes/character/steve_%s.xml" % which,
+                       Vector3f(self.spawn_x + dx,self.spawn_y + dy,2),
+                       type=OBJECT_TYPE_TEAM_0)
         self.num_to_add -= 1
-        addObject("data/shapes/character/steve_blue_armed.xml",Vector3f(pos[0],pos[1],pos[2]),type = OBJECT_TYPE_TEAM_0)
 
 gMod = None
 

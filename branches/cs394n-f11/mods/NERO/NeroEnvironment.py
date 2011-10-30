@@ -7,6 +7,8 @@ from copy import copy
 from random import *
 import sys
 
+AI_FLAVOR = 'rtneat'  # or 'qlearning'
+
 class AgentState:
     """
     State that we keep for each agent
@@ -38,7 +40,6 @@ class NeroEnvironment(Environment):
     Environment for the Nero
     """
     def __init__(self):
-        from NERO.module import getMod
         """
         Create the environment
         """
@@ -73,14 +74,25 @@ class NeroEnvironment(Environment):
             # we don't care about the bounds of the individual dimensions
             rbound.add_continuous(-sys.float_info.max, sys.float_info.max) # range for reward
 
+        self.agent_info = AgentInitInfo(sbound, abound, rbound)
+
+        self.start_ai(AI_FLAVOR)
+
+    def start_ai(self, flavor):
+        self.ai_flavor = flavor
+        getattr(self, 'start_%s' % flavor)()
+
+    def start_rtneat(self):
         # initialize the rtNEAT algorithm parameters
         # input layer has enough nodes for all the observations plus a bias
         # output layer has enough values for all the actions
         # population size matches ours
         # 1.0 is the weight initialization noise
+        rbound = self.agent_info.reward
         rtneat = RTNEAT("data/ai/neat-params.dat", N_SENSORS, N_ACTIONS, pop_size, 1.0, rbound)
 
         # set the initial lifetime
+        from NERO.module import getMod
         lifetime = getMod().lt
         rtneat.set_lifetime(lifetime)
         print 'rtNEAT lifetime:', lifetime
@@ -88,7 +100,10 @@ class NeroEnvironment(Environment):
         set_ai("rtneat", rtneat)
         print "get_ai(rtneat):",get_ai("rtneat")
 
-        self.agent_info = AgentInitInfo(sbound, abound, rbound)
+    def start_qlearning(self):
+        disable_ai()
+        self.loop = True
+        enable_ai()
 
     def reset(self, agent):
         """
@@ -223,11 +238,10 @@ class NeroEnvironment(Environment):
             return reward
 
         # Spawn more agents if there are more to spawn
-        if get_ai("rtneat").ready():
+        if ((self.ai_flavor == 'rtneat' and get_ai("rtneat").ready()) or
+            self.ai_flavor == 'qlearning'):
             if getMod().getNumToAdd() > 0:
-                dx = randrange(XDIM/20) - XDIM/40
-                dy = randrange(XDIM/20) - XDIM/40
-                getMod().addAgent((getMod().spawn_x + dx, getMod().spawn_y + dy, 0))
+                getMod().addAgent()
 
         # Update Damage totals
         # TODO: move into a member function of state
