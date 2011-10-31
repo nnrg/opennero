@@ -117,12 +117,12 @@ class NeroEnvironment(Environment):
         return a blueprint for a new agent
         """
         for a in WALL_RAY_SENSORS:
-            agent.add_sensor(RaySensor(cos(radians(a)), sin(radians(a)), 0, 50, OBJECT_TYPE_OBSTACLE, True))
+            agent.add_sensor(RaySensor(cos(radians(a)), sin(radians(a)), 0, 50, OBJECT_TYPE_OBSTACLE, False))
         for (a0, a1) in FLAG_RADAR_SENSORS:
-            agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_FLAG, True))
+            agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_FLAG, False))
         for (a0, a1) in ENEMY_RADAR_SENSORS:
-            if agent.get_team() == 0: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_1, True))
-            if agent.get_team() == 1: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_0, True))
+            if agent.get_team() == 0: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_1, False))
+            if agent.get_team() == 1: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_0, False))
         return self.agent_info
 
     def get_state(self, agent):
