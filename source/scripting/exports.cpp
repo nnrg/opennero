@@ -609,12 +609,18 @@ namespace OpenNero {
             Kernel::instance().setModPath(path);
         }
         
+        void setWindowCaption(const std::string& caption)
+        {
+            Kernel::instance().SetWindowCaption(caption);
+        }
+        
 		void ExportKernelScripts()
 		{
 			py::def( "switchMod", &switchMod, "Switch the kernel to a new mod");
 			py::def( "findResource", &findResource, "Convert mod-relative path to filesystem path");
 			py::def( "getModPath", &getModPath, "get the resource search path of the current mod ( separated by ':' )");
 			py::def( "setModPath", &setModPath, "set the resource search path of the current mod ( separated by ':' )");
+            py::def( "setWindowCaption", &setWindowCaption, "set the last part of the window caption to display a custom message");
 		}
         
         void ExportPropertyMapScripts()

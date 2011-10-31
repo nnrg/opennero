@@ -86,14 +86,6 @@ namespace OpenNero
         : mIrrDevice()
         , mCurMod(new Mod())
         , mTransitionInfo()
-#if NERO_ALLOW_DEV_CONSOLE
-        , mConsole()
-        , mIOState()
-        , mBacktrackIdx()
-        , mBacktrackVector()
-        , mArgc(0)
-        , mArgv(NULL)
-#endif
         , mAppConfig()
     {}
 
@@ -107,10 +99,6 @@ namespace OpenNero
     // handle an event
     bool Kernel::OnEvent(const irr::SEvent& event)
     {
-#if NERO_ALLOW_DEV_CONSOLE
-        if( CheckConsoleAction(event) )
-            return true;
-#endif
 
         if( mCurMod->context )
             return mCurMod->context->HandleEvent(event);
@@ -174,12 +162,27 @@ namespace OpenNero
             mIrrDevice->yield();
         }
 
-#if NERO_ALLOW_DEV_CONSOLE
-        mIOState.PrepareForNextSimFrame();
-#endif
     }
 
-
+    /// @param caption the part of the window title after OpenNero - ModName
+    void Kernel::SetWindowCaption(const std::string& caption) 
+    {
+        if (mCurMod) {
+            std::string full_caption;
+            if (caption.empty()) {
+                full_caption = GetAppConfig().Title + " - " + mCurMod->name;
+            } else {
+                full_caption = GetAppConfig().Title + " - " + mCurMod->name + " - " + caption;
+            }
+            size_t length = full_caption.size() + 1;
+            wchar_t* wstr = new wchar_t[length];
+            mbstowcs(wstr, full_caption.c_str(), length);
+            mIrrDevice->setWindowCaption(wstr);
+        } else {
+            LOG_ERROR("Could not SetWindowCaption, no mod loaded!");
+        }
+    }
+    
 	/// clear the current mod, calling onPop on the context
 	void Kernel::flushCurrentMod()
 	{
@@ -247,11 +250,9 @@ namespace OpenNero
             bool modImported = ScriptingEngine::instance().ImportModule(name);
             AssertMsg( modImported, "Could not import mod " << name << " into the scripting engine" );
 
-#if NERO_ALLOW_DEV_CONSOLE
-            // inject our console to the gui manager
-            InjectConsole();
-#endif
         }
+        
+        SetWindowCaption("");
 
 		// return the new context
 		return mCurMod->context;
@@ -285,128 +286,6 @@ namespace OpenNero
         mIrrDevice = dev;
         mIrrDevice->setEventReceiver(this);
     }
-
-#if NERO_ALLOW_DEV_CONSOLE
-    void Kernel::InjectConsole()
-    {
-        Assert( mIrrDevice );
-
-        if( mCurMod->context && mCurMod->context->GetGuiManager() )
-        {
-            // save the visibility state and text from the prev mod
-            std::string sText = "";
-            bool visible = false;
-            bool focused = false;
-
-            if( mConsole )
-            {
-                sText = mConsole->getSText();
-                visible = mConsole->isVisible();
-                focused = mConsole->isFocused();
-            }
-
-            // create a console piece to interject into the scene
-            IGUIEnvironment* guiEnv = mIrrDevice->getGUIEnvironment();
-            IGUIEditBox* irrEditBox = guiEnv->addEditBox( L"", Rect2i( 0,0, 450, 25 ), true, NULL, GuiManager::AllocateGuiId() );
-            mConsole.reset( new GuiEditBox );
-            mConsole->setGuiElement( irrEditBox );
-
-            // restore the state
-            mConsole->setVisible(visible);
-            mConsole->setText(sText);
-
-            // add it to the current gui manager
-            mCurMod->context->GetGuiManager()->addGuiBase( mConsole->getId(), mConsole );
-
-            // set the focused if previously was
-            if( focused )
-                mConsole->setFocus();
-        }
-    }
-
-    bool Kernel::CheckConsoleAction( irr::SEvent event)
-    {
-        // check for console action
-        if( event.EventType == EET_GUI_EVENT )
-        {
-            if( mConsole && event.GUIEvent.EventType == EGET_EDITBOX_ENTER )
-            {
-                if( mConsole->getId() == event.GUIEvent.Caller->getID() )
-                {
-                    // clear out the console
-                    std::string cmd = mConsole->getSText();
-                    mConsole->setText( "" );
-
-                    // assumes scripting engine is initialized
-                    ScriptingEngine::instance().Exec(cmd);
-
-                    // reset the backtrack index
-                    mBacktrackVector.push_back(cmd);
-                    mBacktrackIdx = static_cast<int32_t>( mBacktrackVector.size() );
-
-                    return true;
-                }
-            }
-        }
-
-        if( event.EventType == EET_KEY_INPUT_EVENT )
-        {
-            // track keyboard events
-            mIOState.onIrrEvent(event);
-
-            // Note: jbsheblak 15Nov2007
-            // Irrlicht doesn't have a key code for Tilde so we need to
-            // use an alternative method here
-        #if NERO_PLATFORM_WINDOWS
-            wchar_t tildeKey = L'`';
-        #elif NERO_PLATFORM_LINUX
-            wchar_t tildeKey = 96;
-        #elif NERO_PLATFORM_MAC
-            wchar_t tildeKey = L'`';
-        #else
-            #error "Unsupported platform, cannot assign key."
-        #endif
-
-            if( event.KeyInput.Char == tildeKey && event.KeyInput.PressedDown )
-            {
-                // toggle visibility
-                mConsole->setVisible( !mConsole->isVisible() );
-
-                // if it is now visible, set the focus
-                if( mConsole->isVisible() )
-                    mConsole->setFocus();
-
-                else
-                    mConsole->removeFocus();
-
-                return true;
-            }
-
-            if( mIOState.WasKeyPressedLastFrame( (KEY)(KEY_UP) ) )
-            {
-                if( mConsole->isVisible() && mConsole->isFocused() && mBacktrackIdx > 0 )
-                {
-                    --mBacktrackIdx;
-                    mConsole->setText( mBacktrackVector[mBacktrackIdx] );
-                    return true;
-                }
-            }
-
-            if( mIOState.WasKeyPressedLastFrame( (KEY)(KEY_DOWN) ) )
-            {
-                if( mConsole->isVisible() && mConsole->isFocused() && mBacktrackIdx < (uint32_t)mBacktrackVector.size()-1 )
-                {
-                    ++mBacktrackIdx;
-                    mConsole->setText( mBacktrackVector[mBacktrackIdx] );
-                    return true;
-                }
-            }
-        }
-
-        // no console action
-        return false;
-    }
-#endif // end NERO_ALLOW_DEV_CONSOLE
 
     Kernel::TransitionInfo::TransitionInfo()
         : mActive(false)

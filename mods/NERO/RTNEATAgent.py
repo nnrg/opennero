@@ -73,27 +73,36 @@ class RTNEATAgent(AgentBrain):
             org = self.get_org()
             if display_hint == 'fitness':
                 self.state.label = ' '.join(['%.02g' % x for x in self.fitness])
+                setWindowCaption("Displaying Fitness")
             elif display_hint == 'time alive':
                 self.state.label = str(org.time_alive)
+                setWindowCaption("Displaying Time Alive")
             elif display_hint == 'hit points':
                 self.state.label == 'hit points'
+                setWindowCaption("Displaying Hit Points")
             elif display_hint == 'genome id':
                 self.state.label = str(org.id)
+                setWindowCaption("Displaying Organism ID")
             elif display_hint == 'species id':
                 self.state.label = str(org.species_id)
+                setWindowCaption("Displaying Species ID")
             elif display_hint == 'champion':
                 if org.champion:
                     self.state.label = 'champ!'
                 else:
                     self.state.label = ''
+                setWindowCaption("Displaying Champion")
             elif display_hint == 'rank':
                 self.state.label = str(org.rank)
+                setWindowCaption("Displaying Rank")
             elif display_hint == 'debug':
                 self.state.label = str(get_environment().get_state(self))
+                setWindowCaption("Displaying Debug")
             else:
                 self.state.label = '?'
         else:
             self.state.label = ""
+            setWindowCaption("")
 
     def get_team(self):
         return self.team
@@ -125,6 +134,9 @@ class RTNEATAgent(AgentBrain):
         net.activate()
         # get the list of network outputs
         outputs = net.get_outputs()
+        
+        self.state.label = ' '.join([str(x) for x in outputs])
+
         # create a C++ vector for action values
         actions = self.actions.get_instance()
         # assign network outputs to action vector

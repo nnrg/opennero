@@ -1,6 +1,7 @@
 import os
 import sys
 from menu_utils import ScriptClient
+from constants import *
 
 try:
     import wx
@@ -146,7 +147,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         #Avoid Fire Slider
         self.vft = wx.StaticText(self,label = "Avoid Fire", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.vfs = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.vfs.SetScrollbar(wx.HORIZONTAL,0,200,200)
+        self.vfs.SetScrollbar(wx.HORIZONTAL,0,1000,1000)
         self.vfs.SetThumbPosition(100)
         self.vfl = wx.StaticText(self,label = str(self.vfs.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
         grid.Add(self.vfl,pos=(6,1))
@@ -157,8 +158,8 @@ class NeroPanel(wx.Panel, ScriptClient):
         #Lifetime Slider
         self.ltt = wx.StaticText(self,label = "Lifetime", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.lts = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.lts.SetScrollbar(wx.HORIZONTAL,0,1000,1000)
-        self.lts.SetThumbPosition(1000)
+        self.lts.SetScrollbar(wx.HORIZONTAL,0,200,200)
+        self.lts.SetThumbPosition(lifetime)
         self.ltl = wx.StaticText(self,label = str(self.lts.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
         grid.Add(self.ltl,pos=(7,1))
         self.Bind(wx.EVT_SCROLL, self.OnLT,self.lts)
@@ -206,7 +207,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.spt = wx.StaticText(self,label = "Speedup", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.sps = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
         self.sps.SetScrollbar(wx.HORIZONTAL,0,100,100)
-        self.sps.SetThumbPosition(5)
+        self.sps.SetThumbPosition(80)
         self.spl = wx.StaticText(self,label = str(self.sps.GetThumbPosition()), size=wx.DefaultSize)
         grid.Add(self.spl,pos=(10,1))
         self.Bind(wx.EVT_SCROLL, self.OnSP,self.sps)

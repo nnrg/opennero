@@ -166,6 +166,7 @@ namespace OpenNero
         if (found != mBrainBodyMap.left.end()) {
             PyOrganismPtr brain = found->second;
             deleteUnit(brain); // TODO: pass in the body instead
+            LOG_F_DEBUG("ai.rtneat", "release_organism brain: " << brain->GetId() << " from body: " << agent->GetBody()->GetId());
         }
     }
 
@@ -256,14 +257,22 @@ namespace OpenNero
         ScoreHelper scoreHelper(mRewardInfo);
 
 
-        for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
-            if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
-                size_t time_alive = (*iter)->GetOrganism()->time_alive;
+        for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) 
+        {
+            PyOrganismPtr brain = *iter;
+            if (brain->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
+                size_t time_alive = brain->GetOrganism()->time_alive;
                 if ( time_alive % NEAT::time_alive_minimum == 0 && time_alive > 0 )
                 {
-                    (*iter)->mStats.startNextTrial();
+                    stringstream ss;
+                    ss << "NEW TRIAL: brain: " << brain->GetId();
+                    ss << " stats: " << brain->mStats;
+                    ss << " time_alive: " << time_alive << "/" << NEAT::time_alive_minimum;
+                    brain->mStats.startNextTrial();
+                    ss << " new stats: " << brain->mStats;
+                    LOG_F_DEBUG("ai.rtneat", ss.str());
                 }
-                Reward stats = (*iter)->mStats.getStats();
+                Reward stats = brain->mStats.getStats();
                 scoreHelper.addSample(stats);
             }
         }
@@ -275,37 +284,51 @@ namespace OpenNero
 
         size_t evaluated = 0;
         
+        PyOrganismPtr champ;
+        
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
-            if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
-                (*iter)->mAbsoluteScore = 0;
+            PyOrganismPtr brain = *iter;
+            brain->GetOrganism()->champion = false;
+            if (brain->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
+                brain->mAbsoluteScore = 0;
                 ++evaluated;
-                Reward stats = (*iter)->mStats.getStats();
+                Reward stats = brain->mStats.getStats();
                 Reward relative_score = scoreHelper.getRelativeScore(stats);
                 for (size_t i = 0; i < relative_score.size(); ++i)
                 {
-                    (*iter)->mAbsoluteScore += relative_score[i] * mFitnessWeights[i];
+                    brain->mAbsoluteScore += relative_score[i] * mFitnessWeights[i];
                 }
-                if ((*iter)->mAbsoluteScore < minAbsoluteScore)
-                    minAbsoluteScore = (*iter)->mAbsoluteScore;
-				if ((*iter)->mAbsoluteScore > maxAbsoluteScore)
-					maxAbsoluteScore = (*iter)->mAbsoluteScore;
+                if (brain->mAbsoluteScore < minAbsoluteScore)
+                    minAbsoluteScore = brain->mAbsoluteScore;
+				if (brain->mAbsoluteScore > maxAbsoluteScore) {
+					maxAbsoluteScore = brain->mAbsoluteScore;
+                    champ = brain;
+                }
             }
+        }
+        
+        if (champ) {
+            champ->GetOrganism()->champion = true;
+            LOG_F_DEBUG("ai.rtneat", 
+                " CHAMP: " << champ->GetId() << 
+                " fitness: " << champ->GetFitness() << 
+                " time_alive: " << champ->GetTimeAlive());
         }
 
-        if (scoreHelper.getSampleSize() > 0 && evaluated > 0)
-        {
-            LOG_F_DEBUG("ai.rtneat", "brains: " << mBrainList.size() << " active: " << mBrainBodyMap.size() << " waiting: " << mWaitingBrainList.size() << " evaluated: " << evaluated);
-            if (minAbsoluteScore != maxAbsoluteScore) {
-                LOG_F_DEBUG("ai.rtneat", 
-                            "z-min: " << minAbsoluteScore <<
-                            " z-max: " << maxAbsoluteScore <<
-                            " r-min: " << scoreHelper.getMin() <<
-                            " r-max: " << scoreHelper.getMax() <<
-                            " w: " << mFitnessWeights <<
-                            " mean: " << scoreHelper.getAverage() <<
-                            " stdev: " << scoreHelper.getStandardDeviation());
-            }
-        }
+        //if (scoreHelper.getSampleSize() > 0 && evaluated > 0)
+        //{
+        //    LOG_F_DEBUG("ai.rtneat", "brains: " << mBrainList.size() << " active: " << mBrainBodyMap.size() << " waiting: " << mWaitingBrainList.size() << " evaluated: " << evaluated);
+        //    if (minAbsoluteScore != maxAbsoluteScore) {
+        //        LOG_F_DEBUG("ai.rtneat", 
+        //                    "z-min: " << minAbsoluteScore <<
+        //                    " z-max: " << maxAbsoluteScore <<
+        //                    " r-min: " << scoreHelper.getMin() <<
+        //                    " r-max: " << scoreHelper.getMax() <<
+        //                    " w: " << mFitnessWeights <<
+        //                    " mean: " << scoreHelper.getAverage() <<
+        //                    " stdev: " << scoreHelper.getStandardDeviation());
+        //    }
+        //}
 
         for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
             if ((*iter)->GetOrganism()->time_alive >= NEAT::time_alive_minimum) {
@@ -388,14 +411,17 @@ namespace OpenNero
             //   - find the one whose Organism was killed off
             //   - link that Brain to the newly created Organism, effectively 
             //     doing a "hot swap" of the Organisms in that Brain.
+            LOG_F_DEBUG("ai.rtneat", "print out population after evolveAll");
             for (vector<PyOrganismPtr>::iterator iter = mBrainList.begin(); iter != mBrainList.end(); ++iter) {
-                if ((*iter)->GetOrganism() == deadorg) {
-                    PyOrganismPtr brain = *iter;
-                    LOG_F_DEBUG("ai.rtneat", "Org to kill: " << brain->GetId() << " score: " << brain->mAbsoluteScore);
+                PyOrganismPtr brain = *iter;
+                if (brain->GetOrganism() == deadorg) {
+                    LOG_F_DEBUG("ai.rtneat", "  DELETING Organims #"<< brain->GetId() << " Fitness: " << brain->GetFitness() << " Time: "<< brain->GetTimeAlive());
                     brain->SetOrganism(new_org);
                     brain->mStats.resetAll();
                     deleteUnit(brain);
-                    break;
+                    //break;
+                } else {
+                    LOG_F_DEBUG("ai.rtneat", "  Organims #"<< brain->GetId() << " Fitness: " << brain->GetFitness() << " Time: "<< brain->GetTimeAlive());
                 }
             }
         }

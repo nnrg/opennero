@@ -178,6 +178,12 @@ namespace OpenNero
         /// Define proper mapping for inputs
         void SetInputMapping( const PyIOMap& ioMap );
 
+        /// How long, in seconds, to wait between executing AI frames
+        float32_t GetFrameDelay() const { return mpSimulation->GetFrameDelay(); }
+
+        /// How long, in seconds, to wait between executing AI frames
+        void SetFrameDelay(float32_t delay) { mpSimulation->SetFrameDelay(delay); }
+        
         /// @}
 
         /// return the active camera
@@ -201,10 +207,6 @@ namespace OpenNero
         /// return the next free Id
         SimId ReserveNewId() { return mpSimulation->ReserveNewId(); }
         
-        float32_t GetFrameDelay() const { return mpSimulation->GetFrameDelay(); }
-        
-        void SetFrameDelay(float32_t delay) { mpSimulation->SetFrameDelay(delay); }
-
     protected:
 
         /// update the various subsystems

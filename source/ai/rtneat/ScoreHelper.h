@@ -56,6 +56,7 @@ namespace OpenNero
     {
     public:
         static U32 s_RunningAverageSampleSize;
+
     private:
         
         /// Number of trials processed over the unit's lifetime
@@ -69,6 +70,9 @@ namespace OpenNero
         
         /// Lifetime averages of stat accumulations
         Reward m_LifetimeAverage;
+        
+        /// output a stats instance to stream
+        friend std::ostream& operator<<(std::ostream& os, const Stats& stats);
         
     public:
         /// Constructor
@@ -91,7 +95,9 @@ namespace OpenNero
         
         /// Stat-retrieval methods
         const Reward& getStats() const { return m_LifetimeAverage; }
-    };    
+    };
+    
+    
 }
 
 #endif // _OPENNERO_AI_RTNEAT_SCOREHELPER_H_
