@@ -6,14 +6,14 @@ YDIM = 800
 HEIGHT = 20
 OFFSET = -HEIGHT/2
 
-MAX_MOVEMENT_SPEED = 12
+MAX_MOVEMENT_SPEED = 14
 MAX_VISION_RADIUS = 300
 
 # Population size
 pop_size = 20
 
 # number of steps per lifetime
-lifetime = 1000
+lifetime = 200
 
 OBJECT_TYPE_OBSTACLE  = (1 << 0) # object type for walls
 OBJECT_TYPE_TEAM_0 = (1 << 1) # object type for team 1

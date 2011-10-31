@@ -80,13 +80,13 @@ class NeroEnvironment(Environment):
         # 1.0 is the weight initialization noise
         rtneat = RTNEAT("data/ai/neat-params.dat", N_SENSORS, N_ACTIONS, pop_size, 1.0, rbound)
 
+        set_ai("rtneat", rtneat)
+        print "get_ai(rtneat):",get_ai("rtneat")
+
         # set the initial lifetime
         lifetime = getMod().lt
         rtneat.set_lifetime(lifetime)
         print 'rtNEAT lifetime:', lifetime
-
-        set_ai("rtneat", rtneat)
-        print "get_ai(rtneat):",get_ai("rtneat")
 
         self.agent_info = AgentInitInfo(sbound, abound, rbound)
 
@@ -117,12 +117,12 @@ class NeroEnvironment(Environment):
         return a blueprint for a new agent
         """
         for a in WALL_RAY_SENSORS:
-            agent.add_sensor(RaySensor(cos(radians(a)), sin(radians(a)), 0, 50, OBJECT_TYPE_OBSTACLE, False))
+            agent.add_sensor(RaySensor(cos(radians(a)), sin(radians(a)), 0, 50, OBJECT_TYPE_OBSTACLE, True))
         for (a0, a1) in FLAG_RADAR_SENSORS:
-            agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_FLAG, False))
+            agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_FLAG, True))
         for (a0, a1) in ENEMY_RADAR_SENSORS:
-            if agent.get_team() == 0: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_1, False))
-            if agent.get_team() == 1: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_0, False))
+            if agent.get_team() == 0: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_1, True))
+            if agent.get_team() == 1: agent.add_sensor(RadarSensor(a0, a1, -90, 90, MAX_VISION_RADIUS, OBJECT_TYPE_TEAM_0, True))
         return self.agent_info
 
     def get_state(self, agent):
@@ -333,7 +333,7 @@ class NeroEnvironment(Environment):
         rot = copy(agent.state.rotation)
         rot.z = new_heading
         agent.state.rotation = rot
-
+        
         return reward
 
     def sense(self, agent, observations):
