@@ -15,9 +15,6 @@
 #include "input/IOState.h"
 #include "utils/Config.h"
 
-// should we allow the console?
-#define NERO_ALLOW_DEV_CONSOLE (!NERO_FINAL_RELEASE)
-
 namespace OpenNero
 {
 	class Kernel;
@@ -104,6 +101,9 @@ namespace OpenNero
 
         /// request a mod switch next frame
         void RequestModSwitch( IrrlichtDevice_IPtr device, const std::string& name, const std::string& path );
+        
+        /// Sets the part of the window title after OpenNero - ModName
+        void SetWindowCaption(const std::string& caption);
 
     private:
 
@@ -112,16 +112,6 @@ namespace OpenNero
 
         /// game/render engine device accessor
         void setIrrDevice( IrrlichtDevice_IPtr dev );
-
-#if NERO_ALLOW_DEV_CONSOLE
-
-        /// Inject the console into the current mod
-        void InjectConsole();
-
-        /// Check if the event action is directed at the console
-        bool CheckConsoleAction( irr::SEvent event);
-
-#endif
 
 	private:
 
@@ -140,20 +130,8 @@ namespace OpenNero
 
         TransitionInfo mTransitionInfo; ///< The transition information
 
-#if NERO_ALLOW_DEV_CONSOLE
-
-        typedef std::vector<std::string> BacktrackVector;
-
-
-        GuiBasePtr      mConsole;        ///< The developer console
-        IOState         mIOState;        ///< the io map
-        uint32_t        mBacktrackIdx;   ///< the backtrack console index
-        BacktrackVector mBacktrackVector; ///< the console backtrack vector
-
         int             mArgc;           /// number of command line arguments
         char**          mArgv;           /// argv
-
-#endif
 
         AppConfig mAppConfig;
 	};

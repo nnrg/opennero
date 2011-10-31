@@ -8,6 +8,7 @@ namespace OpenNero
     size_t SensorArray::addSensor(SensorPtr sensor)
     {
         sensors.push_back(sensor);
+        LOG_F_DEBUG("ai.rtneat", sensor);
         return sensors.size() - 1;
     }
 

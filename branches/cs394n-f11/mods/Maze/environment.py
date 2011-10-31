@@ -6,6 +6,7 @@ from constants import *
 from OpenNero import *
 from common import *
 from collections import deque
+from Maze.agent import MoveForwardAndStopAgent
 
 import observer
 
@@ -30,14 +31,13 @@ class MazeRewardStructure:
         return 100
     def last_reward(self, agent):
         """ reward for ending without reaching the goal """
-        pos = agent.state.position
-        (r,c) = get_environment().maze.xy2rc(pos.x, pos.y)
-        print 'EPISODE ENDED AT', r, c
-        return 100.0*(r+c)/(ROWS+COLS)
+        #pos = agent.state.position
+        #(r,c) = get_environment().maze.xy2rc(pos.x, pos.y)
+        #print 'EPISODE ENDED AT', r, c
+        #return 100.0*(r+c)/(ROWS+COLS)
+        return -1
 
 class MazeEnvironment(Environment):
-    MOVES = [(1,0), (-1,0), (0,1), (0,-1)]
-    NULL_MOVE = len(MOVES)
     maze = Maze.generate(ROWS, COLS, GRID_DX, GRID_DY)
 
     """
@@ -57,17 +57,16 @@ class MazeEnvironment(Environment):
         * o[4] - obstacle in the +c direction?
         * o[5] - obstacle in the -c direction?
     """
-    def __init__(self, loop = True):
+    def __init__(self):
         """
         generate the maze
         """
         Environment.__init__(self)
         self.rewards = MazeRewardStructure()
-        self.loop = loop
         action_info = FeatureVectorInfo()
         observation_info = FeatureVectorInfo()
         reward_info = FeatureVectorInfo()
-        action_info.add_discrete(0, len(MazeEnvironment.MOVES)-1) # select from the moves we can make
+        action_info.add_discrete(0, len(MAZE_MOVES)-1) # select from the moves we can make
         observation_info.add_discrete(0, ROWS-1)
         observation_info.add_discrete(0, COLS-1)
         observation_info.add_discrete(0,1)
@@ -77,17 +76,13 @@ class MazeEnvironment(Environment):
         reward_info.add_continuous(-100,100)
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
         self.max_steps = MAX_STEPS
-        self.step_delay = STEP_DELAY
         self.speedup = 0
-        self.shortcircuit = False
         self.marker_map = {} # a map of cells and markers so that we don't have more than one per cell
         self.marker_states = {} # states of the marker agents that run for one cell and stop
         self.agent_map = {} # agents active on the map
         self.agents_at_goal = set() # the set of agents that have reached the goal
+        self.handles = {} # handes for the objects used to draw q-values
         print 'Initialized MazeEnvironment'
-
-    def get_delay(self):
-        return self.step_delay * (1.0 - self.speedup)
 
     def can_move(self, agent, move):
         """
@@ -123,7 +118,6 @@ class MazeEnvironment(Environment):
         set the agent's animation sequence to that named by animation
         """
         if agent.state.animation != animation:
-            print agent.state.animation, agent.state.animation_speed, animation
             agent.state.animation = animation
             delay = getSimContext().delay
             animation_speed = agent.state.animation_speed
@@ -150,12 +144,22 @@ class MazeEnvironment(Environment):
         """
         (r,c) = MazeEnvironment.maze.xy2rc(agent.state.position.x, agent.state.position.y)
 
+        # check if we reached the goal
+        if r == ROWS - 1 and c == COLS - 1 and not isinstance(agent, MoveForwardAndStopAgent):
+            self.agents_at_goal.add(agent)
+            return self.rewards.goal_reached(agent)
+
+        # check if we ran out of time
+        elif agent.step >= self.max_steps - 1 and not isinstance(agent, MoveForwardAndStopAgent):
+            return self.rewards.last_reward(agent)
+
+
         if not self.agent_info.actions.validate(action):
             # check if we ran out of time
-            if agent.step >= self.max_steps - 1 and agent.__class__.__name__ != 'MoveForwardAndStopAgent':
+            if agent.step >= self.max_steps - 1 and not isinstance(agent, MoveForwardAndStopAgent):
                 return self.rewards.last_reward(agent)
             # check if we reached the goal
-            elif r == ROWS - 1 and c == COLS - 1 and agent.__class__.__name__ != 'MoveForwardAndStopAgent':
+            elif r == ROWS - 1 and c == COLS - 1 and not isinstance(agent, MoveForwardAndStopAgent):
                 self.agents_at_goal.add(agent)
                 return self.rewards.goal_reached(agent)
             else:
@@ -164,22 +168,17 @@ class MazeEnvironment(Environment):
 
         # check for null action
         a = int(round(action[0]))
-        if a == MazeEnvironment.NULL_MOVE:
+        if a == MAZE_NULL_MOVE:
             self.set_animation(agent, 'stand')
             return self.rewards.null_move(agent)
 
         # calculate new pose
-        (dr, dc) = MazeEnvironment.MOVES[a]
+        (dr, dc) = MAZE_MOVES[a]
         new_r, new_c = r + dr, c + dc
         next_rotation = self.get_next_rotation((dr,dc))
         new_heading = next_rotation.z
         rotation = agent.state.rotation
         prev_heading = rotation.z
-
-        # if the agent is a marker, just change the position
-        if agent.state.id in self.marker_states:
-            self.set_position(agent, (new_r, new_c, new_heading))
-            return 0
 
         # if the heading is right
         if new_heading == prev_heading:
@@ -212,15 +211,16 @@ class MazeEnvironment(Environment):
             rot0 = copy(agent.state.rotation)
             rot0.z = new_heading
             agent.state.rotation = rot0
+            agent.skip() # don't get a new action, just retry this one
             return self.rewards.valid_move(agent)
 
         # check if we reached the goal
-        if new_r == ROWS - 1 and new_c == COLS - 1 and agent.__class__.__name__ != 'MoveForwardAndStopAgent':
+        if new_r == ROWS - 1 and new_c == COLS - 1 and not isinstance(agent, MoveForwardAndStopAgent):
             self.agents_at_goal.add(agent)
             return self.rewards.goal_reached(agent)
 
         # check if we ran out of time
-        elif agent.step >= self.max_steps - 1 and agent.__class__.__name__ != 'MoveForwardAndStopAgent':
+        elif agent.step >= self.max_steps - 1 and not isinstance(agent, MoveForwardAndStopAgent):
             return self.rewards.last_reward(agent)
 
         # return a normal reward
@@ -246,11 +246,11 @@ class MazeEnvironment(Environment):
         obs[0] = r
         obs[1] = c
         offset = GRID_DX/10.0
-        for i, (dr, dc) in enumerate(MazeEnvironment.MOVES):
+        for i, (dr, dc) in enumerate(MAZE_MOVES):
             direction = Vector3f(dr, dc, 0)
             ray = (p0 + direction * offset, p0 + direction * GRID_DX)
             # we only look for objects of type 1, which means walls
-            objects = getSimContext().findInRay(ray[0], ray[1], 1, True)
+            objects = getSimContext().findInRay(ray[0], ray[1], 1, False)
             obs[2 + i] = int(len(objects) > 0)
         return obs
 
@@ -262,10 +262,9 @@ class MazeEnvironment(Environment):
         elif agent.__class__.__name__ == 'MoveForwardAndStopAgent':
             return False
         elif r == ROWS-1 and c == COLS-1:
-            if not self.loop:
+            if hasattr(agent, "highlight_path"):
                 disable_ai() # stop running
-                if hasattr(agent, "highlight_path"):
-                    agent.highlight_path() # mark the final path
+                agent.highlight_path() # mark the final path
                 self.set_animation(agent, 'stand') # stop animation
             return True
         else:
@@ -317,15 +316,50 @@ class MazeEnvironment(Environment):
         self.marker_map = {}
         for id in self.agent_map.values():
             removeObject(id)
+        for o in self.handles:
+            for a in range(len(self.handles[o])):
+                h = self.handles[o][a]
+                if h is not None:
+                    removeObject(h)
+        self.handles = {}
         self.agent_map = {}
 
-class ContMazeEnvironment(MazeEnvironment):
-    TURN_BY = 30 # how many degrees to turn by every time
-    WALK_BY = 2.5 # how many units to advance by every step forward
-    ACTIONS = {'FWD':0, 'CW':1, 'CCW':2, 'BCK':3}
-    N_ACTIONS = 4 # number of actions
-    N_RAYS = 4 # number of rays around the agent, starting from the front
-    MAX_DISTANCE = hypot(ROWS*GRID_DX, COLS*GRID_DY) # max distance within the maze
+    def draw_q(self, o, Q):
+        aa = Q[o] # get the action values
+        min_a = min(aa) # minimum of the action values
+        aa = [a - min_a for a in aa] # shift to make all >= 0
+        sum_a = sum(aa) # sum of action values
+        if sum_a != 0: aa = [a/sum_a for a in aa] # normalize
+        if o not in self.handles: # create handles list
+            self.handles[o] = [None, None, None, None, None]
+        (x, y) = self.maze.rc2xy(o[0], o[1])
+        for a, (dr, dc) in enumerate(MAZE_MOVES):
+            p = Vector3f(x, y, 0)
+            value = aa[a] * 5
+            if dr == 0: dr = 0.1
+            else: p.x += dr*value
+            if dc == 0: dc = 0.1
+            else: p.y += dc*value
+            if value == 0 and self.handles[o][a] is not None:
+                # don't show 0 values
+                removeObject(self.handles[o][a])
+                self.handles[o][a] = None
+            elif self.handles[o][a] is None:
+                # create the cube to show the value
+                self.handles[o][a] = \
+                    addObject("data/shapes/cube/BlueCube.xml", \
+                    p, Vector3f(0, 0, 0), scale=Vector3f(0.5, 0.5, 0.5))
+            else:
+                # move the existing cube
+                getSimContext().setObjectPosition(self.handles[o][a], p)
+        center = len(MAZE_MOVES)
+        if self.handles[o][center] is None:
+            self.handles[o][center] = \
+                addObject("data/shapes/cube/YellowCube.xml", \
+                    Vector3f(x, y, 0), \
+                    scale=Vector3f(0.6,0.6,0.6))
+
+class EgocentricMazeEnvironment(MazeEnvironment):
     """
     The environment is a 2-D maze.
     This is a slightly more continous version
@@ -341,34 +375,29 @@ class ContMazeEnvironment(MazeEnvironment):
         * o[3] - the distance to the target
         * o[4] - o[7] - ray sensors cast around the agent (starting with straight ahead and going clockwise)
     """
-    def __init__(self):
+    def __init__(self, granularity = 1):
         """
-        generate the maze
+        Constructor
+        @param granularity - the number of steps it takes to cover the whole WALK_BY distance
         """
         MazeEnvironment.__init__(self)
         action_info = FeatureVectorInfo() # describes the actions
         observation_info = FeatureVectorInfo() # describes the observations
         reward_info = FeatureVectorInfo() # describes the rewards
-        action_info.add_discrete(0, ContMazeEnvironment.N_ACTIONS-1) # action
+        action_info.add_discrete(0, CONT_MAZE_N_ACTIONS-1) # action
         ( (xmin, ymin), (xmax, ymax) ) = MazeEnvironment.maze.xy_limits()
         print 'MAZE LIMITS', ( (xmin, ymin), (xmax, ymax) )
         observation_info.add_continuous(xmin, xmax) # x-coord
         observation_info.add_continuous(ymin, ymax) # y-coord
-        observation_info.add_continuous(0, ContMazeEnvironment.MAX_DISTANCE ) # distance to target
+        observation_info.add_continuous(0, CONT_MAZE_MAX_DISTANCE ) # distance to target
         observation_info.add_continuous(-180, 180) # angle to target
-        for i in range(ContMazeEnvironment.N_RAYS):
+        for i in range(CONT_MAZE_N_RAYS):
             observation_info.add_continuous(0,1) # ray sensor
         reward_info.add_continuous(-100,100)
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
-        self.max_steps = MAX_STEPS * 15 # allow 15 actions per cell
-        self.step_delay = STEP_DELAY/10.0 # smaller actions, but faster
-        print 'Initialized ContMazeEnvironment'
-
-    def get_next_rotation(self, move):
-        """
-        Figure out which way the agent should be facing in order to make the specified move
-        """
-        return Vector3f(0,0,degrees(atan2(move[1], move[0])))
+        self.granularity = granularity
+        self.max_steps = MAX_STEPS * 15 * self.granularity # allow 15 * g actions per cell
+        print 'Initialized EgocentricMazeEnvironment'
 
     def reset(self, agent):
         """
@@ -387,7 +416,7 @@ class ContMazeEnvironment(MazeEnvironment):
         """
         if not self.agent_info.actions.validate(action):
             if agent.step >= self.max_steps - 1:
-                return self.rewards.last_reward(agent)
+                return self.max_steps * self.rewards.last_reward(agent)
             else:
                 return self.rewards.null_move(agent)
         a = int(round(action[0]))
@@ -395,26 +424,31 @@ class ContMazeEnvironment(MazeEnvironment):
         rot = agent.state.rotation # current rotation
         (x,y,heading) = (pos.x, pos.y, rot.z) # current pose
         new_x, new_y, new_heading = x, y, heading # pose to be computed
-        dx, dy = None, None
-        if a == ContMazeEnvironment.ACTIONS['CW']: # clockwise
-            new_heading = wrap_degrees(heading, -ContMazeEnvironment.TURN_BY)
-        elif a == ContMazeEnvironment.ACTIONS['CCW']: # counter-clockwise
-            new_heading = wrap_degrees(heading, ContMazeEnvironment.TURN_BY)
-        elif a == ContMazeEnvironment.ACTIONS['FWD']: # forward
-            dx = ContMazeEnvironment.WALK_BY * cos(radians(new_heading))
-            dy = ContMazeEnvironment.WALK_BY * sin(radians(new_heading))
-        elif a == ContMazeEnvironment.ACTIONS['BCK']: # backward
-            dx = -ContMazeEnvironment.WALK_BY * cos(radians(new_heading))
-            dy = -ContMazeEnvironment.WALK_BY * sin(radians(new_heading))
-        if dx or dy:
-            test_x, test_y = x + 1.5 * dx, y + 1.5 * dy # leave a buffer of space
-            new_x, new_y = x + dx, y + dy
+        dx, dy = 0, 0
+        if a == CONT_MAZE_ACTIONS['CW']: # clockwise
+            new_heading = wrap_degrees(heading, -CONT_MAZE_TURN_BY)
+        elif a == CONT_MAZE_ACTIONS['CCW']: # counter-clockwise
+            new_heading = wrap_degrees(heading, CONT_MAZE_TURN_BY)
+        elif a == CONT_MAZE_ACTIONS['FWD']: # forward
+            dx = CONT_MAZE_WALK_BY * cos(radians(new_heading)) / self.granularity
+            dy = CONT_MAZE_WALK_BY * sin(radians(new_heading)) / self.granularity
+        elif a == CONT_MAZE_ACTIONS['BCK']: # backward
+            dx = -CONT_MAZE_WALK_BY * cos(radians(new_heading)) / self.granularity
+            dy = -CONT_MAZE_WALK_BY * sin(radians(new_heading)) / self.granularity
+        if dx != 0 or dy != 0:
+            new_x, new_y = x + dx, y + dy # this is where we are moving to
+            print 'move test', x, y, dx, dy,
+            # leave a buffer of space to check in the right direction
+            if dx != 0: dx = dx * 1.1 # leave a buffer for testing
+            if dy != 0: dy = dy * 1.1 # leave a buffer for testing
+            test_x, test_y = x + dx, y + dy # this is to check if there are walls there
+            print dx, dy, test_x, test_y
             if not MazeEnvironment.maze.xy_bounds(test_x, test_y):
-                # could not move, out of bounds
+                print "could not move, out of bounds"
                 self.set_animation(agent, 'stand')
                 return self.rewards.out_of_bounds(agent)
             elif not MazeEnvironment.maze.xy_valid(x,y,test_x,test_y):
-                # could not move, hit a wall
+                print "could not move, hit a wall"
                 self.set_animation(agent, 'stand')
                 return self.rewards.hit_wall(agent)
             if new_x != x or new_y != y:
@@ -428,9 +462,9 @@ class ContMazeEnvironment(MazeEnvironment):
         (new_r, new_c) = MazeEnvironment.maze.xy2rc(new_x, new_y)
         if new_r == ROWS - 1 and new_c == COLS - 1:
             self.agents_at_goal.add(agent)
-            return self.rewards.goal_reached(agent)
+            return self.max_steps * self.rewards.goal_reached(agent)
         elif agent.step >= self.max_steps - 1:
-            return self.rewards.last_reward(agent)
+            return self.max_steps * self.rewards.last_reward(agent)
         return self.rewards.valid_move(agent)
 
     def sense(self, agent, obs):
@@ -448,14 +482,14 @@ class ContMazeEnvironment(MazeEnvironment):
         angle_to_target = degrees(atan2(ty, tx)) # angle to target from +x, in degrees
         angle_to_target = wrap_degrees(angle_to_target, -heading) # heading to target relative to us
         obs[3] = angle_to_target
-        d_angle = 360.0 / ContMazeEnvironment.N_RAYS
+        d_angle = 360.0 / CONT_MAZE_N_RAYS
         p0 = agent.state.position
-        for i in range(ContMazeEnvironment.N_RAYS):
+        for i in range(CONT_MAZE_N_RAYS):
             angle = radians(heading + i * d_angle)
             direction = Vector3f(cos(angle), sin(angle), 0) # direction of ray
             ray = (p0, p0 + direction * GRID_DX)
             # we only look for objects of type 1, which means walls
-            result = getSimContext().findInRay(ray[0], ray[1], 1, True)
+            result = getSimContext().findInRay(ray[0], ray[1], 1, False)
             # we can now return a continuous sensor since FindInRay returns the hit point
             if len(result) > 0:
                 (sim, hit) = result
@@ -472,17 +506,210 @@ class ContMazeEnvironment(MazeEnvironment):
             print '       should be:', self.agent_info.sensors
         return obs
 
-def is_uniform(vv):
-    """ return true iff all the feature vectors in v are identical """
-    l = len(vv)
-    if l == 0:
-        return False
-    v0 = [x for x in vv[0]]
-    for i in range(1, len(vv)):
-        vi = [x for x in vv[i]]
-        if v0 != vi:
-            return False
-    return True
+class GranularMazeEnvironment(MazeEnvironment):
+    """
+    The environment is a 2-D maze.
+    In the discrete version, the agent moves from cell to cell.
+     * Actions (1 discrete action)
+        * 0 - move in the +r direction
+        * 1 - move in the -r direction
+        * 2 - move in the +c direction
+        * 3 - move in the -c direction
+     * Observations (6 discrete observations)
+        * o[0] - the current x position
+        * o[1] - the current y position
+        * o[2] - obstacle in the +r direction?
+        * o[3] - obstacle in the -r direction?
+        * o[4] - obstacle in the +c direction?
+        * o[5] - obstacle in the -c direction?
+    """
+    def __init__(self, granularity = 8):
+        """
+        generate the maze
+        """
+        MazeEnvironment.__init__(self)
+        action_info = FeatureVectorInfo() # describes the actions
+        observation_info = FeatureVectorInfo() # describes the observations
+        reward_info = FeatureVectorInfo() # describes the rewards
+        action_info.add_discrete(0, CONT_MAZE_N_ACTIONS-1) # action
+        ( (xmin, ymin), (xmax, ymax) ) = MazeEnvironment.maze.xy_limits()
+        print 'MAZE LIMITS', ( (xmin, ymin), (xmax, ymax) )
+        observation_info.add_continuous(xmin, xmax) # x-coord
+        observation_info.add_continuous(ymin, ymax) # y-coord
+        for (dr, dc) in MAZE_MOVES:
+            observation_info.add_continuous(0,1) # movement sensor
+        reward_info.add_continuous(-100,100)
+        self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
+        self.max_steps = MAX_STEPS * (granularity * 2) # allow 2x granularity steps per cell
+        self.granularity = granularity
+        print 'Initialized GranularMazeEnvironment'
+
+    def reset(self, agent):
+        """
+        reset the environment to its initial state
+        """
+        (x,y) = MazeEnvironment.maze.rc2xy(0,0)
+        agent.state.position = Vector3f(x,y,0)
+        agent.state.rotation = Vector3f(0,0,0)
+        self.agents_at_goal.discard(agent)
+        print 'Episode %d complete' % agent.episode
+        return True
+
+    def set_position(self, agent, new_pose):
+        """
+        set the next agent position to new_pose = (x,y,h)
+        """
+        new_x, new_y, new_heading = new_pose
+        pos = agent.state.position
+        if pos.x == new_x and pos.y == new_y:
+            self.set_animation(agent, 'stand')
+        else:
+            pos.x, pos.y = new_x, new_y
+            agent.state.position = pos
+            self.set_animation(agent, 'run')
+
+    def step(self, agent, action):
+        """
+        Granular version
+        """
+        (x,y) = agent.state.position.x, agent.state.position.y
+        (r,c) = MazeEnvironment.maze.xy2rc(x, y)
+        a = int(action[0])
+
+        # check if we reached the goal
+        if r == ROWS - 1 and c == COLS - 1:
+            self.agents_at_goal.add(agent)
+            return self.rewards.goal_reached(agent) * self.max_steps
+
+        # check if we ran out of time
+        elif agent.step >= self.max_steps - 1:
+            return self.rewards.last_reward(agent) * self.max_steps
+
+        # check if the action was a null action
+        if not self.agent_info.actions.validate(action):
+            # check if we ran out of time
+            if agent.step >= self.max_steps - 1:
+                return self.rewards.last_reward(agent) * self.max_steps
+            # check if we reached the goal
+            elif r == ROWS - 1 and c == COLS - 1:
+                self.agents_at_goal.add(agent)
+                return self.rewards.goal_reached(agent) * self.max_steps
+            else:
+                self.set_animation(agent, 'stand')
+                return self.rewards.null_move(agent)
+
+        # calculate new pose
+        (dr, dc) = MAZE_MOVES[a]
+        dx, dy = dr * GRID_DX / self.granularity, dc * GRID_DY / self.granularity
+        new_x, new_y = x + dx, y + dy
+        (new_r, new_c) = MazeEnvironment.maze.xy2rc(new_x, new_y)
+        next_rotation = self.get_next_rotation((dx,dy))
+        new_heading = next_rotation.z
+        rotation = agent.state.rotation
+        prev_heading = rotation.z
+        
+        # if the heading is right
+        if new_heading == prev_heading:
+            # check if we are in bounds
+            if not MazeEnvironment.maze.xy_bounds(new_x, new_y):
+                self.set_animation(agent, 'jump')
+                return self.rewards.out_of_bounds(agent)
+            # check if there is a wall in the way
+            elif MazeEnvironment.maze.is_wall(r,c, new_r - r, new_c - c):
+                self.set_animation(agent, 'jump')
+                return self.rewards.hit_wall(agent)
+            # if the heading is right, change the position
+            self.set_position(agent, (new_x, new_y, new_heading))
+        else:
+            # if the heading is not right, just change the heading and run the
+            # rotation animation:
+            # "run" "stand" "turn_r_xc" "turn_l_xc" "turn_r_lx" "turn_l_lx"
+            # "turn_r_xxx" "turn_l_xxx" "pick_up" "put_down"
+            # "hold_run" "hold_stand" "hold_r_xc" "hold_l_xc"
+            # "hold_turn_r_lx" "hold_turn_l_lx" "hold_turn_r_xxx" "hold_turn_l_xxx"
+            # "jump" "hold_jump"
+            if new_heading - prev_heading > 0:
+                if new_heading - prev_heading > 90:
+                    new_heading = prev_heading + 90
+                self.set_animation(agent, 'turn_l_lx')
+            else:
+                if new_heading - prev_heading < 90:
+                    new_heading = prev_heading - 90
+                self.set_animation(agent, 'turn_r_lx')
+            rot0 = copy(agent.state.rotation)
+            rot0.z = new_heading
+            agent.state.rotation = rot0
+            print 'skip', agent.__class__.__name__
+            agent.skip() # don't get a new action, just retry this one
+            return self.rewards.valid_move(agent)
+
+        # check if we reached the goal
+        if new_r == ROWS - 1 and new_c == COLS - 1:
+            self.agents_at_goal.add(agent)
+            return self.rewards.goal_reached(agent) * self.max_steps
+
+        # check if we ran out of time
+        elif agent.step >= self.max_steps - 1:
+            return self.rewards.last_reward(agent) * self.max_steps
+
+        # return a normal reward
+        return self.rewards.valid_move(agent)
+
+    def sense(self, agent, obs):
+        """
+        Granular version
+        """
+        pos = agent.state.position # current position
+        rot = agent.state.rotation # current rotation
+        (x,y,heading) = (pos.x, pos.y, rot.z) # current pose
+        i_obs = 0
+        obs[i_obs] = x; i_obs += 1 # the agent can observe its position
+        obs[i_obs] = y; i_obs += 1 # the agent can observe its position
+        p0 = agent.state.position
+        for (dr, dc) in MAZE_MOVES:
+            direction = Vector3f(dr, dc, 0)
+            ray = (p0, p0 + direction * GRID_DX / self.granularity)
+            result = getSimContext().findInRay(ray[0], ray[1], 1, True)
+            if len(result) > 0:
+                (sim, hit) = result
+                len1 = (ray[1] - ray[0]).getLength() # max extent
+                len2 = (hit - ray[0]).getLength() # actual extent
+                if len1 != 0:
+                    obs[i_obs] = len2/len1; i_obs += 1
+                else:
+                    obs[i_obs] = 0; i_obs += 1
+        if not self.agent_info.sensors.validate(obs):
+            print 'ERROR: incorect observation!', obs
+            print '       should be:', self.agent_info.sensors
+        return obs
+
+    def draw_q(self, o, Q):
+        aa = Q[o] # get the action values
+        min_a = min(aa) # minimum of the action values
+        aa = [a - min_a for a in aa] # shift to make all >= 0
+        sum_a = sum(aa) # sum of action values
+        if sum_a != 0: aa = [a/sum_a for a in aa] # normalize
+        if o not in self.handles: # create handles list
+            self.handles[o] = [None, None, None, None, None]
+        x, y = o[0], o[1]
+        for a, (dr, dc) in enumerate(MAZE_MOVES):
+            p = Vector3f(x, y, 0)
+            value = aa[a] * 10 / self.granularity
+            p.x += dr*value
+            p.y += dc*value
+            if self.handles[o][a] is None:
+                self.handles[o][a] = \
+                    addObject("data/shapes/cube/BlueCube.xml", \
+                    p, Vector3f(0, 0, 0), \
+                    scale=Vector3f(0.5, 0.5, 0.5)/self.granularity)
+            else:
+                getSimContext().setObjectPosition(self.handles[o][a], p)
+        center = len(MAZE_MOVES)
+        if self.handles[o][center] is None:
+            self.handles[o][center] = \
+                addObject("data/shapes/cube/YellowCube.xml", \
+                    Vector3f(x, y, 0), \
+                    scale=Vector3f(0.4,0.4,0.4)/self.granularity)
 
 def wrap_degrees(a,da):
     a2 = a + da

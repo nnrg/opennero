@@ -82,9 +82,16 @@ def copy_mod(name, new_name):
 def list_mods():
     " list all available mods "
     mods = []
+    # first list Maze, NERO, BlocksTower and Roomba in order
+    builtin_mods = ['Maze', 'NERO', 'NERO_Battle', 'BlocksTower', 'Roomba']
+    for m in builtin_mods:
+        if mod_exists(m) and not is_special(m):
+            mods.append(m)
+    # now add any other mods
+    builtin_mods = set(builtin_mods)
     files = os.listdir(MOD_PATH)
     for f in files:
-        if mod_exists(f) and not is_special(f):
+        if f not in builtin_mods and mod_exists(f) and not is_special(f):
             mods.append(f)
     return mods
 

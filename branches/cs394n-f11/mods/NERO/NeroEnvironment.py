@@ -91,14 +91,14 @@ class NeroEnvironment(Environment):
         rbound = self.agent_info.reward
         rtneat = RTNEAT("data/ai/neat-params.dat", N_SENSORS, N_ACTIONS, pop_size, 1.0, rbound)
 
+        set_ai("rtneat", rtneat)
+        print "get_ai(rtneat):",get_ai("rtneat")
+
         # set the initial lifetime
         from NERO.module import getMod
         lifetime = getMod().lt
         rtneat.set_lifetime(lifetime)
         print 'rtNEAT lifetime:', lifetime
-
-        set_ai("rtneat", rtneat)
-        print "get_ai(rtneat):",get_ai("rtneat")
 
     def start_qlearning(self):
         disable_ai()
@@ -347,7 +347,7 @@ class NeroEnvironment(Environment):
         rot = copy(agent.state.rotation)
         rot.z = new_heading
         agent.state.rotation = rot
-
+        
         return reward
 
     def sense(self, agent, observations):

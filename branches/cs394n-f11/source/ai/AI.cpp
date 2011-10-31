@@ -107,7 +107,7 @@ namespace OpenNero
         {
             if (array[i] < lower[i] || array[i] > upper[i])
             {
-            	LOG_F_DEBUG("ai", "value in position " << i << " was " << array[i] << " which is not between " << lower[i] << " and " << upper[i]);
+            	//LOG_F_DEBUG("ai", "value in position " << i << " was " << array[i] << " which is not between " << lower[i] << " and " << upper[i]);
                 return false;
             }
         }

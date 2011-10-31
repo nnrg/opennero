@@ -1,7 +1,7 @@
+import random
 from OpenNero import *
 from common import *
 import Maze
-from Maze.environment import MazeEnvironment, ContMazeEnvironment
 from Maze.constants import *
 
 from heapq import heappush, heappop
@@ -13,8 +13,8 @@ def manhattan_heuristic(r,c):
     return (ROWS - r) + (COLS - c)
 
 def get_action_index(move):
-    if move in MazeEnvironment.MOVES:
-        action = MazeEnvironment.MOVES.index(move)
+    if move in MAZE_MOVES:
+        action = MAZE_MOVES.index(move)
         print 'Picking action', action, 'for move', move
         return action
     else:
@@ -48,9 +48,6 @@ class RandomAgent(AgentBrain):
         """
         return self.action_info.random()
 
-    def reset(self):
-        pass
-
     def act(self, time, observations, reward):
         """
         return an action given the reward for the previous action and the new observations
@@ -62,6 +59,165 @@ class RandomAgent(AgentBrain):
         receive the reward for the last observation
         """
         print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
+        return True
+
+class CustomRLAgent(AgentBrain):
+    """
+    Write your custom reinforcement learning agent here!
+    """
+    def __init__(self, gamma, alpha, epsilon):
+        """
+        Constructor that is called from CustomRLRobot.xml
+        Parameters:
+        @param gamma reward discount factor (between 0 and 1)
+        @param alpha learning rate (between 0 and 1)
+        @param epsilon parameter for the epsilon-greedy policy (between 0 and 1)
+        """
+        AgentBrain.__init__(self) # initialize the superclass
+        self.gamma = gamma
+        self.alpha = alpha
+        self.epsilon = epsilon
+        """
+        Our Q-function table. Maps from a tuple of observations (state) to 
+        another map of actions to Q-values. To look up a Q-value, call the predict method.
+        """
+        self.Q = {} # our Q-function table
+        print 
+    
+    def __str__(self):
+        return self.__class__.__name__ + \
+            ' with gamma: %g, alpha: %g, epsilon: %g' \
+            % (gamma, alpha, epsilon)
+    
+    def initialize(self, init_info):
+        """
+        Create a new agent using the init_info sent by the environment
+        """
+        self.action_info = init_info.actions
+        self.sensor_info = init_info.sensors
+        return True
+    
+    def predict(self, observations, action):
+        """
+        Look up the Q-value for the given state (observations), action pair.
+        """
+        o = tuple([x for x in observations])
+        if o not in self.Q:
+            return 0
+        else:
+            return self.Q[o][action]
+    
+    def update(self, observations, action, new_value):
+        """
+        Update the Q-function table with the new value for the (state, action) pair
+        and update the blocks drawing.
+        """
+        o = tuple([x for x in observations])
+        actions = self.get_possible_actions(observations)
+        if o not in self.Q:
+            self.Q[o] = [0 for a in actions]
+        self.Q[o][action] = new_value
+        self.draw_q(o)
+    
+    def draw_q(self, o):
+        e = get_environment()
+        if hasattr(e, 'draw_q'):
+            e.draw_q(o, self.Q)
+
+    def get_possible_actions(self, observations):
+        """
+        Get the possible actions that can be taken given the state (observations)
+        """
+        aMin = self.action_info.min(0)
+        aMax = self.action_info.max(0)
+        actions = range(aMin, aMax+1)
+        return actions
+        
+    def get_max_action(self, observations):
+        """
+        get the action that is currently estimated to produce the highest Q
+        """
+        actions = self.get_possible_actions(observations)
+        max_action = actions[0]
+        max_value = self.predict(observations, max_action)
+        for a in actions[1:]:
+            value = self.predict(observations, a)
+            if value > max_value:
+                max_value = value
+                max_action = a
+        return (max_action, max_value)
+
+    def get_epsilon_greedy(self, observations, max_action = None, max_value = None):
+        """
+        get the epsilon-greedy action
+        """
+        actions = self.get_possible_actions(observations)
+        if random.random() < self.epsilon: # epsilon of the time, act randomly
+            return random.choice(actions)
+        elif max_action is not None and max_value is not None:
+            # we already know the max action
+            return max_action
+        else:
+            # we need to get the max action
+            (max_action, max_value) = self.get_max_action(observations)
+            return max_action
+    
+    def start(self, time, observations):
+        """
+        Called to figure out the first action given the first observations
+        @param time current time
+        @param observations a DoubleVector of observations for the agent (use len() and [])
+        """
+        self.previous_observations = observations
+        self.previous_action = self.get_epsilon_greedy(observations)
+        return self.previous_action
+
+    def act(self, time, observations, reward):
+        """
+        return an action given the reward for the previous action and the new observations
+        @param time current time
+        @param observations a DoubleVector of observations for the agent (use len() and [])
+        @param the reward for the agent
+        """
+        # get the reward from the previous action
+        r = reward[0]
+        
+        # get the updated epsilon, in case the slider was changed by the user
+        self.epsilon = get_environment().epsilon
+        
+        # get the old Q value
+        Q_old = self.predict(self.previous_observations, self.previous_action)
+        
+        # get the max expected value for our possible actions
+        (max_action, max_value) = self.get_max_action(observations)
+        
+        # update the Q value
+        self.update( \
+            self.previous_observations, \
+            self.previous_action, \
+            Q_old + self.alpha * (r + self.gamma * max_value - Q_old) )
+        
+        # select the action to take
+        action = self.get_epsilon_greedy(observations, max_action, max_value)
+        self.previous_observations = observations
+        self.previous_action = action
+        return action
+
+    def end(self, time, reward):
+        """
+        receive the reward for the last observation
+        """
+        # get the reward from the last action
+        r = reward[0]
+        o = self.previous_observations
+        a = self.previous_action
+
+        # get the updated epsilon, in case the slider was changed by the user
+        self.epsilon = get_environment().epsilon
+
+        # Update the Q value
+        Q_old = self.predict(o, a)
+        q = self.update(o, a, Q_old + self.alpha * (r - Q_old) )
         return True
 
 class SearchAgent(AgentBrain):
@@ -105,7 +261,7 @@ class DFSSearchAgent(SearchAgent):
         # if we have not been here before, build a list of other places we can go
         if (r,c) not in self.visited:
             tovisit = []
-            for m, (dr,dc) in enumerate(MazeEnvironment.MOVES):
+            for m, (dr,dc) in enumerate(MAZE_MOVES):
                 r2, c2 = r+dr, c+dc
                 if not observations[2 + m]: # can we go that way?
                     if (r2,c2) not in self.visited:
@@ -249,7 +405,7 @@ class GenericSearchAlgorithm(SearchAgent):
             print  'reached goal: ' + str((row, col))
             self.goal = None
         # then we queue up some places to go next
-        for i, (dr,dc) in enumerate(MazeEnvironment.MOVES):
+        for i, (dr,dc) in enumerate(MAZE_MOVES):
             if observations[2+i] == 0: # are we free to perform this action?
                 # the action index should correspond to sensor index - 2
                 r2 = row + dr # compute the row we could move to
@@ -406,7 +562,7 @@ class FrontAStarSearchAgent(AStarSearchAgent):
         else:
             # if not, we should teleport and return null action
             get_environment().teleport(self, r2, c2)
-            v[0] = MazeEnvironment.NULL_MOVE
+            v[0] = MAZE_NULL_MOVE
         return v # return the action
 
 class CloningAStarSearchAgent(FrontAStarSearchAgent):
@@ -449,7 +605,7 @@ class FirstPersonAgent(AgentBrain):
     A human-controlled agent
     """
     key_pressed = None
-    action_map = ContMazeEnvironment.ACTIONS
+    action_map = CONT_MAZE_ACTIONS
     def __init__(self):
         AgentBrain.__init__(self) # do not remove!
         self.time = 0
@@ -463,7 +619,7 @@ class FirstPersonAgent(AgentBrain):
             action[0] = FirstPersonAgent.action_map[FirstPersonAgent.key_pressed]
             FirstPersonAgent.key_pressed = None
         else:
-            action[0] = MazeEnvironment.NULL_MOVE
+            action[0] = MAZE_NULL_MOVE
         return action
     def start(self, time, observations):
         return self.key_action()
@@ -481,7 +637,7 @@ class MoveForwardAndStopAgent(AgentBrain):
     def initialize(self, init_info):
         self.actions = init_info.actions # action constraints
         self.idle_action = self.actions.get_instance()
-        self.idle_action[0] = MazeEnvironment.NULL_MOVE # do-nothing action
+        self.idle_action[0] = MAZE_NULL_MOVE # do-nothing action
         return True
     def start(self, time, observations):
         marker_states = get_environment().marker_states

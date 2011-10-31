@@ -156,4 +156,11 @@ namespace OpenNero {
         m_Stats += sample;
     }
     
+    std::ostream& operator<<(std::ostream& os, const Stats& stats) {
+        os << "<Stats trials=\"" << stats.m_NumLifetimeTrials 
+           << "\" average=\"" << stats.m_LifetimeAverage
+           << "\" stats=\"" << stats.m_Stats << "\" />";
+        return os;
+    }
+    
 }

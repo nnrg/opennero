@@ -1,158 +1,199 @@
 from OpenNero import *
-from random import seed, randint
 
 # add the key and mouse bindings
 from inputConfig import createInputMapping
 
 from common import *
 import common.gui as gui
+from common.module import openWiki
 
 from Maze.module import getMod, delMod
 from Maze.constants import *
+from Maze.environment import EgocentricMazeEnvironment, GranularMazeEnvironment
 
-#########################################################
+# Agents and the functions that start them
+
+AGENTS = [
+    ('Depth First Search',      lambda: getMod().start_dfs(),           False),
+    ('Breadth First Search',    lambda: getMod().start_bfs(),           False),
+    ('A* Search',  lambda: getMod().start_astar(),         False),
+    ('A* Search with Teleporting',   lambda: getMod().start_astar2(),        False),
+    ('A* Search with Front',         lambda: getMod().start_astar3(),        False),
+#    ('Random Actions',          lambda: getMod().start_random(),        False),
+#    ('Sarsa RL',                lambda: getMod().start_sarsa(),         True),
+#    ('Q-Learning RL',           lambda: getMod().start_qlearning(),     True),
+#    ('Q-Learning RL (more continuous)',   lambda: getMod().start_qlearning(GranularMazeEnvironment), True),
+    ('Q-Learning (Coarse)',               lambda: getMod().start_customrl(),      True),
+    ('Q-Learning (Fine)',       lambda: getMod().start_customrl(GranularMazeEnvironment), True),
+    ('First Person (Coarse)',       lambda: getMod().start_fps(),           False),
+    ('First Person (Fine)', lambda: getMod().start_fps_granular(),     False),
+]
+
+class UI:
+    pass
 
 def CreateGui(guiMan):
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")
 
-    button_i = 0   # button counter
-    button_w = 120 # button width
-    button_h = 30  # button height
+    ui = UI()
 
-    dfsButton = gui.create_button(guiMan, 'dfs', Pos2i(0, button_i*button_h), Pos2i(button_w, button_h), '')
-    dfsButton.text = 'Depth First Search'
-    dfsButton.OnMouseLeftClick = lambda: getMod().start_dfs()
-    button_i += 1
+    window_width = 300 # width
+    control_height = 30  # height
 
-    bfsButton = gui.create_button(guiMan, 'bfs', Pos2i(0, button_i*button_h), Pos2i(button_w, button_h), '')
-    bfsButton.text = 'Breadth First Search'
-    bfsButton.OnMouseLeftClick = lambda: getMod().start_bfs()
-    button_i += 1
+    # AGENT SELECTION BOX
+    x, y = 5, 4 * control_height + 5
+    w, h = window_width - 15, control_height - 10
+    ui.agentBoxLabel = gui.create_text(guiMan, 'agentLabel', Pos2i(x,y), Pos2i(3*w/10,h), 'Agent Type:')
+    ui.agentComboBox = gui.create_combo_box(guiMan, "agentComboBox", Pos2i(x + 5 + 3*w/10, y), Pos2i(7*w/10, h))
+    for agent_name, agent_function, ee_enabled in AGENTS:
+        ui.agentComboBox.addItem(agent_name)
 
-    aStarButton = gui.create_button(guiMan, 'astar', Pos2i(0, button_i*button_h), Pos2i(button_w, button_h), '')
-    aStarButton.text = 'Single Agent A*'
-    aStarButton.OnMouseLeftClick = lambda: getMod().start_astar()
-    button_i += 1
-
-    aStarButton2 = gui.create_button(guiMan, 'astar2', Pos2i(0, button_i*button_h), Pos2i(button_w, button_h), '')
-    aStarButton2.text = 'Teleporting A*'
-    aStarButton2.OnMouseLeftClick = lambda: getMod().start_astar2()
-    button_i += 1
-
-    aStarButton3 = gui.create_button(guiMan, 'astar3', Pos2i(0, button_i*button_h), Pos2i(button_w, button_h), '')
-    aStarButton3.text = 'Front A*'
-    aStarButton3.OnMouseLeftClick = lambda: getMod().start_astar3()
-    button_i += 1
-
-    fpsButton = gui.create_button(guiMan, 'fps', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
-    fpsButton.text = 'First Person'
-    fpsButton.OnMouseLeftClick = lambda: getMod().start_fps()
-    button_i += 1
-
-    randomButton = gui.create_button(guiMan, 'random', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
-    randomButton.text = 'Random Baseline'
-    randomButton.OnMouseLeftClick = lambda: getMod().start_random()
-    button_i += 1
-
-    #rtneatButton = gui.create_button(guiMan, 'rtneat', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
-    #rtneatButton.text = 'Neuroevolution'
-    #rtneatButton.OnMouseLeftClick = lambda: getMod().start_rtneat()
-    #button_i += 1
-
-    sarsaButton = gui.create_button(guiMan, 'sarsa', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
-    sarsaButton.text = 'Sarsa'
-    sarsaButton.OnMouseLeftClick = lambda: getMod().start_sarsa()
-    button_i += 1
-
-    qlearningButton = gui.create_button(guiMan, 'qlearning', Pos2i(0,button_i*button_h), Pos2i(button_w,button_h), '')
-    qlearningButton.text = 'Q-Learning'
-    qlearningButton.OnMouseLeftClick = lambda: getMod().start_qlearning()
-    button_i += 1
-
-    agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(button_w, button_i*button_h+20), 'Agent')
-    agentWindow.addChild(dfsButton)
-    agentWindow.addChild(bfsButton)
-    agentWindow.addChild(aStarButton)
-    agentWindow.addChild(aStarButton2)
-    agentWindow.addChild(aStarButton3)
-    agentWindow.addChild(fpsButton)
-    agentWindow.addChild(randomButton)
-    #agentWindow.addChild(rtneatButton)
-    agentWindow.addChild(sarsaButton)
-    agentWindow.addChild(qlearningButton)
-
+    # EXPLORE/EXPLOIT TRADE-OFF SLIDER
+    x, y = 5, 0 * control_height + 5
+    w, h = window_width - 20, control_height - 5
     epsilon_percent = int(INITIAL_EPSILON * 100)
-    epsilonValue = gui.create_text(guiMan, 'epsilonEditBox', Pos2i(260,0), Pos2i(100,30), str(epsilon_percent))
-
-    epsilonLabel = gui.create_text(guiMan, 'epsilonLabel', Pos2i(10,0), Pos2i(100,30), 'Exploit-Explore:')
-
-    # this can be used to adjust the exploration-exploitation tradeoff (fraction of
-    # champion organisms in the case of rt-NEAT and fraction of greedy actions in the case
-    # of the epsilon-greedy RL methods like Sarsa and Q-learning)
-    epsilonScroll = gui.create_scroll_bar(guiMan, 'epsilonScroll', Pos2i(100,0), Pos2i(150,20), True)
-    epsilonScroll.setMax(100)
-    epsilonScroll.setLargeStep(10)
-    epsilonScroll.setSmallStep(1)
-    epsilonScroll.setPos(epsilon_percent)
+    ui.epsilonLabel = gui.create_text(guiMan, 'epsilonLabel', Pos2i(x, y), Pos2i(3*w/10, h), 'Exploit-Explore:')
+    ui.epsilonScroll = gui.create_scroll_bar(guiMan, 'epsilonScroll', Pos2i(x + 3*w/10 + 5, y), Pos2i(6*w/10, h - 5), True)
+    ui.epsilonValue = gui.create_text(guiMan, 'epsilonEditBox', Pos2i(x + 9*w/10 + 10, y), Pos2i(w/10, h), str(epsilon_percent))
+    ui.epsilonScroll.setMax(100)
+    ui.epsilonScroll.setLargeStep(10)
+    ui.epsilonScroll.setSmallStep(1)
+    ui.epsilonScroll.setPos(epsilon_percent)
+    ui.epsilonScroll.enabled = False
+    ui.epsilonValue.visible = False
+    ui.epsilonLabel.visible = False
+    ui.epsilonScroll.visible = False
     getMod().set_epsilon(INITIAL_EPSILON)
-    epsilonScroll.OnScrollBarChange = epsilon_adjusted(epsilonScroll, epsilonValue)
+    ui.epsilonScroll.OnScrollBarChange = epsilon_adjusted(ui)
 
-    speedupValue = gui.create_text(guiMan, 'speedupEditBox', Pos2i(260, 30), Pos2i(100, 30), str(0))
+    # START/RESET AND PAUSE/CONTINUE AGENT BUTTONS
+    x, y = 5, 3 * control_height
+    w, h = (window_width - 15) / 2, control_height - 5
+    ui.startAgentButton = gui.create_button(guiMan, 'startAgentButton', Pos2i(x, y), Pos2i(w, h), '')
+    ui.pauseAgentButton = gui.create_button(guiMan, 'pauseAgentButton', Pos2i(x + w + 5, y), Pos2i(w, h), '')
+    ui.startAgentButton.text = 'Start'
+    ui.pauseAgentButton.text = 'Pause'
+    ui.pauseAgentButton.enabled = False
+    ui.startAgentButton.OnMouseLeftClick = startAgent(ui)
+    ui.pauseAgentButton.OnMouseLeftClick = pauseAgent(ui)
 
-    speedupLabel = gui.create_text(guiMan, 'speedupLabel', Pos2i(10, 30), Pos2i(100, 30), 'Speedup:')
+    # HELP BUTTON
+    w, h = (window_width - 15) / 2, control_height - 5
+    x, y = 5, 2 * control_height
+    ui.helpButton = gui.create_button(guiMan, 'helpButton', Pos2i(x, y), Pos2i(w, h), '')
+    ui.helpButton.text = 'Help'
+    ui.helpButton.OnMouseLeftClick = openWiki('MazeMod')
 
-    speedupScroll = gui.create_scroll_bar(guiMan, 'speedupScroll', Pos2i(100, 30), Pos2i(150,20), True)
-    speedupScroll.setMax(100)
-    speedupScroll.setLargeStep(10)
-    speedupScroll.setSmallStep(1)
-    speedupScroll.setPos(0)
+    # NEW MAZE BUTTON
+    x = 10 + w
+    ui.newMazeButton = gui.create_button(guiMan, 'newMazeButton', Pos2i(x, y), Pos2i(w, h), '')
+    ui.newMazeButton.text = 'New Maze'
+    ui.newMazeButton.OnMouseLeftClick = lambda: getMod().generate_new_maze()
+
+    # SPEEDUP SLIDER
+    x, y = 5, 1 * control_height
+    w, h = window_width - 20, control_height - 5
+    ui.speedupLabel = gui.create_text(guiMan, 'speedupLabel', Pos2i(x, y), Pos2i(3*w/10, h), 'Speedup:')
+    ui.speedupScroll = gui.create_scroll_bar(guiMan, 'speedupScroll', Pos2i(x + 5 + 3*w/10, y), Pos2i(3*w/5, h-5), True)
+    ui.speedupValue = gui.create_text(guiMan, 'speedupEditBox', Pos2i(x + 10 + 9*w/10, y), Pos2i(w/10, h), str(0))
+    ui.speedupScroll.setMax(100)
+    ui.speedupScroll.setLargeStep(10)
+    ui.speedupScroll.setSmallStep(1)
+    ui.speedupScroll.setPos(0)
     getMod().set_speedup(0)
-    speedupScroll.OnScrollBarChange = speedup_adjusted(speedupScroll, speedupValue)
+    ui.speedupScroll.OnScrollBarChange = speedup_adjusted(ui)
 
-    newMazeButton = gui.create_button(guiMan, 'newMazeButton', Pos2i(10,60), Pos2i(button_w,30), '')
-    newMazeButton.text = 'Generate New Maze'
-    newMazeButton.OnMouseLeftClick = lambda: getMod().generate_new_maze()
+    # THE WINDOW THAT HOLDS ALL THE CONTROLS ABOVE
+    ui.agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(10, 10), Pos2i(window_width, 5*control_height+25), 'Agent')
+    ui.agentWindow.addChild(ui.agentBoxLabel)
+    ui.agentWindow.addChild(ui.agentComboBox)
+    ui.agentWindow.addChild(ui.newMazeButton)
+    ui.agentWindow.addChild(ui.startAgentButton)
+    ui.agentWindow.addChild(ui.pauseAgentButton)
+    ui.agentWindow.addChild(ui.helpButton)
+    ui.agentWindow.addChild(ui.epsilonLabel)
+    ui.agentWindow.addChild(ui.epsilonScroll)
+    ui.agentWindow.addChild(ui.epsilonValue)
+    ui.agentWindow.addChild(ui.speedupLabel)
+    ui.agentWindow.addChild(ui.speedupScroll)
+    ui.agentWindow.addChild(ui.speedupValue)
 
-    paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 450), Pos2i(260,125), 'Parameters')
-    paramWindow.addChild(epsilonLabel)
-    paramWindow.addChild(epsilonScroll)
-    paramWindow.addChild(epsilonValue)
-    paramWindow.addChild(speedupLabel)
-    paramWindow.addChild(speedupScroll)
-    paramWindow.addChild(speedupValue)
-    paramWindow.addChild(newMazeButton)
-
-def epsilon_adjusted(scroll, value):
-    # generate a closure that will be called whenever the epsilon slider is adjusted
-    value.text = str(scroll.getPos())
-    getMod().set_epsilon(float(scroll.getPos())/100)
+def epsilon_adjusted(ui):
+    """ generate a closure that will be called whenever the epsilon slider is adjusted """
+    ui.epsilonValue.text = str(ui.epsilonScroll.getPos())
+    getMod().set_epsilon(float(ui.epsilonScroll.getPos())/100)
     def closure():
-        value.text = str(scroll.getPos())
-        getMod().set_epsilon(float(scroll.getPos())/100)
+        """called whenever the epsilon slider is adjusted"""
+        ui.epsilonValue.text = str(ui.epsilonScroll.getPos())
+        getMod().set_epsilon(float(ui.epsilonScroll.getPos())/100)
     return closure
 
-def speedup_adjusted(scroll, value):
-    # generate a closure that will be called whenever the speedup slider is adjusted
-    value.text = str(scroll.getPos())
-    getMod().set_speedup(float(scroll.getPos())/100)
+def speedup_adjusted(ui):
+    """generate a closure that will be called whenever the speedup slider is adjusted"""
+    ui.speedupValue.text = str(ui.speedupScroll.getPos())
+    getMod().set_speedup(float(ui.speedupScroll.getPos())/100)
     def closure():
-        value.text = str(scroll.getPos())
-        getMod().set_speedup(float(scroll.getPos())/100)
+        """called whenever the speedup slider is adjusted"""
+        ui.speedupValue.text = str(ui.speedupScroll.getPos())
+        getMod().set_speedup(float(ui.speedupScroll.getPos())/100)
+    return closure
+
+def startAgent(ui):
+    """ return a function that starts or stops the agent """
+    def closure():
+        """starts or stops the agent"""
+        if ui.startAgentButton.text == 'Start':
+            i = ui.agentComboBox.getSelected()
+            (agent_name, agent_function, ee_enabled) = AGENTS[i]
+            if ee_enabled:
+                ui.epsilonScroll.enabled = True
+                ui.epsilonValue.visible = True
+                ui.epsilonLabel.visible = True
+                ui.epsilonScroll.visible = True
+            print 'Starting', agent_name
+            agent_function()
+            ui.pauseAgentButton.text = 'Pause'
+            ui.pauseAgentButton.enabled = True
+            ui.startAgentButton.text = 'Reset'
+            ui.agentComboBox.enabled = False
+        else:
+            getMod().stop_maze()
+            disable_ai()
+            ui.epsilonScroll.enabled = False
+            ui.epsilonValue.visible = False
+            ui.epsilonLabel.visible = False
+            ui.epsilonScroll.visible = False
+            get_environment().cleanup()
+            ui.startAgentButton.text = 'Start'
+            ui.pauseAgentButton.text = 'Pause'
+            ui.pauseAgentButton.enabled = False
+            ui.agentComboBox.enabled = True
+    return closure
+
+def pauseAgent(ui):
+    """ return a function that pauses and continues the agent """
+    def closure():
+        """pauses and continues the agent"""
+        if ui.pauseAgentButton.text == 'Continue':
+            ui.pauseAgentButton.text = 'Pause'
+            enable_ai()
+        else:
+            ui.pauseAgentButton.text = 'Continue'
+            disable_ai()
     return closure
 
 def recenter(cam):
+    """ return a function that recenters the camera """
     def closure():
-        cam.setPosition(Vector3f(0, 0, 80))
+        """recenters the camera"""
+        cam.setPosition(Vector3f(-20, -20, 80))
         cam.setTarget(Vector3f(GRID_DX * ROWS / 2, GRID_DY * COLS / 2, 0))
     return closure
 
 def ClientMain():
     # create fog effect
     getSimContext().setFog()
-
-    # don't show physics
-    # disable_physics()
 
     # add a camera
     camRotateSpeed = 100

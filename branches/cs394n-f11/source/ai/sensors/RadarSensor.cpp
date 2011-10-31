@@ -37,23 +37,40 @@ namespace OpenNero
             observed = false;
             value = 0;
         }
+        // the position of the source of the sensor
         Vector3f sourcePos = source->GetPosition();
+        
+        // the position of the target
         Vector3f targetPos = target->GetPosition();
+        
+        // the vector from the 
         Vector3f vecToTarget = targetPos - sourcePos;
         double distToTarget = vecToTarget.getLength();
         double myHeading = source->GetRotation().Z;
         double tgtAngle = RAD_2_DEG * atan2(vecToTarget.Y, vecToTarget.X); // [-180, 180]
         double yawToTarget = LockDegreesTo180(tgtAngle - myHeading);
         double pitchToTarget = 0; // TODO: for now
-        if (distToTarget <= radius &&                                       // within radius
-            ((leftbound <= yawToTarget && yawToTarget <= rightbound) ||     // yaw within L-R angle bounds
-             (rightbound < leftbound) && (leftbound <= yawToTarget || yawToTarget <= rightbound)) && // possibly wrapping around
-			(bottombound <= pitchToTarget && pitchToTarget <= topbound) )   // pitch within B-T angle bounds
+
+        // within radius
+        bool within_range = (distToTarget <= radius);
+        
+        // yaw within R-L angle bounds
+        bool within_yaw = (leftbound >= yawToTarget && yawToTarget >= rightbound);
+        
+        // yaw is within L-R angle bounds
+        bool within_reverse_yaw = 
+            (leftbound < rightbound && 
+            (leftbound >= yawToTarget || rightbound <= yawToTarget));
+        
+        // pitch is within B-T bounds
+        bool within_pitch = (bottombound <= pitchToTarget && pitchToTarget <= topbound);
+        
+        if (within_range && (within_yaw || within_reverse_yaw) && within_pitch)
         {
             if (distToTarget > 0) {
                 value += kDistanceScalar * radius / distToTarget;
             } else {
-                value += 1;
+                value = 1;
             }
             if (vis) {
                 Vector3f r = source->GetRotation();

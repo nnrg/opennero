@@ -3,68 +3,8 @@ from OpenNero import *
 from common import *
 from constants import *
 from mazer import Maze
-from Maze.environment import MazeEnvironment, ContMazeEnvironment
+from Maze.environment import MazeEnvironment, EgocentricMazeEnvironment
 from Maze.agent import FirstPersonAgent
-
-def count_neurons(constraints):
-    """
-    Count the number of neurons required to represent the given feature vector
-    constraints. For continuous values, scale to a single neuron. For discrete
-    values, use (max - min) neurons for a 1-of-N encoding.
-    """
-    n_neurons = 0
-    for i in range(len(constraints)):
-        if constraints.discrete(i):
-            n_neurons += int(constraints.max(i) - constraints.min(i) + 1)
-        else:
-            n_neurons += 1
-    return n_neurons
-
-def input_to_neurons(constraints, input):
-    """
-    Convert to the ANN coding required to represent the given feature vector.
-    For continuous values, scale to a single neuron. For discrete
-    values, use (max - min) neurons for a 1-of-N encoding.
-    """
-    neurons = []
-    for i in range(len(constraints)):
-        if constraints.discrete(i):
-            section_size = int(constraints.max(i) - constraints.min(i) + 1)
-            section = [0 for x in range(section_size)]
-            index = int(input[i] - constraints.min(i))
-            section[index] = 1
-            neurons.extend(section)
-        else:
-            delta = constraints.max(i) - constraints.min(i)
-            neurons.append(neurons[neuron_i] - constraints.min(i)) / delta
-    assert(len(neurons) == count_neurons(constraints))
-    return neurons
-
-def neurons_to_output(constraints, neurons):
-    """
-    Convert each continuous value from a neuron output to its range, and each
-    discrete value from it's max-of-N output encoding (where N = Max - Min).
-    """
-    result = constraints.get_instance()
-    neuron_i = 0
-    for result_i in range(len(constraints)):
-        assert(neuron_i < len(neurons))
-        assert(neuron_i >= result_i)
-        if constraints.discrete(result_i):
-            # section of the neurons coding for this output
-            section_size = int(constraints.max(result_i) - constraints.min(result_i) + 1)
-            section_values = neurons[neuron_i:(neuron_i + section_size)]
-            # the maximally activated neuron in this section
-            max_neuron = max(section_values)
-            max_index = section_values.index(max_neuron)
-            # the result output
-            result[result_i] = constraints.min(result_i) + max_index
-            neuron_i += section_size
-        else:
-            delta = constraints.max(result_i) - constraints.min(result_i)
-            result[result_i] = constraints.min(i) + neurons[neuron_i] * delta
-            neuron_i += 1
-    return result
 
 class MazeMod:
     # initializer
@@ -72,7 +12,6 @@ class MazeMod:
         print 'Creating MazeMod'
         self.epsilon = 0.5
         self.speedup = 0.0
-        self.shortcircuit = False
         self.environment = None
         self.agent_id = None # the ID of the agent
         self.wall_ids = [] # walls on the map
@@ -120,7 +59,6 @@ class MazeMod:
         self.environment = env
         self.environment.epsilon = self.epsilon
         self.environment.speedup = self.speedup
-        self.environment.shortcircuit = self.shortcircuit
         self.delete_maze_objects()
         set_environment(env)
         self.add_maze_objects()
@@ -133,147 +71,75 @@ class MazeMod:
         self.agent_id = None
         reset_ai()
 
-    def start_dfs(self):
-        """ start the depth first search demo """
+    def stop_maze(self):
+        """ stop the maze agent and reset the environment """
+        if self.agent_id is not None:
+            removeObject(self.agent_id)
+        self.agent_id = None
+        disable_ai()
+
+    def start_agent(self, xml, env_class):
+        """ start an agent """
         disable_ai()
         self.reset_maze()
-        if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment(False))
-        else:
-            self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyDFS.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
-        getSimContext().setObjectAnimation(self.agent_id, 'run')
+        if self.environment.__class__.__name__ != env_class.__name__:
+            self.set_environment(env_class())
+        self.agent_id = addObject(xml, Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
         enable_ai()
+
+    def start_dfs(self):
+        """ start the depth first search demo """
+        self.start_agent("data/shapes/character/SydneyDFS.xml", MazeEnvironment)
 
     def start_bfs(self):
         """ start the breadth first search demo """
-        disable_ai()
-        self.reset_maze()
-        if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment(False))
-        else:
-            self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyBFS.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
-        getSimContext().setObjectAnimation(self.agent_id, 'run')
-        enable_ai()
+        self.start_agent("data/shapes/character/SydneyBFS.xml", MazeEnvironment)
 
     def start_astar(self):
         """ start the A* search demo """
-        disable_ai()
-        self.reset_maze()
-        if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment(False))
-        else:
-            self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyAStar.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
-        getSimContext().setObjectAnimation(self.agent_id, 'run')
-        enable_ai()
+        self.start_agent("data/shapes/character/SydneyAStar.xml", MazeEnvironment)
 
     def start_astar2(self):
         """ start the A* search demo with teleporting agents """
-        disable_ai()
-        self.reset_maze()
-        if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment(False))
-        else:
-            self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyAStar2.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
-        getSimContext().setObjectAnimation(self.agent_id, 'run')
-        enable_ai()
+        self.start_agent("data/shapes/character/SydneyAStar2.xml", MazeEnvironment)
 
     def start_astar3(self):
         """ start the A* search demo with teleporting agents and a front marked by moving agents """
-        disable_ai()
-        self.reset_maze()
-        if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment(False))
-        else:
-            self.environment.loop = False
-        self.agent_id = addObject("data/shapes/character/SydneyAStar3.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
-        getSimContext().setObjectAnimation(self.agent_id, 'run')
-        enable_ai()
+        self.start_agent("data/shapes/character/SydneyAStar3.xml", MazeEnvironment)
 
-    def start_fps(self):
-        """ start the FPS navigation demo for the natural language experiment """
+    def start_fps(self, env_class = EgocentricMazeEnvironment):
+        """ start the FPS navigation demo """
         disable_ai()
         self.reset_maze()
-        if self.environment.__class__.__name__ != 'ContMazeEnvironment':
-            self.set_environment(ContMazeEnvironment())
-        else:
-            self.environment.loop = True
+        #if self.environment.__class__.__name__ != env_class.__name__:
+        self.set_environment(env_class())
         self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
         enable_ai()
 
-    def start_random(self):
+    def start_fps_granular(self):
+        """ start the FPS navigation demo with a more continous environment """
+        disable_ai()
+        self.reset_maze()
+        #if self.environment.__class__.__name__ != EgocentricMazeEnvironment.__name__:
+        self.set_environment(EgocentricMazeEnvironment(granularity=8))
+        self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+        enable_ai()
+
+    def start_random(self, env_class = MazeEnvironment):
         """ start the random baseline demo """
-        disable_ai()
-        self.reset_maze()
-        # ensure that we have the environment ready
-        if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment())
-        else:
-            self.environment.loop = True
-        enable_ai()
-        self.agent_id = addObject("data/shapes/character/SydneyRandom.xml",Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
+        self.start_agent("data/shapes/character/SydneyRandom.xml", env_class)
 
-    def start_rtneat(self):
-        """ start the rtneat learning demo """
-        disable_ai()
-        self.reset_maze()
-        if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment())
-        else:
-            self.environment.loop = True
-        agent_info = get_environment().agent_info
+    def start_sarsa(self, env_class = MazeEnvironment):
+        """ start the Sarsa RL demo """
+        self.start_agent("data/shapes/character/SydneySarsa.xml", env_class)
 
-        # Create an rtNEAT object appropriate for the environment
-        pop_size = 50
-        pop_on_field_size = 10
+    def start_qlearning(self, env_class = MazeEnvironment):
+        """ start the Q-Learning RL demo """
+        self.start_agent("data/shapes/character/SydneyQLearning.xml", env_class)
 
-        # Establish the number of inputs and outputs
-        # We use 1 neuron for each continuous value, and N neurons for 1-of-N
-        # coding for discrete variables
-
-        # For inputs, the number of neurons depends on the sensor constraints
-        n_inputs = count_neurons(agent_info.sensors)
-
-        # For outputs, the number of neurons depends on the action constraints
-        n_outputs = count_neurons(agent_info.actions)
-
-        print 'RTNEAT, inputs: %d, outputs: %d' % (n_inputs, n_outputs)
-
-        rbound = FeatureVectorInfo() # rewards
-        rbound.add_continuous(-sys.float_info.max, sys.float_info.max)
-
-        # create the rtneat object that will manage the population of agents
-        rtneat = RTNEAT("data/ai/neat-params.dat", n_inputs, n_outputs, pop_size, 1.0, rbound)
-        set_ai("rtneat",rtneat)
-        rtneat.set_weight(0,1) # we only have one reward, so we better count it!
-        enable_ai()
-        for i in range(0, pop_on_field_size):
-            self.agent_map[(0,i)] = addObject("data/shapes/character/SydneyRTNEAT.xml",Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK)
-
-    def start_sarsa(self):
-        """ start the rtneat learning demo """
-        disable_ai()
-        self.reset_maze()
-        if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment())
-        else:
-            self.environment.loop = True
-        self.agent_id = addObject("data/shapes/character/SydneySarsa.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
-        enable_ai()
-
-    def start_qlearning(self):
-        """ start the q-learning demo """
-        disable_ai()
-        self.reset_maze()
-        if self.environment.__class__.__name__ != 'MazeEnvironment':
-            self.set_environment(MazeEnvironment())
-        else:
-            self.environment.loop = True
-        self.agent_id = addObject("data/shapes/character/SydneyQLearning.xml", Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
-        enable_ai()
+    def start_customrl(self, env_class = MazeEnvironment):
+        """ start the Custom RL demo """
+        self.start_agent("data/shapes/character/CustomRLRobot.xml", env_class)
 
     def control_fps(self,key):
         FirstPersonAgent.key_pressed = key
@@ -289,12 +155,6 @@ class MazeMod:
         print 'Speedup set to', self.speedup
         # speed up between 0 (delay set to 1 second) and 1 (delay set to 0)
         getSimContext().delay = 1.0 - speedup
-
-    def set_shortcircuit(self, shortcircuit):
-        self.shortcircuit = shortcircuit
-        print 'Short-circuit set to', self.shortcircuit
-        if self.environment:
-            self.environment.shortcircuit = shortcircuit
 
 gMod = None
 
