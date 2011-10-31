@@ -13,39 +13,47 @@ namespace OpenNero
     /// called right before the agent is born
     bool TDBrain::initialize(const AgentInitInfo& init)
     {
+        mInfo = init;
+
         action_bins = 3;
         state_bins = 5;
 
-        mInfo = init;
-        if (init.actions.isDiscrete(0))
+        // Similar to FeatureVectorInfo::enumerate (from AI.cpp).
+        //
+        // We want to enumerate all possible actions in a discrete way, so that
+        // we can store them in a policy table somehow. So, for each action
+        // dimension, if it's discrete we just enumerate the integral values for
+        // that dimension, and if it's continuous, we split it into action_bins
+        // different values.
+        //
+        // An example: Suppose some action dimension is continuous and spans the
+        // closed interval [-1, 1]. Additionally suppose we want to split
+        // continuous action dimensions into 5 bins. We'd like to preserve the
+        // actual range of action values, but only store the 5 discrete values
+        // that equally partition this space, i.e., {-1, -.5, 0, .5, 1}. So we
+        // traverse the action dimension from -1 to 1 (inclusive), adding
+        // (hi - lo) / (bins - 1) == (1 - -1) / 4 == 0.5 each time.
+        const FeatureVectorInfo& info = init.actions;
+        action_list.clear();
+        action_list.push_back(info.getInstance());
+        for (size_t i = 0; i < info.size(); ++i)
         {
-            action_list = init.actions.enumerate();
-        }
-        else
-        {
-            // Mostly copied from FeatureVectorInfo::enumerate (AI.cpp).
-            const FeatureVectorInfo& info = init.actions;
-            action_list.clear();
-            action_list.push_back(info.getInstance());
-            for (size_t i = 0; i < info.size(); ++i)
+            const double lo = info.getMin(i), hi = info.getMax(i);
+            const double inc = info.isDiscrete(i) ? 1.0f : (hi - lo) / (action_bins - 1);
+            std::vector< Actions > new_action_list;
+            std::vector< Actions >::const_iterator iter;
+            for (iter = action_list.begin(); iter != action_list.end(); ++iter)
             {
-                const double lo = info.getMin(i),
-                    hi = info.getMax(i),
-                    inc = (hi - lo) / action_bins;
-                std::vector< Actions > new_action_list;
-                std::vector< Actions >::const_iterator iter;
-                for (iter = action_list.begin(); iter != action_list.end(); ++iter)
+                for (double a = lo; a <= hi; a += inc)
                 {
-                    for (int a = lo; a <= hi; a += inc)
-                    {
-                        FeatureVector v = *iter;
-                        v[i] = a;
-                        new_action_list.push_back(v);
-                    }
+                    FeatureVector v = *iter;
+                    v[i] = a;
+                    new_action_list.push_back(v);
                 }
-                action_list = new_action_list;
             }
+            action_list = new_action_list;
         }
+
         this->fitness = mInfo.reward.getInstance();
         mApproximator.reset(new TableApproximator(mInfo)); // initialize the function approximator
         //mApproximator.reset(new TilesApproximator(mInfo)); // initialize the function approximator
@@ -117,16 +125,49 @@ namespace OpenNero
 
     /// static helper: given a feature vector from a continuous space, quantize
     /// it based on the given info for the vector, and the number of discrete
-    /// (linear) bins we want for our discretized space.
+    /// (linear) bins we want for each dimension of our discretized space.
+    ///
+    /// This is similar in spirit to the action space enumeration in initialize
+    /// above. I'll continue the example from there, i.e., that we want to map a
+    /// dimension that spans [-1, 1] into 5 equal bins, with centers at the
+    /// values {-1 (bin #0), -.5, 0, .5, 1 (bin #4)}.
+    ///
+    /// Suppose we get a continuous value of 0.3 for this dimension. This should
+    /// probably fit into bin #3 (by a "closest center" metric -- similarly, 0.2
+    /// should fit into bin #2). We first map [-1, 1] onto {0, 1, 2, 3, 4}, and
+    /// then finally we map the integral bin number back into [-1, 1] by adding
+    /// the lower bound (-1) to the appropriate multiple of "inc" == span /
+    /// (bins - 1). The tricky bit here is that to map each bin's interval
+    /// (e.g., for bin #3, the interval is [.25, .75)) we basically end up
+    /// subtracting inc / 2 from everything, which effectively converts the bin
+    /// centers into the barriers that divide them.
+    ///
+    /// So, an input value of 0.3 would be normalized to (0.3 - (-1 - 0.5 / 2))
+    /// / (1 - -1) == 1.55 / 2 = 0.775, which maps into bin int(0.775 * 4) == 3,
+    /// which maps back into the action space as -1 + 3 * 0.5 == 0.5. Similarly,
+    /// an input value of 0.2 would be normalized to 0.725, which maps into bin
+    /// int(0.725 * 4) == 2.
     FeatureVector quantize(const FeatureVector& continuous,
                            const FeatureVectorInfo& info,
                            const int bins)
     {
-        if (info.isDiscrete(0) || bins == 0)
+        if (bins == 0)
             return continuous;
-        FeatureVector discrete = info.normalize(continuous);
+        FeatureVector discrete(continuous);
         for (size_t i = 0; i < continuous.size(); ++i)
-            discrete[i] *= bins - 1;
+        {
+            if (info.isDiscrete(i))
+            {
+                discrete[i] = int(continuous[i]);
+            }
+            else
+            {
+                double lo = info.getMin(i), hi = info.getMax(i), span = hi - lo;
+                double inc = span / (bins - 1);
+                double interp = (continuous[i] - (lo - inc / 2)) / span;
+                discrete[i] = lo + inc * int((bins - 1) * interp);
+            }
+        }
         return discrete;
     }
 
