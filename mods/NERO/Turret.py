@@ -1,12 +1,11 @@
-from OpenNero import *
-from math import *
+import OpenNero
 
-class Turret(AgentBrain):
+class Turret(OpenNero.AgentBrain):
     """
     Simple Rotating Turret
     """
     def __init__(self):
-        AgentBrain.__init__(self)
+        OpenNero.AgentBrain.__init__(self)
         self.team = 1
 
     def initialize(self, init_info):
