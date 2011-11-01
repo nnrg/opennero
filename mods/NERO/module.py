@@ -14,7 +14,7 @@ class NeroModule:
     def __init__(self):
         self.environment = None
         self.agent_id = None
-        self.lt = 1000
+        self.lt = DEFAULT_LIFETIME
         self.dta = 50
         self.dtb = 50
         self.dtc = 50
@@ -25,6 +25,7 @@ class NeroModule:
         self.flag_id = -1
         self.num_to_add = pop_size
         (self.spawn_x,self.spawn_y) = (XDIM/2, YDIM/3)
+        self.set_speedup(DEFAULT_SPEEDUP)
 
     def setup_map(self):
         """
@@ -98,10 +99,9 @@ class NeroModule:
             set_ai("rtneat",rtneat)
 
     def set_speedup(self, speedup):
-        self.speedup = speedup/100.0
-        getSimContext().delay = 1.0 - self.speedup
+        getSimContext().delay = 1.0 - (speedup/100.0)
         if self.environment:
-            self.environment.speedup = self.speedup
+            self.environment.speedup = (speedup/100.0)
 
     def set_spawn(self, x, y):
         self.spawn_x = x
