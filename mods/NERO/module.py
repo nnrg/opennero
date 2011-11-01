@@ -37,7 +37,7 @@ class NeroModule:
         common.startScript('NERO/menu.py')
 
         # create the environment - this also creates the rtNEAT object
-        self.environment = NeroEnvironment()
+        self.environment = NeroEnvironment.NeroEnvironment()
 
         OpenNero.set_environment(self.environment)
 
@@ -51,7 +51,7 @@ class NeroModule:
         # world walls
         common.addObject(
             "data/shapes/cube/Cube.xml", \
-            OpenNero.Vector3f(constatns.XDIM/2, 0, constants.HEIGHT + constants.OFFSET), \
+            OpenNero.Vector3f(constants.XDIM/2, 0, constants.HEIGHT + constants.OFFSET), \
             OpenNero.Vector3f(0, 0, 90), \
             scale = OpenNero.Vector3f(1, constants.XDIM, constants.HEIGHT), \
             label = "World Wall0", \
@@ -59,7 +59,7 @@ class NeroModule:
         common.addObject(
             "data/shapes/cube/Cube.xml", \
             OpenNero.Vector3f(0, constants.YDIM/2, constants.HEIGHT + constants.OFFSET), \
-            OpenNoer.Vector3f(0, 0, 0), \
+            OpenNero.Vector3f(0, 0, 0), \
             scale=OpenNero.Vector3f(1, constants.YDIM, constants.HEIGHT), \
             label="World Wall1", \
             type = constants.OBJECT_TYPE_OBSTACLE )
@@ -107,7 +107,7 @@ class NeroModule:
         dx = random.randrange(constants.XDIM/20) - constants.XDIM/40
         dy = random.randrange(constants.XDIM/20) - constants.XDIM/40
         id = common.addObject("data/shapes/character/steve_blue_armed.xml",OpenNero.Vector3f(self.spawn_x + dx,self.spawn_y + dy,2),type = constants.OBJECT_TYPE_TEAM_0)
-        enable_ai()
+        OpenNero.enable_ai()
         self.num_to_add -= 1
 
     #The following is run when the Save button is pressed
@@ -198,7 +198,7 @@ def delMod():
 def getMod():
     global gMod
     if not gMod:
-        gMod = NeroModule.NeroModule()
+        gMod = NeroModule()
     return gMod
 
 def parseInput(strn):

@@ -49,7 +49,7 @@ class NeroEnvironment(OpenNero.Environment):
         self.curr_id = 0
         self.max_steps = 20
         self.time = time.time()
-        self.MAX_DIST = hypot(constants.XDIM, constants.YDIM)
+        self.MAX_DIST = math.hypot(constants.XDIM, constants.YDIM)
         self.states = {}
         self.teams = {}
 
