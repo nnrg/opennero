@@ -45,8 +45,6 @@ class NeroEnvironment(Environment):
         Environment.__init__(self)
 
         self.curr_id = 0
-        self.step_delay = 0.1 # delay between AI decisions at speedup of 0
-        self.speedup = 0 # between 0 and 1.0
         self.max_steps = 20
         self.time = time.time()
         self.MAX_DIST = hypot(XDIM, YDIM)
@@ -107,6 +105,7 @@ class NeroEnvironment(Environment):
             agent.state.rotation = copy(state.initial_rotation)
             state.pose = (state.initial_position.x, state.initial_position.y, state.initial_rotation.z)
             state.prev_pose = state.pose
+            agent.state.update_immediately()
         state.total_damage = 0
         state.curr_damage = 0
         ff = self.getFriendFoe(agent)

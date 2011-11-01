@@ -147,7 +147,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         #Avoid Fire Slider
         self.vft = wx.StaticText(self,label = "Avoid Fire", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.vfs = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.vfs.SetScrollbar(wx.HORIZONTAL,0,1000,1000)
+        self.vfs.SetScrollbar(wx.HORIZONTAL,0,200,200)
         self.vfs.SetThumbPosition(100)
         self.vfl = wx.StaticText(self,label = str(self.vfs.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
         grid.Add(self.vfl,pos=(6,1))
@@ -158,8 +158,8 @@ class NeroPanel(wx.Panel, ScriptClient):
         #Lifetime Slider
         self.ltt = wx.StaticText(self,label = "Lifetime", pos=wx.DefaultPosition, size=wx.DefaultSize)
         self.lts = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.lts.SetScrollbar(wx.HORIZONTAL,0,200,200)
-        self.lts.SetThumbPosition(lifetime)
+        self.lts.SetScrollbar(wx.HORIZONTAL,0,1000,1000)
+        self.lts.SetThumbPosition(DEFAULT_LIFETIME)
         self.ltl = wx.StaticText(self,label = str(self.lts.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
         grid.Add(self.ltl,pos=(7,1))
         self.Bind(wx.EVT_SCROLL, self.OnLT,self.lts)
