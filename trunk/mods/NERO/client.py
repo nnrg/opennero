@@ -81,7 +81,7 @@ def show_context_menu():
         module.getMod().set_spawn(location.x, location.y)
 
     def remove_wall():
-        removeObject(selected_object_id)
+        common.removeObject(selected_object_id)
 
     if selected_object_id in object_ids:
         rotateButton = gui.create_button(guiMan, 'rotate', OpenNero.Pos2i(0,0), OpenNero.Pos2i(0,0), '')
