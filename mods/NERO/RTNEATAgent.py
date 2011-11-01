@@ -134,8 +134,6 @@ class RTNEATAgent(AgentBrain):
         net.activate()
         # get the list of network outputs
         outputs = net.get_outputs()
-        
-        self.state.label = ' '.join([str(x) for x in outputs])
 
         # create a C++ vector for action values
         actions = self.actions.get_instance()
