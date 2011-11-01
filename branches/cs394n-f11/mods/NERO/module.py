@@ -43,47 +43,47 @@ class NeroModule:
 
         # flag placement
         self.flag_id = common.addObject(
-            "data/shapes/cube/BlueCube.xml", \
-            self.flag_loc, label="Flag", \
-            scale = OpenNero.Vector3f(1, 1, 10), \
+            "data/shapes/cube/BlueCube.xml",
+            self.flag_loc, label="Flag",
+            scale = OpenNero.Vector3f(1, 1, 10),
             type = constants.OBJECT_TYPE_FLAG)
 
         # world walls
         common.addObject(
-            "data/shapes/cube/Cube.xml", \
-            OpenNero.Vector3f(constants.XDIM/2, 0, constants.HEIGHT + constants.OFFSET), \
-            OpenNero.Vector3f(0, 0, 90), \
-            scale = OpenNero.Vector3f(1, constants.XDIM, constants.HEIGHT), \
-            label = "World Wall0", \
+            "data/shapes/cube/Cube.xml",
+            OpenNero.Vector3f(constants.XDIM/2, 0, constants.HEIGHT + constants.OFFSET),
+            OpenNero.Vector3f(0, 0, 90),
+            scale = OpenNero.Vector3f(1, constants.XDIM, constants.HEIGHT),
+            label = "World Wall0",
             type = constants.OBJECT_TYPE_OBSTACLE )
         common.addObject(
-            "data/shapes/cube/Cube.xml", \
-            OpenNero.Vector3f(0, constants.YDIM/2, constants.HEIGHT + constants.OFFSET), \
-            OpenNero.Vector3f(0, 0, 0), \
-            scale=OpenNero.Vector3f(1, constants.YDIM, constants.HEIGHT), \
-            label="World Wall1", \
+            "data/shapes/cube/Cube.xml",
+            OpenNero.Vector3f(0, constants.YDIM/2, constants.HEIGHT + constants.OFFSET),
+            OpenNero.Vector3f(0, 0, 0),
+            scale=OpenNero.Vector3f(1, constants.YDIM, constants.HEIGHT),
+            label="World Wall1",
             type = constants.OBJECT_TYPE_OBSTACLE )
         common.addObject(
-            "data/shapes/cube/Cube.xml", \
-            OpenNero.Vector3f(constants.XDIM, constants.YDIM/2, constants.HEIGHT + constants.OFFSET), \
-            OpenNero.Vector3f(0, 0, 0), \
-            scale = OpenNero.Vector3f(1, constants.YDIM, constants.HEIGHT), \
-            label = "World Wall2", \
+            "data/shapes/cube/Cube.xml",
+            OpenNero.Vector3f(constants.XDIM, constants.YDIM/2, constants.HEIGHT + constants.OFFSET),
+            OpenNero.Vector3f(0, 0, 0),
+            scale = OpenNero.Vector3f(1, constants.YDIM, constants.HEIGHT),
+            label = "World Wall2",
             type = constants.OBJECT_TYPE_OBSTACLE )
         common.addObject(
-            "data/shapes/cube/Cube.xml", \
-            OpenNero.Vector3f(constants.XDIM/2, constants.YDIM, constants.HEIGHT + constants.OFFSET), \
-            OpenNero.Vector3f(0, 0, 90), \
-            scale = OpenNero.Vector3f(1, constants.XDIM, constants.HEIGHT), \
-            label = "World Wall3", \
+            "data/shapes/cube/Cube.xml",
+            OpenNero.Vector3f(constants.XDIM/2, constants.YDIM, constants.HEIGHT + constants.OFFSET),
+            OpenNero.Vector3f(0, 0, 90),
+            scale = OpenNero.Vector3f(1, constants.XDIM, constants.HEIGHT),
+            label = "World Wall3",
             type = constants.OBJECT_TYPE_OBSTACLE )
 
         # Add the surrounding Environment
         common.addObject(
-            "data/terrain/NeroWorld.xml", \
-            OpenNero.Vector3f(constants.XDIM/2, constants.YDIM/2, 0), \
-            scale = OpenNero.Vector3f(1, 1, 1), \
-            label = "NeroWorld", \
+            "data/terrain/NeroWorld.xml",
+            OpenNero.Vector3f(constants.XDIM/2, constants.YDIM/2, 0),
+            scale = OpenNero.Vector3f(1, 1, 1),
+            label = "NeroWorld",
             type = constants.OBJECT_TYPE_LEVEL_GEOM )
 
         return True
