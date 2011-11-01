@@ -154,7 +154,7 @@ class MazeMod:
         self.speedup = speedup
         print 'Speedup set to', self.speedup
         # speed up between 0 (delay set to 1 second) and 1 (delay set to 0)
-        getSimContext().delay = 1.0 - speedup
+        OpenNero.getSimContext().delay = 1.0 - speedup
 
 gMod = None
 

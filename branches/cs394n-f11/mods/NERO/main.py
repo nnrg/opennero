@@ -1,15 +1,21 @@
+#import all agent implementations
+from NERO.RTNEATAgent import *
+from NERO.Turret import *
+
 #import all client and server scripts
-from NERO.module import *
-from NERO.client import *
+import NERO.module
+import NERO.client
+import common
+import common.menu_utils
 
 def ModMain():
-    ClientMain()
+    NERO.client.ClientMain()
 
-script_server = GetScriptServer()
+script_server = common.menu_utils.GetScriptServer()
 
 def ModTick(dt):
-    startScript("NERO/menu.py")
+    common.startScript("NERO/menu.py")
     data = script_server.read_data()
     while data:
-        parseInput(data.strip())
+        NERO.module.parseInput(data.strip())
         data = script_server.read_data()

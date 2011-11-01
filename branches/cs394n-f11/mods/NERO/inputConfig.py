@@ -1,27 +1,26 @@
-from OpenNero import *
-
-from common.module import openWiki
-from module import delMod
-from constants import *
+import OpenNero
+import common
+import module
+import constants
 
 def switchToHub():
-    delMod()
-    switchMod('hub', 'hub:common')
+    module.delMod()
+    OpenNero.switchMod('hub', 'hub:common')
 
 def blank():
     pass
 
 def toggleDisplayHint():
-    nextDisplayHint()
+    constants.nextDisplayHint()
 
 def createInputMapping():
     from client import show_context_menu, mouse_action, reset_mouse_action
     # create an io map
-    ioMap = PyIOMap()
+    ioMap = OpenNero.PyIOMap()
     # bind our keys
     ioMap.ClearMappings()
     ioMap.BindKey( "KEY_ESCAPE", "onPress", switchToHub)
-    ioMap.BindKey( "KEY_F1", "onPress", openWiki('NeroMod') )
+    ioMap.BindKey( "KEY_F1", "onPress", common.openWiki('NeroMod') )
     ioMap.BindKey( "KEY_F2", "onPress", toggleDisplayHint )
 
     ioMap.BindMouseAction( "moveX", mouse_action)

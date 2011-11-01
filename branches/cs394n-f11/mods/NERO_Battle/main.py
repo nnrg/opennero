@@ -1,3 +1,5 @@
+import common.menu_utils
+
 #import all client and server scripts
 from NERO_Battle.module import *
 from NERO_Battle.client import *
