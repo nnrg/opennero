@@ -91,7 +91,7 @@ class NeroModule:
     def change_flag(self, new_loc):
         self.flag_loc = OpenNero.Vector3f(new_loc[0],new_loc[1],new_loc[2])
 
-        removeObject(self.flag_id)
+        common.removeObject(self.flag_id)
 
         self.flag_id = common.addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag", scale=OpenNero.Vector3f(1,1,10), type = constants.OBJECT_TYPE_FLAG)
 
