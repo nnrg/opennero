@@ -1,27 +1,24 @@
-import sys
 import subprocess
-from menu_utils import GetScriptServer
-from math import *
 
-# OpenNero imports
-from OpenNero import getSimContext, Vector3f
+import OpenNero
 
 def getGuiManager():
-    return getSimContext().getGuiManager()
+    return OpenNero.getSimContext().getGuiManager()
 
-def addObject(templateFile, position, rotation = Vector3f(0,0,0), scale = Vector3f(1,1,1), label = "", type = 0, collision = 0):
-    return getSimContext().addObject(templateFile, position, rotation, scale, label, collision, type)
+def addObject(templateFile, position, rotation=OpenNero.Vector3f(0, 0, 0), scale=OpenNero.Vector3f(1, 1, 1), label="", type=0, collision=0):
+    return OpenNero.getSimContext().addObject(
+        templateFile, position, rotation, scale, label, collision, type)
 
 def removeObject(ID):
     """ remove an object from the simulation """
-    getSimContext().removeObject(ID)
+    OpenNero.getSimContext().removeObject(ID)
 
 def addSkyBox(prefix, extension = None):
     """ add a skybox starting with the prefix and ending with the extension """
     if extension:
-        getSimContext().addSkyBox(prefix, extension)
+        OpenNero.getSimContext().addSkyBox(prefix, extension)
     else:
-        getSimContext().addSkyBox(prefix)
+        OpenNero.getSimContext().addSkyBox(prefix)
     
 def openWiki(page):
     import webbrowser

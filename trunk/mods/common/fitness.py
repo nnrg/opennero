@@ -1,5 +1,4 @@
-from random import randint, random
-from math import sqrt
+import random
 
 def is_number(x):
     return type(x) in (int, float, long, complex)
@@ -21,10 +20,10 @@ class Fitness:
             self.data[d] = 0
     def random(self):
         for d in Fitness.dimensions:
-            self.data[d] = random()
+            self.data[d] = random.random()
     def randint(self, a, b):
         for d in Fitness.dimensions:
-            self.data[d] = float(randint(a,b))
+            self.data[d] = float(random.randint(a,b))
     def __repr__(self): return repr(self.data)
     def __str__(self): return '\t'.join([str(self.data[k]) for k in Fitness.dimensions])
     def __len__(self): return self.data

@@ -1,12 +1,8 @@
-from OpenNero import *
-import random
-from time import time
-from constants import *
+import constants
 
-def gettime():
-    return time()
+import OpenNero
 
-class RTNEATAgent(AgentBrain):
+class RTNEATAgent(OpenNero.AgentBrain):
     """
     rtNEAT agent
     """
@@ -16,7 +12,7 @@ class RTNEATAgent(AgentBrain):
         """
         # this line is crucial, otherwise the class is not recognized as an
         # AgentBrainPtr by C++
-        AgentBrain.__init__(self)
+        OpenNero.AgentBrain.__init__(self)
         self.team = 0
 
     def initialize(self, init_info):
@@ -32,8 +28,7 @@ class RTNEATAgent(AgentBrain):
         """
         Returns the rtNEAT object for this agent
         """
-        rtneat = get_ai("rtneat")
-        return rtneat.get_organism(self)
+        return OpenNero.get_ai("rtneat").get_organism(self)
 
     def start(self, time, sensors):
         """
@@ -55,7 +50,7 @@ class RTNEATAgent(AgentBrain):
         """
         end of an episode
         """
-        get_ai("rtneat").release_organism(self)
+        OpenNero.get_ai("rtneat").release_organism(self)
         return True
 
     def destroy(self):
@@ -68,41 +63,41 @@ class RTNEATAgent(AgentBrain):
         """
         set the display hint above the agent's head (toggled with F2)
         """
-        display_hint = getDisplayHint()
+        display_hint = constants.getDisplayHint()
         if display_hint:
             org = self.get_org()
             if display_hint == 'fitness':
                 self.state.label = ' '.join(['%.02g' % x for x in self.fitness])
-                setWindowCaption("Displaying Fitness")
+                OpenNero.setWindowCaption("Displaying Fitness")
             elif display_hint == 'time alive':
                 self.state.label = str(org.time_alive)
-                setWindowCaption("Displaying Time Alive")
+                OpenNero.setWindowCaption("Displaying Time Alive")
             elif display_hint == 'hit points':
                 self.state.label == 'hit points'
-                setWindowCaption("Displaying Hit Points")
+                OpenNero.setWindowCaption("Displaying Hit Points")
             elif display_hint == 'genome id':
                 self.state.label = str(org.id)
-                setWindowCaption("Displaying Organism ID")
+                OpenNero.setWindowCaption("Displaying Organism ID")
             elif display_hint == 'species id':
                 self.state.label = str(org.species_id)
-                setWindowCaption("Displaying Species ID")
+                OpenNero.setWindowCaption("Displaying Species ID")
             elif display_hint == 'champion':
                 if org.champion:
                     self.state.label = 'champ!'
                 else:
                     self.state.label = ''
-                setWindowCaption("Displaying Champion")
+                OpenNero.setWindowCaption("Displaying Champion")
             elif display_hint == 'rank':
                 self.state.label = str(org.rank)
-                setWindowCaption("Displaying Rank")
+                OpenNero.setWindowCaption("Displaying Rank")
             elif display_hint == 'debug':
-                self.state.label = str(get_environment().get_state(self))
-                setWindowCaption("Displaying Debug")
+                self.state.label = str(OpenNero.get_environment().get_state(self))
+                OpenNero.setWindowCaption("Displaying Debug")
             else:
                 self.state.label = '?'
         else:
             self.state.label = ""
-            setWindowCaption("")
+            OpenNero.setWindowCaption("")
 
     def get_team(self):
         return self.team
@@ -115,13 +110,13 @@ class RTNEATAgent(AgentBrain):
         Collect and interpret the outputs as valid maze actions
         """
         # make sure we have the right number of sensors
-        assert(len(sensors)==N_SENSORS)
+        assert(len(sensors) == constants.N_SENSORS)
         # convert the sensors into the [0.0, 1.0] range
         sensors = self.sensors.normalize(sensors)
         # create the list of sensors
         inputs = [sensor for sensor in sensors]
         # add the bias value
-        inputs.append(NEAT_BIAS)
+        inputs.append(constants.NEAT_BIAS)
         # get the current organism we are using
         org = self.get_org()
         # increment the lifetime counter

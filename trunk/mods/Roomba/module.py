@@ -1,21 +1,20 @@
 # load standard libraries #
+import sys
 import random
-import time
-from math import *
+import math
 
 # load C-side code #
-from OpenNero import *
+import OpenNero
 
 # load Python functional scripts #
-from common import *
+import constants
+import common
 import world_handler
 from agent_handler import AgentState, AgentInit
 
 # load agent script
 from roomba import RoombaBrain
 from RTNEATAgent import RTNEATAgent
-
-from constants import *
 
 class SandboxMod:
 
@@ -32,7 +31,7 @@ class SandboxMod:
         # remove the previous object, if necessary
         self.unmark(x, y)
         # add a new marker object
-        id = addObject(marker, Vector3f(x, y, -1), Vector3f(0,0,0), Vector3f(0.5,0.5,0.5), type = OBJECT_TYPE_MARKER)
+        id = common.addObject(marker, OpenNero.Vector3f(x, y, -1), OpenNero.Vector3f(0,0,0), OpenNero.Vector3f(0.5,0.5,0.5), type = constants.OBJECT_TYPE_MARKER)
         # remember the ID of the object we are about to create
         self.marker_map[(x, y)] = id
 	    
@@ -50,7 +49,7 @@ class SandboxMod:
     
     def unmark(self, x, y):
         if (x, y) in self.marker_map:
-            removeObject(self.marker_map[(x, y)])
+            common.removeObject(self.marker_map[(x, y)])
             del self.marker_map[(x, y)]
             return True
         else:
@@ -60,28 +59,27 @@ class SandboxMod:
         """
         setup the sandbox environment
         """
-        global XDIM, YDIM, HEIGHT, OFFSET
-        getSimContext().delay = 0.0
-        self.environment = RoombaEnvironment(XDIM, YDIM)
-        set_environment(self.environment)
+        OpenNero.getSimContext().delay = 0.0
+        self.environment = RoombaEnvironment(constants.XDIM, constants.YDIM)
+        OpenNero.set_environment(self.environment)
     
     def reset_sandbox(self=None):
         """
         reset the sandbox and refill with stuff to vacuum
         """
         for id in self.marker_map.values():
-            removeObject(id)  # delete id from Registry, not from dict
+            common.removeObject(id)  # delete id from Registry, not from dict
         self.marker_map = {}
         for id in self.agent_ids:
-            removeObject(id)  # delete id from Registry, not from list
+            common.removeObject(id)  # delete id from Registry, not from list
         self.agent_ids = []
-        reset_ai()
+        OpenNero.reset_ai()
 
     def remove_bots(self):
         """ remove all existing bots from the environment """
-        disable_ai()
+        OpenNero.disable_ai()
         for id in self.agent_ids:
-            removeObject(id)  # delete id from Registry, not from list
+            common.removeObject(id)  # delete id from Registry, not from list
         self.agent_ids = []
 
     def distribute_bots(self, num_bots, bot_type):
@@ -93,10 +91,10 @@ class SandboxMod:
         bots_to_add = num_bots
         while bots_to_add > 0:
             (r,c) = tiles.pop() # random tile
-            x, y = r * XDIM / float(N_TILES), c * YDIM / float(N_TILES) # position within tile
-            x, y = x + random.random() * XDIM * 0.5 / N_TILES, y + random.random() * YDIM * 0.5 / N_TILES # random offset
+            x, y = r * constants.XDIM / float(N_TILES), c * constants.YDIM / float(N_TILES) # position within tile
+            x, y = x + random.random() * constants.XDIM * 0.5 / N_TILES, y + random.random() * constants.YDIM * 0.5 / N_TILES # random offset
             if in_bounds(x,y):
-                agent_id = addObject(bot_type, Vector3f(x, y, 0), scale=Vector3f(1, 1, 1), type = OBJECT_TYPE_ROOMBA, collision = OBJECT_TYPE_ROOMBA)
+                agent_id = common.addObject(bot_type, OpenNero.Vector3f(x, y, 0), scale=OpenNero.Vector3f(1, 1, 1), type = constants.OBJECT_TYPE_ROOMBA, collision = constants.OBJECT_TYPE_ROOMBA)
                 self.agent_ids.append(agent_id)
                 bots_to_add -= 1
             else:
@@ -104,11 +102,11 @@ class SandboxMod:
         
 
     def add_bots(self, bot_type, num_bots):
-        disable_ai()
+        OpenNero.disable_ai()
         num_bots = int(num_bots)
         if bot_type.lower().find("script") >= 0:
             self.distribute_bots(num_bots, "data/shapes/roomba/Roomba.xml")
-            enable_ai()
+            OpenNero.enable_ai()
             return True
         elif bot_type.lower().find("rtneat") >= 0:
             self.start_rtneat(num_bots)
@@ -118,17 +116,17 @@ class SandboxMod:
 
     def start_rtneat(self, pop_size):
         " start the rtneat learning demo "
-        disable_ai()
-        #self.environment = RoombaEnvironment(XDIM, YDIM, self)
+        OpenNero.disable_ai()
+        #self.environment = RoombaEnvironment(constants.XDIM, constants.YDIM, self)
         #set_environment(self.environment)
         #self.reset_sandbox()
         # Create RTNEAT object
-        rbound = FeatureVectorInfo()
-        rbound.add_continuous(-sys.float_info.max,sys.float_info.max)
-        rtneat = RTNEAT("data/ai/neat-params.dat", 6, 2, pop_size, 1.0, rbound)
+        rbound = OpenNero.FeatureVectorInfo()
+        rbound.add_continuous(-sys.float_info.max, sys.float_info.max)
+        rtneat = OpenNero.RTNEAT("data/ai/neat-params.dat", 6, 2, pop_size, 1.0, rbound)
         rtneat.set_weight(0,1)
-        set_ai("rtneat",rtneat)
-        enable_ai()
+        OpenNero.set_ai("rtneat",rtneat)
+        OpenNero.enable_ai()
         self.distribute_bots(pop_size, "data/shapes/roomba/RoombaRTNEAT.xml")
 
 def furniture_collide_all(x,y):
@@ -136,45 +134,49 @@ def furniture_collide_all(x,y):
     this is a manual list of collisions with furniture in the room
     TODO: replace with actual collision
     """
-    for (cx,cy) in CHAIR_LIST:
+    for (cx,cy) in constants.CHAIR_LIST:
         if chair_collide(x,y,cx,cy):
             return True
-    for (fx,fy) in FURNITURE_LIST:
+    for (fx,fy) in constants.FURNITURE_LIST:
         if furniture_collide(x,y,fx,fy):
             return True
     return False
     
 def chair_collide(x,y,cx,cy):
     (cx,cy) = furniture(cx,cy)
-    return hypot(x-cx,y-cy) < ROOMBA_RAD*2
+    return math.hypot(x-cx,y-cy) < constants.ROOMBA_RAD*2
 
 def furniture_collide(x,y,fx,fy):
     (fx,fy) = furniture(fx,fy)
-    return hypot(x-fx, y-fy) < ROOMBA_RAD
+    return math.hypot(x-fx, y-fy) < constants.ROOMBA_RAD
 
 def furniture(x,y):
     """
     convert from furniture space to roomba space
     """
-    return (XDIM * x, YDIM * (1-y))    
+    return (constants.XDIM * x, constants.YDIM * (1-y))    
     
 
 def in_bounds(x,y):
-    return x > ROOMBA_RAD and x < XDIM - ROOMBA_RAD and y > ROOMBA_RAD and y < YDIM - ROOMBA_RAD and (x > XDIM * 0.174 or y < YDIM * (1.0 - 0.309))
+    return (x > constants.ROOMBA_RAD and
+            x < constants.XDIM - constants.ROOMBA_RAD and
+            y > constants.ROOMBA_RAD and
+            y < constants.YDIM - constants.ROOMBA_RAD and
+            (x > constants.XDIM * 0.174 or y < constants.YDIM * (1.0 - 0.309)))
 
 #################################################################################        
-class RoombaEnvironment(Environment):
+class RoombaEnvironment(OpenNero.Environment):
     """
     Sample Environment for the Sandbox
     """
-    def __init__(self, XDIM, YDIM):
+    def __init__(self, xdim, ydim):
         """
         Create the environment
         """
-        Environment.__init__(self) 
+        OpenNero.Environment.__init__(self) 
         
-        self.XDIM = XDIM
-        self.YDIM = YDIM
+        self.XDIM = xdim
+        self.YDIM = ydim
         self.max_steps = 500       
         self.states = {} # dictionary of agent states
         self.crumbs = world_handler.pattern_cluster(500, "Roomba/world_config.txt")
@@ -195,14 +197,14 @@ class RoombaEnvironment(Environment):
 
         ### Bounds for Roomba ###
         # actions
-        roomba_abound.add_continuous(-pi, pi) # amount to turn by
+        roomba_abound.add_continuous(-math.pi, math.pi) # amount to turn by
         
         # sensors
         roomba_sbound.add_discrete(0,1)    # wall bump
-        roomba_sbound.add_continuous(0,XDIM)   # self.x
-        roomba_sbound.add_continuous(0,YDIM)   # self.y
-        roomba_sbound.add_continuous(0,XDIM)   # closest.x
-        roomba_sbound.add_continuous(0,YDIM)   # closest.y
+        roomba_sbound.add_continuous(0,xdim)   # self.x
+        roomba_sbound.add_continuous(0,ydim)   # self.y
+        roomba_sbound.add_continuous(0,xdim)   # closest.x
+        roomba_sbound.add_continuous(0,ydim)   # closest.y
         
         # rewards
         roomba_rbound.add_continuous(-100,100) # range for reward
@@ -211,7 +213,7 @@ class RoombaEnvironment(Environment):
 
         ### Bounds for RTNEAT ###
         # actions
-        rtneat_abound.add_continuous(-pi, pi) # amount to turn by
+        rtneat_abound.add_continuous(-math.pi, math.pi) # amount to turn by
         
         # sensors
         rtneat_sbound.add_continuous(-1, 1)
@@ -227,9 +229,9 @@ class RoombaEnvironment(Environment):
 
         # set up shop
         # Add Wayne's Roomba room with experimentally-derived vertical offset to match crumbs.
-        addObject("data/terrain/RoombaRoom.xml", Vector3f(XDIM/2,YDIM/2, -1), Vector3f(0,0,0), Vector3f(XDIM/245.0, YDIM/245.0, HEIGHT/24.5), type = OBJECT_TYPE_WALLS)
+        common.addObject("data/terrain/RoombaRoom.xml", OpenNero.Vector3f(xdim/2,ydim/2, -1), OpenNero.Vector3f(0,0,0), OpenNero.Vector3f(xdim/245.0, ydim/245.0, constants.HEIGHT/24.5), type = constants.OBJECT_TYPE_WALLS)
 
-        # getSimContext().addAxes()
+        # OpenNero.getSimContext().addAxes()
         self.add_crumbs()
         for crumb in self.crumbs:
             self.add_crumb_sensors(roomba_sbound)        
@@ -254,8 +256,8 @@ class RoombaEnvironment(Environment):
         continuous), y position of crumb (0 to XDIM, continuous), whether
         crumb is present at said position or has been vacced (0 or 1), and
         reward for vaccing said crumb."""
-        roomba_sbound.add_continuous(0, XDIM)    # crumb position X
-        roomba_sbound.add_continuous(0, YDIM)    # crumb position Y
+        roomba_sbound.add_continuous(0, self.XDIM)    # crumb position X
+        roomba_sbound.add_continuous(0, self.YDIM)    # crumb position Y
         roomba_sbound.add_discrete(0, 1)       # crumb present/ not present
         roomba_sbound.add_discrete(1, 5)       # reward for crumb
 
@@ -284,7 +286,7 @@ class RoombaEnvironment(Environment):
         """
         Return total number of sensors
         """
-        return (len(getMod().marker_map)*4 + N_FIXED_SENSORS)
+        return (len(getMod().marker_map)*4 + constants.N_FIXED_SENSORS)
     
     def step(self, agent, action):
         """
@@ -297,14 +299,14 @@ class RoombaEnvironment(Environment):
             assert(self.get_agent_info(agent).actions.validate(action)) # check if the action is valid
             if (str(type(agent)) == "<class 'Roomba.roomba.RoombaBrain'>"):
                 angle = action[0] # in range of -pi to pi
-                degree_angle = degrees(angle)
+                degree_angle = math.degrees(angle)
                 delta_angle = degree_angle - agent.state.rotation.z
-                delta_dist = MAX_SPEED
+                delta_dist = constants.MAX_SPEED
             else:
                 angle = action[0] # in range of -pi to pi
-                degree_angle = degrees(angle)
+                degree_angle = math.degrees(angle)
                 delta_angle = degree_angle - agent.state.rotation.z
-                delta_dist = MAX_SPEED
+                delta_dist = constants.MAX_SPEED
             reward = self.update_position(agent, delta_dist, delta_angle)
         state.reward += reward
         return reward
@@ -322,9 +324,9 @@ class RoombaEnvironment(Environment):
         rotation = agent.state.rotation
 
         # posteriori collision detection
-        rotation.z = wrap_degrees(rotation.z, delta_angle)
-        position.x += delta_dist*cos(radians(rotation.z))
-        position.y += delta_dist*sin(radians(rotation.z))
+        rotation.z = common.wrap_degrees(rotation.z, delta_angle)
+        position.x += delta_dist*math.cos(math.radians(rotation.z))
+        position.y += delta_dist*math.sin(math.radians(rotation.z))
 
         # check if one of 4 out-of-bound conditions applies
         # if yes, back-track to correct position
@@ -332,19 +334,19 @@ class RoombaEnvironment(Environment):
            (position.x) > self.XDIM or (position.y) > self.YDIM:
             # correct position
             if (position.x) < 0:
-                position.x -= 2 * delta_dist*cos(radians(rotation.z))
+                position.x -= 2 * delta_dist*math.cos(math.radians(rotation.z))
             if (position.y) < 0:
-                position.y -= 2 * delta_dist*sin(radians(rotation.z))
+                position.y -= 2 * delta_dist*math.sin(math.radians(rotation.z))
             if (position.x) > self.XDIM:
-                position.x -= 2 * delta_dist*cos(radians(rotation.z))
+                position.x -= 2 * delta_dist*math.cos(math.radians(rotation.z))
             if (position.y) > self.YDIM:
-                position.y -= 2 * delta_dist*sin(radians(rotation.z))
+                position.y -= 2 * delta_dist*math.sin(math.radians(rotation.z))
         elif position.x < self.XDIM * 0.174 and position.y > self.YDIM * (1.0 - 0.309):
-            position.x -= 2 * delta_dist*cos(radians(rotation.z))
-            position.y -= 2 * delta_dist*sin(radians(rotation.z))
+            position.x -= 2 * delta_dist*math.cos(math.radians(rotation.z))
+            position.y -= 2 * delta_dist*math.sin(math.radians(rotation.z))
         elif furniture_collide_all(position.x, position.y):
-            position.x -= 2 * delta_dist*cos(radians(rotation.z))
-            position.y -= 2 * delta_dist*sin(radians(rotation.z))
+            position.x -= 2 * delta_dist*math.cos(math.radians(rotation.z))
+            position.y -= 2 * delta_dist*math.sin(math.radians(rotation.z))
                 
         # register new position
         state.position = position
@@ -358,8 +360,8 @@ class RoombaEnvironment(Environment):
         pos = (position.x, position.y)
         for crumb in self.crumbs:
             if (crumb.x, crumb.y) in getMod().marker_map:
-                distance = sqrt((crumb[0] - pos[0])**2 + (crumb[1] - pos[1])**2)
-                if distance < ROOMBA_RAD:
+                distance = math.sqrt((crumb[0] - pos[0])**2 + (crumb[1] - pos[1])**2)
+                if distance < constants.ROOMBA_RAD:
                     getMod().unmark(crumb.x, crumb.y)
                     reward += crumb.reward
                 
@@ -384,16 +386,16 @@ class RoombaEnvironment(Environment):
             sensors[2] = pos.y
             
             # describe every other crumb on the field!
-            self.sense_crumbs(sensors, N_S_IN_BLOCK, N_FIXED_SENSORS, agent)
+            self.sense_crumbs(sensors, constants.N_S_IN_BLOCK, constants.N_FIXED_SENSORS, agent)
 
         else:
             """ Copied over from creativeit branch """
-            sensors[0] = MAX_DISTANCE
-            sensors[1] = MAX_DISTANCE
-            sensors[2] = MAX_DISTANCE
-            sensors[3] = MAX_DISTANCE
+            sensors[0] = constants.MAX_DISTANCE
+            sensors[1] = constants.MAX_DISTANCE
+            sensors[2] = constants.MAX_DISTANCE
+            sensors[3] = constants.MAX_DISTANCE
             sensors[4] = -1
-            sensors[5] = MAX_DISTANCE
+            sensors[5] = constants.MAX_DISTANCE
             
             # The first four sensors detect the distance to the nearest cube in each of the
             # four quadrants defined by the coordinate frame attached to the agent.  The
@@ -406,31 +408,31 @@ class RoombaEnvironment(Environment):
                 
                 distx = cube_position[0] - agent.state.position.x
                 disty = cube_position[1] - agent.state.position.y
-                dist = sqrt(distx**2 + disty**2)
-                angle = degrees(atan2(disty, distx)) - agent.state.rotation.z  # range [-360, 360]
+                dist = math.sqrt(distx**2 + disty**2)
+                angle = math.degrees(math.atan2(disty, distx)) - agent.state.rotation.z  # range [-360, 360]
                 if angle > 180: angle = angle - 360
                 if angle < -180: angle = angle + 360
                 angle = angle/180 # range [-1, 1]
                 if angle >= -1 and angle < -0.5:
                     if dist < sensors[0]:
                         sensors[0] = dist
-                        if fabs(angle) < fabs(sensors[4]): sensors[4] = angle
+                        if math.fabs(angle) < math.fabs(sensors[4]): sensors[4] = angle
                 elif angle >= -0.5 and angle < 0:
                     if dist < sensors[1]:
                         sensors[1] = dist
-                        if fabs(angle) < fabs(sensors[4]): sensors[4] = angle
+                        if math.fabs(angle) < math.fabs(sensors[4]): sensors[4] = angle
                 elif angle >= 0 and angle < 0.5:
                     if dist < sensors[2]:
                         sensors[2] = dist
-                        if fabs(angle) < fabs(sensors[4]): sensors[4] = angle
+                        if math.fabs(angle) < math.fabs(sensors[4]): sensors[4] = angle
                 else:
                     if dist < sensors[3]:
                         sensors[3] = dist
-                        if fabs(angle) < fabs(sensors[4]): sensors[4] = angle
+                        if math.fabs(angle) < math.fabs(sensors[4]): sensors[4] = angle
                                 
             # Any distance sensor that still has the value MAX_DISTANCE is set to -1.
             for i in range(0, 6):
-                if i != 4 and sensors[i] >= MAX_DISTANCE:
+                if i != 4 and sensors[i] >= constants.MAX_DISTANCE:
                     sensors[i] = -1
 
             # Invert and normalize the remaining distance sensor values to [0, 1]
@@ -461,7 +463,7 @@ class RoombaEnvironment(Environment):
             sensors[i+1] = pellet.y
             if (pellet.x, pellet.y) in getMod().marker_map:
                 sensors[i+2] = 1
-                distance = sqrt( (pellet.x - pos[0]) ** 2 + (pellet.y - pos[1]) ** 2 )
+                distance = math.sqrt( (pellet.x - pos[0]) ** 2 + (pellet.y - pos[1]) ** 2 )
                 if closest is None or distance < closest_distance:
                     closest = pellet
                     closest_distance = distance

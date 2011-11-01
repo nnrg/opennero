@@ -1,3 +1,5 @@
+import common.menu_utils
+
 #import all client and server scripts
 from NERO_Battle.module import *
 from NERO_Battle.client import *
@@ -5,7 +7,7 @@ from NERO_Battle.client import *
 def ModMain():
     ClientMain()  
 
-script_server = GetScriptServer()
+script_server = common.menu_utils.GetScriptServer()
 
 def ModTick(dt):
     startScript("NERO_Battle/menu.py")
