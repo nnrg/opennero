@@ -33,35 +33,36 @@ class Cell:
 #
 ###
 
-def log(strn):
-    print strn
-
-
 class TowerAgent(AgentBrain):
     """
     An agent designed to solve Towers of Hanoi
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-        self.queue_init()
+        
+    def log(self, strn):
+        self.state.label = strn
+        print strn
 
     def move(self, frm, to):
-        if frm == 'a' and to == 'b': self.action_queue += (self.atob)
-        if frm == 'a' and to == 'c': self.action_queue += (self.atoc)
-        if frm == 'b' and to == 'a': self.action_queue += (self.btoa)
-        if frm == 'b' and to == 'c': self.action_queue += (self.btoc)
-        if frm == 'c' and to == 'a': self.action_queue += (self.ctoa)
-        if frm == 'c' and to == 'b': self.action_queue += (self.ctob)
+        if frm == 'a' and to == 'b': return self.atob
+        if frm == 'a' and to == 'c': return self.atoc
+        if frm == 'b' and to == 'a': return self.btoa
+        if frm == 'b' and to == 'c': return self.btoc
+        if frm == 'c' and to == 'a': return self.ctoa
+        if frm == 'c' and to == 'b': return self.ctob
 
     def dohanoi(self, n, to, frm, using):
         if n == 0: return
-        strn = ""
-        for i in range(self.num_towers - n): strn += "\t"
-        log(strn +  "Moving depth " + str(n) + " from " + frm + " to " + to + " using " + using)
-        self.dohanoi(n-1, using, frm, to)
-        self.move(frm, to)
-        self.dohanoi(n-1, to, using, frm)
-
+        prefix = '\t'.join(['' for i in range(self.num_towers - n)])
+        strn = "Moving depth {n} from {frm} to {to} using {using}".format(n=n, frm=frm, to=to, using=using)
+        for a in self.dohanoi(n-1, using, frm, to):
+            yield a
+        self.state.label = strn
+        for a in self.move(frm, to):
+            yield a
+        for a in self.dohanoi(n-1, to, using, frm):
+            yield a
 
     def queue_init(self):
         self.init_queue = [1,5]
@@ -76,76 +77,14 @@ class TowerAgent(AgentBrain):
         from module import getMod
         self.num_towers = getMod().num_towers
 
-        self.action_queue = self.init_queue
-        self.dohanoi(self.num_towers, 'b', 'a', 'c')
-        self.action_queue += (self.end_queue)
-
-        """
-        if num_towers == 3:
-            self.action_queue = self.init_queue
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.atob)
-            self.action_queue += (self.ctob)
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.btoa)
-            self.action_queue += (self.btoc)
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.end_queue)
-
-        if num_towers == 4:
-            self.action_queue = self.init_queue
-            self.action_queue += (self.atob)
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.btoc)
-            self.action_queue += (self.atob)
-            self.action_queue += (self.ctoa)
-            self.action_queue += (self.ctob)
-            self.action_queue += (self.atob)
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.btoc)
-            self.action_queue += (self.btoa)
-            self.action_queue += (self.ctoa)
-            self.action_queue += (self.btoc)
-            self.action_queue += (self.atob)
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.btoc)
-            self.action_queue += (self.end_queue)
-
-    	if num_towers == 5:
-            self.action_queue = self.init_queue
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.atob)
-            self.action_queue += (self.ctob)
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.btoa)
-            self.action_queue += (self.btoc)
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.atob)
-            self.action_queue += (self.ctob)
-            self.action_queue += (self.ctoa)
-            self.action_queue += (self.btoa)
-            self.action_queue += (self.ctob)
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.atob)
-            self.action_queue += (self.ctob)
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.btoa)
-            self.action_queue += (self.btoc)
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.btoa)
-            self.action_queue += (self.ctob)
-            self.action_queue += (self.ctoa)
-            self.action_queue += (self.btoa)
-            self.action_queue += (self.btoc)
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.atob)
-            self.action_queue += (self.ctob)
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.btoa)
-            self.action_queue += (self.btoc)
-            self.action_queue += (self.atoc)
-            self.action_queue += (self.end_queue)
-            """
+        self.state.label = 'Starting to Solve!'
+        for a in self.init_queue:
+            yield a
+        for a in self.dohanoi(self.num_towers, 'b', 'a', 'c'):
+            yield a
+        self.state.label = 'Problem Solved!'
+        for a in self.end_queue:
+            yield a
 
     def initialize(self,init_info):
         # Create new Agent
@@ -156,53 +95,20 @@ class TowerAgent(AgentBrain):
         """
         return first action given the first observations
         """
-        return self.action_queue.pop(0)
+        self.action_queue = self.queue_init()
+        return self.action_queue.next()
 
     def reset(self):
-        self.queue_init()
-
-    def face_at(self,x,y,z,nx,ny):
-        if(x - nx) == -1:
-            return self.face(z,270)
-        if(x - nx) == 1:
-            return self.face(z,90)
-        if(y - ny) == 1:
-            return self.face(z,0)
-        if(y - ny) == -1:
-            return self.face(z,180)
-
-    def face(self,z,nz):
-        if ((z - nz) % 360) == 180:
-            self.action_queue += [4,4]
-        if ((z - nz) % 360) == 90:
-            self.action_queue += [5]
-        if ((z - nz) % 360) == 270:
-            self.action_queue += [4]
-        return nz
-
-    def goto_1(self,x,y,z,nx,ny):
-        if (x - nx) * (x - nx) + (y - ny) * (y - ny) != 1: return (x,y,z)
-        nz = self.face_at(x,y,z,nx,ny)
-        self.action_queue += [1]
-        return (nx,ny,nz)
-
-    def pickup(self):
-        self.action_queue += [3]
-
-    def setdown(self):
-        self.action_queue += [2]
+        self.action_queue = self.queue_init()
 
     def act(self, time, sensors, reward):
         """
         return an action given the reward for the previous action and the new observations
         """
-
-        # Make sure that there's always something on the queue to be popped
-        if len(self.action_queue) == 0:
-            self.action_queue.append(1)
-
-        # Pop the last action and continue
-        return self.action_queue.pop(0)
+        try:
+            return self.action_queue.next()
+        except:
+            return 1
 
     def end(self, time, reward):
         """
