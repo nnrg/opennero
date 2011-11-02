@@ -25,8 +25,6 @@ class AgentState:
         self.initial_position = OpenNero.Vector3f(0, 0, 0)
         # starting orientation
         self.initial_rotation = OpenNero.Vector3f(0, 0, 0)
-        self.time = time.time()
-        self.start_time = self.time
         self.total_damage = 0
         self.curr_damage = 0
     def __str__(self):
@@ -48,7 +46,6 @@ class NeroEnvironment(OpenNero.Environment):
 
         self.curr_id = 0
         self.max_steps = 20
-        self.time = time.time()
         self.MAX_DIST = math.hypot(constants.XDIM, constants.YDIM)
         self.states = {}
         self.teams = {}
@@ -319,10 +316,8 @@ class NeroEnvironment(OpenNero.Environment):
             reward[i] = R[f]
 
         # tell the system to make the calculated motion
-        # this is actually done in is_active() and depends on speedup
         state.prev_pose = state.pose
         state.pose = (new_x, new_y, new_heading)
-        state.time = time.time()
 
         # try to update position
         pos = copy.copy(agent.state.position)
