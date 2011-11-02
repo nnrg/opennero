@@ -33,6 +33,9 @@ class Cell:
 #
 ###
 
+def log(strn):
+    print strn
+
 
 class TowerAgent(AgentBrain):
     """
@@ -41,6 +44,24 @@ class TowerAgent(AgentBrain):
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
         self.queue_init()
+
+    def move(self, frm, to):
+        if frm == 'a' and to == 'b': self.action_queue += (self.atob)
+        if frm == 'a' and to == 'c': self.action_queue += (self.atoc)
+        if frm == 'b' and to == 'a': self.action_queue += (self.btoa)
+        if frm == 'b' and to == 'c': self.action_queue += (self.btoc)
+        if frm == 'c' and to == 'a': self.action_queue += (self.ctoa)
+        if frm == 'c' and to == 'b': self.action_queue += (self.ctob)
+
+    def dohanoi(self, n, to, frm, using):
+        if n == 0: return
+        strn = ""
+        for i in range(self.num_towers - n): strn += "\t"
+        log(strn +  "Moving depth " + str(n) + " from " + frm + " to " + to + " using " + using)
+        self.dohanoi(n-1, using, frm, to)
+        self.move(frm, to)
+        self.dohanoi(n-1, to, using, frm)
+
 
     def queue_init(self):
         self.init_queue = [1,5]
@@ -53,8 +74,13 @@ class TowerAgent(AgentBrain):
         self.end_queue = [0,0,0,5,5,1]
 
         from module import getMod
-        num_towers = getMod().num_towers
+        self.num_towers = getMod().num_towers
 
+        self.action_queue = self.init_queue
+        self.dohanoi(self.num_towers, 'b', 'a', 'c')
+        self.action_queue += (self.end_queue)
+
+        """
         if num_towers == 3:
             self.action_queue = self.init_queue
             self.action_queue += (self.atoc)
@@ -119,6 +145,7 @@ class TowerAgent(AgentBrain):
             self.action_queue += (self.btoc)
             self.action_queue += (self.atoc)
             self.action_queue += (self.end_queue)
+            """
 
     def initialize(self,init_info):
         # Create new Agent
