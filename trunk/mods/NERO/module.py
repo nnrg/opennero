@@ -114,7 +114,7 @@ class NeroModule:
     def save_rtneat(self, location, pop):
         import os
         location = os.path.relpath("/") + location
-        get_ai("rtneat").save_population(str(location))
+        OpenNero.get_ai("rtneat").save_population(str(location))
 
     #The following is run when the Load button is pressed
     def load_rtneat(self, location , pop):
@@ -122,7 +122,7 @@ class NeroModule:
         global rtneat
         location = os.path.relpath("/") + location
         if os.path.exists(location):
-            rtneat = RTNEAT(str(location), "data/ai/neat-params.dat", pop_size, get_environment().agent_info.reward)
+            rtneat = OpenNero.RTNEAT(str(location), "data/ai/neat-params.dat", pop_size, get_environment().agent_info.reward)
             set_ai("rtneat",rtneat)
 
     def set_speedup(self, speedup):
