@@ -54,7 +54,7 @@ it is possible for the planner to find action sequences that find the
 goal, but include unnecessary steps.
 
 The solution is to implement iterative deepening in the cutoff,
-similar to that in the [SearchExercise search exercise]. That is, the
+similar to that in the [HeuristicSearchExercise search exercise]. That is, the
 planner first runs with the cutoff of 1, i.e. trying to get to the
 goal state in one action. If that is unsuccessful, the cutoff is
 increased to 2, and the planner is run again (from scratch). The
