@@ -6,14 +6,30 @@ import time
 
 class TextViewer:
     def __init__(self):
-        self.text = tk.Text()
-        self.scroll = tk.Scrollbar()
-        self.text.focus_set()
+        self.root = tk.Tk()
+        self.root.title('STRIPS planner output')
+        self.frame = tk.Frame()
+        self.text = tk.Text(self.frame)
+        self.scroll = tk.Scrollbar(self.frame)
         self.text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        self.text.config(font="Courier 12")
         self.scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        self.frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+        self.frame2 = tk.Frame()
+        self.frame2.pack(side=tk.BOTTOM)
+        self.next_button = tk.Button(self.frame2, text='Step')
+        self.next_button.pack(side=tk.RIGHT)
+        self.continue_button = tk.Button(self.frame2, text='Continue')
+        self.continue_button.pack(side=tk.RIGHT)
+
+        self.text.focus_set()
+
         self.scroll.config(command=self.text.yview)
-        self.text.config(yscrollcommand=self.scroll.set)
+        self.text.config(font="Courier 12", yscrollcommand=self.scroll.set)
+        self.next_button.config(command=self.user_unpause)
+        self.continue_button.config(command=self.user_continue)
+
+        self.continued = False
+        self.paused = False
 
     def display_text(self, s):
         self.text.insert(tk.END, s)
@@ -21,7 +37,21 @@ class TextViewer:
         self.text.yview(tk.END)
 
     def user_pause(self, s):
-        time.sleep(2)
+        self.display_text(s)
+        if self.continued:
+            return
+        self.paused = True
+        while self.paused and not self.continued:
+            time.sleep(0.1)
+
+    def user_unpause(self):
+        self.paused = False
+
+    def user_continue(self):
+        self.continued = True
+
+    def quit(self):
+        self.root.quit()
 
 viewer = TextViewer()
 
@@ -487,9 +517,9 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
                 current_plan.pop()
                 continue"""
                 if debug:
-                    print padding + "Path satisfies {0} but clobbers other goals: {1}".format(goal, ", ".join([str(x) for x in clobbered]))
-                    print padding + "Re-adding the clobbered goals to the end of the list"
-                    raw_input("")
+                    viewer.display_text(padding + "Path satisfies {0} but clobbers other goals: {1}".format(goal, ", ".join([str(x) for x in clobbered])))
+                    viewer.display_text(padding + "Re-adding the clobbered goals to the end of the list")
+                    viewer.user_pause("")
                 [goals.remove(x) for x in clobbered]
                 [goals.append(x) for x in clobbered]
                 i -= clob_len
@@ -595,7 +625,8 @@ def get_possible_grounds(world, goal):
     return results
 
 def print_plan(plan):
-    print "Plan: {0}".format(" -> ".join([x.simple_str() for x in plan]))
+    for x in plan:
+        print x
 
 def run():
     w = create_world(None)
@@ -608,12 +639,10 @@ def run():
         print "Solving..."
         solution = linear_solver(w)
         if solution is None:
-            print "No solution found :("
+            viewer.user_pause("No solution found :(")
         else:
-            print "Solved!"
+            viewer.user_pause("Solved!")
             print_plan(solution)
-            #from show_strips import show_solution
-            #show_solution(solution)
 
 def main():
     import threading
