@@ -170,8 +170,8 @@ class TowerEnvironment(Environment):
         
         bstate.above = gstate
         gstate.below = bstate
-        gstate.above = ystate
-        ystate.below = gstate
+        if num_towers > 2: gstate.above = ystate
+        if num_towers > 2: ystate.below = gstate
         if num_towers > 3: ystate.above = rstate
         if num_towers > 3: rstate.below = ystate
         if num_towers > 4: rstate.above = wstate

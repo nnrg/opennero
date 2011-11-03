@@ -574,7 +574,6 @@ def get_possible_grounds(world, goal):
 def print_plan(plan):
     print "Plan: {0}".format(" -> ".join([x.simple_str() for x in plan]))
 
-
 def main():
     w = create_world(None)
 

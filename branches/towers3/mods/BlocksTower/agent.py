@@ -198,6 +198,7 @@ class TowerAgent2(AgentBrain):
         return True
 
     def reset(self):
+        self.action_queue = self.queue_init()
         return True
 
     def destroy(self):
@@ -224,12 +225,28 @@ class TowerAgent3(AgentBrain):
         return True
 
     def queue_init(self):
-        pass
+        import subprocess
+        # solve for show (user can click through)
+        subproc = subprocess.Popen(['python', 'BlocksTower/strips.py', 'BlocksTower/towers2_strips.txt'], stdout=subprocess.PIPE)
+        plan = ''
+        while True:
+            try:
+                out = subproc.stdout.read(1)
+            except:
+                break
+            if out == '':
+                break
+            else:
+                plan += out
+        print plan
+        action_queue = []
+        return action_queue
 
     def start(self, time, observations):
         """
         return first action given the first observations
         """
+        self.action_queue = self.queue_init()
         return 0
 
     def act(self, time, observations, reward):
@@ -246,6 +263,7 @@ class TowerAgent3(AgentBrain):
         return True
 
     def reset(self):
+        self.action_queue = self.queue_init()
         return True
 
     def destroy(self):

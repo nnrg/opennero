@@ -88,14 +88,38 @@ class TowerMod:
     def num_towers(self):
         return num_towers
 
-    def start_tower(self,n):
+    def start_tower1(self):
         """ start the tower demo """
-        self.num_towers = n
+        self.num_towers = 3
+        OpenNero.disable_ai()
+        if self.environment.__class__.__name__ != 'TowerEnvironment':
+            self.set_environment(TowerEnvironment())
+        if len(self.environment.block_states) == 0:
+            self.agent_id = common.addObject("data/shapes/character/BlocksRobot.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
+        else:
+            for obj in self.environment.states: self.environment.reset(obj)
+        OpenNero.enable_ai()
+
+    def start_tower2(self):
+        """ start the tower demo """
+        self.num_towers = 3
         OpenNero.disable_ai()
         if self.environment.__class__.__name__ != 'TowerEnvironment':
             self.set_environment(TowerEnvironment())
         if len(self.environment.block_states) == 0:
             self.agent_id = common.addObject("data/shapes/character/BlocksRobot2.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
+        else:
+            for obj in self.environment.states: self.environment.reset(obj)
+        OpenNero.enable_ai()
+
+    def start_tower3(self):
+        """ start the tower demo """
+        self.num_towers = 2
+        OpenNero.disable_ai()
+        if self.environment.__class__.__name__ != 'TowerEnvironment':
+            self.set_environment(TowerEnvironment())
+        if len(self.environment.block_states) == 0:
+            self.agent_id = common.addObject("data/shapes/character/BlocksRobot3.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
         else:
             for obj in self.environment.states: self.environment.reset(obj)
         OpenNero.enable_ai()
