@@ -51,10 +51,7 @@ The pull-down menu lists the different planning methods and problems:
   * *Problem reduction* - Hierarchical planning through problem decomposition
 
 The control panel includes additional controls:
-  * *The Speedup Slider* - this slider controls the tradeoff between
-     displaying the simulation slowly enough to see robot animations   
-     and movements, and as quickly as the computer running OpenNERO can
-     handle it.
+  * *The Speedup Slider* - this slider controls the tradeoff between displaying the simulation slowly enough to see robot animations and movements, and as quickly as the computer running OpenNERO can handle it.
   * *Pause/Continue* - Pause will temporarily suspend the execution of the algorithm; the button changes to *Continue* and hitting it will resume execution.
   * *Start/Reset* - Start will begin running the selected algorithm; the button changes to Reset and hitting it will terminate the algorithm.
   * *Help* - will get you to this page.
