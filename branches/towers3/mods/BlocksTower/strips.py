@@ -1,6 +1,29 @@
 import fileinput
 import re
 import sys
+import Tkinter as tk
+import time
+
+class TextViewer:
+    def __init__(self):
+        self.text = tk.Text()
+        self.scroll = tk.Scrollbar()
+        self.text.focus_set()
+        self.text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+        self.text.config(font="Courier 12")
+        self.scroll.pack(side=tk.RIGHT, fill=tk.Y)
+        self.scroll.config(command=self.text.yview)
+        self.text.config(yscrollcommand=self.scroll.set)
+
+    def display_text(self, s):
+        self.text.insert(tk.END, s)
+        self.text.insert(tk.END, '\n')
+        self.text.yview(tk.END)
+
+    def user_pause(self, s):
+        time.sleep(2)
+
+viewer = TextViewer()
 
 def join_list(l):
     return ", ".join([str(s) for s in l])
@@ -340,7 +363,7 @@ def create_world(filename):
 
     return w
 
-debug = False
+debug = True
 
 def linear_solver(world):
     state = []
@@ -375,56 +398,56 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
         goal = goals[i]
 
         if debug:
-            print padding + "Current Plan: {0}".format(" -> ".join([x.simple_str() for x in current_plan]))
-            print padding + "Subgoal: {0}".format(goal)
-            print padding + "Other Goals: {0}".format(", ".join([str(x) for x in goals[i+1:]]))
-            print padding + "State: {0}".format(", ".join([str(s) for s in state]))
-            raw_input("")
+            viewer.display_text(padding + "Current Plan: {0}".format(" -> ".join([x.simple_str() for x in current_plan])))
+            viewer.display_text(padding + "Subgoal: {0}".format(goal))
+            viewer.display_text(padding + "Other Goals: {0}".format(", ".join([str(x) for x in goals[i+1:]])))
+            viewer.display_text(padding + "State: {0}".format(", ".join([str(s) for s in state])))
+            viewer.user_pause("")
 
         if satisfied(state, goal):
             # recurse
             if debug:
-                raw_input(padding + "Satisfied already")
-                print ""
+                viewer.user_pause(padding + "Satisfied already")
+                viewer.display_text("")
             i += 1
             continue
-        
+
         possible_actions = sorted(get_possible_grounds(world, goal), key=lambda c: initial_state_distance(state, c.pre))
 
         # otherwise, we need to find a subgoal that will get us to the goal
         # find all the grounded actions which will satisfy the goal
         if debug:
-            print padding + "List of possible actions that satisfy {0}:".format(goal)
-            print "\n".join([padding + x.simple_str() for x in possible_actions])
-            raw_input("")
+            viewer.display_text(padding + "List of possible actions that satisfy {0}:".format(goal))
+            viewer.display_text("\n".join([padding + x.simple_str() for x in possible_actions]))
+            viewer.user_pause("")
 
         found = False
 
         for action in possible_actions:
 
             if debug:
-                print padding + "Trying next action to satisfy {0}:".format(goal)
-                print padding + str(action).replace("\n", "\n" + padding)
-                raw_input("")
+                viewer.display_text(padding + "Trying next action to satisfy {0}:".format(goal))
+                viewer.display_text(padding + str(action).replace("\n", "\n" + padding))
+                viewer.user_pause("")
 
             # check if there is at least 1 action for each precondition which satisfies it
             if not preconditions_reachable(world, action):
                 if debug:
-                    print padding + "Some preconditions not reachable by any possible action. Skipping..."
-                    raw_input("")
+                    viewer.display_text(padding + "Some preconditions not reachable by any possible action. Skipping...")
+                    viewer.user_pause("")
                 continue
-            
+
             # check if the action directly contradicts another goal
             if contains_contradiction(goals, action):
                 if debug:
-                    print padding + "Action violates another goal state. Skipping..."
-                    raw_input("")
+                    viewer.display_text(padding + "Action violates another goal state. Skipping...")
+                    viewer.user_pause("")
                 continue
-            
+
             # if we can't obviously reject it as unreachable, we have to recursively descend.
             if debug:
-                print padding + "Action cannot be trivially rejected as unreachable. Descending..."
-                raw_input("")
+                viewer.display_text(padding + "Action cannot be trivially rejected as unreachable. Descending...")
+                viewer.user_pause("")
 
             temp_state = list(state)
 
@@ -434,22 +457,22 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
 
             solution = linear_solver_helper(world, temp_state, subgoals, current_plan, depth = depth + 1)
 
-            # we were unable to find 
+            # we were unable to find
             if solution is None:
                 if debug:
-                    print padding + "No solution found with this action. Skipping..."
+                    viewer.display_text(padding + "No solution found with this action. Skipping...")
                 current_plan.pop()
                 continue
 
             if debug:
-                print padding + "Possible solution found!"
-                raw_input("")
+                viewer.display_text(padding + "Possible solution found!")
+                viewer.user_pause("")
 
-            
+
             # update the state to incorporate the post conditions of our selected action
             for post in action.post:
                 update_state(temp_state, post)
-            
+
             """We need to check if the state deleted any of the previous goals. Three options how to handle this:
             1) Give up
             2) Protect it from happening by backtracking all the way (requires fine-grained tracking of states)
@@ -470,10 +493,10 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
                 [goals.remove(x) for x in clobbered]
                 [goals.append(x) for x in clobbered]
                 i -= clob_len
-                if debug:    
-                    print padding + "New goals: {0}".format(", ".join([str(x) for x in goals]))
-                    raw_input("")
-                
+                if debug:
+                    viewer.display_text(padding + "New goals: {0}".format(", ".join([str(x) for x in goals])))
+                    viewer.user_pause("")
+
 
             # add the subplan to the plan
             plan.extend(solution)
@@ -485,10 +508,10 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
 
             # add this action to the plan
             plan.append(action)
-            
+
             if debug:
-                print padding + "New State: " + ", ".join([str(x) for x in state])
-                raw_input("")
+                viewer.display_text(padding + "New State: " + ", ".join([str(x) for x in state]))
+                viewer.user_pause("")
 
             i += 1
             found = True
@@ -496,9 +519,9 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
 
         if not found:
             if debug:
-                print ""
-                raw_input("++" + padding + "No actions found to satisfy this subgoal. Backtracking...")
-                print ""
+                viewer.display_text("")
+                viewer.user_pause("++" + padding + "No actions found to satisfy this subgoal. Backtracking...")
+                viewer.display_text("")
             #current_plan.pop()
             return None
 
@@ -521,11 +544,11 @@ def initial_state_distance(state, preconds):
 
 def satisfied(state, goal):
     condition = weak_find(state, goal)
-    
+
     # we only keep track of positive literals (closed world assumption), so if it's here, it's true
     if goal.truth == True:
         return condition != None
-    
+
     # if it's not here, we assume it's false
     return condition == None
 
@@ -574,7 +597,7 @@ def get_possible_grounds(world, goal):
 def print_plan(plan):
     print "Plan: {0}".format(" -> ".join([x.simple_str() for x in plan]))
 
-def main():
+def run():
     w = create_world(None)
 
     # Did someone start us at the goal?
@@ -591,6 +614,13 @@ def main():
             print_plan(solution)
             #from show_strips import show_solution
             #show_solution(solution)
+
+def main():
+    import threading
+    worker = threading.Thread(target=run)
+    worker.start()
+    tk.mainloop()
+    worker.join()
 
 if __name__ == "__main__":
     main()
