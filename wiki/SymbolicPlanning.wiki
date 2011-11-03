@@ -1,3 +1,4 @@
 #summary A demonstration of symbolic planning methods in OpenNERO
+#sidebar TableOfContents
 
 Content to be contributed
