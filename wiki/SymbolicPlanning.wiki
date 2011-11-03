@@ -2,9 +2,6 @@
 #labels Demo
 #sidebar TableOfContents
 
-#summary Planning Demo
-#sidebar TableOfContents
-
 ==Introduction==
 
 Planning means deciding on a course of action before acting. In this
