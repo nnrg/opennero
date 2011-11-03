@@ -18,7 +18,7 @@ try it out interactively.
 To run the demo, first:
 
   # [RunningOpenNero start OpenNERO]
-  # Start the [BlocksWorldMod `BlocksTower` mod]
+  # Start the [BlocksWorldMod 'BlocksTower'] mod
   # Select the method you want to run from the pull-down menu:
     # Goal-stacking runs a STRIPS-style planner on 2-3 disks
     # Forward search runs a state-space search planner on 2-4 disks
@@ -78,8 +78,6 @@ outlined below.
 
 ==Goal-Stacking Planner==
 
-<wiki:video url="http://www.youtube.com/watch?v=3EG2OmjZ4wg"/>
-
 The goal-stacking (i.e. STRIPS-like) planner is	a simple linear
 solver, i.e. a total order solver that assumes all steps can be
 planned one after the other with a strict ordering.  It works
@@ -96,9 +94,10 @@ possible plans and gives up.
 
 This approach allows solving the 2-disk task, but it fails on three or more disks (it gets into an infinite loop; see "Next Steps"). One way to solve it is to consider all potential plans systematically, as is done in state-space search.
 
-==State-Space Search==
-
 <wiki:video url="http://www.youtube.com/watch?v=3EG2OmjZ4wg"/>
+
+
+==State-Space Search==
 
 In State-Space search, the planner searches from the starting state
 forward by trying out all actions systematically in turn, in a
@@ -115,9 +114,11 @@ is a very inefficient method. Also, since it stops as soon as the goal
 is achieved, it may come up with a plan with extra actions. The
 problem reduction search is more effective in this case.
 
-==Problem Reduction==
-
 <wiki:video url="http://www.youtube.com/watch?v=3EG2OmjZ4wg"/>
+
+
+
+==Problem Reduction==
 
 In Problem Reduction, the planner executes a top-down planning
 process. It starts with the high-level goal and decomposes it into
@@ -126,6 +127,10 @@ planner. Therefore, it uses domain knowledge to structure the search,
 which results in a more effective and scalable planning process. The
 plan is found with minimal backtracking, the plans are optimal, and
 scale up to large numbers of disks (upto 5 are shown in this demo).
+
+<wiki:video url="http://www.youtube.com/watch?v=3EG2OmjZ4wg"/>
+
+
 
 ==Source Code==
 
