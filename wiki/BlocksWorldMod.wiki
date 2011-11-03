@@ -3,8 +3,68 @@
 
 =Blocks World Mod=
 
-Blocks World is a classical test problem for traditional AI techniques such as symbolic planning, natural language understanding, and even robotics. The idea is to manipulate simple objects (blocks) that can be moved around and stacked on top of each other. While it is a relatively simple domain, it hides some surprising challenges and provides a good illustration for some fundamental principles of AI.
+Blocks World is a classical test problem for traditional AI techniques such as \
+symbolic planning, natural language understanding, and even robotics. The idea \
+is to manipulate simple objects (blocks) that can be moved around and stacked o\
+n top of each other. While it is a relatively simple domain, it hides some surp\
+rising challenges and provides a good illustration for some fundamental princip\
+les of AI.
 
-<img src=http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.png height=300 width=400></img>
+Currently the "Towers of Hanoi" problem is implemented in the Blocks
+World, and it is used to demonstrate three different planning methods.
 
-Blocks world is the newest addition to OpenNERO and further documentation is forthcoming.
+<img src=http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.png height=300\
+ width=400></img>
+
+== What the display means ==
+
+In the Planning demo:
+  * The nearest pole - starting location for the disks
+  * The furthest pole - goal location for the disks
+  * The middle pole - temporary storage for the disks
+  * Size of disks - indicates which disk can be placed on which other disks (sm\
+aller on larger)
+
+The text window
+  * Run - run the planning process continuously
+  * Pause - pause the planning process temporarily
+  * Step - advance the planning process one step
+  * text - log output of the planning process, with final plan in the end
+
+== Controls ==
+
+The keyboard controls allow moving around in the environment:
+
+  * *F1* - help (opens the browser to show this page)
+  * *A* - move camera left
+  * *D* - move camera right
+  * *W* - move camera forward
+  * *S* - move camera back
+  * *Q* - pan camera left
+  * *E* - pan camera right
+  * *R* - tilt camera up
+  * *F* - tilt camera down
+  * *space bar* - recenter camera to origin
+  * *ESC* - exit the currently running mod
+  * *Mouse Scroll* - zoom in or zoom out
+  * *Z* - zoom in
+  * *C* - zoom out
+
+==User Interface==
+
+The pull-down menu lists the different planning methods and problems:
+  * *Goal Stacking* - STRIPS-like linear search (depth first, with goal reintro\
+duction)
+  * *State-space search* - Systematic forward search (depth first)
+  * *Problem reduction* - Hierarchical planning through problem decomposition
+
+The control panel includes additional controls:
+  * *The Speedup Slider* - this slider controls the tradeoff between
+     displaying the simulation slowly enough to see robot animations and
+     movements, and as quickly as the computer running OpenNERO can
+     handle it.
+  * *Pause/Continue* - Pause will temporarily suspend the execution of the algo\
+rithm; the button changes to *Continue* and hitting it will resume execution.
+  * *Start/Reset* - Start will begin running the selected algorithm; the button\
+ changes to Reset and hitting it will terminate the algorithm.
+  * *Help* - will get you to this page.
