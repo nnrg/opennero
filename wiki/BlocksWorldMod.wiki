@@ -3,18 +3,12 @@
 
 =Blocks World Mod=
 
-Blocks World is a classical test problem for traditional AI techniques such as \
-symbolic planning, natural language understanding, and even robotics. The idea \
-is to manipulate simple objects (blocks) that can be moved around and stacked o\
-n top of each other. While it is a relatively simple domain, it hides some surp\
-rising challenges and provides a good illustration for some fundamental princip\
-les of AI.
+Blocks World is a classical test problem for traditional AI techniques such as symbolic planning, natural language understanding, and even robotics. The idea is to manipulate simple objects (blocks) that can be moved around and stacked on top of each other. While it is a relatively simple domain, it hides some surprising challenges and provides a good illustration for some fundamental principles of AI.
 
 Currently the "Towers of Hanoi" problem is implemented in the Blocks
 World, and it is used to demonstrate three different planning methods.
 
-<img src=http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.png height=300\
- width=400></img>
+<img src=http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.png height=300 width=400></img>
 
 == What the display means ==
 
@@ -22,8 +16,7 @@ In the Planning demo:
   * The nearest pole - starting location for the disks
   * The furthest pole - goal location for the disks
   * The middle pole - temporary storage for the disks
-  * Size of disks - indicates which disk can be placed on which other disks (sm\
-aller on larger)
+  * Size of disks - indicates which disk can be placed on which other disks (smaller on larger)
 
 The text window
   * Run - run the planning process continuously
@@ -53,8 +46,7 @@ The keyboard controls allow moving around in the environment:
 ==User Interface==
 
 The pull-down menu lists the different planning methods and problems:
-  * *Goal Stacking* - STRIPS-like linear search (depth first, with goal reintro\
-duction)
+  * *Goal Stacking* - STRIPS-like linear search (depth first, with goal reintroduction)
   * *State-space search* - Systematic forward search (depth first)
   * *Problem reduction* - Hierarchical planning through problem decomposition
 
@@ -63,8 +55,6 @@ The control panel includes additional controls:
      displaying the simulation slowly enough to see robot animations and
      movements, and as quickly as the computer running OpenNERO can
      handle it.
-  * *Pause/Continue* - Pause will temporarily suspend the execution of the algo\
-rithm; the button changes to *Continue* and hitting it will resume execution.
-  * *Start/Reset* - Start will begin running the selected algorithm; the button\
- changes to Reset and hitting it will terminate the algorithm.
+  * *Pause/Continue* - Pause will temporarily suspend the execution of the algorithm; the button changes to *Continue* and hitting it will resume execution.
+  * *Start/Reset* - Start will begin running the selected algorithm; the button changes to Reset and hitting it will terminate the algorithm.
   * *Help* - will get you to this page.
