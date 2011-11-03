@@ -140,13 +140,7 @@ scale up to large numbers of disks (upto 5 are shown in this demo).
 
 ==Source Code==
 
-The source code for the planning methods is in
-[http://code.google.com/p/opennero/source/browse/branches/towers3/mods/BlocksTower/agent.py
-agent.py].  The goal-stack planner is implemented in the
-`TowerAgent3` class, state-space search in the `TowerAgent2`
-class, and problem reduction planner in the `TowerAgent`
-class. See SystemOverview for a general description of how agents
-work.
+The source code for the planning methods is in [http://code.google.com/p/opennero/source/browse/branches/towers3/mods/BlocksTower/agent.py agent.py]. The goal-stack planner is implemented in the `TowerAgent3` class, state-space search in the `TowerAgent2` class, and problem reduction planner in the `TowerAgent` class. See SystemOverview for a general description of how agents work.
 
 The planning methods can also be run manually. To run the problem reduction algorithm, use `python recursive_solver.py`. To run the goal reduction technique, use `python strips.py towers2_strips.txt` (you can also specify one of the other STRIPS problems available in the mod, but be careful: the current implementation gets into an infinite loop for towers3! To run the state-space search technique, use `python strips2.py`.
 
