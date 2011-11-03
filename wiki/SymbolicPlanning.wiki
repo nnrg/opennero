@@ -1,4 +1,164 @@
 #summary A demonstration of symbolic planning methods in OpenNERO
 #sidebar TableOfContents
 
-Content to be contributed
+#summary Planning Demo
+#sidebar TableOfContents
+
+==Introduction==
+
+Planning means deciding on a course of action before acting. In this
+demo, three different planning methods (goal-stacking, forward
+search, and problem reduction) are demonstrated in the Towers of Hanoi
+task. The planning process is first run in the background,
+illustrating its progress in a text window. The Steve robot then
+executes the completed plan in the environment.  Watch the videos
+below to see how the planning demo works, or run OpenNERO yourself to
+try it out interactively.
+
+==Running the Demo==
+
+To run the demo, first:
+
+  # [RunningOpenNero start OpenNERO]
+  # Start the [BlocksTower mod]
+  # Select the method you want to run from the pull-down menu:
+    # Goal-stacking runs a STRIPS-style planner on the 2-disk problem
+    # Forward search runs a state-space search planner on 2-4 disks
+    # Problem-reduction search runs a top-down search on 2-5 disks
+  # Click on the Start button to start the demo
+
+Upon Start, a text window pops up to show the progress of the planner.
+Pressing the "Step" button in this window allows proceeding through
+the planning process one step at a time; pressing the "Run" button
+runs the process until the end without interruption. The final plan is
+printed at the end of the text window
+
+This plan is then given to Steve to execute. Press "Pause" to
+temporarily pause its execution, and "Continue" to resume.
+
+==Towers of Hanoi==
+
+Somewhere in Hanoi there's a monastery with a courtyard with three
+tall poles and 64 disks (each with a different size and with a hole in
+the middle) on one of the poles. The monks have a peculiar tasks: they
+have to move the disks from the original pole to the target pole. They
+can move only one disk at a time, they can place each disk only on top
+of a larger disk, on any of the poles (but not on the ground). Once
+they finish the task, the world will end...(but it will take a long
+time so no need to worry!).
+
+Being clever AI programmers, the monks implemented three methods for
+planning their work ahead of time. In this demo you can test these
+methods with a small number of disks, and you can evaluate how well
+they might scale up to the full task.
+
+In all three methods, the initial state is expressed in a logical form
+as<br>
+(ON disk1 pole1) &and;<br>
+(ON disk2 disk1) &and;<br>
+(ON disk3 disk2) &and;<br>
+(CLEAR disk3) &and;<br>
+(CLEAR pole2) &and;<br>
+(CLEAR pole3)
+and the goal state as
+(ON disk1 pole3) &and;<br>
+(ON disk2 disk1) &and;<br>
+(ON disk3 disk2)
+
+The actions are defined through a set of preconditions and
+postconditions, e.g.
+(MOVE disk1 x y)<br>
+Preconditions:  (CLEAR disk1) &and; (ON disk1 x) &and; (CLEAR y) &and; (&lt; di\
+sk1 y)<br>
+Postconditions: <br>
+add (CLEAR x), (ON disk1 y)<br>
+delete (CLEAR y), (ON disk1 x)<br>
+
+Planning consists of finding a sequence of actions that transforms the
+initial state to the goal state. Three methods for doing so are
+outlined below.
+
+
+==Goal-Stacking Planner==
+
+<wiki:video url="http://www.youtube.com/watch?v=3EG2OmjZ4wg"/>
+
+In Goal-stacking (i.e. STRIPS-like planning), actions are first found
+that satisfy each of the goal components. Their preconditions then
+become new goals, and the planner recurses on each of them in turn,
+depth first. Upon returning from a recursive call, the planner checks
+whether any of the previously achieved goals have been violated, and
+if so, that goal is reintroduced into the goal set.
+
+This approach allows solving the 2-disk task, but it fails on more
+disks (see "Next Steps"). One way to solve it is to consider all
+potential plans systematically, as is done in state-space search.
+
+==State-Space Search==
+
+<wiki:video url="http://www.youtube.com/watch?v=3EG2OmjZ4wg"/>
+
+In State-Space search, the planner searches from the starting state
+forward by trying out all actions systematically in turn, in a
+depth-first fashion.  The depth cutoff is set at eight, i.e. if the
+planner has not solved the task in eight actions, it will backtrack
+and try alternatives. Eight steps are enough to solve the 4-disk
+problem.
+
+Associated with this method there is a 2-D visualization window that
+shows what the planner is currently thinking, i.e. the current
+sequence that it is currently exploring. As you can see, this planner
+spends a lot of time backtracking near the cutoff, and in general, it
+is a very inefficient method. Also, since it stops as soon as the goal
+is achieved, it may come up with a plan with extra actions. The
+problem reduction search is more effective in this case.
+
+==Problem Reduction==
+
+<wiki:video url="http://www.youtube.com/watch?v=3EG2OmjZ4wg"/>
+
+In Problem Reduction, the planner executes a top-down planning
+process. It starts with the high-level goal and decomposes it into
+smaller goals that are then solved through a recursive call to the
+planner. Therefore, it uses domain knowledge to structure the search,
+which results in a more effective and scalable planning process. The
+plan is found with minimal backtracking, the plans are optimal, and
+scale up to large numbers of disks (upto 5 are shown in this demo).
+
+==Source Code==
+
+The source code for the planning methods is in
+[http://code.google.com/p/opennero/source/browse/trunk/mods/BlocksTower/agent.p\
+y
+agent.py].  The goal-stack planner is implemented in the
+`GoalStackAgent` class, state-space search in the `StateSpaceAgent`
+class, and problem reduction planner in the `ProblemReductionAgent`
+class. See SystemOverview for a general description of how agents
+work.
+
+The initial and goal states and the operators are specified in [http://code.goo\
+gle.com/p/opennero/source/browse/trunk/mods/BlocksTower/problem.py problem.py].
+You can change these definitions to explore different versions of the
+problem.
+
+==Next Steps==
+
+While the problem-reduction planner is effective in this domain, it is
+implemented in a rather domain-dependent way. A more general
+formulation would incorporate means-ends analysis of the problem,
+making it possible to identify possible decompositions automatically.
+
+The state-space search is a very general method, but it wastes a lot
+of time blindly considering alternatives. The current implementation
+also produces suboptimal plans, i.e. those with unnecessary actions in
+them. One way to solve this problem is to use iterative deepening of
+the cutoff.
+
+While goal reintroduction works in the two-disk case, it fails with
+three disks: the planner gets into an infinite loop. The problem is
+that the planner commits to an order of actions before it knows that
+it will work. The way to solve it is to make the planner nonlinear,
+i.e. avoid ordering of actions until necessary.
+
+See [PlanningExercise Planning Exercise page] for a more concrete
+assignments of these extensions.
