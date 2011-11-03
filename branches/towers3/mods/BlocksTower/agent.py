@@ -4,22 +4,8 @@ import BlocksTower
 import random
 from BlocksTower.environment import TowerEnvironment
 from BlocksTower.constants import *
-
-def get_action_index(move):
-    if move in TowerEnvironment.MOVES:
-        action = TowerEnvironment.MOVES.index(move)
-        print 'Picking action', action, 'for move', move
-        return action
-    else:
-        return None
-
-class Cell:
-    def __init__(self, h, r, c):
-        self.h = h
-        self.r = r
-        self.c = c
-    def __cmp__(self, other):
-        return cmp(self.h, other.h)
+import towers3 as towers
+import subprocess
 
 ###
 #
@@ -115,6 +101,79 @@ class TowerAgent(AgentBrain):
         receive the reward for the last observation
         """
         print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
+        return True
+
+    def destroy(self):
+        """
+        called when the agent is done
+        """
+        return True
+
+# action primitives
+# move without getting stuff
+MOVES = { \
+    (towers.Pole1, towers.Pole2): [4, 1, 5], \
+    (towers.Pole1, towers.Pole3): [4, 1, 1, 5], \
+    (towers.Pole2, towers.Pole1): [5, 1, 4], \
+    (towers.Pole2, towers.Pole3): [4, 1, 1, 5], \
+    (towers.Pole3, towers.Pole1): [5, 1, 1, 4], \
+    (towers.Pole3, towers.Pole2): [5, 1, 4] \
+}
+
+# move with pick up and put down
+CARRY_MOVES = {}
+for (source, dest) in MOVES:
+    CARRY_MOVES[(source, dest)] = [3] + MOVES[(source, dest)] + [2]
+    
+class TowerAgent2(AgentBrain):
+    """
+    An agent that uses a STRIPS-like planner to solve the Towers of Hanoi problem
+    """
+    def __init__(self):
+        AgentBrain.__init__(self) # have to make this call
+        self.action_queue = [5] # rotate left to reset state first
+
+    def initialize(self,init_info):
+        """
+        Create the agent.
+        init_info -- AgentInitInfo that describes the observation space (.sensors),
+                     the action space (.actions) and the reward space (.rewards)
+        """
+        self.action_info = init_info.actions
+        return True
+
+    def start(self, time, observations):
+        """
+        return first action given the first observations
+        """
+        subproc = subprocess.Popen(['python', 'BlocksTower/strips2.py'], stdout=subprocess.PIPE)
+        plan = ''
+        while True:
+            try:
+                out = subproc.stdout.read(1)
+            except:
+                break
+            if out == '':
+                break
+            else:
+                plan += out
+        print plan
+        return 0
+
+    def act(self, time, observations, reward):
+        """
+        return an action given the reward for the previous
+        action and the new observations
+        """
+        return 0
+
+    def end(self, time, reward):
+        """
+        receive the reward for the last observation
+        """
+        return True
+
+    def reset(self):
         return True
 
     def destroy(self):

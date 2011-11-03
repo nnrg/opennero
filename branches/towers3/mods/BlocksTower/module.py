@@ -95,7 +95,7 @@ class TowerMod:
         if self.environment.__class__.__name__ != 'TowerEnvironment':
             self.set_environment(TowerEnvironment())
         if len(self.environment.block_states) == 0:
-         self.agent_id = common.addObject("data/shapes/character/BlocksRobot.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
+            self.agent_id = common.addObject("data/shapes/character/BlocksRobot2.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
         else:
             for obj in self.environment.states: self.environment.reset(obj)
         OpenNero.enable_ai()

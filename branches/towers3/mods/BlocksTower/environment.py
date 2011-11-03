@@ -439,15 +439,6 @@ class TowerEnvironment(Environment):
         obs[0] = state.rc[0]
         obs[1] = state.rc[1]
         obs[2] = agent.state.rotation.z % 360
-        # don't worry about walls for now
-        #offset = GRID_DX/10.0
-        #p0 = agent.state.position
-        #for i, (dr, dc) in enumerate(TowerEnvironment.MOVES):
-        #    direction = Vector3f(dr, dc, 0)
-        #    ray = (p0 + direction * offset, p0 + direction * GRID_DX)
-        #    # we only look for objects of type 1, which means walls
-        #    objects = getSimContext().findInRay(ray[0], ray[1], 1, False)
-        #    obs[2 + i] = int(len(objects) > 0)
         return obs
 
     def is_episode_over(self, agent):
