@@ -38,7 +38,7 @@ class TowerAgent(AgentBrain):
         strn = "Moving depth {n} from {frm} to {to} using {using}".format(n=n, frm=frm, to=to, using=using)
         for a in self.dohanoi(n-1, using, frm, to):
             yield a
-        self.state.label = strn
+        #self.state.label = strn
         for a in self.move(frm, to):
             yield a
         for a in self.dohanoi(n-1, to, using, frm):
@@ -70,16 +70,36 @@ class TowerAgent(AgentBrain):
         # Create new Agent
         self.action_info = init_info.actions
         return True
+        
+    def display_planner(self):
+        """ show planner internals by running it externally """
+        import subprocess
+        # solve for show (user can click through)
+        subproc = subprocess.Popen(['python', 'BlocksTower/recursive_solver.py'], stdout=subprocess.PIPE)
+        plan = ''
+        while True:
+            try:
+                out = subproc.stdout.read(1)
+            except:
+                break
+            if out == '':
+                break
+            else:
+                plan += out
+        print plan        
 
     def start(self, time, sensors):
         """
         return first action given the first observations
         """
+        self.display_planner()
         self.action_queue = self.queue_init()
         return self.action_queue.next()
 
     def reset(self):
+        self.display_planner()
         self.action_queue = self.queue_init()
+        return True
 
     def act(self, time, sensors, reward):
         """

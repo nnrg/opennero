@@ -4,7 +4,9 @@ import sys
 import Tkinter as tk
 from text_viewer import TextViewer
 
-viewer = TextViewer()
+viewer = None
+if __name__ == "__main__":
+    viewer = TextViewer()
 
 def join_list(l):
     return ", ".join([str(s) for s in l])
