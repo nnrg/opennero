@@ -52,7 +52,7 @@ they might scale up to the full task.
 
 In all three methods, the initial state is expressed in a logical form
 as<br>
-(ON disk1 pole1) {{&and;}} <br>
+(ON disk1 pole1) {{{&and;}}} <br>
 (ON disk2 disk1) &and;<br>
 (ON disk3 disk2) &and;<br>
 (CLEAR disk3) &and;<br>
