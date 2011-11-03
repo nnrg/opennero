@@ -1,5 +1,6 @@
 from copy import copy
 from towers3 import *
+from strips2_show import demo_planner, get_pole
 
 __doc__ = """This is an example planning algorithm for Towers of Hanoi"""
 __author__ = "Igor Karpov <ikarpov@cs.utexas.edu>"
@@ -68,7 +69,6 @@ def print_plan(plan):
 if __name__ == "__main__":
     def planner(viewer):
         solve(INIT, GOAL, ACTIONS, viewer=viewer)
-    from strips2_show import demo_planner
     plan = demo_planner(planner)
     if plan is not None:
         print_plan(plan)

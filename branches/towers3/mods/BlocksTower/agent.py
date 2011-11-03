@@ -4,8 +4,6 @@ import BlocksTower
 import random
 from BlocksTower.environment import TowerEnvironment
 from BlocksTower.constants import *
-import towers3 as towers
-import subprocess
 
 ###
 #
@@ -109,22 +107,6 @@ class TowerAgent(AgentBrain):
         """
         return True
 
-# action primitives
-# move without getting stuff
-MOVES = { \
-    (towers.Pole1, towers.Pole2): [4, 1, 5], \
-    (towers.Pole1, towers.Pole3): [4, 1, 1, 5], \
-    (towers.Pole2, towers.Pole1): [5, 1, 4], \
-    (towers.Pole2, towers.Pole3): [4, 1, 1, 5], \
-    (towers.Pole3, towers.Pole1): [5, 1, 1, 4], \
-    (towers.Pole3, towers.Pole2): [5, 1, 4] \
-}
-
-# move with pick up and put down
-CARRY_MOVES = {}
-for (source, dest) in MOVES:
-    CARRY_MOVES[(source, dest)] = [3] + MOVES[(source, dest)] + [2]
-    
 class TowerAgent2(AgentBrain):
     """
     An agent that uses a STRIPS-like planner to solve the Towers of Hanoi problem
@@ -142,10 +124,29 @@ class TowerAgent2(AgentBrain):
         self.action_info = init_info.actions
         return True
 
-    def start(self, time, observations):
-        """
-        return first action given the first observations
-        """
+    def queue_init(self):
+        import strips2
+        import towers3 as towers
+        import subprocess
+        import strips2_show
+
+        # action primitives
+        # move without getting stuff
+        MOVES = { \
+            (towers.Pole1, towers.Pole2): [4, 1, 5], \
+            (towers.Pole1, towers.Pole3): [4, 1, 1, 5], \
+            (towers.Pole2, towers.Pole1): [5, 1, 4], \
+            (towers.Pole2, towers.Pole3): [4, 1, 5], \
+            (towers.Pole3, towers.Pole1): [5, 1, 1, 4], \
+            (towers.Pole3, towers.Pole2): [5, 1, 4] \
+        }
+
+        # move with pick up and put down
+        CARRY_MOVES = {}
+        for (source, dest) in MOVES:
+            CARRY_MOVES[(source, dest)] = [3] + MOVES[(source, dest)] + [2]
+
+        # solve for show (user can click through)
         subproc = subprocess.Popen(['python', 'BlocksTower/strips2.py'], stdout=subprocess.PIPE)
         plan = ''
         while True:
@@ -157,7 +158,78 @@ class TowerAgent2(AgentBrain):
                 break
             else:
                 plan += out
-        print plan
+        # actually solve to get the plan of actions
+        plan = strips2.solve(towers.INIT, towers.GOAL, towers.ACTIONS)
+        action_queue = [5]
+        state = towers.INIT
+        at = towers.Pole1
+        for (move, what, frm, to) in plan:
+            frm_pole = strips2_show.get_pole(state, frm)
+            to_pole = strips2_show.get_pole(state, to)
+            print what, frm, to, at, frm_pole, to_pole
+            if at != frm_pole:
+                action_queue += MOVES[(at, frm_pole)]
+            action_queue += CARRY_MOVES[(frm_pole, to_pole)]
+            move(state, what, frm, to)
+            at = to_pole
+        return action_queue
+
+    def start(self, time, observations):
+        """
+        return first action given the first observations
+        """
+        self.action_queue = self.queue_init()
+        return self.action_queue.pop(0)
+
+    def act(self, time, observations, reward):
+        """
+        return an action given the reward for the previous
+        action and the new observations
+        """
+        if len(self.action_queue) > 0:
+            return self.action_queue.pop(0)
+        else:
+            return 0
+
+    def end(self, time, reward):
+        """
+        receive the reward for the last observation
+        """
+        return True
+
+    def reset(self):
+        return True
+
+    def destroy(self):
+        """
+        called when the agent is done
+        """
+        return True
+        
+class TowerAgent3(AgentBrain):
+    """
+    An agent that uses a STRIPS-like planner to solve the Towers of Hanoi problem
+    """
+    def __init__(self):
+        AgentBrain.__init__(self) # have to make this call
+        self.action_queue = [5] # rotate left to reset state first
+
+    def initialize(self,init_info):
+        """
+        Create the agent.
+        init_info -- AgentInitInfo that describes the observation space (.sensors),
+                     the action space (.actions) and the reward space (.rewards)
+        """
+        self.action_info = init_info.actions
+        return True
+
+    def queue_init(self):
+        pass
+
+    def start(self, time, observations):
+        """
+        return first action given the first observations
+        """
         return 0
 
     def act(self, time, observations, reward):

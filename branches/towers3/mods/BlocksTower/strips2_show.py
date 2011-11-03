@@ -109,6 +109,8 @@ def get_height(state, disk):
 
 def get_pole(state, disk):
     """ get the pole of the disk given the state """
+    if disk in POLES:
+        return disk
     for p in state:
         if p[0] == 'On' and p[1] == disk:
             if p[2] in POLES:
