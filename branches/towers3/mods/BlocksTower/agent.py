@@ -4,6 +4,7 @@ import BlocksTower
 import random
 from BlocksTower.environment import TowerEnvironment
 from BlocksTower.constants import *
+from copy import copy
 
 ###
 #
@@ -161,7 +162,7 @@ class TowerAgent2(AgentBrain):
         # actually solve to get the plan of actions
         plan = strips2.solve(towers.INIT, towers.GOAL, towers.ACTIONS)
         action_queue = [5]
-        state = towers.INIT
+        state = copy(towers.INIT)
         at = towers.Pole1
         for (move, what, frm, to) in plan:
             frm_pole = strips2_show.get_pole(state, frm)
@@ -245,14 +246,14 @@ class TowerAgent3(AgentBrain):
             if len(words) == 3:
                 (what, frm, to) = words
                 hl_actions.append((what, frm, to))
-            
+        
         # use strips2 stuff for translating the output into low level actions
         import strips2
         import towers2 as towers
         import strips2_show
         
         action_queue = [5]
-        state = towers.INIT
+        state = copy(towers.INIT)
         at = towers.Pole1
         for (what, frm, to) in hl_actions:
             frm_pole = strips2_show.get_pole(state, frm)

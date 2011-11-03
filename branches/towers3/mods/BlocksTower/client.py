@@ -12,7 +12,7 @@ from BlocksTower.constants import *
 
 AGENTS = [
     ('Problem reduction', lambda: getMod().start_tower1() ),
-    ('Stace-space search', lambda: getMod().start_tower2() ),
+    ('State-space search', lambda: getMod().start_tower2() ),
     ('Goal stacking', lambda: getMod().start_tower3() ),
 ]
 

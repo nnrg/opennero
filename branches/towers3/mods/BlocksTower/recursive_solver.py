@@ -23,7 +23,7 @@ class RecursiveSolver(TextViewer):
         if frm == 'c' and to == 'b': return self.ctob
     def dohanoi(self, n, to, frm, using):
         if n == 0: return
-        prefix = '\t'.join(['' for i in range(self.num_towers - n)])
+        prefix = ''.join(['   ' for i in range(n)])
         strn = prefix + "Moving depth {n} from {frm} to {to} using {using}".format(n=n, frm=frm, to=to, using=using)
         for a in self.dohanoi(n-1, using, frm, to):
             yield a
