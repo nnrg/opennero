@@ -24,10 +24,6 @@ class TowerAgent(AgentBrain):
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
         
-    def log(self, strn):
-        self.state.label = strn
-        print strn
-
     def move(self, frm, to):
         if frm == 'a' and to == 'b': return self.atob
         if frm == 'a' and to == 'c': return self.atoc
@@ -61,12 +57,12 @@ class TowerAgent(AgentBrain):
         from module import getMod
         self.num_towers = getMod().num_towers
 
-        self.state.label = 'Starting to Solve!'
+        #self.state.label = 'Starting to Solve!'
         for a in self.init_queue:
             yield a
         for a in self.dohanoi(self.num_towers, 'b', 'a', 'c'):
             yield a
-        self.state.label = 'Problem Solved!'
+        #self.state.label = 'Problem Solved!'
         for a in self.end_queue:
             yield a
 
@@ -130,22 +126,6 @@ class TowerAgent2(AgentBrain):
         import subprocess
         import strips2_show
 
-        # action primitives
-        # move without getting stuff
-        MOVES = { \
-            (towers.Pole1, towers.Pole2): [4, 1, 5], \
-            (towers.Pole1, towers.Pole3): [4, 1, 1, 5], \
-            (towers.Pole2, towers.Pole1): [5, 1, 4], \
-            (towers.Pole2, towers.Pole3): [4, 1, 5], \
-            (towers.Pole3, towers.Pole1): [5, 1, 1, 4], \
-            (towers.Pole3, towers.Pole2): [5, 1, 4] \
-        }
-
-        # move with pick up and put down
-        CARRY_MOVES = {}
-        for (source, dest) in MOVES:
-            CARRY_MOVES[(source, dest)] = [3] + MOVES[(source, dest)] + [2]
-
         # solve for show (user can click through)
         subproc = subprocess.Popen(['python', 'BlocksTower/strips2.py'], stdout=subprocess.PIPE)
         plan = ''
@@ -206,7 +186,7 @@ class TowerAgent2(AgentBrain):
         called when the agent is done
         """
         return True
-        
+
 class TowerAgent3(AgentBrain):
     """
     An agent that uses a STRIPS-like planner to solve the Towers of Hanoi problem
@@ -239,7 +219,31 @@ class TowerAgent3(AgentBrain):
             else:
                 plan += out
         print plan
-        action_queue = []
+        hl_actions = [] # high level action
+        for line in plan.split('\n'):
+            words = line.strip().split()
+            if len(words) == 3:
+                (what, frm, to) = words
+                hl_actions.append((what, frm, to))
+            
+        # use strips2 stuff for translating the output into low level actions
+        import strips2
+        import towers2 as towers
+        import strips2_show
+        
+        action_queue = [5]
+        state = towers.INIT
+        at = towers.Pole1
+        for (what, frm, to) in hl_actions:
+            frm_pole = strips2_show.get_pole(state, frm)
+            to_pole = strips2_show.get_pole(state, to)
+            print what, frm, to, at, frm_pole, to_pole
+            if at != frm_pole:
+                action_queue += MOVES[(at, frm_pole)]
+            action_queue += CARRY_MOVES[(frm_pole, to_pole)]
+            towers.Move(state, what, frm, to)
+            at = to_pole
+
         return action_queue
 
     def start(self, time, observations):
@@ -247,14 +251,20 @@ class TowerAgent3(AgentBrain):
         return first action given the first observations
         """
         self.action_queue = self.queue_init()
-        return 0
+        if len(self.action_queue) > 0:
+            return self.action_queue.pop(0)
+        else:
+            return 0
 
     def act(self, time, observations, reward):
         """
         return an action given the reward for the previous
         action and the new observations
         """
-        return 0
+        if len(self.action_queue) > 0:
+            return self.action_queue.pop(0)
+        else:
+            return 0
 
     def end(self, time, reward):
         """
