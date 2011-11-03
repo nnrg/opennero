@@ -14,6 +14,7 @@ class RecursiveSolver(TextViewer):
         self.ctob = [4,1,5,3,5,1,4,2,]
         self.end_queue = [0,0,0,5,5,1]
         self.num_towers = 3
+
     def move(self, frm, to):
         if frm == 'a' and to == 'b': return self.atob
         if frm == 'a' and to == 'c': return self.atoc
@@ -21,22 +22,29 @@ class RecursiveSolver(TextViewer):
         if frm == 'b' and to == 'c': return self.btoc
         if frm == 'c' and to == 'a': return self.ctoa
         if frm == 'c' and to == 'b': return self.ctob
+
     def dohanoi(self, n, to, frm, using):
-        if n == 0: return
-        prefix = ''.join(['   ' for i in range(n)])
-        strn = prefix + "Moving depth {n} from {frm} to {to} using {using}".format(n=n, frm=frm, to=to, using=using)
-        for a in self.dohanoi(n-1, using, frm, to):
-            yield a
-        self.user_pause(strn)
-        for a in self.move(frm, to):
-            self.display_text(prefix + ' primitive action: ' + str(a))
-            yield a
-        self.user_pause(prefix + 'Higher level action complete!')
-        for a in self.dohanoi(n-1, to, using, frm):
-            yield a
+        if n == 0: return []
+        level = self.num_towers - n
+        prefix = ''.join(['   ' for i in range(level)])
+        self.display_text(prefix + "At level {0} goal is to move {1} disks from pole {2} to pole {3}".format(level, n, frm, to))
+        self.display_text(prefix + "Decomposing the problem:")
+        self.display_text(prefix + "Move {0} disks from pole {1} to pole {2}".format(n-1, frm, using))
+        self.display_text(prefix + "Then move remaining disk from pole {0} to pole {1}".format(frm, to))
+        self.display_text(prefix + "Then move {0} disks from pole {1} to pole {2}".format(n-1, using, frm))
+        self.display_text(prefix + "Recursing on each subproblem...")
+        self.user_pause('')
+        actions1 = self.dohanoi(n-1, using, frm, to)
+        actions2 = self.move(frm, to)
+        actions3 = self.dohanoi(n-1, to, using, frm)
+        plan = actions1 + actions2 + actions3
+        self.display_text(prefix + "Back at level {0}, the plan is [{1}]".format(level, ', '.join([str(x) for x in plan])))
+        return actions1 + actions2 + actions3
+
     def solve(self):
         for a in self.queue_init():
             continue
+
     def queue_init(self):
         self.user_pause('Starting to Solve!')
         for a in self.init_queue:
