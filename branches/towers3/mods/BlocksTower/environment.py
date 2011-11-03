@@ -114,13 +114,9 @@ class TowerEnvironment(Environment):
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
         self.max_steps = MAX_STEPS
 
-    def initilize_blocks(self):
+    def initialize_blocks(self):
         from module import getMod
         num_towers = getMod().num_towers
-
-        addObject("data/shapes/cube/BlueCube.xml",Vector3f(1000,1000,1000), scale = Vector3f(.1,.1,.1))
-        addObject("data/shapes/cube/BlueCube.xml",Vector3f(1000,1000,1000), scale = Vector3f(.1,.1,.1))
-        addObject("data/shapes/cube/BlueCube.xml",Vector3f(1000,1000,1000), scale = Vector3f(.1,.1,.1))
 
         if num_towers >= 1:
             if not self.get_block_state('blue'):
@@ -226,8 +222,9 @@ class TowerEnvironment(Environment):
 
     def remove_block(self, name):
         block = self.get_block_state(name)
-        getSimContext().removeObject(block.obj)
-        self.block_states.pop(block.obj)
+        if block is not None:
+            getSimContext().removeObject(block.obj)
+            self.block_states.pop(block.obj)
 
     def get_state(self, agent):
         if agent in self.states:
@@ -235,9 +232,6 @@ class TowerEnvironment(Environment):
         else:
             self.states[agent] = AgentState()
             assert(self.states[agent].sensors)
-            if hasattr(agent, 'epsilon'):
-                print 'epsilon:', self.epsilon
-                agent.epsilon = self.epsilon
             return self.states[agent]
 
     def can_move(self, state, move):
@@ -262,7 +256,7 @@ class TowerEnvironment(Environment):
         state = self.get_state(agent)
         state.reset()
 
-        self.initilize_blocks()
+        self.initialize_blocks()
         agent.state.position = copy(state.initial_position)
         agent.state.rotation = Vector3f(0,0,0)#copy(state.initial_rotation)
         agent.reset()
@@ -282,7 +276,7 @@ class TowerEnvironment(Environment):
         actions = ["Do Nothing", "Walk Forward", "Set Down", "Pick Up", "Turn Right", "Turn Left"]
 
         if len(self.block_states) == 0:
-            self.initilize_blocks()
+            self.initialize_blocks()
         state = self.get_state(agent)
         if not self.agent_info.actions.validate(action):
             state.prev_rc = state.rc
@@ -445,4 +439,8 @@ class TowerEnvironment(Environment):
          return False
 
     def cleanup(self):
-          pass
+        print "CLEANUP"
+        for key in self.block_states:
+            block = self.block_states[key]
+            getSimContext().removeObject(block.obj)
+        return True
