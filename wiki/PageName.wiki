@@ -83,5 +83,4 @@ the end you establish total order (arbitrarily).
 If you run into any bugs in your program, you can find the error log file for OpenNERO at one of the following locations:
 
   * *Linux or Mac:* `~/.opennero/nero_log.txt`
-  * *Windows:* `"AppData\Local\OpenNERO\nero_log.txt"` or `"Local Settings\Appl\
-ication Data\OpenNERO\nero_log.txt"` depending on the version of Windows you have.
+  * *Windows:* `"AppData\Local\OpenNERO\nero_log.txt"` or `"Local Settings\Application Data\OpenNERO\nero_log.txt"` depending on the version of Windows you have.
