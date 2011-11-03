@@ -52,7 +52,7 @@ they might scale up to the full task.
 
 In all three methods, the initial state is expressed in a logical form
 as<br>
-(ON disk1 pole1) {{{&and;}}} <br>
+(ON disk1 pole1) &and; <br>
 (ON disk2 disk1) &and;<br>
 (ON disk3 disk2) &and;<br>
 (CLEAR disk3) &and;<br>
@@ -66,7 +66,7 @@ and the goal state as
 The actions are defined through a set of preconditions and
 postconditions, e.g.
 (MOVE disk1 x y)<br>
-Preconditions:  (CLEAR disk1) &and; (ON disk1 x) &and; (CLEAR y) &and; ({{&lt;}} disk1 y)<br>
+Preconditions:  (CLEAR disk1) &and; (ON disk1 x) &and; (CLEAR y) &and; (&lt; disk1 y)<br>
 Postconditions: <br>
 add (CLEAR x), (ON disk1 y)<br>
 delete (CLEAR y), (ON disk1 x)<br>
