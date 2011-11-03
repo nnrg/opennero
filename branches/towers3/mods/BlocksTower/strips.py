@@ -2,56 +2,7 @@ import fileinput
 import re
 import sys
 import Tkinter as tk
-import time
-
-class TextViewer:
-    def __init__(self):
-        self.root = tk.Tk()
-        self.root.title('STRIPS planner output')
-        self.frame = tk.Frame()
-        self.text = tk.Text(self.frame)
-        self.scroll = tk.Scrollbar(self.frame)
-        self.text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
-        self.scroll.pack(side=tk.RIGHT, fill=tk.Y)
-        self.frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        self.frame2 = tk.Frame()
-        self.frame2.pack(side=tk.BOTTOM)
-        self.next_button = tk.Button(self.frame2, text='Step')
-        self.next_button.pack(side=tk.RIGHT)
-        self.continue_button = tk.Button(self.frame2, text='Continue')
-        self.continue_button.pack(side=tk.RIGHT)
-
-        self.text.focus_set()
-
-        self.scroll.config(command=self.text.yview)
-        self.text.config(font="Courier 12", yscrollcommand=self.scroll.set)
-        self.next_button.config(command=self.user_unpause)
-        self.continue_button.config(command=self.user_continue)
-
-        self.continued = False
-        self.paused = False
-
-    def display_text(self, s):
-        self.text.insert(tk.END, s)
-        self.text.insert(tk.END, '\n')
-        self.text.yview(tk.END)
-
-    def user_pause(self, s):
-        self.display_text(s)
-        if self.continued:
-            return
-        self.paused = True
-        while self.paused and not self.continued:
-            time.sleep(0.1)
-
-    def user_unpause(self):
-        self.paused = False
-
-    def user_continue(self):
-        self.continued = True
-
-    def quit(self):
-        self.root.quit()
+from text_viewer import TextViewer
 
 viewer = TextViewer()
 
@@ -625,18 +576,21 @@ def get_possible_grounds(world, goal):
     return results
 
 def print_plan(plan):
+    viewer.display_text('Plan:')
+    viewer.display_text('')
     for x in plan:
-        print x
+        viewer.display_text(x.simple_str())
+        print ' '.join(x.literals)
+    viewer.display_text('')
+    viewer.user_pause('Close the window to execute the plan!')
 
 def run():
     w = create_world(None)
 
     # Did someone start us at the goal?
     already_solved = w.goal_reached()
-    print "Goal already solved? {0}".format(already_solved)
 
     if not already_solved:
-        print "Solving..."
         solution = linear_solver(w)
         if solution is None:
             viewer.user_pause("No solution found :(")

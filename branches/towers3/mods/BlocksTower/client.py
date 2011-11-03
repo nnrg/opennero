@@ -17,19 +17,19 @@ def CreateGui(guiMan):
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")
 
-    towerButton1 = gui.create_button(guiMan, 'tower1', Pos2i(0,0), Pos2i(150,30), '')
+    towerButton1 = gui.create_button(guiMan, 'tower1', Pos2i(0,0), Pos2i(250,30), '')
     towerButton1.text = 'Towers of Hanoi via recursive solver'
     towerButton1.OnMouseLeftClick = lambda: getMod().start_tower1()
 
-    towerButton2 = gui.create_button(guiMan, 'tower2', Pos2i(0,30), Pos2i(150,30), '')
+    towerButton2 = gui.create_button(guiMan, 'tower2', Pos2i(0,30), Pos2i(250,30), '')
     towerButton2.text = 'Towers of Hanoi via search'
     towerButton2.OnMouseLeftClick = lambda: getMod().start_tower2()
 
-    towerButton3 = gui.create_button(guiMan, 'tower3', Pos2i(0,60), Pos2i(150,30), '')
+    towerButton3 = gui.create_button(guiMan, 'tower3', Pos2i(0,60), Pos2i(250,30), '')
     towerButton3.text = 'Towers of Hanoi via STRIPS planning'
     towerButton3.OnMouseLeftClick = lambda: getMod().start_tower3()
 
-    agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(150, 120), 'Agent')
+    agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(250, 120), 'Agent')
     agentWindow.addChild(towerButton1)
     agentWindow.addChild(towerButton2)
     agentWindow.addChild(towerButton3)
