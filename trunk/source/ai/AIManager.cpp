@@ -37,6 +37,18 @@ namespace OpenNero
         mEnabled = state;
     }
 
+    /// get the currently selected AI Environment
+    EnvironmentPtr AIManager::GetEnvironment() const { return mEnvironment; }
+
+    /// set the currently selected AI Environment
+    void AIManager::SetEnvironment(EnvironmentPtr env) { 
+        if (mEnvironment) {
+            mEnvironment->cleanup();
+            mEnvironment.reset();
+        }
+        mEnvironment = env;
+    }
+
     /// Shutdown and clean-up the AI subsystem
     void AIManager::destroy()
     {

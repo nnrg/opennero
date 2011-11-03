@@ -38,10 +38,10 @@ namespace OpenNero
         void ProcessTick( float32_t incAmt );
 
         /// get the currently selected AI Environment
-        EnvironmentPtr GetEnvironment() const { return mEnvironment; }
+        EnvironmentPtr GetEnvironment() const;
 
         /// set the currently selected AI Environment
-        void SetEnvironment(EnvironmentPtr env) { mEnvironment = env; }
+        void SetEnvironment(EnvironmentPtr env);
 
         /// get the named AI instance if available
         AIPtr GetAI(const std::string& name) const;
