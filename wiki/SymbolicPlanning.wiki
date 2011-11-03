@@ -102,7 +102,7 @@ possible plans and gives up.
 
 This approach allows solving the 2-disk task, but it fails on three or more disks (it gets into an infinite loop; see "Next Steps"). One way to solve it is to consider all potential plans systematically, as is done in state-space search.
 
-<wiki:video url="http://www.youtube.com/watch?v=wQ_GVEl0QZk/">
+<wiki:video url="http://www.youtube.com/watch?v=THaH9kBve2c">
 
 ==State-Space Search==
 
@@ -121,7 +121,7 @@ is a very inefficient method. Also, since it stops as soon as the goal
 is achieved, it may come up with a plan with extra actions. The
 problem reduction search is more effective in this case.
 
-<wiki:video url="http://www.youtube.com/watch?v=THaH9kBve2c">
+<wiki:video url="http://www.youtube.com/watch?v=wQ_GVEl0QZk/">
 
 
 
