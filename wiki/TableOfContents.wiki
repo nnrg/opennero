@@ -6,6 +6,8 @@
      * [FirstPersonSearch Introduction: First Person Search]
      * [BruteForceSearch Uninformed Search]
      * [HeuristicSearch Heuristic Search]
+   * Planning
+     * [SymbolicPlanning Symbolic Planning]
    * Reinforcement Learning
      * [QLearning Q-Learning]
    * Evolutionary Computation
