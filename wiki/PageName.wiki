@@ -1,0 +1,87 @@
+#summary Extending Planning Methods
+#sidebar TableOfContents
+
+= Extending Planning Methods =
+
+In this exercise, you will implement extensions to each of the three planning methods in the [Planning Planning demo] to make them more general and effective.
+
+==The OpenNERO Platform==
+
+The following steps should help get you up and running in OpenNERO:
+
+  * Either:
+    * Install it on your own machine by downloading one of the [http://code.google.com/p/opennero/downloads/list prebuilt binaries]
+    * [BuildingOpenNero Build OpenNERO] on your own machine using the source code.
+
+==Creating your agent==
+
+To create your extended planning agent, open the
+[http://code.google.com/p/opennero/source/browse/trunk/mods/BlocksTower/agent.py
+agent.py] file (located in `trunk/mods/BlocksTower`).  Create a new
+class called `MyPlanningAgent` by copying the existing
+`PlanningAgent`.
+
+
+==Making the Problem Reduction Planner More General==
+
+In the current implementation of the problem reduction planner (class
+`ProblemReductionAgent`) the problem decomposition is hand-coded using
+domain knowledge, i.e. the fact that smaller disks need to be moved
+out of the way first before a larger disk can be moved.
+
+A more principled approach will be based on means-ends analysis,
+i.e. identifying the differences between the current state of the plan
+and the goal state, and specifying the operators that reduce those
+differences. This analysis takes a form of a table where actions are
+the rows and differences are the columns, and entries in the table
+cells indicate which operature reduces which difference. The
+differences are ordered from the smallest to the largest, so that the
+table becomes triangular.
+
+Your assignment is to use this table to decide how to do the problem
+decomposition systematically. That is, you identify reducing the largest
+difference as one subproblem; before you can reduce it, you have to
+satisfy its preconditions, which becomes another subproblem. Then you
+have to satisfy the next largest remaining difference, creating
+another subproblem, and so on. In the end, this analysis should result
+in a problem reduction similar to the one currently coded by hand.
+
+==Generating Optimal Plans with State-Space Search==
+
+The current implementation uses depth-first search, which results in
+minimal memory requirements, but requires a depth cutoff. As a result,
+it is possible for the planner to find action sequences that find the
+goal, but include unnecessary steps.
+
+The solution is to implement iterative deepening in the cutoff,
+similar to that in the [SearchExercise search exercise]. That is, the
+planner first runs with the cutoff of 1, i.e. trying to get to the
+goal state in one action. If that is unsuccessful, the cutoff is
+increased to 2, and the planner is run again (from scratch). The
+cutoff is increased one level at a time until a solution is found. It
+is then guaranteed to be minimal (optimal) plan.
+
+==Nonlinear Planning===
+
+The Goal-Stack planner is linear, i.e. it adds actions to the plan in
+a linear order as soon as they are found. In many cases there are
+interactions between the actions such that a later action clobbers a
+goal that was already achieved earlier. Goal reintroduction allows
+fixing such a "clobbered" goal again, which makes it possible to solve
+e.g. the 2-disk problem. However, the planner still fails in the
+3-disk case, by getting into an infinite loop of clobbering goals and
+reintroducting them.
+
+Your assignment is to find a solution to this problem. Hint: you can
+make the planner nonlinear in that you do not establish an ordering
+between the actions unless you determine that one has to precede
+another. The planner therefore results in a partially ordered plan; in
+the end you establish total order (arbitrarily).
+
+==Debugging==
+
+If you run into any bugs in your program, you can find the error log file for OpenNERO at one of the following locations:
+
+  * *Linux or Mac:* `~/.opennero/nero_log.txt`
+  * *Windows:* `"AppData\Local\OpenNERO\nero_log.txt"` or `"Local Settings\Appl\
+ication Data\OpenNERO\nero_log.txt"` depending on the version of Windows you have.
