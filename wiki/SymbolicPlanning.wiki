@@ -51,25 +51,33 @@ methods with a small number of disks, and you can evaluate how well
 they might scale up to the full task.
 
 In all three methods, the initial state is expressed in a logical form
-as<br>
-(ON disk1 pole1) &and; <br>
-(ON disk2 disk1) &and;<br>
-(ON disk3 disk2) &and;<br>
-(CLEAR disk3) &and;<br>
-(CLEAR pole2) &and;<br>
+as
+
+{{{
+(ON disk1 pole1) &
+(ON disk2 disk1) &
+(ON disk3 disk2) &
+(CLEAR disk3) &
+(CLEAR pole2) &
 (CLEAR pole3)
+}}}
+
 and the goal state as
-(ON disk1 pole3) &and;<br>
-(ON disk2 disk1) &and;<br>
+{{{
+(ON disk1 pole3) &
+(ON disk2 disk1) &
 (ON disk3 disk2)
+}}}
 
 The actions are defined through a set of preconditions and
 postconditions, e.g.
-(MOVE disk1 x y)<br>
-Preconditions:  (CLEAR disk1) &and; (ON disk1 x) &and; (CLEAR y) &and; (&lt; disk1 y)<br>
-Postconditions: <br>
-add (CLEAR x), (ON disk1 y)<br>
-delete (CLEAR y), (ON disk1 x)<br>
+{{{
+(MOVE disk1 x y)
+Preconditions:  (CLEAR disk1) & (ON disk1 x) & (CLEAR y) & (< disk1 y)
+Postconditions:
+add (CLEAR x), (ON disk1 y)
+delete (CLEAR y), (ON disk1 x)
+}}}
 
 Planning consists of finding a sequence of actions that transforms the
 initial state to the goal state. Three methods for doing so are
