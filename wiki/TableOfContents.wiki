@@ -23,7 +23,7 @@
     * [QLearningExercise]
     * MazeLearnerExercise
     * AdvancedMazeExercise
-    * PlanningExcercise
+    * PlanningExercise
  * [RunningOpenNero Running]
    * [MazeMod The Maze mod]
    * [BlocksWorldMod Blocks World mod]
