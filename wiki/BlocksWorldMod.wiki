@@ -19,10 +19,10 @@ In the Planning demo:
   * Size of disks - indicates which disk can be placed on which other disks (smaller on larger)
 
 The text window
-  * Run - run the planning process continuously
-  * Pause - pause the planning process temporarily
-  * Step - advance the planning process one step
   * text - log output of the planning process, with final plan in the end
+  * Next Stop - advance the planning algorithm to its next logical step
+  * Skip Rest - skip the rest of the pauses and run the algorithm to completion
+  * Close Window - close the window to get back to OpenNERO and execute the resulting plan
 
 == Controls ==
 
@@ -45,13 +45,7 @@ The keyboard controls allow moving around in the environment:
 
 ==User Interface==
 
-The pull-down menu lists the different planning methods and problems:
+There are three agent type buttons that start the demonstration of the three planning algorithms:
+  * *Problem reduction* - Hierarchical planning through problem decomposition
   * *Goal Stacking* - STRIPS-like linear search (depth first, with goal reintroduction)
   * *State-space search* - Systematic forward search (depth first)
-  * *Problem reduction* - Hierarchical planning through problem decomposition
-
-The control panel includes additional controls:
-  * *The Speedup Slider* - this slider controls the tradeoff between displaying the simulation slowly enough to see robot animations and movements, and as quickly as the computer running OpenNERO can handle it.
-  * *Pause/Continue* - Pause will temporarily suspend the execution of the algorithm; the button changes to *Continue* and hitting it will resume execution.
-  * *Start/Reset* - Start will begin running the selected algorithm; the button changes to Reset and hitting it will terminate the algorithm.
-  * *Help* - will get you to this page.
