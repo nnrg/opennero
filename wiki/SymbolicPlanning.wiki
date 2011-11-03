@@ -1,4 +1,5 @@
 #summary A demonstration of symbolic planning methods in OpenNERO
+#labels Demo
 #sidebar TableOfContents
 
 #summary Planning Demo
@@ -68,8 +69,7 @@ and the goal state as
 The actions are defined through a set of preconditions and
 postconditions, e.g.
 (MOVE disk1 x y)<br>
-Preconditions:  (CLEAR disk1) &and; (ON disk1 x) &and; (CLEAR y) &and; (&lt; di\
-sk1 y)<br>
+Preconditions:  (CLEAR disk1) &and; (ON disk1 x) &and; (CLEAR y) &and; (&lt; disk1 y)<br>
 Postconditions: <br>
 add (CLEAR x), (ON disk1 y)<br>
 delete (CLEAR y), (ON disk1 x)<br>
@@ -128,16 +128,14 @@ scale up to large numbers of disks (upto 5 are shown in this demo).
 ==Source Code==
 
 The source code for the planning methods is in
-[http://code.google.com/p/opennero/source/browse/trunk/mods/BlocksTower/agent.p\
-y
+[http://code.google.com/p/opennero/source/browse/trunk/mods/BlocksTower/agent.py
 agent.py].  The goal-stack planner is implemented in the
 `GoalStackAgent` class, state-space search in the `StateSpaceAgent`
 class, and problem reduction planner in the `ProblemReductionAgent`
 class. See SystemOverview for a general description of how agents
 work.
 
-The initial and goal states and the operators are specified in [http://code.goo\
-gle.com/p/opennero/source/browse/trunk/mods/BlocksTower/problem.py problem.py].
+The initial and goal states and the operators are specified in [http://code.google.com/p/opennero/source/browse/trunk/mods/BlocksTower/problem.py problem.py].
 You can change these definitions to explore different versions of the
 problem.
 
