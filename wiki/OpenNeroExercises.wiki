@@ -5,7 +5,6 @@ This page will list exercises for using OpenNERO to learn more about Artificial 
 
 Extending OpenNERO
  * RunningOpenNeroExercise - Introduction and getting started. Makes sure that everyone knows how to run OpenNERO and how to modify its parts and where to find its output.
- * PlanningExercise - Modify the existing planning methods to make them more effective.
  * AddingStuffExercise - The point of OpenNERO is that you can make new games and new experiments with it. In this exercise you will add a landscape, an object, and an agent to OpenNERO.
  * CreateRoombaAgentExercise - Once we add an agent, we have to program it. Traditionally this is done by writing a script that describes what the agent does. In this exercise, you will write a script for a virtual vacuum cleaner that cleans the floor of a messy computer lab.
  * MazeGeneratorExercise - Games are all about puzzles. In this exercise, you are asked to come up with a bunch of puzzles for our agents to solve. See how hard you can make them!
@@ -13,6 +12,7 @@ Extending OpenNERO
 
 AI Exercises
  * HeuristicSearchExercise - Modify existing DFS and `A*` algorithms in the Maze environment to implement Iterative-Deepening `A*` (`IDA`).
+ * PlanningExercise - Modify the existing planning methods to make them more effective.
  * [QLearningExercise] - Modify the existing Q-learning agent to utilize a simple function approximator, in order to scale it to a more continuous state space.
  * MazeLearnerExercise - Modern AI is all about _machine learning_ - algorithms that improve with experience. This exercise will introduce you to ways of running, comparing, and writing learning algorithms in OpenNERO.
  * AdvancedMazeExercise - Write a creative learning algorithm to produce maze solutions.
