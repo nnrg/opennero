@@ -121,7 +121,7 @@ is a very inefficient method. Also, since it stops as soon as the goal
 is achieved, it may come up with a plan with extra actions. The
 problem reduction search is more effective in this case.
 
-<wiki:video url="http://www.cs.utexas.edu/users/risto/statespace.mov">
+<wiki:video url="http://www.youtube.com/watch?v=THaH9kBve2c">
 
 
 
@@ -135,7 +135,7 @@ which results in a more effective and scalable planning process. The
 plan is found with minimal backtracking, the plans are optimal, and
 scale up to large numbers of disks (upto 5 are shown in this demo).
 
-<wiki:video url="http://www.cs.utexas.edu/users/risto/problemreduction.mov">
+<wiki:video url="http://www.youtube.com/watch?v=fIhBxcaJQt0">
 
 ==Source Code==
 
