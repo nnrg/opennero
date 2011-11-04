@@ -16,25 +16,27 @@ class RecursiveSolver(TextViewer):
         self.num_towers = 3
 
     def move(self, frm, to):
-        if frm == 'a' and to == 'b': return self.atob
-        if frm == 'a' and to == 'c': return self.atoc
-        if frm == 'b' and to == 'a': return self.btoa
-        if frm == 'b' and to == 'c': return self.btoc
-        if frm == 'c' and to == 'a': return self.ctoa
-        if frm == 'c' and to == 'b': return self.ctob
+        if frm == 'Pole1' and to == 'Pole2': return self.atob
+        if frm == 'Pole1' and to == 'Pole3': return self.atoc
+        if frm == 'Pole2' and to == 'Pole1': return self.btoa
+        if frm == 'Pole2' and to == 'Pole3': return self.btoc
+        if frm == 'Pole3' and to == 'Pole1': return self.ctoa
+        if frm == 'Pole3' and to == 'Pole2': return self.ctob
 
     def dohanoi(self, n, to, frm, using):
         if n == 0: return []
         level = self.num_towers - n
         prefix = ''.join(['   ' for i in range(level)])
         self.display_text(prefix + "At level {0} goal is to move {1} disks from pole {2} to pole {3}".format(level, n, frm, to))
-        self.display_text(prefix + "Decomposing the problem:")
-        self.display_text(prefix + "Move {0} disks from pole {1} to pole {2}".format(n-1, frm, using))
-        self.display_text(prefix + "Then move remaining disk from pole {0} to pole {1}".format(frm, to))
-        self.display_text(prefix + "Then move {0} disks from pole {1} to pole {2}".format(n-1, using, frm))
-        self.display_text(prefix + "Recursing on each subproblem...")
-        self.user_pause('')
+        if n > 1:
+            self.display_text(prefix + "Decomposing the problem:")
+            self.display_text(prefix + "Move {0} disks from pole {1} to pole {2}".format(n-1, frm, using))
+            self.display_text(prefix + "Then move remaining disk from pole {0} to pole {1}".format(frm, to))
+            self.display_text(prefix + "Then move {0} disks from pole {1} to pole {2}".format(n-1, using, frm))
+            self.display_text(prefix + "Recursing on each subproblem...")
+            self.user_pause('')
         actions1 = self.dohanoi(n-1, using, frm, to)
+        self.display_text(prefix + "\tADD ACTION: move remaining disk from {0} to {1}".format(frm, to))
         actions2 = self.move(frm, to)
         actions3 = self.dohanoi(n-1, to, using, frm)
         plan = actions1 + actions2 + actions3
@@ -49,7 +51,7 @@ class RecursiveSolver(TextViewer):
         self.user_pause('Starting to Solve!')
         for a in self.init_queue:
             yield a
-        for a in self.dohanoi(3, 'b', 'a', 'c'):
+        for a in self.dohanoi(3, 'Pole2', 'Pole1', 'Pole3'):
             yield a
         self.user_pause('Problem Solved! Please close the window to continue!')
         for a in self.end_queue:
