@@ -1,11 +1,17 @@
+#include <cfloat>
+#include <vector>
+#include <algorithm>
+#include <iostream>
+
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/serialization/export.hpp>
+
 #include "core/Common.h"
 #include "math/Random.h"
 #include "Approximator.h"
 #include "ai/AI.h"
 #include "TD.h"
-#include <cfloat>
-#include <vector>
-#include <algorithm>
 
 namespace OpenNero
 {
@@ -14,9 +20,6 @@ namespace OpenNero
     bool TDBrain::initialize(const AgentInitInfo& init)
     {
         mInfo = init;
-
-        action_bins = 3;
-        state_bins = 5;
 
         // Similar to FeatureVectorInfo::enumerate (from AI.cpp).
         //
@@ -189,4 +192,23 @@ namespace OpenNero
         return true;
     }
 
+    /// serialize this brain to a text string
+    std::string TDBrain::to_string() const
+    {
+        std::ostringstream oss;
+        boost::archive::text_oarchive oa(oss);
+        oa << *this;
+        return oss.str();
+    }
+
+    /// deserialize this brain from a text string
+    void TDBrain::from_string(const std::string& s)
+    {
+        std::istringstream iss(s);
+        boost::archive::text_iarchive ia(iss);
+        ia >> *this;
+    }
 }
+
+BOOST_CLASS_EXPORT(OpenNero::TDBrain)
+

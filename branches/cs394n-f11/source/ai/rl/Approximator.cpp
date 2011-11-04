@@ -1,3 +1,5 @@
+#include <boost/serialization/export.hpp>
+
 #include "core/Common.h"
 #include "math/Random.h"
 #include "Approximator.h"
@@ -60,12 +62,10 @@ namespace OpenNero
         , mAlpha(0.1f)
         , ints_index()
         , floats_index()
-        , num_tilings(32)
-        , num_weights(1024)
-        , ints(NULL)
-        , floats(NULL)
-        , tiles(NULL)
-        , weights(NULL)
+        , ints()
+        , floats()
+        , tiles()
+        , weights()
     {
         LOG_F_DEBUG("ai", "TilesApproximator( "  << info << " )");
         size_t num_sensors = info.sensors.size();
@@ -93,11 +93,11 @@ namespace OpenNero
             }
         }
         Assert(floats_index.size() + ints_index.size() == num_sensors + num_actions);
-        ints = new int[ints_index.size()];
-        floats = new float[floats_index.size()];
-        tiles = new int[num_tilings];
-        weights = new float[num_weights];
-        for (size_t i = 0; i < num_weights; ++i)
+        ints.resize(ints_index.size());
+        floats.resize(floats_index.size());
+        tiles.resize(32);
+        weights.resize(1024);
+        for (size_t i = 0; i < weights.size(); ++i)
         {
             weights[i] = RANDOM.normalF(0,1);
         }
@@ -108,29 +108,15 @@ namespace OpenNero
         , mAlpha(a.mAlpha)
         , ints_index(a.ints_index)
         , floats_index(a.floats_index)
-        , num_tilings(a.num_tilings)
-        , num_weights(a.num_weights)
-        , ints(NULL)
-        , floats(NULL)
-        , tiles(NULL)
-        , weights(NULL)
+        , ints(a.ints)
+        , floats(a.floats)
+        , tiles(a.tiles)
+        , weights(a.weights)
     {
-        ints = new int[ints_index.size()];
-        memcpy(ints, a.ints, ints_index.size() * sizeof(int));
-        floats = new float[floats_index.size()];
-        memcpy(floats, a.floats, floats_index.size() * sizeof(float));
-        tiles = new int[num_tilings];
-        memcpy(tiles, a.tiles, num_tilings * sizeof(int));
-        weights = new float[num_weights];
-        memcpy(weights, a.weights, num_weights * sizeof(float));
     }
 
     TilesApproximator::~TilesApproximator()
     {
-        SAFE_DELETE_ARRAY(ints);
-        SAFE_DELETE_ARRAY(floats);
-        SAFE_DELETE_ARRAY(tiles);
-        SAFE_DELETE_ARRAY(weights);
     }
 
     /// convert feature vector into tiles
@@ -164,7 +150,7 @@ namespace OpenNero
             }
         }
         // convert the input values to tiles
-        GetTiles(tiles, num_tilings, num_weights, floats, floats_index.size(), ints, ints_index.size());
+        GetTiles(tiles, weights.size(), floats, ints);
     }
     
     /// @param observation sensor vector
@@ -173,7 +159,7 @@ namespace OpenNero
     {
         to_tiles(observation, action);
         double result=0.0;
-        for (size_t i = 0; i < num_tilings; ++i) 
+        for (size_t i = 0; i < tiles.size(); ++i) 
         {
             result += weights[tiles[i]];
         }
@@ -188,9 +174,13 @@ namespace OpenNero
     {
         double x = predict(observation, action);
         // then, adapt weights towards the prediction
-        for (size_t i = 0; i < num_tilings; ++i) 
+        for (size_t i = 0; i < tiles.size(); ++i) 
         {
-            weights[tiles[i]] += (float)(mAlpha/num_tilings * (target - x));
+            weights[tiles[i]] += (float)(mAlpha / tiles.size() * (target - x));
         }
     }
 }
+
+BOOST_CLASS_EXPORT(OpenNero::Approximator)
+BOOST_CLASS_EXPORT(OpenNero::TableApproximator)
+BOOST_CLASS_EXPORT(OpenNero::TilesApproximator)
