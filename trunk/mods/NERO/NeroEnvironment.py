@@ -302,7 +302,7 @@ class NeroEnvironment(OpenNero.Environment):
         R[constants.FITNESS_STAND_GROUND] = -action[0]
         if ff[0]:
             d = self.distance(self.get_state(ff[0]).pose, state.pose)
-            R[constants.FITNESS_STAND_GROUND] = -d*d
+            R[constants.FITNESS_STICK_TOGETHER] = -d*d
         if ff[1]:
             d = self.distance(self.get_state(ff[1]).pose, state.pose)
             R[constants.FITNESS_APPROACH_ENEMY] = -d*d
