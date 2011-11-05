@@ -2,11 +2,14 @@ import fileinput
 import re
 import sys
 import Tkinter as tk
+import time
 from text_viewer import TextViewer
 
 viewer = None
 if __name__ == "__main__":
-    viewer = TextViewer()
+    root = tk.Tk()
+    root.title('STRIPS linear planner')
+    viewer = TextViewer(root)
 
 def join_list(l):
     return ", ".join([str(s) for s in l])
@@ -587,6 +590,8 @@ def print_plan(plan):
     viewer.user_pause('Close the window to execute the plan!')
 
 def run():
+    time.sleep(0.1)
+    
     w = create_world(None)
 
     # Did someone start us at the goal?
@@ -602,7 +607,8 @@ def run():
 
 def main():
     import threading
-    worker = threading.Thread(target=run)
+    worker = threading.Thread(target=run)\
+    worker.daemon = 
     worker.start()
     tk.mainloop()
     worker.join()
