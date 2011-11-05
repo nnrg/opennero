@@ -591,7 +591,7 @@ def print_plan(plan):
 
 def run():
     time.sleep(0.1)
-    
+
     w = create_world(None)
 
     # Did someone start us at the goal?
@@ -607,8 +607,8 @@ def run():
 
 def main():
     import threading
-    worker = threading.Thread(target=run)\
-    worker.daemon = 
+    worker = threading.Thread(target=run)
+    worker.daemon = True
     worker.start()
     tk.mainloop()
     worker.join()
