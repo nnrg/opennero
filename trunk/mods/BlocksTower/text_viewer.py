@@ -1,48 +1,86 @@
 import Tkinter as tk
 import time
+import threading
+import Queue
 
-class TextViewer:
-    def __init__(self, title = 'STRIPS planner output'):
-        self.root = tk.Tk()
-        self.root.title(title)
-        self.frame = tk.Frame()
-        self.text = tk.Text(self.frame)
-        self.scroll = tk.Scrollbar(self.frame)
+class TextViewer(tk.Frame):
+    def __init__(self, master, **options):
+        tk.Frame.__init__(self, master, **options)
+        self.fTop = tk.Frame(self)
+
+        self.text = tk.Text(self.fTop)
         self.text.pack(side=tk.LEFT, fill=tk.BOTH, expand=True)
+
+        self.scroll = tk.Scrollbar(self.fTop)
         self.scroll.pack(side=tk.RIGHT, fill=tk.Y)
-        self.frame.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
-        self.frame2 = tk.Frame()
-        self.frame2.pack(side=tk.BOTTOM)
-        self.continue_button = tk.Button(self.frame2, text='Skip Rest')
+
+        self.text.config(font="Courier 12", yscrollcommand=self.scroll.set)
+        self.scroll.config(command=self.text.yview)
+        
+        self.fTop.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
+
+        self.fBottom = tk.Frame(self)
+
+        self.continue_button = tk.Button(self.fBottom, text='Skip Rest')
+        self.continue_button.config(command=self.user_continue)
         self.continue_button.pack(side=tk.RIGHT)
-        self.next_button = tk.Button(self.frame2, text='Next Step')
+
+        self.next_button = tk.Button(self.fBottom, text='Next Step')
+        self.next_button.config(command=self.user_unpause)
         self.next_button.pack(side=tk.RIGHT)
 
-        self.text.focus_set()
+        self.fBottom.pack(side=tk.BOTTOM)
+        
+        self.paused = tk.BooleanVar()
+        self.paused.set(False)
 
-        self.scroll.config(command=self.text.yview)
-        self.text.config(font="Courier 12", yscrollcommand=self.scroll.set)
-        self.next_button.config(command=self.user_unpause)
-        self.continue_button.config(command=self.user_continue)
+        self.continued = tk.BooleanVar()
+        self.continued.set(False)
 
-        self.continued = False
-        self.paused = False
+        self.bind('<<display-text>>', self.display_text_handler)
+        self.bind('<<user-pause>>', self.user_pause_handler)
+        
+        self.message = Queue.Queue()
+        self.callback = Queue.Queue() # wait on items in this queue to continue
+        
+        self.pack(fill=tk.BOTH, expand=True)
 
     def display_text(self, s):
+        self.message.put(s)
+        self.event_generate('<<display-text>>')
+
+    def display_text_handler(self, event=None):
+        s = self.message.get()
         self.text.insert(tk.END, s)
         self.text.insert(tk.END, '\n')
         self.text.yview(tk.END)
 
     def user_pause(self, s):
         self.display_text(s)
-        if self.continued:
-            return
-        self.paused = True
-        while self.paused and not self.continued:
-            time.sleep(0.1)
+        self.event_generate('<<user-pause>>')
+        # blocks until the callback queue is filled
+        self.callback.get()
 
+    def user_pause_handler(self, event=None):
+        if self.continued.get():
+            self.callback.put('go ahead')
+        # now check back every now and then until 
+        self.paused.set(True)
+        self.after(100, self.check_if_unpaused)
+
+    def check_if_unpaused(self, event=None):
+        if self.continued.get() or not self.paused.get():
+            self.callback.put('go ahead 2')
+        else:
+            self.after(100, self.check_if_unpaused)
+ 
     def user_unpause(self):
-        self.paused = False
+        self.paused.set(False)
 
     def user_continue(self):
-        self.continued = True
+        self.paused.set(False)
+        self.continued.set(True)
+
+if __name__ == "__main__":
+    viewer = TextViewer()
+    tk.mainloop()
