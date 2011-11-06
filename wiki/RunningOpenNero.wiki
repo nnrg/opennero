@@ -1,9 +1,29 @@
 #summary This page describes how to run OpenNERO starting from the binary distribution or from a custom build.
 #sidebar TableOfContents
 
+= Requirements =
+
+In order to run OpenNERO on your platform you may need to install Python and wxPython.
+
+== On Windows, ==
+
+Download and install [http://www.python.org/getit/ Python 2.7.2 (win32)] and [http://www.wxpython.org/download.php wxPython] (required for the NERO mod).
+
+== On Mac OS X, ==
+
+Python is already installed. Download and install the wxPython binary for your platform (required for the NERO mod).
+
+== On Linux, ==
+
+If you do not have python installed, install it using your package manager. To do so on Ubuntu Linux, use:
+
+{{{
+sudo apt-get install python python-wxgtk2.8
+}}}
+
 = Introduction =
 
-OpenNERO consists of a the core program and a collection of one or more *mods*. A mod is a logically separate unit of OpenNERO that can be a custom game, an AI experiment, or both. Each mod is defined as a directory next to the application. When you start OpenNERO, it shows a menu with existing mods and an option to exit. Currently, the following mods are included:
+OpenNERO consists of the core program and a collection of one or more *mods*. A mod is a logically separate unit of OpenNERO that can be a custom game, an AI experiment, or both. Each mod is defined as a directory next to the application. When you start OpenNERO, it shows a menu with existing mods and an option to exit. Currently, the following mods are included:
   * [MazeMod Maze] - a simple maze world on an island, with search, learning and first-person agents.
   * [BlocksWorldMod Blocks World] - a classic AI problem for planning and natural language understanding.
   * [RoombaMod Roomba] - a messy computer lab which gets cleaner with the help of some cleaning robots.
