@@ -16,6 +16,8 @@ http://imgur.com/JzFXr.png
   * *E* - Rotate Right
   * *R* - Rotate Up
   * *F* - Rotate Down
+  * *F1* - Go to this page for help
+  * *F2* - Cycle through useful stats that can be displayed above each agent, including their rtNEAT genome id, time on the field, and so on.
 
 ==What the Display Means==
   * *People* - Agents. Depending on their spawn point they are of one of two populations of agents
