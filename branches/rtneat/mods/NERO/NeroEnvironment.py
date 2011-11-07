@@ -174,9 +174,7 @@ class NeroEnvironment(OpenNero.Environment):
         for f in foes:
             p = foes[f].pose
             fd = self.distance(state.pose, p)
-            fh = 0
-            if fd != 0:
-                fh = abs((math.degrees(math.atan2(p[1] - y, p[0] - x)) - r) % 360)
+            fh = abs(self.angle(state.pose, p)
             if fh <= 2:
                 valids.append((f, fd, fh))
 
@@ -340,9 +338,7 @@ class NeroEnvironment(OpenNero.Environment):
         x /= len(friends)
         y /= len(friends)
         fd = self.distance(state.pose, (x, y))
-        fh = 0
-        if fd != 0:
-            fh = ((math.degrees(math.atan2(y - state.pose[1], x - state.pose[0])) - state.pose[2]) % 360) - 180
+        fh = self.angle(state.pose, (x, y)) + 180.0
         if fd <= 15:
             observations[-3] = fd / 15.0
             observations[-2] = fh / 360.0
@@ -363,6 +359,21 @@ class NeroEnvironment(OpenNero.Environment):
         Returns the distance between positions (x-y tuples) a and b.
         """
         return math.hypot(a[0] - b[0], a[1] - b[1])
+
+    def angle(self, a, b):
+        """
+        Returns the relative angle from a looking towards b, in the interval
+        [-180, +180]. a needs to be a 3-tuple (x, y, heading) and b needs to be
+        an x-y tuple.
+        """
+        if self.distance(a, b) == 0:
+            return 0
+        rh = math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])) - a[2]
+        if rh < -180:
+            rh += 360
+        if rh > 180:
+            rh -= 360
+        return rh
 
     def nearest(self, loc, id, agents):
         """
