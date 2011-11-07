@@ -1076,9 +1076,6 @@ namespace OpenNero {
                 .def("getObjectBBMaxEdge", 
                      &SimContext::GetObjectBBMaxEdge, 
                      "Get the bounding box max edge of an object specified by its id")
-                .def("getActiveCamera",
-                     &SimContext::getActiveCamera,
-                     "Get the current active camera")
                 .def("transformVector", 
                      &SimContext::TransformVector, 
                      "Transform the given vector by the matrix of the object specified by id")
@@ -1122,9 +1119,6 @@ namespace OpenNero {
                 .def("attach", 
                      &Camera::attach, 
                      "Attach to sim object by id" )
-				.def("snapshot",
-					 &Camera::snapshot,
-					 "Take a snapshot of the current screen")
                 ;
         }
 
