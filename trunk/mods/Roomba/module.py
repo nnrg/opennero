@@ -360,7 +360,7 @@ class RoombaEnvironment(OpenNero.Environment):
         pos = (position.x, position.y)
         for crumb in self.crumbs:
             if (crumb.x, crumb.y) in getMod().marker_map:
-                distance = math.sqrt((crumb[0] - pos[0])**2 + (crumb[1] - pos[1])**2)
+                distance = math.hypot(crumb[0] - pos[0], crumb[1] - pos[1])
                 if distance < constants.ROOMBA_RAD:
                     getMod().unmark(crumb.x, crumb.y)
                     reward += crumb.reward
@@ -408,7 +408,7 @@ class RoombaEnvironment(OpenNero.Environment):
                 
                 distx = cube_position[0] - agent.state.position.x
                 disty = cube_position[1] - agent.state.position.y
-                dist = math.sqrt(distx**2 + disty**2)
+                dist = math.hypot(distx, disty)
                 angle = math.degrees(math.atan2(disty, distx)) - agent.state.rotation.z  # range [-360, 360]
                 if angle > 180: angle = angle - 360
                 if angle < -180: angle = angle + 360
@@ -463,7 +463,7 @@ class RoombaEnvironment(OpenNero.Environment):
             sensors[i+1] = pellet.y
             if (pellet.x, pellet.y) in getMod().marker_map:
                 sensors[i+2] = 1
-                distance = math.sqrt( (pellet.x - pos[0]) ** 2 + (pellet.y - pos[1]) ** 2 )
+                distance = math.hypot(pellet.x - pos[0], pellet.y - pos[1])
                 if closest is None or distance < closest_distance:
                     closest = pellet
                     closest_distance = distance
