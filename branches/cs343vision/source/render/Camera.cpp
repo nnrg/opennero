@@ -147,6 +147,19 @@ namespace OpenNero
     {
         setFunctionality(f);
     }
+	
+    void Camera::snapshot(const std::string& filename)
+    {        
+        LOG_F_DEBUG("render", "Taking snapshot!");
+        IImage* img = mIrr.mpVideoDriver->createScreenShot();
+        if(!img)
+            LOG_F_ERROR("render", "Snapshot mage is null!");
+        else {
+            if (!mIrr.mpVideoDriver->writeImageToFile(img, filename.c_str()))
+                LOG_F_ERROR("render", "Could not write snapshot image!");
+            img->drop();
+        }
+    }
     
 	void Camera::setNearPlane( F32 nearPlane )
 	{
