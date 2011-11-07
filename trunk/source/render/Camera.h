@@ -91,6 +91,9 @@ namespace OpenNero
         
         /// detach the camera and switch to the specified functionality
         void detach( Functionality f = kFunc_Nero);
+		
+		/// take a snapshot of whatever the camera is currently seeing
+		void snapshot();
 
         /// output information about the camera to human-readable stream
         friend std::ostream& operator<<(std::ostream& output, const CameraPtr camera);
