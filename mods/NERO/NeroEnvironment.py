@@ -285,21 +285,27 @@ class NeroEnvironment(OpenNero.Environment):
         if not friends:
             return reward #Corner Case
 
-        friend = self.nearest(state.pose, state.id, friends)
-        foe = self.nearest(state.pose, state.id, foes)
-
         #calculate fitness accrued during this step
         R = dict([(f, 0) for f in constants.FITNESS_DIMENSIONS])
+
         R[constants.FITNESS_STAND_GROUND] = -action[0]
+
+        friend = self.nearest(state.pose, state.id, friends)
         if friend:
             d = self.distance(self.get_state(friend).pose, state.pose)
             R[constants.FITNESS_STICK_TOGETHER] = -d*d
+
+        foe = self.nearest(state.pose, state.id, foes)
         if foe:
             d = self.distance(self.get_state(foe).pose, state.pose)
             R[constants.FITNESS_APPROACH_ENEMY] = -d*d
-        d = self.flag_distance(agent)
+
+        f = module.getMod().flag_loc
+        d = self.distance(state.pose, (f.x, f.y))
         R[constants.FITNESS_APPROACH_FLAG] = -d*d
+
         R[constants.FITNESS_HIT_TARGET] = hit
+
         R[constants.FITNESS_AVOID_FIRE] = -damage
 
         # put the fitness dimensions into the reward vector in order
@@ -346,13 +352,6 @@ class NeroEnvironment(OpenNero.Environment):
             observations[-2] += 1
         observations[-1] = int(self.target(agent) is not None)
         return observations
-
-    def flag_distance(self, agent):
-        """
-        Returns the distance of the current agent from the flag
-        """
-        f = module.getMod().flag_loc
-        return self.distance(self.get_state(agent).pose, (f.x, f.y))
 
     def distance(self, a, b):
         """
