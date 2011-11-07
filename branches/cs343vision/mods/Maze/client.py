@@ -69,10 +69,10 @@ def CreateGui(guiMan):
 
     # START/RESET AND PAUSE/CONTINUE AGENT BUTTONS
     x, y = 5, 3 * control_height
-    w, h = (window_width - 15) / 3, control_height - 5
+    w, h = (window_width - 20) / 3, control_height - 5
     ui.startAgentButton = gui.create_button(guiMan, 'startAgentButton', Pos2i(x, y), Pos2i(w, h), '')
     ui.pauseAgentButton = gui.create_button(guiMan, 'pauseAgentButton', Pos2i(x + w + 5, y), Pos2i(w, h), '')
-    ui.snapshotAgentButton = gui.create_button(guiMan, 'snapshotAgentButton', Pos2i(x + w + 10, y), Pos2i(w, h), '')
+    ui.snapshotAgentButton = gui.create_button(guiMan, 'snapshotAgentButton', Pos2i(x + 2*w + 10, y), Pos2i(w, h), '')
     ui.startAgentButton.text = 'Start'
     ui.pauseAgentButton.text = 'Pause'
     ui.snapshotAgentButton.text = 'Snapshot'
@@ -190,7 +190,7 @@ def pauseAgent(ui):
 def snapshot(ui):
     """ return a function that takes a snapshot of the screen """
     def closure():
-        getSimContext().getActiveCamera().snapshot('/tmp/opennero-snapshot.jpg')
+        getSimContext().getActiveCamera().snapshot('~/temp/opennero-snapshot.png')
     return closure
 
 def recenter(cam):
