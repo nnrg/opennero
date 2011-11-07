@@ -69,14 +69,17 @@ def CreateGui(guiMan):
 
     # START/RESET AND PAUSE/CONTINUE AGENT BUTTONS
     x, y = 5, 3 * control_height
-    w, h = (window_width - 15) / 2, control_height - 5
+    w, h = (window_width - 15) / 3, control_height - 5
     ui.startAgentButton = gui.create_button(guiMan, 'startAgentButton', Pos2i(x, y), Pos2i(w, h), '')
     ui.pauseAgentButton = gui.create_button(guiMan, 'pauseAgentButton', Pos2i(x + w + 5, y), Pos2i(w, h), '')
+    ui.snapshotAgentButton = gui.create_button(guiMan, 'snapshotAgentButton', Pos2i(x + w + 10, y), Pos2i(w, h), '')
     ui.startAgentButton.text = 'Start'
     ui.pauseAgentButton.text = 'Pause'
+    ui.snapshotAgentButton.text = 'Snapshot'
     ui.pauseAgentButton.enabled = False
     ui.startAgentButton.OnMouseLeftClick = startAgent(ui)
     ui.pauseAgentButton.OnMouseLeftClick = pauseAgent(ui)
+    ui.snapshotAgentButton.OnMouseLeftClick = snapshot(ui)
 
     # HELP BUTTON
     w, h = (window_width - 15) / 2, control_height - 5
@@ -111,6 +114,7 @@ def CreateGui(guiMan):
     ui.agentWindow.addChild(ui.newMazeButton)
     ui.agentWindow.addChild(ui.startAgentButton)
     ui.agentWindow.addChild(ui.pauseAgentButton)
+    ui.agentWindow.addChild(ui.snapshotAgentButton)
     ui.agentWindow.addChild(ui.helpButton)
     ui.agentWindow.addChild(ui.epsilonLabel)
     ui.agentWindow.addChild(ui.epsilonScroll)
@@ -183,6 +187,12 @@ def pauseAgent(ui):
             disable_ai()
     return closure
 
+def snapshot(ui):
+    """ return a function that takes a snapshot of the screen """
+    def closure():
+        getSimContext().getActiveCamera().snapshot()
+    return closure
+
 def recenter(cam):
     """ return a function that recenters the camera """
     def closure():
@@ -204,6 +214,7 @@ def ClientMain():
     cam.setEdgeScroll(False)
     recenter_cam = recenter(cam) # create a closure to avoid having a global variable
     recenter_cam() # call the recenter function
+    #snapshot_cam = snapshot(cam)
 
     # load the background
     addObject("data/terrain/Sea.xml", Vector3f(-3000 + NUDGE_X,-3000 + NUDGE_Y,-20))
@@ -220,4 +231,5 @@ def ClientMain():
     # create the key binding
     ioMap = createInputMapping()
     ioMap.BindKey( "KEY_SPACE", "onPress", recenter_cam )
+    #ioMap.BindKey( "KEY_P", "onPress", snapshot_cam )
     getSimContext().setInputMapping(ioMap)
