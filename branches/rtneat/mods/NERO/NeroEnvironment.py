@@ -19,8 +19,6 @@ class AgentState:
         self.pose = (0, 0, 0)
         # previous x, y, heading pose
         self.prev_pose = (0, 0, 0)
-        # previous command
-        self.prev_command_pose = None
         # starting position
         self.initial_position = OpenNero.Vector3f(0, 0, 0)
         # starting orientation
@@ -102,7 +100,6 @@ class NeroEnvironment(OpenNero.Environment):
             # TODO: initialization code should be inside AgentState
             state.initial_position.x = module.getMod().spawn_x + dx
             state.initial_position.y = module.getMod().spawn_y + dy
-            agent.prev_command_pose = None
             agent.state.position = copy.copy(state.initial_position)
             agent.state.rotation = copy.copy(state.initial_rotation)
             state.pose = (state.initial_position.x, state.initial_position.y, state.initial_rotation.z)
@@ -319,7 +316,6 @@ class NeroEnvironment(OpenNero.Environment):
         pos = copy.copy(agent.state.position)
         pos.x = new_x
         pos.y = new_y
-        state.prev_command_pose = pos
         agent.state.position = pos
 
         # try to update rotation
