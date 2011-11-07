@@ -2,7 +2,6 @@ import copy
 import math
 import random
 import sys
-import time
 
 import common
 import OpenNero
@@ -115,12 +114,23 @@ class NeroEnvironment(OpenNero.Environment):
         return a blueprint for a new agent
         """
         for a in constants.WALL_RAY_SENSORS:
-            agent.add_sensor(OpenNero.RaySensor(math.cos(math.radians(a)), math.sin(math.radians(a)), 0, 50, constants.OBJECT_TYPE_OBSTACLE, False))
+            agent.add_sensor(OpenNero.RaySensor(
+                    math.cos(math.radians(a)), math.sin(math.radians(a)), 0, 50,
+                    constants.OBJECT_TYPE_OBSTACLE,
+                    False))
         for a0, a1 in constants.FLAG_RADAR_SENSORS:
-            agent.add_sensor(OpenNero.RadarSensor(a0, a1, -90, 90, constants.MAX_VISION_RADIUS, constants.OBJECT_TYPE_FLAG, False))
+            agent.add_sensor(OpenNero.RadarSensor(
+                    a0, a1, -90, 90, constants.MAX_VISION_RADIUS,
+                    constants.OBJECT_TYPE_FLAG,
+                    False))
         for a0, a1 in constants.ENEMY_RADAR_SENSORS:
-            if agent.get_team() == 0: agent.add_sensor(OpenNero.RadarSensor(a0, a1, -90, 90, constants.MAX_VISION_RADIUS, constants.OBJECT_TYPE_TEAM_1, False))
-            if agent.get_team() == 1: agent.add_sensor(OpenNero.RadarSensor(a0, a1, -90, 90, constants.MAX_VISION_RADIUS, constants.OBJECT_TYPE_TEAM_0, False))
+            sense = constants.OBJECT_TYPE_TEAM_0
+            if agent.get_team() == 0:
+                sense = constants.OBJECT_TYPE_TEAM_1
+            agent.add_sensor(OpenNero.RadarSensor(
+                    a0, a1, -90, 90, constants.MAX_VISION_RADIUS,
+                    sense,
+                    False))
         return self.agent_info
 
     def get_state(self, agent):
@@ -135,16 +145,6 @@ class NeroEnvironment(OpenNero.Environment):
                 self.teams[agent.get_team()] = {}
             self.teams[agent.get_team()][agent] = self.states[agent]
             return self.states[agent]
-
-    def getStateId(self, id):
-        """
-        Searches for the state with the given ID
-        """
-        for state in self.states:
-            if id == self.states[state].id:
-                return self.states[state]
-        else:
-            return - 1
 
     def getFriendFoe(self, agent):
         """
@@ -226,13 +226,6 @@ class NeroEnvironment(OpenNero.Environment):
         damage = state.curr_damage
         state.curr_damage = 0
 
-        #Fitness Function Parameters
-        # TODO: make these less opaque
-        distance_st = module.getMod().dta
-        distance_ae = module.getMod().dtb
-        distance_af = module.getMod().dtc
-        friendly_fire = module.getMod().ff
-
         # the position and the rotation of the agent on-screen
         position = copy.copy(agent.state.position)
         rotation = copy.copy(agent.state.rotation)
@@ -259,19 +252,15 @@ class NeroEnvironment(OpenNero.Environment):
         new_x = x + constants.MAX_MOVEMENT_SPEED * math.cos(math.radians(new_heading)) * move_by
         new_y = y + constants.MAX_MOVEMENT_SPEED * math.sin(math.radians(new_heading)) * move_by
 
-        # figure out the firing location
-        fire_x = x + self.MAX_DIST * math.cos(math.radians(new_heading))
-        fire_y = y + self.MAX_DIST * math.sin(math.radians(new_heading))
-
-        # draw the line of fire
-        fire_pos = copy.copy(position)
-        fire_pos.x, fire_pos.y = fire_x, fire_y
-
         # calculate if we hit anyone
         hit = 0
         data = self.target(agent)
         if data != None:#len(data) > 0:
-            objects = OpenNero.getSimContext().findInRay(position, data.state.position, constants.OBJECT_TYPE_OBSTACLE | constants.OBJECT_TYPE_TEAM_0 | constants.OBJECT_TYPE_TEAM_1, True)
+            objects = OpenNero.getSimContext().findInRay(
+                    position,
+                    data.state.position,
+                    constants.OBJECT_TYPE_OBSTACLE | constants.OBJECT_TYPE_TEAM_0 | constants.OBJECT_TYPE_TEAM_1,
+                    True)
             if len(objects) > 0: sim = objects[0]
             else: sim = data
             if len(objects) == 0 or objects[0] == sim:
