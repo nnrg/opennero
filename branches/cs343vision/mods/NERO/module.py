@@ -98,6 +98,9 @@ class NeroModule:
     def place_basic_turret(self, loc):
         common.addObject("data/shapes/character/steve_basic_turret.xml",OpenNero.Vector3f(loc[0],loc[1],loc[2]),type = constants.OBJECT_TYPE_TEAM_1)
 
+    def control_fps(self,key):
+        FirstPersonAgent.key_pressed = key
+
     #The following is run when the Deploy button is pressed
     def start_rtneat(self):
         """ start the rtneat learning stuff"""

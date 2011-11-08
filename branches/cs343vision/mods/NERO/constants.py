@@ -18,6 +18,16 @@ DEFAULT_LIFETIME = 200
 # default speedup setting (there will be a 0.1 * 80 / 100 second delay between AI steps)
 DEFAULT_SPEEDUP = 80
 
+
+# continuous environment
+GRID_DX = 20.0 # x-dimension of the grid world
+CONT_MAZE_TURN_BY = 90 # how many degrees to turn by every time
+CONT_MAZE_WALK_BY = GRID_DX # how many units to advance by every step forward
+CONT_MAZE_ACTIONS = {'FWD':0, 'CW':3, 'CCW':2, 'BCK':1} # in Granular, FWD is N, BCK is S, CW is E and CCW is W
+CONT_MAZE_N_ACTIONS = 4 # number of actions
+CONT_MAZE_N_RAYS = 4 # number of rays around the agent, starting from the front
+
+
 OBJECT_TYPE_OBSTACLE  = (1 << 0) # object type for walls
 OBJECT_TYPE_TEAM_0 = (1 << 1) # object type for team 1
 OBJECT_TYPE_TEAM_1 = (1 << 2) # object type for team 2 and turrets during training
