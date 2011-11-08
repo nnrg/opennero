@@ -55,8 +55,8 @@ class NeroEnvironment(OpenNero.Environment):
         rbound = OpenNero.FeatureVectorInfo() # rewards
 
         # actions
-        abound.add_continuous(-1, 1) # forward/backward speed
-        abound.add_continuous(-0.2, 0.2) # left/right turn (in radians)
+        abound.add_continuous(-1, 1) # forward/backward speed (gets multiplied by constants.MAX_MOVEMENT_SPEED)
+        abound.add_continuous(-constants.MAX_TURN_RADIANS, constants.MAX_TURN_RADIANS) # left/right turn (in radians)
 
         # sensor dimensions
         for a in range(constants.N_SENSORS):

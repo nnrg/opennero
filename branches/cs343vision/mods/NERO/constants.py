@@ -7,6 +7,7 @@ HEIGHT = 20
 OFFSET = -HEIGHT/2
 
 MAX_MOVEMENT_SPEED = 14
+MAX_TURN_RADIANS = 0.2
 MAX_VISION_RADIUS = 300
 
 # Population size
@@ -19,13 +20,13 @@ DEFAULT_LIFETIME = 200
 DEFAULT_SPEEDUP = 80
 
 
-# continuous environment
-GRID_DX = 20.0 # x-dimension of the grid world
-CONT_MAZE_TURN_BY = 90 # how many degrees to turn by every time
-CONT_MAZE_WALK_BY = GRID_DX # how many units to advance by every step forward
-CONT_MAZE_ACTIONS = {'FWD':0, 'CW':3, 'CCW':2, 'BCK':1} # in Granular, FWD is N, BCK is S, CW is E and CCW is W
-CONT_MAZE_N_ACTIONS = 4 # number of actions
-CONT_MAZE_N_RAYS = 4 # number of rays around the agent, starting from the front
+# keyboard actions and what they correspond to
+FIRST_PERSON_ACTIONS = {
+    'FWD': (1, 0), 
+    'CW': (0, -MAX_TURN_RADIANS), 
+    'CCW': (0, MAX_TURN_RADIANS), 
+    'BCK': (-1, 0)}
+N_FIRST_PERSON_ACTIONS = len(FIRST_PERSON_ACTIONS) # number of actions
 
 
 OBJECT_TYPE_OBSTACLE  = (1 << 0) # object type for walls
@@ -33,6 +34,7 @@ OBJECT_TYPE_TEAM_0 = (1 << 1) # object type for team 1
 OBJECT_TYPE_TEAM_1 = (1 << 2) # object type for team 2 and turrets during training
 OBJECT_TYPE_FLAG = (1 << 3) # object type for the flag
 OBJECT_TYPE_LEVEL_GEOM = 0 # object type for the level geometry
+OBJECT_TYPE_FPS = OBJECT_TYPE_LEVEL_GEOM # object type for first person agent
 
 ############################
 ### SENSOR CONFIGURATION ###
