@@ -55,6 +55,27 @@ class AgentState:
         self.curr_damage = 0
         return damage
 
+    def update_pose(self, move_by, turn_by):
+        x, y, heading = self.pose
+
+        heading = common.wrap_degrees(heading, turn_by)
+        x += constants.MAX_MOVEMENT_SPEED * math.cos(math.radians(heading)) * move_by
+        y += constants.MAX_MOVEMENT_SPEED * math.sin(math.radians(heading)) * move_by
+
+        self.prev_pose = self.pose
+        self.pose = (x, y, heading)
+
+        # try to update position
+        pos = copy.copy(self.agent.state.position)
+        pos.x = x
+        pos.y = y
+        self.agent.state.position = pos
+
+        # try to update rotation
+        rot = copy.copy(self.agent.state.rotation)
+        rot.z = heading
+        self.agent.state.rotation = rot
+
 
 class NeroEnvironment(OpenNero.Environment):
     """
@@ -221,14 +242,6 @@ class NeroEnvironment(OpenNero.Environment):
             if module.getMod().getNumToAdd() > 0:
                 module.getMod().addAgent()
 
-        # the position and the rotation of the agent on-screen
-        position = copy.copy(agent.state.position)
-        rotation = copy.copy(agent.state.rotation)
-
-        # get the current pose of the agent
-        x, y, heading = position.x, position.y, rotation.z
-        state.pose = (x, y, heading)
-
         # get the desired action of the agent
         move_by = action[0]
         turn_by = math.degrees(action[1])
@@ -252,7 +265,7 @@ class NeroEnvironment(OpenNero.Environment):
         data = self.target(agent)
         if data != None:#len(data) > 0:
             objects = OpenNero.getSimContext().findInRay(
-                    position,
+                    agent.state.position,
                     data.state.position,
                     constants.OBJECT_TYPE_OBSTACLE | constants.OBJECT_TYPE_TEAM_0 | constants.OBJECT_TYPE_TEAM_1,
                     True)
@@ -299,19 +312,7 @@ class NeroEnvironment(OpenNero.Environment):
             reward[i] = R[f]
 
         # tell the system to make the calculated motion
-        state.prev_pose = state.pose
-        state.pose = (new_x, new_y, new_heading)
-
-        # try to update position
-        pos = copy.copy(agent.state.position)
-        pos.x = new_x
-        pos.y = new_y
-        agent.state.position = pos
-
-        # try to update rotation
-        rot = copy.copy(agent.state.rotation)
-        rot.z = new_heading
-        agent.state.rotation = rot
+        self.get_state(agent).update_pose(move_by, turn_by)
 
         return reward
 
@@ -319,11 +320,11 @@ class NeroEnvironment(OpenNero.Environment):
         """
         figure out what the agent should sense
         """
-        state = self.get_state(agent)
-        x, y, _ = state.pose
         friends, foes = self.getFriendFoe(agent)
         if not friends:
-            return v
+            return observations
+        state = self.get_state(agent)
+        x, y, _ = state.pose
         for f in friends:
             x += friends[f].pose[0]
             y += friends[f].pose[1]
