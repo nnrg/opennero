@@ -18,7 +18,7 @@ def first_person_control(command):
     # get the controller action
     def closure():
         # controller action
-        module.getMod().control_fps(command)
+        agent.FirstPersonAgent.control_fps(command)
     return closure
 
 def createInputMapping():

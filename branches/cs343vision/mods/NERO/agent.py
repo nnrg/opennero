@@ -1,29 +1,38 @@
 import constants
 
-from OpenNero import *
+import OpenNero
 
-from common import *
+import common
 
-class FirstPersonAgent(AgentBrain):
+import Queue
+
+class FirstPersonAgent(OpenNero.AgentBrain):
     """
     A human-controlled agent
     """
-    key_pressed = None
-    action_map = {'FWD':0, 'CW':3, 'CCW':2, 'BCK':1}
+    key_buffer = Queue.Queue(5) # key buffer
+    @staticmethod
+    def control_fps(action):
+        FirstPersonAgent.key_buffer.put(action)
     def __init__(self):
-        AgentBrain.__init__(self) # do not remove!
-        self.time = 0
+        OpenNero.AgentBrain.__init__(self) # do not remove!
+        self.group = self.__class__.__name__
     def initialize(self, init_info):
-        self.constraints = init_info.actions
+        self.action_info = init_info.actions
         return True
+    def get_team(self):
+        # we are not on either team 1 or 2! we are just watching.
+        return 3
     def key_action(self):
-        self.time += 1
-        action = self.constraints.get_instance()
-        if FirstPersonAgent.key_pressed:
-            action[0] = FirstPersonAgent.action_map[FirstPersonAgent.key_pressed]
-            FirstPersonAgent.key_pressed = None
-        else:
-            action[0] = MAZE_NULL_MOVE
+        action = self.action_info.get_instance() # create a zero action
+        try:
+            key = FirstPersonAgent.key_buffer.get_nowait()
+            if key is not None and key in constants.FIRST_PERSON_ACTIONS:
+                (movement, turn) = constants.FIRST_PERSON_ACTIONS[key]
+            action[0] = movement
+            action[1] = turn
+        except Queue.Empty:
+            pass # no keys were pressed
         return action
     def start(self, time, observations):
         return self.key_action()

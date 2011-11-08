@@ -6,7 +6,6 @@ import constants
 import NeroEnvironment
 import OpenNero
 
-
 class NeroModule:
     def __init__(self):
         self.environment = None
@@ -23,6 +22,7 @@ class NeroModule:
         self.num_to_add = constants.pop_size
         (self.spawn_x,self.spawn_y) = (constants.XDIM/2, constants.YDIM/3)
         self.set_speedup(constants.DEFAULT_SPEEDUP)
+        self.first_person_agent = None
 
     def setup_map(self):
         """
@@ -98,9 +98,6 @@ class NeroModule:
     def place_basic_turret(self, loc):
         common.addObject("data/shapes/character/steve_basic_turret.xml",OpenNero.Vector3f(loc[0],loc[1],loc[2]),type = constants.OBJECT_TYPE_TEAM_1)
 
-    def control_fps(self,key):
-        FirstPersonAgent.key_pressed = key
-
     #The following is run when the Deploy button is pressed
     def start_rtneat(self):
         """ start the rtneat learning stuff"""
@@ -112,6 +109,20 @@ class NeroModule:
         id = common.addObject("data/shapes/character/steve_blue_armed.xml",OpenNero.Vector3f(self.spawn_x + dx,self.spawn_y + dy,2),type = constants.OBJECT_TYPE_TEAM_0)
         OpenNero.enable_ai()
         self.num_to_add -= 1
+        
+    # this is called when we get a "First Person Agent" button hit
+    def start_fps(self):
+        print 'start_fps was called'
+        if self.first_person_agent is None:
+            print 'adding first person agent!'
+            self.first_person_agent = common.addObject(
+                'data/shapes/character/FirstPersonSteve.xml',
+                OpenNero.Vector3f(self.spawn_x, self.spawn_y, 2),
+                type=constants.OBJECT_TYPE_FPS)
+            OpenNero.enable_ai()
+        else:
+            print 'removing first person agent!'
+            common.removeObject(self.first_person_agent)
 
     #The following is run when the Save button is pressed
     def save_rtneat(self, location, pop):
@@ -231,6 +242,7 @@ def parseInput(strn):
     if loc == "save2": mod.save_rtneat(val, 2)
     if loc == "load2": mod.load_rtneat(val, 2)
     if loc == "deploy": toggle_ai_callback()
+    if loc == "fps": mod.start_fps()
 
 def ServerMain():
     print "Starting mod NERO"

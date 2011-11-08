@@ -8,6 +8,7 @@ import common
 import OpenNero
 import module
 import constants
+from agent import FirstPersonAgent
 
 class AgentState:
     """
@@ -118,6 +119,9 @@ class NeroEnvironment(OpenNero.Environment):
         """
         return a blueprint for a new agent
         """
+        if isinstance(agent, FirstPersonAgent):
+            # don't add built in sensors for now
+            return self.agent_info
         for a in constants.WALL_RAY_SENSORS:
             agent.add_sensor(OpenNero.RaySensor(math.cos(math.radians(a)), math.sin(math.radians(a)), 0, 50, constants.OBJECT_TYPE_OBSTACLE, False))
         for a0, a1 in constants.FLAG_RADAR_SENSORS:

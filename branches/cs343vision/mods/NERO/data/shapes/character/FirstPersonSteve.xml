@@ -19,6 +19,6 @@
     </FPSCamera>
   </Render>
   <AI>
-    <Python agent="FirstPersonAgent()" />
+    <Python agent="NERO.agent.FirstPersonAgent()" />
   </AI>
 </Template>

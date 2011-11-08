@@ -46,6 +46,12 @@ class NeroPanel(wx.Panel, ScriptClient):
         buttonGrid.Add(self.load2, pos = (0,4) )
         self.Bind(wx.EVT_BUTTON, self.OnLoad2, self.load2)
         """
+        
+        # First Person Agent button
+        self.fps = wx.Button(self.buttonPanel, label = 'First Person Agent')
+        buttonGrid.Add(self.fps, pos = (0,3))
+        self.Bind(wx.EVT_BUTTON, self.OnFPS, self.fps)
+        
         self.buttonPanel.SetSizer(buttonGrid)
 
         grid.Add(self.buttonPanel, pos=(0,0), span=(1,6))
@@ -220,6 +226,9 @@ class NeroPanel(wx.Panel, ScriptClient):
 
     def OnDeploy(self,event):
         self.send("deploy 0")
+    
+    def OnFPS(self,event):
+        self.send("fps 0")
 
     def OnSave1(self,event):
         dirname = ""
