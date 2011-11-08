@@ -117,8 +117,8 @@ class NeroModule:
             print 'adding first person agent!'
             self.first_person_agent = common.addObject(
                 'data/shapes/character/FirstPersonSteve.xml',
-                OpenNero.Vector3f(self.spawn_x, self.spawn_y, 2),
-                type=constants.OBJECT_TYPE_FPS)
+                OpenNero.Vector3f(self.spawn_x, self.spawn_y, 10),
+                type=constants.OBJECT_TYPE_TEAM_0)
             OpenNero.enable_ai()
         else:
             print 'removing first person agent!'

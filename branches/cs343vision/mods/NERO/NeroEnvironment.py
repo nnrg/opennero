@@ -207,7 +207,7 @@ class NeroEnvironment(OpenNero.Environment):
         """
         # check if the action is valid
         assert(self.agent_info.actions.validate(action))
-
+        
         state = self.get_state(agent)
 
         # get the reward (which has multiple components)
@@ -433,6 +433,8 @@ class NeroEnvironment(OpenNero.Environment):
         is the current episode over for the agent?
         """
         if agent.group == "Turret": return False
+        if isinstance(agent, FirstPersonAgent):
+            return False # first person agents never stop
         self.max_steps = module.getMod().lt
         state = self.get_state(agent)
         if self.max_steps != 0 and agent.step >= self.max_steps:
