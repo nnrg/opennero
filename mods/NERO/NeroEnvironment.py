@@ -15,13 +15,9 @@ class AgentState:
     def __init__(self, agent):
         self.id = agent.state.id
         self.agent = agent
-        # current x, y, heading pose
-        self.pose = (0, 0, 0)
-        # previous x, y, heading pose
+        self.pose = (0, 0, 0)  # current x, y, heading
         self.prev_pose = (0, 0, 0)
-        # starting position
         self.initial_position = OpenNero.Vector3f(0, 0, 0)
-        # starting orientation
         self.initial_rotation = OpenNero.Vector3f(0, 0, 0)
         self.total_damage = 0
         self.curr_damage = 0
@@ -42,8 +38,6 @@ class AgentState:
                                       self.initial_rotation.z)
 
     def reset_pose(self, position, rotation):
-        self.initial_position = position
-        self.initial_rotation = rotation
         self.prev_pose = self.pose = (position.x, position.y, rotation.z)
 
     def update_damage(self):
@@ -56,11 +50,10 @@ class AgentState:
         return damage
 
     def update_pose(self, move_by, turn_by):
-        x, y, heading = self.pose
-
-        heading = common.wrap_degrees(heading, turn_by)
-        x += constants.MAX_MOVEMENT_SPEED * math.cos(math.radians(heading)) * move_by
-        y += constants.MAX_MOVEMENT_SPEED * math.sin(math.radians(heading)) * move_by
+        dist = constants.MAX_MOVEMENT_SPEED * move_by
+        heading = common.wrap_degrees(self.agent.state.rotation.z, turn_by)
+        x = self.agent.state.position.x + dist * math.cos(math.radians(heading))
+        y = self.agent.state.position.y + dist * math.sin(math.radians(heading))
 
         self.prev_pose = self.pose
         self.pose = (x, y, heading)
@@ -147,6 +140,7 @@ class NeroEnvironment(OpenNero.Environment):
             agent.state.position = copy.copy(state.initial_position)
             agent.state.rotation = copy.copy(state.initial_rotation)
             agent.state.update_immediately()
+        self.getFriendFoe(agent)  # make sure agent is in state and team maps.
         return True
 
     def get_agent_info(self, agent):
@@ -307,7 +301,6 @@ class NeroEnvironment(OpenNero.Environment):
         for i, f in enumerate(constants.FITNESS_DIMENSIONS):
             reward[i] = R[f]
 
-        #print reward
         return reward
 
     def sense(self, agent, observations):
@@ -336,7 +329,6 @@ class NeroEnvironment(OpenNero.Environment):
             observations[-3] = fd / 15.0
             observations[-2] = fh / 360.0
 
-        #print observations
         return observations
 
     def distance(self, a, b):
