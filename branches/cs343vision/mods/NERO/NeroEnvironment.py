@@ -228,7 +228,7 @@ class NeroEnvironment(OpenNero.Environment):
             return reward
 
         # Spawn more agents if there are more to spawn
-        if OpenNero.get_ai("rtneat").ready():
+        if not isinstance(agent, FirstPersonAgent) and OpenNero.get_ai("rtneat").ready():
             if module.getMod().getNumToAdd() > 0:
                 module.getMod().addAgent()
 
