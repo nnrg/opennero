@@ -14,6 +14,7 @@ class AgentState:
     """
     def __init__(self, agent):
         self.id = agent.state.id
+        self.agent = agent
         # current x, y, heading pose
         self.pose = (0, 0, 0)
         # previous x, y, heading pose
@@ -24,11 +25,36 @@ class AgentState:
         self.initial_rotation = OpenNero.Vector3f(0, 0, 0)
         self.total_damage = 0
         self.curr_damage = 0
+
     def __str__(self):
         x, y, h = self.pose
         px, py, ph = self.prev_pose
         return 'agent { id: %d, pose: (%.02f, %.02f, %.02f), prev_pose: (%.02f, %.02f, %.02f) }' % \
             (self.id, x, y, h, px, py, ph)
+
+    def randomize(self):
+        dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
+        dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
+        self.initial_position.x = module.getMod().spawn_x + dx
+        self.initial_position.y = module.getMod().spawn_y + dy
+        self.prev_pose = self.pose = (self.initial_position.x,
+                                      self.initial_position.y,
+                                      self.initial_rotation.z)
+
+    def reset_pose(self, position, rotation):
+        self.initial_position = position
+        self.initial_rotation = rotation
+        self.prev_pose = self.pose = (position.x, position.y, rotation.z)
+
+    def update_damage(self):
+        """
+        Update the damage for an agent, returning the current damage.
+        """
+        self.total_damage += self.curr_damage
+        damage = self.curr_damage
+        self.curr_damage = 0
+        return damage
+
 
 class NeroEnvironment(OpenNero.Environment):
     """
@@ -93,20 +119,13 @@ class NeroEnvironment(OpenNero.Environment):
         reset the environment to its initial state
         """
         state = self.get_state(agent)
-        if agent.group == "Agent":
-            dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
-            dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
-            # TODO: initialization code should be inside AgentState
-            state.initial_position.x = module.getMod().spawn_x + dx
-            state.initial_position.y = module.getMod().spawn_y + dy
-            agent.state.position = copy.copy(state.initial_position)
-            agent.state.rotation = copy.copy(state.initial_rotation)
-            state.pose = (state.initial_position.x, state.initial_position.y, state.initial_rotation.z)
-            state.prev_pose = state.pose
-            agent.state.update_immediately()
         state.total_damage = 0
         state.curr_damage = 0
-        self.getFriendFoe(agent)
+        if agent.group == "Agent":
+            state.randomize()
+            agent.state.position = copy.copy(state.initial_position)
+            agent.state.rotation = copy.copy(state.initial_rotation)
+            agent.state.update_immediately()
         return True
 
     def get_agent_info(self, agent):
@@ -137,27 +156,23 @@ class NeroEnvironment(OpenNero.Environment):
         """
         Returns the state of an agent
         """
-        if agent in self.states:
-            return self.states[agent]
-        else:
+        if agent not in self.states:
             self.states[agent] = AgentState(agent)
-            if agent.get_team() not in  self.teams:
+            if agent.get_team() not in self.teams:
                 self.teams[agent.get_team()] = {}
             self.teams[agent.get_team()][agent] = self.states[agent]
-            return self.states[agent]
+        return self.states[agent]
 
     def getFriendFoe(self, agent):
         """
         Returns lists of all friend agents and all foe agents.
         """
         friend = []
-        foe = []
         if agent.get_team() in self.teams:
             friend = self.teams[agent.get_team()]
-        if 1-agent.get_team() in self.teams:
-            foe = self.teams[1-agent.get_team()]
-        else:
-            foe = []
+        foe = []
+        if 1 - agent.get_team() in self.teams:
+            foe = self.teams[1 - agent.get_team()]
         return friend, foe
 
     def target(self, agent):
@@ -165,28 +180,18 @@ class NeroEnvironment(OpenNero.Environment):
         friends, foes = self.getFriendFoe(agent)
         if not friends:
             return None
-
         state = self.get_state(agent)
-        x, y, r = state.pose
-
-        #sort in order of variance from 0~2 degrees (maybe more)
-        valids = []
+        min_a = None
+        min_v = None
         for f in foes:
             p = foes[f].pose
             fd = self.distance(state.pose, p)
-            fh = abs(self.angle(state.pose, p)
+            fh = abs(self.angle(state.pose, p))
             if fh <= 2:
-                valids.append((f, fd, fh))
-
-        #Valids contains (state, distance, heading to distance) pairs
-        #get one that is nearest based on distance / cos(radians(degrees() * 20))
-        min_a = None
-        min_v = None
-        for a, fd, fh in valids:
-            v = fd / math.cos(math.radians(fh * 20))
-            if min_v is None or v < min_v:
-                min_a = a
-                min_v = v
+                v = fd / math.cos(math.radians(fh * 20))
+                if min_v is None or v < min_v:
+                    min_a = a
+                    min_v = v
         return min_a
 
     def step(self, agent, action):
@@ -208,23 +213,13 @@ class NeroEnvironment(OpenNero.Environment):
             if agent.group == "Agent":
                 r.z = random.randrange(360)
                 agent.state.rotation = r
-            # TODO: move into a member function of state
-            state.initial_position = p
-            state.initial_rotation = r
-            state.pose = (p.x, p.y, r.z)
-            state.prev_pose = (p.x, p.y, r.z)
+            state.reset_pose(p, r)
             return reward
 
         # Spawn more agents if there are more to spawn
         if OpenNero.get_ai("rtneat").ready():
             if module.getMod().getNumToAdd() > 0:
                 module.getMod().addAgent()
-
-        # Update Damage totals
-        # TODO: move into a member function of state
-        state.total_damage += state.curr_damage
-        damage = state.curr_damage
-        state.curr_damage = 0
 
         # the position and the rotation of the agent on-screen
         position = copy.copy(agent.state.position)
@@ -295,6 +290,8 @@ class NeroEnvironment(OpenNero.Environment):
 
         R[constants.FITNESS_HIT_TARGET] = hit
 
+        # Update Damage totals
+        damage = state.update_damage()
         R[constants.FITNESS_AVOID_FIRE] = -damage
 
         # put the fitness dimensions into the reward vector in order
