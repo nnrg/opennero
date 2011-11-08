@@ -266,7 +266,7 @@ class NeroEnvironment(OpenNero.Environment):
         if target != None:
             obstacles = OpenNero.getSimContext().findInRay(
                 agent.state.position,
-                data.state.position,
+                target.state.position,
                 constants.OBJECT_TYPE_OBSTACLE | constants.OBJECT_TYPE_TEAM_0 | constants.OBJECT_TYPE_TEAM_1,
                 True)
             if len(obstacles) == 0 or obstacles[0] == target:
@@ -307,6 +307,7 @@ class NeroEnvironment(OpenNero.Environment):
         for i, f in enumerate(constants.FITNESS_DIMENSIONS):
             reward[i] = R[f]
 
+        #print reward
         return reward
 
     def sense(self, agent, observations):
@@ -335,6 +336,7 @@ class NeroEnvironment(OpenNero.Environment):
             observations[-3] = fd / 15.0
             observations[-2] = fh / 360.0
 
+        #print observations
         return observations
 
     def distance(self, a, b):
