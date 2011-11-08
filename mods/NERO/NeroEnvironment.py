@@ -202,7 +202,7 @@ class NeroEnvironment(OpenNero.Environment):
         if not friends:
             return None
         state = self.get_state(agent)
-        min_a = None
+        min_f = None
         min_v = None
         for f in foes:
             p = foes[f].pose
@@ -211,9 +211,9 @@ class NeroEnvironment(OpenNero.Environment):
             if fh <= 2:
                 v = fd / math.cos(math.radians(fh * 20))
                 if min_v is None or v < min_v:
-                    min_a = a
+                    min_f = f
                     min_v = v
-        return min_a
+        return min_f
 
     def step(self, agent, action):
         """
@@ -222,11 +222,6 @@ class NeroEnvironment(OpenNero.Environment):
         # check if the action is valid
         assert(self.agent_info.actions.validate(action))
 
-        state = self.get_state(agent)
-
-        # get the reward (which has multiple components)
-        reward = self.agent_info.reward.get_instance()
-
         #Initilize Agent state
         if agent.step == 0 and agent.group != "Turret":
             p = copy.copy(agent.state.position)
@@ -234,8 +229,8 @@ class NeroEnvironment(OpenNero.Environment):
             if agent.group == "Agent":
                 r.z = random.randrange(360)
                 agent.state.rotation = r
-            state.reset_pose(p, r)
-            return reward
+            self.get_state(agent).reset_pose(p, r)
+            return self.agent_info.reward.getInstance()
 
         # Spawn more agents if there are more to spawn
         if OpenNero.get_ai("rtneat").ready():
@@ -253,12 +248,18 @@ class NeroEnvironment(OpenNero.Environment):
         if delay > 0.0: # if there is a need to show animation
             agent.state.animation_speed = move_by * 28.0 / delay
 
-        # figure out the new heading
-        new_heading = common.wrap_degrees(heading, turn_by)
+        reward = self.calculate_reward(agent, action)
 
-        # figure out the new x, y location
-        new_x = x + constants.MAX_MOVEMENT_SPEED * math.cos(math.radians(new_heading)) * move_by
-        new_y = y + constants.MAX_MOVEMENT_SPEED * math.sin(math.radians(new_heading)) * move_by
+        # tell the system to make the calculated motion
+        self.get_state(agent).update_pose(move_by, turn_by)
+
+        return reward
+
+    def calculate_reward(self, agent, action):
+        state = self.get_state(agent)
+
+        # get the reward (which has multiple components)
+        reward = self.agent_info.reward.get_instance()
 
         # calculate if we hit anyone
         hit = 0
@@ -311,9 +312,6 @@ class NeroEnvironment(OpenNero.Environment):
         for i, f in enumerate(constants.FITNESS_DIMENSIONS):
             reward[i] = R[f]
 
-        # tell the system to make the calculated motion
-        self.get_state(agent).update_pose(move_by, turn_by)
-
         return reward
 
     def sense(self, agent, observations):
@@ -335,8 +333,6 @@ class NeroEnvironment(OpenNero.Environment):
         if fd <= 15:
             observations[-3] = fd / 15.0
             observations[-2] = fh / 360.0
-        if observations[-2] < 0:
-            observations[-2] += 1
         observations[-1] = int(self.target(agent) is not None)
         return observations
 
