@@ -180,34 +180,31 @@ class NeroEnvironment(OpenNero.Environment):
         if agent not in self.states:
             self.states[agent] = AgentState(agent)
             if agent.get_team() not in self.teams:
-                self.teams[agent.get_team()] = {}
-            self.teams[agent.get_team()][agent] = self.states[agent]
+                self.teams[agent.get_team()] = set()
+            self.teams[agent.get_team()].add(agent)
         return self.states[agent]
 
     def getFriendFoe(self, agent):
         """
-        Returns lists of all friend agents and all foe agents.
+        Returns sets of all friend agents and all foe agents.
         """
-        friend = []
-        if agent.get_team() in self.teams:
-            friend = self.teams[agent.get_team()]
-        foe = []
-        if 1 - agent.get_team() in self.teams:
-            foe = self.teams[1 - agent.get_team()]
-        return friend, foe
+        t = agent.get_team()
+        return self.teams.get(t), self.teams.get(1 - t)
 
     def target(self, agent):
-        #Get list of all targets
+        """
+        Returns the nearest foe in a 2-degree cone from an agent.
+        """
         friends, foes = self.getFriendFoe(agent)
-        if not friends:
+        if not foes:
             return None
-        state = self.get_state(agent)
+        pose = self.get_state(agent).pose
         min_f = None
         min_v = None
         for f in foes:
-            p = foes[f].pose
-            fd = self.distance(state.pose, p)
-            fh = abs(self.angle(state.pose, p))
+            p = self.get_state(f).pose
+            fd = self.distance(pose, p)
+            fh = abs(self.angle(pose, p))
             if fh <= 2:
                 v = fd / math.cos(math.radians(fh * 20))
                 if min_v is None or v < min_v:
@@ -222,6 +219,8 @@ class NeroEnvironment(OpenNero.Environment):
         # check if the action is valid
         assert(self.agent_info.actions.validate(action))
 
+        state = self.get_state(agent)
+
         #Initilize Agent state
         if agent.step == 0 and agent.group != "Turret":
             p = copy.copy(agent.state.position)
@@ -229,8 +228,8 @@ class NeroEnvironment(OpenNero.Environment):
             if agent.group == "Agent":
                 r.z = random.randrange(360)
                 agent.state.rotation = r
-            self.get_state(agent).reset_pose(p, r)
-            return self.agent_info.reward.getInstance()
+            state.reset_pose(p, r)
+            return self.agent_info.reward.get_instance()
 
         # Spawn more agents if there are more to spawn
         if OpenNero.get_ai("rtneat").ready():
@@ -251,7 +250,7 @@ class NeroEnvironment(OpenNero.Environment):
         reward = self.calculate_reward(agent, action)
 
         # tell the system to make the calculated motion
-        self.get_state(agent).update_pose(move_by, turn_by)
+        state.update_pose(move_by, turn_by)
 
         return reward
 
@@ -318,22 +317,28 @@ class NeroEnvironment(OpenNero.Environment):
         """
         figure out what the agent should sense
         """
+        # the last observation is whether there is a target for the agent
+        observations[-1] = int(self.target(agent) is not None)
+
         friends, foes = self.getFriendFoe(agent)
         if not friends:
             return observations
-        state = self.get_state(agent)
-        x, y, _ = state.pose
+
+        # the 2 before that are the angle and heading to the center of mass of
+        # the agent's team
+        n = float(len(friends))
+        pose = self.get_state(agent).pose
+        cx, cy, _ = pose
         for f in friends:
-            x += friends[f].pose[0]
-            y += friends[f].pose[1]
-        x /= len(friends)
-        y /= len(friends)
-        fd = self.distance(state.pose, (x, y))
-        fh = self.angle(state.pose, (x, y)) + 180.0
+            ax, ay, _ = self.get_state(f).pose
+            cx += ax / n
+            cy += ay / n
+        fd = self.distance(pose, (cx, cy))
+        fh = self.angle(pose, (cx, cy)) + 180.0
         if fd <= 15:
             observations[-3] = fd / 15.0
             observations[-2] = fh / 360.0
-        observations[-1] = int(self.target(agent) is not None)
+
         return observations
 
     def distance(self, a, b):
@@ -359,18 +364,20 @@ class NeroEnvironment(OpenNero.Environment):
 
     def nearest(self, loc, id, agents):
         """
-        Returns the nearest agent in a list of agents to an agent with a
-        given id at a given location.
+        Returns the nearest agent to a particular location.
         """
         # TODO: this needs to only be computed once per tick, not per agent
+        if not agents:
+            return None
         nearest = None
         min_dist = self.MAX_DIST * 5
-        for a in agents:
-            if id == agents[a].id:
+        for agent in agents:
+            state = self.get_state(agent)
+            if id == state.id:
                 continue
-            d = self.distance(loc, agents[a].pose)
+            d = self.distance(loc, state.pose)
             if d < min_dist:
-                nearest = a
+                nearest = agent
                 min_dist = d
         return nearest
 
