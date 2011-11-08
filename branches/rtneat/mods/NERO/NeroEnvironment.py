@@ -262,20 +262,16 @@ class NeroEnvironment(OpenNero.Environment):
 
         # calculate if we hit anyone
         hit = 0
-        data = self.target(agent)
-        if data != None:#len(data) > 0:
-            objects = OpenNero.getSimContext().findInRay(
-                    agent.state.position,
-                    data.state.position,
-                    constants.OBJECT_TYPE_OBSTACLE | constants.OBJECT_TYPE_TEAM_0 | constants.OBJECT_TYPE_TEAM_1,
-                    True)
-            if len(objects) > 0: sim = objects[0]
-            else: sim = data
-            if len(objects) == 0 or objects[0] == sim:
-                target = self.get_state(data)
-                if target != -1:
-                    target.curr_damage += 1
-                    hit = 1
+        target = self.target(agent)
+        if target != None:
+            obstacles = OpenNero.getSimContext().findInRay(
+                agent.state.position,
+                data.state.position,
+                constants.OBJECT_TYPE_OBSTACLE | constants.OBJECT_TYPE_TEAM_0 | constants.OBJECT_TYPE_TEAM_1,
+                True)
+            if len(obstacles) == 0 or obstacles[0] == target:
+                self.get_state(target).curr_damage += 1
+                hit = 1
 
         # calculate friend/foe
         friends, foes = self.getFriendFoe(agent)
