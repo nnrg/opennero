@@ -164,8 +164,11 @@ class NeroModule:
         self.hp = value
         print 'Hit points:', value
 
-    #This is the function ran when an agent already in the field causes the generation of a new agent
     def spawnAgent(self, team=constants.OBJECT_TYPE_TEAM_0):
+        """
+        This is the function ran when an agent already in the field
+        causes the generation of a new agent.
+        """
         dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
         dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
         self.curr_team = team

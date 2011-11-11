@@ -1,6 +1,7 @@
 import constants
 import module
 import OpenNero
+import constants
 
 
 class RTNEATAgent(OpenNero.AgentBrain):
@@ -74,7 +75,7 @@ class RTNEATAgent(OpenNero.AgentBrain):
                 self.state.label = str(org.time_alive)
                 OpenNero.setWindowCaption("Displaying Time Alive")
             elif display_hint == 'hit points':
-                self.state.label == 'hit points'
+                self.state.label = 'hp'
                 OpenNero.setWindowCaption("Displaying Hit Points")
             elif display_hint == 'genome id':
                 self.state.label = str(org.id)
@@ -140,3 +141,48 @@ class RTNEATAgent(OpenNero.AgentBrain):
         actions = self.actions.denormalize(actions)
         #print "in:", inputs, "out:", outputs, "a:", actions
         return actions
+
+class Turret(OpenNero.AgentBrain):
+    """
+    Simple Rotating Turret
+    """
+    def __init__(self):
+        OpenNero.AgentBrain.__init__(self)
+        self.team = constants.OBJECT_TYPE_TEAM_1
+
+    def initialize(self, init_info):
+        self.actions = init_info.actions
+        self.sensors = init_info.sensors
+        self.group = "Turret"
+        self.previous_fire =  0
+        return True
+
+    def start(self, time, sensors):
+        self.org = None
+        self.net = None
+        self.state.label = "Turret"
+        self.group = "Turret"
+        a = self.actions.get_instance()
+        for x in range(len(self.actions)):
+            a[x] = 0
+            if x == 1:
+              a[x] = 0
+        return a
+
+    def act(self,time,sensors,reward):
+        a = self.actions.get_instance()
+        for x in range(len(self.actions)):
+            a[x] = 0
+            if x == 1:
+              a[x] = .15
+
+        return a
+
+    def get_team(self):
+        return self.team
+
+    def end(self,time,reward):
+        return True
+
+    def destroy(self):
+        return True
