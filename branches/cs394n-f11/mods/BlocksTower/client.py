@@ -10,82 +10,114 @@ import common.gui as gui
 from BlocksTower.module import getMod, delMod
 from BlocksTower.constants import *
 
-#########################################################
+AGENTS = [
+    ('Problem reduction', lambda: getMod().start_tower1() ),
+    ('State-space search', lambda: getMod().start_tower2() ),
+    ('Goal stacking', lambda: getMod().start_tower3() ),
+]
+
+class UI:
+    pass
 
 def CreateGui(guiMan):
     print 'CreateGui'
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")
 
-    towerButton3 = gui.create_button(guiMan, 'tower3', Pos2i(0,0), Pos2i(150,30), '')
-    towerButton3.text = '3 Layer Towers of Hanoi'
-    towerButton3.OnMouseLeftClick = lambda: getMod().start_tower(3)
+    ui = UI() # a collection of all the UI elements
 
-    towerButton4 = gui.create_button(guiMan, 'tower4', Pos2i(0,30), Pos2i(150,30), '')
-    towerButton4.text = '4 Layer Towers of Hanoi'
-    towerButton4.OnMouseLeftClick = lambda: getMod().start_tower(4)
+    window_width = 250 # width
+    control_height = 30  # height
 
-    towerButton5 = gui.create_button(guiMan, 'tower5', Pos2i(0,60), Pos2i(150,30), '')
-    towerButton5.text = '5 Layer Towers of Hanoi'
-    towerButton5.OnMouseLeftClick = lambda: getMod().start_tower(5)
+    # AGENT SELECTION BOX
+    x, y = 5, 2 * control_height + 5
+    w, h = window_width - 15, control_height - 10
+    ui.agentBoxLabel = gui.create_text(guiMan, 'agentLabel', Pos2i(x,y), Pos2i(3*w/10,h), 'Agent Type:')
+    ui.agentComboBox = gui.create_combo_box(guiMan, "agentComboBox", Pos2i(x + 5 + 3*w/10, y), Pos2i(7*w/10, h))
+    for agent_name, agent_function in AGENTS:
+        ui.agentComboBox.addItem(agent_name)
 
-    agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(20, 20), Pos2i(150, 120), 'Agent')
-    agentWindow.addChild(towerButton3)
-    agentWindow.addChild(towerButton4)
-    agentWindow.addChild(towerButton5)
+    # START/RESET AND PAUSE/CONTINUE AGENT BUTTONS AND HELP BUTTON
+    x, y = 5, 0 * control_height + 5
+    w, h = (window_width - 20) / 3, control_height - 5
+    ui.startAgentButton = gui.create_button(guiMan, 'startAgentButton', Pos2i(x, y), Pos2i(w, h), '')
+    ui.pauseAgentButton = gui.create_button(guiMan, 'pauseAgentButton', Pos2i(x + w + 5, y), Pos2i(w, h), '')
+    ui.helpButton = gui.create_button(guiMan, 'helpButton', Pos2i(x + 2*w + 10, y), Pos2i(w, h), '')
+    ui.startAgentButton.text = 'Start'
+    ui.pauseAgentButton.text = 'Pause'
+    ui.helpButton.text = 'Help'
+    ui.pauseAgentButton.enabled = False
+    ui.startAgentButton.OnMouseLeftClick = startAgent(ui)
+    ui.pauseAgentButton.OnMouseLeftClick = pauseAgent(ui)
+    ui.helpButton.OnMouseLeftClick = openWiki('BlocksWorldMod')
 
-    epsilon_percent = int(INITIAL_EPSILON * 100)
-    epsilonValue = gui.create_text(guiMan, 'epsilonEditBox', Pos2i(260,0), Pos2i(100,30), str(epsilon_percent))
-
-    epsilonLabel = gui.create_text(guiMan, 'epsilonLabel', Pos2i(10,0), Pos2i(100,30), 'Exploit-Explore:')
-
-    # this can be used to adjust the exploration-exploitation tradeoff (fraction of
-    # champion organisms in the case of rt-NEAT and fraction of greedy actions in the case
-    # of the epsilon-greedy RL methods like Sarsa and Q-learning)
-    epsilonScroll = gui.create_scroll_bar(guiMan, 'epsilonScroll', Pos2i(100,0), Pos2i(150,20), True)
-    epsilonScroll.setMax(100)
-    epsilonScroll.setLargeStep(10)
-    epsilonScroll.setSmallStep(1)
-    epsilonScroll.setPos(epsilon_percent)
-    getMod().set_epsilon(INITIAL_EPSILON)
-    epsilonScroll.OnScrollBarChange = epsilon_adjusted(epsilonScroll, epsilonValue)
-
-    speedupValue = gui.create_text(guiMan, 'speedupEditBox', Pos2i(260, 30), Pos2i(100, 30), str(0))
-
-    speedupLabel = gui.create_text(guiMan, 'speedupLabel', Pos2i(10, 30), Pos2i(100, 30), 'Speedup:')
-
-    speedupScroll = gui.create_scroll_bar(guiMan, 'speedupScroll', Pos2i(100, 30), Pos2i(150,20), True)
-    speedupScroll.setMax(100)
-    speedupScroll.setLargeStep(10)
-    speedupScroll.setSmallStep(1)
-    speedupScroll.setPos(0)
+    # SPEEDUP SLIDER
+    x, y = 5, 1 * control_height + 5
+    w, h = window_width - 20, control_height - 5
+    ui.speedupLabel = gui.create_text(guiMan, 'speedupLabel', Pos2i(x, y), Pos2i(3*w/10, h), 'Speedup:')
+    ui.speedupScroll = gui.create_scroll_bar(guiMan, 'speedupScroll', Pos2i(x + 5 + 3*w/10, y), Pos2i(3*w/5, h-5), True)
+    ui.speedupValue = gui.create_text(guiMan, 'speedupEditBox', Pos2i(x + 10 + 9*w/10, y), Pos2i(w/10, h), str(0))
+    ui.speedupScroll.setMax(100)
+    ui.speedupScroll.setLargeStep(10)
+    ui.speedupScroll.setSmallStep(1)
+    ui.speedupScroll.setPos(0)
     getMod().set_speedup(0)
-    speedupScroll.OnScrollBarChange = speedup_adjusted(speedupScroll, speedupValue)
+    ui.speedupScroll.OnScrollBarChange = speedup_adjusted(ui)
+    
+    # THE WINDOW THAT HOLDS ALL THE CONTROLS ABOVE
+    ui.agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(10, 10), Pos2i(window_width, 3*control_height+25), 'Agent')
+    ui.agentWindow.addChild(ui.agentBoxLabel)
+    ui.agentWindow.addChild(ui.agentComboBox)
+    ui.agentWindow.addChild(ui.startAgentButton)
+    ui.agentWindow.addChild(ui.pauseAgentButton)
+    ui.agentWindow.addChild(ui.helpButton)
+    ui.agentWindow.addChild(ui.speedupLabel)
+    ui.agentWindow.addChild(ui.speedupScroll)
+    ui.agentWindow.addChild(ui.speedupValue)
 
-    paramWindow = gui.create_window(guiMan, 'paramWindow', Pos2i(20, 500), Pos2i(300,100), 'Parameters')
-    paramWindow.addChild(epsilonLabel)
-    paramWindow.addChild(epsilonScroll)
-    paramWindow.addChild(epsilonValue)
-    paramWindow.addChild(speedupLabel)
-    paramWindow.addChild(speedupScroll)
-    paramWindow.addChild(speedupValue)
-
-def epsilon_adjusted(scroll, value):
-    # generate a closure that will be called whenever the epsilon slider is adjusted
-    value.text = str(scroll.getPos())
-    getMod().set_epsilon(float(scroll.getPos())/100)
+def speedup_adjusted(ui):
+    """generate a closure that will be called whenever the speedup slider is adjusted"""
+    ui.speedupValue.text = str(ui.speedupScroll.getPos())
+    getMod().set_speedup(float(ui.speedupScroll.getPos())/100)
     def closure():
-        value.text = str(scroll.getPos())
-        getMod().set_epsilon(float(scroll.getPos())/100)
+        """called whenever the speedup slider is adjusted"""
+        ui.speedupValue.text = str(ui.speedupScroll.getPos())
+        getMod().set_speedup(float(ui.speedupScroll.getPos())/100)
     return closure
 
-def speedup_adjusted(scroll, value):
-    # generate a closure that will be called whenever the speedup slider is adjusted
-    value.text = str(scroll.getPos())
-    getMod().set_speedup(float(scroll.getPos())/100)
+def startAgent(ui):
+    """ return a function that starts or stops the agent """
     def closure():
-        value.text = str(scroll.getPos())
-        getMod().set_speedup(float(scroll.getPos())/100)
+        """starts or stops the agent"""
+        if ui.startAgentButton.text == 'Start':
+            i = ui.agentComboBox.getSelected()
+            (agent_name, agent_function) = AGENTS[i]
+            print 'Starting', agent_name
+            agent_function()
+            ui.pauseAgentButton.text = 'Pause'
+            ui.pauseAgentButton.enabled = True
+            ui.startAgentButton.text = 'Reset'
+            ui.agentComboBox.enabled = False
+        else:
+            getMod().stop_agent()
+            disable_ai()
+            get_environment().cleanup()
+            ui.startAgentButton.text = 'Start'
+            ui.pauseAgentButton.text = 'Pause'
+            ui.pauseAgentButton.enabled = False
+            ui.agentComboBox.enabled = True
+    return closure
+
+def pauseAgent(ui):
+    """ return a function that pauses and continues the agent """
+    def closure():
+        """pauses and continues the agent"""
+        if ui.pauseAgentButton.text == 'Continue':
+            ui.pauseAgentButton.text = 'Pause'
+            enable_ai()
+        else:
+            ui.pauseAgentButton.text = 'Continue'
+            disable_ai()
     return closure
 
 def recenter(cam):

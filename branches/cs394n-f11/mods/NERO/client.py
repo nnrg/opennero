@@ -141,7 +141,7 @@ def mouse_action():
     if 'rot' in modify_object_id:
         position = sim_context.getObjectPosition(modify_object_id['rot'])
         angle = math.atan2(location.x - position.x, location.y - position.y)
-        sim_context.setObjectRotation(modify_object_id['rot'], Vector3f(0, 0, -math.degrees(angle)))
+        sim_context.setObjectRotation(modify_object_id['rot'], OpenNero.Vector3f(0, 0, -math.degrees(angle)))
 
     if 'scale' in modify_object_id:
         position = sim_context.getObjectPosition(modify_object_id['scale'])

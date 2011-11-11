@@ -9,6 +9,6 @@
     <Scale>0.2 0.2 0.2</Scale>
   </Render>
   <AI>
-    <Python agent="BlocksTower.agent.TowerAgent()" />
+    <Python agent="BlocksTower.agent.TowerAgent2()" />
   </AI>
 </Template>

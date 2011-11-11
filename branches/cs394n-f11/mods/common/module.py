@@ -30,10 +30,10 @@ def openWiki(page):
 def wrap_degrees(a, da):
     """ add da to a, but make sure that the resulting angle stays within the -180 to 180 range """
     a2 = a + da
-    if a2 > 180:
-        a2 = -180 + (a2 % 180)
-    elif a2 < -180:
-        a2 = 180 - (abs(a2) % 180)
+    while a2 > 180:
+        a2 -= 360
+    while a2 < -180:
+        a2 += 360
     return a2
 
 def mix_angles(h1, h2, f):
