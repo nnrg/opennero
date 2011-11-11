@@ -25,7 +25,7 @@ mate_multipoint_avg_prob 0.4
 mate_singlepoint_prob 0.0
 mate_only_prob 0.2
 recur_only_prob 0.15
-pop_size 100
+pop_size 50
 dropoff_age 15
 newlink_tries 20
 print_every 30

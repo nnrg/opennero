@@ -6,11 +6,11 @@ YDIM = 800
 HEIGHT = 20
 OFFSET = -HEIGHT/2
 
-MAX_MOVEMENT_SPEED = 14
+MAX_MOVEMENT_SPEED = 1
 MAX_VISION_RADIUS = 300
 
 # Population size
-pop_size = 20
+pop_size = 50
 
 # number of steps per lifetime
 DEFAULT_LIFETIME = 200
