@@ -1,10 +1,7 @@
-#import all agent implementations
-from NERO.RTNEATAgent import *
-from NERO.Turret import *
-
 #import all client and server scripts
 import NERO.module
 import NERO.client
+import NERO.agent
 import common
 import common.menu_utils
 
