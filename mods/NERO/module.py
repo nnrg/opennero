@@ -43,60 +43,76 @@ class NeroModule:
 
         # flag placement
         self.flag_id = common.addObject(
-            "data/shapes/cube/BlueCube.xml", \
-            self.flag_loc, label="Flag", \
-            scale = OpenNero.Vector3f(1, 1, 10), \
-            type = constants.OBJECT_TYPE_FLAG)
+            "data/shapes/cube/BlueCube.xml",
+            self.flag_loc, label="Flag",
+            scale=OpenNero.Vector3f(1, 1, 10),
+            type=constants.OBJECT_TYPE_FLAG)
 
         # world walls
         common.addObject(
-            "data/shapes/cube/Cube.xml", \
-            OpenNero.Vector3f(constants.XDIM/2, 0, constants.HEIGHT + constants.OFFSET), \
-            OpenNero.Vector3f(0, 0, 90), \
-            scale = OpenNero.Vector3f(1, constants.XDIM, constants.HEIGHT), \
-            label = "World Wall0", \
-            type = constants.OBJECT_TYPE_OBSTACLE )
+            "data/shapes/cube/Cube.xml",
+            OpenNero.Vector3f(constants.XDIM/2, 0, constants.HEIGHT + constants.OFFSET),
+            OpenNero.Vector3f(0, 0, 90),
+            scale=OpenNero.Vector3f(1, constants.XDIM, constants.HEIGHT),
+            label="World Wall0",
+            type=constants.OBJECT_TYPE_OBSTACLE)
         common.addObject(
-            "data/shapes/cube/Cube.xml", \
-            OpenNero.Vector3f(0, constants.YDIM/2, constants.HEIGHT + constants.OFFSET), \
-            OpenNero.Vector3f(0, 0, 0), \
-            scale=OpenNero.Vector3f(1, constants.YDIM, constants.HEIGHT), \
-            label="World Wall1", \
-            type = constants.OBJECT_TYPE_OBSTACLE )
+            "data/shapes/cube/Cube.xml",
+            OpenNero.Vector3f(0, constants.YDIM/2, constants.HEIGHT + constants.OFFSET),
+            OpenNero.Vector3f(0, 0, 0),
+            scale=OpenNero.Vector3f(1, constants.YDIM, constants.HEIGHT),
+            label="World Wall1",
+            type=constants.OBJECT_TYPE_OBSTACLE)
         common.addObject(
-            "data/shapes/cube/Cube.xml", \
-            OpenNero.Vector3f(constants.XDIM, constants.YDIM/2, constants.HEIGHT + constants.OFFSET), \
-            OpenNero.Vector3f(0, 0, 0), \
-            scale = OpenNero.Vector3f(1, constants.YDIM, constants.HEIGHT), \
-            label = "World Wall2", \
-            type = constants.OBJECT_TYPE_OBSTACLE )
+            "data/shapes/cube/Cube.xml",
+            OpenNero.Vector3f(constants.XDIM, constants.YDIM/2, constants.HEIGHT + constants.OFFSET),
+            OpenNero.Vector3f(0, 0, 0),
+            scale=OpenNero.Vector3f(1, constants.YDIM, constants.HEIGHT),
+            label="World Wall2",
+            type=constants.OBJECT_TYPE_OBSTACLE)
         common.addObject(
-            "data/shapes/cube/Cube.xml", \
-            OpenNero.Vector3f(constants.XDIM/2, constants.YDIM, constants.HEIGHT + constants.OFFSET), \
-            OpenNero.Vector3f(0, 0, 90), \
-            scale = OpenNero.Vector3f(1, constants.XDIM, constants.HEIGHT), \
-            label = "World Wall3", \
-            type = constants.OBJECT_TYPE_OBSTACLE )
+            "data/shapes/cube/Cube.xml",
+            OpenNero.Vector3f(constants.XDIM/2, constants.YDIM, constants.HEIGHT + constants.OFFSET),
+            OpenNero.Vector3f(0, 0, 90),
+            scale=OpenNero.Vector3f(1, constants.XDIM, constants.HEIGHT),
+            label="World Wall3",
+            type=constants.OBJECT_TYPE_OBSTACLE)
+
+        # Add an obstacle wall in the middle
+        common.addObject(
+            "data/shapes/cube/Cube.xml",
+            OpenNero.Vector3f(constants.XDIM/2, constants.YDIM/2, constants.HEIGHT + constants.OFFSET),
+            OpenNero.Vector3f(0, 0, 90),
+            scale=OpenNero.Vector3f(1, constants.YDIM / 4, constants.HEIGHT),
+            label="World Wall4",
+            type=constants.OBJECT_TYPE_OBSTACLE)
 
         # Add the surrounding Environment
         common.addObject(
-            "data/terrain/NeroWorld.xml", \
-            OpenNero.Vector3f(constants.XDIM/2, constants.YDIM/2, 0), \
-            scale = OpenNero.Vector3f(1, 1, 1), \
-            label = "NeroWorld", \
-            type = constants.OBJECT_TYPE_LEVEL_GEOM )
+            "data/terrain/NeroWorld.xml",
+            OpenNero.Vector3f(constants.XDIM/2, constants.YDIM/2, 0),
+            scale=OpenNero.Vector3f(1, 1, 1),
+            label="NeroWorld",
+            type=constants.OBJECT_TYPE_LEVEL_GEOM)
 
         return True
 
-    def change_flag(self, new_loc):
-        self.flag_loc = OpenNero.Vector3f(new_loc[0],new_loc[1],new_loc[2])
-
-        common.removeObject(self.flag_id)
-
-        self.flag_id = common.addObject("data/shapes/cube/BlueCube.xml", self.flag_loc, label="Flag", scale=OpenNero.Vector3f(1,1,10), type = constants.OBJECT_TYPE_FLAG)
+    def change_flag(self, loc):
+        if self.flag_id > 0:
+            common.removeObject(self.flag_id)
+        self.flag_loc = OpenNero.Vector3f(*loc)
+        self.flag_id = common.addObject(
+            "data/shapes/cube/BlueCube.xml",
+            self.flag_loc,
+            label="Flag",
+            scale=OpenNero.Vector3f(1, 1, 10),
+            type=constants.OBJECT_TYPE_FLAG)
 
     def place_basic_turret(self, loc):
-        common.addObject("data/shapes/character/steve_basic_turret.xml",OpenNero.Vector3f(loc[0],loc[1],loc[2]),type = constants.OBJECT_TYPE_TEAM_1)
+        common.addObject(
+            "data/shapes/character/steve_basic_turret.xml",
+            OpenNero.Vector3f(*loc),
+            type=constants.OBJECT_TYPE_TEAM_1)
 
     #The following is run when the Deploy button is pressed
     def start_rtneat(self):
@@ -106,24 +122,26 @@ class NeroModule:
         dy = random.randrange(constants.XDIM/20) - constants.XDIM/40
         dx = random.randrange(constants.XDIM/20) - constants.XDIM/40
         dy = random.randrange(constants.XDIM/20) - constants.XDIM/40
-        id = common.addObject("data/shapes/character/steve_blue_armed.xml",OpenNero.Vector3f(self.spawn_x + dx,self.spawn_y + dy,2),type = constants.OBJECT_TYPE_TEAM_0)
+        id = common.addObject(
+            "data/shapes/character/steve_blue_armed.xml",
+            OpenNero.Vector3f(self.spawn_x + dx, self.spawn_y + dy, 2),
+            type=constants.OBJECT_TYPE_TEAM_0)
         OpenNero.enable_ai()
         self.num_to_add -= 1
 
     #The following is run when the Save button is pressed
     def save_rtneat(self, location, pop):
-        import os
         location = os.path.relpath("/") + location
         OpenNero.get_ai("rtneat").save_population(str(location))
 
     #The following is run when the Load button is pressed
     def load_rtneat(self, location , pop):
-        import os
-        global rtneat
         location = os.path.relpath("/") + location
         if os.path.exists(location):
-            rtneat = OpenNero.RTNEAT(str(location), "data/ai/neat-params.dat", constants.pop_size, OpenNero.get_environment().agent_info.reward)
-            OpenNero.set_ai("rtneat",rtneat)
+            OpenNero.set_ai("rtneat", OpenNero.RTNEAT(
+                    str(location), "data/ai/neat-params.dat",
+                    constants.pop_size,
+                    OpenNero.get_environment().agent_info.reward))
 
     def set_speedup(self, speedup):
         OpenNero.getSimContext().delay = 1.0 - (speedup/100.0)

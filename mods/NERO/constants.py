@@ -28,29 +28,6 @@ OBJECT_TYPE_LEVEL_GEOM = 0 # object type for the level geometry
 ### SENSOR CONFIGURATION ###
 ############################
 
-NERO_SENSOR_CONFIG = """
-node 1 1 1 1 FriendRadarSensor 3 90 -90 15 0
-node 2 1 1 1 FriendRadarSensor 3 90 -90 15 1
-node 3 1 1 1 EnemyRadarSensor 2 180 102 90 -90 300
-node 4 1 1 1 EnemyRadarSensor 1 108 87 90 -90 300
-node 5 1 1 1 EnemyRadarSensor 1 93 72 90 -90 300
-node 6 1 1 1 EnemyRadarSensor 2 78 0 90 -90 300
-node 7 1 1 1 EnemyRadarSensor 5 3 177 90 -90 300
-node 8 1 1 1 TargettingRaySensor 1 90 0 30
-node 9 1 1 1 RaySensor 1 16777216 16777220 180 0 50
-node 10 1 1 1 RaySensor 1 16777216 16777220 135 0 50
-node 11 1 1 1 RaySensor 1 16777216 16777220 90 0 50
-node 12 1 1 1 RaySensor 1 16777216 16777220 45 0 50
-node 13 1 1 1 RaySensor 1 16777216 16777220 0 0 50
-node 14 1 1 1 FlagRadarSensor 2 180 102 90 -90 300
-node 15 1 1 1 FlagRadarSensor 1 108 87 90 -90 300
-node 16 1 1 1 FlagRadarSensor 1 93 72 90 -90 300
-node 17 1 1 1 FlagRadarSensor 2 78 0 90 -90 300
-node 18 1 1 1 FlagRadarSensor 5 3 177 90 -90 300
-node 19 1 1 1 EnemyLineOfFireSensor 1 180 0 92 45 65 90 -90 65
-node 20 1 1 1 EnemyLineOfFireSensor 1 180 0 135 88 65 90 -90 65
-"""
-
 # FriendRadarSensor
 FRIEND_RADAR_SENSORS = [0, 1]
 
