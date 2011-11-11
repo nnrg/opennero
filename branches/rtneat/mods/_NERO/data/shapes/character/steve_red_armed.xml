@@ -6,8 +6,9 @@
     <CastsShadow>false</CastsShadow>
     <Texture0>data/shapes/steve/steve_red.jpg</Texture0>
     <Scale>1.0 1.0 1.0</Scale>
-    <DrawLabel>false</DrawLabel>
+    <DrawLabel>true</DrawLabel>
     <DrawBoundingBox>false</DrawBoundingBox>
+    <Collision>1</Collision>
   </Render>
   <AI>
     <Python agent="RTNEATAgent()" />
