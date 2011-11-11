@@ -95,9 +95,9 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.add_slider('Approach Flag', 'AF')
         self.add_slider('Hit Target', 'HT')
         self.add_slider('Avoid Fire', 'VF')
-        self.add_slider('Lifetime', 'LT', span=1000, thumb=100)
-        self.add_slider('Hitpoints', 'HP', span=100, thumb=10)
-        self.add_slider('Speedup', 'SP', span=100, thumb=80)
+        self.add_slider('Lifetime', 'LT', span=1000, center=0, thumb=100)
+        self.add_slider('Hitpoints', 'HP', span=100, center=0, thumb=20)
+        self.add_slider('Speedup', 'SP', span=100, center=0, thumb=80)
 
     def add_button(self, label, callback):
         button = wx.Button(
@@ -106,7 +106,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.Bind(wx.EVT_BUTTON, callback, button)
         self._buttonIndex += 1
 
-    def add_slider(self, label, key, span=200, thumb=100):
+    def add_slider(self, label, key, span=200, center=100, thumb=100):
         explanation = wx.StaticText(
             self, label=label, pos=wx.DefaultPosition, size=wx.DefaultSize)
 
@@ -114,13 +114,11 @@ class NeroPanel(wx.Panel, ScriptClient):
         slider.SetScrollbar(wx.HORIZONTAL, 0, span, span)
         slider.SetThumbPosition(thumb)
 
-        pos = slider.GetThumbPosition()
-        if span == 200:
-            pos -= 100
+        pos = slider.GetThumbPosition() - center
         self._labels[key] = wx.StaticText(
             self, label=str(pos), pos=wx.DefaultPosition, size=wx.DefaultSize)
 
-        self.Bind(wx.EVT_SCROLL, lambda event: self.OnSlider(event, key, span), slider)
+        self.Bind(wx.EVT_SCROLL, lambda event: self.OnSlider(event, key, center), slider)
 
         self._grid.Add(self._labels[key], pos=(self._sliderIndex, 1))
         self._grid.Add(slider, pos=(self._sliderIndex, 2))
@@ -133,7 +131,7 @@ class NeroPanel(wx.Panel, ScriptClient):
 
     def OnSave1(self, event):
         dirname = ""
-        dlg = wx.FileDialog(self, "Save Population File", dirname, "", "*.*", wx.FD_SAVE)
+        dlg = wx.FileDialog(self, "Blue Team: Save Population File", dirname, "", "*.*", wx.FD_SAVE)
         if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetFilename()
             dirname = dlg.GetPath()
@@ -141,16 +139,14 @@ class NeroPanel(wx.Panel, ScriptClient):
 
     def OnLoad1(self, event):
         dirname = ""
-        dlg = wx.FileDialog(self, "Load Population File", dirname, "", "*.*", wx.FD_OPEN)
+        dlg = wx.FileDialog(self, "Blue Team: Load Population File", dirname, "", "*.*", wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
             filename = dlg.GetFilename()
             dirname = dlg.GetPath()
             self.send("load1 %s" % dirname)
 
-    def OnSlider(self, event, key, span):
-        position = event.Position
-        if span == 200:
-            position -= 100
+    def OnSlider(self, event, key, center=0):
+        position = event.Position - center
         self._labels[key].SetLabel(str(position))
         self.send("%s %d" % (key, event.Position))
 

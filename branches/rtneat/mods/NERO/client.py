@@ -177,7 +177,7 @@ def ClientMain():
     OpenNero.disable_ai()
 
     if not module.getMod().setup_map():
-        switchToHub()
+        inputConfig.switchToHub()
         return
 
     # add a light source
