@@ -11,6 +11,7 @@ class NeroModule:
     def __init__(self):
         self.environment = None
         self.agent_id = None
+
         self.lt = constants.DEFAULT_LIFETIME
         self.dta = 50
         self.dtb = 50
@@ -18,11 +19,15 @@ class NeroModule:
         self.ff = 0
         self.ee = 0
         self.hp = 50
+
         self.flag_loc = OpenNero.Vector3f(0,0,0)
         self.flag_id = -1
-        self.num_to_add = constants.pop_size
-        (self.spawn_x,self.spawn_y) = (constants.XDIM/2, constants.YDIM/3)
+
         self.set_speedup(constants.DEFAULT_SPEEDUP)
+
+        self.spawn_x = {}
+        self.spawn_y = {}
+        self.set_spawn(constants.XDIM / 2, constants.YDIM / 3)
 
     def setup_map(self):
         """
@@ -117,28 +122,19 @@ class NeroModule:
     #The following is run when the Deploy button is pressed
     def start_rtneat(self):
         """ start the rtneat learning stuff"""
-        # Generate an initial rtNEAT Agent
-        dx = random.randrange(constants.XDIM/20) - constants.XDIM/40
-        dy = random.randrange(constants.XDIM/20) - constants.XDIM/40
-        dx = random.randrange(constants.XDIM/20) - constants.XDIM/40
-        dy = random.randrange(constants.XDIM/20) - constants.XDIM/40
-        id = common.addObject(
-            "data/shapes/character/steve_blue_armed.xml",
-            OpenNero.Vector3f(self.spawn_x + dx, self.spawn_y + dy, 2),
-            type=constants.OBJECT_TYPE_TEAM_0)
+        self.spawnAgent()
         OpenNero.enable_ai()
-        self.num_to_add -= 1
 
     #The following is run when the Save button is pressed
-    def save_rtneat(self, location, pop):
+    def save_rtneat(self, location, pop, team=constants.OBJECT_TYPE_TEAM_0):
         location = os.path.relpath("/") + location
-        OpenNero.get_ai("rtneat").save_population(str(location))
+        OpenNero.get_ai("rtneat-%s" % team).save_population(str(location))
 
     #The following is run when the Load button is pressed
-    def load_rtneat(self, location , pop):
+    def load_rtneat(self, location , pop, team=constants.OBJECT_TYPE_TEAM_0):
         location = os.path.relpath("/") + location
         if os.path.exists(location):
-            OpenNero.set_ai("rtneat", OpenNero.RTNEAT(
+            OpenNero.set_ai("rtneat-%s" % team, OpenNero.RTNEAT(
                     str(location), "data/ai/neat-params.dat",
                     constants.pop_size,
                     OpenNero.get_environment().agent_info.reward))
@@ -148,26 +144,26 @@ class NeroModule:
         if self.environment:
             self.environment.speedup = (speedup/100.0)
 
-    def set_spawn(self, x, y):
-        self.spawn_x = x
-        self.spawn_y = y
+    def set_spawn(self, x, y, team=constants.OBJECT_TYPE_TEAM_0):
+        self.spawn_x[team] = x
+        self.spawn_y[team] = y
 
     #The following functions are used to let the client update the fitness function
     def set_weight(self, key, value):
         i = constants.FITNESS_INDEX[key]
         value = (value - 100) / 100.0 # value in [-1, 1]
-        rtneat = OpenNero.get_ai("rtneat")
-        if rtneat:
-            rtneat.set_weight(i, value)
+        for team in (constants.OBJECT_TYPE_TEAM_0, constants.OBJECT_TYPE_TEAM_1):
+            rtneat = OpenNero.get_ai("rtneat-%s" % team)
+            if rtneat:
+                rtneat.set_weight(i, value)
         print key, value
 
     def ltChange(self, value):
         self.lt = value
-        rtneat = OpenNero.get_ai("rtneat")
-        print 'lifetime:', value
-        if rtneat:
-            rtneat.set_lifetime(value)
-            print 'rtNEAT lifetime:', value
+        for team in (constants.OBJECT_TYPE_TEAM_0, constants.OBJECT_TYPE_TEAM_1):
+            rtneat = OpenNero.get_ai("rtneat-%s" % team)
+            if rtneat:
+                rtneat.set_lifetime(value)
 
     def dtaChange(self, value):
         self.dta = value
@@ -193,19 +189,15 @@ class NeroModule:
         self.hp = value
         print 'Hit points:', value
 
-    def getNumToAdd(self):
-        return self.num_to_add
-
     #This is the function ran when an agent already in the field causes the generation of a new agent
-    def addAgent(self):
+    def spawnAgent(self, team=constants.OBJECT_TYPE_TEAM_0):
         dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
         dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
-        dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
-        dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
-        common.addObject("data/shapes/character/steve_blue_armed.xml",
-                         OpenNero.Vector3f(self.spawn_x + dx, self.spawn_y + dy, 2),
-                         type=constants.OBJECT_TYPE_TEAM_0)
-        self.num_to_add -= 1
+        self.curr_team = team
+        common.addObject(
+            "data/shapes/character/steve_blue_armed.xml",
+            OpenNero.Vector3f(self.spawn_x[team] + dx, self.spawn_y[team] + dy, 2),
+            type=team)
 
 gMod = None
 

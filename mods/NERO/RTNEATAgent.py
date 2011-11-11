@@ -1,6 +1,7 @@
 import constants
-
+import module
 import OpenNero
+
 
 class RTNEATAgent(OpenNero.AgentBrain):
     """
@@ -13,7 +14,7 @@ class RTNEATAgent(OpenNero.AgentBrain):
         # this line is crucial, otherwise the class is not recognized as an
         # AgentBrainPtr by C++
         OpenNero.AgentBrain.__init__(self)
-        self.team = 0
+        self.team = module.getMod().curr_team
 
     def initialize(self, init_info):
         """
@@ -28,7 +29,7 @@ class RTNEATAgent(OpenNero.AgentBrain):
         """
         Returns the rtNEAT object for this agent
         """
-        return OpenNero.get_ai("rtneat").get_organism(self)
+        return OpenNero.get_ai("rtneat-%s" % self.team).get_organism(self)
 
     def start(self, time, sensors):
         """
@@ -50,7 +51,7 @@ class RTNEATAgent(OpenNero.AgentBrain):
         """
         end of an episode
         """
-        OpenNero.get_ai("rtneat").release_organism(self)
+        OpenNero.get_ai("rtneat-%s" % self.team).release_organism(self)
         return True
 
     def destroy(self):

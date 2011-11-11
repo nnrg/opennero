@@ -1,4 +1,5 @@
 import OpenNero
+import constants
 
 class Turret(OpenNero.AgentBrain):
     """
@@ -6,7 +7,7 @@ class Turret(OpenNero.AgentBrain):
     """
     def __init__(self):
         OpenNero.AgentBrain.__init__(self)
-        self.team = 1
+        self.team = constants.OBJECT_TYPE_TEAM_1
 
     def initialize(self, init_info):
         self.actions = init_info.actions
