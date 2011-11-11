@@ -31,8 +31,8 @@ class AgentState:
     def randomize(self):
         dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
         dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
-        self.initial_position.x = module.getMod().spawn_x + dx
-        self.initial_position.y = module.getMod().spawn_y + dy
+        self.initial_position.x = module.getMod().spawn_x[self.agent.get_team()] + dx
+        self.initial_position.y = module.getMod().spawn_y[self.agent.get_team()] + dy
         self.prev_pose = self.pose = (self.initial_position.x,
                                       self.initial_position.y,
                                       self.initial_rotation.z)
@@ -85,6 +85,7 @@ class NeroEnvironment(OpenNero.Environment):
         self.MAX_DIST = math.hypot(constants.XDIM, constants.YDIM)
         self.states = {}
         self.teams = {}
+        self.script = 'NERO/menu.py'
 
         abound = OpenNero.FeatureVectorInfo() # actions
         sbound = OpenNero.FeatureVectorInfo() # sensors
@@ -118,8 +119,9 @@ class NeroEnvironment(OpenNero.Environment):
                                  1.0,
                                  rbound)
 
-        OpenNero.set_ai("rtneat", rtneat)
-        print "get_ai(rtneat):", OpenNero.get_ai("rtneat")
+        key = "rtneat-%s" % constants.OBJECT_TYPE_TEAM_0
+        OpenNero.set_ai(key, rtneat)
+        print "get_ai(%s): %s" % (key, OpenNero.get_ai(key))
 
         # set the initial lifetime
         lifetime = module.getMod().lt
@@ -140,7 +142,6 @@ class NeroEnvironment(OpenNero.Environment):
             agent.state.position = copy.copy(state.initial_position)
             agent.state.rotation = copy.copy(state.initial_rotation)
             agent.state.update_immediately()
-        self.getFriendFoe(agent)  # make sure agent is in state and team maps.
         return True
 
     def get_agent_info(self, agent):
@@ -182,8 +183,11 @@ class NeroEnvironment(OpenNero.Environment):
         """
         Returns sets of all friend agents and all foe agents.
         """
-        t = agent.get_team()
-        return self.teams.get(t), self.teams.get(1 - t)
+        my_team = agent.get_team()
+        other_team = constants.OBJECT_TYPE_TEAM_1
+        if my_team == other_team:
+            other_team = constants.OBJECT_TYPE_TEAM_0
+        return self.teams.get(my_team, set()), self.teams.get(other_team, set())
 
     def target(self, agent):
         """
@@ -225,10 +229,8 @@ class NeroEnvironment(OpenNero.Environment):
             state.reset_pose(p, r)
             return self.agent_info.reward.get_instance()
 
-        # Spawn more agents if there are more to spawn
-        if OpenNero.get_ai("rtneat").ready():
-            if module.getMod().getNumToAdd() > 0:
-                module.getMod().addAgent()
+        # spawn more agents if possible.
+        self.maybe_spawn(agent)
 
         # get the desired action of the agent
         move_by = action[0]
@@ -249,59 +251,58 @@ class NeroEnvironment(OpenNero.Environment):
         return reward
 
     def calculate_reward(self, agent, action):
-        state = self.get_state(agent)
-
-        # get the reward (which has multiple components)
         reward = self.agent_info.reward.get_instance()
+        state = self.get_state(agent)
+        friends, foes = self.getFriendFoe(agent)
 
-        # calculate if we hit anyone
-        hit = 0
+        R = dict([(f, 0) for f in constants.FITNESS_DIMENSIONS])
+
+        R[constants.FITNESS_STAND_GROUND] = -abs(action[0])
+
+        friend = self.nearest(state.pose, friends)
+        if friend:
+            d = self.distance(self.get_state(friend).pose, state.pose)
+            R[constants.FITNESS_STICK_TOGETHER] = -d * d
+
+        foe = self.nearest(state.pose, foes)
+        if foe:
+            d = self.distance(self.get_state(foe).pose, state.pose)
+            R[constants.FITNESS_APPROACH_ENEMY] = -d * d
+
+        f = module.getMod().flag_loc
+        if f:
+            d = self.distance(state.pose, (f.x, f.y))
+            R[constants.FITNESS_APPROACH_FLAG] = -d * d
+
         target = self.target(agent)
-        if target != None:
+        if target is not None:
             obstacles = OpenNero.getSimContext().findInRay(
                 agent.state.position,
                 target.state.position,
-                constants.OBJECT_TYPE_OBSTACLE | constants.OBJECT_TYPE_TEAM_0 | constants.OBJECT_TYPE_TEAM_1,
+                constants.OBJECT_TYPE_OBSTACLE | agent.get_team(),
                 True)
-            if len(obstacles) == 0 or obstacles[0] == target:
+            if len(obstacles) == 0:
                 self.get_state(target).curr_damage += 1
-                hit = 1
+                R[constants.FITNESS_HIT_TARGET] = 1
 
-        # calculate friend/foe
-        friends, foes = self.getFriendFoe(agent)
-        if not friends:
-            return reward #Corner Case
-
-        #calculate fitness accrued during this step
-        R = dict([(f, 0) for f in constants.FITNESS_DIMENSIONS])
-
-        R[constants.FITNESS_STAND_GROUND] = -action[0]
-
-        friend = self.nearest(state.pose, state.id, friends)
-        if friend:
-            d = self.distance(self.get_state(friend).pose, state.pose)
-            R[constants.FITNESS_STICK_TOGETHER] = -d*d
-
-        foe = self.nearest(state.pose, state.id, foes)
-        if foe:
-            d = self.distance(self.get_state(foe).pose, state.pose)
-            R[constants.FITNESS_APPROACH_ENEMY] = -d*d
-
-        f = module.getMod().flag_loc
-        d = self.distance(state.pose, (f.x, f.y))
-        R[constants.FITNESS_APPROACH_FLAG] = -d*d
-
-        R[constants.FITNESS_HIT_TARGET] = hit
-
-        # Update Damage totals
         damage = state.update_damage()
         R[constants.FITNESS_AVOID_FIRE] = -damage
 
-        # put the fitness dimensions into the reward vector in order
         for i, f in enumerate(constants.FITNESS_DIMENSIONS):
             reward[i] = R[f]
 
         return reward
+
+    def maybe_spawn(self, agent):
+        '''Spawn more agents if there are more to spawn.'''
+        team = agent.get_team()
+        friends, foes = self.getFriendFoe(agent)
+        friends = tuple(friends or [None])
+        if (agent.group == 'Agent' and
+            agent is friends[0] and
+            OpenNero.get_ai("rtneat-%s" % team).ready() and
+            len(friends) < constants.pop_size):
+            module.getMod().spawnAgent(team)
 
     def sense(self, agent, observations):
         """
@@ -352,7 +353,7 @@ class NeroEnvironment(OpenNero.Environment):
             rh -= 360
         return rh
 
-    def nearest(self, loc, id, agents):
+    def nearest(self, loc, agents):
         """
         Returns the nearest agent to a particular location.
         """
@@ -362,11 +363,8 @@ class NeroEnvironment(OpenNero.Environment):
         nearest = None
         min_dist = self.MAX_DIST * 5
         for agent in agents:
-            state = self.get_state(agent)
-            if id == state.id:
-                continue
-            d = self.distance(loc, state.pose)
-            if d < min_dist:
+            d = self.distance(loc, self.get_state(agent).pose)
+            if 0 < d < min_dist:
                 nearest = agent
                 min_dist = d
         return nearest
@@ -382,21 +380,26 @@ class NeroEnvironment(OpenNero.Environment):
         """
         is the current episode over for the agent?
         """
-        if agent.group == "Turret": return False
+        if agent.group == "Turret":
+            return False
+
         self.max_steps = module.getMod().lt
-        state = self.get_state(agent)
         if self.max_steps != 0 and agent.step >= self.max_steps:
             return True
-        if not OpenNero.get_ai("rtneat").has_organism(agent):
+
+        team = agent.get_team()
+        if not OpenNero.get_ai("rtneat-%s" % team).has_organism(agent):
             return True
+
+        state = self.get_state(agent)
         if module.getMod().hp != 0 and state.total_damage >= module.getMod().hp:
             return True
-        else:
-            return False
+
+        return False
 
     def cleanup(self):
         """
         cleanup the world
         """
-        common.killScript('NERO/menu.py')
+        common.killScript(self.script)
         return True

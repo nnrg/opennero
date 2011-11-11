@@ -6,6 +6,8 @@ import inputConfig
 import module
 
 ai_state = None
+modify_object_id = {}
+object_ids = []
 
 def toggle_ai_callback():
     global ai_state
@@ -17,12 +19,6 @@ def toggle_ai_callback():
         ai_state = 'Paused'
     elif ai_state == 'Paused':
         ai_state = 'Started'
-
-def save_ai_call():
-    module.getMod().save_rtneat()
-
-def load_ai_call():
-    module.getMod().load_rtneat()
 
 def recenter(cam):
     def closure():
@@ -84,36 +80,36 @@ def show_context_menu():
         common.removeObject(selected_object_id)
 
     if selected_object_id in object_ids:
-        rotateButton = gui.create_button(guiMan, 'rotate', OpenNero.Pos2i(0,0), OpenNero.Pos2i(0,0), '')
+        rotateButton = gui.create_button(guiMan, 'rotate', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
         rotateButton.OnMouseLeftClick = lambda: rotate_object()
         contextMenu.addItem('Rotate Object', rotateButton)
 
-        scaleButton = gui.create_button(guiMan, 'scale', OpenNero.Pos2i(0,0), OpenNero.Pos2i(0,0), '')
+        scaleButton = gui.create_button(guiMan, 'scale', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
         scaleButton.OnMouseLeftClick = lambda: scale_object()
         contextMenu.addItem('Scale Object', scaleButton)
 
-        moveButton = gui.create_button(guiMan, 'move', OpenNero.Pos2i(0,0), OpenNero.Pos2i(0,0), '')
+        moveButton = gui.create_button(guiMan, 'move', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
         moveButton.OnMouseLeftClick = lambda: move_object()
         contextMenu.addItem('Move Object', moveButton)
 
-        removeButton = gui.create_button(guiMan, 'remove', OpenNero.Pos2i(0,0), OpenNero.Pos2i(0,0), '')
+        removeButton = gui.create_button(guiMan, 'remove', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
         removeButton.OnMouseLeftClick = lambda: remove_wall()
         contextMenu.addItem('Remove Object', removeButton)
 
     else:
-        wallButton = gui.create_button(guiMan, 'wall', OpenNero.Pos2i(0,0), OpenNero.Pos2i(0,0), '')
+        wallButton = gui.create_button(guiMan, 'wall', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
         wallButton.OnMouseLeftClick = lambda: add_wall()
         contextMenu.addItem('Add wall', wallButton)
 
-        flagButton = gui.create_button(guiMan, 'flag', OpenNero.Pos2i(0,0), OpenNero.Pos2i(0,0), '')
+        flagButton = gui.create_button(guiMan, 'flag', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
         flagButton.OnMouseLeftClick = lambda: place_flag()
         contextMenu.addItem('Place Flag', flagButton)
 
-        turretButton = gui.create_button(guiMan, 'b_turret', OpenNero.Pos2i(0,0), OpenNero.Pos2i(0,0), '')
+        turretButton = gui.create_button(guiMan, 'b_turret', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
         turretButton.OnMouseLeftClick = lambda: place_basic_turret()
         contextMenu.addItem('Place Basic Turret', turretButton)
 
-        spawnButton = gui.create_button(guiMan, 'spawn', OpenNero.Pos2i(0,0), OpenNero.Pos2i(0,0), '')
+        spawnButton = gui.create_button(guiMan, 'spawn', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
         spawnButton.OnMouseLeftClick = lambda: set_spawn()
         contextMenu.addItem('Set Spawn Location', spawnButton)
 
@@ -181,7 +177,7 @@ def ClientMain():
     OpenNero.disable_ai()
 
     if not module.getMod().setup_map():
-        switchToHub()
+        inputConfig.switchToHub()
         return
 
     # add a light source
