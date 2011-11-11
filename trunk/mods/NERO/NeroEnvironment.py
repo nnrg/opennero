@@ -2,7 +2,6 @@ import copy
 import math
 import random
 import sys
-import time
 
 import common
 import OpenNero
@@ -15,30 +14,67 @@ class AgentState:
     """
     def __init__(self, agent):
         self.id = agent.state.id
-        # current x, y, heading pose
-        self.pose = (0, 0, 0)
-        # previous x, y, heading pose
+        self.agent = agent
+        self.pose = (0, 0, 0)  # current x, y, heading
         self.prev_pose = (0, 0, 0)
-        # previous command
-        self.prev_command_pose = None
-        # starting position
         self.initial_position = OpenNero.Vector3f(0, 0, 0)
-        # starting orientation
         self.initial_rotation = OpenNero.Vector3f(0, 0, 0)
         self.total_damage = 0
         self.curr_damage = 0
+
     def __str__(self):
         x, y, h = self.pose
         px, py, ph = self.prev_pose
         return 'agent { id: %d, pose: (%.02f, %.02f, %.02f), prev_pose: (%.02f, %.02f, %.02f) }' % \
             (self.id, x, y, h, px, py, ph)
 
+    def randomize(self):
+        dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
+        dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
+        self.initial_position.x = module.getMod().spawn_x + dx
+        self.initial_position.y = module.getMod().spawn_y + dy
+        self.prev_pose = self.pose = (self.initial_position.x,
+                                      self.initial_position.y,
+                                      self.initial_rotation.z)
+
+    def reset_pose(self, position, rotation):
+        self.prev_pose = self.pose = (position.x, position.y, rotation.z)
+
+    def update_damage(self):
+        """
+        Update the damage for an agent, returning the current damage.
+        """
+        self.total_damage += self.curr_damage
+        damage = self.curr_damage
+        self.curr_damage = 0
+        return damage
+
+    def update_pose(self, move_by, turn_by):
+        dist = constants.MAX_MOVEMENT_SPEED * move_by
+        heading = common.wrap_degrees(self.agent.state.rotation.z, turn_by)
+        x = self.agent.state.position.x + dist * math.cos(math.radians(heading))
+        y = self.agent.state.position.y + dist * math.sin(math.radians(heading))
+
+        self.prev_pose = self.pose
+        self.pose = (x, y, heading)
+
+        # try to update position
+        pos = copy.copy(self.agent.state.position)
+        pos.x = x
+        pos.y = y
+        self.agent.state.position = pos
+
+        # try to update rotation
+        rot = copy.copy(self.agent.state.rotation)
+        rot.z = heading
+        self.agent.state.rotation = rot
+
+
 class NeroEnvironment(OpenNero.Environment):
     """
     Environment for the Nero
     """
     def __init__(self):
-        from NERO.module import getMod
         """
         Create the environment
         """
@@ -97,21 +133,14 @@ class NeroEnvironment(OpenNero.Environment):
         reset the environment to its initial state
         """
         state = self.get_state(agent)
-        if agent.group == "Agent":
-            dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
-            dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
-            # TODO: initialization code should be inside AgentState
-            state.initial_position.x = module.getMod().spawn_x + dx
-            state.initial_position.y = module.getMod().spawn_y + dy
-            agent.prev_command_pose = None
-            agent.state.position = copy.copy(state.initial_position)
-            agent.state.rotation = copy.copy(state.initial_rotation)
-            state.pose = (state.initial_position.x, state.initial_position.y, state.initial_rotation.z)
-            state.prev_pose = state.pose
-            agent.state.update_immediately()
         state.total_damage = 0
         state.curr_damage = 0
-        ff = self.getFriendFoe(agent)
+        if agent.group == "Agent":
+            state.randomize()
+            agent.state.position = copy.copy(state.initial_position)
+            agent.state.rotation = copy.copy(state.initial_rotation)
+            agent.state.update_immediately()
+        self.getFriendFoe(agent)  # make sure agent is in state and team maps.
         return True
 
     def get_agent_info(self, agent):
@@ -119,83 +148,63 @@ class NeroEnvironment(OpenNero.Environment):
         return a blueprint for a new agent
         """
         for a in constants.WALL_RAY_SENSORS:
-            agent.add_sensor(OpenNero.RaySensor(math.cos(math.radians(a)), math.sin(math.radians(a)), 0, 50, constants.OBJECT_TYPE_OBSTACLE, False))
+            agent.add_sensor(OpenNero.RaySensor(
+                    math.cos(math.radians(a)), math.sin(math.radians(a)), 0, 50,
+                    constants.OBJECT_TYPE_OBSTACLE,
+                    False))
         for a0, a1 in constants.FLAG_RADAR_SENSORS:
-            agent.add_sensor(OpenNero.RadarSensor(a0, a1, -90, 90, constants.MAX_VISION_RADIUS, constants.OBJECT_TYPE_FLAG, False))
+            agent.add_sensor(OpenNero.RadarSensor(
+                    a0, a1, -90, 90, constants.MAX_VISION_RADIUS,
+                    constants.OBJECT_TYPE_FLAG,
+                    False))
         for a0, a1 in constants.ENEMY_RADAR_SENSORS:
-            if agent.get_team() == 0: agent.add_sensor(OpenNero.RadarSensor(a0, a1, -90, 90, constants.MAX_VISION_RADIUS, constants.OBJECT_TYPE_TEAM_1, False))
-            if agent.get_team() == 1: agent.add_sensor(OpenNero.RadarSensor(a0, a1, -90, 90, constants.MAX_VISION_RADIUS, constants.OBJECT_TYPE_TEAM_0, False))
+            sense = constants.OBJECT_TYPE_TEAM_0
+            if agent.get_team() == 0:
+                sense = constants.OBJECT_TYPE_TEAM_1
+            agent.add_sensor(OpenNero.RadarSensor(
+                    a0, a1, -90, 90, constants.MAX_VISION_RADIUS,
+                    sense,
+                    False))
         return self.agent_info
 
     def get_state(self, agent):
         """
         Returns the state of an agent
         """
-        if agent in self.states:
-            return self.states[agent]
-        else:
+        if agent not in self.states:
             self.states[agent] = AgentState(agent)
-            if agent.get_team() not in  self.teams:
-                self.teams[agent.get_team()] = {}
-            self.teams[agent.get_team()][agent] = self.states[agent]
-            return self.states[agent]
-
-    def getStateId(self, id):
-        """
-        Searches for the state with the given ID
-        """
-        for state in self.states:
-            if id == self.states[state].id:
-                return self.states[state]
-        else:
-            return - 1
+            if agent.get_team() not in self.teams:
+                self.teams[agent.get_team()] = set()
+            self.teams[agent.get_team()].add(agent)
+        return self.states[agent]
 
     def getFriendFoe(self, agent):
         """
-        Returns lists of all friend agents and all foe agents.
+        Returns sets of all friend agents and all foe agents.
         """
-        friend = []
-        foe = []
-        if agent.get_team() in self.teams:
-            friend = self.teams[agent.get_team()]
-        if 1-agent.get_team() in self.teams:
-            foe = self.teams[1-agent.get_team()]
-        else:
-            foe = []
-        return (friend, foe)
+        t = agent.get_team()
+        return self.teams.get(t), self.teams.get(1 - t)
 
     def target(self, agent):
-        #Get list of all targets
-        ffr = self.getFriendFoe(agent)
-        alt = ffr[1]#ffr[0] + ffr[1]
-        if (ffr[0] == []):
+        """
+        Returns the nearest foe in a 2-degree cone from an agent.
+        """
+        friends, foes = self.getFriendFoe(agent)
+        if not foes:
             return None
-
-        state = self.get_state(agent)
-
-        #sort in order of variance from 0~2 degrees (maybe more)
-        valids = []
-        for curr in alt:
-            fd = self.distance(state.pose, (alt[curr].pose[0], alt[curr].pose[1]))
-            if fd != 0:
-                fh  = ((math.degrees(math.atan2(alt[curr].pose[1] - state.pose[1], alt[curr].pose[0] - state.pose[0])) - state.pose[2]) % 360)
-            else:
-                fh = 0
-            fh = abs(fh)
+        pose = self.get_state(agent).pose
+        min_f = None
+        min_v = None
+        for f in foes:
+            p = self.get_state(f).pose
+            fd = self.distance(pose, p)
+            fh = abs(self.angle(pose, p))
             if fh <= 2:
-                valids.append((curr, fd, fh))
-
-        #Valids contains (state, distance, heading to distance) pairs
-        #get one that is nearest based on distance / cos(radians(degrees() * 20))
-        top = None
-        top_v = 'A'
-
-        for curr, fd, fh in valids:
-            if top_v == 'A' or top_v > (fd / math.cos(math.radians(fh * 20))):
-                top = curr
-                top_v = fd / math.cos(math.radians(fh * 20))
-
-        return top
+                v = fd / math.cos(math.radians(fh * 20))
+                if min_v is None or v < min_v:
+                    min_f = f
+                    min_v = v
+        return min_f
 
     def step(self, agent, action):
         """
@@ -206,9 +215,6 @@ class NeroEnvironment(OpenNero.Environment):
 
         state = self.get_state(agent)
 
-        # get the reward (which has multiple components)
-        reward = self.agent_info.reward.get_instance()
-
         #Initilize Agent state
         if agent.step == 0 and agent.group != "Turret":
             p = copy.copy(agent.state.position)
@@ -216,38 +222,13 @@ class NeroEnvironment(OpenNero.Environment):
             if agent.group == "Agent":
                 r.z = random.randrange(360)
                 agent.state.rotation = r
-            # TODO: move into a member function of state
-            state.initial_position = p
-            state.initial_rotation = r
-            state.pose = (p.x, p.y, r.z)
-            state.prev_pose = (p.x, p.y, r.z)
-            return reward
+            state.reset_pose(p, r)
+            return self.agent_info.reward.get_instance()
 
         # Spawn more agents if there are more to spawn
         if OpenNero.get_ai("rtneat").ready():
             if module.getMod().getNumToAdd() > 0:
                 module.getMod().addAgent()
-
-        # Update Damage totals
-        # TODO: move into a member function of state
-        state.total_damage += state.curr_damage
-        damage = state.curr_damage
-        state.curr_damage = 0
-
-        #Fitness Function Parameters
-        # TODO: make these less opaque
-        distance_st = module.getMod().dta
-        distance_ae = module.getMod().dtb
-        distance_af = module.getMod().dtc
-        friendly_fire = module.getMod().ff
-
-        # the position and the rotation of the agent on-screen
-        position = copy.copy(agent.state.position)
-        rotation = copy.copy(agent.state.rotation)
-
-        # get the current pose of the agent
-        x, y, heading = position.x, position.y, rotation.z
-        state.pose = (x, y, heading)
 
         # get the desired action of the agent
         move_by = action[0]
@@ -260,76 +241,65 @@ class NeroEnvironment(OpenNero.Environment):
         if delay > 0.0: # if there is a need to show animation
             agent.state.animation_speed = move_by * 28.0 / delay
 
-        # figure out the new heading
-        new_heading = common.wrap_degrees(heading, turn_by)
+        reward = self.calculate_reward(agent, action)
 
-        # figure out the new x, y location
-        new_x = x + constants.MAX_MOVEMENT_SPEED * math.cos(math.radians(new_heading)) * move_by
-        new_y = y + constants.MAX_MOVEMENT_SPEED * math.sin(math.radians(new_heading)) * move_by
+        # tell the system to make the calculated motion
+        state.update_pose(move_by, turn_by)
 
-        # figure out the firing location
-        fire_x = x + self.MAX_DIST * math.cos(math.radians(new_heading))
-        fire_y = y + self.MAX_DIST * math.sin(math.radians(new_heading))
+        return reward
 
-        # draw the line of fire
-        fire_pos = copy.copy(position)
-        fire_pos.x, fire_pos.y = fire_x, fire_y
+    def calculate_reward(self, agent, action):
+        state = self.get_state(agent)
+
+        # get the reward (which has multiple components)
+        reward = self.agent_info.reward.get_instance()
 
         # calculate if we hit anyone
         hit = 0
-        data = self.target(agent)
-        if data != None:#len(data) > 0:
-            objects = OpenNero.getSimContext().findInRay(position, data.state.position, constants.OBJECT_TYPE_OBSTACLE | constants.OBJECT_TYPE_TEAM_0 | constants.OBJECT_TYPE_TEAM_1, True)
-            if len(objects) > 0: sim = objects[0]
-            else: sim = data
-            if len(objects) == 0 or objects[0] == sim:
-                target = self.get_state(data)
-                if target != -1:
-                    target.curr_damage += 1
-                    hit = 1
+        target = self.target(agent)
+        if target != None:
+            obstacles = OpenNero.getSimContext().findInRay(
+                agent.state.position,
+                target.state.position,
+                constants.OBJECT_TYPE_OBSTACLE | constants.OBJECT_TYPE_TEAM_0 | constants.OBJECT_TYPE_TEAM_1,
+                True)
+            if len(obstacles) == 0 or obstacles[0] == target:
+                self.get_state(target).curr_damage += 1
+                hit = 1
 
         # calculate friend/foe
-        ffr = self.getFriendFoe(agent)
-        if ffr[0] == []:
+        friends, foes = self.getFriendFoe(agent)
+        if not friends:
             return reward #Corner Case
-
-        ff = []
-        ff.append(self.nearest(state.pose, state.id, ffr[0]))
-        ff.append(self.nearest(state.pose, state.id, ffr[1]))
 
         #calculate fitness accrued during this step
         R = dict([(f, 0) for f in constants.FITNESS_DIMENSIONS])
+
         R[constants.FITNESS_STAND_GROUND] = -action[0]
-        if ff[0]:
-            d = self.distance(self.get_state(ff[0]).pose, state.pose)
+
+        friend = self.nearest(state.pose, state.id, friends)
+        if friend:
+            d = self.distance(self.get_state(friend).pose, state.pose)
             R[constants.FITNESS_STICK_TOGETHER] = -d*d
-        if ff[1]:
-            d = self.distance(self.get_state(ff[1]).pose, state.pose)
+
+        foe = self.nearest(state.pose, state.id, foes)
+        if foe:
+            d = self.distance(self.get_state(foe).pose, state.pose)
             R[constants.FITNESS_APPROACH_ENEMY] = -d*d
-        d = self.flag_distance(agent)
+
+        f = module.getMod().flag_loc
+        d = self.distance(state.pose, (f.x, f.y))
         R[constants.FITNESS_APPROACH_FLAG] = -d*d
+
         R[constants.FITNESS_HIT_TARGET] = hit
+
+        # Update Damage totals
+        damage = state.update_damage()
         R[constants.FITNESS_AVOID_FIRE] = -damage
 
         # put the fitness dimensions into the reward vector in order
         for i, f in enumerate(constants.FITNESS_DIMENSIONS):
             reward[i] = R[f]
-
-        # tell the system to make the calculated motion
-        state.prev_pose = state.pose
-        state.pose = (new_x, new_y, new_heading)
-
-        # try to update position
-        pos = copy.copy(agent.state.position)
-        pos.x = new_x
-        pos.y = new_y
-        state.prev_command_pose = pos
-        agent.state.position = pos
-
-        # try to update rotation
-        rot = copy.copy(agent.state.rotation)
-        rot.z = new_heading
-        agent.state.rotation = rot
 
         return reward
 
@@ -337,84 +307,68 @@ class NeroEnvironment(OpenNero.Environment):
         """
         figure out what the agent should sense
         """
-        # we only use the built-in sensors defined in get_agent_info
+        # the last observation is whether there is a target for the agent
+        observations[-1] = int(self.target(agent) is not None)
 
-        f = len(observations)
-        state = self.get_state(agent)
+        friends, foes = self.getFriendFoe(agent)
+        if not friends:
+            return observations
 
-        ffr = self.getFriendFoe(agent)
-        if (ffr[0] == []): return v
-        xloc = agent.state.position.x
-        yloc = agent.state.position.y
-        for x in ffr[0]:
-            xloc += ffr[0][x].pose[0]
-            yloc += ffr[0][x].pose[1]
-        xloc /= len(ffr[0])
-        yloc /= len(ffr[0])
-        fd = self.distance(state.pose, (xloc, yloc))
-        fh = 0
-        if fd != 0:
-            fh = ((math.degrees(math.atan2(yloc - state.pose[1], xloc - state.pose[0])) - state.pose[2]) % 360) - 180
-
+        # the 2 before that are the angle and heading to the center of mass of
+        # the agent's team
+        n = float(len(friends))
+        pose = self.get_state(agent).pose
+        cx, cy, _ = pose
+        for f in friends:
+            ax, ay, _ = self.get_state(f).pose
+            cx += ax / n
+            cy += ay / n
+        fd = self.distance(pose, (cx, cy))
+        fh = self.angle(pose, (cx, cy)) + 180.0
         if fd <= 15:
-            observations[f-3] = fd/15.0
-            observations[f-2] = fh/360.0
-
-        if observations[f-2] < 0: observations[f-2] += 1
-
-        data = self.target(agent)
-        observations[f-1] = 0
-        if data != None: observations[f-1] = 1
+            observations[-3] = fd / 15.0
+            observations[-2] = fh / 360.0
 
         return observations
 
-    def flag_loc(self):
+    def distance(self, a, b):
         """
-        Returns the current location of the flag
+        Returns the distance between positions (x-y tuples) a and b.
         """
-        return module.getMod().flag_loc
+        return math.hypot(a[0] - b[0], a[1] - b[1])
 
-    def flag_distance(self, agent):
+    def angle(self, a, b):
         """
-        Returns the distance of the current agent from the flag
+        Returns the relative angle from a looking towards b, in the interval
+        [-180, +180]. a needs to be a 3-tuple (x, y, heading) and b needs to be
+        an x-y tuple.
         """
-        pos = agent.state.position
-        flag_loc = self.flag_loc()
-        return math.hypot(pos.x - flag_loc.x, pos.y - flag_loc.y)
-
-    def distance(self, agloc, tgloc):
-        """
-        Returns the distance between agloc and tgloc
-        """
-        return math.hypot(float(agloc[0] - tgloc[0]), float(agloc[1] - tgloc[1]))
-
-    def angle(self, agloc, tgloc):
-        """
-        returns the angle between agloc and tgloc (test before using to make
-        sure it's returning what you think it is)
-        """
-        x, y, heading = agloc
-        xt, yt, _ = tgloc
-        if y == yt:
+        if self.distance(a, b) == 0:
             return 0
-        # angle to target
-        theading = math.atan2(yt - y, xt - x)
-        rel_angle_to_target = theading - math.radians(heading)
-        return rel_angle_to_target
+        rh = math.degrees(math.atan2(b[1] - a[1], b[0] - a[0])) - a[2]
+        if rh < -180:
+            rh += 360
+        if rh > 180:
+            rh -= 360
+        return rh
 
-    def nearest(self, cloc, id, array):
+    def nearest(self, loc, id, agents):
         """
-        Returns the nearest agent in array to agent with id id at current location.
+        Returns the nearest agent to a particular location.
         """
         # TODO: this needs to only be computed once per tick, not per agent
+        if not agents:
+            return None
         nearest = None
-        value = self.MAX_DIST * 5
-        for other in array:
-            if id == array[other].id:
+        min_dist = self.MAX_DIST * 5
+        for agent in agents:
+            state = self.get_state(agent)
+            if id == state.id:
                 continue
-            if self.distance(cloc, array[other].pose) < value:
-                nearest = other
-                value - self.distance(cloc, array[other].pose)
+            d = self.distance(loc, state.pose)
+            if d < min_dist:
+                nearest = agent
+                min_dist = d
         return nearest
 
     def set_animation(self, agent, state, animation):
