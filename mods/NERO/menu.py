@@ -1,7 +1,11 @@
 import os
+import cPickle
+import select
+import socket
+import struct
 import sys
-from menu_utils import ScriptClient
-from constants import *
+
+import constants
 
 try:
     import wx
@@ -10,218 +14,124 @@ except:
     tkMessageBox.showwarning('Warning!', 'Could not start the external menu for NERO because wxPython is not installed.')
     sys.exit()
 
+
+marshall = cPickle.dumps
+unmarshall = cPickle.loads
+
+def send(channel, *args):
+    buf = marshall(args)
+    value = socket.htonl(len(buf))
+    size = struct.pack("L", value)
+    channel.send(size)
+    channel.send(buf)
+
+def receive(channel):
+    size = struct.calcsize("L")
+    size = channel.recv(size)
+    try:
+        size = socket.ntohl(struct.unpack("L", size)[0])
+    except struct.error, e:
+        return ''
+    buf = ""
+    while len(buf) < size:
+        buf = channel.recv(size - len(buf))
+    return unmarshall(buf)[0]
+
+
+HOST = '127.0.0.1'
+PORT = 8888
+
+class ScriptClient:
+    def __init__(self, host=HOST, port=PORT):
+        self.host = host
+        self.port = port
+        try:
+            self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            self.sock.connect((self.host, self.port))
+            print 'ScriptClient connected to ScriptServer at (%s, %d)' % (self.host, self.port)
+        except socket.error, e:
+            print 'ScriptClient could not connect to ScriptServer'
+
+    def __del__(self):
+        print 'ScriptClient closing socket...'
+        self.sock.close()
+
+    def send(self, data):
+        if data and self.sock:
+            send(self.sock, data)
+
+
 class NeroPanel(wx.Panel, ScriptClient):
-    def __init__(self,parent):
-        wx.Panel.__init__(self,parent)
+    def __init__(self, parent):
+        wx.Panel.__init__(self, parent)
         ScriptClient.__init__(self)
 
-        grid = wx.GridBagSizer(hgap = 5, vgap = 5)
+        self._grid = wx.GridBagSizer(hgap=5, vgap=5)
 
-        # Panel for the buttons
-        self.buttonPanel = wx.Panel(self, wx.ID_ANY)
-        buttonGrid = wx.GridBagSizer(hgap = 5, vgap = 5)
+        self._buttonIndex = 0
+        self._buttonPanel = wx.Panel(self, wx.ID_ANY)
+        self._buttonGrid = wx.GridBagSizer(hgap=5, vgap=5)
+        self.add_buttons()
+        self._buttonPanel.SetSizer(self._buttonGrid)
 
-        #Deploy Button
-        self.deploy = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize,label='Deploy')
-        buttonGrid.Add(self.deploy, pos = (0,0) )
-        self.Bind(wx.EVT_BUTTON, self.OnDeploy, self.deploy)
+        self._grid.Add(self._buttonPanel, pos=(0, 0), span=(1, 6))
 
-        #Save1 Button
-        self.save = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Save Pop')# 1')
-        buttonGrid.Add(self.save,pos=(0,1) )
-        self.Bind(wx.EVT_BUTTON, self.OnSave1, self.save)
+        self._labels = {}
+        self._sliderIndex = 1
+        self.add_sliders()
+        self.SetSizer(self._grid)
 
-        #Load1 Button
-        self.load = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Load Pop')# 1')
-        buttonGrid.Add(self.load, pos = (0,2) )
-        self.Bind(wx.EVT_BUTTON, self.OnLoad1, self.load)
-        """
-        #Save2 Button
-        self.save2 = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Save Pop 2')
-        buttonGrid.Add(self.save2,pos=(0,3) )
-        self.Bind(wx.EVT_BUTTON, self.OnSave2, self.save2)
+        self._grid.Fit(parent)
 
-        #Load2 Button
-        self.load2 = wx.Button(self.buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label='Load Pop 2')
-        buttonGrid.Add(self.load2, pos = (0,4) )
-        self.Bind(wx.EVT_BUTTON, self.OnLoad2, self.load2)
-        """
-        self.buttonPanel.SetSizer(buttonGrid)
+    def add_buttons(self):
+        self.add_button('Deploy', self.OnDeploy)
+        self.add_button('Save Team', self.OnSave1)
+        self.add_button('Load Team', self.OnLoad1)
 
-        grid.Add(self.buttonPanel, pos=(0,0), span=(1,6))
+    def add_sliders(self):
+        self.add_slider('Stand Ground', 'SG')
+        self.add_slider('Stick Together', 'ST')
+        self.add_slider('Approach Enemy', 'AE')
+        self.add_slider('Approach Flag', 'AF')
+        self.add_slider('Hit Target', 'HT')
+        self.add_slider('Avoid Fire', 'VF')
+        self.add_slider('Lifetime', 'LT', span=1000, thumb=100)
+        self.add_slider('Hitpoints', 'HP', span=100, thumb=10)
+        self.add_slider('Speedup', 'SP', span=100, thumb=80)
 
-        #Stand Ground Slider
-        self.sgt = wx.StaticText(self,label = "Stand Ground", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.sgs = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.sgs.SetScrollbar(wx.HORIZONTAL,0,200,200)
-        self.sgs.SetThumbPosition(100)
-        self.sgl = wx.StaticText(self,label = str(self.sgs.GetThumbPosition() - 100), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.sgl, pos=(1,1))
-        self.Bind(wx.EVT_SCROLL, self.OnSG,self.sgs)
-        grid.Add(self.sgs, pos=(1,2))
-        grid.Add(self.sgt, pos=(1,0))
+    def add_button(self, label, callback):
+        button = wx.Button(
+            self._buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label=label)
+        self._buttonGrid.Add(button, pos=(0, self._buttonIndex))
+        self.Bind(wx.EVT_BUTTON, callback, button)
+        self._buttonIndex += 1
 
-        #Stick Together Slider
-        self.stt = wx.StaticText(self,label = "Stick Together", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.sts = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.sts.SetScrollbar(wx.HORIZONTAL,0,200,200)
-        self.sts.SetThumbPosition(100)
-        self.stl = wx.StaticText(self,label = str(self.sts.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.stl,pos=(2,1))
-        self.Bind(wx.EVT_SCROLL, self.OnST,self.sts)
-        grid.Add(self.sts,pos=(2,2))
-        grid.Add(self.stt,pos=(2,0))
+    def add_slider(self, label, key, span=200, thumb=100):
+        explanation = wx.StaticText(
+            self, label=label, pos=wx.DefaultPosition, size=wx.DefaultSize)
 
-        """
-        #Together Distance Slider
-        self.tdt = wx.StaticText(self,label = "Distance", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.tds = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.tds.SetScrollbar(wx.HORIZONTAL,0,100,100)
-        self.tds.SetThumbPosition(50)
-        self.tdl = wx.StaticText(self,label = str(self.tds.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.tdl,pos=(2,5))
-        self.Bind(wx.EVT_SCROLL, self.OnTD,self.tds)
-        grid.Add(self.tds,pos=(2,6))
-        grid.Add(self.tdt,pos=(2,4))
-        """
+        slider = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200, 15))
+        slider.SetScrollbar(wx.HORIZONTAL, 0, span, span)
+        slider.SetThumbPosition(thumb)
 
-        #Approach Enemy Slider
-        self.aet = wx.StaticText(self,label = "Approach Enemy", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.aes = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.aes.SetScrollbar(wx.HORIZONTAL,0,200,200)
-        self.aes.SetThumbPosition(100)
-        self.ael = wx.StaticText(self,label = str(self.aes.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.ael,pos=(3,1))
-        self.Bind(wx.EVT_SCROLL, self.OnAE,self.aes)
-        grid.Add(self.aes,pos=(3,2))
-        grid.Add(self.aet,pos=(3,0))
+        pos = slider.GetThumbPosition()
+        if span == 200:
+            pos -= 100
+        self._labels[key] = wx.StaticText(
+            self, label=str(pos), pos=wx.DefaultPosition, size=wx.DefaultSize)
 
-        """
-        #Enemy Distance Slider
-        self.edt = wx.StaticText(self,label = "Distance", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.eds = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.eds.SetScrollbar(wx.HORIZONTAL,0,100,100)
-        self.eds.SetThumbPosition(50)
-        self.edl = wx.StaticText(self,label = str(self.eds.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.edl,pos=(3,5))
-        self.Bind(wx.EVT_SCROLL, self.OnED,self.eds)
-        grid.Add(self.eds,pos=(3,6))
-        grid.Add(self.edt,pos=(3,4))
-        """
+        self.Bind(wx.EVT_SCROLL, lambda event: self.OnSlider(event, key, span), slider)
 
-        #Approach Flag Slider
-        self.aft = wx.StaticText(self,label = "Approach Flag", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.afs = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.afs.SetScrollbar(wx.HORIZONTAL,0,200,200)
-        self.afs.SetThumbPosition(100)
-        self.afl = wx.StaticText(self,label = str(self.afs.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.afl,pos=(4,1))
-        self.Bind(wx.EVT_SCROLL, self.OnAF,self.afs)
-        grid.Add(self.afs,pos=(4,2))
-        grid.Add(self.aft,pos=(4,0))
+        self._grid.Add(self._labels[key], pos=(self._sliderIndex, 1))
+        self._grid.Add(slider, pos=(self._sliderIndex, 2))
+        self._grid.Add(explanation, pos=(self._sliderIndex, 0))
 
-        """
-        #Flag Distance Slider
-        self.fdt = wx.StaticText(self,label = "Distance", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.fds = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.fds.SetScrollbar(wx.HORIZONTAL,0,100,100)
-        self.fds.SetThumbPosition(50)
-        self.fdl = wx.StaticText(self,label = str(self.fds.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.fdl,pos=(4,5))
-        self.Bind(wx.EVT_SCROLL, self.OnFD,self.fds)
-        grid.Add(self.fds,pos=(4,6))
-        grid.Add(self.fdt,pos=(4,4))
-        """
+        self._sliderIndex += 1
 
-        #Hit Target Slider
-        self.htt = wx.StaticText(self,label = "Hit Target", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.hts = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.hts.SetScrollbar(wx.HORIZONTAL,0,200,200)
-        self.hts.SetThumbPosition(100)
-        self.htl = wx.StaticText(self,label = str(self.hts.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.htl,pos=(5,1))
-        self.Bind(wx.EVT_SCROLL, self.OnHT,self.hts)
-        grid.Add(self.hts,pos=(5,2))
-        grid.Add(self.htt,pos=(5,0))
-
-        #Avoid Fire Slider
-        self.vft = wx.StaticText(self,label = "Avoid Fire", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.vfs = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.vfs.SetScrollbar(wx.HORIZONTAL,0,200,200)
-        self.vfs.SetThumbPosition(100)
-        self.vfl = wx.StaticText(self,label = str(self.vfs.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.vfl,pos=(6,1))
-        self.Bind(wx.EVT_SCROLL, self.OnVF,self.vfs)
-        grid.Add(self.vfs,pos=(6,2))
-        grid.Add(self.vft,pos=(6,0))
-
-        #Lifetime Slider
-        self.ltt = wx.StaticText(self,label = "Lifetime", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.lts = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.lts.SetScrollbar(wx.HORIZONTAL,0,1000,1000)
-        self.lts.SetThumbPosition(DEFAULT_LIFETIME)
-        self.ltl = wx.StaticText(self,label = str(self.lts.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.ltl,pos=(7,1))
-        self.Bind(wx.EVT_SCROLL, self.OnLT,self.lts)
-        grid.Add(self.lts,pos=(7,2))
-        grid.Add(self.ltt,pos=(7,0))
-
-        """
-        #Friendly Fire Slider
-        self.fft = wx.StaticText(self,label = "Friendly Fire", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.ffs = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.ffs.SetScrollbar(wx.HORIZONTAL,0,200,200)
-        self.ffs.SetThumbPosition(100)
-        self.ffl = wx.StaticText(self,label = str(self.sgs.GetThumbPosition()-100), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.ffl,pos=(8,1))
-        self.Bind(wx.EVT_SCROLL, self.OnFF,self.ffs)
-        grid.Add(self.ffs,pos=(8,2))
-        grid.Add(self.fft,pos=(8,0))
-        """
-
-        """
-        #Explore/Exploit Slider
-        self.eet = wx.StaticText(self,label = "Explore/Exploit", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.ees = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.ees.SetScrollbar(wx.HORIZONTAL,0,100,100)
-        self.ees.SetThumbPosition(50)
-        self.eel = wx.StaticText(self,label = str(self.ees.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.eel,pos=(8,1))
-        self.Bind(wx.EVT_SCROLL, self.OnEE,self.ees)
-        grid.Add(self.ees,pos=(8,2))
-        grid.Add(self.eet,pos=(8,0))
-        """
-
-        #Hitpoint Slider
-        self.hpt = wx.StaticText(self,label = "Hitpoints", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.hps = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.hps.SetScrollbar(wx.HORIZONTAL,0,100,100)
-        self.hps.SetThumbPosition(5)
-        self.hpl = wx.StaticText(self,label = str(self.hps.GetThumbPosition()), pos=wx.DefaultPosition, size=wx.DefaultSize)
-        grid.Add(self.hpl,pos=(9,1))
-        self.Bind(wx.EVT_SCROLL, self.OnHP,self.hps)
-        grid.Add(self.hps,pos=(9,2))
-        grid.Add(self.hpt,pos=(9,0))
-
-        #Speedup Slider
-        self.spt = wx.StaticText(self,label = "Speedup", pos=wx.DefaultPosition, size=wx.DefaultSize)
-        self.sps = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200,15))
-        self.sps.SetScrollbar(wx.HORIZONTAL,0,100,100)
-        self.sps.SetThumbPosition(80)
-        self.spl = wx.StaticText(self,label = str(self.sps.GetThumbPosition()), size=wx.DefaultSize)
-        grid.Add(self.spl,pos=(10,1))
-        self.Bind(wx.EVT_SCROLL, self.OnSP,self.sps)
-        grid.Add(self.sps,pos=(10,2))
-        grid.Add(self.spt,pos=(10,0))
-
-
-        self.SetSizer(grid)
-        grid.Fit(parent)
-
-    def OnDeploy(self,event):
+    def OnDeploy(self, event):
         self.send("deploy 0")
 
-    def OnSave1(self,event):
+    def OnSave1(self, event):
         dirname = ""
         dlg = wx.FileDialog(self, "Save Population File", dirname, "", "*.*", wx.FD_SAVE)
         if dlg.ShowModal() == wx.ID_OK:
@@ -229,7 +139,7 @@ class NeroPanel(wx.Panel, ScriptClient):
             dirname = dlg.GetPath()
             self.send("save1 %s" % dirname)
 
-    def OnLoad1(self,event):
+    def OnLoad1(self, event):
         dirname = ""
         dlg = wx.FileDialog(self, "Load Population File", dirname, "", "*.*", wx.FD_OPEN)
         if dlg.ShowModal() == wx.ID_OK:
@@ -237,80 +147,17 @@ class NeroPanel(wx.Panel, ScriptClient):
             dirname = dlg.GetPath()
             self.send("load1 %s" % dirname)
 
-    def OnSave2(self,event):
-        dirname = ""
-        dlg = wx.FileDialog(self, "Save Population File", dirname, "", "*.*", wx.FD_SAVE)
-        if dlg.ShowModal() == wx.ID_OK:
-            filename = dlg.GetFilename()
-            dirname = dlg.GetPath()
-            self.send("save2 %s" % dirname)
+    def OnSlider(self, event, key, span):
+        position = event.Position
+        if span == 200:
+            position -= 100
+        self._labels[key].SetLabel(str(position))
+        self.send("%s %d" % (key, event.Position))
 
-    def OnLoad2(self,event):
-        dirname = ""
-        dlg = wx.FileDialog(self, "Load Population File", dirname, "", "*.*", wx.FD_OPEN)
-        if dlg.ShowModal() == wx.ID_OK:
-            filename = dlg.GetFilename()
-            dirname = dlg.GetPath()
-            self.send("load2 %s" % dirname)
 
-    def OnSG(self,event):
-        self.sgl.SetLabel(str(event.Position - 100))
-        self.send("SG %d" % event.Position)
-
-    def OnST(self,event):
-        self.stl.SetLabel(str(event.Position - 100))
-        self.send("ST %d" % event.Position)
-
-    def OnTD(self,event):
-        self.tdl.SetLabel(str(event.Position))
-        self.send("TD %d" % event.Position)
-
-    def OnAE(self,event):
-        self.ael.SetLabel(str(event.Position - 100))
-        self.send("AE %d" % event.Position)
-
-    def OnED(self,event):
-        self.edl.SetLabel(str(event.Position))
-        self.send("ED %d" % event.Position)
-
-    def OnAF(self,event):
-        self.afl.SetLabel(str(event.Position - 100))
-        self.send("AF %d" % event.Position)
-
-    def OnFD(self,event):
-        self.fdl.SetLabel(str(event.Position))
-        self.send("FD %d" % event.Position)
-
-    def OnHT(self,event):
-        self.htl.SetLabel(str(event.Position - 100))
-        self.send("HT %d" % event.Position)
-
-    def OnVF(self,event):
-        self.vfl.SetLabel(str(event.Position - 100))
-        self.send("VF %d" % event.Position)
-
-    def OnLT(self,event):
-        self.ltl.SetLabel(str(event.Position))
-        self.send("LT %d" % event.Position)
-
-    def OnFF(self,event):
-        self.ffl.SetLabel(str(event.Position))
-        self.send("FF %d" % event.Position)
-
-    def OnEE(self,event):
-        self.eel.SetLabel(str(event.Position))
-        self.send("EE %d" % event.Position)
-
-    def OnHP(self,event):
-        self.hpl.SetLabel(str(event.Position))
-        self.send("HP %d" % event.Position)
-
-    def OnSP(self,event):
-        self.spl.SetLabel(str(event.Position))
-        self.send("SP %d" % event.Position)
-
-app = wx.App(False)
-frame = wx.Frame(None,title = "NERO Controls",size=(600,250))
-panel = NeroPanel(frame)
-frame.Show()
-app.MainLoop()
+if __name__ == '__main__':
+    app = wx.App(False)
+    frame = wx.Frame(None, title="NERO Controls", size=(600, 250))
+    panel = NeroPanel(frame)
+    frame.Show()
+    app.MainLoop()
