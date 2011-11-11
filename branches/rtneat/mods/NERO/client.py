@@ -6,6 +6,8 @@ import inputConfig
 import module
 
 ai_state = None
+modify_object_id = {}
+object_ids = []
 
 def toggle_ai_callback():
     global ai_state
