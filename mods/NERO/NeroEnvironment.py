@@ -85,6 +85,7 @@ class NeroEnvironment(OpenNero.Environment):
         self.MAX_DIST = math.hypot(constants.XDIM, constants.YDIM)
         self.states = {}
         self.teams = {}
+        self.script = 'NERO/menu.py'
 
         abound = OpenNero.FeatureVectorInfo() # actions
         sbound = OpenNero.FeatureVectorInfo() # sensors
@@ -228,15 +229,8 @@ class NeroEnvironment(OpenNero.Environment):
             state.reset_pose(p, r)
             return self.agent_info.reward.get_instance()
 
-        # Spawn more agents if there are more to spawn
-        team = agent.get_team()
-        friends, foes = self.getFriendFoe(agent)
-        friends = tuple(friends or [None])
-        if (agent.group == 'Agent' and
-            agent is friends[0] and
-            OpenNero.get_ai("rtneat-%s" % team).ready() and
-            len(friends) < constants.pop_size):
-            module.getMod().spawnAgent(team)
+        # spawn more agents if possible.
+        self.maybe_spawn(agent)
 
         # get the desired action of the agent
         move_by = action[0]
@@ -276,8 +270,9 @@ class NeroEnvironment(OpenNero.Environment):
             R[constants.FITNESS_APPROACH_ENEMY] = -d * d
 
         f = module.getMod().flag_loc
-        d = self.distance(state.pose, (f.x, f.y))
-        R[constants.FITNESS_APPROACH_FLAG] = -d * d
+        if f:
+            d = self.distance(state.pose, (f.x, f.y))
+            R[constants.FITNESS_APPROACH_FLAG] = -d * d
 
         target = self.target(agent)
         if target is not None:
@@ -297,6 +292,17 @@ class NeroEnvironment(OpenNero.Environment):
             reward[i] = R[f]
 
         return reward
+
+    def maybe_spawn(self, agent):
+        '''Spawn more agents if there are more to spawn.'''
+        team = agent.get_team()
+        friends, foes = self.getFriendFoe(agent)
+        friends = tuple(friends or [None])
+        if (agent.group == 'Agent' and
+            agent is friends[0] and
+            OpenNero.get_ai("rtneat-%s" % team).ready() and
+            len(friends) < constants.pop_size):
+            module.getMod().spawnAgent(team)
 
     def sense(self, agent, observations):
         """
@@ -395,5 +401,5 @@ class NeroEnvironment(OpenNero.Environment):
         """
         cleanup the world
         """
-        common.killScript('NERO/menu.py')
+        common.killScript(self.script)
         return True
