@@ -7,6 +7,7 @@ HEIGHT = 20
 OFFSET = -HEIGHT/2
 
 MAX_MOVEMENT_SPEED = 1
+MAX_TURN_RADIANS = 0.2
 MAX_VISION_RADIUS = 300
 
 # Population size
@@ -18,11 +19,22 @@ DEFAULT_LIFETIME = 200
 # default speedup setting (there will be a 0.1 * 80 / 100 second delay between AI steps)
 DEFAULT_SPEEDUP = 80
 
+
+# keyboard actions and what they correspond to
+FIRST_PERSON_ACTIONS = {
+    'FWD': (1, 0), 
+    'CW': (0, -MAX_TURN_RADIANS), 
+    'CCW': (0, MAX_TURN_RADIANS), 
+    'BCK': (-1, 0)}
+N_FIRST_PERSON_ACTIONS = len(FIRST_PERSON_ACTIONS) # number of actions
+
+
 OBJECT_TYPE_OBSTACLE  = (1 << 0) # object type for walls
 OBJECT_TYPE_TEAM_0 = (1 << 1) # object type for team 1
 OBJECT_TYPE_TEAM_1 = (1 << 2) # object type for team 2 and turrets during training
 OBJECT_TYPE_FLAG = (1 << 3) # object type for the flag
 OBJECT_TYPE_LEVEL_GEOM = 0 # object type for the level geometry
+OBJECT_TYPE_FPS = OBJECT_TYPE_LEVEL_GEOM # object type for first person agent
 
 ############################
 ### SENSOR CONFIGURATION ###

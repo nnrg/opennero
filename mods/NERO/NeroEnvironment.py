@@ -7,6 +7,7 @@ import common
 import OpenNero
 import module
 import constants
+from agent import FirstPersonAgent
 
 class AgentState:
     """
@@ -92,8 +93,8 @@ class NeroEnvironment(OpenNero.Environment):
         rbound = OpenNero.FeatureVectorInfo() # rewards
 
         # actions
-        abound.add_continuous(-1, 1) # forward/backward speed
-        abound.add_continuous(-0.2, 0.2) # left/right turn (in radians)
+        abound.add_continuous(-1, 1) # forward/backward speed (gets multiplied by constants.MAX_MOVEMENT_SPEED)
+        abound.add_continuous(-constants.MAX_TURN_RADIANS, constants.MAX_TURN_RADIANS) # left/right turn (in radians)
 
         # sensor dimensions
         for a in range(constants.N_SENSORS):
@@ -148,6 +149,9 @@ class NeroEnvironment(OpenNero.Environment):
         """
         return a blueprint for a new agent
         """
+        if isinstance(agent, FirstPersonAgent):
+            # don't add built in sensors for now
+            return self.agent_info
         for a in constants.WALL_RAY_SENSORS:
             agent.add_sensor(OpenNero.RaySensor(
                     math.cos(math.radians(a)), math.sin(math.radians(a)), 0, 50,
@@ -216,7 +220,7 @@ class NeroEnvironment(OpenNero.Environment):
         """
         # check if the action is valid
         assert(self.agent_info.actions.validate(action))
-
+        
         state = self.get_state(agent)
 
         #Initilize Agent state
@@ -295,6 +299,9 @@ class NeroEnvironment(OpenNero.Environment):
 
     def maybe_spawn(self, agent):
         '''Spawn more agents if there are more to spawn.'''
+        # do not spawn just because a first person agent is on the field
+        if isinstance(agent, FirstPersonAgent):
+            return
         team = agent.get_team()
         friends, foes = self.getFriendFoe(agent)
         friends = tuple(friends or [None])
@@ -383,6 +390,8 @@ class NeroEnvironment(OpenNero.Environment):
         if agent.group == "Turret":
             return False
 
+        if isinstance(agent, FirstPersonAgent):
+            return False # first person agents never stop
         self.max_steps = module.getMod().lt
         if self.max_steps != 0 and agent.step >= self.max_steps:
             return True

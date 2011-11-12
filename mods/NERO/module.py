@@ -7,7 +7,6 @@ import constants
 import NeroEnvironment
 import OpenNero
 
-
 class NeroModule:
     def __init__(self):
         self.environment = None
@@ -21,6 +20,7 @@ class NeroModule:
         self.flag_id = None
 
         self.set_speedup(constants.DEFAULT_SPEEDUP)
+        self.first_person_agent = None
 
         self.spawn_x = {}
         self.spawn_y = {}
@@ -115,6 +115,20 @@ class NeroModule:
         """ start the rtneat learning stuff"""
         self.spawnAgent()
         OpenNero.enable_ai()
+        
+    # this is called when we get a "First Person Agent" button hit
+    def start_fps(self):
+        print 'start_fps was called'
+        if self.first_person_agent is None:
+            print 'adding first person agent!'
+            self.first_person_agent = common.addObject(
+                'data/shapes/character/FirstPersonAgent.xml',
+                OpenNero.Vector3f(self.spawn_x, self.spawn_y, 10),
+                type=constants.OBJECT_TYPE_TEAM_0)
+            OpenNero.enable_ai()
+        else:
+            print 'removing first person agent!'
+            common.removeObject(self.first_person_agent)
 
     #The following is run when the Save button is pressed
     def save_rtneat(self, location, pop, team=constants.OBJECT_TYPE_TEAM_0):
@@ -215,6 +229,7 @@ def parseInput(strn):
     if loc == "save2": mod.save_rtneat(val, 2)
     if loc == "load2": mod.load_rtneat(val, 2)
     if loc == "deploy": client.toggle_ai_callback()
+    if loc == "fps": mod.start_fps()
 
 def ServerMain():
     print "Starting mod NERO"
