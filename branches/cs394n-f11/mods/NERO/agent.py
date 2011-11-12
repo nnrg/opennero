@@ -191,8 +191,9 @@ class Turret(OpenNero.AgentBrain):
 
 class QLearningAgent(OpenNero.QLearningBrain):
     def __init__(self):
-        OpenNero.QLearningBrain.__init__(self, 0.8, 0.8, 0.1)
+        OpenNero.QLearningBrain.__init__(self, 0.8, 0.8, 0.1, 3, 3)
         self.team = module.getMod().curr_team
+        self.group = 'Agent'
 
     def get_team(self):
         return self.team

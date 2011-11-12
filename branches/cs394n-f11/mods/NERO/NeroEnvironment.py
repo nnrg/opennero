@@ -85,7 +85,15 @@ class NeroEnvironment(OpenNero.Environment):
         self.MAX_DIST = math.hypot(constants.XDIM, constants.YDIM)
         self.states = {}
         self.teams = {}
+
+        self.reward_weights = dict((f, 0.) for f in constants.FITNESS_DIMENSIONS)
+
         self.script = 'NERO/menu.py'
+
+        self.ai_flavor = None
+
+    def start_ai(self, ai_flavor):
+        self.ai_flavor = ai_flavor
 
         abound = OpenNero.FeatureVectorInfo() # actions
         sbound = OpenNero.FeatureVectorInfo() # sensors
@@ -100,20 +108,20 @@ class NeroEnvironment(OpenNero.Environment):
             sbound.add_continuous(0, 1);
 
         # Rewards
-        # the enviroment returns the raw multiple dimensions of the fitness as
-        # they get each step. This then gets combined into, e.g. Z-score, by
-        # the ScoreHelper in order to calculate the final rtNEAT-fitness
-        for f in constants.FITNESS_DIMENSIONS:
-            # we don't care about the bounds of the individual dimensions
-            rbound.add_continuous(-sys.float_info.max, sys.float_info.max) # range for reward
+        if self.ai_flavor == 'qlearning':
+            # for q learning, we just need one reward signal.
+            rbound.add_continuous(-sys.float_info.max, sys.float_info.max)
+        else:
+            # the enviroment returns the raw multiple dimensions of the fitness
+            # as they get each step. This then gets combined into, e.g. Z-score,
+            # by the ScoreHelper in order to calculate the final rtNEAT-fitness
+            for f in constants.FITNESS_DIMENSIONS:
+                # we don't care about the bounds of the individual dimensions
+                rbound.add_continuous(-sys.float_info.max, sys.float_info.max) # range for reward
 
-        self.agent_info = AgentInitInfo(sbound, abound, rbound)
+        self.agent_info = OpenNero.AgentInitInfo(sbound, abound, rbound)
 
-        self.start_ai(AI_FLAVOR)
-
-    def start_ai(self, flavor):
-        self.ai_flavor = flavor
-        getattr(self, 'start_%s' % flavor)()
+        getattr(self, 'start_%s' % self.ai_flavor)()
 
     def start_rtneat(self):
         # initialize the rtNEAT algorithm parameters
@@ -139,9 +147,15 @@ class NeroEnvironment(OpenNero.Environment):
         print 'rtNEAT lifetime:', lifetime
 
     def start_qlearning(self):
-        disable_ai()
         self.loop = True
-        enable_ai()
+        OpenNero.enable_ai()
+
+    def set_weight(self, key, value):
+        self.reward_weights[key] = value
+        for team in self.teams:
+            rtneat = OpenNero.get_ai("rtneat-%s" % team)
+            if rtneat:
+                rtneat.set_weight(constants.FITNESS_INDEX[key], value)
 
     def reset(self, agent):
         """
@@ -301,26 +315,36 @@ class NeroEnvironment(OpenNero.Environment):
         damage = state.update_damage()
         R[constants.FITNESS_AVOID_FIRE] = -damage
 
-        for i, f in enumerate(constants.FITNESS_DIMENSIONS):
-            reward[i] = R[f]
+        if self.ai_flavor == 'qlearning':
+            for i, f in enumerate(constants.FITNESS_DIMENSIONS):
+                reward[0] += self.reward_weights[f] * R[f] / constants.FITNESS_SCALE.get(f, 1.0)
+                #print f, self.reward_weights[f], R[f] / constants.FITNESS_SCALE.get(f, 1.0)
+        else:
+            for i, f in enumerate(constants.FITNESS_DIMENSIONS):
+                reward[i] = R[f]
 
         return reward
 
     def maybe_spawn(self, agent):
         '''Spawn more agents if there are more to spawn.'''
         team = agent.get_team()
+
         friends, foes = self.getFriendFoe(agent)
         friends = tuple(friends or [None])
+
         ai_ready = False
         if self.ai_flavor == 'qlearning':
             ai_ready = True
-        if self.ai_flavor == 'rtneat' and OpenNero.get_ai("rtneat").ready():
-            ai_ready = True
+        if self.ai_flavor == 'rtneat':
+            rtneat = OpenNero.get_ai("rtneat-%s" % team)
+            if rtneat and rtneat.ready():
+                ai_ready = True
+
         if (agent.group == 'Agent' and
             agent is friends[0] and
             ai_ready and
             len(friends) < constants.pop_size):
-            module.getMod().spawnAgent(team)
+            module.getMod().spawnAgent(team=team, ai_flavor=self.ai_flavor)
 
     def sense(self, agent, observations):
         """

@@ -1,4 +1,3 @@
-import os
 import cPickle
 import select
 import socket
@@ -84,7 +83,8 @@ class NeroPanel(wx.Panel, ScriptClient):
         self._grid.Fit(parent)
 
     def add_buttons(self):
-        self.add_button('Deploy', self.OnDeploy)
+        self.add_button('Deploy RTNEAT', self.OnDeployRTNEAT)
+        self.add_button('Deploy QLearning', self.OnDeployQLearning)
         self.add_button('Save Team', self.OnSave1)
         self.add_button('Load Team', self.OnLoad1)
 
@@ -126,8 +126,11 @@ class NeroPanel(wx.Panel, ScriptClient):
 
         self._sliderIndex += 1
 
-    def OnDeploy(self, event):
-        self.send("deploy 0")
+    def OnDeployRTNEAT(self, event):
+        self.send("rtneat 0")
+
+    def OnDeployQLearning(self, event):
+        self.send("qlearning 0")
 
     def OnSave1(self, event):
         dirname = ""

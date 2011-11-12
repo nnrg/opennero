@@ -9,11 +9,11 @@ ai_state = None
 modify_object_id = {}
 object_ids = []
 
-def toggle_ai_callback():
+def toggle_ai_callback(ai_flavor):
     global ai_state
     OpenNero.toggle_ai()
     if not ai_state:
-        module.getMod().start_rtneat()
+        module.getMod().start_ai(ai_flavor)
         ai_state = 'Started'
     elif ai_state == 'Started':
         ai_state = 'Paused'
@@ -202,5 +202,3 @@ def ClientMain():
     ioMap = inputConfig.createInputMapping()
     ioMap.BindKey( "KEY_SPACE", "onPress", recenter_cam )
     OpenNero.getSimContext().setInputMapping(ioMap)
-
-

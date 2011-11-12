@@ -1,6 +1,7 @@
 import os
 import random
 
+import NERO.agent
 import client
 import common
 import constants
@@ -110,30 +111,46 @@ class NeroModule:
             OpenNero.Vector3f(*loc),
             type=constants.OBJECT_TYPE_TEAM_1)
 
-    #The following is run when the Deploy button is pressed
-    def start_rtneat(self):
-        """ start the rtneat learning stuff"""
-        self.spawnAgent()
+    #The following is run when one of the Deploy buttons is pressed
+    def start_ai(self, ai_flavor):
+        self.spawnAgent(ai_flavor=ai_flavor)
         OpenNero.enable_ai()
 
     #The following is run when the Save button is pressed
-    def save_rtneat(self, location, pop, team=constants.OBJECT_TYPE_TEAM_0):
+    def save_population(self, location, pop, team=constants.OBJECT_TYPE_TEAM_0):
         location = os.path.relpath("/") + location
-        OpenNero.get_ai("rtneat-%s" % team).save_population(str(location))
+        if self.environment.ai_flavor == 'rtneat':
+            OpenNero.get_ai("rtneat-%s" % team).save_population(str(location))
+        if self.environment.ai_flavor == 'qlearning':
+            with open(str(location), 'w') as handle:
+                for agent in self.environment.teams[team]:
+                    if agent.group == 'Agent':
+                        handle.write('%s\n\n' % agent.to_string())
 
     #The following is run when the Load button is pressed
-    def load_rtneat(self, location , pop, team=constants.OBJECT_TYPE_TEAM_0):
+    def load_population(self, location , pop, team=constants.OBJECT_TYPE_TEAM_0):
         location = os.path.relpath("/") + location
         if os.path.exists(location):
-            OpenNero.set_ai("rtneat-%s" % team, OpenNero.RTNEAT(
-                    str(location), "data/ai/neat-params.dat",
-                    constants.pop_size,
-                    OpenNero.get_environment().agent_info.reward))
+            if self.environment.ai_flavor == 'rtneat':
+                OpenNero.set_ai("rtneat-%s" % team, OpenNero.RTNEAT(
+                        str(location), "data/ai/neat-params.dat",
+                        constants.pop_size,
+                        OpenNero.get_environment().agent_info.reward))
+            if self.environment.ai_flavor == 'qlearning':
+                with open(str(location)) as handle:
+                    for _ in range(constants.pop_size):
+                        chunk = ''
+                        while not chunk.endswith('\n\n'):
+                            chunk += handle.read(1)
+                        agent = NERO.agent.QLearningAgent()
+                        agent.from_string(chunk)
+                        agent.team = team
+                        self.environment.states[agent] = NeroEnvironment.AgentState(agent)
 
     def set_speedup(self, speedup):
-        OpenNero.getSimContext().delay = 1.0 - (speedup/100.0)
+        OpenNero.getSimContext().delay = 1.0 - (speedup / 100.0)
         if self.environment:
-            self.environment.speedup = (speedup/100.0)
+            self.environment.speedup = speedup / 100.0
 
     def set_spawn(self, x, y, team=constants.OBJECT_TYPE_TEAM_0):
         self.spawn_x[team] = x
@@ -141,13 +158,8 @@ class NeroModule:
 
     #The following functions are used to let the client update the fitness function
     def set_weight(self, key, value):
-        i = constants.FITNESS_INDEX[key]
-        value = (value - 100) / 100.0 # value in [-1, 1]
-        for team in constants.TEAMS:
-            rtneat = OpenNero.get_ai("rtneat-%s" % team)
-            if rtneat:
-                rtneat.set_weight(i, value)
-        print key, value
+        # value in [-1, 1]
+        self.environment.set_weight(key, (value - 100) / 100.0)
 
     def ltChange(self, value):
         self.lt = value
@@ -164,18 +176,27 @@ class NeroModule:
         self.hp = value
         print 'Hit points:', value
 
-    def spawnAgent(self, team=constants.OBJECT_TYPE_TEAM_0):
+    def spawnAgent(self, team=constants.OBJECT_TYPE_TEAM_0, ai_flavor=None):
         """
         This is the function ran when an agent already in the field
         causes the generation of a new agent.
         """
+        if not self.environment:
+            return
+
+        if ai_flavor is not None:
+            self.environment.start_ai(ai_flavor)
+
         self.curr_team = team
+
         ai = 'rtneat'
-        if self.environment and self.environment.ai_flavor == 'qlearning':
+        if ai_flavor == 'qlearning':
             ai = 'qlearning'
+
         color = 'blue'
         if team == constants.OBJECT_TYPE_TEAM_1:
             color = 'red'
+
         dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
         dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
         common.addObject(
@@ -214,11 +235,10 @@ def parseInput(strn):
     if loc == "EE": mod.eeChange(vali)
     if loc == "HP": mod.hpChange(vali)
     if loc == "SP": mod.set_speedup(vali)
-    if loc == "save1": mod.save_rtneat(val, 1)
-    if loc == "load1": mod.load_rtneat(val, 1)
-    if loc == "save2": mod.save_rtneat(val, 2)
-    if loc == "load2": mod.load_rtneat(val, 2)
-    if loc == "deploy": client.toggle_ai_callback()
+    if loc == "save1": mod.save_population(val, constants.OBJECT_TYPE_TEAM_0)
+    if loc == "load1": mod.load_population(val, constants.OBJECT_TYPE_TEAM_0)
+    if loc == "rtneat": client.toggle_ai_callback('rtneat')
+    if loc == "qlearning": client.toggle_ai_callback('qlearning')
 
 def ServerMain():
     print "Starting mod NERO"

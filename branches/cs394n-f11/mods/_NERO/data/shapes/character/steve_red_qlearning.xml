@@ -11,6 +11,6 @@
     <Collision>1</Collision>
   </Render>
   <AI>
-    <Python agent="NERO.agent.RTNEATAgent()" />
+    <Python agent="NERO.agent.QLearningAgent()" />
   </AI>
 </Template>

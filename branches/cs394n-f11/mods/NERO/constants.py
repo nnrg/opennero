@@ -67,6 +67,13 @@ FITNESS_DIMENSIONS = [FITNESS_STAND_GROUND, FITNESS_STICK_TOGETHER,
 
 FITNESS_INDEX = dict([(f,i) for i,f in enumerate(FITNESS_DIMENSIONS)])
 
+FITNESS_SCALE = {
+    FITNESS_STAND_GROUND: 100000.0,
+    FITNESS_STICK_TOGETHER: 100000.0,
+    FITNESS_APPROACH_ENEMY: 100000.0,
+    FITNESS_APPROACH_FLAG: 100000.0,
+    }
+
 import itertools
 #DISPLAY_HINTS = itertools.cycle([None, 'fitness', 'time alive', 'hit points', 'genome id', 'species id', 'champion', 'debug'])
 DISPLAY_HINTS = itertools.cycle([None, 'time alive', 'hit points', 'genome id', 'species id', 'champion'])
