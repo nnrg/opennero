@@ -11,7 +11,7 @@ Download and install [http://www.python.org/getit/ Python 2.7.2 (win32)] and [ht
 
 == On Mac OS X, ==
 
-Python is already installed. Download and install the [http://www.wxpython.org/ wxPython] binary for your platform (required for the NERO mod).
+Python is already installed. Download and install the [http://www.wxpython.org/download.php wxPython] binary for your platform (required for the NERO mod).
 
 == On Linux, ==
 
