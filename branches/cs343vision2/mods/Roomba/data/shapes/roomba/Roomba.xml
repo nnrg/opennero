@@ -1,0 +1,12 @@
+<Template>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>true</MaterialFlagLighting>
+    <AniMesh>data/shapes/roomba/roomba_modified.obj</AniMesh>
+    <Scale>2 2 2</Scale>
+    <Rotation>0 0 0</Rotation>
+  </Render>
+  <AI>
+    <Python agent="RoombaBrain()" />
+  </AI>
+</Template>
