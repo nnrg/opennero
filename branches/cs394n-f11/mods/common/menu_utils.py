@@ -62,9 +62,6 @@ class ScriptServer:
         except select.error, e:
             print 'ScriptServer select error'
             return None
-        except socket.error, e:
-            print 'ScriptServer socket error'
-            return None
         for s in inputready:
             if s == self.server:
                 # this is a new connection
