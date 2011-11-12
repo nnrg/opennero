@@ -121,10 +121,7 @@ class NeroModule:
         print 'start_fps was called'
         if self.first_person_agent is None:
             print 'adding first person agent!'
-            self.first_person_agent = common.addObject(
-                'data/shapes/character/FirstPersonAgent.xml',
-                OpenNero.Vector3f(self.spawn_x, self.spawn_y, 10),
-                type=constants.OBJECT_TYPE_TEAM_0)
+            self.spawnAgent(agent_xml = 'data/shapes/character/FirstPersonAgent.xml')
             OpenNero.enable_ai()
         else:
             print 'removing first person agent!'
@@ -178,7 +175,7 @@ class NeroModule:
         self.hp = value
         print 'Hit points:', value
 
-    def spawnAgent(self, team=constants.OBJECT_TYPE_TEAM_0):
+    def spawnAgent(self, team = constants.OBJECT_TYPE_TEAM_0, agent_xml = None):
         """
         This is the function ran when an agent already in the field
         causes the generation of a new agent.
@@ -186,11 +183,13 @@ class NeroModule:
         dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
         dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
         self.curr_team = team
-        color = 'blue'
-        if team == constants.OBJECT_TYPE_TEAM_1:
-            color = 'red'
+        if agent_xml is None:
+            color = 'blue'
+            if team == constants.OBJECT_TYPE_TEAM_1:
+                color = 'red'
+            agent_xml = "data/shapes/character/steve_%s_armed.xml" % color
         common.addObject(
-            "data/shapes/character/steve_%s_armed.xml" % color,
+            agent_xml,
             OpenNero.Vector3f(self.spawn_x[team] + dx, self.spawn_y[team] + dy, 2),
             type=team)
 
