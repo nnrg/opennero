@@ -6,11 +6,11 @@ YDIM = 800
 HEIGHT = 20
 OFFSET = -HEIGHT/2
 
-MAX_MOVEMENT_SPEED = 14
+MAX_MOVEMENT_SPEED = 1
 MAX_VISION_RADIUS = 300
 
 # Population size
-pop_size = 20
+pop_size = 50
 
 # number of steps per lifetime
 DEFAULT_LIFETIME = 200
@@ -23,6 +23,8 @@ OBJECT_TYPE_TEAM_0 = (1 << 1) # object type for team 1
 OBJECT_TYPE_TEAM_1 = (1 << 2) # object type for team 2 and turrets during training
 OBJECT_TYPE_FLAG = (1 << 3) # object type for the flag
 OBJECT_TYPE_LEVEL_GEOM = 0 # object type for the level geometry
+
+TEAMS = (OBJECT_TYPE_TEAM_0, OBJECT_TYPE_TEAM_1)
 
 ############################
 ### SENSOR CONFIGURATION ###

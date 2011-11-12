@@ -1,25 +1,28 @@
-import common.menu_utils
+#import all agent implementations
+from NERO.agent import *
 
 #import all client and server scripts
-from NERO_Battle.module import *
-from NERO_Battle.client import *
+import NERO_Battle.module as module
+import NERO_Battle.client as client
+import common
+import common.menu_utils
 
 script_server = None
 
 def ModMain():
-    ClientMain()
+    client.ClientMain()
 
 def ModTick(dt):
     if script_server is None:
         return
-    startScript("NERO_Battle/menu.py")
+    common.startScript("NERO_Battle/menu.py")
     data = script_server.read_data()
     while data:
-        parseInput(data.strip())
+        module.parseInput(data.strip())
         data = script_server.read_data()
 
 def Match(team0, team1):
-    getMod().load_rtneat(team0, "blue")
-    getMod().load_rtneat(team1, "red")
+    getMod().load_rtneat(team0, constants.OBJECT_TYPE_TEAM_0)
+    getMod().load_rtneat(team1, constants.OBJECT_TYPE_TEAM_1)
     getMod().set_speedup(100)
     getMod().start_rtneat()
