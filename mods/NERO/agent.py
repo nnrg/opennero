@@ -196,17 +196,15 @@ class FirstPersonAgent(OpenNero.AgentBrain):
     def control_fps(cls, action):
         try:
             cls.key_buffer.put_nowait(action)
-            print 'enqueued action', action
         except Queue.Full:
             try:
                 cls.key_buffer.get_nowait()
                 cls.key_buffer.put_nowait(action)
-                print 'enqueued action', action
             except Queue.Empty, Queue.Full:
                 pass # should rarely happen
     def __init__(self):
         OpenNero.AgentBrain.__init__(self) # do not remove!
-        self.group = "Agent"
+        self.group = "FirstPersonAgent"
     def initialize(self, init_info):
         self.action_info = init_info.actions
         return True
@@ -217,12 +215,10 @@ class FirstPersonAgent(OpenNero.AgentBrain):
         action = self.action_info.get_instance() # create a zero action
         try:
             key = FirstPersonAgent.key_buffer.get_nowait()
-            print 'dequeued action', key
             if key is not None and key in constants.FIRST_PERSON_ACTIONS:
                 (movement, turn) = constants.FIRST_PERSON_ACTIONS[key]
                 action[0] = movement
                 action[1] = turn
-                print 'acting with', movement, turn
         except Queue.Empty:
             pass # no keys were pressed
         return action

@@ -10,13 +10,13 @@
     <Texture0>data/shapes/character/sydney.bmp</Texture0>
     <Scale>0.2 0.2 0.2</Scale>
     <DrawLabel>true</DrawLabel>
-    <!--<Collision>5</Collision>-->
-    <!--<FPSCamera>
-        <attach_point>2.5 0 0</attach_point>
+    <Collision>5</Collision>
+    <FPSCamera>
+        <attach_point>0 0 30</attach_point>
         <target>50 0 0</target>
-        <near_plane>0.1</near_plane>
+        <near_plane>0.9</near_plane>
         <far_plane>1000</far_plane>
-    </FPSCamera>-->
+    </FPSCamera>
   </Render>
   <AI>
     <Python agent="NERO.agent.FirstPersonAgent()" />
