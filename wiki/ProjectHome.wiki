@@ -1,4 +1,4 @@
-http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.tiny.png http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png  http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png
+http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.tiny.png  http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png
 
 == About OpenNERO ==
 
@@ -38,9 +38,10 @@ or [RunningOpenNero explore the various mods] on your own.
       * [FirstPersonSearch Introduction and First Person Search]
       * [BruteForceSearch Brute Force (Uninformed) Search]
       * [HeuristicSearch Heuristic (Informed) Search]
+    * Planning
+      * [SymbolicPlanning Symbolic Planning]
     * Reinforcement Learning
       * [QLearning Q-Learning]
-      * [SarsaLearning Sarsa(λ)]
     * Evolutionary Computation
       * [NeuroEvolution Neuroevolution]
       * [CoEvolution Co-evolution]
@@ -51,7 +52,7 @@ or [RunningOpenNero explore the various mods] on your own.
 
   * [SystemOverview System Overview]
   * [BuildingOpenNero Building from Source]
-  * [OpenNeroExercises Game-building Exercises]
+  * [OpenNeroExercises Exercises]
 
 ----
 
