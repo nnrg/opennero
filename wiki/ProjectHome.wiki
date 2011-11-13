@@ -18,9 +18,7 @@ environments (or "mods"), as described below.
 
 More environments, problems, and methods, as well as demos and exercises illustrating them, will
 be added in the future. The current ones are intended to serve as a starting point on which new
-ones can be built, by us, but also by the community at large. If you'd like to contribute
-something you have built, you can reach project managers at
-[mailto:opennero-questions@googlegroups.com opennero-questions].
+ones can be built, by us, but also by the community at large. If you have questions or would like to contribute, check out the [http://groups.google.com/group/opennero OpenNERO Google Group].
 
 ----
 
