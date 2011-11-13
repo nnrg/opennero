@@ -7,7 +7,7 @@ In order to run OpenNERO on your platform you may need to install Python and wxP
 
 == On Windows, ==
 
-Download and install [http://www.python.org/getit/ Python 2.7.2 (win32)] and [http://www.wxpython.org/download.php wxPython] (required for the NERO mod).
+Download and install [http://www.python.org/getit/ Python 2.7.2 (win32)] and [http://www.wxpython.org/download.php wxPython] (required for the NERO mod). You will also need to add the directory with python.exe (usually C:\Python27) to your PATH environment variable.
 
 == On Mac OS X, ==
 
