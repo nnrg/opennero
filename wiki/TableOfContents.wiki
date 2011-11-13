@@ -14,7 +14,7 @@
      * [NeuroEvolution Neuroevolution]
      * [CoEvolution CoEvolution]
  * [OpenNeroExercises Exercises]
-    * RunningOpenNeroExercise
+    * RunningOpenNero
     * AddingStuffExercise
     * CreateRoombaAgentExercise
     * MazeGeneratorExercise
