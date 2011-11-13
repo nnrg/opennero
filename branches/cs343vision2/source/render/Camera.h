@@ -10,11 +10,15 @@
 #include "core/Common.h"
 #include "core/BoostCommon.h"
 #include "game/SimEntity.h"
+#include "game/objects/TemplatedObject.h"
 
 namespace OpenNero
 {
 	/// shared pointer to a camera
     BOOST_SHARED_DECL(Camera);
+    
+    /// shared pointer to a first person camera template
+    BOOST_SHARED_STRUCT(FPSCameraTemplate);
 
     /**
      * The camera class is an abstraction for the underlying rendering engine 
@@ -87,7 +91,7 @@ namespace OpenNero
         void setFunctionality( Functionality f );
 
         /// attach the camera to the specified sim entity for the lifetime of the object
-        bool attach( SimEntityPtr entity );
+        bool attach( SimEntityPtr entity, const FPSCameraTemplatePtr );
         
         /// detach the camera and switch to the specified functionality
         void detach( Functionality f = kFunc_Nero);
@@ -112,6 +116,25 @@ namespace OpenNero
         /// Our functionality based cameras
         ICameraSceneNode_IPtr mFuncCameras[ kFunc_MAX ];
     };
+    
+	/// a template for a First Person camera
+	struct FPSCameraTemplate
+	{
+		Vector3f attach_point; ///< where to attach the camera (relative to the body center of mass)
+		Vector3f target;       ///< where the camera is looking
+		F32 near_plane;        ///< near plane of the camera
+		F32 far_plane;         ///< far plane of the camera
+        
+		/// construct the template from a property map
+		FPSCameraTemplate(const std::string& prefix, const PropertyMap& propMap);
+        
+        /// Update rotation of camera
+        void UpdateRotation(const SceneObject* scene_object, CameraPtr cam, Vector3f new_rotation);
+        
+        /// Update the position of the camera
+        void UpdatePosition(const SceneObject* scene_object, CameraPtr cam, Vector3f new_position);
+	};
+    
 
 } //end OpenNero
 

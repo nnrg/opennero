@@ -180,18 +180,18 @@ class NeroModule:
         This is the function ran when an agent already in the field
         causes the generation of a new agent.
         """
-        dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
-        dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
         self.curr_team = team
         if agent_xml is None:
+            dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
+            dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
             color = 'blue'
             if team == constants.OBJECT_TYPE_TEAM_1:
                 color = 'red'
             agent_xml = "data/shapes/character/steve_%s_armed.xml" % color
-        common.addObject(
-            agent_xml,
-            OpenNero.Vector3f(self.spawn_x[team] + dx, self.spawn_y[team] + dy, 2),
-            type=team)
+            agent_pos = OpenNero.Vector3f(self.spawn_x[team] + dx, self.spawn_y[team] + dy, 2)
+        else:
+            agent_pos = OpenNero.Vector3f(self.spawn_x[team], self.spawn_y[team], 2)
+        common.addObject(agent_xml, agent_pos, type=team)
 
 gMod = None
 
