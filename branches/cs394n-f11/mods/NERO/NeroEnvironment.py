@@ -80,6 +80,9 @@ class NeroEnvironment(OpenNero.Environment):
         """
         OpenNero.Environment.__init__(self)
 
+        self.hitpoints = constants.DEFAULT_LIFETIME
+        self.epsilon = 0.5
+
         self.curr_id = 0
         self.max_steps = 20
         self.MAX_DIST = math.hypot(constants.XDIM, constants.YDIM)
@@ -94,42 +97,20 @@ class NeroEnvironment(OpenNero.Environment):
 
     def start_ai(self, ai_flavor):
         self.ai_flavor = ai_flavor
-
-        abound = OpenNero.FeatureVectorInfo() # actions
-        sbound = OpenNero.FeatureVectorInfo() # sensors
-        rbound = OpenNero.FeatureVectorInfo() # rewards
-
-        # actions
-        abound.add_continuous(-1, 1) # forward/backward speed
-        abound.add_continuous(-0.2, 0.2) # left/right turn (in radians)
-
-        # sensor dimensions
-        for a in range(constants.N_SENSORS):
-            sbound.add_continuous(0, 1);
-
-        # Rewards
-        if self.ai_flavor == 'qlearning':
-            # for q learning, we just need one reward signal.
-            rbound.add_continuous(-sys.float_info.max, sys.float_info.max)
-        else:
-            # the enviroment returns the raw multiple dimensions of the fitness
-            # as they get each step. This then gets combined into, e.g. Z-score,
-            # by the ScoreHelper in order to calculate the final rtNEAT-fitness
-            for f in constants.FITNESS_DIMENSIONS:
-                # we don't care about the bounds of the individual dimensions
-                rbound.add_continuous(-sys.float_info.max, sys.float_info.max) # range for reward
-
-        self.agent_info = OpenNero.AgentInitInfo(sbound, abound, rbound)
-
         getattr(self, 'start_%s' % self.ai_flavor)()
 
     def start_rtneat(self):
+        # TODO: there must be a better way to do this ... for now just create a
+        # reward info here to pass to rtneat.
+        rbound = OpenNero.FeatureVectorInfo()
+        for f in constants.FITNESS_DIMENSIONS:
+            rbound.add_continuous(-sys.float_info.max, sys.float_info.max)
+
         # initialize the rtNEAT algorithm parameters
         # input layer has enough nodes for all the observations plus a bias
         # output layer has enough values for all the actions
         # population size matches ours
         # 1.0 is the weight initialization noise
-        rbound = self.agent_info.reward
         rtneat = OpenNero.RTNEAT("data/ai/neat-params.dat",
                                  constants.N_SENSORS,
                                  constants.N_ACTIONS,
@@ -141,10 +122,7 @@ class NeroEnvironment(OpenNero.Environment):
         OpenNero.set_ai(key, rtneat)
         print "get_ai(%s): %s" % (key, OpenNero.get_ai(key))
 
-        # set the initial lifetime
-        lifetime = module.getMod().lt
-        rtneat.set_lifetime(lifetime)
-        print 'rtNEAT lifetime:', lifetime
+        rtneat.set_lifetime(module.getMod().lt)
 
     def start_qlearning(self):
         self.loop = True
@@ -193,7 +171,7 @@ class NeroEnvironment(OpenNero.Environment):
                     a0, a1, -90, 90, constants.MAX_VISION_RADIUS,
                     sense,
                     False))
-        return self.agent_info
+        return agent.info
 
     def get_state(self, agent):
         """
@@ -241,8 +219,11 @@ class NeroEnvironment(OpenNero.Environment):
         """
         2A step for an agent
         """
+        # set the epsilon for this agent, in case it's changed recently.
+        agent.epsilon = self.epsilon
+
         # check if the action is valid
-        assert(self.agent_info.actions.validate(action))
+        assert(agent.info.actions.validate(action))
 
         state = self.get_state(agent)
 
@@ -254,7 +235,7 @@ class NeroEnvironment(OpenNero.Environment):
                 r.z = random.randrange(360)
                 agent.state.rotation = r
             state.reset_pose(p, r)
-            return self.agent_info.reward.get_instance()
+            return agent.info.reward.get_instance()
 
         # spawn more agents if possible.
         self.maybe_spawn(agent)
@@ -278,7 +259,8 @@ class NeroEnvironment(OpenNero.Environment):
         return reward
 
     def calculate_reward(self, agent, action):
-        reward = self.agent_info.reward.get_instance()
+        reward = agent.info.reward.get_instance()
+
         state = self.get_state(agent)
         friends, foes = self.getFriendFoe(agent)
 
@@ -315,7 +297,7 @@ class NeroEnvironment(OpenNero.Environment):
         damage = state.update_damage()
         R[constants.FITNESS_AVOID_FIRE] = -damage
 
-        if self.ai_flavor == 'qlearning':
+        if len(reward) == 1:
             for i, f in enumerate(constants.FITNESS_DIMENSIONS):
                 reward[0] += self.reward_weights[f] * R[f] / constants.FITNESS_SCALE.get(f, 1.0)
                 #print f, self.reward_weights[f], R[f] / constants.FITNESS_SCALE.get(f, 1.0)
@@ -433,7 +415,7 @@ class NeroEnvironment(OpenNero.Environment):
             return True
 
         state = self.get_state(agent)
-        if module.getMod().hp != 0 and state.total_damage >= module.getMod().hp:
+        if self.hitpoints != 0 and state.total_damage >= self.hitpoints:
             return True
 
         return False

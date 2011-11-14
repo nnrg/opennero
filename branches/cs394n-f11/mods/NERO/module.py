@@ -15,8 +15,6 @@ class NeroModule:
         self.agent_id = None
 
         self.lt = constants.DEFAULT_LIFETIME
-        self.ee = 50
-        self.hp = 20
 
         self.flag_loc = None
         self.flag_id = None
@@ -169,12 +167,12 @@ class NeroModule:
                 rtneat.set_lifetime(value)
 
     def eeChange(self, value):
-        self.ee = value
         print 'Explore/exploit:', value
+        self.environment.epsilon = value / 100.0
 
     def hpChange(self, value):
-        self.hp = value
         print 'Hit points:', value
+        self.environment.hitpoints = value
 
     def spawnAgent(self, team=constants.OBJECT_TYPE_TEAM_0, ai_flavor=None):
         """

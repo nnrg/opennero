@@ -95,6 +95,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.add_slider('Approach Flag', 'AF')
         self.add_slider('Hit Target', 'HT')
         self.add_slider('Avoid Fire', 'VF')
+        self.add_slider('Explore/Exploit', 'EE', span=100, center=0, thumb=50)
         self.add_slider('Lifetime', 'LT', span=1000, center=0, thumb=100)
         self.add_slider('Hitpoints', 'HP', span=100, center=0, thumb=20)
         self.add_slider('Speedup', 'SP', span=100, center=0, thumb=80)
