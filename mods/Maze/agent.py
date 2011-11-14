@@ -130,7 +130,7 @@ class CustomRLAgent(AgentBrain):
         """
         aMin = self.action_info.min(0)
         aMax = self.action_info.max(0)
-        actions = range(aMin, aMax+1)
+        actions = range(int(aMin), int(aMax+1))
         return actions
         
     def get_max_action(self, observations):
