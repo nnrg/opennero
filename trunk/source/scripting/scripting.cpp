@@ -23,6 +23,13 @@ BOOST_PYTHON_MODULE( OpenNero )
     OpenNero::InitializeScriptModule();
 }
 
+namespace {
+    /// the name of the zip file to look for bundled Python libraries in
+    const char* const kPythonZipFileName = "python27.zip";
+    /// the putenv command to run when the python library is bundled with the application
+	const char* const kPythonSetPath = "PYTHONPATH=python27.zip";
+}
+
 namespace OpenNero
 {
     using namespace std;
@@ -133,6 +140,12 @@ namespace OpenNero
         {
             // start the Python interpreter
             Assert(argc > 0);
+            // see if there is a python package included
+            ifstream python_zip(kPythonZipFileName);
+            if (python_zip) {
+				putenv(kPythonSetPath);
+            }
+            python_zip.close();
             Py_SetProgramName(argv[0]);
             Py_InitializeEx(0); // no interrupt handlers
             PySys_SetArgv(argc, argv);
