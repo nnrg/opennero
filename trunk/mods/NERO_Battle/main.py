@@ -1,6 +1,5 @@
 #import all agent implementations
-from NERO.RTNEATAgent import *
-from NERO.Turret import *
+import NERO.agent
 
 #import all client and server scripts
 import NERO_Battle.module as module
