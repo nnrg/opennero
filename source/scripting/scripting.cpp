@@ -140,12 +140,14 @@ namespace OpenNero
         {
             // start the Python interpreter
             Assert(argc > 0);
+#if NERO_PLATFORM_WINDOWS            
             // see if there is a python package included
             ifstream python_zip(kPythonZipFileName);
             if (python_zip) {
 				putenv(kPythonSetPath);
             }
             python_zip.close();
+#endif
             Py_SetProgramName(argv[0]);
             Py_InitializeEx(0); // no interrupt handlers
             PySys_SetArgv(argc, argv);
