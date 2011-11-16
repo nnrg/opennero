@@ -8,8 +8,6 @@ from common import *
 from collections import deque
 from Maze.agent import MoveForwardAndStopAgent
 
-import observer
-
 class MazeRewardStructure:
     """ This defines the reward that the agents get for running the maze """
     def null_move(self, agent):

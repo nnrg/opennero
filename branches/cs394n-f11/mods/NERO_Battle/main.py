@@ -1,5 +1,5 @@
 #import all agent implementations
-from NERO.agent import *
+import NERO.agent
 
 #import all client and server scripts
 import NERO_Battle.module as module
