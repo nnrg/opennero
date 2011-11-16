@@ -26,8 +26,6 @@ class NeroModule:
         self.environment = None
         self.agent_id = None
 
-        self.lifetime = constants.DEFAULT_LIFETIME
-
         self.flag_loc = None
         self.flag_id = None
 
@@ -230,7 +228,7 @@ class NeroModule:
         self.environment.set_weight(key, (value - 100) / 100.0)
 
     def ltChange(self, value):
-        self.lifetime = value
+        self.environment.lifetime = value
         for team in constants.TEAMS:
             rtneat = OpenNero.get_ai("rtneat-%s" % team)
             if rtneat:
@@ -287,7 +285,7 @@ class NeroModule:
         OpenNero.set_ai(key, rtneat)
         print "get_ai(%s): %s" % (key, OpenNero.get_ai(key))
 
-        rtneat.set_lifetime(self.lifetime)
+        rtneat.set_lifetime(self.environment.lifetime)
 
 
 gMod = None

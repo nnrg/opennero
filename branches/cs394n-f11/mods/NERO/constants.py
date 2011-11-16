@@ -17,6 +17,7 @@ pop_size = 50
 
 # number of steps per lifetime
 DEFAULT_LIFETIME = 200
+DEFAULT_HITPOINTS = 10
 
 # default speedup setting (there will be a 0.1 * 80 / 100 second delay between AI steps)
 DEFAULT_SPEEDUP = 80

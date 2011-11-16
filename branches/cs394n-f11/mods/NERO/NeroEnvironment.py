@@ -80,7 +80,8 @@ class NeroEnvironment(OpenNero.Environment):
         """
         OpenNero.Environment.__init__(self)
 
-        self.hitpoints = constants.DEFAULT_LIFETIME
+        self.lifetime = constants.DEFAULT_LIFETIME
+        self.hitpoints = constants.DEFAULT_HITPOINTS
         self.epsilon = 0.5
 
         self.curr_id = 0
@@ -375,8 +376,7 @@ class NeroEnvironment(OpenNero.Environment):
         if agent.group == 'Turret' or agent.ai == 'qlearning':
             return False
 
-        steps = module.getMod().lifetime
-        if steps > 0 and agent.step >= steps:
+        if self.lifetime > 0 and agent.step >= self.lifetime:
             return True
 
         team = agent.get_team()
