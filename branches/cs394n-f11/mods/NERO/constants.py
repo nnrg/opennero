@@ -1,10 +1,13 @@
+import math
+import itertools
+
 # Dimensions of the arena
 XDIM = 800
 YDIM = 800
 
 # Height of the wall
 HEIGHT = 20
-OFFSET = -HEIGHT/2
+OFFSET = -HEIGHT / 2
 
 MAX_MOVEMENT_SPEED = 1
 MAX_VISION_RADIUS = 300
@@ -34,13 +37,13 @@ TEAMS = (OBJECT_TYPE_TEAM_0, OBJECT_TYPE_TEAM_1)
 FRIEND_RADAR_SENSORS = [0, 1]
 
 # EnemyRadarSensor
-ENEMY_RADAR_SENSORS = [(90,12),(18,-3),(3,-18),(-12,-90),(-87,87)]
+ENEMY_RADAR_SENSORS = [(90, 12), (18, -3), (3, -18), (-12, -90), (-87, 87)]
 
 # Wall Ray Sensors
-WALL_RAY_SENSORS = [90,45,0,-45,-90]
+WALL_RAY_SENSORS = [90, 45, 0, -45, -90]
 
 # Flag Radar Sensors
-FLAG_RADAR_SENSORS = [(90,12),(18,-3),(3,-18),(-12,-90),(-87,87)]
+FLAG_RADAR_SENSORS = [(90, 12), (18, -3), (3, -18), (-12, -90), (-87, 87)]
 
 # Number of sensors
 N_SENSORS = len(FRIEND_RADAR_SENSORS) + len(FLAG_RADAR_SENSORS) + len(ENEMY_RADAR_SENSORS) + len(WALL_RAY_SENSORS) + 1
@@ -55,27 +58,26 @@ NEAT_BIAS = 0.3
 ### FITNESS CONFIGURATION ###
 #############################
 
-FITNESS_STAND_GROUND = "Stand ground"
-FITNESS_STICK_TOGETHER = "Stick together"
-FITNESS_APPROACH_ENEMY = "Approach enemy"
-FITNESS_APPROACH_FLAG = "Approach flag"
-FITNESS_HIT_TARGET = "Hit target"
-FITNESS_AVOID_FIRE = "Avoid fire"
+FITNESS_STAND_GROUND = 'Stand ground'
+FITNESS_STICK_TOGETHER = 'Stick together'
+FITNESS_APPROACH_ENEMY = 'Approach enemy'
+FITNESS_APPROACH_FLAG = 'Approach flag'
+FITNESS_HIT_TARGET = 'Hit target'
+FITNESS_AVOID_FIRE = 'Avoid fire'
 FITNESS_DIMENSIONS = [FITNESS_STAND_GROUND, FITNESS_STICK_TOGETHER,
     FITNESS_APPROACH_ENEMY, FITNESS_APPROACH_FLAG, FITNESS_HIT_TARGET,
     FITNESS_AVOID_FIRE]
 
 FITNESS_INDEX = dict([(f,i) for i,f in enumerate(FITNESS_DIMENSIONS)])
 
+MAX_SQ_DIST = math.hypot(XDIM, YDIM)
 FITNESS_SCALE = {
-    FITNESS_STAND_GROUND: 100000.0,
-    FITNESS_STICK_TOGETHER: 100000.0,
-    FITNESS_APPROACH_ENEMY: 100000.0,
-    FITNESS_APPROACH_FLAG: 100000.0,
+    FITNESS_STAND_GROUND: MAX_SQ_DIST,
+    FITNESS_STICK_TOGETHER: MAX_SQ_DIST,
+    FITNESS_APPROACH_ENEMY: MAX_SQ_DIST,
+    FITNESS_APPROACH_FLAG: MAX_SQ_DIST,
     }
 
-import itertools
-#DISPLAY_HINTS = itertools.cycle([None, 'fitness', 'time alive', 'hit points', 'genome id', 'species id', 'champion', 'debug'])
 DISPLAY_HINTS = itertools.cycle([None, 'time alive', 'hit points', 'genome id', 'species id', 'champion'])
 DISPLAY_HINT = DISPLAY_HINTS.next()
 
