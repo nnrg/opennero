@@ -1,12 +1,12 @@
 import copy
 import math
 import random
-import sys
 
 import common
-import OpenNero
-import module
 import constants
+import module
+import OpenNero
+
 
 class AgentState:
     """
@@ -88,45 +88,11 @@ class NeroEnvironment(OpenNero.Environment):
         self.MAX_DIST = math.hypot(constants.XDIM, constants.YDIM)
         self.states = {}
         self.teams = {}
+        self.serialized_agents = {}
 
         self.reward_weights = dict((f, 0.) for f in constants.FITNESS_DIMENSIONS)
 
         self.script = 'NERO/menu.py'
-
-        self.ai_flavor = None
-
-    def start_ai(self, ai_flavor):
-        self.ai_flavor = ai_flavor
-        getattr(self, 'start_%s' % self.ai_flavor)()
-
-    def start_rtneat(self):
-        # TODO: there must be a better way to do this ... for now just create a
-        # reward info here to pass to rtneat.
-        rbound = OpenNero.FeatureVectorInfo()
-        for f in constants.FITNESS_DIMENSIONS:
-            rbound.add_continuous(-sys.float_info.max, sys.float_info.max)
-
-        # initialize the rtNEAT algorithm parameters
-        # input layer has enough nodes for all the observations plus a bias
-        # output layer has enough values for all the actions
-        # population size matches ours
-        # 1.0 is the weight initialization noise
-        rtneat = OpenNero.RTNEAT("data/ai/neat-params.dat",
-                                 constants.N_SENSORS,
-                                 constants.N_ACTIONS,
-                                 constants.pop_size,
-                                 1.0,
-                                 rbound)
-
-        key = "rtneat-%s" % constants.OBJECT_TYPE_TEAM_0
-        OpenNero.set_ai(key, rtneat)
-        print "get_ai(%s): %s" % (key, OpenNero.get_ai(key))
-
-        rtneat.set_lifetime(module.getMod().lt)
-
-    def start_qlearning(self):
-        self.loop = True
-        OpenNero.enable_ai()
 
     def set_weight(self, key, value):
         self.reward_weights[key] = value
@@ -219,6 +185,13 @@ class NeroEnvironment(OpenNero.Environment):
         """
         2A step for an agent
         """
+        # if this agent has a serialized representation waiting, load it.
+        chunk = self.serialized_agents.get(agent.state.id)
+        if chunk:
+            print 'deserializing agent', agent.state.id
+            del self.serialized_agents[agent.state.id]
+            agent.from_string(chunk)
+
         # set the epsilon for this agent, in case it's changed recently.
         agent.epsilon = self.epsilon
 
@@ -309,24 +282,20 @@ class NeroEnvironment(OpenNero.Environment):
 
     def maybe_spawn(self, agent):
         '''Spawn more agents if there are more to spawn.'''
+        if agent.ai != 'rtneat' or agent.group != 'Agent':
+            return
+
         team = agent.get_team()
+        rtneat = OpenNero.get_ai('rtneat-%s' % team)
+        if not rtneat or not rtneat.ready():
+            return
 
         friends, foes = self.getFriendFoe(agent)
-        friends = tuple(friends or [None])
+        if len(friends) >= constants.pop_size:
+            return
 
-        ai_ready = False
-        if self.ai_flavor == 'qlearning':
-            ai_ready = True
-        if self.ai_flavor == 'rtneat':
-            rtneat = OpenNero.get_ai("rtneat-%s" % team)
-            if rtneat and rtneat.ready():
-                ai_ready = True
-
-        if (agent.group == 'Agent' and
-            agent is friends[0] and
-            ai_ready and
-            len(friends) < constants.pop_size):
-            module.getMod().spawnAgent(team=team, ai_flavor=self.ai_flavor)
+        if agent is tuple(f for f in friends if f.ai == 'rtneat')[0]:
+            module.getMod().spawnAgent(team=team, ai='rtneat')
 
     def sense(self, agent, observations):
         """
@@ -403,15 +372,15 @@ class NeroEnvironment(OpenNero.Environment):
         """
         is the current episode over for the agent?
         """
-        if agent.group == "Turret":
+        if agent.group == 'Turret' or agent.ai == 'qlearning':
             return False
 
-        self.max_steps = module.getMod().lt
-        if self.max_steps != 0 and agent.step >= self.max_steps:
+        steps = module.getMod().lifetime
+        if steps > 0 and agent.step >= steps:
             return True
 
         team = agent.get_team()
-        if self.ai_flavor == 'rtneat' and not OpenNero.get_ai("rtneat-%s" % team).has_organism(agent):
+        if agent.ai == 'rtneat' and not OpenNero.get_ai("rtneat-%s" % team).has_organism(agent):
             return True
 
         state = self.get_state(agent)
