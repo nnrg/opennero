@@ -6,6 +6,7 @@ import common
 import constants
 import NeroEnvironment
 import OpenNero
+import time
 
 class NeroModule:
     def __init__(self):
@@ -128,6 +129,11 @@ class NeroModule:
             common.removeObject(self.first_person_agent)
             self.first_person_agent = None
 
+    def snapshot(self):
+        print 'snapshot was called'
+        if os.access('NERO/snapshots/color/', os.W_OK):
+            OpenNero.getSimContext().getActiveCamera().snapshot('NERO/snapshots/color/' + str(time.time()*100)[:-2] + '.png')
+
     #The following is run when the Save button is pressed
     def save_rtneat(self, location, pop, team=constants.OBJECT_TYPE_TEAM_0):
         location = os.path.relpath("/") + location
@@ -230,7 +236,7 @@ def parseInput(strn):
     if loc == "load2": mod.load_rtneat(val, 2)
     if loc == "deploy": client.toggle_ai_callback()
     if loc == "fps": mod.start_fps()
-    if loc == "screenshot": mod.snapshot()
+    if loc == "snapshot": mod.snapshot()
 
 def ServerMain():
     print "Starting mod NERO"
