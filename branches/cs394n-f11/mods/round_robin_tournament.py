@@ -1,25 +1,35 @@
 #!/usr/bin/env python
 
-# Run a round-robin NERO_Battle tournament.
+# Run a NERO_Battle tournament.
 
+import collections
 import logging
 import multiprocessing as mp
 import optparse
 import os
+import random
 import re
 import subprocess
 import sys
 import time
 
 FLAGS = optparse.OptionParser(usage='%s [OPTIONS] POPULATION-FILE...' % sys.argv[0])
+FLAGS.add_option('-v', '--verbose', action='store_true', help='be more verbose')
 FLAGS.add_option('-c', '--condor', action='store_true', help='run battles on Condor')
 FLAGS.add_option('-d', '--duration', default=60, type=int, metavar='N',
                  help='allow each battle to run for N seconds (default: 60)')
 FLAGS.add_option('-n', '--concurrency', default=2, type=int, metavar='N',
                  help='run N battles concurrently (default: 2)')
-FLAGS.add_option('-r', '--rounds', default=1, type=int, metavar='N',
-                 help='run a tournament with N complete rounds (default: 1)')
-FLAGS.add_option('-v', '--verbose', action='store_true', help='be more verbose')
+FLAGS.add_option('-r', '--round-robin', default=0, type=int, metavar='N',
+                 help='run a round-robin tournament with N rounds')
+FLAGS.add_option('-t', '--test', action='store_true',
+                 help='print out matchups without running OpenNero')
+
+
+def test_bracket(team1, team2, duration):
+    '''Just print out the teams we're pitting against each other.'''
+    logging.info('bracket matchup: %s vs %s', team1, team2)
+    return 'damages: 0 0, 1 1'
 
 
 def run_battle_locally(team1, team2, duration):
@@ -81,14 +91,14 @@ def run_battle_on_condor(team1, team2, duration):
 
 def parse_scores(stdout):
     '''Parse scores out of some opennero logging output.'''
-    scores = [(None, None)]
+    scores = [(-1, -1)]
     for line in stdout.splitlines():
-        m = re.search(r'Blue Team Score: (\d+) Red Team Score: (\d+)$', line)
+        m = re.search(r'damages: (\d+) (\d+), (\d+) (\d+)$', line)
         if m:
-            scores.append((int(m.group(1)), int(m.group(2))))
-    logging.info('parsed %d scores from %dkB of stdout data',
-                 len(scores), len(stdout) // 1000)
-    return scores
+            scores.append((int(m.group(2)), int(m.group(4))))
+    logging.debug('parsed %d scores from %dkB of stdout data: %s',
+                  len(scores), len(stdout) // 1000, scores[-1])
+    return scores[-1]
 
 
 def schedule_battles(fight, team_queue, score_queue):
@@ -98,14 +108,147 @@ def schedule_battles(fight, team_queue, score_queue):
         if teams is None:
             break
         team1, team2, duration = teams
-        scores = parse_scores(fight(team1, team2, duration))
-        score_queue.put((team1, team2, scores))
+        score1, score2 = parse_scores(fight(team1, team2, duration))
+        score_queue.put(((team1, score1), (team2, score2)))
     logging.debug('shutting down scheduling process')
 
 
-def main(opts, teams):
-    '''Given a set of teams, run a round-robin (all-pairs) tournament.'''
+def round_robin(opts, teams, team_queue, score_queue):
+    '''Given a set of teams, run a round-robin (all-pairs) tournament.
+
+    Returns a map from team name to total score.
+    '''
+    waiting = 0
+    for i, team1 in enumerate(teams):
+        for j, team2 in enumerate(teams):
+            for _ in range(opts.rounds):
+                team_queue.put((team1, team2, opts.duration))
+                waiting += 1
+    scoreboard = collections.defaultdict(int)
+    while waiting > 0:
+        waiting -= 1
+        (team1, score1), (team2, score2) = score_queue.get()
+        scoreboard[team1] += score1
+        scoreboard[team2] += score2
+    return scoreboard
+
+
+def parallel_matchups(opts, team_pairs, team_queue, score_queue):
+    '''Given a list of team pairs, run each pair in parallel.
+
+    Generates a sequence of ((winner, score), (loser, score)) pairs.
+    '''
+    for team1, team2 in team_pairs:
+        if random.random() < 0.5:
+            team1, team2 = team2, team1
+        team_queue.put((team1, team2, opts.duration))
+    for _ in team_pairs:
+        (team1, score1), (team2, score2) = score_queue.get()
+        if score2 > score1 or (score1 == score2 and random.random() < 0.5):
+            logging.info('%s:%d defeats %s:%d', team2, score2, team1, score1)
+            yield (team2, score2), (team1, score1)
+        else:
+            logging.info('%s:%d defeats %s:%d', team1, score1, team2, score2)
+            yield (team1, score1), (team2, score2)
+
+
+def world_cup(opts, teams, team_queue, score_queue):
+    '''Run a world-cup-style tournament.
+    '''
+    # TODO: not finished
+    raise NotImplementedError
+
+    # first we run round-robin within small groups to get a pool of teams for
+    # seeding the bracket. this also lets us ensure that the number of teams in
+    # the bracket is a power of 2.
+    assert 0 == opts.bracket_size & (opts.bracket_size - 1), \
+        '--bracket-size must be a power of 2'
+
+    def partition(s, n):
+        '''Divide set s into n approximately equal-sized groups.'''
+        groups = [[] for _ in range(n)]
+        i = 0
+        while s:
+            groups[i].append(s.pop())
+            i += 1
+        return groups
+
+    firsts = []
+    seconds = []
+    for group in partition(teams, opts.bracket_size):
+        results = round_robin(opts, group, team_queue, score_queue)
+        winners = sorted(results.iteritems(), key=lambda x: -x[0])
+        firsts.append(winners[0])
+        seconds.append(winners[1])
+
+    L = len(seconds) // 2
+    matchups = zip(firsts, seconds[L:] + seconds[:L])
+
+    results = parallel_matchups(opts, matchups, team_queue, score_queue)
+
+
+def double_elimination(opts, teams, team_queue, score_queue):
+    '''Run a double-elimination tournament.
+
+    Returns (winner, scoreboard). The scoreboard is a map from team to score.
+    '''
+    scoreboard = dict((t, 0) for t in teams)
+
+    def pairs(s):
+        '''Create a list of pairs from elements in list s.'''
+        h = len(s) // 2
+        pairs = []
+        for i in range(h):
+            pairs.append((s[i], s[h + i]))
+        return pairs
+
+    def matches(ps):
+        results = parallel_matchups(opts, ps, team_queue, score_queue)
+        for (winner, ws), (loser, ls) in results:
+            scoreboard[winner] += ws
+            scoreboard[loser] += ls
+            yield winner, loser
+
+    winners = teams
+    losers = []
+
+    level = 0
+    while len(winners) > 1 or len(losers) > 1:
+        if len(winners) > 1:
+            for _, loser in matches(pairs(winners)):
+                winners.remove(loser)
+                losers.append(loser)
+        logging.debug('%dW: W%s, L%s', level, winners, losers)
+        if len(losers) > 1:
+            for _, loser in matches(pairs(losers)):
+                losers.remove(loser)
+        logging.debug('%dL: W%s, L%s', level, winners, losers)
+        random.shuffle(winners)
+        level += 1
+
+    # If the winners-bracket team loses the final match, both teams will have
+    # lost once, so the final match needs to be played again.
+    final = (winners[0], losers[0])
+    winner = None
+    w, _ = matches([final]).next()
+    if w == winners[0]:
+        winner = w
+    else:
+        winner, _ = matches([final]).next()
+    return winner, scoreboard
+
+
+if __name__ == '__main__':
+    opts, teams = FLAGS.parse_args()
+
+    logging.basicConfig(
+        stream=sys.stdout,
+        level=opts.verbose and logging.DEBUG or logging.INFO,
+        format='%(levelname).1s %(asctime)s %(message)s')
+
     fight = opts.condor and run_battle_on_condor or run_battle_locally
+    if opts.test:
+        fight = test_bracket
 
     # set up a processing pool to schedule battles.
     team_queue = mp.Queue()
@@ -115,39 +258,15 @@ def main(opts, teams):
                for _ in range(opts.concurrency)]
     [w.start() for w in workers]
 
-    # add all unique pairs of teams to the scheduling queue. because scoring is
-    # zero-sum, we don't need to run symmetric pairs twice.
-    waiting = 0
-    for i, team1 in enumerate(teams):
-        for j, team2 in enumerate(teams):
-            if j > i:
-                for _ in range(opts.rounds):
-                    team_queue.put((team1, team2, opts.duration))
-                    waiting += 1
+    # run the actual tournament.
+    random.shuffle(teams)
+    if opts.round_robin:
+        results = round_robin(opts, teams, team_queue, score_queue)
+    else:
+        w, results = double_elimination(opts, teams, team_queue, score_queue)
+        print 'Tournament Winner:', w
+    print '\n'.join('%d %s' % (s, t) for t, s in results.iteritems())
 
-    # collect and aggregate scores from the battles.
-    dashboard = dict((t, 0) for t in teams)
-    while waiting:
-        waiting -= 1
-        team1, team2, scores = score_queue.get()
-        s1, s2 = scores[-1]
-        if s1 is not None and s2 is not None:
-            dashboard[team1] += s1 - s2
-            dashboard[team2] += s2 - s1
-        else:  # give a small penalty to both teams for not getting any score.
-            dashboard[team1] -= 1
-            dashboard[team2] -= 1
-
-    # clean up the workers.
+    # clean up workers.
     [team_queue.put(None) for w in workers]
     [w.join() for w in workers]
-
-    print dashboard
-
-
-if __name__ == '__main__':
-    logging.basicConfig(
-        stream=sys.stdout,
-        level=logging.DEBUG,
-        format='%(levelname).1s %(asctime)s %(message)s')
-    main(*FLAGS.parse_args())
