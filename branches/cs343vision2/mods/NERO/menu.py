@@ -88,6 +88,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.add_button('Save Team', self.OnSave1)
         self.add_button('Load Team', self.OnLoad1)
         self.add_button('First Person Agent', self.OnFPS)
+        self.add_button('Snapshot', self.OnSnapshot)
 
     def add_sliders(self):
         self.add_slider('Stand Ground', 'SG')
@@ -132,6 +133,9 @@ class NeroPanel(wx.Panel, ScriptClient):
     
     def OnFPS(self,event):
         self.send("fps 0")
+
+    def OnSnapshot(self, event):
+        self.send("snapshot 0")
 
     def OnSave1(self, event):
         dirname = ""
