@@ -126,6 +126,7 @@ class NeroModule:
         else:
             print 'removing first person agent!'
             common.removeObject(self.first_person_agent)
+            self.first_person_agent = None
 
     #The following is run when the Save button is pressed
     def save_rtneat(self, location, pop, team=constants.OBJECT_TYPE_TEAM_0):
@@ -191,7 +192,7 @@ class NeroModule:
             agent_pos = OpenNero.Vector3f(self.spawn_x[team] + dx, self.spawn_y[team] + dy, 2)
         else:
             agent_pos = OpenNero.Vector3f(self.spawn_x[team], self.spawn_y[team], 2)
-        common.addObject(agent_xml, agent_pos, type=team)
+        self.first_person_agent = common.addObject(agent_xml, agent_pos, type=team)
 
 gMod = None
 
@@ -229,6 +230,7 @@ def parseInput(strn):
     if loc == "load2": mod.load_rtneat(val, 2)
     if loc == "deploy": client.toggle_ai_callback()
     if loc == "fps": mod.start_fps()
+    if loc == "screenshot": mod.snapshot()
 
 def ServerMain():
     print "Starting mod NERO"
