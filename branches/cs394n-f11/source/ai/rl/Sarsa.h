@@ -27,8 +27,8 @@ namespace OpenNero
         	/// @param lambda parameter for the SARSA(lambda) learning algorith
             /// @param actions number of bins for quantizing continuous action dimensions
             /// @param states number of bins for quantizing continuous state space dimensions
-            SarsaBrain(double gamma, double alpha, double epsilon, double lambda, int actions, int states)
-            : TDBrain(gamma, alpha, epsilon, actions, states)
+            SarsaBrain(double gamma, double alpha, double epsilon, double lambda, int actions, int states, int tiles, int weights)
+            : TDBrain(gamma, alpha, epsilon, actions, states, tiles, weights)
             , mLambda(lambda)
 			, cumulative_reward(0)
 			, n_episodes(0)

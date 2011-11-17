@@ -23,8 +23,8 @@ namespace OpenNero
 		/// @param epsilon parameter for the epsilon-greedy policy (between 0 and 1)
         /// @param actions number of bins for quantizing continuous action dimensions
         /// @param states number of bins for quantizing continuous state space dimensions
-        QLearningBrain(double gamma, double alpha, double epsilon, int actions, int states)
-        : TDBrain(gamma, alpha, epsilon, actions, states)
+        QLearningBrain(double gamma, double alpha, double epsilon, int actions, int states, int tiles, int weights)
+        : TDBrain(gamma, alpha, epsilon, actions, states, tiles, weights)
 		{}
 
 		/// constructor

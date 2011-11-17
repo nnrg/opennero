@@ -38,6 +38,8 @@ namespace OpenNero
         Actions new_action;  ///< new action
         int action_bins; ///< number of discrete bins for action space.
         int state_bins; ///< number of discrete bins for state space.
+        int num_tiles; ///< number of discrete bins for action space.
+        int num_weights; ///< number of discrete bins for state space.
 
     	// predicts reinforcement for current round
     	virtual double predict(const Observations& new_state) = 0;
@@ -48,7 +50,7 @@ namespace OpenNero
         /// @param epsilon parameter for the epsilon-greedy policy (between 0 and 1)
         /// @param actions number of bins for quantizing continuous action dimensions
         /// @param states number of bins for quantizing continuous state space dimensions
-        TDBrain(double gamma, double alpha, double epsilon, int actions, int states)
+        TDBrain(double gamma, double alpha, double epsilon, int actions, int states, int tiles, int weights)
         : AgentBrain()
         , mGamma(gamma)
         , mAlpha(alpha)
@@ -60,6 +62,8 @@ namespace OpenNero
         , new_action()
         , action_bins(actions)
         , state_bins(states)
+        , num_tiles(tiles)
+        , num_weights(weights)
         {}
 
         /// constructor
@@ -77,7 +81,9 @@ namespace OpenNero
         , state()
         , new_action()
         , action_bins(3)
-        , state_bins(3)
+        , state_bins(5)
+        , num_tiles(0)
+        , num_weights(0)
         {}
 
         /// copy constructor
@@ -93,6 +99,8 @@ namespace OpenNero
         , new_action(agent.new_action)
         , action_bins(agent.action_bins)
         , state_bins(agent.state_bins)
+        , num_tiles(agent.num_tiles)
+        , num_weights(agent.num_weights)
         {}
 
         /// destructor
@@ -140,10 +148,6 @@ namespace OpenNero
         /// select action according to policy
         double epsilon_greedy(const Observations& new_state);
 
-        /// quantize continuous state or action vectors
-        FeatureVector quantize_action(const FeatureVector& continuous) const;
-        FeatureVector quantize_state(const FeatureVector& continuous) const;
-
         /// load this object from a template
         bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data ) 
 			{ return false; /* TODO: implement when we have better template */ }
@@ -160,6 +164,8 @@ namespace OpenNero
             ar & BOOST_SERIALIZATION_NVP(mEpsilon);
             ar & BOOST_SERIALIZATION_NVP(action_bins);
             ar & BOOST_SERIALIZATION_NVP(state_bins);
+            ar & BOOST_SERIALIZATION_NVP(num_tiles);
+            ar & BOOST_SERIALIZATION_NVP(num_weights);
             ar & BOOST_SERIALIZATION_NVP(mInfo);
             ar & BOOST_SERIALIZATION_NVP(action_list);
             ar & BOOST_SERIALIZATION_NVP(mApproximator);

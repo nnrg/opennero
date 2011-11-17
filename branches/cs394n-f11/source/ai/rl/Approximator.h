@@ -60,10 +60,17 @@ namespace OpenNero
     private:
         friend class boost::serialization::access;
         StateActionDoubleMap table;
+        int action_bins;
+        int state_bins;
     public:
         /// constructor
         TableApproximator() {}
-        explicit TableApproximator(const AgentInitInfo& info);
+        explicit TableApproximator(const AgentInitInfo& info, const int action_bins, const int state_bins);
+        explicit TableApproximator(const AgentInitInfo& info)
+        {
+            TableApproximator(info, 3, 5);
+        }
+
 
         /// copy constructor
         TableApproximator(const TableApproximator& a);
@@ -81,11 +88,17 @@ namespace OpenNero
         /// update the value associated with a particular feature vector
         void update(const FeatureVector& sensors, const FeatureVector& actions, double target);
 
+        /// quantize continuous state or action vectors
+        FeatureVector quantize_action(const FeatureVector& continuous) const;
+        FeatureVector quantize_state(const FeatureVector& continuous) const;
+
         /// serialize this object to/from a Boost serialization archive
         template<class Archive>
         void serialize(Archive & ar, const unsigned int version)
         {
             ar & boost::serialization::base_object<Approximator>(*this);
+            ar & BOOST_SERIALIZATION_NVP(action_bins);
+            ar & BOOST_SERIALIZATION_NVP(state_bins);
             StateActionDoubleMap::iterator iter;
             for (iter = table.begin(); iter != table.end(); ++iter)
                 ar & BOOST_SERIALIZATION_NVP(*iter);
@@ -109,9 +122,13 @@ namespace OpenNero
         /// convert feature vector into tiles
         void to_tiles(const FeatureVector& sensors, const FeatureVector& actions);
     public:
-        /// constructor
+        /// constructors
         TilesApproximator() {}
-        explicit TilesApproximator(const AgentInitInfo& info);
+        explicit TilesApproximator(const AgentInitInfo& info, const int num_tiles, const int num_weights);
+        explicit TilesApproximator(const AgentInitInfo& info)
+        {
+            TilesApproximator(info, 32, 1024);
+        }
 
         /// copy constructor
         TilesApproximator(const TilesApproximator& a);
