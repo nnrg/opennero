@@ -28,7 +28,7 @@ namespace video
 static void png_cpexcept_error(png_structp png_ptr, png_const_charp msg)
 {
 	os::Printer::log("PNG FATAL ERROR", msg, ELL_ERROR);
-	longjmp(png_ptr->jmpbuf, 1);
+    longjmp(png_jmpbuf(png_ptr), 1);
 }
 
 // PNG function for file reading
@@ -37,7 +37,7 @@ void PNGAPI user_read_data_fcn(png_structp png_ptr, png_bytep data, png_size_t l
 	png_size_t check;
 
 	// changed by zola {
-	io::IReadFile* file=(io::IReadFile*)png_ptr->io_ptr;
+    io::IReadFile* file=(io::IReadFile*)png_get_io_ptr(png_ptr);
 	check=(png_size_t) file->read((void*)data,(u32)length);
 	// }
 
