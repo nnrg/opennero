@@ -10,14 +10,31 @@ class NeroEnvironment(NERO.NeroEnvironment.NeroEnvironment):
     def __init__(self):
         NERO.NeroEnvironment.NeroEnvironment.__init__(self)
         self.script = 'NERO_Battle/menu.py'
+        self.print_damage = 0
 
     def step(self, agent, action):
         """
         2A step for an agent
         """
+        # make sure RL agents cannot learn in battle mode.
+        agent.alpha = 0.0
+
         reward = NERO.NeroEnvironment.NeroEnvironment.step(self, agent, action)
 
-        if not reward[constants.FITNESS_INDEX[constants.FITNESS_HIT_TARGET]]:
+        live_agents = sum(len(t) for t in self.teams.itervalues())
+        self.print_damage += 1
+        if self.print_damage >= live_agents:
+            self.print_damage = 0
+
+        # if the returned reward includes a "hit" value, but it is 0, no damage
+        # has occurred, so just return.
+        hit_index = constants.FITNESS_INDEX[constants.FITNESS_HIT_TARGET]
+        if len(reward) >= hit_index and not reward[hit_index]:
+            return reward
+
+        # if the returned reward does not include a distinct "hit" value, we
+        # print out damages every loop through the entire population.
+        if len(reward) == 1 and self.print_damage > 0:
             return reward
 
         damages = {}
