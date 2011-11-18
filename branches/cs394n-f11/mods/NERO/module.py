@@ -4,7 +4,6 @@ import sys
 import random
 import tempfile
 
-import client
 import common
 import constants
 import NeroEnvironment
@@ -31,9 +30,12 @@ class NeroModule:
 
         self.set_speedup(constants.DEFAULT_SPEEDUP)
 
+        x = constants.XDIM / 2.0
+        y = constants.YDIM / 3.0
         self.spawn_x = {}
         self.spawn_y = {}
-        self.set_spawn(constants.XDIM / 2, constants.YDIM / 3)
+        self.set_spawn(x, y, constants.OBJECT_TYPE_TEAM_0)
+        self.set_spawn(x, 2 * y, constants.OBJECT_TYPE_TEAM_1)
 
     def setup_map(self):
         """
@@ -89,6 +91,17 @@ class NeroModule:
             label="World Wall4",
             type=constants.OBJECT_TYPE_OBSTACLE)
 
+        # Add some trees
+        for i in (0.25, 0.75):
+            for j in (0.25, 0.75):
+                common.addObject(
+                    "data/shapes/tree/Tree.xml",
+                    OpenNero.Vector3f(i * constants.XDIM, j * constants.YDIM, constants.HEIGHT),
+                    OpenNero.Vector3f(0, 0, 0),
+                    scale=OpenNero.Vector3f(1, 1, 1),
+                    label="Tree %d %d" % (10 * i, 10 * j),
+                    type=constants.OBJECT_TYPE_OBSTACLE)
+
         # Add the surrounding Environment
         common.addObject(
             "data/terrain/NeroWorld.xml",
@@ -121,7 +134,12 @@ class NeroModule:
 
     #The following is run when one of the Deploy buttons is pressed
     def start_ai(self, ai, team=constants.OBJECT_TYPE_TEAM_0):
-        self.spawnAgent(ai=ai, team=team)
+        OpenNero.disable_ai()
+        if ai == 'rtneat':
+            OpenNero.set_ai('rtneat-%s' % team, None)
+        self.environment.remove_all_agents()
+        for _ in range(constants.pop_size):
+            self.spawnAgent(ai=ai, team=team)
         OpenNero.enable_ai()
 
     #The following is run when the Save button is pressed
@@ -141,6 +159,8 @@ class NeroModule:
     def load_team(self, location , pop, team=constants.OBJECT_TYPE_TEAM_0):
         OpenNero.disable_ai()
 
+        self.environment.remove_all_agents()
+
         location = os.path.relpath("/") + location
         if not os.path.exists(location):
             print location, 'does not exist, cannot load population'
@@ -155,16 +175,16 @@ class NeroModule:
 
         # load any qlearning agents first, subtracting them from the population
         # size that rtneat will need to manage. since we cannot deserialize an
-        # agent's state until after it's been added to the world, we keep track
-        # of the agent id in a dict, and then NeroEnvironment#step takes care of
-        # the deserialization.
+        # agent's state until after it's been added to the world, we put the
+        # serialized chunk for the agent into a map, then NeroEnvironment#step
+        # takes care of the deserialization.
         pop_size = constants.pop_size
         if qlearning.strip():
             for chunk in re.split(r'\n\n+', qlearning):
                 if not chunk.strip():
                     continue
                 id = self.spawnAgent(ai='qlearning', team=team)
-                self.environment.serialized_agents[id] = chunk
+                self.environment.agents_to_load[id] = chunk
                 pop_size -= 1
                 if pop_size == 0:
                     break
@@ -181,7 +201,9 @@ class NeroModule:
                     pop_size,
                     rtneat_rewards()))
             os.unlink(tf.name)
-            self.start_ai(ai='rtneat', team=team)
+            self.spawnAgent(ai='rtneat', team=team)
+
+        OpenNero.enable_ai()
 
     def _split_population(self, lines):
         rtneat = []
@@ -235,7 +257,7 @@ class NeroModule:
                 rtneat.set_lifetime(value)
 
     def eeChange(self, value):
-        print 'Explore/exploit:', value
+        print 'Exploit/Explore:', value / 100.0
         self.environment.epsilon = value / 100.0
 
     def hpChange(self, value):
@@ -320,8 +342,8 @@ def parseInput(strn):
     if loc == "SP": mod.set_speedup(vali)
     if loc == "save1": mod.save_team(val, constants.OBJECT_TYPE_TEAM_0)
     if loc == "load1": mod.load_team(val, constants.OBJECT_TYPE_TEAM_0)
-    if loc == "rtneat": client.toggle_ai_callback('rtneat')
-    if loc == "qlearning": client.toggle_ai_callback('qlearning')
+    if loc == "rtneat": mod.start_ai('rtneat')
+    if loc == "qlearning": mod.start_ai('qlearning')
 
 def ServerMain():
     print "Starting mod NERO"

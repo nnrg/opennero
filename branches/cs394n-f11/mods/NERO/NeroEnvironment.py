@@ -87,9 +87,10 @@ class NeroEnvironment(OpenNero.Environment):
         self.curr_id = 0
         self.max_steps = 20
         self.MAX_DIST = math.hypot(constants.XDIM, constants.YDIM)
+
         self.states = {}
         self.teams = {}
-        self.serialized_agents = {}
+        self.agents_to_load = {}
 
         self.reward_weights = dict((f, 0.) for f in constants.FITNESS_DIMENSIONS)
 
@@ -101,6 +102,13 @@ class NeroEnvironment(OpenNero.Environment):
             rtneat = OpenNero.get_ai("rtneat-%s" % team)
             if rtneat:
                 rtneat.set_weight(constants.FITNESS_INDEX[key], value)
+
+    def remove_all_agents(self):
+        for agent in self.states:
+            common.removeObject(agent.state.id)
+        self.states = {}
+        self.teams = {}
+        self.agents_to_load = {}
 
     def reset(self, agent):
         """
@@ -187,11 +195,11 @@ class NeroEnvironment(OpenNero.Environment):
         2A step for an agent
         """
         # if this agent has a serialized representation waiting, load it.
-        chunk = self.serialized_agents.get(agent.state.id)
-        if chunk:
-            print 'deserializing agent', agent.state.id
-            del self.serialized_agents[agent.state.id]
+        chunk = self.agents_to_load.get(agent.state.id)
+        if chunk is not None:
+            print 'loading agent', agent.state.id, 'from', len(chunk), 'bytes'
             agent.from_string(chunk)
+            del self.agents_to_load[agent.state.id]
 
         # set the epsilon for this agent, in case it's changed recently.
         agent.epsilon = self.epsilon
@@ -295,8 +303,8 @@ class NeroEnvironment(OpenNero.Environment):
         if len(friends) >= constants.pop_size:
             return
 
-        if agent is tuple(f for f in friends if f.ai == 'rtneat')[0]:
-            module.getMod().spawnAgent(team=team, ai='rtneat')
+        if agent is tuple(f for f in friends if f.ai == agent.ai)[0]:
+            module.getMod().spawnAgent(team=team, ai=agent.ai)
 
     def sense(self, agent, observations):
         """
@@ -376,16 +384,15 @@ class NeroEnvironment(OpenNero.Environment):
         if agent.group == 'Turret' or agent.ai == 'qlearning':
             return False
 
-        if self.lifetime > 0 and agent.step >= self.lifetime:
-            return True
-
         team = agent.get_team()
-        if agent.ai == 'rtneat' and not OpenNero.get_ai("rtneat-%s" % team).has_organism(agent):
-            return True
-
         state = self.get_state(agent)
-        if self.hitpoints != 0 and state.total_damage >= self.hitpoints:
-            return True
+        dead = self.hitpoints > 0 and state.total_damage >= self.hitpoints
+        old = self.lifetime > 0 and agent.step >= self.lifetime
+        rtneat = OpenNero.get_ai("rtneat-%s" % team)
+        orphaned = rtneat and not rtneat.has_organism(agent)
+
+        if agent.ai == 'rtneat' and (orphaned or dead or old):
+                return True
 
         return False
 

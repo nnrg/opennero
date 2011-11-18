@@ -1,3 +1,5 @@
+import math
+
 import OpenNero
 import common
 import common.gui as gui
@@ -5,28 +7,10 @@ import constants
 import inputConfig
 import module
 
-ai_state = None
+guiMan = None
 modify_object_id = {}
 object_ids = []
 
-def toggle_ai_callback(ai_flavor):
-    global ai_state
-    OpenNero.toggle_ai()
-    if not ai_state:
-        module.getMod().start_ai(ai_flavor)
-        ai_state = 'Started'
-    elif ai_state == 'Started':
-        ai_state = 'Paused'
-    elif ai_state == 'Paused':
-        ai_state = 'Started'
-
-def recenter(cam):
-    def closure():
-        cam.setPosition(OpenNero.Vector3f(0, 0, 100))
-        cam.setTarget(OpenNero.Vector3f(100, 100, 0))
-    return closure
-
-#########################################################
 
 def show_context_menu():
     global modify_object_id
@@ -113,12 +97,13 @@ def show_context_menu():
         spawnButton.OnMouseLeftClick = lambda: set_spawn()
         contextMenu.addItem('Set Spawn Location', spawnButton)
 
+
 def reset_mouse_action():
     global modify_object_id
     modify_object_id = {}
 
+
 def mouse_action():
-    import math
     global modify_object_id
     global object_ids
 
@@ -158,22 +143,12 @@ def mouse_action():
         prev_scale = sim_context.getObjectScale(modify_object_id['scale'])
         sim_context.setObjectScale(modify_object_id['scale'], OpenNero.Vector3f(scalex, scaley, prev_scale.z))
 
-#########################################################
 
-def CreateGui(guim):
-    global mode
+def ClientMain():
     global modify_object_id
     global object_ids
     global guiMan
-    mode = 0
 
-    guiMan = guim
-    object_ids = []
-    modify_object_id = {}
-
-def ClientMain():
-    # physics off, ai off by default
-    #disable_physics()
     OpenNero.disable_ai()
 
     if not module.getMod().setup_map():
@@ -186,7 +161,9 @@ def ClientMain():
     common.addSkyBox("data/sky/irrlicht2")
 
     # setup the gui
-    CreateGui(common.getGuiManager())
+    guiMan = common.getGuiManager()
+    object_ids = []
+    modify_object_id = {}
 
     # add a camera
     camRotateSpeed = 100
@@ -195,10 +172,17 @@ def ClientMain():
     cam = OpenNero.getSimContext().addCamera(camRotateSpeed, camMoveSpeed, camZoomSpeed)
     cam.setFarPlane(40000)
     cam.setEdgeScroll(False)
+
+    def recenter(cam):
+        def closure():
+            cam.setPosition(OpenNero.Vector3f(0, 0, 100))
+            cam.setTarget(OpenNero.Vector3f(100, 100, 0))
+        return closure
+
     recenter_cam = recenter(cam)
     recenter_cam()
 
     # create the io map
     ioMap = inputConfig.createInputMapping()
-    ioMap.BindKey( "KEY_SPACE", "onPress", recenter_cam )
+    ioMap.BindKey("KEY_SPACE", "onPress", recenter_cam)
     OpenNero.getSimContext().setInputMapping(ioMap)
