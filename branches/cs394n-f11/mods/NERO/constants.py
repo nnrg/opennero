@@ -5,7 +5,8 @@ import itertools
 XDIM = 800
 YDIM = 800
 
-# Height of the wall
+# Height and width of walls
+WIDTH = 4
 HEIGHT = 20
 OFFSET = -HEIGHT / 2
 
@@ -17,7 +18,10 @@ pop_size = 50
 
 # number of steps per lifetime
 DEFAULT_LIFETIME = 200
-DEFAULT_HITPOINTS = 10
+DEFAULT_HITPOINTS = 20
+
+# default value of explore/exploit slider (x out of 100)
+DEFAULT_EE = 10
 
 # default speedup setting (there will be a 0.1 * 80 / 100 second delay between AI steps)
 DEFAULT_SPEEDUP = 80

@@ -82,14 +82,14 @@ class NeroEnvironment(OpenNero.Environment):
 
         self.lifetime = constants.DEFAULT_LIFETIME
         self.hitpoints = constants.DEFAULT_HITPOINTS
-        self.epsilon = 0.5
+        self.epsilon = constants.DEFAULT_EE / 100.0
 
         self.curr_id = 0
         self.max_steps = 20
         self.MAX_DIST = math.hypot(constants.XDIM, constants.YDIM)
 
         self.states = {}
-        self.teams = {}
+        self.teams = dict((t, set()) for t in constants.TEAMS)
         self.agents_to_load = {}
 
         self.reward_weights = dict((f, 0.) for f in constants.FITNESS_DIMENSIONS)
@@ -103,12 +103,11 @@ class NeroEnvironment(OpenNero.Environment):
             if rtneat:
                 rtneat.set_weight(constants.FITNESS_INDEX[key], value)
 
-    def remove_all_agents(self):
-        for agent in self.states:
+    def remove_all_agents(self, team):
+        for agent in self.teams[team]:
             common.removeObject(agent.state.id)
-        self.states = {}
-        self.teams = {}
-        self.agents_to_load = {}
+            self.states.pop(agent)
+            self.teams[team].pop(agent)
 
     def reset(self, agent):
         """
@@ -154,8 +153,6 @@ class NeroEnvironment(OpenNero.Environment):
         """
         if agent not in self.states:
             self.states[agent] = AgentState(agent)
-            if agent.get_team() not in self.teams:
-                self.teams[agent.get_team()] = set()
             self.teams[agent.get_team()].add(agent)
         return self.states[agent]
 
@@ -167,7 +164,7 @@ class NeroEnvironment(OpenNero.Environment):
         other_team = constants.OBJECT_TYPE_TEAM_1
         if my_team == other_team:
             other_team = constants.OBJECT_TYPE_TEAM_0
-        return self.teams.get(my_team, set()), self.teams.get(other_team, set())
+        return self.teams[my_team], self.teams[other_team]
 
     def target(self, agent):
         """

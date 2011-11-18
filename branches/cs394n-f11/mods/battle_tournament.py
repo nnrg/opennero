@@ -93,9 +93,11 @@ def parse_scores(stdout):
     '''Parse scores out of some opennero logging output.'''
     scores = [(-1, -1)]
     for line in stdout.splitlines():
-        m = re.search(r'damages: (\d+) (\d+), (\d+) (\d+)$', line)
+        m = re.search(r'damages sustained by: blue:(\d+) red:(\d+)$', line)
         if m:
-            scores.append((int(m.group(2)), int(m.group(4))))
+            # NB -- scores here are reversed from the log file because a team
+            # gets points for causing damage to its opponent.
+            scores.append((int(m.group(2)), int(m.group(1))))
     logging.debug('parsed %d scores from %dkB of stdout data: %s',
                   len(scores), len(stdout) // 1000, scores[-1])
     return scores[-1]

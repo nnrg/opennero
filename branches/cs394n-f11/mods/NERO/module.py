@@ -57,28 +57,28 @@ class NeroModule:
             "data/shapes/cube/Cube.xml",
             OpenNero.Vector3f(constants.XDIM/2, 0, height),
             OpenNero.Vector3f(0, 0, 90),
-            scale=OpenNero.Vector3f(1, constants.XDIM, constants.HEIGHT),
+            scale=OpenNero.Vector3f(constants.WIDTH, constants.XDIM, constants.HEIGHT),
             label="World Wall0",
             type=constants.OBJECT_TYPE_OBSTACLE)
         common.addObject(
             "data/shapes/cube/Cube.xml",
             OpenNero.Vector3f(0, constants.YDIM/2, height),
             OpenNero.Vector3f(0, 0, 0),
-            scale=OpenNero.Vector3f(1, constants.YDIM, constants.HEIGHT),
+            scale=OpenNero.Vector3f(constants.WIDTH, constants.YDIM, constants.HEIGHT),
             label="World Wall1",
             type=constants.OBJECT_TYPE_OBSTACLE)
         common.addObject(
             "data/shapes/cube/Cube.xml",
             OpenNero.Vector3f(constants.XDIM, constants.YDIM/2, height),
             OpenNero.Vector3f(0, 0, 0),
-            scale=OpenNero.Vector3f(1, constants.YDIM, constants.HEIGHT),
+            scale=OpenNero.Vector3f(constants.WIDTH, constants.YDIM, constants.HEIGHT),
             label="World Wall2",
             type=constants.OBJECT_TYPE_OBSTACLE)
         common.addObject(
             "data/shapes/cube/Cube.xml",
             OpenNero.Vector3f(constants.XDIM/2, constants.YDIM, height),
             OpenNero.Vector3f(0, 0, 90),
-            scale=OpenNero.Vector3f(1, constants.XDIM, constants.HEIGHT),
+            scale=OpenNero.Vector3f(constants.WIDTH, constants.XDIM, constants.HEIGHT),
             label="World Wall3",
             type=constants.OBJECT_TYPE_OBSTACLE)
 
@@ -87,7 +87,7 @@ class NeroModule:
             "data/shapes/cube/Cube.xml",
             OpenNero.Vector3f(constants.XDIM/2, constants.YDIM/2, height),
             OpenNero.Vector3f(0, 0, 90),
-            scale=OpenNero.Vector3f(1, constants.YDIM / 4, constants.HEIGHT),
+            scale=OpenNero.Vector3f(constants.WIDTH, constants.YDIM / 4, constants.HEIGHT),
             label="World Wall4",
             type=constants.OBJECT_TYPE_OBSTACLE)
 
@@ -133,7 +133,7 @@ class NeroModule:
             type=constants.OBJECT_TYPE_TEAM_1)
 
     #The following is run when one of the Deploy buttons is pressed
-    def start_ai(self, ai, team=constants.OBJECT_TYPE_TEAM_0):
+    def deploy(self, ai='rtneat', team=constants.OBJECT_TYPE_TEAM_0):
         OpenNero.disable_ai()
         if ai == 'rtneat':
             OpenNero.set_ai('rtneat-%s' % team, None)
@@ -143,7 +143,7 @@ class NeroModule:
         OpenNero.enable_ai()
 
     #The following is run when the Save button is pressed
-    def save_team(self, location, pop, team=constants.OBJECT_TYPE_TEAM_0):
+    def save_team(self, location, team=constants.OBJECT_TYPE_TEAM_0):
         location = os.path.relpath("/") + location
         # if there are rtneat agents in the environment, save them as a group.
         rtneat = OpenNero.get_ai("rtneat-%s" % team)
@@ -156,10 +156,10 @@ class NeroModule:
                     handle.write('\n\n%s' % agent.to_string())
 
     #The following is run when the Load button is pressed
-    def load_team(self, location , pop, team=constants.OBJECT_TYPE_TEAM_0):
+    def load_team(self, location, team=constants.OBJECT_TYPE_TEAM_0):
         OpenNero.disable_ai()
 
-        self.environment.remove_all_agents()
+        self.environment.remove_all_agents(team)
 
         location = os.path.relpath("/") + location
         if not os.path.exists(location):
@@ -201,7 +201,9 @@ class NeroModule:
                     pop_size,
                     rtneat_rewards()))
             os.unlink(tf.name)
-            self.spawnAgent(ai='rtneat', team=team)
+            while pop_size > 0:
+                self.spawnAgent(ai='rtneat', team=team)
+                pop_size -= 1
 
         OpenNero.enable_ai()
 
@@ -342,8 +344,8 @@ def parseInput(strn):
     if loc == "SP": mod.set_speedup(vali)
     if loc == "save1": mod.save_team(val, constants.OBJECT_TYPE_TEAM_0)
     if loc == "load1": mod.load_team(val, constants.OBJECT_TYPE_TEAM_0)
-    if loc == "rtneat": mod.start_ai('rtneat')
-    if loc == "qlearning": mod.start_ai('qlearning')
+    if loc == "rtneat": mod.deploy('rtneat')
+    if loc == "qlearning": mod.deploy('qlearning')
 
 def ServerMain():
     print "Starting mod NERO"
