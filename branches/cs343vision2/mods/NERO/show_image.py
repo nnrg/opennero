@@ -7,12 +7,50 @@ Author: Wesley Tansey
 
 import os, sys
 import Tkinter
-import Image, ImageTk
+import Image, ImageTk, ImageFilter
 import math
 import itertools
+import numpy as np
+import scipy
+
+numpy = True
 
 def gaussian(x, y, sigma):
     return (1 / (2*math.pi*sigma**2))*math.exp(-(x**2+y**2)/(2*sigma**2))
+
+"""
+Shifts the rows and columns of an array, putting zeros in any empty spaces
+and truncating any values that overflow
+"""
+def push(np_array, rows, columns):
+    result = np.zeros((np_array.shape[0],np_array.shape[1]))
+    if rows > 0:
+        if columns > 0:
+            result[rows:,columns:] = np_array[:-rows,:-columns]
+        elif columns < 0:
+            result[rows:,:columns] = np_array[:-rows,-columns:]
+        else:
+            result[rows:,:] = np_array[:-rows,:]
+    elif rows < 0:
+        if columns > 0:
+            result[:rows,columns:] = np_array[-rows:,:-columns]
+        elif columns < 0:
+            result[:rows,:columns] = np_array[-rows:,-columns:]
+        else:
+            result[:rows,:] = np_array[-rows:,:]
+    else:
+        if columns > 0:
+            result[:,columns:] = np_array[:,:-columns]
+        elif columns < 0:
+            result[:,:columns] = np_array[:,-columns:]
+        else:
+            result[:,:] = np_array[:,:]
+    return result
+
+np_orientation = np.array([0,315,45,270,90,225,180,135])
+def find_orientation(upper_left, upper_center, upper_right, mid_left, mid_right, lower_left, lower_center, lower_right):
+    a = np.array([upper_center, upper_left, upper_right, mid_left, mid_right, lower_left, lower_center, lower_right])
+    return np_orientation[a.argmax()]
 
 def button_click_exit_mainloop (event):
     event.widget.quit() # this will cause mainloop to unblock.
@@ -54,79 +92,44 @@ label_image_bw.place(x=thumbnail_width,y=0,width=thumbnail_width,height=thumbnai
 
 # Apply Gaussian filter
 sigma = 1
-convolution = [ [0 for col in range(bw.size[1])] for row in range(bw.size[0])]
-# Loop over every pixel in the image and apply the Gaussian filter
-for (x,y) in itertools.product(range(bw.size[0]), range(bw.size[1])):
-    gauss_totals = 0
-    # For each neighboring pixel
-    for(u, v) in itertools.product(range(-3*sigma + x,3*sigma+1+x),range(-3*sigma + y,3*sigma+1+y)):
-        if(u < 0 or v < 0 or u >= width or v >= height):
-            continue
-        gauss_totals += gaussian(x-u,y-v,sigma)
-        convolution[x][y] += (bw_pix[u,v]) * gaussian(x-u,y-v,sigma)
 
-    convolution[x][y] /= gauss_totals
+# Fast way to do convolution
+np_bw = np.array(bw) # convert to numpy
+from scipy.ndimage.filters import gaussian_filter
+convolution = gaussian_filter(np_bw, sigma)
 
-smoothed = Image.new(bw.mode, bw.size)
-smoothed_pix = smoothed.load()
-for x, xval in enumerate(convolution):
-    for y, yval in enumerate(convolution[x]):
-        smoothed_pix[x,y] = int(convolution[x][y])
+# Fast way to save an image from a 2-d numpy array
+smoothed = Image.fromarray(convolution)
+
 smoothed.save(base_dir + 'smooth/' + name, "PNG")
 smoothed1 = smoothed.resize((thumbnail_width,thumbnail_height))
 tkpi_smooth = ImageTk.PhotoImage(smoothed1)
 label_image_smooth = Tkinter.Label(root, image=tkpi_smooth)
 label_image_smooth.place(x=0,y=thumbnail_height,width=thumbnail_width,height=thumbnail_height)
 
-gradient_threshold = 10
-
 neighbor_offsets = [(-1,-1,225), (-1,0,270), (-1,1,315), (0,1,0), (0,-1,180), (1,0,90), (1,1,45), (1,-1,125)]
 
-gradients = [ [(0,0) for col in range(bw.size[1])] for row in range(bw.size[0])]
-
-# Loop over every pixel in the image and calculate the largest gradient
-for (x,y) in itertools.product(range(bw.size[0]), range(bw.size[1])):
-    pixel = convolution[x][y]
-    # For each immediately neighboring pixel
-    for (uidx, vidx, angle) in neighbor_offsets:
-        u = x + uidx
-        v = y + vidx
-        if u < 0 or y < 0 or u >= width or v >= height:
-            continue
-        gradient = abs(convolution[u][v] - pixel)
-        if gradient > gradients[x][y][0]:
-            gradients[x][y] = (gradient, angle)
-
-# Draw the edges
-edges = bw.point(lambda i: 255)
-edges_pix = edges.load()
-
-results = [ [(False,0) for col in range(bw.size[1])] for row in range(bw.size[0])]
-
-# Loop over every pixel in the image and determine if it's an edge pixel
-for (x,y) in itertools.product(range(bw.size[0]), range(bw.size[1])):
-    gradient = gradients[x][y]
-    # the gradient must be greater than some threshold set by the user
-    if gradient[0] < gradient_threshold:
-        continue
-    is_max = True
-    # determine if the gradient is a local maximum
-    for (uidx, vidx, angle) in neighbor_offsets:
-        u = x + uidx
-        v = y + vidx
-        if u < 0 or y < 0 or u >= width or v >= height:
-            continue
-        if gradients[u][v][0] > gradient[0]:
-            is_max = False
-            break
-    if is_max:
-        edges_pix[x,y] = 0
-        results[x][y] = (True,angle)
+# Fast way of doing edge detection
+edges = image0.filter(ImageFilter.FIND_EDGES).convert("L")
 
 edges.save(base_dir + 'edges/' + name, "PNG")
 edges1 = edges.resize((thumbnail_width,thumbnail_height))
 tkpi_edges = ImageTk.PhotoImage(edges1)
 label_image_edges = Tkinter.Label(root, image=tkpi_edges)
 label_image_edges.place(x=thumbnail_width,y=thumbnail_height,width=thumbnail_width,height=thumbnail_height)
+
+# Fast way to detect pixel orientation
+np_edges = np.array(edges)
+upper_left = push(np_edges, 1, 1)
+upper_center = push(np_edges, 1, 0)
+upper_right = push(np_edges, 1, -1)
+mid_left = push(np_edges, 0, 1)
+mid_right = push(np_edges, 0, -1)
+lower_left = push(np_edges, -1, 1)
+lower_center = push(np_edges, -1, 0)
+lower_right = push(np_edges, -1, -1)
+vfunc = np.vectorize(find_orientation)
+
+orientations = vfunc(upper_left, upper_center, upper_right, mid_left, mid_right, lower_left, lower_center, lower_right)
 
 root.mainloop() # wait until user clicks the window
