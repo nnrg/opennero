@@ -12,6 +12,7 @@ import math
 import itertools
 import numpy as np
 import scipy
+import classifier
 
 numpy = True
 
@@ -131,5 +132,20 @@ lower_right = push(np_edges, -1, -1)
 vfunc = np.vectorize(find_orientation)
 
 orientations = vfunc(upper_left, upper_center, upper_right, mid_left, mid_right, lower_left, lower_center, lower_right)
+
+# Create the area to draw the classification results
+canvas_height = 50
+canvas_width = 150
+canvas_offset = '%d,%d' % (thumbnail_width - canvas_width / 2, thumbnail_height - canvas_height / 2)
+print canvas_offset
+canvas = Tkinter.Canvas(root, offset=canvas_offset, width=canvas_width, height=canvas_height, bg='white')
+canvas.pack()
+
+# Call the classifier to detect what kind of object this is
+from classifier import ObjectClassifier
+classifier = ObjectClassifier()
+result = classifier.classify(np_edges, orientations)
+
+canvas.create_text(canvas_width / 2, canvas_height/2, text=str(result) + '!') 
 
 root.mainloop() # wait until user clicks the window
