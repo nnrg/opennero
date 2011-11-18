@@ -4,6 +4,7 @@
 
 import collections
 import logging
+import math
 import multiprocessing as mp
 import optparse
 import os
@@ -140,12 +141,17 @@ def parallel_matchups(opts, team_pairs, team_queue, score_queue):
 
     Generates a sequence of ((winner, score), (loser, score)) pairs.
     '''
+    waiting = 0
     for team1, team2 in team_pairs:
+        if team1 is None or team2 is None:
+            continue  # this match is a buy.
         if random.random() < 0.5:
             team1, team2 = team2, team1
         team_queue.put((team1, team2, opts.duration))
-    for _ in team_pairs:
+        waiting += 1
+    while waiting > 0:
         (team1, score1), (team2, score2) = score_queue.get()
+        waiting -= 1
         if score2 > score1 or (score1 == score2 and random.random() < 0.5):
             logging.info('%s:%d defeats %s:%d', team2, score2, team1, score1)
             yield (team2, score2), (team1, score1)
@@ -205,27 +211,32 @@ def double_elimination(opts, teams, team_queue, score_queue):
         return pairs
 
     def matches(ps):
+        '''Run the given set of pairs in parallel, assembling the results.'''
         results = parallel_matchups(opts, ps, team_queue, score_queue)
         for (winner, ws), (loser, ls) in results:
             scoreboard[winner] += ws
             scoreboard[loser] += ls
             yield winner, loser
 
+    def pad_to_power_of_2(s):
+        '''Append sufficient Nones to s to make its length a power of 2.'''
+        l = 2 ** int(math.ceil(math.log(len(s), 2))) - len(s)
+        return s + [None] * l
+
     winners = teams
     losers = []
 
     level = 0
     while len(winners) > 1 or len(losers) > 1:
+        logging.debug('%dW: W%s, L%s', level, winners, losers)
         if len(winners) > 1:
-            for _, loser in matches(pairs(winners)):
+            for _, loser in matches(pairs(pad_to_power_of_2(winners))):
                 winners.remove(loser)
                 losers.append(loser)
-        logging.debug('%dW: W%s, L%s', level, winners, losers)
-        if len(losers) > 1:
-            for _, loser in matches(pairs(losers)):
-                losers.remove(loser)
         logging.debug('%dL: W%s, L%s', level, winners, losers)
-        random.shuffle(winners)
+        if len(losers) > 1:
+            for _, loser in matches(pairs(pad_to_power_of_2(losers))):
+                losers.remove(loser)
         level += 1
 
     # If the winners-bracket team loses the final match, both teams will have
