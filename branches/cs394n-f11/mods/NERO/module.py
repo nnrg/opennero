@@ -137,7 +137,7 @@ class NeroModule:
         OpenNero.disable_ai()
         if ai == 'rtneat':
             OpenNero.set_ai('rtneat-%s' % team, None)
-        self.environment.remove_all_agents()
+        self.environment.remove_all_agents(team)
         for _ in range(constants.pop_size):
             self.spawnAgent(ai=ai, team=team)
         OpenNero.enable_ai()

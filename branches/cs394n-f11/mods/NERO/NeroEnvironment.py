@@ -104,10 +104,13 @@ class NeroEnvironment(OpenNero.Environment):
                 rtneat.set_weight(constants.FITNESS_INDEX[key], value)
 
     def remove_all_agents(self, team):
-        for agent in self.teams[team]:
+        for agent in list(self.teams[team]):
             common.removeObject(agent.state.id)
-            self.states.pop(agent)
-            self.teams[team].pop(agent)
+            try:
+                self.states.pop(agent)
+                self.teams[team].discard(agent)
+            except:
+                print 'could not remove', agent
 
     def reset(self, agent):
         """
