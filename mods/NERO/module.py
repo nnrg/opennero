@@ -132,7 +132,11 @@ class NeroModule:
     def snapshot(self):
         print 'snapshot was called'
         if os.access('NERO/snapshots/color/', os.W_OK):
-            OpenNero.getSimContext().getActiveCamera().snapshot('NERO/snapshots/color/' + str(time.time()*100)[:-2] + '.png')
+            filename = 'NERO/snapshots/color/' + str(time.time()*100)[:-2] + '.png'
+            OpenNero.getSimContext().getActiveCamera().snapshot(filename)
+            # Launch python script to show this image
+            os.system('python NERO/show_image.py "' + filename + '"')
+            # Launch next processing script
 
     #The following is run when the Save button is pressed
     def save_rtneat(self, location, pop, team=constants.OBJECT_TYPE_TEAM_0):
