@@ -9,7 +9,7 @@ and undergraduate students at the  [http://nn.cs.utexas.edu/ Neural Networks Res
 [http://www.cs.utexas.edu/ Department of Computer Science] at the
 [http://www.utexas.edu/ University of Texas at Austin].
 
-In particular, OpenNERO has been used to implement several demos and exercises for the Russell
+In particular, OpenNERO has been used to implement several demos and exercises for Russell
 and Norvig's textbook [http://aima.cs.berkeley.edu/ Artificial Intelligence: A Modern Approach].  These
 demos and exercises illustrate AI methods such as brute-force search, heuristic search, scripting,
 reinforcement learning, and evolutionary computation, and AI problems such as maze running,
@@ -60,4 +60,4 @@ Many people have contributed to OpenNERO, including [http://www.cs.utexas.edu/~i
 
 ----
 
-<font color="red">NOTE:</font> as with any active project, OpenNERO is a work in progress and many [http://code.google.com/p/opennero/updates/ updates] are frequently being made. If you have trouble with OpenNERO, check the [http://groups.google.com/group/opennero discussion group] and then consider submitting an [http://code.google.com/p/opennero/issues issue]. We also welcome any helpful comments or suggestions on this site or the platform at [mailto:opennero-questions@googlegroups.com opennero-questions]. And of course, if you would like to contribute, let us know!
+<font color="red">NOTE:</font> as with any active project, OpenNERO is a work in progress and many [http://code.google.com/p/opennero/updates/ updates] are frequently being made. If you have trouble with OpenNERO, check the [http://groups.google.com/group/opennero discussion group] and then consider submitting an [http://code.google.com/p/opennero/issues issue]. And of course, if you would like to contribute, let us know!
