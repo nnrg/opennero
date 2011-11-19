@@ -80,7 +80,7 @@ class NeroModule:
             scale=OpenNero.Vector3f(1, constants.YDIM / 4, constants.HEIGHT),
             label="World Wall4",
             type=constants.OBJECT_TYPE_OBSTACLE)
-
+            
         # Add the surrounding Environment
         common.addObject(
             "data/terrain/NeroWorld.xml",
@@ -88,7 +88,12 @@ class NeroModule:
             scale=OpenNero.Vector3f(1, 1, 1),
             label="NeroWorld",
             type=constants.OBJECT_TYPE_LEVEL_GEOM)
-
+            
+        self.spawnAgent(agent_xml = 'data/shapes/tree/Tree.xml', first_person = False)
+        self.spawnAgent(agent_xml = 'data/shapes/character/steve_still_blue.xml', first_person = False)
+        self.spawnAgent(agent_xml = 'data/shapes/character/sydney_still.xml', first_person = False, z_pos=5)
+        self.spawnAgent(agent_xml = 'data/shapes/cube/GreenCube.xml', first_person = False, z_pos=7)
+        
         return True
 
     def create_environment(self):
@@ -186,24 +191,35 @@ class NeroModule:
         self.hp = value
         print 'Hit points:', value
 
-    def spawnAgent(self, team = constants.OBJECT_TYPE_TEAM_0, agent_xml = None):
+    def spawnAgent(self, team = constants.OBJECT_TYPE_TEAM_0, agent_xml = None, first_person = True, z_pos = 2):
         """
         This is the function ran when an agent already in the field
         causes the generation of a new agent.
         """
-        self.curr_team = team
         if agent_xml is None:
-            dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
-            dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
             color = 'blue'
-            if team == constants.OBJECT_TYPE_TEAM_1:
+            if team is constants.OBJECT_TYPE_TEAM_1:
                 color = 'red'
-            agent_xml = "data/shapes/character/steve_%s_armed.xml" % color
-            agent_pos = OpenNero.Vector3f(self.spawn_x[team] + dx, self.spawn_y[team] + dy, 2)
+            agent_xml = "data/shapes/character/steve_still_%s.xml" % color
+        if first_person:
+            agent_pos = OpenNero.Vector3f(self.spawn_x[team], self.spawn_y[team], z_pos)
+            self.curr_team = team
+            self.first_person_agent = common.addObject(agent_xml, agent_pos, type=team)
         else:
-            agent_pos = OpenNero.Vector3f(self.spawn_x[team], self.spawn_y[team], 2)
-        self.first_person_agent = common.addObject(agent_xml, agent_pos, type=team)
-
+            pos = self.random_spawn_position(team)
+            agent_pos = OpenNero.Vector3f(pos[0], pos[1], z_pos)
+            common.addObject(agent_xml, agent_pos, type=team)
+        
+    def random_spawn_position(self, team = constants.OBJECT_TYPE_TEAM_0):
+        """
+        Creates a random (x,y) position for an agent on a given team
+        """
+        dx = random.randrange(constants.XDIM / 12) - constants.XDIM / 40
+        dy = random.randrange(constants.XDIM / 12) - constants.XDIM / 40
+        return (self.spawn_x[team] + dx, self.spawn_y[team] + dy)
+    
+    
+    
 gMod = None
 
 def delMod():
