@@ -36,6 +36,7 @@ OBJECT_TYPE_FLAG = (1 << 3) # object type for the flag
 OBJECT_TYPE_LEVEL_GEOM = 0 # object type for the level geometry
 OBJECT_TYPE_FPS = OBJECT_TYPE_LEVEL_GEOM # object type for first person agent
 
+
 ############################
 ### SENSOR CONFIGURATION ###
 ############################
