@@ -160,7 +160,7 @@ class NeroEnvironment(OpenNero.Environment):
                     False))
         for a0, a1 in constants.ENEMY_RADAR_SENSORS:
             sense = constants.OBJECT_TYPE_TEAM_0
-            if agent.get_team() == 0:
+            if agent.get_team() == sense:
                 sense = constants.OBJECT_TYPE_TEAM_1
             agent.add_sensor(OpenNero.RadarSensor(
                     a0, a1, -90, 90, constants.MAX_VISION_RADIUS,

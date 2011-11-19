@@ -24,12 +24,15 @@ OBJECT_TYPE_TEAM_1 = (1 << 2) # object type for team 2 and turrets during traini
 OBJECT_TYPE_FLAG = (1 << 3) # object type for the flag
 OBJECT_TYPE_LEVEL_GEOM = 0 # object type for the level geometry
 
+# the colors of the teams
+TEAM_COLORS = { OBJECT_TYPE_TEAM_0: 'blue', OBJECT_TYPE_TEAM_1: 'red' }
+
 ############################
 ### SENSOR CONFIGURATION ###
 ############################
 
 # FriendRadarSensor
-FRIEND_RADAR_SENSORS = [0, 1]
+# FRIEND_RADAR_SENSORS = [0, 1]
 
 # EnemyRadarSensor
 ENEMY_RADAR_SENSORS = [(90,12),(18,-3),(3,-18),(-12,-90),(-87,87)]
@@ -41,7 +44,7 @@ WALL_RAY_SENSORS = [90,45,0,-45,-90]
 FLAG_RADAR_SENSORS = [(90,12),(18,-3),(3,-18),(-12,-90),(-87,87)]
 
 # Number of sensors
-N_SENSORS = len(FRIEND_RADAR_SENSORS) + len(FLAG_RADAR_SENSORS) + len(ENEMY_RADAR_SENSORS) + len(WALL_RAY_SENSORS) + 1
+N_SENSORS = len(FLAG_RADAR_SENSORS) + len(ENEMY_RADAR_SENSORS) + len(WALL_RAY_SENSORS) + 1
 
 # Number of actions
 N_ACTIONS = 2
