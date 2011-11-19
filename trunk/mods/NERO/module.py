@@ -172,9 +172,7 @@ class NeroModule:
         dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
         dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
         self.curr_team = team
-        color = 'blue'
-        if team == constants.OBJECT_TYPE_TEAM_1:
-            color = 'red'
+        color = constants.TEAM_COLORS[team]
         common.addObject(
             "data/shapes/character/steve_%s_armed.xml" % color,
             OpenNero.Vector3f(self.spawn_x[team] + dx, self.spawn_y[team] + dy, 2),
