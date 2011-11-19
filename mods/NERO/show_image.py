@@ -146,6 +146,12 @@ from classifier import ObjectClassifier
 classifier = ObjectClassifier()
 result = classifier.classify(np_edges, orientations)
 
-canvas.create_text(canvas_width / 2, canvas_height/2, text=str(result) + '!') 
+canvas.create_text(canvas_width / 2, canvas_height/2, text=str(result) + '!')
+
+print 'Pixels:'
+print np_edges
+
+print 'Orientations:'
+print orientations
 
 root.mainloop() # wait until user clicks the window
