@@ -6,8 +6,8 @@ YDIM = 800
 HEIGHT = 20
 OFFSET = -HEIGHT/2
 
-MAX_MOVEMENT_SPEED = 1
-MAX_TURN_RADIANS = 0.2
+MAX_MOVEMENT_SPEED = 10
+MAX_TURN_RADIANS = 0.35
 MAX_VISION_RADIUS = 300
 
 # Population size
@@ -16,8 +16,9 @@ pop_size = 50
 # number of steps per lifetime
 DEFAULT_LIFETIME = 200
 
-# default speedup setting (there will be a 0.1 * 80 / 100 second delay between AI steps)
-DEFAULT_SPEEDUP = 80
+# default speedup setting (there will be a 0.1 * 99 / 100 second delay between AI steps)
+# BUG: when set to 100, makes the head bob up and down until you adjust the slider
+DEFAULT_SPEEDUP = 99
 
 
 # keyboard actions and what they correspond to
