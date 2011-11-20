@@ -183,7 +183,7 @@ def ClientMain():
     # add a light source
     OpenNero.getSimContext().addLightSource(OpenNero.Vector3f(500, -500, 1000), 1500)
 
-    common.addSkyBox("data/sky/irrlicht2")
+    #common.addSkyBox("data/sky/irrlicht2")
 
     # setup the gui
     CreateGui(common.getGuiManager())

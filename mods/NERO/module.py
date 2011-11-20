@@ -73,6 +73,7 @@ class NeroModule:
             type=constants.OBJECT_TYPE_OBSTACLE)
 
         # Add an obstacle wall in the middle
+        """
         common.addObject(
             "data/shapes/cube/Cube.xml",
             OpenNero.Vector3f(constants.XDIM/2, constants.YDIM/2, height),
@@ -80,7 +81,7 @@ class NeroModule:
             scale=OpenNero.Vector3f(1, constants.YDIM / 4, constants.HEIGHT),
             label="World Wall4",
             type=constants.OBJECT_TYPE_OBSTACLE)
-            
+        """ 
         # Add the surrounding Environment
         common.addObject(
             "data/terrain/NeroWorld.xml",
@@ -88,7 +89,8 @@ class NeroModule:
             scale=OpenNero.Vector3f(1, 1, 1),
             label="NeroWorld",
             type=constants.OBJECT_TYPE_LEVEL_GEOM)
-            
+        
+        
         self.spawnAgent(agent_xml = 'data/shapes/tree/Tree.xml', first_person = False)
         self.spawnAgent(agent_xml = 'data/shapes/character/steve_still_blue.xml', first_person = False)
         self.spawnAgent(agent_xml = 'data/shapes/character/sydney_still.xml', first_person = False, z_pos=5)

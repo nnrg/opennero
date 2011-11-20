@@ -85,7 +85,6 @@ root.title(sys.argv[1].rpartition('/')[2])
 # Convert the image to black and white
 bw = image0.convert("L")
 bw.save(base_dir + 'bw/' + name, "PNG")
-bw_pix = bw.load()
 bw1 = bw.resize((thumbnail_width,thumbnail_height))
 tkpi_bw = ImageTk.PhotoImage(bw1)
 label_image_bw = Tkinter.Label(root, image=tkpi_bw)
