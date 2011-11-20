@@ -67,8 +67,6 @@
     #define NERO_BREAK
 #endif
 
-#define NERO_BUILD_AUDIO 0
-
 #define NERO_BUILD_PHYSICS 0
 
 // assertions

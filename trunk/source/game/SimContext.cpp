@@ -19,11 +19,6 @@
 
 #include "factories/SimFactory.h"
 
-#if NERO_BUILD_AUDIO
-#include "audio/Ale.h"
-#include "audio/AudioManager.h"
-#endif // NERO_BUILD_AUDIO
-
 #include "ai/AIManager.h"
 
 #include "input/IOMapping.h"
@@ -310,26 +305,6 @@ namespace OpenNero
         }
     }
     
-#if NERO_BUILD_AUDIO
-    /// Update the audio manager system
-    void SimContext::UpdateAudioSystem(float32_t dt)
-    {
-        // update the audio system
-        AudioManager& audioMan = AudioManager::instance();
-
-        if( mpCamera )
-        {
-            Vector3f soundDir = mpCamera->getTarget() - mpCamera->getPosition();
-            soundDir = soundDir.normalize();
-
-            audioMan.SetListenerPosition( mpCamera->getPosition());
-            audioMan.SetListenerOrientation( soundDir, Vector3f(0,0,1) );
-            audioMan.SetListenerVelocity( Vector3f(0,0,0) );
-            audioMan.ProcessTick(dt);
-        }
-    }
-#endif // NERO_BUILD_AUDIO
-
     /// Update the input system
     void SimContext::UpdateInputSystem(float32_t dt)
     {
