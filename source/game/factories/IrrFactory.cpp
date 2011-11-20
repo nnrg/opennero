@@ -58,7 +58,7 @@ namespace OpenNero
 
     /// CTOR
     IrrFactory::IrrFactory( const IrrHandles& irr )
-            : mIrr(irr), mResourceLogger( new Log::FileStreamConnection( "factory_resource_log", "IrrFactory_ResourceUsage.txt" ) )
+            : mIrr(irr)
     {}
 
     /// DTOR
