@@ -195,54 +195,6 @@ namespace OpenNero
         LineSet::instance().AddSegment( verts[7], verts[3], color );
     }
     
-	/// a template for a First Person camera
-	struct FPSCameraTemplate
-	{
-		Vector3f attach_point; ///< where to attach the camera (relative to the body center of mass)
-		Vector3f target;       ///< where the camera is looking
-		F32 near_plane;        ///< near plane of the camera
-		F32 far_plane;         ///< far plane of the camera
-        Vector3f lastRotation; ///< last rotation
-        Vector3f lastPosition; ///< last position
-        
-		/// construct the template from a property map
-		FPSCameraTemplate(const std::string& prefix, const PropertyMap& propMap)
-        : attach_point()
-        , target(100,0,0)
-        , near_plane(10)
-        , far_plane(1000)
-		{
-			propMap.getValue(attach_point, prefix + ".attach_point");
-			propMap.getValue(target, prefix+ ".target");
-			propMap.getValue(near_plane, prefix + ".near_plane");
-			propMap.getValue(far_plane, prefix + ".far_plane");
-		}
-        
-        /// Update rotation of camera
-        /// @param cam camera
-        /// @param rotation amount camera is rotated
-        void UpdateRotation(const SceneObject* scene_object, CameraPtr cam, Vector3f new_rotation)
-        {
-            Vector3f rotor(new_rotation - scene_object->getRotation());
-            Vector3f pos(scene_object->getPosition());
-            Vector3f t(cam->getTarget());
-            t.rotateXYBy(rotor.Z, pos);
-            //LOG_F_DEBUG("ivk", "CAMERA SET TARGET " << t << " from " << cam->getTarget() << " after turn by " << rotor.Z);
-            cam->setTarget(t);
-            lastRotation = scene_object->getRotation();
-        }
-        
-        void UpdatePosition(const SceneObject* scene_object, CameraPtr cam, Vector3f new_position)
-        {
-            Vector3f displacement(new_position - scene_object->getPosition());
-            Vector3f target(cam->getTarget());
-            target = target + displacement;
-            //LOG_F_DEBUG("ivk", "CAMERA SET TARGET " << target << " from " << cam->getTarget() << " after move by " << displacement);
-            cam->setTarget(target);
-            lastPosition = scene_object->getPosition();
-        }
-	};
-    
 	std::ostream& operator<<(std::ostream& out, FPSCameraTemplatePtr a)
 	{
 		if (a)
@@ -762,7 +714,7 @@ namespace OpenNero
             
             if (mFPSCamera && !mCamera)
             {
-                Kernel::GetSimContext()->getActiveCamera()->attach(this->GetEntity());
+                Kernel::GetSimContext()->getActiveCamera()->attach(this->GetEntity(), mFPSCamera);
             }
             
             mSharedData->ClearDirtyBits();
@@ -887,6 +839,7 @@ namespace OpenNero
         AssertMsg( cam->getFunctionality() == Camera::kFunc_FPS, "Cannot attach non-FPS cameras" );
 		AssertMsg( mFPSCamera, "missing information about how to attach the camera" );
         mCamera = cam;
+        mCamera->setTarget(mFPSCamera->target + getPosition());
         if (mCamera && mFPSCamera)
         {
             mFPSCamera->UpdatePosition(this, mCamera, getPosition());
