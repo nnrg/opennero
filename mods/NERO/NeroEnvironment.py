@@ -276,9 +276,13 @@ class NeroEnvironment(OpenNero.Environment):
 
         target = self.target(agent)
         if target is not None:
+            source_pos = agent.state.position
+            target_pos = target.state.position
+            source_pos.z = source_pos.z + 5
+            target_pos.z = target_pos.z + 5
             obstacles = OpenNero.getSimContext().findInRay(
-                agent.state.position,
-                target.state.position,
+                source_pos,
+                target_pos,
                 constants.OBJECT_TYPE_OBSTACLE | agent.get_team(),
                 True)
             if len(obstacles) == 0:
