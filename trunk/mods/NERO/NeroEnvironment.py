@@ -187,7 +187,8 @@ class NeroEnvironment(OpenNero.Environment):
         other_team = constants.OBJECT_TYPE_TEAM_1
         if my_team == other_team:
             other_team = constants.OBJECT_TYPE_TEAM_0
-        return self.teams.get(my_team, set()), self.teams.get(other_team, set())
+        friend, foe = self.teams.get(my_team, set()), self.teams.get(other_team, set())
+        return friend, foe
 
     def target(self, agent):
         """
@@ -283,7 +284,7 @@ class NeroEnvironment(OpenNero.Environment):
             obstacles = OpenNero.getSimContext().findInRay(
                 source_pos,
                 target_pos,
-                constants.OBJECT_TYPE_OBSTACLE | agent.get_team(),
+                constants.OBJECT_TYPE_OBSTACLE,
                 True)
             if len(obstacles) == 0:
                 self.get_state(target).curr_damage += 1
