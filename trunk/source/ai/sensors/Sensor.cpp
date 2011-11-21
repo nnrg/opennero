@@ -10,14 +10,14 @@ namespace OpenNero
     
     double PySensor::getMin()
     {
-        double result;
+        double result = 0;
         TryOverride("getMin", result);
         return result;
     }
     
     double PySensor::getMax()
     {
-        double result = 0;
+        double result = 1;
         TryOverride("getMax", result);
         return result;
     }

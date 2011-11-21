@@ -23,6 +23,8 @@ namespace OpenNero
         , bottombound(LockDegreesTo180(bb))
         , topbound(LockDegreesTo180(tb))
         , radius(radius)
+        , value(0)
+        , observed(false)
         , vis(vis)
     {
     }
