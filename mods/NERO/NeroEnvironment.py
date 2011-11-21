@@ -113,7 +113,7 @@ class NeroEnvironment(OpenNero.Environment):
         # population size matches ours
         # 1.0 is the weight initialization noise
         rtneat = OpenNero.RTNEAT("data/ai/neat-params.dat",
-                                 constants.N_SENSORS,
+                                 constants.N_SENSORS + 1, # add a bias
                                  constants.N_ACTIONS,
                                  constants.pop_size,
                                  1.0,

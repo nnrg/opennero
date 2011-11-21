@@ -464,6 +464,11 @@ void Network::load_sensors(const vector<F64> &sensvals)
 {
     vector<NNodePtr>::iterator sensPtr;
     vector<F64>::const_iterator valPtr;
+    
+    AssertMsg
+        (sensvals.size() == inputs.size(), "Got " << sensvals.size() 
+        << " sensors for a network with " << inputs.size()
+        << " inputs");
 
     for (valPtr = sensvals.begin(), sensPtr = inputs.begin(); sensPtr
         != inputs.end() && valPtr != sensvals.end(); ++sensPtr, ++valPtr)
