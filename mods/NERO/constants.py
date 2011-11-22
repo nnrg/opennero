@@ -13,10 +13,10 @@ MAX_VISION_RADIUS = 300
 pop_size = 50
 
 # number of steps per lifetime
-DEFAULT_LIFETIME = 200
+DEFAULT_LIFETIME = 1000
 
 # default speedup setting (there will be a 0.1 * 80 / 100 second delay between AI steps)
-DEFAULT_SPEEDUP = 80
+DEFAULT_SPEEDUP = 100
 
 OBJECT_TYPE_OBSTACLE  = (1 << 0) # object type for walls
 OBJECT_TYPE_TEAM_0 = (1 << 1) # object type for team 1

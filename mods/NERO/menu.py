@@ -95,9 +95,9 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.add_slider('Approach Flag', 'AF')
         self.add_slider('Hit Target', 'HT')
         self.add_slider('Avoid Fire', 'VF')
-        self.add_slider('Lifetime', 'LT', span=1000, center=0, thumb=100)
+        self.add_slider('Lifetime', 'LT', span=2000, center=0, thumb=constants.DEFAULT_LIFETIME)
         self.add_slider('Hitpoints', 'HP', span=100, center=0, thumb=20)
-        self.add_slider('Speedup', 'SP', span=100, center=0, thumb=80)
+        self.add_slider('Speedup', 'SP', span=100, center=0, thumb=constants.DEFAULT_SPEEDUP)
 
     def add_button(self, label, callback):
         button = wx.Button(
