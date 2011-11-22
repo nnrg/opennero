@@ -8,6 +8,7 @@ OFFSET = -HEIGHT/2
 
 MAX_MOVEMENT_SPEED = 1
 MAX_VISION_RADIUS = 300
+MAX_SHOT_RADIUS = 600
 
 # Population size
 pop_size = 50
