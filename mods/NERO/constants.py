@@ -33,20 +33,34 @@ TEAM_COLORS = { OBJECT_TYPE_TEAM_0: 'blue', OBJECT_TYPE_TEAM_1: 'red' }
 ### SENSOR CONFIGURATION ###
 ############################
 
-# FriendRadarSensor
-# FRIEND_RADAR_SENSORS = [0, 1]
+N_SENSORS = 0 # start at 0, add each sensor bank's length
 
 # EnemyRadarSensor
 ENEMY_RADAR_SENSORS = [(90,12),(18,-3),(3,-18),(-12,-90),(-87,87)]
+SENSOR_INDEX_ENEMY_RADAR = [i for i in range(N_SENSORS, N_SENSORS+len(ENEMY_RADAR_SENSORS))]
+N_SENSORS += len(ENEMY_RADAR_SENSORS)
 
 # Wall Ray Sensors
 WALL_RAY_SENSORS = [90,45,0,-45,-90]
+SENSOR_INDEX_WALL_RAY = [i for i in range(N_SENSORS, N_SENSORS+len(WALL_RAY_SENSORS))]
+N_SENSORS += len(WALL_RAY_SENSORS)
 
 # Flag Radar Sensors
 FLAG_RADAR_SENSORS = [(90,12),(18,-3),(3,-18),(-12,-90),(-87,87)]
+SENSOR_INDEX_FLAG_RADAR = [i for i in range(N_SENSORS, N_SENSORS+len(FLAG_RADAR_SENSORS))]
+N_SENSORS += len(FLAG_RADAR_SENSORS)
 
-# Number of sensors
-N_SENSORS = len(FLAG_RADAR_SENSORS) + len(ENEMY_RADAR_SENSORS) + len(WALL_RAY_SENSORS) + 1
+# 2 friend sensors - distance and angle to friend center of mass
+FRIEND_RADAR_SENSORS = [(0,MAX_FRIEND_DISTANCE),(0,360)]
+SENSOR_INDEX_FRIEND_RADAR = [i for i in range(N_SENSORS, N_SENSORS+len(FRIEND_RADAR_SENSORS))]
+N_SENSORS += len(FRIEND_RADAR_SENSORS)
+
+# 1 targeting sensor - becomes 1 if and only iff the agent is looking at a target
+# Flag Radar Sensors
+TARGETING_SENSORS = [(-2,2)]
+SENSOR_INDEX_TARGETING = [i for i in range(N_SENSORS, N_SENSORS+len(TARGETING_SENSORS))]
+N_SENSORS += len(TARGETING_SENSORS)
+
 
 # Number of actions
 N_ACTIONS = 2

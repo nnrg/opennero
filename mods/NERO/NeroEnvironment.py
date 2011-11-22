@@ -319,7 +319,7 @@ class NeroEnvironment(OpenNero.Environment):
         figure out what the agent should sense
         """
         # the last observation is whether there is a target for the agent
-        observations[-1] = int(self.target(agent) is not None)
+        observations[constants.SENSOR_INDEX_TARGETING[0]] = int(self.target(agent) is not None)
 
         friends, foes = self.getFriendFoe(agent)
         if not friends:
@@ -334,8 +334,8 @@ class NeroEnvironment(OpenNero.Environment):
         ah = agent.state.rotation.z
         fh = self.angle((ax, ay, ah), (cx, cy)) + 180.0
         if fd <= constants.MAX_FRIEND_DISTANCE:
-            observations[-3] = fd / 15.0
-            observations[-2] = fh / 360.0
+            observations[constants.SENSOR_INDEX_FRIEND_RADAR[0]] = fd / 15.0
+            observations[constants.SENSOR_INDEX_FRIEND_RADAR[1]] = fh / 360.0
 
         return observations
         
