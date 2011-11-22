@@ -21,12 +21,16 @@ namespace OpenNero
     {
         mInfo = init;
         this->fitness = mInfo.reward.getInstance();
+
+        int bins = action_bins;
+
         if (num_tiles > 0)
         {
             AssertMsg(action_bins == 0, "action_bins must be 0 for num_tiles > 0");
             AssertMsg(state_bins == 0, "state_bins must be 0 for num_tiles > 0");
             mApproximator.reset(
                 new TilesApproximator(mInfo, num_tiles, num_weights));
+            bins = 101; // XXX force bins > 0 to discretize action_list below
         }
         else
         {
@@ -41,7 +45,7 @@ namespace OpenNero
         // We want to enumerate all possible actions in a discrete way, so that
         // we can store them in a policy table somehow. So, for each action
         // dimension, if it's discrete we just enumerate the integral values for
-        // that dimension, and if it's continuous, we split it into action_bins
+        // that dimension, and if it's continuous, we split it into "bins"
         // different values.
         //
         // An example: Suppose some action dimension is continuous and spans the
@@ -57,7 +61,7 @@ namespace OpenNero
         for (size_t i = 0; i < info.size(); ++i)
         {
             const double lo = info.getMin(i), hi = info.getMax(i);
-            const double inc = info.isDiscrete(i) ? 1.0f : (hi - lo) / (action_bins - 1);
+            const double inc = info.isDiscrete(i) ? 1.0f : (hi - lo) / (bins - 1);
             std::vector< Actions > new_action_list;
             std::vector< Actions >::const_iterator iter;
             for (iter = action_list.begin(); iter != action_list.end(); ++iter)
