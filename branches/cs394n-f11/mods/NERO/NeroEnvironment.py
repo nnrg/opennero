@@ -142,7 +142,7 @@ class NeroEnvironment(OpenNero.Environment):
                     False))
         for a0, a1 in constants.ENEMY_RADAR_SENSORS:
             sense = constants.OBJECT_TYPE_TEAM_0
-            if agent.get_team() == 0:
+            if agent.get_team() == sense:
                 sense = constants.OBJECT_TYPE_TEAM_1
             agent.add_sensor(OpenNero.RadarSensor(
                     a0, a1, -90, 90, constants.MAX_VISION_RADIUS,
@@ -267,10 +267,14 @@ class NeroEnvironment(OpenNero.Environment):
 
         target = self.target(agent)
         if target is not None:
+            source_pos = agent.state.position
+            target_pos = target.state.position
+            source_pos.z = source_pos.z + 5
+            target_pos.z = target_pos.z + 5
             obstacles = OpenNero.getSimContext().findInRay(
-                agent.state.position,
-                target.state.position,
-                constants.OBJECT_TYPE_OBSTACLE | agent.get_team(),
+                source_pos,
+                target_pos,
+                constants.OBJECT_TYPE_OBSTACLE,
                 True)
             if len(obstacles) == 0:
                 self.get_state(target).curr_damage += 1

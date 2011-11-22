@@ -17,14 +17,14 @@ MAX_VISION_RADIUS = 300
 pop_size = 50
 
 # number of steps per lifetime
-DEFAULT_LIFETIME = 200
+DEFAULT_LIFETIME = 1000
 DEFAULT_HITPOINTS = 20
 
 # default value of explore/exploit slider (x out of 100)
 DEFAULT_EE = 10
 
 # default speedup setting (there will be a 0.1 * 80 / 100 second delay between AI steps)
-DEFAULT_SPEEDUP = 80
+DEFAULT_SPEEDUP = 100
 
 OBJECT_TYPE_OBSTACLE  = (1 << 0) # object type for walls
 OBJECT_TYPE_TEAM_0 = (1 << 1) # object type for team 1
@@ -40,7 +40,7 @@ TEAM_LABELS = {OBJECT_TYPE_TEAM_0: 'blue', OBJECT_TYPE_TEAM_1: 'red'}
 ############################
 
 # FriendRadarSensor
-FRIEND_RADAR_SENSORS = [0, 1]
+# FRIEND_RADAR_SENSORS = [0, 1]
 
 # EnemyRadarSensor
 ENEMY_RADAR_SENSORS = [(90, 12), (18, -3), (3, -18), (-12, -90), (-87, 87)]
@@ -52,7 +52,7 @@ WALL_RAY_SENSORS = [90, 45, 0, -45, -90]
 FLAG_RADAR_SENSORS = [(90, 12), (18, -3), (3, -18), (-12, -90), (-87, 87)]
 
 # Number of sensors
-N_SENSORS = len(FRIEND_RADAR_SENSORS) + len(FLAG_RADAR_SENSORS) + len(ENEMY_RADAR_SENSORS) + len(WALL_RAY_SENSORS) + 1
+N_SENSORS = len(FLAG_RADAR_SENSORS) + len(ENEMY_RADAR_SENSORS) + len(WALL_RAY_SENSORS) + 1
 
 # Number of actions
 N_ACTIONS = 2

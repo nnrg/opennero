@@ -10,7 +10,6 @@
 #include "game/SimEntity.h"
 #include "game/SimContext.h"
 #include "render/SceneObject.h"
-#include "audio/AudioObject.h"
 #include "ai/AI.h"
 #include "ai/AIObject.h"
 #include "ai/AIManager.h"
@@ -21,9 +20,6 @@ namespace OpenNero
 	/// SimEntityData 
 	SimEntity::SimEntity(const SimEntityData& data, const std::string& templateName) :		
 		mAIObject(),
-#if NERO_BUILD_AUDIO
-		mAudioObject(),
-#endif /// NERO_BUILD_AUDIO
 		mSceneObject(),
 		mSharedData(data),
 		mCreationTemplate(templateName),
@@ -65,19 +61,7 @@ namespace OpenNero
                 
             }
         }
-#if NERO_BUILD_AUDIO
-        // audio template
-        objTemp
-            = context->getObjectTemplate<AudioObjectTemplate>(templateName);
-        if (objTemp )
-        {
-            AudioObjectPtr audioObj(new AudioObject());
-            if (audioObj->LoadFromTemplate(objTemp, data) )
-            {
-                ent->SetAudioObject(audioObj);
-            }
-        }
-#endif // NERO_BUILD_AUDIO
+
         {
             AIObjectTemplatePtr aiTemplate = context->getObjectTemplate<AIObjectTemplate>(templateName);
             if (aiTemplate)
@@ -156,24 +140,6 @@ namespace OpenNero
 
     }
 
-#if NERO_BUILD_AUDIO
-    // Windows thinks it owns everything...
-    #ifdef PlaySound
-    #undef PlaySound
-    #endif
-
-    /// play a sound of a given type name
-    /// @param soundName the name of the sound (ie: "jump", "shoot", "onDeath", ... )
-    /// @return true if the sound got played
-    bool SimEntity::PlaySound(const std::string& soundName)
-    {
-        if ( !mAudioObject )
-            return false;
-
-        return mAudioObject->PlaySound(soundName);
-    }
-#endif // NERO_BUILD_AUDIO
-
     void SimEntity::SetCreationTemplate( const std::string& creationTemplate )
     {
         mCreationTemplate = creationTemplate;
@@ -206,19 +172,6 @@ namespace OpenNero
             }
         }
     }
-
-#if NERO_BUILD_AUDIO
-    /// Set the audio object
-    /// @param obj the audio object to use
-    void SimEntity::SetAudioObject(AudioObjectPtr obj)
-    {
-        mAudioObject = obj;
-        if (mAudioObject )
-        {
-            mAudioObject->SetSharedState( &mSharedData );
-        }
-    }
-#endif // NERO_BUILD_AUDIO
 
     void SimEntity::SetAIObject(AIObjectPtr obj)
     {

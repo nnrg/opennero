@@ -280,10 +280,7 @@ class NeroModule:
             self.start_rtneat(team)
 
         self.curr_team = team
-
-        color = 'blue'
-        if team == constants.OBJECT_TYPE_TEAM_1:
-            color = 'red'
+        color = constants.TEAM_LABELS[team]
 
         dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
         dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
@@ -299,7 +296,7 @@ class NeroModule:
         # population size matches ours
         # 1.0 is the weight initialization noise
         rtneat = OpenNero.RTNEAT("data/ai/neat-params.dat",
-                                 constants.N_SENSORS,
+                                 constants.N_SENSORS+1,
                                  constants.N_ACTIONS,
                                  constants.pop_size,
                                  1.0,

@@ -212,8 +212,6 @@ namespace OpenNero
         /// update the various subsystems
         /// @{
 
-        /// update the audio system
-        void UpdateAudioSystem(float32_t dt);
 		/// act on user inputs
         void UpdateInputSystem(float32_t dt);
 		/// render graphics

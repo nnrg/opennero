@@ -73,7 +73,6 @@ namespace OpenNero
 
         ShaderMap mShaderCache;                     ///< A Cache of all the shaders we have loaded
         IrrHandles mIrr;                           ///< Handles to do Irr Specific loads
-        Log::ILogConnectionPtr   mResourceLogger;   ///< A LogConnection to send our load reports
     };
 
 } //end OpenNero

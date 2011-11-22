@@ -20,9 +20,6 @@ namespace OpenNero
     BOOST_PTR_DECL( Simulation );
     BOOST_PTR_DECL( SimContext );
     BOOST_PTR_DECL( SimEntity );
-#if NERO_BUILD_AUDIO
-    BOOST_PTR_DECL( AudioObject );
-#endif // NERO_BUILD_AUDIO
     BOOST_PTR_DECL( SceneObject );
     BOOST_PTR_DECL( AIObject );
     BOOST_PTR_DECL( SensorObject );
@@ -81,11 +78,6 @@ namespace OpenNero
         /// update our entity during an animation frame (no AI tick)
         void ProcessAnimationTick( float32_t frac );
 
-#if NERO_BUILD_AUDIO
-        // play an audio buffer if we have it
-        bool PlaySound( const std::string& soundName );
-#endif // NERO_BUILD_AUDIO
-
         /// Set the template that we were loaded from
         std::string GetCreationTemplate() const;
 
@@ -95,18 +87,12 @@ namespace OpenNero
 	/// @{
 	/// setters for component objects
         void SetSceneObject( SceneObjectPtr obj );
-#if NERO_BUILD_AUDIO
-        void SetAudioObject( AudioObjectPtr obj );
-#endif // NERO_BUILD_AUDIO
         void SetAIObject( AIObjectPtr obj );
 	/// @}
 
 		/// getters for SimEntity components
 		/// @{
         SceneObjectPtr GetSceneObject() { return mSceneObject; }
-#if NERO_BUILD_AUDIO
-        AudioObjectPtr GetAudioObject() { return mAudioObject; }
-#endif // NERO_BUILD_AUDIO
         AIObjectPtr GetAIObject() { return mAIObject; }
 		/// @}
 
@@ -173,9 +159,6 @@ namespace OpenNero
 		/// @{
 		/// hook into AI
         AIObjectPtr         mAIObject;
-#if NERO_BUILD_AUDIO
-        AudioObjectPtr      mAudioObject;
-#endif // NERO_BUILD_AUDIO
 
         /// hook into rendering
         SceneObjectPtr      mSceneObject;

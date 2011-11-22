@@ -9,7 +9,6 @@
 #include "game/SimContext.h"
 #include "game/Kernel.h"
 #include "scripting/scripting.h"
-#include "audio/AudioManager.h"
 #include "utils/Config.h"
 
 namespace OpenNero
@@ -50,13 +49,6 @@ namespace OpenNero
         // add loggers
         LOG_MSG( "Starting OpenNero" );
 
-#if NERO_BUILD_AUDIO
-        if( !OpenNero::AudioManager::instance().Init() )
-        {
-            LOG_ERROR( "Failed to initialize audio engine" );
-        }
-#endif // NERO_BUILD_AUDIO
-
         // create our video device
         irr::video::E_DRIVER_TYPE driverType = ( appConfig.RenderType == "null" ) ? video::EDT_NULL : video::EDT_OPENGL;
 
@@ -86,12 +78,6 @@ namespace OpenNero
         // run the loop until the device is killed
         while(irrDevice->run())
             kern.ProcessTick();
-
-#if NERO_BUILD_AUDIO
-        // shut down the audio manager
-        if( !OpenNero::AudioManager::instance().Shutdown() )
-            LOG_ERROR( "Audio library did not shutdown properly" );
-#endif // NERO_BUILD_AUDIO
 
         // flush the current loaded mod
         kern.flushCurrentMod();

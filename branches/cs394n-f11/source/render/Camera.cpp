@@ -123,15 +123,19 @@ namespace OpenNero
         }
     }
 
-    bool Camera::attach( SimEntityPtr entity )
+    bool Camera::attach( SimEntityPtr entity, FPSCameraTemplatePtr camera_template )
     {
         Assert(entity);
         SceneObjectPtr scene_object = entity->GetSceneObject();
         if (scene_object && scene_object->mSceneNode)
         {
             mCamera = ICameraSceneNode_IPtr( mIrr.mpSceneManager->addCameraSceneNodeNeroFP(scene_object->mSceneNode));
-            scene_object->attachCamera(shared_from_this());
+            mCamera->setPosition(ConvertNeroToIrrlichtPosition(camera_template->attach_point));
+            mCamera->setTarget(ConvertNeroToIrrlichtPosition(camera_template->target));
+            mCamera->setNearValue(camera_template->near_plane);
+            mCamera->setFarValue(camera_template->far_plane);
 			mCamera->bindTargetAndRotation(true);
+            scene_object->attachCamera(shared_from_this());
             setFunctionality(Camera::kFunc_FPS);
         }
         else
@@ -146,6 +150,19 @@ namespace OpenNero
     void Camera::detach( Functionality f )
     {
         setFunctionality(f);
+    }
+	
+    void Camera::snapshot(const std::string& filename)
+    {        
+        LOG_F_DEBUG("render", "Taking snapshot!");
+        IImage* img = mIrr.mpVideoDriver->createScreenShot();
+        if(!img)
+            LOG_F_ERROR("render", "Snapshot mage is null!");
+        else {
+            if (!mIrr.mpVideoDriver->writeImageToFile(img, filename.c_str()))
+                LOG_F_ERROR("render", "Could not write snapshot image!");
+            img->drop();
+        }
     }
     
 	void Camera::setNearPlane( F32 nearPlane )
@@ -199,5 +216,39 @@ namespace OpenNero
         output << "\" />";
         return output;
     }
+    
+    /// construct the template from a property map
+    FPSCameraTemplate::FPSCameraTemplate(const std::string& prefix, const PropertyMap& propMap)
+    : attach_point()
+    , target(100,0,0)
+    , near_plane(10)
+    , far_plane(1000)
+    {
+        propMap.getValue(attach_point, prefix + ".attach_point");
+        propMap.getValue(target, prefix+ ".target");
+        propMap.getValue(near_plane, prefix + ".near_plane");
+        propMap.getValue(far_plane, prefix + ".far_plane");
+    }
+        
+    /// Update rotation of camera
+    /// @param cam camera
+    /// @param rotation amount camera is rotated
+    void FPSCameraTemplate::UpdateRotation(const SceneObject* scene_object, CameraPtr cam, Vector3f new_rotation)
+    {
+        Vector3f rotor(new_rotation - scene_object->getRotation());
+        Vector3f pos(scene_object->getPosition());
+        Vector3f t(cam->getTarget());
+        t.rotateXYBy(rotor.Z, pos);
+        cam->setTarget(t);
+    }
+        
+    void FPSCameraTemplate::UpdatePosition(const SceneObject* scene_object, CameraPtr cam, Vector3f new_position)
+    {
+        Vector3f displacement(new_position - scene_object->getPosition());
+        Vector3f target(cam->getTarget());
+        target = target + displacement;
+        cam->setTarget(target);
+    }
+    
 } //end OpenNero
 

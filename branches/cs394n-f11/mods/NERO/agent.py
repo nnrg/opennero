@@ -63,7 +63,7 @@ class RTNEATAgent(NeroAgent, OpenNero.AgentBrain):
         """
         Returns the rtNEAT object for this agent
         """
-        return OpenNero.get_ai("rtneat-%s" % self.team).get_organism(self)
+        return OpenNero.get_ai("rtneat-%s" % self.get_team()).get_organism(self)
 
     def start(self, time, sensors):
         """
@@ -85,7 +85,7 @@ class RTNEATAgent(NeroAgent, OpenNero.AgentBrain):
         """
         end of an episode
         """
-        OpenNero.get_ai("rtneat-%s" % self.team).release_organism(self)
+        OpenNero.get_ai("rtneat-%s" % self.get_team()).release_organism(self)
         return True
 
     def set_display_hint(self):
