@@ -281,14 +281,18 @@ class NeroEnvironment(OpenNero.Environment):
             target_pos = target.state.position
             source_pos.z = source_pos.z + 5
             target_pos.z = target_pos.z + 5
-            obstacles = OpenNero.getSimContext().findInRay(
-                source_pos,
-                target_pos,
-                constants.OBJECT_TYPE_OBSTACLE,
-                True)
-            if len(obstacles) == 0:
-                self.get_state(target).curr_damage += 1
-                R[constants.FITNESS_HIT_TARGET] = 1
+            d = target_pos.getDistanceFrom(source_pos)
+            d = (constants.MAX_SHOT_RADIUS - d)/constants.MAX_SHOT_RADIUS
+            if random.random() > d/2: # attempt a shot depending on distance
+                obstacles = OpenNero.getSimContext().findInRay(
+                    source_pos,
+                    target_pos,
+                    constants.OBJECT_TYPE_OBSTACLE,
+                    True)
+                if len(obstacles) == 0 and random.random() > d/2:
+                    # count as hit depending on distance
+                    self.get_state(target).curr_damage += 1
+                    R[constants.FITNESS_HIT_TARGET] = 1
 
         damage = state.update_damage()
         R[constants.FITNESS_AVOID_FIRE] = -damage
