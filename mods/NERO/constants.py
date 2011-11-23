@@ -1,10 +1,14 @@
+import math
+import itertools
+
 # Dimensions of the arena
 XDIM = 800
 YDIM = 800
 
-# Height of the wall
+# Height and width of walls
+WIDTH = 4
 HEIGHT = 20
-OFFSET = -HEIGHT/2
+OFFSET = -HEIGHT / 2
 
 MAX_MOVEMENT_SPEED = 1
 MAX_VISION_RADIUS = 300
@@ -16,6 +20,10 @@ pop_size = 50
 
 # number of steps per lifetime
 DEFAULT_LIFETIME = 1000
+DEFAULT_HITPOINTS = 20
+
+# default value of explore/exploit slider (x out of 100)
+DEFAULT_EE = 10
 
 # default speedup setting (there will be a 0.1 * 80 / 100 second delay between AI steps)
 DEFAULT_SPEEDUP = 100
@@ -26,8 +34,8 @@ OBJECT_TYPE_TEAM_1 = (1 << 2) # object type for team 2 and turrets during traini
 OBJECT_TYPE_FLAG = (1 << 3) # object type for the flag
 OBJECT_TYPE_LEVEL_GEOM = 0 # object type for the level geometry
 
-# the colors of the teams
-TEAM_COLORS = { OBJECT_TYPE_TEAM_0: 'blue', OBJECT_TYPE_TEAM_1: 'red' }
+TEAMS = (OBJECT_TYPE_TEAM_0, OBJECT_TYPE_TEAM_1)
+TEAM_LABELS = {OBJECT_TYPE_TEAM_0: 'blue', OBJECT_TYPE_TEAM_1: 'red'}
 
 ############################
 ### SENSOR CONFIGURATION ###
@@ -36,17 +44,17 @@ TEAM_COLORS = { OBJECT_TYPE_TEAM_0: 'blue', OBJECT_TYPE_TEAM_1: 'red' }
 N_SENSORS = 0 # start at 0, add each sensor bank's length
 
 # EnemyRadarSensor
-ENEMY_RADAR_SENSORS = [(90,12),(18,-3),(3,-18),(-12,-90),(-87,87)]
+ENEMY_RADAR_SENSORS = [(90, 12), (18, -3), (3, -18), (-12, -90), (-87, 87)]
 SENSOR_INDEX_ENEMY_RADAR = [i for i in range(N_SENSORS, N_SENSORS+len(ENEMY_RADAR_SENSORS))]
 N_SENSORS += len(ENEMY_RADAR_SENSORS)
 
 # Wall Ray Sensors
-WALL_RAY_SENSORS = [90,45,0,-45,-90]
+WALL_RAY_SENSORS = [90, 45, 0, -45, -90]
 SENSOR_INDEX_WALL_RAY = [i for i in range(N_SENSORS, N_SENSORS+len(WALL_RAY_SENSORS))]
 N_SENSORS += len(WALL_RAY_SENSORS)
 
 # Flag Radar Sensors
-FLAG_RADAR_SENSORS = [(90,12),(18,-3),(3,-18),(-12,-90),(-87,87)]
+FLAG_RADAR_SENSORS = [(90, 12), (18, -3), (3, -18), (-12, -90), (-87, 87)]
 SENSOR_INDEX_FLAG_RADAR = [i for i in range(N_SENSORS, N_SENSORS+len(FLAG_RADAR_SENSORS))]
 N_SENSORS += len(FLAG_RADAR_SENSORS)
 
@@ -72,20 +80,26 @@ NEAT_BIAS = 0.3
 ### FITNESS CONFIGURATION ###
 #############################
 
-FITNESS_STAND_GROUND = "Stand ground"
-FITNESS_STICK_TOGETHER = "Stick together"
-FITNESS_APPROACH_ENEMY = "Approach enemy"
-FITNESS_APPROACH_FLAG = "Approach flag"
-FITNESS_HIT_TARGET = "Hit target"
-FITNESS_AVOID_FIRE = "Avoid fire"
+FITNESS_STAND_GROUND = 'Stand ground'
+FITNESS_STICK_TOGETHER = 'Stick together'
+FITNESS_APPROACH_ENEMY = 'Approach enemy'
+FITNESS_APPROACH_FLAG = 'Approach flag'
+FITNESS_HIT_TARGET = 'Hit target'
+FITNESS_AVOID_FIRE = 'Avoid fire'
 FITNESS_DIMENSIONS = [FITNESS_STAND_GROUND, FITNESS_STICK_TOGETHER,
     FITNESS_APPROACH_ENEMY, FITNESS_APPROACH_FLAG, FITNESS_HIT_TARGET,
     FITNESS_AVOID_FIRE]
 
 FITNESS_INDEX = dict([(f,i) for i,f in enumerate(FITNESS_DIMENSIONS)])
 
-import itertools
-#DISPLAY_HINTS = itertools.cycle([None, 'fitness', 'time alive', 'hit points', 'genome id', 'species id', 'champion', 'debug'])
+SQ_DIST_SCALE = math.hypot(XDIM, YDIM) / 2.0
+FITNESS_SCALE = {
+    FITNESS_STAND_GROUND: SQ_DIST_SCALE,
+    FITNESS_STICK_TOGETHER: SQ_DIST_SCALE,
+    FITNESS_APPROACH_ENEMY: SQ_DIST_SCALE,
+    FITNESS_APPROACH_FLAG: SQ_DIST_SCALE,
+    }
+
 DISPLAY_HINTS = itertools.cycle([None, 'time alive', 'hit points', 'genome id', 'species id', 'champion'])
 DISPLAY_HINT = DISPLAY_HINTS.next()
 

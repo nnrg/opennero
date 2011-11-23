@@ -1,32 +1,48 @@
+import math
+
 import OpenNero
 import common
 import common.gui as gui
 import constants
-import inputConfig
 import module
 
-ai_state = None
+guiMan = None
 modify_object_id = {}
 object_ids = []
 
-def toggle_ai_callback():
-    global ai_state
-    OpenNero.toggle_ai()
-    if not ai_state:
-        module.getMod().start_rtneat()
-        ai_state = 'Started'
-    elif ai_state == 'Started':
-        ai_state = 'Paused'
-    elif ai_state == 'Paused':
-        ai_state = 'Started'
 
-def recenter(cam):
-    def closure():
-        cam.setPosition(OpenNero.Vector3f(0, 0, 100))
-        cam.setTarget(OpenNero.Vector3f(100, 100, 0))
-    return closure
+def switchToHub():
+    module.delMod()
+    OpenNero.switchMod('hub', 'hub:common')
 
-#########################################################
+def blank():
+    pass
+
+def toggleDisplayHint():
+    constants.nextDisplayHint()
+
+def createInputMapping():
+    from client import show_context_menu, mouse_action, reset_mouse_action
+    # create an io map
+    ioMap = OpenNero.PyIOMap()
+    # bind our keys
+    ioMap.ClearMappings()
+    ioMap.BindKey( "KEY_ESCAPE", "onPress", switchToHub)
+    ioMap.BindKey( "KEY_F1", "onPress", common.openWiki('NeroMod') )
+    ioMap.BindKey( "KEY_F2", "onPress", toggleDisplayHint )
+
+    ioMap.BindMouseAction( "moveX", mouse_action)
+    ioMap.BindMouseAction( "moveY", mouse_action)
+    ioMap.BindMouseButton( "left"  , "onPress"    , reset_mouse_action)
+    ioMap.BindMouseButton( "left"  , "onRelease"  , blank)
+    ioMap.BindMouseButton( "middle", "onPress"    , blank)
+    ioMap.BindMouseButton( "middle", "onRelease"  , blank)
+    ioMap.BindMouseButton( "right" , "onPress"    , show_context_menu)
+    ioMap.BindMouseButton( "right" , "onRelease"  , blank)
+
+    ioMap.BindMouseAction( "scroll", blank)
+
+    return ioMap
 
 def show_context_menu():
     global modify_object_id
@@ -73,8 +89,11 @@ def show_context_menu():
     def place_basic_turret():
         module.getMod().place_basic_turret([location.x, location.y, 0])
 
-    def set_spawn():
-        module.getMod().set_spawn(location.x, location.y)
+    def set_spawn_1():
+        module.getMod().set_spawn(location.x, location.y, constants.OBJECT_TYPE_TEAM_0)
+
+    def set_spawn_2():
+        module.getMod().set_spawn(location.x, location.y, constants.OBJECT_TYPE_TEAM_1)
 
     def remove_wall():
         common.removeObject(selected_object_id)
@@ -109,16 +128,21 @@ def show_context_menu():
         turretButton.OnMouseLeftClick = lambda: place_basic_turret()
         contextMenu.addItem('Place Basic Turret', turretButton)
 
-        spawnButton = gui.create_button(guiMan, 'spawn', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
-        spawnButton.OnMouseLeftClick = lambda: set_spawn()
-        contextMenu.addItem('Set Spawn Location', spawnButton)
+        spawn1Button = gui.create_button(guiMan, 'blue spawn', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
+        spawn1Button.OnMouseLeftClick = lambda: set_spawn_1()
+        contextMenu.addItem('Set Blue Spawn Location', spawn1Button)
+
+        spawn2Button = gui.create_button(guiMan, 'red spawn', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
+        spawn2Button.OnMouseLeftClick = lambda: set_spawn_2()
+        contextMenu.addItem('Set Red Spawn Location', spawn2Button)
+
 
 def reset_mouse_action():
     global modify_object_id
     modify_object_id = {}
 
+
 def mouse_action():
-    import math
     global modify_object_id
     global object_ids
 
@@ -158,26 +182,16 @@ def mouse_action():
         prev_scale = sim_context.getObjectScale(modify_object_id['scale'])
         sim_context.setObjectScale(modify_object_id['scale'], OpenNero.Vector3f(scalex, scaley, prev_scale.z))
 
-#########################################################
 
-def CreateGui(guim):
-    global mode
+def ClientMain():
     global modify_object_id
     global object_ids
     global guiMan
-    mode = 0
 
-    guiMan = guim
-    object_ids = []
-    modify_object_id = {}
-
-def ClientMain():
-    # physics off, ai off by default
-    #disable_physics()
     OpenNero.disable_ai()
 
     if not module.getMod().setup_map():
-        inputConfig.switchToHub()
+        switchToHub()
         return
 
     # add a light source
@@ -186,7 +200,9 @@ def ClientMain():
     common.addSkyBox("data/sky/irrlicht2")
 
     # setup the gui
-    CreateGui(common.getGuiManager())
+    guiMan = common.getGuiManager()
+    object_ids = []
+    modify_object_id = {}
 
     # add a camera
     camRotateSpeed = 100
@@ -195,12 +211,19 @@ def ClientMain():
     cam = OpenNero.getSimContext().addCamera(camRotateSpeed, camMoveSpeed, camZoomSpeed)
     cam.setFarPlane(40000)
     cam.setEdgeScroll(False)
+
+    def recenter(cam):
+        def closure():
+            cam.setPosition(OpenNero.Vector3f(0, 0, 100))
+            cam.setTarget(OpenNero.Vector3f(100, 100, 0))
+        return closure
+
     recenter_cam = recenter(cam)
     recenter_cam()
 
     # create the io map
-    ioMap = inputConfig.createInputMapping()
-    ioMap.BindKey( "KEY_SPACE", "onPress", recenter_cam )
+    ioMap = createInputMapping()
+    ioMap.BindKey("KEY_SPACE", "onPress", recenter_cam)
     OpenNero.getSimContext().setInputMapping(ioMap)
 
 
