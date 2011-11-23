@@ -1,13 +1,11 @@
 import OpenNero
 import common
 import common.gui as gui
-import constants
-import inputConfig
+import NERO.constants as constants
+import NERO.inputConfig as inputConfig
 import module
 
 ai_state = None
-modify_object_id = {}
-object_ids = []
 
 def toggle_ai_callback():
     global ai_state
@@ -73,8 +71,11 @@ def show_context_menu():
     def place_basic_turret():
         module.getMod().place_basic_turret([location.x, location.y, 0])
 
-    def set_spawn():
-        module.getMod().set_spawn(location.x, location.y)
+    def set_spawn_1():
+        module.getMod().set_spawn_1(location.x, location.y, constants.OBJECT_TYPE_TEAM_0)
+
+    def set_spawn_2():
+        module.getMod().set_spawn(location.x, location.y, constants.OBJECT_TYPE_TEAM_1)
 
     def remove_wall():
         common.removeObject(selected_object_id)
@@ -109,9 +110,14 @@ def show_context_menu():
         turretButton.OnMouseLeftClick = lambda: place_basic_turret()
         contextMenu.addItem('Place Basic Turret', turretButton)
 
-        spawnButton = gui.create_button(guiMan, 'spawn', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
-        spawnButton.OnMouseLeftClick = lambda: set_spawn()
-        contextMenu.addItem('Set Spawn Location', spawnButton)
+        spawn1Button = gui.create_button(guiMan, 'blue spawn', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
+        spawn1Button.OnMouseLeftClick = lambda: set_spawn_1()
+        contextMenu.addItem('Set Blue Spawn Location', spawn1Button)
+
+        spawn2Button = gui.create_button(guiMan, 'red spawn', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
+        spawn2Button.OnMouseLeftClick = lambda: set_spawn_2()
+        contextMenu.addItem('Set Red Spawn Location', spawn2Button)
+
 
 def reset_mouse_action():
     global modify_object_id
@@ -200,7 +206,7 @@ def ClientMain():
 
     # create the io map
     ioMap = inputConfig.createInputMapping()
-    ioMap.BindKey( "KEY_SPACE", "onPress", recenter_cam )
+    ioMap.BindKey("KEY_SPACE", "onPress", recenter_cam)
     OpenNero.getSimContext().setInputMapping(ioMap)
 
 

@@ -15,14 +15,23 @@ except:
 
 class NeroPanel(NERO.menu.NeroPanel):
     def add_buttons(self):
-        self.add_button('Deploy RTNEAT', self.OnDeployRTNEAT)
-        self.add_button('Deploy QLearning', self.OnDeployQLearning)
+        self.add_button('Deploy', self.OnDeploy)
+        self.add_button('Save Blue Team', self.OnSave1)
         self.add_button('Load Blue Team', self.OnLoad1)
+        self.add_button('Save Red Team', self.OnSave2)
         self.add_button('Load Red Team', self.OnLoad2)
 
     def add_sliders(self):
         self.add_slider('Hitpoints', 'HP', span=100, center=0, thumb=20)
         self.add_slider('Speedup', 'SP', span=100, center=0, thumb=80)
+
+    def OnSave2(self, event):
+        dirname = ""
+        dlg = wx.FileDialog(self, "Red Team: Save Population File", dirname, "", "*.*", wx.FD_SAVE)
+        if dlg.ShowModal() == wx.ID_OK:
+            filename = dlg.GetFilename()
+            dirname = dlg.GetPath()
+            self.send("save2 %s" % dirname)
 
     def OnLoad2(self, event):
         dirname = ""

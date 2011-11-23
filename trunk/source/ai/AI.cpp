@@ -150,6 +150,31 @@ namespace OpenNero
         return result;
     }
     
+    /// enumerate all possible feature vectors (if all-discrete)
+    std::vector< FeatureVector > FeatureVectorInfo::enumerate() const
+    {
+        std::vector< FeatureVector > result;
+        // enumerate all possible actions
+        result.push_back(getInstance());
+        for (size_t i = 0; i < size(); ++i)
+        {
+            AssertMsg(isDiscrete(i), "Cannot enumerate continuous features");
+            std::vector< Actions > new_action_list;
+            std::vector< Actions >::const_iterator iter;
+            for (iter = result.begin(); iter != result.end(); ++iter)
+            {
+                for (int a = (int)getMin(i); a <= (int)getMax(i); ++a)
+                {
+                    FeatureVector v = *iter;
+                    v[i] = a;
+                    new_action_list.push_back(v);
+                }
+            }
+            result = new_action_list;
+        }
+        return result;
+    }
+
     /// get a bounded array info from a string
     bool FeatureVectorInfo::Converter::operator()(FeatureVectorInfo& result, const std::string& typeString)
     {
