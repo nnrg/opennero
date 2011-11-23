@@ -73,7 +73,7 @@ namespace OpenNero
     /// normalize the feature vector to the range 0-1
     FeatureVector FeatureVectorInfo::normalize(const FeatureVector& array) const
     {
-        Assert(validate(array));
+        AssertMsg(validate(array), "the feature vector " << array << " is invalid in normalize()");
         FeatureVector result(array);
         for (size_t i = 0; i < size(); ++i)
         {

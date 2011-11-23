@@ -96,6 +96,12 @@ class NeroEnvironment(OpenNero.Environment):
 
         self.script = 'NERO/menu.py'
 
+        # we only want to compute the friend center once per tick
+        self.friend_center = None
+        # we need to know when to update the friend center
+        self.friend_center_cache = {}
+
+
     def set_weight(self, key, value):
         self.reward_weights[key] = value
         for team in self.teams:
@@ -211,8 +217,8 @@ class NeroEnvironment(OpenNero.Environment):
 
         #Initilize Agent state
         if agent.step == 0 and agent.group != "Turret":
-            p = copy.copy(agent.state.position)
-            r = copy.copy(agent.state.rotation)
+            p = agent.state.position
+            r = agent.state.rotation
             if agent.group == "Agent":
                 r.z = random.randrange(360)
                 agent.state.rotation = r
@@ -230,8 +236,7 @@ class NeroEnvironment(OpenNero.Environment):
         # TODO: move constants into constants.py
         self.set_animation(agent, state, 'run')
         delay = OpenNero.getSimContext().delay
-        if delay > 0.0: # if there is a need to show animation
-            agent.state.animation_speed = move_by * 28.0 / delay
+        agent.state.animation_speed = move_by * 100
 
         reward = self.calculate_reward(agent, action)
 
@@ -315,7 +320,7 @@ class NeroEnvironment(OpenNero.Environment):
         figure out what the agent should sense
         """
         # the last observation is whether there is a target for the agent
-        observations[-1] = int(self.target(agent) is not None)
+        observations[constants.SENSOR_INDEX_TARGETING[0]] = int(self.target(agent) is not None)
 
         friends, foes = self.getFriendFoe(agent)
         if not friends:
@@ -323,19 +328,34 @@ class NeroEnvironment(OpenNero.Environment):
 
         # the 2 before that are the angle and heading to the center of mass of
         # the agent's team
-        n = float(len(friends))
-        pose = self.get_state(agent).pose
-        cx, cy, _ = pose
-        for f in friends:
-            ax, ay, _ = self.get_state(f).pose
-            cx += ax / n
-            cy += ay / n
-        fd = self.distance(pose, (cx, cy))
-        fh = self.angle(pose, (cx, cy)) + 180.0
-        if fd <= 15:
-            observations[-3] = fd / 15.0
-            observations[-2] = fh / 360.0
+        # TODO: this only needs to be calculated once per tick, instead of once per agent
+        ax, ay = agent.state.position.x, agent.state.position.y
+        cx, cy = self.get_friend_center(agent, friends)
+        fd = self.distance((ax, ay), (cx, cy))
+        ah = agent.state.rotation.z
+        fh = self.angle((ax, ay, ah), (cx, cy)) + 180.0
+        if fd <= constants.MAX_FRIEND_DISTANCE:
+            observations[constants.SENSOR_INDEX_FRIEND_RADAR[0]] = fd / 15.0
+            observations[constants.SENSOR_INDEX_FRIEND_RADAR[1]] = fh / 360.0
         return observations
+        
+    def get_friend_center(self, agent, friends):
+        ''' get the x, y position of the center of mass of the friends group '''
+        id = agent.state.id
+        step = agent.step
+        # only recompute the center of mass once we find an agent that goes 
+        # to the next step since the last computation
+        if self.friend_center is None or step != self.friend_center_cache.get(id, step):
+            n = float(len(friends))
+            cx, cy = 0, 0
+            for f in friends:
+                fx, fy = f.state.position.x, f.state.position.y
+                cx += fx / n
+                cy += fy / n
+            self.friend_center = (cx, cy)
+            self.friend_center_cache.clear()
+        self.friend_center_cache[id] = step
+        return self.friend_center
 
     def distance(self, a, b):
         """
