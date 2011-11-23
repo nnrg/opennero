@@ -12,11 +12,6 @@
 #include <iostream>
 #include <set>
 
-#include <boost/serialization/access.hpp>
-#include <boost/serialization/nvp.hpp>
-#include <boost/serialization/serialization.hpp>
-#include <boost/serialization/vector.hpp>
-
 #include "core/Common.h"
 #include "game/objects/TemplatedObject.h"
 
@@ -56,20 +51,9 @@ namespace OpenNero {
     class FeatureVectorInfo
     {
     private:
-        friend class boost::serialization::access;
-
         std::vector<double> lower; ///< lower bounds
         std::vector<double> upper; ///< upper bounds
         std::vector<bool> discreteness; ///< discreteness
-
-        /// serialize this object to/from a Boost serialization archive
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(lower);
-            ar & BOOST_SERIALIZATION_NVP(upper);
-            ar & BOOST_SERIALIZATION_NVP(discreteness);
-        }
     public:
         FeatureVectorInfo() : lower(), upper(), discreteness() { }
 
@@ -118,6 +102,9 @@ namespace OpenNero {
         /// create a feature vector initialized randomly
         FeatureVector getRandom() const;
 
+        /// enumerate all possible feature vectors (if all-discrete)
+        std::vector< FeatureVector > enumerate() const;
+
         /// get the bounds on a particular element
         Bound getBound(size_t i);
 
@@ -165,15 +152,6 @@ namespace OpenNero {
         RewardInfo reward; ///< information about the reward values
 
         friend std::ostream& operator<<(std::ostream& out, const AgentInitInfo& obj);
-
-        /// serialize this object to/from a Boost serialization archive
-        template<class Archive>
-        void serialize(Archive & ar, const unsigned int version)
-        {
-            ar & BOOST_SERIALIZATION_NVP(sensors);
-            ar & BOOST_SERIALIZATION_NVP(actions);
-            ar & BOOST_SERIALIZATION_NVP(reward);
-        }
     };
 
     typedef FeatureVector Observations; ///< Observations coming from sensors
