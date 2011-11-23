@@ -1,12 +1,12 @@
 import copy
 import math
 import random
-import sys
 
 import common
-import OpenNero
-import module
 import constants
+import module
+import OpenNero
+
 
 class AgentState:
     """
@@ -80,60 +80,43 @@ class NeroEnvironment(OpenNero.Environment):
         """
         OpenNero.Environment.__init__(self)
 
+        self.lifetime = constants.DEFAULT_LIFETIME
+        self.hitpoints = constants.DEFAULT_HITPOINTS
+        self.epsilon = constants.DEFAULT_EE / 100.0
+
         self.curr_id = 0
         self.max_steps = 20
         self.MAX_DIST = math.hypot(constants.XDIM, constants.YDIM)
+
         self.states = {}
-        self.teams = {}
+        self.teams = dict((t, set()) for t in constants.TEAMS)
+        self.agents_to_load = {}
+
+        self.reward_weights = dict((f, 0.) for f in constants.FITNESS_DIMENSIONS)
+
         self.script = 'NERO/menu.py'
 
-        abound = OpenNero.FeatureVectorInfo() # actions
-        sbound = OpenNero.FeatureVectorInfo() # sensors
-        rbound = OpenNero.FeatureVectorInfo() # rewards
-
-        # actions
-        abound.add_continuous(-1, 1) # forward/backward speed
-        abound.add_continuous(-0.2, 0.2) # left/right turn (in radians)
-
-        # sensor dimensions
-        for a in range(constants.N_SENSORS):
-            sbound.add_continuous(0, 1);
-
-        # Rewards
-        # the enviroment returns the raw multiple dimensions of the fitness as
-        # they get each step. This then gets combined into, e.g. Z-score, by
-        # the ScoreHelper in order to calculate the final rtNEAT-fitness
-        for f in constants.FITNESS_DIMENSIONS:
-            # we don't care about the bounds of the individual dimensions
-            rbound.add_continuous(-sys.float_info.max, sys.float_info.max) # range for reward
-
-        # initialize the rtNEAT algorithm parameters
-        # input layer has enough nodes for all the observations plus a bias
-        # output layer has enough values for all the actions
-        # population size matches ours
-        # 1.0 is the weight initialization noise
-        rtneat = OpenNero.RTNEAT("data/ai/neat-params.dat",
-                                 constants.N_SENSORS + 1, # add a bias
-                                 constants.N_ACTIONS,
-                                 constants.pop_size,
-                                 1.0,
-                                 rbound)
-
-        key = "rtneat-%s" % constants.OBJECT_TYPE_TEAM_0
-        OpenNero.set_ai(key, rtneat)
-        print "get_ai(%s): %s" % (key, OpenNero.get_ai(key))
-        
-        # we only want to compute 
+        # we only want to compute the friend center once per tick
         self.friend_center = None
         # we need to know when to update the friend center
         self.friend_center_cache = {}
 
-        # set the initial lifetime
-        lifetime = module.getMod().lt
-        rtneat.set_lifetime(lifetime)
-        print 'rtNEAT lifetime:', lifetime
 
-        self.agent_info = OpenNero.AgentInitInfo(sbound, abound, rbound)
+    def set_weight(self, key, value):
+        self.reward_weights[key] = value
+        for team in self.teams:
+            rtneat = OpenNero.get_ai("rtneat-%s" % team)
+            if rtneat:
+                rtneat.set_weight(constants.FITNESS_INDEX[key], value)
+
+    def remove_all_agents(self, team):
+        for agent in list(self.teams[team]):
+            common.removeObject(agent.state.id)
+            try:
+                self.states.pop(agent)
+                self.teams[team].discard(agent)
+            except:
+                print 'could not remove', agent
 
     def reset(self, agent):
         """
@@ -171,7 +154,7 @@ class NeroEnvironment(OpenNero.Environment):
                     a0, a1, -90, 90, constants.MAX_VISION_RADIUS,
                     sense,
                     False))
-        return self.agent_info
+        return agent.info
 
     def get_state(self, agent):
         """
@@ -179,8 +162,6 @@ class NeroEnvironment(OpenNero.Environment):
         """
         if agent not in self.states:
             self.states[agent] = AgentState(agent)
-            if agent.get_team() not in self.teams:
-                self.teams[agent.get_team()] = set()
             self.teams[agent.get_team()].add(agent)
         return self.states[agent]
 
@@ -192,8 +173,7 @@ class NeroEnvironment(OpenNero.Environment):
         other_team = constants.OBJECT_TYPE_TEAM_1
         if my_team == other_team:
             other_team = constants.OBJECT_TYPE_TEAM_0
-        friend, foe = self.teams.get(my_team, set()), self.teams.get(other_team, set())
-        return friend, foe
+        return self.teams[my_team], self.teams[other_team]
 
     def target(self, agent):
         """
@@ -220,6 +200,19 @@ class NeroEnvironment(OpenNero.Environment):
         """
         2A step for an agent
         """
+        # if this agent has a serialized representation waiting, load it.
+        chunk = self.agents_to_load.get(agent.state.id)
+        if chunk is not None:
+            print 'loading agent', agent.state.id, 'from', len(chunk), 'bytes'
+            agent.from_string(chunk)
+            del self.agents_to_load[agent.state.id]
+
+        # set the epsilon for this agent, in case it's changed recently.
+        agent.epsilon = self.epsilon
+
+        # check if the action is valid
+        assert(agent.info.actions.validate(action))
+
         state = self.get_state(agent)
 
         #Initilize Agent state
@@ -230,7 +223,7 @@ class NeroEnvironment(OpenNero.Environment):
                 r.z = random.randrange(360)
                 agent.state.rotation = r
             state.reset_pose(p, r)
-            return self.agent_info.reward.get_instance()
+            return agent.info.reward.get_instance()
 
         # spawn more agents if possible.
         self.maybe_spawn(agent)
@@ -253,11 +246,12 @@ class NeroEnvironment(OpenNero.Environment):
         return reward
 
     def calculate_reward(self, agent, action):
-        reward = self.agent_info.reward.get_instance()
+        reward = agent.info.reward.get_instance()
+
         state = self.get_state(agent)
         friends, foes = self.getFriendFoe(agent)
 
-        R = dict([(f, 0) for f in constants.FITNESS_DIMENSIONS])
+        R = dict((f, 0) for f in constants.FITNESS_DIMENSIONS)
 
         R[constants.FITNESS_STAND_GROUND] = -abs(action[0])
 
@@ -282,37 +276,44 @@ class NeroEnvironment(OpenNero.Environment):
             target_pos = target.state.position
             source_pos.z = source_pos.z + 5
             target_pos.z = target_pos.z + 5
-            d = target_pos.getDistanceFrom(source_pos)
-            d = (constants.MAX_SHOT_RADIUS - d)/constants.MAX_SHOT_RADIUS
-            if random.random() > d/2: # attempt a shot depending on distance
                 obstacles = OpenNero.getSimContext().findInRay(
                     source_pos,
                     target_pos,
                     constants.OBJECT_TYPE_OBSTACLE,
                     True)
-                if len(obstacles) == 0 and random.random() > d/2:
-                    # count as hit depending on distance
+            if len(obstacles) == 0:
                     self.get_state(target).curr_damage += 1
                     R[constants.FITNESS_HIT_TARGET] = 1
 
         damage = state.update_damage()
         R[constants.FITNESS_AVOID_FIRE] = -damage
 
-        for i, f in enumerate(constants.FITNESS_DIMENSIONS):
-            reward[i] = R[f]
+        if len(reward) == 1:
+            for i, f in enumerate(constants.FITNESS_DIMENSIONS):
+                reward[0] += self.reward_weights[f] * R[f] / constants.FITNESS_SCALE.get(f, 1.0)
+                #print f, self.reward_weights[f], R[f] / constants.FITNESS_SCALE.get(f, 1.0)
+        else:
+            for i, f in enumerate(constants.FITNESS_DIMENSIONS):
+                reward[i] = R[f]
 
         return reward
 
     def maybe_spawn(self, agent):
         '''Spawn more agents if there are more to spawn.'''
+        if agent.ai != 'rtneat' or agent.group != 'Agent':
+            return
+
         team = agent.get_team()
+        rtneat = OpenNero.get_ai('rtneat-%s' % team)
+        if not rtneat or not rtneat.ready():
+            return
+
         friends, foes = self.getFriendFoe(agent)
-        friends = tuple(friends or [None])
-        if (agent.group == 'Agent' and
-            agent is friends[0] and
-            OpenNero.get_ai("rtneat-%s" % team).ready() and
-            len(friends) < constants.pop_size):
-            module.getMod().spawnAgent(team)
+        if len(friends) >= constants.pop_size:
+            return
+
+        if agent is tuple(f for f in friends if f.ai == agent.ai)[0]:
+            module.getMod().spawnAgent(team=team, ai=agent.ai)
 
     def sense(self, agent, observations):
         """
@@ -336,7 +337,6 @@ class NeroEnvironment(OpenNero.Environment):
         if fd <= constants.MAX_FRIEND_DISTANCE:
             observations[constants.SENSOR_INDEX_FRIEND_RADAR[0]] = fd / 15.0
             observations[constants.SENSOR_INDEX_FRIEND_RADAR[1]] = fh / 360.0
-
         return observations
         
     def get_friend_center(self, agent, friends):
@@ -405,20 +405,18 @@ class NeroEnvironment(OpenNero.Environment):
         """
         is the current episode over for the agent?
         """
-        if agent.group == "Turret":
+        if agent.group == 'Turret' or agent.ai == 'qlearning':
             return False
 
-        self.max_steps = module.getMod().lt
-        if self.max_steps != 0 and agent.step >= self.max_steps:
-            return True
-
         team = agent.get_team()
-        if not OpenNero.get_ai("rtneat-%s" % team).has_organism(agent):
-            return True
-
         state = self.get_state(agent)
-        if module.getMod().hp != 0 and state.total_damage >= module.getMod().hp:
-            return True
+        dead = self.hitpoints > 0 and state.total_damage >= self.hitpoints
+        old = self.lifetime > 0 and agent.step >= self.lifetime
+        rtneat = OpenNero.get_ai("rtneat-%s" % team)
+        orphaned = rtneat and not rtneat.has_organism(agent)
+
+        if agent.ai == 'rtneat' and (orphaned or dead or old):
+                return True
 
         return False
 

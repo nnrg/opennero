@@ -1,11 +1,19 @@
 #ifndef _OPENNERO_AI_RL_APPROXIMATOR_H_
 #define _OPENNERO_AI_RL_APPROXIMATOR_H_
 
+#include <boost/unordered_map.hpp>
+#include <boost/functional/hash.hpp>
+#include <boost/archive/text_iarchive.hpp>
+#include <boost/archive/text_oarchive.hpp>
+#include <boost/serialization/access.hpp>
+#include <boost/serialization/base_object.hpp>
+#include <boost/serialization/nvp.hpp>
+#include <boost/serialization/vector.hpp>
+#include <boost/serialization/utility.hpp>
+
 #include "core/Common.h"
 #include "ai/AI.h"
 #include "core/HashMap.h"
-#include <boost/unordered_map.hpp>
-#include <boost/functional/hash.hpp>
 
 namespace OpenNero
 {
@@ -17,10 +25,12 @@ namespace OpenNero
     class Approximator
     {
     protected:
+        friend class boost::serialization::access;
         /// information about the agent for which this approximator is used
         AgentInitInfo mInfo;
     public:
         /// Constructor
+        Approximator() {}
         explicit Approximator(const AgentInitInfo& info) : mInfo(info) {}
         /// Destructor
         virtual ~Approximator() {}
@@ -33,6 +43,13 @@ namespace OpenNero
 
         /// update the value associated with a particular feature vector
         virtual void update(const FeatureVector& sensors, const FeatureVector& actions, double target) = 0;
+
+        /// serialize this object to/from a Boost serialization archive
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & BOOST_SERIALIZATION_NVP(mInfo);
+        }
     };
 
 	typedef boost::unordered_map<StateActionPair, double> StateActionDoubleMap;
@@ -41,10 +58,19 @@ namespace OpenNero
     class TableApproximator : public Approximator
     {
     private:
+        friend class boost::serialization::access;
         StateActionDoubleMap table;
+        int action_bins;
+        int state_bins;
     public:
         /// constructor
-        explicit TableApproximator(const AgentInitInfo& info);
+        TableApproximator() {}
+        explicit TableApproximator(const AgentInitInfo& info, const int action_bins, const int state_bins);
+        explicit TableApproximator(const AgentInitInfo& info)
+        {
+            TableApproximator(info, 3, 5);
+        }
+
 
         /// copy constructor
         TableApproximator(const TableApproximator& a);
@@ -61,26 +87,48 @@ namespace OpenNero
 
         /// update the value associated with a particular feature vector
         void update(const FeatureVector& sensors, const FeatureVector& actions, double target);
+
+        /// quantize continuous state or action vectors
+        FeatureVector quantize_action(const FeatureVector& continuous) const;
+        FeatureVector quantize_state(const FeatureVector& continuous) const;
+
+        /// serialize this object to/from a Boost serialization archive
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & boost::serialization::base_object<Approximator>(*this);
+            ar & BOOST_SERIALIZATION_NVP(action_bins);
+            ar & BOOST_SERIALIZATION_NVP(state_bins);
+            StateActionDoubleMap::iterator iter;
+            for (iter = table.begin(); iter != table.end(); ++iter)
+                ar & BOOST_SERIALIZATION_NVP(*iter);
+        }
     };
 
     /// A CMAC tile coding function approximator
     class TilesApproximator : public Approximator
     {
+    private:
+        friend class boost::serialization::access;
+
         float mAlpha; ///< learning rate
         std::vector<size_t> ints_index; ///< indeces of integer features
         std::vector<size_t> floats_index; ///< indeces of real features
-        size_t num_tilings; ///< number of tiles used
-        size_t num_weights; ///< number of weights used (memory size)
-        mutable int* ints; ///< integer feature array
-        mutable float* floats; ///< real feature array
-        mutable int* tiles; ///< tiles array
-        float* weights; ///< weight array
+        std::vector<int> ints; ///< integer feature array
+        std::vector<float> floats; ///< real feature array
+        std::vector<int> tiles; ///< tiles array
+        std::vector<float> weights; ///< weight array
 
         /// convert feature vector into tiles
         void to_tiles(const FeatureVector& sensors, const FeatureVector& actions);
     public:
-        /// constructor
-        explicit TilesApproximator(const AgentInitInfo& info);
+        /// constructors
+        TilesApproximator() {}
+        explicit TilesApproximator(const AgentInitInfo& info, const int num_tiles, const int num_weights);
+        explicit TilesApproximator(const AgentInitInfo& info)
+        {
+            TilesApproximator(info, 32, 1024);
+        }
 
         /// copy constructor
         TilesApproximator(const TilesApproximator& a);
@@ -96,7 +144,22 @@ namespace OpenNero
 
         /// update the value associated with a particular feature vector
         void update(const FeatureVector& sensors, const FeatureVector& actions, double target);
+
+        /// serialize this object to/from a Boost serialization archive
+        template<class Archive>
+        void serialize(Archive & ar, const unsigned int version)
+        {
+            ar & boost::serialization::base_object<Approximator>(*this);
+            ar & BOOST_SERIALIZATION_NVP(mAlpha);
+            ar & BOOST_SERIALIZATION_NVP(ints_index);
+            ar & BOOST_SERIALIZATION_NVP(floats_index);
+            ar & BOOST_SERIALIZATION_NVP(ints);
+            ar & BOOST_SERIALIZATION_NVP(floats);
+            ar & BOOST_SERIALIZATION_NVP(tiles);
+            ar & BOOST_SERIALIZATION_NVP(weights);
+        }
     };
+
 }
 
 #endif

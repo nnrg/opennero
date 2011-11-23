@@ -2,6 +2,7 @@ import cPickle
 import socket
 import struct
 import select
+import time
 
 marshall = cPickle.dumps
 unmarshall = cPickle.loads
@@ -9,7 +10,7 @@ unmarshall = cPickle.loads
 def send(channel, *args):
     buf = marshall(args)
     value = socket.htonl(len(buf))
-    size = struct.pack("L",value)
+    size = struct.pack("L", value)
     channel.send(size)
     channel.send(buf)
 
@@ -39,7 +40,17 @@ class ScriptServer:
         self.scriptmap = {}
         self.outputs = []
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.server.bind((HOST, port))
+        attempts = 10
+        while True:
+            try:
+                self.server.bind((HOST, port))
+                break
+            except socket.error:
+                print 'ScriptServer: port %d busy, waiting (%d more attempts) ...' % (port, attempts)
+                time.sleep(1)
+                attempts -= 1
+                if attempts == 0:
+                    raise
         print 'ScriptServer listening to port', port, '...'
         self.server.listen(backlog)
         self.inputs = [self.server]
@@ -50,9 +61,6 @@ class ScriptServer:
             inputready, outputready, exceptready = select.select(self.inputs, self.outputs, [], 0)
         except select.error, e:
             print 'ScriptServer select error'
-            return None
-        except socket.error, e:
-            print 'ScriptServer socket error'
             return None
         for s in inputready:
             if s == self.server:
@@ -81,12 +89,12 @@ class ScriptServer:
                     self.outputs.remove(e)
         return None
 
-def GetScriptServer():
+def GetScriptServer(port=PORT):
     """
     Only allow the code to create one script server
     """
     try:
-        theServer = ScriptServer()
+        theServer = ScriptServer(port)
     except ScriptServer, s:
         theServer = s
     return theServer
