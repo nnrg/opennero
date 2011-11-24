@@ -30,4 +30,4 @@
    * [MazeMod The Maze mod]
    * [BlocksWorldMod Blocks World mod]
    * [RoombaMod The Roomba mod]
-   * [NeroMod The NERO mod]
+   * [NeroMod NERO Machine Learning Game]
