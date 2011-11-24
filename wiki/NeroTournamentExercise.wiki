@@ -13,6 +13,9 @@ pit the teams against each other in an apocalyptic battle for world
 domination (or something). Follow the steps below, unless of course
 you're comfortable getting destroyed by your opponents who did.
 
+==0. Install prerequisites for running OpenNERO==
+
+See OpenNeroPrerequisites for detailed instructions for your platform.
 
 ==1. Install the OpenNERO Platform==
 
