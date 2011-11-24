@@ -33,8 +33,8 @@ develops a team and saves it. The player then enters the NERO-Battle
 environment, where s/he loads two competing teams that then battle
 each other.
 
-The agents are simulated "Steve" robots seen also in the Maze and
-BlocksWorld environments. In NERO they have egocentric sensors:
+The agents are simulated "Steve" robots seen also in the [MazeMod Maze] and
+[BlocksWorldMod BlocksWorld] environments. In NERO they have egocentric sensors:
   * laser range finders that sense distance to the nearest object (wall or a tree) in 5 directions around it: front, 45 degrees to each side, 90 degrees to each side, and back. These sensors have an infinite range.
   * radar sensors that return distance to the nearest flag in 5 overlapping sectors: -3..18, 12..90, -18..3, -12..-90, and -90..90 (behind the agent). These sensors have a range limited to about half of the field width. Flags can be used to train agents e.g. to move around walls.
   * radar sensors that return distance to the nearest enemy in these same sectors.
