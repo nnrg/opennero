@@ -23,6 +23,7 @@
     * MazeLearnerExercise
     * AdvancedMazeExercise
     * PlanningExercise
+    * NeroTournamentExercise
  * [RunningOpenNero Running]
    * [MazeMod The Maze mod]
    * [BlocksWorldMod Blocks World mod]
