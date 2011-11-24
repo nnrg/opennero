@@ -194,7 +194,7 @@ When the population is saved, the genomes of each agents are written
 into a text file. That file can be edited to form composite teams,
 reloaded for further training, or loaded into battle.
 
-The rtNEAT algorithm is parameterized using the file XXX; you can edit
+The rtNEAT algorithm is parameterized using the file [http://code.google.com/p/opennero/source/browse/trunk/mods/_NERO/data/ai/neat-params.dat neat-params.dat]; you can edit
 it in order to experiment with different versions of the method (such
 as mutation and speciation rates, balance of old and new agents, etc.)
 
