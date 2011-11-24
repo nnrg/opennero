@@ -19,13 +19,8 @@ you're comfortable getting destroyed by your opponents who did.
 OpenNERO runs on Linux, Mac OSX, and Windows platforms. In order to
 install it on your system, you can either:
 
-  * Install it on your own machine by downloading one of the
-    [http://code.google.com/p/opennero/downloads/list prebuilt
-    binaries]. Note that they do require that you have some additional
-    software installed, such as Python and wxPython (see instructions
-    on the [http://code.google.com/p/opennero/downloads/list download page]).
-  * [BuildingOpenNero Build OpenNERO] on your own machine using the
-    source code.
+  * Install it on your own machine by downloading one of the [http://code.google.com/p/opennero/downloads/list prebuilt binaries]. Note that they do require that you have some additional software installed, such as Python and wxPython (see instructions on the [http://code.google.com/p/opennero/downloads/list download page]).
+  * [BuildingOpenNero Build OpenNERO] on your own machine using the source code.
 
 If you build from the source, you can modify and extend the game
 yourself (for the tournament, or otherwise), but no such modifications
@@ -77,9 +72,7 @@ will be identified by the name provided in the submission.
 If you run into any bugs in your program, you can find the error log file for OpenNERO at one of the following locations:
 
   * *Linux or Mac:* `~/.opennero/nero_log.txt`
-  * *Windows:* `"AppData\Local\OpenNERO\nero_log.txt"` or `"Local
-  Settings\Application Data\OpenNERO\nero_log.txt"` depending on the
-  version of Windows you have.
+  * *Windows:* `"AppData\Local\OpenNERO\nero_log.txt"` or `"Local Settings\Application Data\OpenNERO\nero_log.txt"` depending on the version of Windows you have.
 
 We encourage discussion of topics related to the tournament, and have
 established [http this forum] to support it. Questions can be posted
