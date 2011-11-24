@@ -134,7 +134,7 @@ battle environment. The user can, however, add objects to it to
 design the training curriculum, through left clicking with the mouse:
 
 When left clicking on empty space:
-http://www.cs.utexas.edu/users/risto/pictures/menu2.png
+http://www.cs.utexas.edu/users/risto/pictures/menu1.png
   * Add Wall: Generates a standard wall where you clicked
   * Place Flag: Generates a flag to the place where you clicked, or moves the flag there if one already exists. The flag has the appearance of a blue pole.
   * Place Turret: Generates an enemy at a location where you clicked. The enemy rotates and fires at anything in its line-of-fire, with the same probabilistic method as the agents themselves.
