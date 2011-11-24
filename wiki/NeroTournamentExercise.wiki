@@ -1,0 +1,99 @@
+#summary NERO Machine Learning Tournament
+#labels Exercise
+#sidebar TableOfContents
+
+WARNING: THIS PAGE IS STILL UNDER (MINOR) CONSTRUCTION
+
+= NERO Machine Learning Tournament =
+
+In this exercise, you will use either the rtNEAT algorithm or
+Reinforcement Learning to train a team OpenNero agents to defeat your
+opponents in battle. We will run a tournament in class, where we will
+pit the teams against each other in an apocalyptic battle for world
+domination (or something). Follow the steps below, unless of course
+you're comfortable getting destroyed by your opponents who did.
+
+
+==1. Install the OpenNERO Platform==
+
+OpenNERO runs on Linux, Mac OSX, and Windows platforms. In order to
+install it on your system, you can either:
+
+  * Install it on your own machine by downloading one of the
+    [http://code.google.com/p/opennero/downloads/list prebuilt
+    binaries]. Note that they do require that you have some additional
+    software installed, such as Python and wxPython (see instructions
+    on the [http://code.google.com/p/opennero/downloads/list download page]).
+  * [BuildingOpenNero Build OpenNERO] on your own machine using the
+    source code.
+
+If you build from the source, you can modify and extend the game
+yourself (for the tournament, or otherwise), but no such modifications
+are necessary to train and enter the tournament.
+
+==2. Train Your Team==
+
+The game is described in detail in the [NeroGame NERO game] page,
+including specific instructions on how you can train your team.
+
+==3. Submit Your Team to the Tournament==
+
+After you are satisfied with your team, you'll save it into a file.
+That file is about 20MB, but compresses very well, downto about 2MB.
+Please use one of the following methods to compress it:
+
+On Linux, say gzip <file.pop>
+
+On Mac OSX...
+
+On Windows...
+
+After you have compressed the file, go to [http this webpage] to
+submit it. The tournament is intended for participants in the Stanford
+Online AI course, so you need to have a login to the class website to
+submit.
+
+The deadline for submission is XXX in CST.
+
+==4. Eagerly Await the Results==
+
+We will collect all submissions after the deadline and run a
+double-elimination tournament on them. The tournament will be seeded
+randomly.  The standard NERO Battle environment will be used for the
+games; because the environment is symmetric, each team can be assigned
+as Red or Blue randomly without providing an advantage to either one.
+Each game will be run until one team is eliminated, or when a timeout
+of 5 minutes is reached, in which case the team that has more hits
+will win. In case of a tie, the winner will be chosen randomly, except
+for the final game, which will be repeated until there is an actual
+winner based on hits.
+
+The tournament results will be posted a few days after the deadline on
+[http this website], including videos of the final games. The teams
+will be identified by the name provided in the submission.
+
+==Debugging, Discussion, and Bugs==
+
+If you run into any bugs in your program, you can find the error log file for OpenNERO at one of the following locations:
+
+  * *Linux or Mac:* `~/.opennero/nero_log.txt`
+  * *Windows:* `"AppData\Local\OpenNERO\nero_log.txt"` or `"Local
+  Settings\Application Data\OpenNERO\nero_log.txt"` depending on the
+  version of Windows you have.
+
+We encourage discussion of topics related to the tournament, and have
+established [http this forum] to support it. Questions can be posted
+in the forum, and answered by anyone on the forum, hopefully making it
+easier to figure out issues as they happen.
+
+OpenNERO is academic software and under (hyper)active development. It
+is possible that you will come across a bug in it, or a feature that
+should be implemented. If so, please report it [http here], so that
+everyone can see it and track it (please first check whether it has
+already been reported).
+
+In order to provide the best experience for everyone, we may release
+bug fixes before the tournament submissions are due. If so, we'll
+identify them here:
+
+(Nothing yet to report).
