@@ -81,23 +81,24 @@ namespace OpenNero {
 				.add_property("gamma", &TDBrain::getGamma, &TDBrain::setGamma)
 				.add_property("state", make_function(&TDBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
 			// export the interface to python so that we can override its methods there
-			py::class_<SarsaBrain, bases<TDBrain>, SarsaBrainPtr >("SarsaBrain", "SARSA RL agent", init<double, double, double, double>() )
+			py::class_<SarsaBrain, bases<TDBrain>, SarsaBrainPtr >("SarsaBrain", "SARSA RL agent", init<double, double, double, double, int, int, int, int>() )
 				.def("initialize", &SarsaBrain::initialize, "Called before learning starts")
 				.def("start", &SarsaBrain::start, "Called at the beginning of a learning episode")
 				.def("act", &SarsaBrain::act, "Called for every step of the state-action loop")
 				.def("end", &SarsaBrain::end, "Called at the end of a learning episode")
-				.def("destroy", &SarsaBrain::destroy, "Called after learning ends")
 				.add_property("epsilon", &TDBrain::getEpsilon, &TDBrain::setEpsilon)
 				.add_property("alpha", &TDBrain::getAlpha, &TDBrain::setAlpha)
 				.add_property("gamma", &TDBrain::getGamma, &TDBrain::setGamma)
 				.add_property("state", make_function(&SarsaBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
 			// export the interface to python so that we can override its methods there
-			py::class_<QLearningBrain, bases<TDBrain>, QLearningBrainPtr >("QLearningBrain", "Q-Learning RL agent", init<double, double, double>() )
+			py::class_<QLearningBrain, bases<TDBrain>, QLearningBrainPtr >("QLearningBrain", "Q-Learning RL agent", init<double, double, double, int, int, int, int>() )
 				.def("initialize", &QLearningBrain::initialize, "Called before learning starts")
 				.def("start", &QLearningBrain::start, "Called at the beginning of a learning episode")
 				.def("act", &QLearningBrain::act, "Called for every step of the state-action loop")
 				.def("end", &QLearningBrain::end, "Called at the end of a learning episode")
 				.def("destroy", &QLearningBrain::destroy, "Called after learning ends")
+                .def("to_string", &TDBrain::to_string, "Called to serialize to a string")
+                .def("from_string", &TDBrain::from_string, "Called to serialize from a string")
 				.add_property("epsilon", &TDBrain::getEpsilon, &TDBrain::setEpsilon)
 				.add_property("alpha", &TDBrain::getAlpha, &TDBrain::setAlpha)
 				.add_property("gamma", &TDBrain::getGamma, &TDBrain::setGamma)

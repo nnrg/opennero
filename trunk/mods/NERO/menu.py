@@ -1,4 +1,3 @@
-import os
 import cPickle
 import select
 import socket
@@ -84,7 +83,8 @@ class NeroPanel(wx.Panel, ScriptClient):
         self._grid.Fit(parent)
 
     def add_buttons(self):
-        self.add_button('Deploy', self.OnDeploy)
+        self.add_button('Deploy RTNEAT', self.OnDeployRTNEAT)
+        self.add_button('Deploy QLearning', self.OnDeployQLearning)
         self.add_button('Save Team', self.OnSave1)
         self.add_button('Load Team', self.OnLoad1)
 
@@ -95,8 +95,9 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.add_slider('Approach Flag', 'AF')
         self.add_slider('Hit Target', 'HT')
         self.add_slider('Avoid Fire', 'VF')
-        self.add_slider('Lifetime', 'LT', span=2000, center=0, thumb=constants.DEFAULT_LIFETIME)
-        self.add_slider('Hitpoints', 'HP', span=100, center=0, thumb=20)
+        self.add_slider('Exploit-Explore', 'EE', span=100, center=0, thumb=constants.DEFAULT_EE)
+        self.add_slider('Lifetime', 'LT', span=1000, center=0, thumb=constants.DEFAULT_LIFETIME)
+        self.add_slider('Hitpoints', 'HP', span=100, center=0, thumb=constants.DEFAULT_HITPOINTS)
         self.add_slider('Speedup', 'SP', span=100, center=0, thumb=constants.DEFAULT_SPEEDUP)
 
     def add_button(self, label, callback):
@@ -126,8 +127,11 @@ class NeroPanel(wx.Panel, ScriptClient):
 
         self._sliderIndex += 1
 
-    def OnDeploy(self, event):
-        self.send("deploy 0")
+    def OnDeployRTNEAT(self, event):
+        self.send("rtneat 0")
+
+    def OnDeployQLearning(self, event):
+        self.send("qlearning 0")
 
     def OnSave1(self, event):
         dirname = ""

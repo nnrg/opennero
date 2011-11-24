@@ -21,8 +21,18 @@ namespace OpenNero
 		/// @param gamma reward discount factor (between 0 and 1)
     	/// @param alpha learning rate (between 0 and 1)
 		/// @param epsilon parameter for the epsilon-greedy policy (between 0 and 1)
-		QLearningBrain(double gamma, double alpha, double epsilon)
-		: TDBrain(gamma, alpha, epsilon)
+        /// @param actions number of bins for quantizing continuous action dimensions
+        /// @param states number of bins for quantizing continuous state space dimensions
+        QLearningBrain(double gamma, double alpha, double epsilon, int actions, int states, int tiles, int weights)
+        : TDBrain(gamma, alpha, epsilon, actions, states, tiles, weights)
+		{}
+
+		/// constructor
+		/// @param gamma reward discount factor (between 0 and 1)
+    	/// @param alpha learning rate (between 0 and 1)
+		/// @param epsilon parameter for the epsilon-greedy policy (between 0 and 1)
+        QLearningBrain(double gamma, double alpha, double epsilon)
+        : TDBrain(gamma, alpha, epsilon)
 		{}
 
 		/// copy constructor

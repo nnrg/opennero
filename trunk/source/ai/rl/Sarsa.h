@@ -25,6 +25,20 @@ namespace OpenNero
         	/// @param alpha learning rate (between 0 and 1)
             /// @param epsilon parameter for the epsilon-greedy policy (between 0 and 1)
         	/// @param lambda parameter for the SARSA(lambda) learning algorith
+            /// @param actions number of bins for quantizing continuous action dimensions
+            /// @param states number of bins for quantizing continuous state space dimensions
+            SarsaBrain(double gamma, double alpha, double epsilon, double lambda, int actions, int states, int tiles, int weights)
+            : TDBrain(gamma, alpha, epsilon, actions, states, tiles, weights)
+            , mLambda(lambda)
+			, cumulative_reward(0)
+			, n_episodes(0)
+            {}
+
+            /// constructor
+            /// @param gamma reward discount factor (between 0 and 1)
+        	/// @param alpha learning rate (between 0 and 1)
+            /// @param epsilon parameter for the epsilon-greedy policy (between 0 and 1)
+        	/// @param lambda parameter for the SARSA(lambda) learning algorith
             SarsaBrain(double gamma, double alpha, double epsilon, double lambda)
             : TDBrain(gamma, alpha, epsilon)
             , mLambda(lambda)
