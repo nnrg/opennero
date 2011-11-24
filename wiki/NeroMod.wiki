@@ -278,7 +278,8 @@ copied until 50 are created in battle.
 
 The basic structure of the file is like this for rtNEAT teams:
 
-<pre>genomestart 120
+{{{
+genomestart 120
 trait 1 0.112808 0.000000 0.305447 0.263380 0.991934 0.000000 0.306283 0.855288
 ...
 node 1 1 1 1 FriendRadarSensor 3 90 -90 15 0
@@ -287,7 +288,8 @@ node 21 1 1 3
 ...
 gene 1 1 22 0.041885 0 1.000000 0.041885 1
 ...
-genomeend 120</pre>
+genomeend 120
+}}}
 
 <p>In words, a population consists of one or more genomes. Each genome
 starts with a <strong>genomestart</strong> (followed by its ID) line
@@ -298,14 +300,15 @@ gene lines.
 
 <p>For RL teams, the file looks like this:
 
-<pre>22 serialization::archive 5 0 0 0.8 0.8 0.1 3 3 ... 1 7 27 OpenNero::TableApproximator 1 0
+{{{
+22 serialization::archive 5 0 0 0.8 0.8 0.1 3 3 ... 1 7 27 OpenNero::TableApproximator 1 0
 0 0 0 18 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 18 0 ...
 
 22 serialization::archive 5 0 0 0.8 0.8 0.1 3 3 ... 1 7 27 OpenNero::TableApproximator 1 0
 0 0 0 18 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 18 0 ...
 
 ...
-</pre>
+}}}
 
 <p>Each team member is represented by a bunch of numbers representing
 the stored Q table for the agent. Unlike rtNEAT teams, RL agents in
