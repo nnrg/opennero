@@ -16,4 +16,4 @@ AI Exercises
  * [QLearningExercise] - Modify the existing Q-learning agent to utilize a simple function approximator, in order to scale it to a more continuous state space.
  * MazeLearnerExercise - Modern AI is all about _machine learning_ - algorithms that improve with experience. This exercise will introduce you to ways of running, comparing, and writing learning algorithms in OpenNERO.
  * AdvancedMazeExercise - Write a creative learning algorithm to produce maze solutions.
- * NeroTournamentEercise - Train intelligent agents in the NERO game through neuroevolution and/or Q-learning.
+ * NeroTournamentExercise - Train intelligent agents in the NERO game through neuroevolution and/or Q-learning.
