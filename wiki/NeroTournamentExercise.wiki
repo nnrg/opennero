@@ -28,7 +28,7 @@ are necessary to train and enter the tournament.
 
 ==2. Train Your Team==
 
-The game is described in detail in the [NeroGame NERO game] page,
+The game is described in detail in the [NeroMod NERO game] page,
 including specific instructions on how you can train your team.
 
 ==3. Submit Your Team to the Tournament==
