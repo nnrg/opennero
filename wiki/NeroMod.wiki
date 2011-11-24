@@ -24,7 +24,7 @@ and then the battle mode itself.  Ways of extending the learning
 methods and handcoding the teams, as well as differences from the
 original NERO are described in the end.
 
-http://imgur.com/JzFXr.png
+http://www.cs.utexas.edu/users/risto/pictures/nerogame1.png
 
 ==NERO Environment==
 
@@ -134,14 +134,14 @@ battle environment. The user can, however, add objects to it to
 design the training curriculum, through left clicking with the mouse:
 
 When left clicking on empty space:
-http://imgur.com/lNssY.png
+http://www.cs.utexas.edu/users/risto/pictures/menu2.png
   * Add Wall: Generates a standard wall where you clicked
   * Place Flag: Generates a flag to the place where you clicked, or moves the flag there if one already exists. The flag has the appearance of a blue pole.
   * Place Turret: Generates an enemy at a location where you clicked. The enemy rotates and fires at anything in its line-of-fire, with the same probabilistic method as the agents themselves.
   * Set Spawn location: moves the location around which the agents are created to the location where you clicked. The locations and orientations of the agents are randomly choces within a small circle around that point. The team is blue in training; in battle there are red and blue teams.
 
 When left clicking on an object (i.e. wall or turret) you placed:
-http://imgur.com/DfVDF.png
+http://www.cs.utexas.edu/users/risto/pictures/menu2.png
   * Rotate Object: Rotates the object around the z-axis
   * Scale Object: Scales the object
   * Move Object: Lets you move the object
