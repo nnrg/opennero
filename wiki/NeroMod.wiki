@@ -159,7 +159,7 @@ cannot be created or modified though.
 
 The rtNEAT neuroevolution algorithm is a method for evolving (through
 genetic algorithms) a population of neural networks to control the
-agents. See the [http paper on rtNEAT] for more details.
+agents. See the [http://nn.cs.utexas.edu/?stanley:ieeetec05 paper on rtNEAT] for more details.
 
 When you press the "Deploy rtNEAT" button, a population of 50 agents
 is created and spawned on the field. Each agent is controlled by a
@@ -377,8 +377,7 @@ saved in the existing format, the team can be entered into the
 tournament. For instance, you can express behaviors in terms of rules
 and finite state automata based on the sensors and effectors in NERO,
 and then mechanically translate them into neural networks (see
-e.g. [nn.cs.utexas.edu yong]). Those networks can then be represented
-as a genome and entered into tournament.
+e.g. [http://nn.cs.utexas.edu/?yong:aiide06 this paper]). Those networks can then be represented as a genome and entered into tournament.
 
 ==Differences between OpenNERO and Original NERO==
 
