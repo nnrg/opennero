@@ -19,10 +19,10 @@
     * MazeGeneratorExercise
     * MazeSolverExercise
     * HeuristicSearchExercise
+    * PlanningExercise
     * [QLearningExercise]
     * MazeLearnerExercise
     * AdvancedMazeExercise
-    * PlanningExercise
     * NeroTournamentExercise
  * [RunningOpenNero Running]
    * [MazeMod The Maze mod]
