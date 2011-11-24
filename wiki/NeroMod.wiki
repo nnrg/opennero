@@ -347,8 +347,7 @@ A fun event in e.g. AI or machine learning courses is to organize a
 NERO tournament. The students develop teams, and the teams are then
 played against each other in a round-robin or a double-elimination
 tournament. One such tournament was held in Fall 2011 for the Stanford
-Online AI course; the tournament assignment is [NeroTournamentExercise
-here].
+Online AI course; the tournament assignment is [NeroTournamentExercise here].
 
 
 ==Extending NERO Methods==
@@ -356,8 +355,7 @@ here].
 The ingenuity is not limited to simply training the agents with the
 methods that have been implemented in OpenNERO. The game is open
 source, and you can modify all aspects of it by changing the python
-code (and in some case, the C++ code). The main files are
-#specify them
+code (and in some case, the C++ code). The main files are...
 
 For instance, you can implement more sophisticated versions of the
 sensors and effectors, or entirely new ones such as line-of-fire
