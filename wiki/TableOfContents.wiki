@@ -13,7 +13,8 @@
      * [QLearning Q-Learning]
    * Evolutionary Computation
      * [NeuroEvolution Neuroevolution]
-     * [CoEvolution CoEvolution]
+   * Multi-Agent Systems
+     * [NeroMod NERO Machine Learning Game]
  * [OpenNeroExercises Exercises]
     * AddingStuffExercise
     * CreateRoombaAgentExercise
