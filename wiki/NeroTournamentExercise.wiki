@@ -82,7 +82,7 @@ easier to figure out issues as they happen.
 
 OpenNERO is academic software and under (hyper)active development. It
 is possible that you will come across a bug in it, or a feature that
-should be implemented. If so, please report it [http here], so that
+should be implemented. If so, please report it [http://code.google.com/p/opennero/issues/list here], so that
 everyone can see it and track it (please first check whether it has
 already been reported).
 
