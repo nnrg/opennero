@@ -70,14 +70,11 @@ will be identified by the name provided in the submission.
 
 ==Debugging, Discussion, and Bugs==
 
-If you run into any bugs in your program, you can find the error log file for OpenNERO at one of the following locations:
-
-  * *Linux or Mac:* `~/.opennero/nero_log.txt`
-  * *Windows:* `"AppData\Local\OpenNERO\nero_log.txt"` or `"Local Settings\Application Data\OpenNERO\nero_log.txt"` depending on the version of Windows you have.
+If you run into any bugs in your program, you can find the error log file for OpenNERO (see OpenNeroLogs)
 
 We encourage discussion of topics related to the tournament, and have
 established [http this forum] to support it. Questions can be posted
-in the forum, and answered by anyone on the forum, hopefully making it
+in the [http://groups.google.com/group/opennero OpenNERO Google group], and answered by anyone on the forum, hopefully making it
 easier to figure out issues as they happen.
 
 OpenNERO is academic software and under (hyper)active development. It
