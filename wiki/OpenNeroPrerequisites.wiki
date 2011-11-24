@@ -1,0 +1,44 @@
+#summary This page describes how install OpenNERO prerequisites.
+#sidebar TableOfContents
+
+= Prerequisites =
+
+In order to run OpenNERO on your platform you may need to install Python and wxPython.
+
+== On Mac OS X ==
+
+Python is usually already installed on Mac OS X. To check if you have a suitable version of Python and wxPython installed, start Terminal, and type in `python`.
+
+If you get a python `>>>` prompt, check to see if you have wxPython by typing in:
+{{{
+import wx
+}}}
+If everything is working correctly, you should not see any errors when doing this.
+
+On 64-bit versions of Mac OS X, you may also need to tell Python to run in 32-bit mode by default (from Terminal):
+{{{
+defaults write com.apple.versioner.python Prefer-32-Bit -bool yes
+}}}
+
+== On Windows, ==
+
+To check if you have a suitable version of Python and wxPython installed, start Command Prompt (cmd), and type in `python`. If you get a python `>>>` prompt, check to see if you have wxPython by typing in:
+{{{
+import wx
+}}}
+If everything is working correctly, you should not see any errors when doing this.
+
+  # Download and install [http://www.python.org/getit/ Python 2.7.2 (win32)]
+  # Download and install [http://www.wxpython.org/download.php wxPython] (required for the NERO mod).
+  # Add the directory with python.exe (usually C:\Python27) to your PATH environment variable.
+    * Open Control Panel
+    * Search for "Set System Environment Variables" or open the Advanced tab of System Properties.
+    * Edit the "Path" variable value to include the location of your python.exe.
+
+== On Linux, ==
+
+If you do not have python installed, install it using your package manager. To do so on Ubuntu Linux, use:
+
+{{{
+sudo apt-get install python python-wxgtk2.8
+}}}
