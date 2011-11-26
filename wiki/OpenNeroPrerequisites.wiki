@@ -13,7 +13,7 @@ If you get a python `>>>` prompt, check to see if you have wxPython by typing in
 {{{
 import wx
 }}}
-If everything is working correctly, you should not see any errors when doing this.
+If everything is working correctly, you should not see any errors when doing this. If you do get errors, go to the [http://www.wxpython.org/download.php wxpython site] and get the wx version that matches your python version and install it. Then start python and import wx again.
 
 On 64-bit versions of Mac OS X, you may also need to tell Python to run in 32-bit mode by default (from Terminal):
 {{{
