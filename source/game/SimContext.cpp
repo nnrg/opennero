@@ -354,9 +354,6 @@ namespace OpenNero
         if( mpSimulation )
         {
             mpSimulation->ProcessTick(dt);
-            // after all the decisions have been made, we need to check if there 
-            // were any collisions and undo the motions that caused them
-            mpSimulation->DoCollisions();
         }
 	}
 
@@ -506,50 +503,18 @@ namespace OpenNero
         ISceneCollisionManager* collider = mIrr.mpSceneManager->getSceneCollisionManager();
         // get ray
         Line3f ray = collider->getRayFromScreenCoordinates(pos);
-        // get scene node
-        ISceneNode* node = collider->getSceneNodeFromScreenCoordinatesBB(pos);
-        if (!node)
-        {
+        LOG_F_DEBUG("collision", "screen coordinates: " << pos << ", ray: " << ray.start << " - " << ray.end << ", length: " << ray.getLength());
+        Vector3f collision_point;
+        Triangle3f collision_triangle;
+        ISceneNode* collision = collider->getSceneNodeAndCollisionPointFromRay(ray, collision_point, collision_triangle);
+        if (collision) {
+            SimEntityPtr ent = mpSimulation->FindBySceneObjectId(collision->getID());
+            LOG_F_DEBUG("collision", "screen coordinates: " << pos << " colliding with: " << ent << " at: " << collision_point);
+            return ConvertIrrlichtToNeroPosition(collision_point);
+        } else {
+            LOG_F_WARNING("collision", "screen coordinates: " << pos << " did not collide with any geometry!");
             return ConvertIrrlichtToNeroPosition(ray.end);
         }
-        ITriangleSelector_IPtr tri_selector = node->getTriangleSelector();
-        
-        if (!tri_selector)
-        {
-            if (node->getType() == ESNT_TERRAIN)
-            {
-                tri_selector = mIrr.mpSceneManager->createTerrainTriangleSelector(static_cast<ITerrainSceneNode*>(node));
-                node->setTriangleSelector(tri_selector.get());
-                LOG_F_DEBUG("core", "created terrain triangle selector");
-            }
-            else if (node->getType() == ESNT_MESH)
-            {
-                IMesh* mesh = static_cast<IMeshSceneNode*>(node)->getMesh();
-                tri_selector = mIrr.mpSceneManager->createTriangleSelector(mesh, node);
-                node->setTriangleSelector(tri_selector.get());
-                LOG_F_DEBUG("core", "creating mesh triangle selector");
-            }
-            else 
-            {
-                tri_selector = mIrr.mpSceneManager->createTriangleSelectorFromBoundingBox(node);
-                node->setTriangleSelector(tri_selector.get());
-                LOG_F_DEBUG("core", "creating bounding box triangle selector");
-            }
-        }
-        
-        if (tri_selector)
-        {
-            Vector3f collision_point;
-            Triangle3f collision_triangle;
-            const ISceneNode* collision_node;
-            bool did_collide = collider->getCollisionPoint(ray, tri_selector.get(), collision_point, collision_triangle, collision_node);
-            if (did_collide)
-            {
-                return ConvertIrrlichtToNeroPosition(collision_point);
-            }
-        }
-        LOG_F_WARNING("core", "could not find collision point on click " << x << ", " << y);
-        return ConvertIrrlichtToNeroPosition(ray.end);
     }
 
     /// @return the current position of the mouse

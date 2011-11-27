@@ -157,6 +157,31 @@ namespace OpenNero
                 return true;
             }
         };
+        
+        /// select triangles to check for collisions
+        class CollideByTypeTriangleSelector : public ITriangleSelector {
+            ~CollideByTypeTriangleSelector() {}
+            s32 getTriangleCount() const {
+                return 0;
+            }
+            void getTriangles(core::triangle3df* triangles, s32 arraySize,
+                 s32& outTriangleCount, const core::matrix4* transform=0) const {
+                 // pass
+            }
+            void getTriangles(core::triangle3df* triangles, s32 arraySize,
+                 s32& outTriangleCount, const core::aabbox3d<f32>& box,
+                 const core::matrix4* transform=0) const {
+                 // pass
+            }
+            void getTriangles(core::triangle3df* triangles, s32 arraySize,
+                 s32& outTriangleCount, const core::line3d<f32>& line,
+                 const core::matrix4* transform=0) const {
+                 // pass
+            }
+            const ISceneNode* getSceneNodeForTriangle(u32 triangleIndex) const {
+                 // pass
+            }
+        };
     }
     
     SimId ConvertSceneIdToSimId(uint32_t id)
@@ -272,7 +297,6 @@ namespace OpenNero
         if( propMap.getValue( aniMeshFile, "Template.Render.AniMesh" ) )
         {
             mAniMesh = irrFac.LoadAniMesh( aniMeshFile.c_str() );
-            SafeIrrGrab(mAniMesh);
         }
         
         if( propMap.hasSection( "Template.Render.CastsShadow" ) )
@@ -375,7 +399,6 @@ namespace OpenNero
     /// destructor
     SceneObjectTemplate::~SceneObjectTemplate()
     {
-        SafeIrrDrop( mAniMesh );
     }
     
     /// constructor
@@ -424,9 +447,6 @@ namespace OpenNero
         {
             // remove this node from the scene
             mSceneNode->remove();
-            
-            // remove our reference to the node
-            SafeIrrDrop(mSceneNode);
         }
     }
     
@@ -440,9 +460,6 @@ namespace OpenNero
         mSceneObjectTemplate    = obj.mSceneObjectTemplate;
         mParticleSystemNode     = obj.mParticleSystemNode;
         mSceneNode              = obj.mSceneNode;
-        
-        // grab a ref to the scene node
-        SafeIrrGrab(mSceneNode);
         
         return *this;
     }
@@ -467,7 +484,7 @@ namespace OpenNero
         // are we an animated mesh?
         if( mSceneObjectTemplate->mAniMesh )
         {
-            mAniSceneNode = irrFactory.addAnimatedMeshSceneNode( mSceneObjectTemplate->mAniMesh );
+            mAniSceneNode = irrFactory.addAnimatedMeshSceneNode( mSceneObjectTemplate->mAniMesh.get() );
             if (mSceneObjectTemplate->mCastsShadow)
             {
                 mAniSceneNode->addShadowVolumeSceneNode();
@@ -481,13 +498,7 @@ namespace OpenNero
             mAniSceneNode->setCurrentFrame(0);
             
 			mSceneNode = mAniSceneNode;
-            
-            // add triangle selector for a mesh node
-            ITriangleSelector* triangleSelector = GetSceneManager()->createTriangleSelector(mAniSceneNode);
-            AssertMsg(triangleSelector, "Could not create a collision object for id: " << data.GetId());
-            mAniSceneNode->setTriangleSelector(triangleSelector);
-            SafeIrrDrop(triangleSelector);
-		}
+        }
         
         // are we a terrain?
         else if( mSceneObjectTemplate->mHeightmap != "" )
@@ -528,9 +539,6 @@ namespace OpenNero
             scale.Z = scale.Z * data.GetScale().Z;
             mSceneNode->setScale( ConvertNeroToIrrlichtPosition(scale) );
             
-            // add a ref to the scene node
-            SafeIrrGrab(mSceneNode);
-            
             // make the id of the scene node the same as the SimId of our object
             mSceneNode->setID(ConvertSimIdToSceneId(data.GetId(), data.GetType()));
 
@@ -539,6 +547,11 @@ namespace OpenNero
             
             // set the rotation of the object
             SetRotation( data.GetRotation() );
+            
+            ITriangleSelector_IPtr tri_selector = GetTriangleSelector();
+            if (!tri_selector) {
+                LOG_F_WARNING("collision", "could not create triangle selector for collisions with object " << GetId());
+            }
             
 #if SCENEOBJECT_ENABLE_STATS
             // debug information
@@ -581,7 +594,7 @@ namespace OpenNero
                 Font* f = Kernel::GetSimContext()->GetFont();
                 BBoxf bbox = mSceneNode->getTransformedBoundingBox();
                 float dY = bbox.MaxEdge.Y - bbox.MinEdge.Y;
-                mTextNode = GetSceneManager()->addTextSceneNode(f, wstr, SColor(255,255,255,255), mSceneNode, Vector3f(0,1.25 * dY,0));
+                mTextNode = GetSceneManager()->addTextSceneNode(f, wstr, SColor(255,255,255,255), mSceneNode.get(), Vector3f(0,1.25 * dY,0));
             }
             else
             {
@@ -594,62 +607,6 @@ namespace OpenNero
     bool SceneObject::canCollide() const
     {
         return (mSceneObjectTemplate && mSceneObjectTemplate->mCollisionMask != 0);
-    }
-    
-    /// are we colliding with the other object?
-    bool SceneObject::isColliding(const Vector3f& new_pos, const SceneObjectPtr& other)
-    {
-        Assert(other);
-        Vector3f my_prev_irr_pos(ConvertNeroToIrrlichtPosition(getPosition())); // our prev irr pos
-        Vector3f my_irr_pos(ConvertNeroToIrrlichtPosition(new_pos)); // our irr pos
-        Line3f my_irr_movement(my_prev_irr_pos, my_irr_pos); // line from A to B
-        
-        if (my_irr_movement.getLengthSQ() == 0) return false;
-        
-        // get the axis-aligned bounding boxes for both objects
-        BBoxf my_box = mSceneNode->getTransformedBoundingBox(); // our irr a.a. box
-        BBoxf other_box = other->mSceneNode->getTransformedBoundingBox(); // their irr a.a. box
-        
-        // make the bounding box slightly larger to account for animation differences
-        //Matrix4 scale;
-        //scale.setScale(1.3);
-        //scale.transformBox(my_box);
-        
-        // get the previous and current rotation in Irrlicht coords
-        //Vector3f my_prev_irr_rot(ConvertNeroToIrrlichtRotation(getRotation()));
-        //Assert(GetSharedState());
-        //Vector3f my_irr_rot(ConvertNeroToIrrlichtRotation(GetSharedState()->GetRotation()));
-        
-        // translate the bounding box with the move translation
-        Matrix4 translation;
-        translation.setTranslation(my_irr_movement.getVector());
-        my_box = BBoxf(my_box.MinEdge + my_irr_movement.getVector(), my_box.MaxEdge + my_irr_movement.getVector());
-        
-        // rotate the bounding box with the move rotation
-        //Matrix4 rotation;
-        //rotation.setRotationDegrees(my_irr_rot - my_prev_irr_rot);
-        //rotation.transformBox(my_box);
-
-        if( mSceneObjectTemplate && mSceneObjectTemplate->mDrawBoundingBox )
-        { // draw the final box we are checking for collisions with
-            DrawBBox(my_box, LineSet::LineColor(255,255,128,128), true);
-            DrawBBox(other_box, LineSet::LineColor(255,255,64,64), true);
-        }
-        
-        // check if our movement line crosses the bounding box of the other object
-        if (other_box.intersectsWithLine(my_irr_movement))
-        {
-            return true;
-        }
-        // check if our final bounding box overlaps the bounding box of the other object
-        else if (my_box.intersectsWithBox(other_box)) 
-        {
-            return true;
-        }
-        else
-        {
-            return false;
-        }
     }
     
     /// Move forward the simulation of this sim object by a time delta
@@ -890,5 +847,38 @@ namespace OpenNero
         }
     }
     
+    /// get the triangle selector for this scene node, creating it if needed
+    ITriangleSelector_IPtr SceneObject::GetTriangleSelector()
+    {
+        ITriangleSelector_IPtr tri_selector = mSceneNode->getTriangleSelector();
+        if (tri_selector) {
+            return tri_selector;
+        } else {
+            // create triangle selector
+            if (mTerrSceneNode)
+            {
+                tri_selector = GetSceneManager()->createTerrainTriangleSelector(mTerrSceneNode.get());
+                AssertMsg(tri_selector, "Could not create a collision object for id: " << GetId());
+                mTerrSceneNode->setTriangleSelector(tri_selector.get());
+                LOG_F_DEBUG("core", "created terrain triangle selector");
+            }
+            else if (mAniSceneNode)
+            {
+                IMesh* mesh = mAniSceneNode->getMesh();
+                tri_selector = GetSceneManager()->createTriangleSelector(mesh, mAniSceneNode.get());
+                AssertMsg(tri_selector, "Could not create a collision object for id: " << GetId());
+                mAniSceneNode->setTriangleSelector(tri_selector.get());
+                LOG_F_DEBUG("core", "creating mesh triangle selector");
+            }
+            else 
+            {
+                tri_selector = GetSceneManager()->createTriangleSelectorFromBoundingBox(mSceneNode.get());
+                AssertMsg(tri_selector, "Could not create a collision object for id: " << GetId());
+                mSceneNode->setTriangleSelector(tri_selector.get());
+                LOG_F_DEBUG("core", "creating bounding box triangle selector");
+            }
+            return tri_selector;
+        }
+    }    
 
-};//end OpenNero
+}//end OpenNero

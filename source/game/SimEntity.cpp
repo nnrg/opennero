@@ -251,33 +251,6 @@ namespace OpenNero
         return mSharedData.GetCollision() != 0;
     }
 
-	/// Get the set of objects colliding
-    bool SimEntity::IsColliding( const SimEntitySet& others)
-    {
-        SimEntitySet::const_iterator iter; // iterate over the list
-        for (iter = others.begin(); iter != others.end(); ++iter)
-        {
-            SimEntityPtr ent = *iter;
-            if (ent.get() != this && // don't collide with self
-                (mSharedData.GetCollision() & ent->GetType()) &&
-                mSceneObject->isColliding(mSharedData.GetPosition(), ent->mSceneObject))
-            {
-                return true;
-            }
-        }
-        return false;
-    }
-    
-    /// Assume that a collision occurred and resolve it (bounce)
-    /// For now we do this just by setting the position back to what it was 
-    /// before (which is stored in mSceneObject).
-    void SimEntity::ResolveCollision()
-    {
-		SetPosition(mSceneObject->getPosition());
-        SetBumped(true);
-    }
-
-
     void SimEntity::SetRotation( const Vector3f& rot )
     {
         mSharedData.SetRotation(rot);

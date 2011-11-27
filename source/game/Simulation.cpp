@@ -140,6 +140,8 @@ namespace OpenNero
         mEntitiesAdded.clear();
         
         // iterate over all the entities deleting those marked for removal
+        // also make a list of all the entities that need to be check for collision
+        SimEntitySet colliders; // set of objects that could be colliding with something
         for (itr = entities_to_tick.begin(); itr != entities_to_tick.end(); ++itr) {
             SimId id = itr->first;
             SimEntityPtr ent = itr->second;
@@ -170,8 +172,26 @@ namespace OpenNero
                 }
 
                 AssertMsg( !Find(id), "Did not properly remove entity from simulation!" );
-            }         
+            } else {
+                // need to check for collision?
+                if (ent->CanCollide())
+                    colliders.insert(ent);
+                ent->SetBumped(false);
+            }
         }
+        
+        // TODO: implement collision
+        //{
+        //    SimEntitySet::iterator itr = colliders.begin();
+        //    SimEntitySet::iterator end = colliders.end();
+        //    for (; itr != end; ++itr)
+        //    {
+        //        SimEntityPtr ent = *itr;
+        //        Vector3f desired_position = ent->GetState().GetPosition();
+        //        Vector3f current_position = ent->GetState().GetPrevious().GetPosition();
+        //        
+        //    }
+        //}
     }
     
     void Simulation::ProcessAnimationTick( float32_t frac )
@@ -185,56 +205,6 @@ namespace OpenNero
 			SimEntityPtr ent = itr->second;
             ent->ProcessAnimationTick(frac); // tick only if not removed
         }
-    }
-    
-    /// @brief Detect and deal with collisions
-    /// At this point, mSharedData has already been set to the new position, but
-    /// mSceneObject has not. So, if any objects collide, we reset them by reverting
-    /// mSharedData's version back to mSceneObject's.
-    void Simulation::DoCollisions() 
-    {
-        SimEntitySet colliders; // set of objects that could be colliding with something
-        {
-            SimIdHashMap::const_iterator itr = mSimIdHashedEntities.begin();
-            SimIdHashMap::const_iterator end = mSimIdHashedEntities.end();
-            for (; itr != end; ++itr)
-            {
-                SimEntityPtr ent = itr->second;
-                ent->SetBumped(false); // reset bumped flag
-                if (ent->CanCollide())
-                    colliders.insert(ent);
-            }
-        }
-
-		SimEntitySet colliding; // set of objects that are colliding with something
-
-		// while there are any potential collisions, check and resolve
-        SimEntitySet::const_iterator itr;
-        SimEntitySet colliding_new;
-        
-        // add any colliding entities to colliding_new
-        for (itr = colliders.begin(); itr != colliders.end(); ++itr)
-        {
-            SimEntityPtr ent = *itr;
-            if (ent->IsColliding(GetEntities(ent->GetCollision())))
-            {
-                colliding_new.insert(ent);
-            }
-        }
-
-        if (colliding_new.size() > 0) {
-            // move the newly marked entities from colliders to colliding
-            for (itr = colliding_new.begin(); itr != colliding_new.end(); ++itr) {
-                colliders.erase(*itr);
-                colliding.insert(*itr);
-            }
-        }
-
-		if (colliding.size() > 0) {
-			for (itr = colliding.begin(); itr != colliding.end(); ++itr) {
-				(*itr)->ResolveCollision();
-			}
-		}
     }
     
     const SimEntitySet Simulation::GetEntities(size_t types) const
