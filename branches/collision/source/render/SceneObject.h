@@ -78,7 +78,7 @@ namespace OpenNero
         IrrMaterialType                 mMaterialType;      ///< the type of the material
         std::string                     mHeightmap;         ///< heightmap to use (if terrain)
         std::string                     mParticleSystem;    ///< Particle System File
-        IAnimatedMesh*                  mAniMesh;           ///< animated mesh to use (if valid)
+        IAnimatedMesh_IPtr              mAniMesh;           ///< animated mesh to use (if valid)
         bool                            mCastsShadow;       ///< whether or not the object casts a shadow
         bool                            mDrawBoundingBox;   ///< whether or not to draw the object's bounding box
         bool                            mDrawLabel;         ///< whether or not to draw the object's label
@@ -175,14 +175,14 @@ namespace OpenNero
         /// Get the animation speed
         float32_t GetAnimationSpeed() const;
         
-        /// are we colliding with the other object?
-        bool isColliding(const Vector3f& new_pos, const SceneObjectPtr& other);
-        
         /// can we possibly collide with any other object?
         bool canCollide() const;
 
         /// attach an FPS camera to this scene object
         void attachCamera(CameraPtr cam);
+        
+        /// get the triangle selector for this scene node, creating it if needed
+        ITriangleSelector_IPtr GetTriangleSelector();
 
     private:
 
@@ -191,11 +191,11 @@ namespace OpenNero
         SceneObject& operator=( const SceneObject& obj );
 
         // this points to the actual node in use
-        ISceneNode*                         mSceneNode;             ///< Irr Scene node
+        ISceneNode_IPtr                     mSceneNode;             ///< Irr Scene node
 
         // only one of these will be used for any object
-        IAnimatedMeshSceneNode*             mAniSceneNode;          ///< Irr animated mesh node
-        ITerrainSceneNode*                  mTerrSceneNode;         ///< Irr Terrain node
+        IAnimatedMeshSceneNode_IPtr         mAniSceneNode;          ///< Irr animated mesh node
+        ITerrainSceneNode_IPtr              mTerrSceneNode;         ///< Irr Terrain node
         IParticleSystemSceneNode*           mParticleSystemNode;    ///< Irr Particle System node
 
         ITextSceneNode*                     mTextNode;              ///< optional text attached

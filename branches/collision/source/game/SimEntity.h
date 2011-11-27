@@ -136,15 +136,9 @@ namespace OpenNero
         /// Mark the object for removal
         void SetRemoved() { mRemoved = true; }
     private:
-        /// Will moving the entity to new_pos cause it to collide with others?
-        bool IsColliding( const SimEntitySet& others);
-        
-        /// Assume that a collision occurred and resolve it (bounce)
-        void ResolveCollision();
-        
         /// Can this object collide at all?
         bool CanCollide() const;
-
+        
         /// output human-readable information about this SimEntity
         friend std::ostream& operator<<(std::ostream& stream, const SimEntityPtr&);
 

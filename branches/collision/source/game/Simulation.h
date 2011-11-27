@@ -68,9 +68,6 @@ namespace OpenNero
         /// update for animation only
         void ProcessAnimationTick( float32_t frac );
 
-        /// detect and deal with collisions
-        void DoCollisions();
-
         /// get the time (in seconds) to animate for between AI frames
         float32_t GetFrameDelay() const { return mFrameDelay; }
 
