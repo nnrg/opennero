@@ -59,7 +59,6 @@ class ScriptClient:
         if data and self.sock:
             send(self.sock, data)
 
-
 class NeroPanel(wx.Panel, ScriptClient):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent)
@@ -77,7 +76,9 @@ class NeroPanel(wx.Panel, ScriptClient):
 
         self._labels = {}
         self._sliderIndex = 1
+        self._sliders = {}
         self.add_sliders()
+        self.ToggleEnabledSliders() # initially all sliders are disabled
         self.SetSizer(self._grid)
 
         self._grid.Fit(parent)
@@ -115,6 +116,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         slider = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200, 15))
         slider.SetScrollbar(wx.HORIZONTAL, 0, span, span)
         slider.SetThumbPosition(thumb)
+        self._sliders[key] = slider
 
         pos = slider.GetThumbPosition() - center
         self._labels[key] = wx.StaticText(
@@ -127,12 +129,29 @@ class NeroPanel(wx.Panel, ScriptClient):
         self._grid.Add(explanation, pos=(self._sliderIndex, 0))
 
         self._sliderIndex += 1
+        
+    def EnableSliders(self):
+        for key, slider in self._sliders.items():
+            slider.Enable()
+    
+    def DisableSliders(self):
+        for key, slider in self._sliders.items():
+            slider.Disable()
+    
+    def ToggleEnabledSliders(self):
+        for key, slider in self._sliders.items():
+            if slider.IsEnabled():
+                slider.Disable()
+            else:
+                slider.Enable()
 
     def OnDeployRTNEAT(self, event):
         self.send("rtneat 0")
+        self.ToggleEnabledSliders()
 
     def OnDeployQLearning(self, event):
         self.send("qlearning 0")
+        self.ToggleEnabledSliders()
 
     def OnSave1(self, event):
         dirname = ""
