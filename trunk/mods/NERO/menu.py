@@ -96,9 +96,10 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.add_slider('Hit Target', 'HT')
         self.add_slider('Avoid Fire', 'VF')
         self.add_slider('Exploit-Explore', 'EE', span=100, center=0, thumb=constants.DEFAULT_EE)
-        self.add_slider('Lifetime', 'LT', span=1000, center=0, thumb=constants.DEFAULT_LIFETIME)
+        self.add_slider('Lifetime', 'LT', span=constants.DEFAULT_LIFETIME*2, center=0, thumb=constants.DEFAULT_LIFETIME)
         self.add_slider('Hitpoints', 'HP', span=100, center=0, thumb=constants.DEFAULT_HITPOINTS)
-        self.add_slider('Speedup', 'SP', span=100, center=0, thumb=constants.DEFAULT_SPEEDUP)
+        #speedup slider is not needed since we want to run at 100% speedup
+        #self.add_slider('Speedup', 'SP', span=100, center=0, thumb=constants.DEFAULT_SPEEDUP)
 
     def add_button(self, label, callback):
         button = wx.Button(
