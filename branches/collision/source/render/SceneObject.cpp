@@ -581,12 +581,25 @@ namespace OpenNero
             if (mSceneObjectTemplate->mCollisionMask > 0) {
                 // the world will return the triangles that match the type mask
                 ITriangleSelector* world = new CollideByTypeTriangleSelector(mSceneObjectTemplate->mCollisionMask);
+                // get the axis-aligned bounding box for the node
+                BBoxf box = mSceneNode->getBoundingBox();
+                // use the aabbox to make the ellipsoid for the collision response animator
+                Vector3f ellipsoid_radius = box.MaxEdge - box.getCenter();
+                // TODO: might add gravity here
+                Vector3f gravity(0,0,0);
+                // ellipsoid translation relative to object coordinates
+                Vector3f ellipsoid_translation(0,0,0);
                 ISceneNodeAnimator* animator = GetSceneManager()->createCollisionResponseAnimator(
-                    world, mSceneNode.get(), Vector3f(1,1,1), Vector3f(0,0,0), Vector3f(0,2,0));
+                    world, mSceneNode.get(), ellipsoid_radius, gravity, ellipsoid_translation);
                 if (!animator) {
                     LOG_F_ERROR("collision", "could not create Collision Response Animator for object id: " << GetId());
                 } else {
                     mSceneNode->addAnimator(animator);
+                    LOG_F_DEBUG("collision", 
+                        "added collision response animator for object id: " 
+                        << GetId() << " of type: " << data.GetType() 
+                        << " for collision with mask: " << mSceneObjectTemplate->mCollisionMask 
+                        << " with bounding ellipsoid: " << ellipsoid_radius);
                 }
             }
             
