@@ -100,6 +100,8 @@ namespace OpenNero
     typedef boost::intrusive_ptr<irr::scene::IAnimatedMeshSceneNode> IAnimatedMeshSceneNode_IPtr; 
     /// Interface to triangle selector
     typedef boost::intrusive_ptr<irr::scene::ITriangleSelector>     ITriangleSelector_IPtr;
+    /// Interface to meta triangle selector
+    typedef boost::intrusive_ptr<irr::scene::IMetaTriangleSelector> IMetaTriangleSelector_IPtr;
     /// Interface to camera scene node
     typedef boost::intrusive_ptr<irr::scene::ICameraSceneNode>      ICameraSceneNode_IPtr;
     /// Interface to GUI element

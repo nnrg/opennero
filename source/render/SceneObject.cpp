@@ -160,26 +160,49 @@ namespace OpenNero
         
         /// select triangles to check for collisions
         class CollideByTypeTriangleSelector : public ITriangleSelector {
+            /// type mask for selecting triangles to collide with
+            size_t mTypeMask;
+
+            ITriangleSelector_IPtr GetTriangleSelector() const
+            {
+                // ask the simulation about the current triangle selector to use
+                return Kernel::instance().GetSimContext()->getSimulation()->GetCollisionTriangleSelector(mTypeMask);
+            }
+            
+        public:
+            explicit CollideByTypeTriangleSelector(size_t type_mask) 
+                : mTypeMask(type_mask) {}
+
             ~CollideByTypeTriangleSelector() {}
-            s32 getTriangleCount() const {
-                return 0;
+
+            s32 getTriangleCount() const 
+            {
+                return GetTriangleSelector()->getTriangleCount();
             }
+
             void getTriangles(core::triangle3df* triangles, s32 arraySize,
-                 s32& outTriangleCount, const core::matrix4* transform=0) const {
-                 // pass
+                 s32& outTriangleCount, const core::matrix4* transform=0) const 
+            {
+                 GetTriangleSelector()->getTriangles(triangles, arraySize, outTriangleCount, transform);
             }
+
             void getTriangles(core::triangle3df* triangles, s32 arraySize,
                  s32& outTriangleCount, const core::aabbox3d<f32>& box,
-                 const core::matrix4* transform=0) const {
-                 // pass
+                 const core::matrix4* transform=0) const 
+            {
+                 GetTriangleSelector()->getTriangles(triangles, arraySize, outTriangleCount, transform);
             }
+
             void getTriangles(core::triangle3df* triangles, s32 arraySize,
                  s32& outTriangleCount, const core::line3d<f32>& line,
-                 const core::matrix4* transform=0) const {
-                 // pass
+                 const core::matrix4* transform=0) const 
+            {
+                 GetTriangleSelector()->getTriangles(triangles, arraySize, outTriangleCount, line, transform);
             }
-            const ISceneNode* getSceneNodeForTriangle(u32 triangleIndex) const {
-                 // pass
+
+            const ISceneNode* getSceneNodeForTriangle(u32 triangleIndex) const 
+            {
+                 return GetTriangleSelector()->getSceneNodeForTriangle(triangleIndex);
             }
         };
     }
@@ -548,9 +571,23 @@ namespace OpenNero
             // set the rotation of the object
             SetRotation( data.GetRotation() );
             
+            // set up the triangle selector for this object
             ITriangleSelector_IPtr tri_selector = GetTriangleSelector();
             if (!tri_selector) {
                 LOG_F_WARNING("collision", "could not create triangle selector for collisions with object " << GetId());
+            }
+            
+            // additionally, add a collision response animator
+            if (mSceneObjectTemplate->mCollisionMask > 0) {
+                // the world will return the triangles that match the type mask
+                ITriangleSelector* world = new CollideByTypeTriangleSelector(mSceneObjectTemplate->mCollisionMask);
+                ISceneNodeAnimator* animator = GetSceneManager()->createCollisionResponseAnimator(
+                    world, mSceneNode.get(), Vector3f(1,1,1), Vector3f(0,0,0), Vector3f(0,2,0));
+                if (!animator) {
+                    LOG_F_ERROR("collision", "could not create Collision Response Animator for object id: " << GetId());
+                } else {
+                    mSceneNode->addAnimator(animator);
+                }
             }
             
 #if SCENEOBJECT_ENABLE_STATS
