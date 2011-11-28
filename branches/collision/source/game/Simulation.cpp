@@ -48,10 +48,25 @@ namespace OpenNero
         uint32_t ent_type = ent->GetType();
         for (size_t i = 0; i < sizeof(uint32_t); ++i) {
             uint32_t t = 1 << i;
+            if (t > ent_type) break; // shortcut
             if (ent_type & t) {
                 mEntityTypes[t].insert(ent);
             }
         }
+
+        { // also make sure to add the triangle selector for this object to 
+          // all relevant meta selectors
+            hash_map<uint32_t, IMetaTriangleSelector_IPtr>::iterator iter;
+            for (iter = mCollisionSelectors.begin(); iter != mCollisionSelectors.end(); ++iter) {
+                // if the entity type matches the stored mask
+                if (iter->first & ent_type) {
+                    // add the triangles to that selector
+                    iter->second->addTriangleSelector(ent->GetSceneObject()->GetTriangleSelector().get());
+                }
+            }
+        }
+        
+        GetCollisionTriangleSelector(ent_type);
         AssertMsg( Find(ent->GetSimId()) == ent, "The entity with id " << ent->GetSimId() << " could not be properly added" );
     }
 
@@ -150,20 +165,34 @@ namespace OpenNero
                 
                 if( simItr != mSimIdHashedEntities.end() ) {
                     SimEntityPtr simE = simItr->second;
-                    AssertMsg( simE, "Invalid SimEntity stored in our simulation!" );
+                    AssertMsg( simE, "Invalid SimEntity on delete, id: " << id );
                     // remove also from entities set
                     SimEntitySet::iterator simInSet = mEntities.find(simE);
                     if (simInSet != mEntities.end()) {
                         mEntities.erase(simInSet);
                     }
+                    
                     // remove also from the type-indexed set
                     uint32_t ent_type = simE->GetType();
                     for (size_t i = 0; i < sizeof(uint32_t); ++i) {
                         uint32_t t = 1 << i;
+                        if (t > ent_type) break; // shortcut
                         if (ent_type & t) {
                             simInSet = mEntityTypes[t].find(simE);
                             if (simInSet != mEntityTypes[t].end()) {
                                 mEntityTypes[t].erase(simE);
+                            }
+                        }
+                    }
+
+                    { // also make sure to remove the triangle selector for this object from 
+                      // all relevant meta selectors
+                        hash_map<uint32_t, IMetaTriangleSelector_IPtr>::iterator iter;
+                        for (iter = mCollisionSelectors.begin(); iter != mCollisionSelectors.end(); ++iter) {
+                            // if the entity type matches the stored mask
+                            if (iter->first & ent_type) {
+                                // remove the triangles from that selector
+                                iter->second->removeTriangleSelector(ent->GetSceneObject()->GetTriangleSelector().get());
                             }
                         }
                     }
@@ -212,6 +241,8 @@ namespace OpenNero
         SimEntitySet result;
         for (size_t i = 0; i < sizeof(uint32_t); ++i) {
             uint32_t t = 1 << i;
+            // gone past the possible type masks?
+            if (t > types) break;
             if (types & t) {
                 hash_map<uint32_t, SimEntitySet>::const_iterator type_set = mEntityTypes.find(t);
                 Assert(type_set != mEntityTypes.end());
@@ -220,5 +251,38 @@ namespace OpenNero
         }
         return result;
     }
+    
+    /// get a triangle selector for all the objects matching the types mask
+    IMetaTriangleSelector_IPtr Simulation::GetCollisionTriangleSelector( size_t types ) const
+    {
+        IMetaTriangleSelector_IPtr meta_selector;
+        
+        // first, lookup the type mask in our table
+        hash_map<uint32_t, IMetaTriangleSelector_IPtr>::const_iterator needle;
+        needle = mCollisionSelectors.find(types);
+        
+        if (needle != mCollisionSelectors.end()) {
+            // if found, return the selector
+            meta_selector = needle->second;
+        } else {
+            // if not found, create the selector
+            meta_selector = mIrr.mpSceneManager->createMetaTriangleSelector();
+            SimEntitySet ents = GetEntities(types);
+            // iterate over all entities of that type and add them to the selector
+            for (SimEntitySet::const_iterator iter = ents.begin(); iter != ents.end(); ++iter)
+            {
+                SimEntityPtr ent = *iter;
+                ITriangleSelector_IPtr tri_selector = ent->GetSceneObject()->GetTriangleSelector();
+                meta_selector->addTriangleSelector(tri_selector.get());
+            }
+            // remember for future reuse
+            mCollisionSelectors[types] = meta_selector;
+            LOG_F_DEBUG("collision", "created triangle selector for mask " 
+                << types << " with: " << meta_selector->getTriangleCount() << " triangles");        
+        }
+        
+        return meta_selector;
+    }
+
 
 } //end OpenNero

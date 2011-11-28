@@ -73,6 +73,9 @@ namespace OpenNero
 
         /// set the time (in seconds) to animate for between AI frames
         void SetFrameDelay(float32_t delay) { mFrameDelay = delay; }
+        
+        /// get a triangle selector for all the objects matching the types mask
+        IMetaTriangleSelector_IPtr GetCollisionTriangleSelector( size_t types ) const;
 
     protected:
 
@@ -93,6 +96,9 @@ namespace OpenNero
         SimEntityList       mEntitiesAdded;         ///< Entities are added to this list at first, so that they can be ticked immediately
 
         hash_map<uint32_t, SimEntitySet> mEntityTypes; ///< entity sets by type
+
+        /// the triangle selectors for objects to collide with (by type)
+        mutable hash_map<uint32_t, IMetaTriangleSelector_IPtr> mCollisionSelectors;
 
         EnvironmentPtr      mWorld;                 ///< The AI World interface
 
