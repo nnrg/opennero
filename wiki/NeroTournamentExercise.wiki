@@ -78,8 +78,8 @@ will be identified by the name provided in the submission.
 If you run into any bugs in your program, you can find the error log file for OpenNERO (see OpenNeroLogs)
 
 We encourage discussion of topics related to the tournament, and have
-established [http://groups.google.com/group/opennero this forum] to support it. Questions can be posted
-in the [http://groups.google.com/group/opennero OpenNERO Google group], and answered by anyone on the forum, hopefully making it
+established [http://groups.google.com/group/opennero OpenNERO Google group] to support it. Questions can be posted in that discussion forum
+and answered by anyone on the forum, hopefully making it
 easier to figure out issues as they happen.
 
 OpenNERO is academic software and under (hyper)active development. It
