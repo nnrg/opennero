@@ -1,9 +1,9 @@
 /**
    @file exports.cpp
-   
+
    @brief export OpenNERO scripts into Python
-   
-   In order to export more Python classes and/or functions, add your own 
+
+   In order to export more Python classes and/or functions, add your own
    ExportXXXScripts method *AND* call it from ExportScripts
 */
 
@@ -65,6 +65,7 @@ namespace OpenNero {
 				.def("destroy", pure_virtual(&AgentBrain::destroy), "Called after learning ends")
                 .def("add_sensor", &AgentBrain::add_sensor, "Add a sensor for this agent")
                 .def("skip", &AgentBrain::Skip, "Causes the next call to act to be skipped")
+                .def("teleport", &AgentBrain::Teleport, "Causes the agent to ignore collisions and to be placed exactly where specified by state")
                 .def_readonly("step", &AgentBrain::step, "Current step count")
 				.def_readonly("episode", &AgentBrain::episode, "Current episode count")
 				.def_readonly("fitness", &AgentBrain::fitness, "Cumulative reward for this episode")
@@ -105,17 +106,17 @@ namespace OpenNero {
 				.add_property("state", make_function(&QLearningBrain::GetSharedState, return_value_policy<reference_existing_object>()), "Body of the agent");
 			;
 		}
-        
+
         void ExportSensorScripts()
         {
 			py::class_<PySensor, noncopyable, SensorPtr>(
-                "Sensor", 
-                "Abstract sensor base class", 
+                "Sensor",
+                "Abstract sensor base class",
                 no_init)
 				.def(self_ns::str(self_ns::self))
                 ;
             py::class_<RaySensor, noncopyable, bases<Sensor>, RaySensorPtr>(
-                "RaySensor", 
+                "RaySensor",
                 "A ray sensor that returns the distance to the closest object it intersects",
                 init<double, double, double, double, U32, bool>())
 				.def(self_ns::str(self_ns::self))
@@ -149,7 +150,7 @@ namespace OpenNero {
 
 		static bool eq_fv(const FeatureVector& v1, const FeatureVector& v2)
 		{ return v1 == v2; }
-        
+
         /// convert a Python float to a FeatureVector
         struct FeatureVector_from_python_float
         {
@@ -161,7 +162,7 @@ namespace OpenNero {
                     &construct,
                     py::type_id<FeatureVector>());
             }
-        
+
             /// determine if the Python object in question can be converted
             /// it has to be a tuple containing three floating point numbers
             static void* convertible(PyObject* obj_ptr)
@@ -183,10 +184,10 @@ namespace OpenNero {
 
                 // grab a pointer to memory into which to construct the new FeatureVector
                 void* storage = ((py::converter::rvalue_from_python_storage<FeatureVector>*)data)->storage.bytes;
-                
+
                 // in-place construct the Vector3f from the values in the tuple
                 new (storage) FeatureVector(1,x);
-                
+
                 // remember the memory chunk
                 data->convertible = storage;
             }
@@ -228,11 +229,11 @@ namespace OpenNero {
 				.def("__eq__", &eq_fv)
 				.def(vector_indexing_suite< std::vector<double> >())
 				;
-            
+
             // ability to convert a single Python float to a FeatureVector
             FeatureVector_from_python_float();
 
-			py::class_<AgentInitInfo>("AgentInitInfo", "Initialization information given to the agent", 
+			py::class_<AgentInitInfo>("AgentInitInfo", "Initialization information given to the agent",
                                       init<const FeatureVectorInfo&, const FeatureVectorInfo&, const FeatureVectorInfo&>())
 				.def_readonly("sensors", &AgentInitInfo::sensors, "Constraints on the agent's sensor feature vector")
 				.def_readonly("actions", &AgentInitInfo::actions, "Constraints on the agent's action feature vector")
@@ -377,24 +378,24 @@ namespace OpenNero {
 
 			/// Create a python tuple from a vector
 			static PyTuple getinitargs(const VectorType& v)
-			{   
+			{
 				return py::make_tuple( v.X, v.Y, v.Z );
 			}
 
 			/// Return a python tuple representing a python objects state
 			static PyTuple getstate(PyObject obj)
-			{   
+			{
 				VectorType const& v = extract<VectorType const&>(obj)();
 				return py::make_tuple(obj.attr("__dict__"), v.X, v.Y, v.Z );
 			}
 
 			/// Set the state of a python object
 			static void setstate( PyObject obj, PyTuple state)
-			{   
+			{
 				// get the vector from the py object
 				VectorType& v = py::extract<VectorType&>(obj)();
 
-				// make sure the tuple is proper format            
+				// make sure the tuple is proper format
 				if (py::len(state) != 4)
                     {
                         PyErr_SetObject(PyExc_ValueError, ("expected 2-item tuple in call to __setstate__; got %s" % state).ptr() );
@@ -422,12 +423,12 @@ namespace OpenNero {
 			typedef py::object  PyObject;
 
 			static PyTuple getinitargs(const SColor& col)
-			{   
+			{
 				return py::make_tuple( col.getAlpha(), col.getRed(), col.getGreen(), col.getBlue() );
 			}
 
 			static PyTuple getstate(PyObject obj)
-			{   
+			{
 				SColor const& col = extract<SColor const&>(obj)();
 				return py::make_tuple(obj.attr("__dict__"), col.getAlpha(), col.getRed(), col.getGreen(), col.getBlue() );
 			}
@@ -437,7 +438,7 @@ namespace OpenNero {
 				// get the color from the py object
 				SColor& col = py::extract<SColor&>(obj)();
 
-				// make sure the tuple is proper format            
+				// make sure the tuple is proper format
 				if (py::len(state) != 5)
                     {
                         PyErr_SetObject(PyExc_ValueError, ("expected 4-item tuple in call to __setstate__; got %s" % state).ptr() );
@@ -497,7 +498,7 @@ namespace OpenNero {
                     &construct,
                     py::type_id<Vector3f>());
             }
-        
+
             /// determine if the Python object in question can be converted
             /// it has to be a tuple containing three floating point numbers
             static void* convertible(PyObject* obj_ptr)
@@ -517,7 +518,7 @@ namespace OpenNero {
                     return obj_ptr;
                 }
             }
-            
+
             /// convert a Python object to a Vector3f object
             static void construct(
                 PyObject* obj_ptr,
@@ -527,13 +528,13 @@ namespace OpenNero {
                 double x = PyFloat_AsDouble(PyTuple_GetItem(obj_ptr, 0));
                 double y = PyFloat_AsDouble(PyTuple_GetItem(obj_ptr, 1));
                 double z = PyFloat_AsDouble(PyTuple_GetItem(obj_ptr, 2));
-                
+
                 // grab a pointer to memory into which to construct the new Vector3f
                 void* storage = ((py::converter::rvalue_from_python_storage<Vector3f>*)data)->storage.bytes;
-                
+
                 // in-place construct the Vector3f from the values in the tuple
                 new (storage) Vector3f(x,y,z);
-                
+
                 // remember the memory chunk
                 data->convertible = storage;
             }
@@ -556,7 +557,7 @@ namespace OpenNero {
 				.def(self * float32_t())
 				.def(self / float32_t())
 				.def(self /= float32_t())
-				.def("getDistanceFrom", &Vector3f::getDistanceFrom, "Get distance from another point")            
+				.def("getDistanceFrom", &Vector3f::getDistanceFrom, "Get distance from another point")
 				.def("normalize", &Vector3f::normalize, return_value_policy<reference_existing_object>(), "Normalize this vector")
 				.def("getLength", &Vector3f::getLength, "length of this vector")
 				.def("dotProduct", &Vector3f::dotProduct, "dot product with another vector")
@@ -565,7 +566,7 @@ namespace OpenNero {
 				.def(self_ns::str(self))
 				.def_pickle(irr_vector3d_pickle_suite<float32_t>())
 				;
-                
+
             // A converter from a Python tuple to a Vector3f
             Vector3f_from_python_tuple();
 
@@ -593,28 +594,28 @@ namespace OpenNero {
         {
             Kernel::instance().RequestModSwitch(modName,modDir);
         }
-        
+
         /// convert mod-relative path to filesystem path
         std::string findResource(const std::string& path)
         {
             return Kernel::instance().findResource(path);
         }
-        
+
         std::string getModPath()
         {
             return Kernel::instance().getModPath();
         }
-        
+
         void setModPath(const std::string& path)
         {
             Kernel::instance().setModPath(path);
         }
-        
+
         void setWindowCaption(const std::string& caption)
         {
             Kernel::instance().SetWindowCaption(caption);
         }
-        
+
 		void ExportKernelScripts()
 		{
 			py::def( "switchMod", &switchMod, "Switch the kernel to a new mod");
@@ -623,7 +624,7 @@ namespace OpenNero {
 			py::def( "setModPath", &setModPath, "set the resource search path of the current mod ( separated by ':' )");
             py::def( "setWindowCaption", &setWindowCaption, "set the last part of the window caption to display a custom message");
 		}
-        
+
         void ExportPropertyMapScripts()
         {
             // export the map
@@ -632,43 +633,43 @@ namespace OpenNero {
             py::class_< StringToStringMap >( "StringToStringMap", "A mapping of strings to strings" )
                 .def(map_indexing_suite< StringToStringMap >() )
                 ;
-            
+
             // export property map
             py::class_<PropertyMap>("PropertyMap", "A quick utility for polling an xml file")
-                .def("construct",   &PropertyMap::constructPropertyMap, "Creating a property map from an xml file path")            
+                .def("construct",   &PropertyMap::constructPropertyMap, "Creating a property map from an xml file path")
                 .def("get_value", &PropertyMap::PyGetStringValue,       "Get a string value from a property spec" )
-                .def("get_attributes", &PropertyMap::getAttributes,     "Get the attributes at a given property spec")            
+                .def("get_attributes", &PropertyMap::getAttributes,     "Get the attributes at a given property spec")
                 .def("has_attributes", &PropertyMap::hasAttributes,     "Check if the given property map spec contains attributes")
-                .def("has_value", &PropertyMap::hasValue,               "Check if the given property map spec contains a value")            
+                .def("has_value", &PropertyMap::hasValue,               "Check if the given property map spec contains a value")
                 .def("has_section", &PropertyMap::hasSection,           "Check if the given property map spec exists")
-                ;         
+                ;
         }
 
         void ExportGuiButtonScripts()
         {
             // ptrs to special overloaded member methods
             _GUI_BASE_PRE_HACK_(GuiButton);
-            
+
             py::class_<GuiButton, noncopyable>( "GuiButton", "A basic gui button", no_init )
-                
+
                 // Hack in our gui base methods
                 _GUI_BASE_HACK_(GuiButton)
-                
+
                 // export our button methods
-                .def("setImages", &GuiButton::setImages,"Set the images to use for the button" )            
+                .def("setImages", &GuiButton::setImages,"Set the images to use for the button" )
                 ;
         }
-        
+
         void ExportGuiEditBoxScripts()
         {
             // ptrs to special overloaded member methods
             _GUI_BASE_PRE_HACK_(GuiEditBox);
-            
+
             py::class_<GuiEditBox, noncopyable>( "GuiEditBox", "A basic gui edit box", no_init )
-                
+
                 // Hack in our gui base methods
                 _GUI_BASE_HACK_(GuiEditBox)
-                
+
                 .def( "setText", &GuiEditBox::setText, "Set text of an edit box")
                 ;
         }
@@ -677,12 +678,12 @@ namespace OpenNero {
         {
             // ptrs to special overloaded member methods
             _GUI_BASE_PRE_HACK_(GuiText);
-            
+
             class_<GuiText, noncopyable>( "GuiText", "A basic gui text object.", no_init )
-                
+
                 // Hack in our gui base methods
                 _GUI_BASE_HACK_(GuiText)
-                
+
                 // export our button methods
                 .add_property("color", &GuiText::GetColor, &GuiText::SetColor )
                 .add_property("wordWrap", &GuiText::GetWordWrap, &GuiText::SetWordWrap )
@@ -693,10 +694,10 @@ namespace OpenNero {
         {
             typedef GuiBasePtr (GuiManager::*GetElementPtr)( const std::string& );
             typedef void (GuiManager::*RemovePtr)( const std::string& );
-            
+
             /// export the gui manager class
             class_<GuiManager,GuiManagerPtr>("GuiManager", "Manager of the gui elements", no_init)
-                .def("removeAll",       
+                .def("removeAll",
                      &GuiManager::RemoveAll,
                      "Remove all gui elements from the manager", "removeAll()")
                 .def("remove",
@@ -704,7 +705,7 @@ namespace OpenNero {
                      "Remove an individual element from the manager", "remove(guiName)")
                 .def("getNumElements",
                      &GuiManager::getNumElements,
-                     "Gets the number of elements managed", "getNumElements()")                
+                     "Gets the number of elements managed", "getNumElements()")
                 .def("setTransparency",
                      &GuiManager::setGuiTransparency,
                      "Sets the transparency of the gui elements", "setTransparency(floatVal_0_1)")
@@ -714,15 +715,15 @@ namespace OpenNero {
                 .def("getElement",
                      (GetElementPtr)&GuiManager::getElement,
                      "Get an element by its name.",
-                     "getElement(elemNameStr)" )                
-                .def("createElement", 
-                     &GuiManager::createElement, 
+                     "getElement(elemNameStr)" )
+                .def("createElement",
+                     &GuiManager::createElement,
                      "Create a gui element", "createElement('type')" )
                 .def("openFileChooserDialog",
                      &GuiManager::openFileChooserDialog,
                      "Open a dialog to choose a file.", "openFileChooserDialog('myDialog',modal?,python callback function)" )
                 .def("isOpenFileChooserDialog",
-                     &GuiManager::isOpenFileChooserDialog, 
+                     &GuiManager::isOpenFileChooserDialog,
                      "Checks if a file chooser dialog is open.", "isOpenFileChooserDialog()" )
                 ;
         }
@@ -731,16 +732,16 @@ namespace OpenNero {
         {
             // ptrs to special overloaded member methods
             _GUI_BASE_PRE_HACK_(GuiCheckBox);
-            
-            py::class_<GuiCheckBox, noncopyable>( "GuiCheckBox", "A basic gui Check box", no_init )                
+
+            py::class_<GuiCheckBox, noncopyable>( "GuiCheckBox", "A basic gui Check box", no_init )
                 // Hack in our gui base methods
                 _GUI_BASE_HACK_(GuiCheckBox)
-                .add_property( "checked", 
-                               &GuiCheckBox::isChecked, &GuiCheckBox::setChecked, 
+                .add_property( "checked",
+                               &GuiCheckBox::isChecked, &GuiCheckBox::setChecked,
                                "Whether or not the checkbox is checked" )
                 ;
         }
-        
+
 
         void ExportGuiScrollBarScripts()
         {
@@ -806,11 +807,11 @@ namespace OpenNero {
                 _GUI_BASE_HACK_(GuiWindow)
 
                 // Additional methods
-                .def("setVisible", 
-                     &GuiWindow::setVisible, 
+                .def("setVisible",
+                     &GuiWindow::setVisible,
                      "Set the visibility of this window" )
-                .def("setVisibleCloseButton", 
-                     &GuiWindow::setVisibleCloseButton, 
+                .def("setVisibleCloseButton",
+                     &GuiWindow::setVisibleCloseButton,
                      "Set the visibility of the close button" )
                 ;
         }
@@ -833,8 +834,8 @@ namespace OpenNero {
 
                 // export our button methods
                 .def("addSeparator", &GuiContextMenu::addSeparator, "Add a separator to the menu.")
-                .def("addSubItem", (AddSubItemPtr)&GuiContextMenu::AddSubItem, "Add a sub item to the menu.")            
-                .def("addItem", (AddItemPtr)&GuiContextMenu::AddItem, "Add an item to the menu.")            
+                .def("addSubItem", (AddSubItemPtr)&GuiContextMenu::AddSubItem, "Add a sub item to the menu.")
+                .def("addItem", (AddItemPtr)&GuiContextMenu::AddItem, "Add an item to the menu.")
                 ;
         }
 
@@ -855,7 +856,7 @@ namespace OpenNero {
             Scheduler& scheduler = ScriptingEngine::instance().GetScheduler();
             return scheduler.ScheduleEvent( timeOffset, command );
         }
-        
+
         bool cancel( const Scheduler::EventId& id )
         {
             Scheduler& scheduler = ScriptingEngine::instance().GetScheduler();
@@ -866,14 +867,14 @@ namespace OpenNero {
         /// export scheduler methods into Python API
         void ExportSchedulerScripts()
         {
-            py::def( "schedule", 
-                 &schedule, 
+            py::def( "schedule",
+                 &schedule,
                  "Schedule an event to execute in some time offset. schedule(offset,command)");
-            py::def( "cancel", 
-                 &cancel, 
+            py::def( "cancel",
+                 &cancel,
                  "Cancel an event from executing. cancel( eventId )" );
         }
-        
+
         /// redirect standard output to message-level logging
         class PyStdLogWriter {
             std::string s;
@@ -897,7 +898,7 @@ namespace OpenNero {
             /// close log
             void close() {}
         };
-        
+
         /// redirect standard error to error-level logging
         class PyErrLogWriter {
             std::string s;
@@ -935,21 +936,21 @@ namespace OpenNero {
                 .def("close", &PyErrLogWriter::close, "close the python log writer")
                 .def("flush", &PyErrLogWriter::flush, "flush the OpenNERO log");
         }
-        
+
         void ExportSimEntityDataScripts()
         {
             py::class_<SimEntityData>("SimEntityData", no_init)
-                .add_property("position", 
-                              make_function(&SimEntityData::GetPosition, return_value_policy<copy_const_reference>()), 
+                .add_property("position",
+                              make_function(&SimEntityData::GetPosition, return_value_policy<copy_const_reference>()),
                               &SimEntityData::SetPosition)
-                .add_property("velocity", 
-                              make_function(&SimEntityData::GetVelocity, return_value_policy<copy_const_reference>()), 
+                .add_property("velocity",
+                              make_function(&SimEntityData::GetVelocity, return_value_policy<copy_const_reference>()),
                               &SimEntityData::SetVelocity)
-                .add_property("rotation", 
-                              make_function(&SimEntityData::GetRotation, return_value_policy<copy_const_reference>()), 
+                .add_property("rotation",
+                              make_function(&SimEntityData::GetRotation, return_value_policy<copy_const_reference>()),
                               &SimEntityData::SetRotation)
                 .add_property("acceleration",
-                              make_function(&SimEntityData::GetAcceleration, return_value_policy<copy_const_reference>()), 
+                              make_function(&SimEntityData::GetAcceleration, return_value_policy<copy_const_reference>()),
                               &SimEntityData::SetAcceleration)
                 .add_property("label",
                               make_function(&SimEntityData::GetLabel, return_value_policy<copy_const_reference>()),
@@ -966,9 +967,8 @@ namespace OpenNero {
                 .add_property("id", &SimEntityData::GetId)
                 .add_property("animation", &SimEntityData::GetAnimation, &SimEntityData::SetAnimation)
                 .add_property("animation_speed", &SimEntityData::GetAnimationSpeed, &SimEntityData::SetAnimationSpeed)
-                .def("update_immediately", &SimEntityData::SetAllDirtyBits)
                 ;
-            
+
             py::class_<SimDataVector>("SimDataVector", "A vector of SimEntityData")
                 .def(vector_indexing_suite<SimDataVector>())
                 ;
@@ -979,113 +979,110 @@ namespace OpenNero {
         {
             return *(Kernel::GetSimContext());
         }
-        
+
         BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addObject_overloads, AddObject, 2, 7)
-        
+
         BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addSkyBox_overloads, AddSkyBox, 1, 2)
-        
+
         BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(addLightSource_overloads, AddLightSource, 2, 3)
-        
+
         BOOST_PYTHON_MEMBER_FUNCTION_OVERLOADS(findInRay_overloads, PyFindInRay, 2, 6)
-        
+
         void ExportSimContextScripts()
         {
             py::class_<SimContext>("SimContext", "The simulation context from an XML file", no_init )
                 .def("addAxes",
-                     &SimContext::AddAxes, 
+                     &SimContext::AddAxes,
                      "Add a set of Cartesian axes from an XML file")
-                .def("setFog", 
-                     &SimContext::SetFog, 
+                .def("setFog",
+                     &SimContext::SetFog,
                      "Set the fog mode")
-                .def("addCamera", 
-                     &SimContext::AddCamera, 
+                .def("addCamera",
+                     &SimContext::AddCamera,
                      "Create and add a camera to the context and return camera")
-                .def("addLightSource", 
-                     &SimContext::AddLightSource, 
+                .def("addLightSource",
+                     &SimContext::AddLightSource,
                      addLightSource_overloads("Add a light source to the scene"))
-                .def("addSkyBox", 
-                     &SimContext::AddSkyBox, 
+                .def("addSkyBox",
+                     &SimContext::AddSkyBox,
                      addSkyBox_overloads("Add a sky box consisting of 6 images starting with arg0 and ending with arg1"))
-                .def("addObject", 
+                .def("addObject",
                      &SimContext::AddObject,
                      addObject_overloads("Create an object on the server and broadcast to clients"))
-                .def("removeObject", 
-                     &SimContext::RemoveObject, 
+                .def("removeObject",
+                     &SimContext::RemoveObject,
                      "Remove an object from the server and broadcast to clients")
-                .def("getGuiManager", 
-                     &SimContext::GetGuiManager, 
+                .def("getGuiManager",
+                     &SimContext::GetGuiManager,
                      "Return the gui manager for the context")
-                .def("killGame", 
-                     &SimContext::KillGame, 
+                .def("killGame",
+                     &SimContext::KillGame,
                      "Kill the game")
-                .def("setInputMapping", 
-                     &SimContext::SetInputMapping, 
+                .def("setInputMapping",
+                     &SimContext::SetInputMapping,
                      "Set the io map to use" )
-                .def("findInRay", 
-                     &SimContext::PyFindInRay, 
+                .def("findInRay",
+                     &SimContext::PyFindInRay,
                      findInRay_overloads("Find the first object that intersects the specified ray (origin:Vector3f, target:Vector3f, [int])") )
-                .def("getClickedPosition", 
-                     &SimContext::GetClickedPosition, 
+                .def("getClickedPosition",
+                     &SimContext::GetClickedPosition,
                      "Approximate 3d position of the mouse click")
-                .def("getClickedEntityId", 
-                     &SimContext::GetClickedEntityId, 
+                .def("getClickedEntityId",
+                     &SimContext::GetClickedEntityId,
                      "Return the id of the entity that was clicked")
-                .def("getMousePosition", 
-                     &SimContext::GetMousePosition, 
+                .def("getMousePosition",
+                     &SimContext::GetMousePosition,
                      "Get the current position of the mouse")
-                .def("setObjectPosition", 
-                     &SimContext::SetObjectPosition, 
+                .def("setObjectPosition",
+                     &SimContext::SetObjectPosition,
                      "Set the position of an object specified by its id")
-                .def("setObjectRotation", 
-                     &SimContext::SetObjectRotation, 
+                .def("setObjectRotation",
+                     &SimContext::SetObjectRotation,
                      "Set the rotation of an object specified by its id")
-                .def("setObjectScale", 
-                     &SimContext::SetObjectScale, 
+                .def("setObjectScale",
+                     &SimContext::SetObjectScale,
                      "Set the scale of an object specified by its id")
-                .def("setObjectLabel", 
-                     &SimContext::SetObjectLabel, 
+                .def("setObjectLabel",
+                     &SimContext::SetObjectLabel,
                      "Set the label of an object specified by its id")
-                .def("setObjectColor", 
-                     &SimContext::SetObjectColor, 
+                .def("setObjectColor",
+                     &SimContext::SetObjectColor,
                      "Set the color of an object specified by its id")
-                .def("setObjectAnimation", 
-                     &SimContext::SetObjectAnimation, 
+                .def("setObjectAnimation",
+                     &SimContext::SetObjectAnimation,
                      "Set the animation of the object specified by its id")
-                .def("updateObjectImmediately",
-                     &SimContext::UpdateObjectImmediately,
-                     "Push the changes made to the object without animation")
-                .def("getObjectPosition", 
-                     &SimContext::GetObjectPosition, 
+                .def("getObjectPosition",
+                     &SimContext::GetObjectPosition,
                      "Get the position of an object specified by its id")
-                .def("getObjectRotation", 
-                     &SimContext::GetObjectRotation, 
+                .def("getObjectRotation",
+                     &SimContext::GetObjectRotation,
                      "Get the rotation of an object specified by its id")
-                .def("getObjectScale", 
-                     &SimContext::GetObjectScale, 
+                .def("getObjectScale",
+                     &SimContext::GetObjectScale,
                      "Get the scale of an object specified by its id")
-                .def("getObjectLabel", 
-                     &SimContext::GetObjectLabel, 
+                .def("getObjectLabel",
+                     &SimContext::GetObjectLabel,
                      "Get the label of an object specified by its id")
-                .def("getObjectColor", 
-                     &SimContext::GetObjectColor, 
+                .def("getObjectColor",
+                     &SimContext::GetObjectColor,
                      "Get the color of an object specified by its id")
-                .def("getObjectBBMinEdge", 
-                     &SimContext::GetObjectBBMinEdge, 
+                .def("getObjectBBMinEdge",
+                     &SimContext::GetObjectBBMinEdge,
                      "Get the bounding box min edge of an object specified by its id")
-                .def("getObjectBBMaxEdge", 
-                     &SimContext::GetObjectBBMaxEdge, 
+                .def("getObjectBBMaxEdge",
+                     &SimContext::GetObjectBBMaxEdge,
                      "Get the bounding box max edge of an object specified by its id")
                 .def("getActiveCamera",
                      &SimContext::getActiveCamera,
                      "Get the current active camera")
-                .def("transformVector", 
-                     &SimContext::TransformVector, 
+                .def("transformVector",
+                     &SimContext::TransformVector,
                      "Transform the given vector by the matrix of the object specified by id")
                 .add_property("delay", &SimContext::GetFrameDelay, &SimContext::SetFrameDelay)
                 ;
-            
+
             // this is how Python can access the C++ reference to SimContext
-            py::def("getSimContext", &GetSimContext, return_value_policy<reference_existing_object>());            
+            py::def("getSimContext", &GetSimContext, return_value_policy<reference_existing_object>());
         }
 
         /// Python Binder Method for the IOMap
@@ -1103,23 +1100,23 @@ namespace OpenNero {
         void ExportCameraScripts()
         {
             py::class_<Camera,CameraPtr>("Camera", "A camera in a sim context", no_init)
-                .def("setPosition", 
-                     &Camera::setPosition, 
+                .def("setPosition",
+                     &Camera::setPosition,
                      "Set the current position of the camera" )
-                .def("setRotation", 
-                     &Camera::setRotation, 
+                .def("setRotation",
+                     &Camera::setRotation,
                      "Set the euler rotation angles of the camera" )
-                .def("setTarget", 
-                     &Camera::setTarget, 
+                .def("setTarget",
+                     &Camera::setTarget,
                      "Set the point the camera is looking at" )
-                .def("setFarPlane", 
-                     &Camera::setFarPlane, 
+                .def("setFarPlane",
+                     &Camera::setFarPlane,
                      "Set the far plane of the perspective projection of the camera" )
-                .def("setEdgeScroll", 
-                     &Camera::setEdgeScroll, 
+                .def("setEdgeScroll",
+                     &Camera::setEdgeScroll,
                      "Set whether or not the camera edge scrolls" )
-                .def("attach", 
-                     &Camera::attach, 
+                .def("attach",
+                     &Camera::attach,
                      "Attach to sim object by id" )
 				.def("snapshot",
 					 &Camera::snapshot,
@@ -1145,10 +1142,10 @@ namespace OpenNero {
                 .def_readonly("randomseeds", &AppConfig::RandomSeeds)
                 ;
 
-            py::def("getAppConfig", &GetAppConfig, return_value_policy<reference_existing_object>());            
+            py::def("getAppConfig", &GetAppConfig, return_value_policy<reference_existing_object>());
         }
-        
-        void ExportScripts() 
+
+        void ExportScripts()
         {
             ExportAppConfigScripts();
             ExportAIScripts();
