@@ -88,7 +88,7 @@ namespace OpenNero
     };
 
     SimId ConvertSceneIdToSimId(uint32_t simId);
-    
+
     uint32_t ConvertSimIdToSceneId(SimId id, uint32_t type);
 
     /**
@@ -104,7 +104,7 @@ namespace OpenNero
 
         // Allow SimEntity to manage scene object ids.
         friend class SimEntity;
-        
+
         /// number of bits in the TYPE_ bitmask of a SceneObjectId
         static const SceneObjectId BITMASK_SIZE = 4;
 
@@ -132,13 +132,13 @@ namespace OpenNero
 
 		/// set the animation of this node if we know how to do it
 		bool SetAnimation(const std::string& animation_type);
-        
+
         /// set the animation speed fo this node
         void SetAnimationSpeed(float32_t framesPerSecond);
-        
+
         /// set the position of this scene object
         void SetPosition(const Vector3f& pos);
-        
+
         /// set the rotation of this scene object
         void SetRotation(const Vector3f& rotation);
 
@@ -159,34 +159,34 @@ namespace OpenNero
 
         /// get mesh internals
         bool getMeshBuffer(MeshBuffer &mb, S32 lod) const;
- 	   
+
         /// get object scale
         Vector3f getScale() const;
 
         /// get object position
         Vector3f getPosition() const;
-        
+
         /// get object rotation
         Vector3f getRotation() const;
-        
+
         /// Get the animation name
         std::string GetAnimation() const;
-        
+
         /// Get the animation speed
         float32_t GetAnimationSpeed() const;
-        
+
         /// can we possibly collide with any other object?
         bool canCollide() const;
 
         /// attach an FPS camera to this scene object
         void attachCamera(CameraPtr cam);
-        
+
         /// get the triangle selector for this scene node, creating it if needed
         ITriangleSelector_IPtr GetTriangleSelector();
-        
+
         /// get the triangle selector that this scene node could collide with
         ITriangleSelector_IPtr GetCollisionTriangleSelector();
-        
+
         /// return true if a collision was detected
         bool collisionOccurred();
 
@@ -195,6 +195,10 @@ namespace OpenNero
         // not sure we want to expose these.
         // TODO : Should there be a copy constructor?
         SceneObject& operator=( const SceneObject& obj );
+
+        /// make sure that the new position assigned to this object
+        /// actually gets assigned (disregard collisions for one step)
+        void DisregardCollisions();
 
         // this points to the actual node in use
         ISceneNode_IPtr                     mSceneNode;             ///< Irr Scene node
@@ -214,7 +218,7 @@ namespace OpenNero
         CameraPtr                           mCamera;                ///< camera that is attached to us (if any)
 		FPSCameraTemplatePtr				mFPSCamera;			    ///< information about whether to attach a camera to this object
         std::string                         mAnimation;             ///< current animation
-        
+
         /// collision response animator
         ISceneNodeAnimatorCollisionResponse_IPtr    mCollider;
     };

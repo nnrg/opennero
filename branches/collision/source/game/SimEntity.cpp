@@ -17,8 +17,8 @@
 namespace OpenNero
 {
 	/// default constructor
-	/// SimEntityData 
-	SimEntity::SimEntity(const SimEntityData& data, const std::string& templateName) :		
+	/// SimEntityData
+	SimEntity::SimEntity(const SimEntityData& data, const std::string& templateName) :
 		mAIObject(),
 		mSceneObject(),
 		mSharedData(data),
@@ -31,8 +31,8 @@ namespace OpenNero
 	}
 
     SimEntityPtr SimEntity::CreateSimEntity(
-        SimEntityData& data, 
-        const std::string& templateName, 
+        SimEntityData& data,
+        const std::string& templateName,
         SimContextPtr context)
     {
         SimEntityPtr ent(new SimEntity(data, templateName));
@@ -42,9 +42,9 @@ namespace OpenNero
 
     // This method is supposed to refine and extend the current data in the entity
     void SimEntity::InitializeSimEntity(
-        SimEntityPtr ent, 
-        SimEntityData& data, 
-        const std::string& templateName, 
+        SimEntityPtr ent,
+        SimEntityData& data,
+        const std::string& templateName,
         SimContextPtr context)
     {
         {
@@ -58,7 +58,7 @@ namespace OpenNero
                     ent->SetSceneObject(sceneObj);
                     ent->SetCollision(ent->GetCollision() | objTemp->mCollisionMask);
                 }
-                
+
             }
         }
 
@@ -76,10 +76,10 @@ namespace OpenNero
         }
         ent->SetCreationTemplate( templateName );
     }
-    
+
     void SimEntity::BeforeTick(float32_t incAmt)
     {
-        // before we get here, we tried to set sceneobject to mSharedData.current, 
+        // before we get here, we tried to set sceneobject to mSharedData.current,
         // but it could be different now due to collisions
 
         bool collided = false;
@@ -89,28 +89,28 @@ namespace OpenNero
             mSharedData.SetPosition(mSceneObject->getPosition());
             collided = true;
         }
-        
+
         // we tick the shared data so that it can remember where it was
         mSharedData.ProcessTick(incAmt);
     }
-    
+
     void SimEntity::TickScene(float32_t incAmt)
     {
         if (mSceneObject)
         {
-            // This call will update the pose of the Irrlicht object to 
+            // This call will update the pose of the Irrlicht object to
             // correspond to our mSharedData
             mSceneObject->ProcessTick(incAmt);
         }
     }
-    
+
     void SimEntity::TickAI(float32_t incAmt)
     {
         if (mAIObject)
         {
             // This call is the meat and potatoes of OpenNERO proper:
-            // if this object has a decision to make will ask the 
-            // Environment about what it sees and tell it how it wants to 
+            // if this object has a decision to make will ask the
+            // Environment about what it sees and tell it how it wants to
             // act.
             mAIObject->ProcessTick(incAmt);
         }
@@ -124,20 +124,20 @@ namespace OpenNero
             // convert from open nero's coordinate system to irrlicht's
             mSceneObject->SetPosition( pos );
         }
-            
+
         if( mSharedData.IsDirty(SimEntityData::kDB_Rotation) )
         {
         //    if (mCamera && mFPSCamera)
         //    {
         //        mFPSCamera->UpdateRotation(mSharedData, mCamera);
         //    }
-        //    
+        //
             Vector3f rotation = InterpolateNeroRotation(mSharedData.GetPrevious().mRotation, mSharedData.GetRotation(), frac);
             // Irrlicht expects a left handed basis with the x-z plane being horizontal and y being up
             // OpenNero uses a right handed basis with x-y plane being horizontal and z being up
             mSceneObject->SetRotation( rotation );
         }
-            
+
         //if ( mSharedData->IsDirty(SimEntityData::kDB_Scale) )
         //{
         //    // set the node scale
@@ -222,7 +222,7 @@ namespace OpenNero
     {
         return mSharedData.GetScale();
     }
-    
+
     const std::string& SimEntity::GetLabel() const
     {
         return mSharedData.GetLabel();
@@ -232,12 +232,12 @@ namespace OpenNero
     {
         return mSharedData.GetColor();
     }
-    
+
     uint32_t SimEntity::GetType() const
     {
         return mSharedData.GetType();
     }
-    
+
     uint32_t SimEntity::GetCollision() const
     {
         return mSharedData.GetCollision();
@@ -272,10 +272,17 @@ namespace OpenNero
     {
         mSharedData.SetColor(color);
     }
-    
+
     void SimEntity::SetCollision(uint32_t mask)
     {
         mSharedData.SetCollision(mask);
+    }
+
+    void SimEntity::UpdateImmediately()
+    {
+        // set all the bits to indicate that the information was updated
+        mSharedData.SetAllDirtyBits();
+        mSceneObject->DisregardCollisions();
     }
 
     /// output SimEntity to stream
@@ -289,5 +296,5 @@ namespace OpenNero
         stream << ent->mSharedData;
         return stream;
     }
-    
+
 } //end OpenNero
