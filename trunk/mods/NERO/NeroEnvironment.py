@@ -110,12 +110,16 @@ class NeroEnvironment(OpenNero.Environment):
 
     def remove_all_agents(self, team):
         for agent in list(self.teams[team]):
-            common.removeObject(agent.state.id)
-            try:
+            self.remove_agent(agent)
+
+    def remove_agent(self, agent):
+        common.removeObject(agent.state.id)
+        try:
+            self.teams[agent.get_team()].discard(agent)
+            if agent in self.states:
                 self.states.pop(agent)
-                self.teams[team].discard(agent)
-            except:
-                print 'could not remove', agent
+        except:
+            pass
 
     def reset(self, agent):
         """
@@ -203,8 +207,28 @@ class NeroEnvironment(OpenNero.Environment):
         chunk = self.agents_to_load.get(agent.state.id)
         if chunk is not None:
             print 'loading agent', agent.state.id, 'from', len(chunk), 'bytes'
-            agent.from_string(chunk)
             del self.agents_to_load[agent.state.id]
+            try:
+                agent.from_string(chunk)
+            except:
+                # if loading fails, remove this agent.
+                print 'error loading agent', agent.state.id
+                self.remove_agent(agent)
+
+                # if a user has a badly formatted q-learning agent in a mixed
+                # population file, the agent won't load and will be properly
+                # removed here. however, RTNEAT has only allocated enough brainz
+                # to cover (pop_size - num_qlearning_agents) agents, so whenever
+                # it comes time to spawn new agents, RTNEAT will think that it
+                # needs to spawn an extra agent to cover for this "missing" one.
+                # to prevent this exception, we decrement pop_size here.
+                #
+                # this probably prevents teams from having the proper number of
+                # agents if the user clicks on the deploy button after loading a
+                # broken pop file ... but that's tricky to fix.
+                constants.pop_size -= 1
+
+                return agent.info.reward.get_instance()
 
         # set the epsilon for this agent, in case it's changed recently.
         agent.epsilon = self.epsilon
@@ -405,20 +429,28 @@ class NeroEnvironment(OpenNero.Environment):
         """
         is the current episode over for the agent?
         """
-        if agent.group == 'Turret' or agent.ai == 'qlearning':
+        if agent.group == 'Turret':
             return False
 
         team = agent.get_team()
         state = self.get_state(agent)
         dead = self.hitpoints > 0 and state.total_damage >= self.hitpoints
-        old = self.lifetime > 0 and agent.step >= self.lifetime
+        old = self.lifetime > 0 and agent.step > 0 and 0 == agent.step % self.lifetime
+
+        if agent.ai == 'qlearning':
+            if dead or old:
+                # simulate a respawn by moving this agent towards the spawn location.
+                state.total_damage = 0
+                state.randomize()
+                agent.state.position = copy.copy(state.initial_position)
+                agent.state.rotation = copy.copy(state.initial_rotation)
+                agent.state.update_immediately()
+            return False
+
         rtneat = OpenNero.get_ai("rtneat-%s" % team)
         orphaned = rtneat and not rtneat.has_organism(agent)
 
-        if agent.ai == 'rtneat' and (orphaned or dead or old):
-                return True
-
-        return False
+        return orphaned or dead or old
 
     def cleanup(self):
         """
