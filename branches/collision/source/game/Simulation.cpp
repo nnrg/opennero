@@ -61,7 +61,9 @@ namespace OpenNero
                 // if the entity type matches the stored mask
                 if (iter->first & ent_type) {
                     // add the triangles to that selector
-                    iter->second->addTriangleSelector(ent->GetSceneObject()->GetTriangleSelector().get());
+                    ITriangleSelector_IPtr tri_selector = ent->GetSceneObject()->GetTriangleSelector();
+                    iter->second->addTriangleSelector(tri_selector.get());
+                    LOG_F_DEBUG("collision", "added " << tri_selector->getTriangleCount() << " triangles for a total of " << iter->second->getTriangleCount() << " triangles that collide with type " << iter->first);
                 }
             }
         }

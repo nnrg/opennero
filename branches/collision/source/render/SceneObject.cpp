@@ -917,22 +917,22 @@ namespace OpenNero
                 tri_selector = GetSceneManager()->createTerrainTriangleSelector(mTerrSceneNode.get());
                 AssertMsg(tri_selector, "Could not create a collision object for id: " << GetId());
                 mTerrSceneNode->setTriangleSelector(tri_selector.get());
-                LOG_F_DEBUG("core", "created terrain triangle selector");
+                LOG_F_DEBUG("collision", "created terrain triangle selector for id: " << GetId());
             }
             else if (mAniSceneNode)
             {
                 IMesh* mesh = mAniSceneNode->getMesh();
-                tri_selector = GetSceneManager()->createTriangleSelector(mesh, mAniSceneNode.get());
+                tri_selector = GetSceneManager()->createOctreeTriangleSelector(mesh, mAniSceneNode.get());
                 AssertMsg(tri_selector, "Could not create a collision object for id: " << GetId());
                 mAniSceneNode->setTriangleSelector(tri_selector.get());
-                LOG_F_DEBUG("core", "creating mesh triangle selector");
+                LOG_F_DEBUG("collision", "creating mesh triangle selector for id: " << GetId());
             }
             else 
             {
                 tri_selector = GetSceneManager()->createTriangleSelectorFromBoundingBox(mSceneNode.get());
                 AssertMsg(tri_selector, "Could not create a collision object for id: " << GetId());
                 mSceneNode->setTriangleSelector(tri_selector.get());
-                LOG_F_DEBUG("core", "creating bounding box triangle selector");
+                LOG_F_DEBUG("collision", "creating bounding box triangle selector for id: " << GetId());
             }
             return tri_selector;
         }
