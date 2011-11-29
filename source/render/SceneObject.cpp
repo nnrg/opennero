@@ -578,7 +578,7 @@ namespace OpenNero
             }
             
             // additionally, add a collision response animator
-            if (mSceneObjectTemplate->mCollisionMask > 0) {
+            if (canCollide()) {
                 // the world will return the triangles that match the type mask
                 ITriangleSelector* world = new CollideByTypeTriangleSelector(mSceneObjectTemplate->mCollisionMask);
                 // get the axis-aligned bounding box for the node
@@ -589,12 +589,12 @@ namespace OpenNero
                 Vector3f gravity(0,0,0);
                 // ellipsoid translation relative to object coordinates
                 Vector3f ellipsoid_translation(0,0,0);
-                ISceneNodeAnimator* animator = GetSceneManager()->createCollisionResponseAnimator(
+                mCollider = GetSceneManager()->createCollisionResponseAnimator(
                     world, mSceneNode.get(), ellipsoid_radius, gravity, ellipsoid_translation);
-                if (!animator) {
+                if (!mCollider) {
                     LOG_F_ERROR("collision", "could not create Collision Response Animator for object id: " << GetId());
                 } else {
-                    mSceneNode->addAnimator(animator);
+                    mSceneNode->addAnimator(mCollider.get());
                     LOG_F_DEBUG("collision", 
                         "added collision response animator for object id: " 
                         << GetId() << " of type: " << data.GetType() 
@@ -653,6 +653,11 @@ namespace OpenNero
         }
     }
     
+    /// return true if a collision was detected
+    bool SceneObject::collisionOccurred() {
+        return mCollider && mCollider->collisionOccurred();
+    }
+    
     /// can we possibly collide with any other object?
     bool SceneObject::canCollide() const
     {
@@ -676,7 +681,9 @@ namespace OpenNero
             {                
                 // convert from open nero's coordinate system to irrlicht's
                 SetPosition( mSharedData->GetPosition() );
-                
+                // the position is set here, but it might change after drawAll because of collisions etc
+                // thus, the next time we see this sceneNode, we should make sure to get the position back
+                // to the state.
             }
             
             if( mSharedData->IsDirty(SimEntityData::kDB_Rotation) )

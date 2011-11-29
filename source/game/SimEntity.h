@@ -113,7 +113,6 @@ namespace OpenNero
         const SColor& GetColor() const;
         uint32_t GetType() const;
         uint32_t GetCollision() const;
-        bool GetBumped() const;
         /// @}
 
 		/// Setters for properties
@@ -125,7 +124,6 @@ namespace OpenNero
         void SetLabel( const std::string& label );
         void SetColor( const SColor& color );
         void SetCollision( uint32_t mask );
-        void SetBumped(bool bumped);
         /// @}
         
         void UpdateImmediately() { mSharedData.SetAllDirtyBits(); }
@@ -136,9 +134,6 @@ namespace OpenNero
         /// Mark the object for removal
         void SetRemoved() { mRemoved = true; }
     private:
-        /// Can this object collide at all?
-        bool CanCollide() const;
-        
         /// output human-readable information about this SimEntity
         friend std::ostream& operator<<(std::ostream& stream, const SimEntityPtr&);
 

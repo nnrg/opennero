@@ -963,8 +963,6 @@ namespace OpenNero {
                 .add_property("collision",
                               &SimEntityData::GetCollision,
                               &SimEntityData::SetCollision)
-                .add_property("bumped",
-                              &SimEntityData::GetBumped)
                 .add_property("id", &SimEntityData::GetId)
                 .add_property("animation", &SimEntityData::GetAnimation, &SimEntityData::SetAnimation)
                 .add_property("animation_speed", &SimEntityData::GetAnimationSpeed, &SimEntityData::SetAnimationSpeed)

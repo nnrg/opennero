@@ -155,8 +155,6 @@ namespace OpenNero
         mEntitiesAdded.clear();
         
         // iterate over all the entities deleting those marked for removal
-        // also make a list of all the entities that need to be check for collision
-        SimEntitySet colliders; // set of objects that could be colliding with something
         for (itr = entities_to_tick.begin(); itr != entities_to_tick.end(); ++itr) {
             SimId id = itr->first;
             SimEntityPtr ent = itr->second;
@@ -201,26 +199,8 @@ namespace OpenNero
                 }
 
                 AssertMsg( !Find(id), "Did not properly remove entity from simulation!" );
-            } else {
-                // need to check for collision?
-                if (ent->CanCollide())
-                    colliders.insert(ent);
-                ent->SetBumped(false);
             }
         }
-        
-        // TODO: implement collision
-        //{
-        //    SimEntitySet::iterator itr = colliders.begin();
-        //    SimEntitySet::iterator end = colliders.end();
-        //    for (; itr != end; ++itr)
-        //    {
-        //        SimEntityPtr ent = *itr;
-        //        Vector3f desired_position = ent->GetState().GetPosition();
-        //        Vector3f current_position = ent->GetState().GetPrevious().GetPosition();
-        //        
-        //    }
-        //}
     }
     
     void Simulation::ProcessAnimationTick( float32_t frac )
