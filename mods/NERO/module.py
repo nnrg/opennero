@@ -101,6 +101,13 @@ class NeroModule:
                     OpenNero.Vector3f(0, 0, 0),
                     scale=OpenNero.Vector3f(1, 1, 1),
                     label="Tree %d %d" % (10 * i, 10 * j),
+                    type=constants.OBJECT_TYPE_LEVEL_GEOM)
+                # collide with their trunks represented with cubes instead
+                common.addObject(
+                    "data/shapes/cube/Cube.xml",
+                    OpenNero.Vector3f(i * constants.XDIM, j * constants.YDIM, constants.OFFSET),
+                    OpenNero.Vector3f(0,0,0),
+                    scale=OpenNero.Vector3f(1,1,constants.HEIGHT),
                     type=constants.OBJECT_TYPE_OBSTACLE)
 
         # Add the surrounding Environment
