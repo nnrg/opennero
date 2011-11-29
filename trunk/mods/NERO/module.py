@@ -1,6 +1,7 @@
 import os
 import re
 import sys
+import gzip
 import random
 import tempfile
 
@@ -167,9 +168,22 @@ class NeroModule:
             return
 
         # parse out different agents from the population file.
-        rtneat = qlearning = ''
-        with open(location) as handle:
-            rtneat, qlearning = self._split_population(handle)
+        contents = ''
+        try:
+            try:
+                handle = gzip.open(location)
+                contents = handle.read()
+            finally:
+                handle.close()
+        except Exception, e:
+            with open(location) as handle:
+                contents = handle.read()
+
+        if not contents:
+            print 'cannot read', location, 'skipping'
+            return
+
+        rtneat, qlearning = self._split_population(contents.splitlines(True))
 
         print 'qlearning agents:', qlearning.count('Approximator')
 
