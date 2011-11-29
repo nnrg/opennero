@@ -27,11 +27,8 @@ namespace OpenNero
                 assert(false);
             }
 
-#if NERO_DEBUG
             mStream.open(file);
-#else
-            mStream.open(file, std::ios_base::app);
-#endif
+
             if( !mStream.is_open() )
             {
                 // we should probably throw an exception here

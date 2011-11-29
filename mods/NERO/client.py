@@ -71,7 +71,7 @@ def show_context_menu():
             "data/shapes/cube/Cube.xml",
             OpenNero.Vector3f(location.x, location.y, constants.HEIGHT + constants.OFFSET),
             OpenNero.Vector3f(0, 0, 90),
-            scale=OpenNero.Vector3f(1, 30, constants.HEIGHT),
+            scale=OpenNero.Vector3f(5, 30, constants.HEIGHT*2),
             type=1))
 
     def rotate_object():
