@@ -182,11 +182,13 @@ class QLearningAgent(NeroAgent, OpenNero.QLearningBrain):
 
     ai = 'qlearning'
 
-    def __init__(self, discount=0.8, learning_rate=0.8, epsilon=0.1,
-                 action_bins=3, state_bins=5, num_tiles=0, num_weights=0):
+    def __init__(self, gamma=0.8, alpha=0.8, epsilon=0.1,
+                 action_bins=3, state_bins=5,
+                 num_tiles=0, num_weights=0):
         OpenNero.QLearningBrain.__init__(
-            self, discount, learning_rate, epsilon,
-            action_bins, state_bins, num_tiles, num_weights)
+            self, gamma, alpha, epsilon,
+            action_bins, state_bins,
+            num_tiles, num_weights)
         NeroAgent.__init__(self)
 
     def agent_info_tuple(self):
