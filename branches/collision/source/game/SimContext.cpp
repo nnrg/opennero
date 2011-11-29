@@ -273,14 +273,15 @@ namespace OpenNero
         // previous call and run the corresponding (Python) actions. This can
         // potentially change a lot of things such as which mod we want to run.
         UpdateInputSystem(dt);
-        
+
         // Call the ProcessTick method of the global AI manager
         AIManager::instance().ProcessTick(dt);
-        
+
         // This will loop through all the objects in the simulation, calling
-        // their ProcessTick method.
+        // their ProcessTick method. We need to know the actual position of
+        // each object before this, and we will know the desired position after this.
         UpdateSimulation(dt);
-        
+
         // This will trigger scheduled events in the Python script,
         // as well as ModTick(dt) if it is defined
         UpdateScriptingSystem(dt);
@@ -336,6 +337,7 @@ namespace OpenNero
         DrawText( Vector2i( 5, 55 ), SColor(255,255,255,255), sstr.str(), mIrr.mpIrrDevice );
 
         mIrr.mpVideoDriver->endScene();
+
     }
 
     /// Update the scripting system by a bit

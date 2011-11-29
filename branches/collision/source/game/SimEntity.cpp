@@ -79,6 +79,18 @@ namespace OpenNero
     
     void SimEntity::BeforeTick(float32_t incAmt)
     {
+        // before we get here, we tried to set sceneobject to mSharedData.current, 
+        // but it could be different now due to collisions
+
+        bool collided = false;
+
+        // we update mSharedData to sync up with the on-screen position
+        if (mSceneObject->collisionOccurred()) {
+            mSharedData.SetPosition(mSceneObject->getPosition());
+            collided = true;
+        }
+        
+        // we tick the shared data so that it can remember where it was
         mSharedData.ProcessTick(incAmt);
     }
     
@@ -231,24 +243,9 @@ namespace OpenNero
         return mSharedData.GetCollision();
     }
 
-    bool SimEntity::GetBumped() const
-    {
-        return mSharedData.GetBumped();
-    }
-
-    void SimEntity::SetBumped(bool bumped)
-    {
-        mSharedData.SetBumped(bumped);
-    }
-
     void SimEntity::SetPosition( const Vector3f& pos )
     {
         mSharedData.SetPosition(pos);
-    }
-
-    bool SimEntity::CanCollide() const 
-    {
-        return mSharedData.GetCollision() != 0;
     }
 
     void SimEntity::SetRotation( const Vector3f& rot )

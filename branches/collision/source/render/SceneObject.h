@@ -186,6 +186,9 @@ namespace OpenNero
         
         /// get the triangle selector that this scene node could collide with
         ITriangleSelector_IPtr GetCollisionTriangleSelector();
+        
+        /// return true if a collision was detected
+        bool collisionOccurred();
 
     private:
 
@@ -196,11 +199,12 @@ namespace OpenNero
         // this points to the actual node in use
         ISceneNode_IPtr                     mSceneNode;             ///< Irr Scene node
 
-        // only one of these will be used for any object
+        /// only one of these will be used for any object
+        ///@{
         IAnimatedMeshSceneNode_IPtr         mAniSceneNode;          ///< Irr animated mesh node
         ITerrainSceneNode_IPtr              mTerrSceneNode;         ///< Irr Terrain node
         IParticleSystemSceneNode*           mParticleSystemNode;    ///< Irr Particle System node
-
+        ///@}
         ITextSceneNode*                     mTextNode;              ///< optional text attached
 
         SceneObjectTemplatePtr              mSceneObjectTemplate;   ///< The template to use
@@ -210,6 +214,9 @@ namespace OpenNero
         CameraPtr                           mCamera;                ///< camera that is attached to us (if any)
 		FPSCameraTemplatePtr				mFPSCamera;			    ///< information about whether to attach a camera to this object
         std::string                         mAnimation;             ///< current animation
+        
+        /// collision response animator
+        ISceneNodeAnimatorCollisionResponse_IPtr    mCollider;
     };
 
 };//end OpenNero

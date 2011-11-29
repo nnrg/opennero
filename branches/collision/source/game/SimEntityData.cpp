@@ -21,7 +21,6 @@ namespace OpenNero
         , mColor(0xFF, 0xFF, 0xFF, 0xFF)
         , mType()
         , mCollision()
-        , mBumped(false)
     {
     }
 
@@ -40,7 +39,6 @@ namespace OpenNero
         , mColor(0xFF, 0xFF, 0xFF, 0xFF)
         , mType(t)
         , mCollision(collision)
-        , mBumped(false)
     {
     }
     
@@ -148,15 +146,6 @@ namespace OpenNero
         }
     }
 
-    void SimEntityData::SetBumped( bool bumped )
-    {
-        if (mCurrent.mBumped != bumped) 
-        {
-            mCurrent.mBumped = bumped;
-            mDirtyBits |= kDB_Bumped;
-        }
-    }
-    
     void SimEntityData::SetAnimation( const std::string& animationType )
     {
         Kernel::GetSimContext()->SetObjectAnimation(mId, animationType);
@@ -222,11 +211,6 @@ namespace OpenNero
         return mCurrent.mCollision;
     }
 
-    bool SimEntityData::GetBumped() const
-    {
-        return mCurrent.mBumped;
-    }
-    
     std::string SimEntityData::GetAnimation() const
     {
         return Kernel::GetSimContext()->GetObjectAnimation(mId);
