@@ -136,7 +136,7 @@ class NeroModule:
             type=constants.OBJECT_TYPE_FLAG)
 
     def place_basic_turret(self, loc):
-        common.addObject(
+        return common.addObject(
             "data/shapes/character/steve_basic_turret.xml",
             OpenNero.Vector3f(*loc),
             type=constants.OBJECT_TYPE_TEAM_1)
