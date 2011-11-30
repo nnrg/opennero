@@ -8,7 +8,7 @@ import module
 
 guiMan = None
 modify_object_id = {}
-object_ids = []
+object_ids = {}
 
 
 def switchToHub():
@@ -60,19 +60,20 @@ def show_context_menu():
     location = sim_context.getClickedPosition(cursor.x, cursor.y)
     selected_object_id = sim_context.getClickedEntityId(cursor.x, cursor.y)
 
-    if selected_object_id not in object_ids and abs(location.z) > 1: return
+    if selected_object_id not in object_ids and abs(location.z) > 10: return
 
     print "location:", location
 
     contextMenu = gui.create_context_menu(guiMan, 'context', cursor)
 
     def add_wall():
-        object_ids.append(common.addObject(
+        obj_id = common.addObject(
             "data/shapes/cube/Cube.xml",
             OpenNero.Vector3f(location.x, location.y, constants.HEIGHT + constants.OFFSET),
             OpenNero.Vector3f(0, 0, 90),
             scale=OpenNero.Vector3f(5, 30, constants.HEIGHT*2),
-            type=1))
+            type=1)
+        object_ids[obj_id] = set(['rotate', 'move', 'scale', 'remove'])
 
     def rotate_object():
         modify_object_id['rot'] = selected_object_id
@@ -87,7 +88,8 @@ def show_context_menu():
         module.getMod().change_flag([location.x, location.y, 0])
 
     def place_basic_turret():
-        module.getMod().place_basic_turret([location.x, location.y, 0])
+        obj_id = module.getMod().place_basic_turret([location.x, location.y, 0])
+        object_ids[obj_id] = set(['move', 'remove'])
 
     def set_spawn_1():
         module.getMod().set_spawn(location.x, location.y, constants.OBJECT_TYPE_TEAM_0)
@@ -99,21 +101,27 @@ def show_context_menu():
         common.removeObject(selected_object_id)
 
     if selected_object_id in object_ids:
-        rotateButton = gui.create_button(guiMan, 'rotate', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
-        rotateButton.OnMouseLeftClick = lambda: rotate_object()
-        contextMenu.addItem('Rotate Object', rotateButton)
+        operations = object_ids[selected_object_id]
 
-        scaleButton = gui.create_button(guiMan, 'scale', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
-        scaleButton.OnMouseLeftClick = lambda: scale_object()
-        contextMenu.addItem('Scale Object', scaleButton)
+        if 'rotate' in operations:
+            rotateButton = gui.create_button(guiMan, 'rotate', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
+            rotateButton.OnMouseLeftClick = lambda: rotate_object()
+            contextMenu.addItem('Rotate Object', rotateButton)
 
-        moveButton = gui.create_button(guiMan, 'move', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
-        moveButton.OnMouseLeftClick = lambda: move_object()
-        contextMenu.addItem('Move Object', moveButton)
+        if 'scale' in operations:
+            scaleButton = gui.create_button(guiMan, 'scale', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
+            scaleButton.OnMouseLeftClick = lambda: scale_object()
+            contextMenu.addItem('Scale Object', scaleButton)
 
-        removeButton = gui.create_button(guiMan, 'remove', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
-        removeButton.OnMouseLeftClick = lambda: remove_wall()
-        contextMenu.addItem('Remove Object', removeButton)
+        if 'move' in operations:
+            moveButton = gui.create_button(guiMan, 'move', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
+            moveButton.OnMouseLeftClick = lambda: move_object()
+            contextMenu.addItem('Move Object', moveButton)
+
+        if 'remove' in operations:
+            removeButton = gui.create_button(guiMan, 'remove', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
+            removeButton.OnMouseLeftClick = lambda: remove_wall()
+            contextMenu.addItem('Remove Object', removeButton)
 
     else:
         wallButton = gui.create_button(guiMan, 'wall', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
@@ -154,9 +162,11 @@ def mouse_action():
     cursor = sim_context.getMousePosition()
     location = sim_context.getClickedPosition(cursor.x, cursor.y)
 
-
     if 'move' in modify_object_id:
-       sim_context.setObjectPosition(modify_object_id['move'], OpenNero.Vector3f(location.x, location.y, constants.HEIGHT + constants.OFFSET))
+        pos = sim_context.getObjectPosition(modify_object_id['move'])
+        pos.x = location.x
+        pos.y = location.y
+        sim_context.setObjectPosition(modify_object_id['move'], pos)
 
     if 'rot' in modify_object_id:
         position = sim_context.getObjectPosition(modify_object_id['rot'])
@@ -201,7 +211,7 @@ def ClientMain():
 
     # setup the gui
     guiMan = common.getGuiManager()
-    object_ids = []
+    object_ids = {}
     modify_object_id = {}
 
     # add a camera
