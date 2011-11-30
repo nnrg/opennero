@@ -5,13 +5,13 @@
 #include "game/SimEntityData.h"
 
 namespace OpenNero {
-	
+
     /// A base class for components of SimEntity
 	class SimEntityComponent
 	{
 	protected:
 		SimEntityWPtr mParent;      ///< Parent entity
-		SimEntityData* mSharedData; ///< Shared data for entity 
+		SimEntityData* mSharedData; ///< Shared data for entity
 	public:
         /// SimEntityComponent constructor
 		SimEntityComponent(SimEntityPtr parent) : mParent(parent), mSharedData(NULL) {}

@@ -31,13 +31,13 @@ namespace OpenNero
         public:
 
             std::string name; ///< name of this brain
-            
+
             size_t episode; ///< episode count
-            
+
             size_t step; ///< step count
-            
+
             Reward fitness; ///< cumulative reward for the current episode
-            
+
             mutable bool skip_flag; ///< causes the next call to act to be skipped
 
         public:
@@ -61,18 +61,21 @@ namespace OpenNero
 
             /// called right before the agent dies
             virtual bool destroy() = 0;
-            
+
             /// get the current fitness of the agent
             Reward get_fitness() { return fitness; }
 
             /// add a sensor to this agent's body
             size_t add_sensor(SensorPtr s) { return GetBody()->add_sensor(s); }
-            
+
             /// Causes the next call to act to be skipped
             void Skip() { skip_flag = true; }
-            
+
             /// Should the next call to act be skipped? (clears the flag)
             bool GetSkip() const;
+
+            /// Causes the agent to ignore collisions and to be placed exactly where specified by state
+            void Teleport();
 
             /// set the body associated with this agent
             virtual void SetBody(AIObjectPtr body) { mBody = body; }

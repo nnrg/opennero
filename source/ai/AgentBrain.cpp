@@ -20,6 +20,13 @@ namespace OpenNero
         }
     }
 
+    /// Causes the agent to ignore collisions and to be placed exactly where specified by state
+    void AgentBrain::Teleport()
+    {
+        SimEntityPtr ent = mBody.lock()->GetEntity();
+        ent->UpdateImmediately();
+    }
+
     /// called right before the agent is born
     bool PyAgentBrain::initialize(const AgentInitInfo& init_info)
     {
@@ -45,7 +52,7 @@ namespace OpenNero
         TryOverride("act", result, time, observations, reward);
         return result;
     }
-    
+
     /// called to tell agent about its last reward
     bool PyAgentBrain::end(const TimeType& time, const Reward& reward)
     {

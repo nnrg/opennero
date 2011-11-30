@@ -129,7 +129,7 @@ namespace OpenNero
         SceneObjectPtr scene_object = entity->GetSceneObject();
         if (scene_object && scene_object->mSceneNode)
         {
-            mCamera = ICameraSceneNode_IPtr( mIrr.mpSceneManager->addCameraSceneNodeNeroFP(scene_object->mSceneNode));
+            mCamera = ICameraSceneNode_IPtr( mIrr.mpSceneManager->addCameraSceneNodeNeroFP(scene_object->mSceneNode.get()));
             mCamera->setPosition(ConvertNeroToIrrlichtPosition(camera_template->attach_point));
             mCamera->setTarget(ConvertNeroToIrrlichtPosition(camera_template->target));
             mCamera->setNearValue(camera_template->near_plane);

@@ -21,8 +21,8 @@ namespace OpenNero
     class SimEntityData;
 
     /// interface for objects connecting an AgentBrain to a SimEntity body
-    class AIObject : public BOOST_SHARED_THIS(AIObject), 
-                     public SimEntityComponent, 
+    class AIObject : public BOOST_SHARED_THIS(AIObject),
+                     public SimEntityComponent,
                      public TemplatedObject
     {
     public:
@@ -48,13 +48,13 @@ namespace OpenNero
 
         /// set the currently selected actions for this AI object
         void setActions(Actions actions) { mActions = actions; }
-        
+
         /// get the most recently set actions
         Actions getActions() const { return mActions; }
 
         /// set the brain of this AIObject
         void setBrain(AgentBrainPtr brain) { mAgentBrain = brain; }
-        
+
         /// get the current brain of this AIObject
         AgentBrainPtr getBrain() const { return mAgentBrain; }
 
