@@ -132,7 +132,7 @@ class NeroEnvironment(OpenNero.Environment):
             state.randomize()
             agent.state.position = copy.copy(state.initial_position)
             agent.state.rotation = copy.copy(state.initial_rotation)
-            agent.state.update_immediately()
+            agent.teleport()
         return True
 
     def get_agent_info(self, agent):

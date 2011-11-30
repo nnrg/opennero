@@ -27,10 +27,10 @@ namespace OpenNero
 
     /// Set of SimEnities
     typedef std::set<SimEntityPtr> SimEntitySet;
-    
+
     /// List of SimEntities
     typedef std::list<SimEntityPtr> SimEntityList;
-    
+
     /// an unique identifier that used to identify objects locally
     typedef uint32_t SimId;
 
@@ -48,15 +48,15 @@ namespace OpenNero
 
     public:
         /// Create a new sim entity using given creation data
-        static SimEntityPtr CreateSimEntity( 
-            SimEntityData& data, 
-            const std::string& templateName, 
+        static SimEntityPtr CreateSimEntity(
+            SimEntityData& data,
+            const std::string& templateName,
             SimContextPtr context);
         // This method is supposed to refine and extend the current data in the entity
         static void InitializeSimEntity(
-            SimEntityPtr ent, 
-            SimEntityData& data, 
-            const std::string& templateName, 
+            SimEntityPtr ent,
+            SimEntityData& data,
+            const std::string& templateName,
             SimContextPtr context);
     public:
 
@@ -68,10 +68,10 @@ namespace OpenNero
 
         /// called before the simulation tick takes place
         void BeforeTick( float32_t incAmt );
-        
+
         /// called to tick the rendering component
         void TickScene( float32_t incAmt);
-        
+
         /// called to tick the AI component
         void TickAI( float32_t incAmt);
 
@@ -113,7 +113,6 @@ namespace OpenNero
         const SColor& GetColor() const;
         uint32_t GetType() const;
         uint32_t GetCollision() const;
-        bool GetBumped() const;
         /// @}
 
 		/// Setters for properties
@@ -125,26 +124,18 @@ namespace OpenNero
         void SetLabel( const std::string& label );
         void SetColor( const SColor& color );
         void SetCollision( uint32_t mask );
-        void SetBumped(bool bumped);
         /// @}
-        
-        void UpdateImmediately() { mSharedData.SetAllDirtyBits(); }
+
+        /// Make the state update immediate, "teleporting" the agent
+        /// to the current state and ignoring collisions
+        void UpdateImmediately();
 
         /// Is the object marked for removal
         bool IsRemoved() const { return mRemoved; }
-        
+
         /// Mark the object for removal
         void SetRemoved() { mRemoved = true; }
     private:
-        /// Will moving the entity to new_pos cause it to collide with others?
-        bool IsColliding( const SimEntitySet& others);
-        
-        /// Assume that a collision occurred and resolve it (bounce)
-        void ResolveCollision();
-        
-        /// Can this object collide at all?
-        bool CanCollide() const;
-
         /// output human-readable information about this SimEntity
         friend std::ostream& operator<<(std::ostream& stream, const SimEntityPtr&);
 
@@ -169,7 +160,7 @@ namespace OpenNero
 
         /// the template that we were loaded from
         std::string     mCreationTemplate;
-        
+
         /// removed flag
         bool            mRemoved;
     };
