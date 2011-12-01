@@ -454,7 +454,7 @@ class NeroEnvironment(OpenNero.Environment):
                 state.randomize()
                 agent.state.position = copy.copy(state.initial_position)
                 agent.state.rotation = copy.copy(state.initial_rotation)
-                agent.state.update_immediately()
+                agent.teleport()
             return False
 
         rtneat = OpenNero.get_ai("rtneat-%s" % team)
