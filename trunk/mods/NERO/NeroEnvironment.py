@@ -299,11 +299,21 @@ class NeroEnvironment(OpenNero.Environment):
             d = target_pos.getDistanceFrom(source_pos)
             d = (constants.MAX_SHOT_RADIUS - d)/constants.MAX_SHOT_RADIUS
             if random.random() > d/2: # attempt a shot depending on distance
+                color = constants.TEAM_LABELS[agent.get_team()]
+                if color == 'red':
+                    color = OpenNero.Color(255, 255, 0, 0)
+                elif color == 'blue':
+                    color = OpenNero.Color(255, 0, 0, 255)
+                else:
+                    color = OpenNero.Color(255, 255, 255, 0)
+                wall_color = OpenNero.Color(128, 0, 255, 0)
                 obstacles = OpenNero.getSimContext().findInRay(
                     source_pos,
                     target_pos,
                     constants.OBJECT_TYPE_OBSTACLE,
-                    True)
+                    True,
+                    wall_color,
+                    color)
                 if len(obstacles) == 0 and random.random() > d/2:
                     # count as hit depending on distance
                     self.get_state(target).curr_damage += 1

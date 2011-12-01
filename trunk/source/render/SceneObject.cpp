@@ -922,7 +922,7 @@ namespace OpenNero
             else if (mAniSceneNode)
             {
                 IMesh* mesh = mAniSceneNode->getMesh();
-                tri_selector = GetSceneManager()->createOctreeTriangleSelector(mesh, mAniSceneNode.get());
+                tri_selector = GetSceneManager()->createTriangleSelector(mesh, mAniSceneNode.get());
                 AssertMsg(tri_selector, "Could not create a collision object for id: " << GetId());
                 mAniSceneNode->setTriangleSelector(tri_selector.get());
                 LOG_F_DEBUG("collision", "creating mesh triangle selector for id: " << GetId());
