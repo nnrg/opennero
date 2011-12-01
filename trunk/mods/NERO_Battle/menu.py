@@ -22,7 +22,7 @@ class NeroPanel(NERO.menu.NeroPanel):
 
     def add_sliders(self):
         self.add_slider('Hitpoints', 'HP', span=100, center=0, thumb=20)
-        self.add_slider('Speedup', 'SP', span=100, center=0, thumb=80)
+        #self.add_slider('Speedup', 'SP', span=100, center=0, thumb=80)
 
     def OnLoad2(self, event):
         dirname = ""

@@ -115,7 +115,7 @@ class NeroModule:
         common.addObject(
             "data/terrain/NeroWorld.xml",
             OpenNero.Vector3f(constants.XDIM/2, constants.YDIM/2, 0),
-            scale=OpenNero.Vector3f(1, 1, 1),
+            scale=OpenNero.Vector3f(1.2, 1.2, 1.2),
             label="NeroWorld",
             type=constants.OBJECT_TYPE_LEVEL_GEOM)
 
@@ -261,6 +261,7 @@ class NeroModule:
 
     def set_speedup(self, speedup):
         OpenNero.getSimContext().delay = 1.0 - (speedup / 100.0)
+        print 'speedup delay', OpenNero.getSimContext().delay
         if self.environment:
             self.environment.speedup = speedup / 100.0
 

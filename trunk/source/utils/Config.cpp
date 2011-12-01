@@ -82,7 +82,7 @@ namespace OpenNero
             TCLAP::ValueArg<std::string> 
                 argRandomSeeds("", "random", "Random seeds to use", false, "12345", "numbers");
             TCLAP::ValueArg<float32_t>
-                argFrameDelay("", "delay", "the delay between AI frames to use for animation", false, 0.5, "seconds");
+                argFrameDelay("", "delay", "the delay between AI frames to use for animation", false, 0.0, "seconds");
             
             // add them to CmdLine object
             cmd.add(argLogFile);

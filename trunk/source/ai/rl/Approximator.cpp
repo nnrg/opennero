@@ -58,7 +58,6 @@ namespace OpenNero
         const FeatureVector& s = quantize_state(observation);
         const FeatureVector& a = quantize_action(action);
         table[StateActionPair(s, a)] = target;
-        LOG_F_MSG("ai.rl", "RL::update " << s << " " << a << " " << target);
     }
 
     /// given a feature vector from a continuous space, quantize each component

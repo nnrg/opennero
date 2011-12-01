@@ -572,10 +572,12 @@ namespace OpenNero
             SetRotation( data.GetRotation() );
 
             // set up the triangle selector for this object
-            ITriangleSelector_IPtr tri_selector = GetTriangleSelector();
-            if (!tri_selector) {
-                LOG_F_WARNING("collision", "could not create triangle selector for collisions with object " << GetId());
-            }
+            //if (data.GetType() > 0) {
+                ITriangleSelector_IPtr tri_selector = GetTriangleSelector();
+                if (!tri_selector) {
+                    LOG_F_WARNING("collision", "could not create triangle selector for collisions with object " << GetId());
+                }
+            //}
 
             // additionally, add a collision response animator
             if (canCollide()) {

@@ -38,7 +38,7 @@ DEFAULT_HITPOINTS = 20
 # default value of explore/exploit slider (x out of 100)
 DEFAULT_EE = 10
 
-# default speedup setting (there will be a 0.1 * 80 / 100 second delay between AI steps)
+# default speedup setting (there will be a 0.1 * (100-DEFAULT_SPEEDUP) / 100 second delay between AI steps)
 DEFAULT_SPEEDUP = 100
 
 OBJECT_TYPE_OBSTACLE  = (1 << 0) # object type for walls

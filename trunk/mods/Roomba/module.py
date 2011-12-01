@@ -123,7 +123,7 @@ class SandboxMod:
         # Create RTNEAT object
         rbound = OpenNero.FeatureVectorInfo()
         rbound.add_continuous(-sys.float_info.max, sys.float_info.max)
-        rtneat = OpenNero.RTNEAT("data/ai/neat-params.dat", 6, 2, pop_size, 1.0, rbound)
+        rtneat = OpenNero.RTNEAT("data/ai/neat-params.dat", 7, 2, pop_size, 1.0, rbound)
         rtneat.set_weight(0,1)
         OpenNero.set_ai("rtneat",rtneat)
         OpenNero.enable_ai()
