@@ -1,4 +1,4 @@
-OpenNERO (c) 2009 The University of Texas at Austin
+OpenNERO (c) 2006-2011 The University of Texas at Austin
 All rights reserved.
 Refer to COPYING.txt for detailed license information.
 
@@ -28,4 +28,4 @@ DIRECTORY CONTENTS
 
 FOR MORE INFORMATION CONTACT
 
-opennero-questions@googlegroups.com
+opennero@googlegroups.com
