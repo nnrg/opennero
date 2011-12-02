@@ -22,7 +22,7 @@ and then the battle mode itself.  Ways of extending the learning
 methods and handcoding the teams, as well as differences from the
 original NERO are described in the end.
 
-<wiki:video url="http://www.youtube.com/watch?v=3EG2OmjZ4wg"/>
+<wiki:video url="http://www.youtube.com/watch?v=1RRGGIFOU04"/>
 
 ==NERO Environment==
 
