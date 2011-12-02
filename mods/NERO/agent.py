@@ -102,7 +102,7 @@ class RTNEATAgent(NeroAgent, OpenNero.AgentBrain):
                 self.state.label = str(org.time_alive)
                 OpenNero.setWindowCaption("Displaying Time Alive")
             elif display_hint == 'hit points':
-                self.state.label = 'hp'
+                self.state.label = ''.join('.' for i in range(int(5*OpenNero.get_environment().get_hitpoints(self))))
                 OpenNero.setWindowCaption("Displaying Hit Points")
             elif display_hint == 'genome id':
                 self.state.label = str(org.id)
