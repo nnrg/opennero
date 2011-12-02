@@ -2,64 +2,10 @@
 #labels Demo
 #sidebar TableOfContents
 
-<wiki:toc />
-
 =Introduction=
 
 http://opennero.googlecode.com/svn/wiki/neuroevolution.png
 
 [http://nn.cs.utexas.edu/?miikkulainen:encyclopedia10-ne Neuroevolution] is a method for modifying neural network weights, topologies, or ensembles in order to learn a specific task. Evolutionary computation is used to search for network parameters that maximize a fitness function that measures performance in the task. Compared to other neural network learning methods, neuroevolution is highly general, allowing learning without explicit targets, with nondifferentiable activation functions, and with recurrent networks. It can also be combined with standard neural network learning to e.g. model biological adaptation. Neuroevolution can also be seen as a policy search method for reinforcement-learning problems, where it is well suited to continuous domains and to domains where the state is only partially observable.
 
-OpenNERO includes several demonstrations of the [http://nn.cs.utexas.edu/?NEAT NEAT] ([http://nn.cs.utexas.edu/?rtNEAT rtNEAT]) algorithm. NEAT is an evolutionary algorithm and adapts the weights and the topologies of neural network controllers.
-
-=Evolving a maze agent=
-
-MazeMod includes the ability to evolve an agent to navigate the maze. After starting the mod, select the *Neuroevolution* button. You will see a small fraction of the total population (usually 5-10 out of 50) run out into the maze. Each time an agent restarts from the beginning, it gets a new network phenotype to evaluate. This can be a newly generated one (explore) or an exact replica of the best found so far (exploit). This is a similar trade-off between exploration and exploitation to the one that exists in [SarsaLearning Sarsa] and [QLearning Q-Learning]!
-
-==Fitness function==
-
-The fitness function for each network genotype is calculated by running the agent for a set number of steps and adding up the step-by-step rewards. The rewards for the maze are set in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/environment.py Maze/environment.py] as part of the `RewardStructure` class. Some example values are:
- * -1 for a valid move
- * -5 for running into a wall
- * 100 for reaching the goal
- * a fraction of 100 proportional to the Manhattan distance to the goal for ending up somewhere other than the goal
-
-Is this the best reward structure? Designing the right reward structure for more complicated learning problems can be tricky!
-
-==Parameters==
-
-Exploration/exploitation parameter can also be adjusted with an on-screen slider. The parameters for evolving the teams can be adjusted in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/data/ai/neat-params.dat Maze/data/ai/neat-params.dat]. Parameters are the dark art of many learning method implementations, and rtNEAT is no exception. We provided parameter files that historically worked well, however, your mileage may vary.
-
-=Evolution in the NERO mod=
-
-Like the [http://www.nerogame.org NERO game], NeroMod is built around evolving a population of agents for a variety of tasks. 
-
-After starting the *NERO* mod, set the desired fitness sliders and click *Deploy*. Sliders can be adjusted during the training process to shape the agents via their fitness function.
-
-==Fitness function==
-
-The fitness in the NERO mod is controlled via a set of sliders that represent positive or negative value associated with some dimensions of the performance.
-
-There are two important things to know about the NERO fitness function. First, it is _multi-objective_ - you can choose a number of priorities at any stage during your training, such as keeping away from the enemy team while still firing at them. Second, it is a _dynamic shaping function_ - as the trainer, you can choose to set the sliders to one set of values for a period of time and then to another when you are satisfied with the result.
-
-In fact, we have found that learning simple skills first and then combining them is much faster than trying to evolve the complete behavior from scratch!
-
-==Saving and Loading Your Teams==
-
-Use the Load and Save buttons to Load and Save population files. These represent the weights and connections that your team has evolved - save early and save often (and to different files)!
-
-==Parameters==
-
-The parameters for evolving the teams can be adjusted in [http://code.google.com/p/opennero/source/browse/trunk/mods/NERO/data/ai/neat-params.dat NERO/data/ai/neat-params.dat].
-
-=Evolving a cleaning robot=
-
-In the RoombaMod, select the *rtNEAT* agents and click *Add Bots* to have them evolve a better cleaning strategy.
-
-==Reward==
-
-The agent receives a reward for picking up crumbs around the lab. The crumbs can have different values, which are specified in [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/world_config.txt Roomba/world_config.txt]. This file also specifies the distribution of the crumbs in the lab.
-
-==Parameters==
-
-The parameters for evolving the teams can be adjusted in [http://code.google.com/p/opennero/source/browse/trunk/mods/Roomba/data/ai/neat-params.dat Roomba/data/ai/neat-params.dat].
+In OpenNERO, neuroevolution is primarily demonstrated in the [NeroGame NERO Game environment]. The particular neuroevolution method is [http://nn.cs.utexas.edu/?ieeetec-05 rtNEAT], i.e. an evolutionary algorithm that adapts the weights and the topologies of neural network controllers. With a little bit of work (left as an exercise), rtNEAT can be used to solve (instead of Q-learning) the Maze Running task as well as the Roomba tasks, and perhaps even the Towers of Hanoi.
