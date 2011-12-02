@@ -39,22 +39,7 @@ Please read that page carefully.
 
 ==3. Submit Your Team to the Tournament==
 
-After you are satisfied with your team, you'll save it into a file.
-That file is about 20MB, but compresses very well, downto about 2MB.
-Please use one of the following methods to compress it:
-
-On Linux, say gzip <file.pop>
-
-On Mac OSX...
-
-On Windows...
-
-After you have compressed the file, go to [http this webpage] to
-submit it. The tournament is intended for participants in the Stanford
-Online AI course, so you need to have a login to the class website to
-submit.
-
-The deadline for submission is XXX in CST.
+After you are satisfied with your team, you'll save it into a file, and submit that file into the tournament. Specific instructions on how to submit will be posted here in the near future. The deadline for submission is *December 15th, 2011 at 12 midnight CST.*
 
 ==4. Eagerly Await the Results==
 
