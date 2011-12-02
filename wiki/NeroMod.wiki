@@ -2,8 +2,6 @@
 #labels Demo
 #sidebar TableOfContents
 
-WARNING: THIS PAGE IS STILL UNDER (MINOR) CONSTRUCTION
-
 =The NERO Machine Learning Game=
 
 In the NERO game, the user trains intelligent agents to perform well
@@ -24,7 +22,7 @@ and then the battle mode itself.  Ways of extending the learning
 methods and handcoding the teams, as well as differences from the
 original NERO are described in the end.
 
-http://www.cs.utexas.edu/users/risto/pictures/nerogame1.png
+<wiki:video url="http://www.youtube.com/watch?v=3EG2OmjZ4wg"/>
 
 ==NERO Environment==
 
