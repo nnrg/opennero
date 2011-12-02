@@ -14,11 +14,18 @@ except:
 
 
 class NeroPanel(NERO.menu.NeroPanel):
+    def __init__(self, parent):
+        NERO.menu.NeroPanel.__init__(self, parent)
+        self._sliders['HP'].Enable()
+        del self._sliders['HP']
+
     def add_buttons(self):
-        self.add_button('Deploy RTNEAT', self.OnDeployRTNEAT)
-        self.add_button('Deploy QLearning', self.OnDeployQLearning)
+        #self.add_button('Deploy RTNEAT', self.OnDeployRTNEAT)
+        #self.add_button('Deploy QLearning', self.OnDeployQLearning)
         self.add_button('Load Blue Team', self.OnLoad1)
         self.add_button('Load Red Team', self.OnLoad2)
+        self.add_button('Continue', self.OnPause, disabled = True)
+        self.add_button('Help', self.OnHelp)
 
     def add_sliders(self):
         self.add_slider('Hitpoints', 'HP', span=100, center=0, thumb=20)
@@ -31,7 +38,9 @@ class NeroPanel(NERO.menu.NeroPanel):
             filename = dlg.GetFilename()
             dirname = dlg.GetPath()
             self.send("load2 %s" % dirname)
-
+            self.loaded2 = True
+            if self.loaded1 and self.loaded2:
+                self._buttons['OnPause'].Enable()
 
 if __name__ == '__main__':
     print 'creating NERO Battle controls'
