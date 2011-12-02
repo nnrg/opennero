@@ -53,7 +53,7 @@ for the final game, which will be repeated until there is an actual
 winner based on hits.
 
 The tournament results will be posted a few days after the deadline on
-[http this website], including videos of the final games. The teams
+[TournamentResults this website], including videos of the final games. The teams
 will be identified by the name provided in the submission.
 
 ==Debugging, Discussion, and Bug Fixes==
