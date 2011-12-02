@@ -20,7 +20,7 @@ then the two methods for training the agents (neuroevolution and
 reinforcement learning), how a team can be put together for battle,
 and then the battle mode itself.  Ways of extending the learning
 methods and handcoding the teams, as well as differences from the
-original NERO are described in the end.
+original NERO are described in the end. To get a quick introduction to NERO, watch the video below.
 
 <wiki:video url="http://www.youtube.com/watch?v=1RRGGIFOU04"/>
 
@@ -321,9 +321,9 @@ and the spawn locations can be changed as in training mode).
 
 The Hitpoints slider specifies how many times each agent can be hit
 before it dies and is removed from the battle.  The game ends when one
-team is completely eliminated.
+team is completely eliminated or when the time runs out, in which case the team that has more hits on the opponent wins. The current hitpoints are displayed in the title bar of the NERO window.
 
-The game starts when the user presses the Deploy button. The agents
+The game starts when the user presses the Continue button. The agents
 are spawned only once, and they then have to move around in the
 environment and engage the other team. This is where the training pays
 off: the agents need to respond appropriately to the opponents'
