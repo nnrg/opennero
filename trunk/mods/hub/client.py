@@ -1,5 +1,5 @@
 from OpenNero import *
-from nero_mod import list_mods, list_bases
+from nero_mod import list_mods, list_bases, MOD_NAMES, MOD_DIRS
 from inputConfig import *
 
 from common import gui, getGuiManager, openWiki
@@ -10,7 +10,7 @@ basenames = [x[1:] for x in list_bases()]
 def SwitchToSelectedMod(combo_box):
     def closure():
         i = combo_box.getSelected()
-        modname = mods[i]
+        modname = MOD_DIRS.get(mods[i], mods[i])
         # create the path where to look for mod content
         modpath = modname
         # find and append any bases that look like this mod
@@ -34,7 +34,7 @@ def ClientMain():
 
     combo_box = gui.create_combo_box(guiMan, "mod_selector", Pos2i(x_offset, y_offset + 50), Pos2i(200, 25))
     for i, modname in enumerate(mods):
-        combo_box.addItem(modname)
+        combo_box.addItem(MOD_NAMES.get(modname,modname))
 
     startButton = gui.create_button( guiMan, 'start', Pos2i(x_offset, y_offset), Pos2i(60,25), '' )
     startButton.text = 'Start'

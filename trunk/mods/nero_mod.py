@@ -23,6 +23,9 @@ TEMPLATE = 'TEMPLATE'
 SPECIAL_MOD_NAMES = ['TEMPLATE', 'common', 'hub']
 SPECIAL_MOD_PREFIX = '_'
 MOD_PATH = '.'
+BUILTIN_MODS = ['Maze', 'NERO', 'NERO_Battle', 'BlocksTower', 'Roomba']
+MOD_NAMES = {'NERO': 'NERO Training', 'NERO_Battle': 'NERO Battle'}
+MOD_DIRS = dict((v,k) for k,v in MOD_NAMES.iteritems())
 
 def mod_path(name):
     " get the path of the mod "
@@ -80,18 +83,18 @@ def copy_mod(name, new_name):
     return True
 
 def list_mods():
+    global BUILTIN_MODS
     " list all available mods "
     mods = []
     # first list Maze, NERO, BlocksTower and Roomba in order
-    builtin_mods = ['Maze', 'NERO', 'NERO_Battle', 'BlocksTower', 'Roomba']
-    for m in builtin_mods:
+    for m in BUILTIN_MODS:
         if mod_exists(m) and not is_special(m):
             mods.append(m)
     # now add any other mods
-    builtin_mods = set(builtin_mods)
+    BUILTIN_MODS = set(BUILTIN_MODS)
     files = os.listdir(MOD_PATH)
     for f in files:
-        if f not in builtin_mods and mod_exists(f) and not is_special(f):
+        if f not in BUILTIN_MODS and mod_exists(f) and not is_special(f):
             mods.append(f)
     return mods
 
