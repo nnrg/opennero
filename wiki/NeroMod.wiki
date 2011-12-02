@@ -38,9 +38,8 @@ The agents are simulated "Steve" robots seen also in the [MazeMod Maze] and
   * laser range finders that sense distance to the nearest object (wall or a tree) in 5 directions around it: front, 45 degrees to each side, 90 degrees to each side. These sensors have a range of 100. They return 1 if they don't intersect with any walls, and a value between 0 and 1 if the intersection interrupts the ray a fraction of its length.
   * radar sensors that return the distance to the flag in 5 overlapping sectors: -3..18, 12..90, -18..3, -12..-90, and -90..90 (behind the agent). These sensors have a range limited to 300 (about half of the field width). Flags can be used to train agents e.g. to move around walls.
   * radar sensors that trigger when enemies are detected within a sector of the space around the robot. The more enemies are detected or the closer they are, the higher the value of the corresponding radar sensor will be.
-  * two sensors that depend on the distance and direction to the center of mass of the friendly team, respectively. These sensors can allow agents to stick together or spread out.
-  * a sensor that indicates whether the agent is facing an enemy within sensor range within 2 degrees. 
-This sensor is useful to train agents that shoot well.
+  * two sensors that depend on the distance and direction to the center of mass of the teammates. These sensors can allow agents to stick together or spread out.
+  * a sensor that indicates whether the agent is facing an enemy within sensor range within 2 degrees. This sensor is useful to train agents that shoot well.
 
 Their effectors are
   * Forward/backward speed: -1..1 of maximum. The agents move at a rate of up to 1 unit per frame (MAX_MOVEMENT_SPEED in [http://code.google.com/p/opennero/source/browse/trunk/mods/NERO/constants.py constants.py].
@@ -65,10 +64,8 @@ better at shooting by getting closer and orienting more accurately
 towards the enemy.
 
 Their weapon is a laser gun that shoots a single instantaneous ray; it
-is blocked by walls and trees, but it has no effect on teammates.
-In battle, each shot that hits an enemy decreases its hit points by one
-point; once the hitpoints run out, the enemy dies and is removed from
-the battle.
+is blocked by walls and trees, but it has no effect on teammates. The red team shoots red rays and the blue team blue rays; if either ray hits a wall or a tree, it turns green. Each shot that hits an agent decreases the agent's hitpoints by one; once the hitpoints run out, the agent dies and is removed from
+the field. In battle, it is gone for good; during training, it is respawned with hitpoints and lifetime reset.
 
 The standard NERO environment consists of an enclosed field with a
 wall in the middle and a couple of trees around, behind which the
@@ -86,27 +83,28 @@ and mouse controls:
   * *Q* - Rotate Left
   * *E* - Rotate Right
   * *R* - Rotate Up
-  * *scroll up* - Zoom in
-  * *scroll down* - Zoom out
+  * *Z* or *scroll up* - Zoom in
+  * *C* or *scroll down* - Zoom out
   * *F1* - Go to this page for help
   * *F2* - Cycle through useful stats that can be displayed above each agent, including (in order) the time their brain has spent on the field, remaining hitpoints, rtNEAT genome ID (indicating how recently the agent was introduced), rtNEAT species number (indicating how recently the species was introduced), and the current population champion.
+
+Near the top left of the screen there's a single number that indicates the current frame rate of the display. It should be 24 or higher in a visually appealing animation, but may fall to 12 or lower on a slow machine (as well as currently on MacOSX due to Irrlicht rendering issue).
 
 ==NERO Training==
 
 In the training mode, the user selects one of the two training methods
-(neuroevolution or reinforcement learning) and then manipulates the
+(neuroevolution or reinforcement learning) and manipulates the
 environment and the behavioral goals in order to train them to do what
 s/he wants.
 
-Typically the training starts by setting some of the goals (or fitness
-coefficients) in the parameter window. They are:
+Typically the training starts by deploying either an rtNEAT team or Q-learning team, and then setting some of the goals (or fitness coefficients) in the parameter window (the sliders become active after a Deploy button is pressed). They are:
 
   * Stand Ground:
     * Positive: Punished for nonzero movement velocity
     * Negative: Rewarded for nonzero movement velocity
-  * Stick Together (currently not used)
-    * Positive: Rewarded for small distance to closest allied agent
-    * Negative: Rewarded for large distance to closest allied agent
+  * Stick Together
+    * Positive: Rewarded for small distance to center of mass of teammates.
+    * Negative: Rewarded for large distance to center of mass of teammates.
   * Approach Enemy:
     * Positive: Rewarded for small distance to closest enemy agent
     * Negative: Rewarded for large distance to closest enemy agent
@@ -124,34 +122,28 @@ There are also a number of parameters that effect learning that should
 be set appropriately (the default values usually are a good starting
 point):
 
-  * Explore/Exploit: With Neuroevolution: The percentage of generated agents which are the best of previous generations being reevaluated; with Reinforcement Learning: The percentage of the actions taken greedily (i.e. those with the best Q-values) vs. actions taken to explore the environment (i.e. randomly selected actions)
+  * Explore/Exploit: This slider has no effect on neuroevolution. With Reinforcement Learning, it determines the percentage of actions taken greedily (i.e. those with the best Q-values) vs. actions taken to explore the environment (i.e. randomly selected actions)
   * Lifetime: The number of action steps each agent gets to perform before being removed from the simulation (and restarted, or replaced by offspring).
-  * Hitpoints: The amount of damage a unit can take before dying (Note: being hit by an enemy is 1 point of damage)
+  * Hitpoints: The amount of damage an agent can take before dying (Note: being hit by an enemy is 1 point of damage). In training, the agent is removed from where it is and respawned at the spawn location with lifetime and hitpoints reset.
 
-The second part of the initiation is the set up the environment. An
+The second part of the initialization is to set up the environment. An
 initial environment is already provided, and it is the same as the
 battle environment. The user can, however, add objects to it to
-design the training curriculum, through left clicking with the mouse:
+design the training curriculum, through right clicking with the mouse:
 
-When left clicking on empty space:
+When right clicking on empty space:
 http://www.cs.utexas.edu/users/risto/pictures/menu1.png
   * Add Wall: Generates a standard wall where you clicked
-  * Place Flag: Generates a flag to the place where you clicked, or moves the flag there if one already exists. The flag has the appearance of a blue pole.
-  * Place Turret: Generates an enemy at a location where you clicked. The enemy rotates and fires at anything in its line-of-fire, with the same probabilistic method as the agents themselves.
+  * Place Flag: Generates a flag to the place where you clicked, or moves the flag there if one already exists. The flag has the appearance of a blue pole. The flags are useful for demonstration purposes, but not necessary in training for battle.
+  * Place Turret: Generates an enemy at a location where you clicked. The enemy rotates and fires at anything in its line-of-fire, with the same probabilistic method as the agents themselves. It does not die no matter how many times it is hit.
   * Set Spawn location: moves the location around which the agents are created to the location where you clicked. The locations and orientations of the agents are randomly choces within a small circle around that point. The team is blue in training; in battle there are red and blue teams.
 
-When left clicking on an object (i.e. wall or turret) you placed:
+When right clicking on an object (i.e. a wall or a turret) that you placed:
 http://www.cs.utexas.edu/users/risto/pictures/menu2.png
-  * Rotate Object: Rotates the object around the z-axis
-  * Scale Object: Scales the object
-  * Move Object: Lets you move the object
+  * Rotate Object: Rotates the object around the z-axis until the user left clicks.
+  * Scale Object: Scales the object until the user left clicks.
+  * Move Object: Lets you move the object until you left click.
   * Remove Object: Removes the object
-The above effects will continue until the user right clicks.
-
-In the current version there's an issue with Irrlicht that makes it
-sometime difficult for the clicks to get through. If that happens,
-move the camera slightly and try again. Sometimes it will take several
-tries.
 
 The trees are sensed as small walls; in the current version they
 cannot be created or modified though.
@@ -168,8 +160,8 @@ is created and spawned on the field. Each agent is controlled by a
 simply neural network connecting the input sensors directly to
 outputs, with random weights. Over their lifetime, fitness is
 accumulated based on the behavior objectives specified with the
-sliders: if e.g. the approach flag is rewarded, the time they spend
-near the flag is multiplied by a large constant and added to the
+sliders: if e.g. the approach enemy is rewarded, the time they spend
+near the enemy is multiplied by a large constant and added to the
 fitness.
 
 After their lifetime expires, they are removed from the field one at a
@@ -239,11 +231,8 @@ battle.
 The game consists in trying to come up with a sequence of increasingly
 demanding goals, so that the agents will perform well in the end. It
 is a good idea to start with something simple, such as approaching the
-flag. Once the agents learn that, place the flag around the wall so
-they learn to go around it. Then introduce an enemy and reward the
-agents for hitting it. Then start penalizing them for getting
-hit.  Introduce more enemies, and objects behind which the agents can
-take cover.
+enemy. Once the agents learn that, place the enemy behind a wall so
+they learn to go around it. Then reward the agents for hitting the enemy as well. Then start penalizing them for getting hit.  Introduce more enemies, and walls behind which the agents can take cover. You can also explore the effects of staying close or apart from teammates, and standing ground or moving a lot. In this manner, you can create agents with distinctly different personalities, and thus possibly serving different roles in battle.
 
 Achieving each objective will take some time. Within a couple of
 minutes you should see some of the agents perform the task sometimes;
@@ -421,3 +410,7 @@ education. Unfortunately, it has the result of slowing down the
 simulation by an order of magnitude. However, we believe that
 researchers and students have the patience it takes to "play"
 OpenNERO, in order to gain the better insight into the learning in it.
+
+==Software Issues==
+
+OpenNERO is being actively developed, and we appreciate receiving bugreports and other feedback on any software issues you might encounter. Please submit a report at [issues]; you may first check whether the issue is already listed there as a known one. 
