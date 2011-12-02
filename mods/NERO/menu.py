@@ -57,7 +57,10 @@ class ScriptClient:
 
     def send(self, data):
         if data and self.sock:
-            send(self.sock, data)
+            try:
+                send(self.sock, data)
+            except:
+                print data
 
 class NeroPanel(wx.Panel, ScriptClient):
     def __init__(self, parent):
@@ -69,6 +72,7 @@ class NeroPanel(wx.Panel, ScriptClient):
         self._buttonIndex = 0
         self._buttonPanel = wx.Panel(self, wx.ID_ANY)
         self._buttonGrid = wx.GridBagSizer(hgap=5, vgap=5)
+        self._buttons = {}
         self.add_buttons()
         self._buttonPanel.SetSizer(self._buttonGrid)
 
@@ -84,10 +88,12 @@ class NeroPanel(wx.Panel, ScriptClient):
         self._grid.Fit(parent)
 
     def add_buttons(self):
-        self.add_button('Deploy RTNEAT', self.OnDeployRTNEAT)
-        self.add_button('Deploy QLearning', self.OnDeployQLearning)
+        self.add_button('Deploy rtNEAT', self.OnDeployRTNEAT)
+        self.add_button('Deploy Q-Learning', self.OnDeployQLearning)
+        self.add_button('Pause', self.OnPause, disabled = True)
         self.add_button('Save Team', self.OnSave1)
         self.add_button('Load Team', self.OnLoad1)
+        self.add_button('Help', self.OnHelp)
 
     def add_sliders(self):
         self.add_slider('Stand Ground', 'SG')
@@ -102,12 +108,15 @@ class NeroPanel(wx.Panel, ScriptClient):
         #speedup slider is not needed since we want to run at 100% speedup
         #self.add_slider('Speedup', 'SP', span=100, center=0, thumb=constants.DEFAULT_SPEEDUP)
 
-    def add_button(self, label, callback):
+    def add_button(self, label, callback, disabled = False):
         button = wx.Button(
             self._buttonPanel, pos=wx.DefaultPosition, size=wx.DefaultSize, label=label)
-        self._buttonGrid.Add(button, pos=(0, self._buttonIndex))
+        self._buttonGrid.Add(button, pos=(self._buttonIndex / 3, self._buttonIndex % 3))
         self.Bind(wx.EVT_BUTTON, callback, button)
         self._buttonIndex += 1
+        self._buttons[callback.__name__] = button
+        if disabled:
+            button.Disable()
 
     def add_slider(self, label, key, span=200, center=100, thumb=100):
         explanation = wx.StaticText(
@@ -146,12 +155,18 @@ class NeroPanel(wx.Panel, ScriptClient):
                 slider.Enable()
 
     def OnDeployRTNEAT(self, event):
+        buton = self._buttons['OnDeployRTNEAT']
         self.send("rtneat 0")
-        self.ToggleEnabledSliders()
+        self.EnableSliders()
+        self._sliders['EE'].Disable()
+        pauseButton = self._buttons['OnPause']
+        pauseButton.Enable()
 
     def OnDeployQLearning(self, event):
         self.send("qlearning 0")
-        self.ToggleEnabledSliders()
+        self.EnableSliders()
+        pauseButton = self._buttons['OnPause']
+        pauseButton.Enable()
 
     def OnSave1(self, event):
         dirname = ""
@@ -168,6 +183,24 @@ class NeroPanel(wx.Panel, ScriptClient):
             filename = dlg.GetFilename()
             dirname = dlg.GetPath()
             self.send("load1 %s" % dirname)
+            
+    def OnPause(self, event):
+        pauseButton = self._buttons['OnPause']
+        if pauseButton.Label == 'Pause':
+            self.send('pause 0')
+            self.DisableSliders()
+            pauseButton.Label = 'Continue'
+        else:
+            self.send('resume 0')
+            self.EnableSliders()
+            pauseButton.Label = 'Pause'
+    
+    def OnHelp(self, event):
+        try:
+            import webbrowser
+            webbrowser.open('http://code.google.com/p/opennero/wiki/NeroMod')
+        except:
+            print 'could not open help page for nero mod'
 
     def OnSlider(self, event, key, center=0):
         position = event.Position - center

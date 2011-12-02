@@ -366,6 +366,8 @@ def parseInput(strn):
     if loc == "load1": mod.load_team(val, constants.OBJECT_TYPE_TEAM_0)
     if loc == "rtneat": mod.deploy('rtneat')
     if loc == "qlearning": mod.deploy('qlearning')
+    if loc == "pause": OpenNero.disable_ai()
+    if loc == "resume": OpenNero.enable_ai()
 
 def ServerMain():
     print "Starting mod NERO"
