@@ -73,7 +73,7 @@ The tournament results will be posted a few days after the deadline on
 [http this website], including videos of the final games. The teams
 will be identified by the name provided in the submission.
 
-==Debugging, Discussion, and Bugs==
+==Debugging, Discussion, and Bug Fixes==
 
 If you run into any bugs in your program, you can find the error log file for OpenNERO (see OpenNeroLogs)
 
