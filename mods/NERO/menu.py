@@ -84,6 +84,9 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.add_sliders()
         self.ToggleEnabledSliders() # initially all sliders are disabled
         self.SetSizer(self._grid)
+        
+        self.loaded1 = False
+        self.loaded2 = False
 
         self._grid.Fit(parent)
 
@@ -183,6 +186,9 @@ class NeroPanel(wx.Panel, ScriptClient):
             filename = dlg.GetFilename()
             dirname = dlg.GetPath()
             self.send("load1 %s" % dirname)
+            self.loaded1 = True
+            if self.loaded1 and self.loaded2:
+                self._buttons['OnPause'].Enable()
             
     def OnPause(self, event):
         pauseButton = self._buttons['OnPause']

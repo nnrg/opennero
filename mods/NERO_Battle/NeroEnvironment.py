@@ -49,13 +49,20 @@ class NeroEnvironment(NERO.NeroEnvironment.NeroEnvironment):
                 foe = constants.OBJECT_TYPE_TEAM_0
                 if team == foe:
                     foe = constants.OBJECT_TYPE_TEAM_1
-                print constants.TEAM_LABELS[foe], 'team wins!!!'
+                s = constants.TEAM_LABELS[foe] + ' team wins!!!'
+                print s
+                OpenNero.setWindowCaption(s)
+                OpenNero.disable_ai()
 
         if len(damages) == 2:
+            ss = []
             print 'damages sustained by:',
             for t, d in sorted(damages.iteritems()):
-                print '%s:%d' % (constants.TEAM_LABELS[t], d),
+                s = '%s: %d' % (constants.TEAM_LABELS[t], d)
+                ss.append(s)
+                print s,
             print
+            OpenNero.setWindowCaption('Damage sustained: ' + ' '.join(ss))
 
         return reward
 

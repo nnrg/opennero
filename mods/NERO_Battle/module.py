@@ -16,6 +16,7 @@ class NeroModule(NERO.module.NeroModule):
         if rtneat:
             rtneat.set_lifetime(sys.maxint)
             rtneat.disable_evolution()
+        OpenNero.disable_ai() # don't run until button
 
     def start_rtneat(self, team=constants.OBJECT_TYPE_TEAM_0):
         NERO.module.NeroModule.start_rtneat(self, team)
@@ -51,6 +52,8 @@ def parseInput(strn):
     if loc == "qlearning":
         mod.deploy('qlearning', constants.OBJECT_TYPE_TEAM_0)
         mod.deploy('qlearning', constants.OBJECT_TYPE_TEAM_1)
+    if loc == "pause": OpenNero.disable_ai()
+    if loc == "resume": OpenNero.enable_ai()
 
 def ServerMain():
     print "Starting mod NERO_Battle"
