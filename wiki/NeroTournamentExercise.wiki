@@ -2,8 +2,6 @@
 #labels Exercise
 #sidebar TableOfContents
 
-WARNING: THIS PAGE IS STILL UNDER (MINOR) CONSTRUCTION
-
 = NERO Machine Learning Tournament =
 
 In this exercise, you will use either the rtNEAT algorithm or
