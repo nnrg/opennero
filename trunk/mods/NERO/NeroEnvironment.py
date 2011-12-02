@@ -461,6 +461,13 @@ class NeroEnvironment(OpenNero.Environment):
         orphaned = rtneat and not rtneat.has_organism(agent)
 
         return orphaned or dead or old
+    
+    def get_hitpoints(self, agent):
+        damage = self.get_state(agent).total_damage
+        if self.hitpoints > 0 and damage >= 0:
+            return float(self.hitpoints-damage)/self.hitpoints
+        else:
+            return 0
 
     def cleanup(self):
         """
