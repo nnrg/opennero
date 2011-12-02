@@ -413,4 +413,8 @@ OpenNERO, in order to gain the better insight into the learning in it.
 
 ==Software Issues==
 
-OpenNERO is being actively developed, and we appreciate receiving bugreports and other feedback on any software issues you might encounter. Please submit a report at [issues]; you may first check whether the issue is already listed there as a known one. 
+OpenNERO is academic software and under (hyper)active development. It
+is possible that you will come across a bug in it, or a feature that
+should be implemented. If so, please report it [http://code.google.com/p/opennero/issues/list here], so that
+everyone can see it and track it (please first check whether it has
+already been reported).
