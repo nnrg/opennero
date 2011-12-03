@@ -17,3 +17,4 @@ AI Exercises
  * MazeLearnerExercise - Modern AI is all about _machine learning_ - algorithms that improve with experience. This exercise will introduce you to ways of running, comparing, and writing learning algorithms in OpenNERO.
  * AdvancedMazeExercise - Write a creative learning algorithm to produce maze solutions.
  * NeroTournamentExercise - Train intelligent agents in the NERO game through neuroevolution and/or Q-learning.
+ * ObjectRecognitionExercise - Build a classifier to recognize objects in the NERO environment.
