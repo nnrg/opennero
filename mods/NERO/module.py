@@ -153,7 +153,7 @@ class NeroModule:
 
     #The following is run when the Save button is pressed
     def save_team(self, location, team=constants.OBJECT_TYPE_TEAM_0):
-        location = os.path.relpath("/") + location
+        location = os.path.relpath(location)
         # if there are rtneat agents in the environment, save them as a group.
         rtneat = OpenNero.get_ai("rtneat-%s" % team)
         if rtneat:
@@ -170,7 +170,7 @@ class NeroModule:
 
         self.environment.remove_all_agents(team)
 
-        location = os.path.relpath("/") + location
+        location = os.path.relpath(location)
         if not os.path.exists(location):
             print location, 'does not exist, cannot load population'
             return
