@@ -348,7 +348,7 @@ def parseInput(strn):
     if strn == "deploy" or len(strn) < 2:
         return
     mod = getMod()
-    loc, val = strn.split(' ')
+    loc, val = strn.split(' ',1)
     vali = 1
     if strn.isupper():
         vali = int(val)
