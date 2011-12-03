@@ -26,8 +26,9 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The
  * [http://www.cmake.org/cmake/resources/software.html cmake]
  * [http://www.microsoft.com/visualstudio/ Microsoft Visual Studio]
  * [http://www.boostpro.com/download/ Boost libraries] (install a binary version of all the libraries for your version of Visual Studio) or [http://www.boost.org/doc/libs/release/more/getting_started/windows.html build and install Boost]
- * [http://www.python.org/download/releases/2.6.6/ Latest Python 2.6.x with source]
+ * [http://www.python.org/download/releases/2.7.2/ Latest Python 2.7.x with source]
  * [http://www.wxpython.org/download.php wxPython]
+ * Add python.exe to the Path variable (Control Panel -> System -> Environment Variables)
 == Steps to build ==
  # Open CMake, specify the source directory (opennero checkout directory) and build directory (another directory). Choose 'Suppress dev Warnings -WnoDev' from the Options menu. Click the Configure button twice, then click the Generate button.
  # Open the OpenNERO.sln solution file and build OpenNERO using Visual Studio.
