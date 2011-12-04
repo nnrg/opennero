@@ -84,7 +84,7 @@ and mouse controls:
   * *Z* or *scroll up* - Zoom in
   * *C* or *scroll down* - Zoom out
   * *F1* - Go to this page for help
-  * *F2* - Cycle through useful stats that can be displayed above each agent, including (in order) the time their brain has spent on the field, remaining hitpoints (percentage indicated by 5 dots), rtNEAT genome ID (indicating how recently the agent was introduced), rtNEAT species number (indicating how recently the species was introduced), and the current population champion.
+  * *F2* - Cycle through useful stats that can be displayed above each agent, including (in order) the time their brain has spent on the field, remaining hitpoints (percentage indicated by 5 dots), rtNEAT genome ID (indicating how recently the agent was introduced), rtNEAT species number (indicating how recently the species was introduced), and the current population champion. When you do that, the title bar in the NERO window which data are currently shown.
 
 Near the top left of the screen there's a single number that indicates the current frame rate of the display. It should be 24 or higher in a visually appealing animation, but may fall to 12 or lower on a slow machine (as well as currently on MacOSX due to Irrlicht rendering issue).
 
