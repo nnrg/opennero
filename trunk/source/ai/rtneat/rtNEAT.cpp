@@ -171,21 +171,27 @@ namespace OpenNero
     }
 
     /// save a population to a file
-    bool RTNEAT::save_population(const std::string& pop_file)
+	std::string RTNEAT::save_population(const std::string& pop_file)
     {
-        std::string fname = Kernel::findResource(pop_file, false);
+		// try looking for the filename as is
+		std::string fname = pop_file;
         std::ofstream output(fname.c_str());
+		if (!output) {
+			// try again with our findResource method
+	       std::string fname = Kernel::findResource(pop_file, false);
+		   output.open(fname.c_str());
+		}
         if (!output) {
-            LOG_ERROR("Could not open file " << fname);
-            return false;
+			LOG_ERROR("Could not open file: " << fname);
+			return "";
         }
         else
         {
-            LOG_F_DEBUG("ai.rtneat", "Saving population to " << fname);
+			LOG_F_MSG("ai.rtneat", "Saving population to file: " << fname);
             //output << mPopulation;
             mPopulation->print_to_file(output);
             output.close();
-            return true;
+            return fname;
         }
     }
     

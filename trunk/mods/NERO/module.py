@@ -153,13 +153,12 @@ class NeroModule:
 
     #The following is run when the Save button is pressed
     def save_team(self, location, team=constants.OBJECT_TYPE_TEAM_0):
-        location = os.path.relpath(location)
         # if there are rtneat agents in the environment, save them as a group.
         rtneat = OpenNero.get_ai("rtneat-%s" % team)
         if rtneat:
-            rtneat.save_population(str(location))
+            location = rtneat.save_population(str(location))
         # then, check whether there are any qlearning agents, and save them.
-        with open(str(location), 'a') as handle:
+        with open(location, 'a') as handle:
             for agent in self.environment.teams[team]:
                 if agent.group == 'Agent' and agent.ai == 'qlearning':
                     handle.write('\n\n%s' % agent.to_string())
@@ -170,7 +169,6 @@ class NeroModule:
 
         self.environment.remove_all_agents(team)
 
-        location = os.path.relpath(location)
         if not os.path.exists(location):
             print location, 'does not exist, cannot load population'
             return
@@ -348,6 +346,7 @@ def parseInput(strn):
     if strn == "deploy" or len(strn) < 2:
         return
     mod = getMod()
+    # first word is command rest is filename
     loc, val = strn.split(' ',1)
     vali = 1
     if strn.isupper():

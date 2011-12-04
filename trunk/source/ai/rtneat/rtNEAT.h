@@ -93,7 +93,8 @@ namespace OpenNero
         virtual void ProcessTick( float32_t incAmt );
 
         /// save the current population to a file
-        bool save_population(const std::string& population_file);
+		/// return the name of the file the population was saved to
+		std::string save_population(const std::string& population_file);
 
         /// load a population from a file
         bool load_population(const std::string& population_file);
