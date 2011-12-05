@@ -9,6 +9,8 @@
 #include "render/SceneObject.h"
 
 #include "ai/AIManager.h"
+#include "ai/AIObject.h"
+#include "ai/AgentBrain.h"
 
 namespace OpenNero
 {
@@ -165,6 +167,10 @@ namespace OpenNero
                 
                 if( simItr != mSimIdHashedEntities.end() ) {
                     SimEntityPtr simE = simItr->second;
+					AIObjectPtr brain = simE->GetAIObject();
+					if (brain) {
+						brain->getBrain()->destroy();
+					}
                     AssertMsg( simE, "Invalid SimEntity on delete, id: " << id );
                     // remove also from entities set
                     SimEntitySet::iterator simInSet = mEntities.find(simE);
