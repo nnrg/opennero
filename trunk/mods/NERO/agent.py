@@ -23,7 +23,7 @@ class NeroAgent(object):
 
         # actions
         abound.add_continuous(-1, 1) # forward/backward speed
-        abound.add_continuous(-0.2, 0.2) # left/right turn (in radians)
+        abound.add_continuous(-constants.MAX_TURNING_RATE, constants.MAX_TURNING_RATE) # left/right turn (in radians)
 
         # sensor dimensions
         for a in range(constants.N_SENSORS):
@@ -40,6 +40,9 @@ class NeroAgent(object):
         return True
 
     def destroy(self):
+        env = OpenNero.get_environment()
+        if env is not None:
+            env.remove_agent(self)
         return True
 
 
