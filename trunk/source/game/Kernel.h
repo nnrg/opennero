@@ -31,9 +31,6 @@ namespace OpenNero
 	class Kernel : 
         public irr::IEventReceiver
 	{
-		// allow this singleton_default class to allocate us
-		friend struct boost::details::pool::singleton_default<Kernel>;
-
 	public:
 
 		/// singleton accessor

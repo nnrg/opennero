@@ -7,7 +7,6 @@
 #include "core/IrrUtil.h"
 #include "input/IOMapping.h"
 #include "scripting/scripting.h"
-#include "boost/pool/detail/singleton.hpp"
 #include "boost/algorithm/string/split.hpp"
 #include "boost/algorithm/string/classification.hpp"
 #include "core/HashMap.h"

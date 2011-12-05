@@ -5,7 +5,6 @@
 
 #include "core/Common.h"
 #include "render/LineSet.h"
-#include "boost/pool/detail/singleton.hpp"
 
 namespace OpenNero
 {   
@@ -20,7 +19,8 @@ namespace OpenNero
     /// Singleton access
     LineSet& LineSet::instance()
     {
-        return boost::details::pool::singleton_default<LineSet>::instance();
+		static LineSet line_set;
+		return line_set;
     }
 
     /// Ctor - setup the lineset material

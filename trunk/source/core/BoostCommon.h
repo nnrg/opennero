@@ -17,7 +17,6 @@
 #include <boost/intrusive_ptr.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <boost/pool/detail/singleton.hpp>
 #include <boost/enable_shared_from_this.hpp>
 
 using namespace boost;

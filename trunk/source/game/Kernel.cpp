@@ -19,13 +19,14 @@ namespace OpenNero
 	/// singleton accessor
 	Kernel& Kernel::instance()
 	{
-		return boost::details::pool::singleton_default<Kernel>::instance();
+		static Kernel kernel;
+		return kernel;
 	}
 
 	/// const singleton accessor
 	const Kernel& Kernel::const_instance()
 	{
-		return boost::details::pool::singleton_default<Kernel>::instance();
+		return instance();
 	}
 
 	/**
