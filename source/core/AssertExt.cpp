@@ -7,7 +7,6 @@
 #include "core/AssertExt.h"
 #include "core/ONTypes.h"
 #include "boost/lexical_cast.hpp"
-#include "boost/pool/detail/singleton.hpp"
 #include <cassert>
 
 namespace OpenNero
@@ -76,7 +75,8 @@ namespace OpenNero
 
     AssertExt& AssertExt::instance()
     {
-        return boost::details::pool::singleton_default<AssertExt>::instance();
+		static AssertExt assert_ext;
+		return assert_ext;
     }
 
     bool AssertExt::GetVerdict( const AssertMsg& msg, bool& assertStatus )

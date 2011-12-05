@@ -11,8 +11,6 @@
 #include "scripting/exports.h"
 #include "core/File.h"
 #include "game/Kernel.h"
-#include "boost/pool/detail/singleton.hpp"
-#include "game/Kernel.h"
 
 
 // symbols for exporting the python module init function
@@ -216,12 +214,13 @@ namespace OpenNero
 
     ScriptingEngine& ScriptingEngine::instance()
     {
-        return boost::details::pool::singleton_default<ScriptingEngine>::instance();
+		static ScriptingEngine scripting;
+		return scripting;
     }
 
     const ScriptingEngine& ScriptingEngine::const_instance()
     {
-        return boost::details::pool::singleton_default<ScriptingEngine>::instance();
+		return instance();
     }
 
     void ScriptingEngine::AddScriptDirectory( const string& dirPath )
