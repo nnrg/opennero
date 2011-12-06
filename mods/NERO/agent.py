@@ -128,8 +128,11 @@ class RTNEATAgent(NeroAgent, OpenNero.AgentBrain):
             else:
                 self.state.label = '?'
         else:
-            self.state.label = ""
-            #OpenNero.setWindowCaption("")
+            # the first time we switch away from displaying stuff,
+            # change the window caption
+            if self.state.label:
+                self.state.label = ""
+                OpenNero.setWindowCaption("")
 
     def network_action(self, sensors):
         """

@@ -51,7 +51,8 @@ class NeroEnvironment(NERO.NeroEnvironment.NeroEnvironment):
                     foe = constants.OBJECT_TYPE_TEAM_1
                 s = constants.TEAM_LABELS[foe] + ' team wins!!!'
                 print s
-                OpenNero.setWindowCaption(s)
+                if not constants.getDisplayHint():
+                    OpenNero.setWindowCaption(s)
                 OpenNero.disable_ai()
 
         if len(damages) == 2:
@@ -62,7 +63,8 @@ class NeroEnvironment(NERO.NeroEnvironment.NeroEnvironment):
                 ss.append(s)
                 print s,
             print
-            OpenNero.setWindowCaption('Damage sustained: ' + ' '.join(ss))
+            if not constants.getDisplayHint():
+                OpenNero.setWindowCaption('Damage sustained: ' + ' '.join(ss))
 
         return reward
 
