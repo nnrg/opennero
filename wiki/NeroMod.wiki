@@ -333,6 +333,8 @@ together with teammates and sometimes independently of them. There is
 no a-priori winning strategy; the performance of the team depends on
 the ingenuity of its creator!
 
+To see how the battle mode works, or see how well your team is doing, you can use this [http://opennero.googlecode.com/svn/wiki/SampleTeam.pop sample team].
+
 ==NERO Tournament==
 
 A fun event in e.g. AI or machine learning courses is to organize a
