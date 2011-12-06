@@ -309,7 +309,7 @@ your submission file with one blank line. Before you submit, you
 should test your file by loading it into NERO_Battle and making sure
 it runs correctly.
 
-
+If you want, you can test your team e.g. against this [SampleTeam01.pop sample team].
 
 ==NERO Battle==
 
