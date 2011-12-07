@@ -13,9 +13,6 @@ you're comfortable getting destroyed by your opponents who did.
 
 <a href="http://www.cs.utexas.edu/users/risto/pictures/nerogame2.png"><img src="http://www.cs.utexas.edu/users/risto/pictures/nerogame2.png" width="400" height="300"/></a>
 
-=== <font color="red">Updates</font> ===
-==== Most recent release: 2011-12-06 ====
-
 ==0. Install prerequisites for running OpenNERO==
 
 See OpenNeroPrerequisites for detailed instructions for your platform.
@@ -70,6 +67,8 @@ easier to figure out issues as they happen.
 
 In order to provide the best experience for everyone, we may release
 bug fixes before the tournament submissions are due. Below is a concise summary of such fixes:
+
+====Most recent release: <font color="red">2011-12-06</font> ====
 
 ==== Recently fixed issues ====
 If you are experiencing any of the following, try upgrading to the most recent version:
