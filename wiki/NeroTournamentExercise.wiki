@@ -11,7 +11,17 @@ pit the teams against each other in an apocalyptic battle for world
 domination (or something). Follow the steps below, unless of course
 you're comfortable getting destroyed by your opponents who did.
 
-http://www.cs.utexas.edu/users/risto/pictures/nerogame2.png
+<a href="http://www.cs.utexas.edu/users/risto/pictures/nerogame2.png"><img src="http://www.cs.utexas.edu/users/risto/pictures/nerogame2.png" width="400" height="300"/></a>
+
+=== <font color="red">Updates</font> ===
+==== Most recent release: 2011-12-06 ====
+==== Known issues ====
+  * rtNEAT sliders disabled when loading team for further training
+==== Recently fixed issues ====
+If you are experiencing any of the following, try upgrading to the most recent version:
+  * <a href="http://code.google.com/p/opennero/issues/detail?id=116">problem saving files</a>
+  * <a href="http://code.google.com/p/opennero/issues/detail?id=114">crashing when removing turrets</a>
+  * <a href="http://code.google.com/p/opennero/issues/detail?id=124">Q-learning agents not loading properly</a>
 
 ==0. Install prerequisites for running OpenNERO==
 
@@ -66,7 +76,4 @@ and answered by anyone on the forum, hopefully making it
 easier to figure out issues as they happen.
 
 In order to provide the best experience for everyone, we may release
-bug fixes before the tournament submissions are due. If so, we'll
-identify them here:
-
-(Nothing yet).
+bug fixes before the tournament submissions are due.
