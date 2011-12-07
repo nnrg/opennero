@@ -77,4 +77,4 @@ If you are experiencing any of the following, try upgrading to the most recent v
   * <a href="http://code.google.com/p/opennero/issues/detail?id=124">Q-learning agents not loading properly</a>
 
 ==== Known issues ====
-  * rtNEAT sliders disabled when loading team for further training
+  * <a href="http://code.google.com/p/opennero/issues/detail?id=128">rtNEAT sliders disabled when loading team for further training</a>
