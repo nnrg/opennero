@@ -4,6 +4,7 @@ import sys
 sys.path.append(os.path.join(sys.path[0], os.pardir))
 
 import NERO.menu
+import NERO.constants
 
 try:
     import wx
@@ -20,16 +21,13 @@ class NeroPanel(NERO.menu.NeroPanel):
         del self._sliders['HP']
 
     def add_buttons(self):
-        #self.add_button('Deploy RTNEAT', self.OnDeployRTNEAT)
-        #self.add_button('Deploy QLearning', self.OnDeployQLearning)
         self.add_button('Load Blue Team', self.OnLoad1)
         self.add_button('Load Red Team', self.OnLoad2)
-        self.add_button('Continue', self.OnPause, disabled = True)
+        self.add_button('Continue', self.OnPause, disabled=True)
         self.add_button('Help', self.OnHelp)
 
     def add_sliders(self):
-        self.add_slider('Hitpoints', 'HP', span=100, center=0, thumb=20)
-        #self.add_slider('Speedup', 'SP', span=100, center=0, thumb=80)
+        self.add_slider('Hitpoints', 'HP', span=100, center=0, thumb=NERO.constants.DEFAULT_HITPOINTS)
 
     def OnLoad2(self, event):
         dirname = ""
