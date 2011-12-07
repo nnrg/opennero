@@ -271,6 +271,9 @@ class NeroEnvironment(OpenNero.Environment):
         state = self.get_state(agent)
         friends, foes = self.getFriendFoe(agent)
 
+        if self.hitpoints > 0 and state.total_damage >= self.hitpoints:
+            return reward
+
         R = dict((f, 0) for f in constants.FITNESS_DIMENSIONS)
 
         R[constants.FITNESS_STAND_GROUND] = -abs(action[0])
