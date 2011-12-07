@@ -343,7 +343,7 @@ namespace OpenNero {
 				.add_property("id", &PyOrganism::GetId, "evolution-wide unique id of the organism")
 				.add_property("fitness", &PyOrganism::GetFitness, &PyOrganism::SetFitness, "organism fitness (non-negative real)")
 				.add_property("time_alive", &PyOrganism::GetTimeAlive, &PyOrganism::SetTimeAlive, "organism time alive (integer, non negative)")
-                .add_property("champion", &PyOrganism::IsChampion, "is the organism a champion of the species?")
+                .def_readwrite("champion", &PyOrganism::champion, "is the organism a champion of the species?")
                 .add_property("species_id", &PyOrganism::GetSpeciesId, "the id of the species of the organism")
 				.def("save", &PyOrganism::Save, "save the organism to file")
 				.def(self_ns::str(self_ns::self));
