@@ -15,13 +15,6 @@ you're comfortable getting destroyed by your opponents who did.
 
 === <font color="red">Updates</font> ===
 ==== Most recent release: 2011-12-06 ====
-==== Known issues ====
-  * rtNEAT sliders disabled when loading team for further training
-==== Recently fixed issues ====
-If you are experiencing any of the following, try upgrading to the most recent version:
-  * <a href="http://code.google.com/p/opennero/issues/detail?id=116">problem saving files</a>
-  * <a href="http://code.google.com/p/opennero/issues/detail?id=114">crashing when removing turrets</a>
-  * <a href="http://code.google.com/p/opennero/issues/detail?id=124">Q-learning agents not loading properly</a>
 
 ==0. Install prerequisites for running OpenNERO==
 
@@ -76,4 +69,13 @@ and answered by anyone on the forum, hopefully making it
 easier to figure out issues as they happen.
 
 In order to provide the best experience for everyone, we may release
-bug fixes before the tournament submissions are due.
+bug fixes before the tournament submissions are due. Below is a concise summary of such fixes:
+
+==== Known issues ====
+  * rtNEAT sliders disabled when loading team for further training
+
+==== Recently fixed issues ====
+If you are experiencing any of the following, try upgrading to the most recent version:
+  * <a href="http://code.google.com/p/opennero/issues/detail?id=116">problem saving files</a>
+  * <a href="http://code.google.com/p/opennero/issues/detail?id=114">crashing when removing turrets</a>
+  * <a href="http://code.google.com/p/opennero/issues/detail?id=124">Q-learning agents not loading properly</a>
