@@ -30,7 +30,7 @@ namespace OpenNero
             AssertMsg(state_bins == 0, "state_bins must be 0 for num_tiles > 0");
             mApproximator.reset(
                 new TilesApproximator(mInfo, num_tiles, num_weights));
-            bins = 101; // XXX force bins > 0 to discretize action_list below
+            bins = 7; // XXX force bins > 0 to discretize action_list below
         }
         else
         {
