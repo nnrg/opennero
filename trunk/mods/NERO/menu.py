@@ -174,7 +174,7 @@ class NeroPanel(wx.Panel, ScriptClient):
 
     def SendSliders(self):
         for key, slider in self._sliders.items():
-            slider.send()
+            self.send("%s %d" % (key, slider.scrollbar.GetThumbPosition()))
 
     def ToggleEnabledSliders(self):
         for key, slider in self._sliders.items():
@@ -216,6 +216,7 @@ class NeroPanel(wx.Panel, ScriptClient):
             if self.loaded1 and self.loaded2:
                 self._buttons['OnPause'].Enable()
             self.EnableSliders()
+            self.SendSliders()
 
     def OnPause(self, event):
         pauseButton = self._buttons['OnPause']
