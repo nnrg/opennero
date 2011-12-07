@@ -30,3 +30,4 @@ def Match(team0, team1):
     mod.load_team(team0, constants.OBJECT_TYPE_TEAM_0)
     mod.load_team(team1, constants.OBJECT_TYPE_TEAM_1)
     mod.set_speedup(100)
+    OpenNero.enable_ai()
