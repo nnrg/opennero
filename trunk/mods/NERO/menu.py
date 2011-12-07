@@ -17,6 +17,25 @@ except:
 marshall = cPickle.dumps
 unmarshall = cPickle.loads
 
+class Slider:
+    def __init__(self, label, key, span=200, center=100, thumb=100):
+        self.label = label
+        self.key = key
+        self.span = span
+        self.center = center
+        self.thumb = thumb
+        self.explanation = None
+        self.scrollbar = None
+        self.label = None
+    def Enable(self):
+        if self.label: self.label.Enable()
+        if self.scrollbar: self.scrollbar.Enable()
+        if self.explanation: self.explanation.Enable()
+    def Disable(self):
+        if self.label: self.label.Disable()
+        if self.scrollbar: self.scrollbar.Disable()
+        if self.explanation: self.explanation.Disable()
+
 def send(channel, *args):
     buf = marshall(args)
     value = socket.htonl(len(buf))
@@ -78,13 +97,12 @@ class NeroPanel(wx.Panel, ScriptClient):
 
         self._grid.Add(self._buttonPanel, pos=(0, 0), span=(1, 6))
 
-        self._labels = {}
         self._sliderIndex = 1
         self._sliders = {}
         self.add_sliders()
-        self.ToggleEnabledSliders() # initially all sliders are disabled
+        self.DisableSliders() # initially all sliders are disabled
         self.SetSizer(self._grid)
-        
+
         self.loaded1 = False
         self.loaded2 = False
 
@@ -122,34 +140,42 @@ class NeroPanel(wx.Panel, ScriptClient):
             button.Disable()
 
     def add_slider(self, label, key, span=200, center=100, thumb=100):
-        explanation = wx.StaticText(
+        slider = Slider(label, key, span, center, thumb)
+
+        slider.explanation = wx.StaticText(
             self, label=label, pos=wx.DefaultPosition, size=wx.DefaultSize)
 
-        slider = wx.ScrollBar(self, pos=wx.DefaultPosition, size=(200, 15))
-        slider.SetScrollbar(wx.HORIZONTAL, 0, span, span)
-        slider.SetThumbPosition(thumb)
-        self._sliders[key] = slider
+        slider.scrollbar = wx.ScrollBar(
+            self, pos=wx.DefaultPosition, size=(200, 15))
+        slider.scrollbar.SetScrollbar(wx.HORIZONTAL, 0, span, span)
+        slider.scrollbar.SetThumbPosition(thumb)
 
-        pos = slider.GetThumbPosition() - center
-        self._labels[key] = wx.StaticText(
+        pos = slider.scrollbar.GetThumbPosition() - center
+        slider.label = wx.StaticText(
             self, label=str(pos), pos=wx.DefaultPosition, size=wx.DefaultSize)
 
-        self.Bind(wx.EVT_SCROLL, lambda event: self.OnSlider(event, key, center), slider)
+        self.Bind(wx.EVT_SCROLL, lambda event: self.OnSlider(event, key, center), slider.scrollbar)
 
-        self._grid.Add(self._labels[key], pos=(self._sliderIndex, 1))
-        self._grid.Add(slider, pos=(self._sliderIndex, 2))
-        self._grid.Add(explanation, pos=(self._sliderIndex, 0))
+        self._grid.Add(slider.label, pos=(self._sliderIndex, 1))
+        self._grid.Add(slider.scrollbar, pos=(self._sliderIndex, 2))
+        self._grid.Add(slider.explanation, pos=(self._sliderIndex, 0))
 
         self._sliderIndex += 1
-        
+
+        self._sliders[key] = slider
+
     def EnableSliders(self):
         for key, slider in self._sliders.items():
             slider.Enable()
-    
+
     def DisableSliders(self):
         for key, slider in self._sliders.items():
             slider.Disable()
-    
+
+    def SendSliders(self):
+        for key, slider in self._sliders.items():
+            slider.send()
+
     def ToggleEnabledSliders(self):
         for key, slider in self._sliders.items():
             if slider.IsEnabled():
@@ -189,7 +215,8 @@ class NeroPanel(wx.Panel, ScriptClient):
             self.loaded1 = True
             if self.loaded1 and self.loaded2:
                 self._buttons['OnPause'].Enable()
-            
+            self.EnableSliders()
+
     def OnPause(self, event):
         pauseButton = self._buttons['OnPause']
         if pauseButton.Label == 'Pause':
@@ -200,7 +227,7 @@ class NeroPanel(wx.Panel, ScriptClient):
             self.send('resume 0')
             self.EnableSliders()
             pauseButton.Label = 'Pause'
-    
+
     def OnHelp(self, event):
         try:
             import webbrowser
@@ -210,9 +237,8 @@ class NeroPanel(wx.Panel, ScriptClient):
 
     def OnSlider(self, event, key, center=0):
         position = event.Position - center
-        self._labels[key].SetLabel(str(position))
+        self._sliders[key].label.SetLabel(str(position))
         self.send("%s %d" % (key, event.Position))
-
 
 if __name__ == '__main__':
     app = wx.App(False)
