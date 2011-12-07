@@ -308,11 +308,11 @@ this file are separated by one blank line.
 Either way, you will probably want to pick and choose the
 individual agents from your training episodes that perform the best
 for the tasks you anticipate. You should assemble these agents into
-one file to submit to the tournament. Please separate all agents in
-your submission file with one blank line. Before you submit, you
-should test your file by loading it into NERO_Battle and making sure
-it runs correctly.
+one file for the battle.
 
+(Note: If you include reinforcement learning agents, you need to separate all agents in your submission file with one blank line. Also note: if you form a team by combining individuals from different rtNEAT runs, you current cannot train such a combo team further (because rtNEAT training depends on historical markings that then would not match)). 
+
+Before you submit to the tournament, you should test your file by loading it into NERO_Battle and making sure it runs correctly.
 If you want, you can test your team e.g. against this [http://opennero.googlecode.com/svn/wiki/SampleTeam.pop sample team].
 
 ==NERO Battle==
