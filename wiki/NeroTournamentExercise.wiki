@@ -68,13 +68,16 @@ easier to figure out issues as they happen.
 In order to provide the best experience for everyone, we may release
 bug fixes before the tournament submissions are due. Below is a concise summary of such fixes:
 
-====Most recent release: <font color="red">2011-12-06</font> ====
+====Most recent release: <font color="red">2011-12-07</font> ====
 
 ==== Recently fixed issues ====
 If you are experiencing any of the following, try upgrading to the most recent version:
   * <a href="http://code.google.com/p/opennero/issues/detail?id=116">problem saving files</a>
   * <a href="http://code.google.com/p/opennero/issues/detail?id=114">crashing when removing turrets</a>
   * <a href="http://code.google.com/p/opennero/issues/detail?id=124">Q-learning agents not loading properly</a>
+  * battle never ends
+  * agents removed from battle continue to accumulate damage
+  * <a href="http://code.google.com/p/opennero/issues/detail?id=128">rtNEAT sliders disabled when loading team for further training</a>
 
 ==== Known issues ====
-  * <a href="http://code.google.com/p/opennero/issues/detail?id=128">rtNEAT sliders disabled when loading team for further training</a>
+  * See [http://code.google.com/p/opennero/issues/list issues list] for a general list of known issues
