@@ -98,8 +98,8 @@ namespace OpenNero
         mpGuiManager.reset( new GuiManager( mIrr, mpFactory ) );
 
         // add a custom draw node to the scene manager
-        NeroDrawNode* neroNode = new NeroDrawNode( mIrr.mpSceneManager->getRootSceneNode(), mIrr.mpSceneManager.get(), -1);
-        Assert( neroNode );
+        mpNeroNode = new NeroDrawNode( mIrr.mpSceneManager->getRootSceneNode(), mIrr.mpSceneManager.get(), -1);
+        Assert( mpNeroNode );
 
         // initialize the mod from script
         ScriptingEngine& scriptEngine = ScriptingEngine::instance();
@@ -228,6 +228,9 @@ namespace OpenNero
         
         // forget everything imported in script
         ScriptingEngine::instance().destroy();
+
+        // forget about the nero scene node
+        mpNeroNode.reset();
 
         return true;
     }

@@ -179,6 +179,7 @@ namespace OpenNero
             wchar_t* wstr = new wchar_t[length];
             mbstowcs(wstr, full_caption.c_str(), length);
             mIrrDevice->setWindowCaption(wstr);
+            delete[] wstr;
         } else {
             LOG_ERROR("Could not SetWindowCaption, no mod loaded!");
         }

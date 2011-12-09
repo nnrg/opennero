@@ -91,8 +91,30 @@ namespace OpenNero
     void Simulation::clear()
     {
         // clear our internal containers
+
+        // clear out entities hashed by id
         mSimIdHashedEntities.clear();
+
+        // clear out iteration order list
         mEntities.clear();
+
+        // clear out triangle selector cache
+        {
+            hash_map<uint32_t, IMetaTriangleSelector_IPtr>::iterator iter;
+            for (iter = mCollisionSelectors.begin(); iter != mCollisionSelectors.end(); ++iter) {
+                iter->second->removeAllTriangleSelectors();
+            }
+            mCollisionSelectors.clear();
+        }
+
+        // clear out type set cache
+        {
+            hash_map<uint32_t, SimEntitySet>::iterator iter;
+            for (iter = mEntityTypes.begin(); iter != mEntityTypes.end(); ++iter) {
+                iter->second.clear();
+            }
+            mEntityTypes.clear();
+        }
     }
 
     /**

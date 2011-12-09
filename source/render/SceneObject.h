@@ -184,9 +184,6 @@ namespace OpenNero
         /// get the triangle selector for this scene node, creating it if needed
         ITriangleSelector_IPtr GetTriangleSelector();
 
-        /// get the triangle selector that this scene node could collide with
-        ITriangleSelector_IPtr GetCollisionTriangleSelector();
-
         /// return true if a collision was detected
         bool collisionOccurred();
 
