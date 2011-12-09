@@ -641,19 +641,21 @@ namespace OpenNero
         }
         else
         {
-            size_t length = str.size() + 1;
-            wchar_t* wstr = new wchar_t[length];
-            mbstowcs(wstr, str.c_str(), length);
             if (!mTextNode)
             {
                 Font* f = Kernel::GetSimContext()->GetFont();
                 BBoxf bbox = mSceneNode->getTransformedBoundingBox();
                 float dY = bbox.MaxEdge.Y - bbox.MinEdge.Y;
-                mTextNode = GetSceneManager()->addTextSceneNode(f, wstr, SColor(255,255,255,255), mSceneNode.get(), Vector3f(0,1.25 * dY,0));
+                mTextNode = GetSceneManager()->addTextSceneNode
+                    (f, 
+                     core::stringw(str.c_str()).c_str(), 
+                     SColor(255,255,255,255), 
+                     mSceneNode.get(), 
+                     Vector3f(0,1.25 * dY,0));
             }
             else
             {
-                mTextNode->setText(wstr);
+                mTextNode->setText(irr::core::stringw(str.c_str()).c_str());
             }
         }
     }
