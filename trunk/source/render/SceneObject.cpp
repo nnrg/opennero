@@ -166,7 +166,7 @@ namespace OpenNero
             ITriangleSelector_IPtr GetTriangleSelector() const
             {
                 // ask the simulation about the current triangle selector to use
-                return Kernel::instance().GetSimContext()->getSimulation()->GetCollisionTriangleSelector(mTypeMask);
+                return Kernel::GetSimContext()->getSimulation()->GetCollisionTriangleSelector(mTypeMask);
             }
 
         public:
@@ -254,7 +254,7 @@ namespace OpenNero
 		}
 		else
 		{
-			out << NULL;
+			out << 0;
 		}
 		return out;
 	}
@@ -573,10 +573,12 @@ namespace OpenNero
 
             // set up the triangle selector for this object
             //if (data.GetType() > 0) {
-                ITriangleSelector_IPtr tri_selector = GetTriangleSelector();
-                if (!tri_selector) {
-                    LOG_F_WARNING("collision", "could not create triangle selector for collisions with object " << GetId());
-                }
+            ITriangleSelector_IPtr tri_selector = GetTriangleSelector();
+            if (tri_selector) {
+                tri_selector->drop();
+            } else {
+                LOG_F_WARNING("collision", "could not create triangle selector for collisions with object " << GetId());
+            }
             //}
 
             // additionally, add a collision response animator
@@ -594,12 +596,13 @@ namespace OpenNero
                 mCollider = GetSceneManager()->createCollisionResponseAnimator(
                     world, mSceneNode.get(), ellipsoid_radius, gravity, ellipsoid_translation);
                 if (!mCollider) {
-                    LOG_F_ERROR("collision", "could not create Collision Response Animator for object id: " << GetId());
+                    LOG_F_ERROR("collision", "could not create Collision Response Animator for object id: " << data.GetId());
                 } else {
+                    SafeIrrDrop(world); // we don't need the handle
                     mSceneNode->addAnimator(mCollider.get());
                     LOG_F_DEBUG("collision",
                         "added collision response animator for object id: "
-                        << GetId() << " of type: " << data.GetType()
+                        << data.GetId() << " of type: " << data.GetType()
                         << " for collision with mask: " << mSceneObjectTemplate->mCollisionMask
                         << " with bounding ellipsoid: " << ellipsoid_radius);
                 }
