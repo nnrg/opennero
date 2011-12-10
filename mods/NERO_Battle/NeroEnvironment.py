@@ -35,6 +35,7 @@ class NeroEnvironment(NERO.NeroEnvironment.NeroEnvironment):
             return reward
 
         damages = {}
+        winner = None
         for team in constants.TEAMS:
             damages[team] = 0
             agents = self.teams.get(team, set())
@@ -48,13 +49,6 @@ class NeroEnvironment(NERO.NeroEnvironment.NeroEnvironment):
                 winner = constants.OBJECT_TYPE_TEAM_0
                 if team == winner:
                     winner = constants.OBJECT_TYPE_TEAM_1
-                s = constants.TEAM_LABELS[winner] + ' team wins!!!'
-                print s
-                if not constants.getDisplayHint():
-                    OpenNero.setWindowCaption(s)
-                OpenNero.disable_ai()
-                for a in self.teams[winner]:
-                    self.set_animation(a, self.get_state(a), 'jump')
 
         if len(damages) == 2:
             ss = []
@@ -66,6 +60,15 @@ class NeroEnvironment(NERO.NeroEnvironment.NeroEnvironment):
             print
             if not constants.getDisplayHint():
                 OpenNero.setWindowCaption('Damage sustained: ' + ' '.join(ss))
+
+        if winner is not None:
+            s = constants.TEAM_LABELS[winner] + ' team wins!!!'
+            print s
+            if not constants.getDisplayHint():
+                OpenNero.setWindowCaption(s)
+            OpenNero.disable_ai()
+            for a in self.teams[winner]:
+                self.set_animation(a, self.get_state(a), 'jump')
 
         return reward
 
