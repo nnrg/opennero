@@ -30,7 +30,7 @@ FLAGS.add_option('-t', '--test', action='store_true',
 def test_bracket(team1, team2, duration):
     '''Just print out the teams we're pitting against each other.'''
     logging.info('bracket matchup: %s vs %s', team1, team2)
-    return 'damages: 0 0, 1 1'
+    return 'damages sustained by: blue: 0 red: 1'
 
 
 def run_battle_locally(team1, team2, duration):
@@ -94,7 +94,7 @@ def parse_scores(stdout):
     '''Parse scores out of some opennero logging output.'''
     scores = [(-1, -1)]
     for line in stdout.splitlines():
-        m = re.search(r'damages sustained by: blue:(\d+) red:(\d+)$', line)
+        m = re.search(r'damages sustained by: blue: (\d+) red: (\d+)$', line)
         if m:
             # NB -- scores here are reversed from the log file because a team
             # gets points for causing damage to its opponent.
