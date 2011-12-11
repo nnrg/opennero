@@ -244,6 +244,10 @@ class NeroEnvironment(OpenNero.Environment):
                 agent.state.rotation = r
             state.reset_pose(p, r)
             return agent.info.reward.get_instance()
+        
+        # display agent info if neccessary
+        if hasattr(agent, 'set_display_hint'):
+            agent.set_display_hint()
 
         # spawn more agents if possible.
         self.maybe_spawn(agent)

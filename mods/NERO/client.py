@@ -10,6 +10,12 @@ guiMan = None
 modify_object_id = {}
 object_ids = {}
 
+def showDisplayHint():
+    hint = constants.nextDisplayHint()
+    if hint is None:
+        OpenNero.setWindowCaption("")
+    else:
+        OpenNero.setWindowCaption("Displaying: " + hint)
 
 def switchToHub():
     module.delMod()
@@ -17,9 +23,6 @@ def switchToHub():
 
 def blank():
     pass
-
-def toggleDisplayHint():
-    constants.nextDisplayHint()
 
 def createInputMapping():
     from client import show_context_menu, mouse_action, reset_mouse_action
@@ -29,7 +32,7 @@ def createInputMapping():
     ioMap.ClearMappings()
     ioMap.BindKey( "KEY_ESCAPE", "onPress", switchToHub)
     ioMap.BindKey( "KEY_F1", "onPress", common.openWiki('NeroMod') )
-    ioMap.BindKey( "KEY_F2", "onPress", toggleDisplayHint )
+    ioMap.BindKey( "KEY_F2", "onPress", showDisplayHint )
 
     ioMap.BindMouseAction( "moveX", mouse_action)
     ioMap.BindMouseAction( "moveY", mouse_action)
