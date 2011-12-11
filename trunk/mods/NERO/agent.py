@@ -80,7 +80,6 @@ class RTNEATAgent(NeroAgent, OpenNero.AgentBrain):
         """
         a state transition
         """
-        self.set_display_hint()
         # return action
         return self.network_action(sensors)
 
@@ -99,32 +98,24 @@ class RTNEATAgent(NeroAgent, OpenNero.AgentBrain):
         if display_hint:
             org = self.get_org()
             if display_hint == 'fitness':
-                self.state.label = ' '.join(['%.02g' % x for x in self.fitness])
-                OpenNero.setWindowCaption("Displaying Fitness")
+                self.state.label = '%.2f' % org.fitness
             elif display_hint == 'time alive':
                 self.state.label = str(org.time_alive)
-                OpenNero.setWindowCaption("Displaying Time Alive")
             elif display_hint == 'hit points':
                 self.state.label = ''.join('.' for i in range(int(5*OpenNero.get_environment().get_hitpoints(self))))
-                OpenNero.setWindowCaption("Displaying Hit Points")
-            elif display_hint == 'genome id':
+            elif display_hint == 'id':
                 self.state.label = str(org.id)
-                OpenNero.setWindowCaption("Displaying Organism ID")
             elif display_hint == 'species id':
                 self.state.label = str(org.species_id)
-                OpenNero.setWindowCaption("Displaying Species ID")
             elif display_hint == 'champion':
                 if org.champion:
                     self.state.label = 'champ!'
                 else:
                     self.state.label = ''
-                OpenNero.setWindowCaption("Displaying Champion")
             elif display_hint == 'rank':
                 self.state.label = str(org.rank)
-                OpenNero.setWindowCaption("Displaying Rank")
             elif display_hint == 'debug':
                 self.state.label = str(OpenNero.get_environment().get_state(self))
-                OpenNero.setWindowCaption("Displaying Debug")
             else:
                 self.state.label = '?'
         else:
@@ -132,7 +123,6 @@ class RTNEATAgent(NeroAgent, OpenNero.AgentBrain):
             # change the window caption
             if self.state.label:
                 self.state.label = ""
-                OpenNero.setWindowCaption("")
 
     def network_action(self, sensors):
         """
@@ -196,6 +186,32 @@ class QLearningAgent(NeroAgent, OpenNero.QLearningBrain):
             action_bins, state_bins,
             num_tiles, num_weights)
         NeroAgent.__init__(self)
+    
+    def set_display_hint(self):
+        """
+        set the display hint above the agent's head (toggled with F2)
+        """
+        display_hint = constants.getDisplayHint()
+        if display_hint:
+            if display_hint == 'fitness':
+                self.state.label = '%.2g' % self.fitness[0]
+            elif display_hint == 'time alive':
+                self.state.label = str(self.step)
+            elif display_hint == 'hit points':
+                self.state.label = ''.join('.' for i in range(int(5*OpenNero.get_environment().get_hitpoints(self))))
+            elif display_hint == 'id':
+                self.state.label = str(self.state.id)
+            elif display_hint == 'species id':
+                self.state.label = 'q'
+            elif display_hint == 'debug':
+                self.state.label = str(OpenNero.get_environment().get_state(self))
+            else:
+                self.state.label = '?'
+        else:
+            # the first time we switch away from displaying stuff,
+            # change the window caption
+            if self.state.label:
+                self.state.label = ""
 
     def agent_info_tuple(self):
         sbound, abound, _ = NeroAgent.agent_info_tuple(self)

@@ -112,7 +112,7 @@ FITNESS_SCALE = {
     FITNESS_APPROACH_FLAG: SQ_DIST_SCALE,
     }
 
-DISPLAY_HINTS = itertools.cycle([None, 'time alive', 'champion', 'hit points', 'genome id', 'species id'])
+DISPLAY_HINTS = itertools.cycle([None, 'fitness', 'time alive', 'champion', 'hit points', 'id', 'species id'])
 DISPLAY_HINT = DISPLAY_HINTS.next()
 
 def getDisplayHint():
