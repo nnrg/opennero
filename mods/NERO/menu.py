@@ -106,6 +106,8 @@ class NeroPanel(wx.Panel, ScriptClient):
         self.loaded1 = False
         self.loaded2 = False
 
+        self.rtNEATDeployed = False;
+
         self._grid.Fit(parent)
 
     def add_buttons(self):
@@ -166,7 +168,8 @@ class NeroPanel(wx.Panel, ScriptClient):
 
     def EnableSliders(self):
         for key, slider in self._sliders.items():
-            slider.Enable()
+            if (not (self.rtNEATDeployed and (key == 'EE'))):
+                slider.Enable()
 
     def DisableSliders(self):
         for key, slider in self._sliders.items():
@@ -186,13 +189,14 @@ class NeroPanel(wx.Panel, ScriptClient):
     def OnDeployRTNEAT(self, event):
         buton = self._buttons['OnDeployRTNEAT']
         self.send("rtneat 0")
+        self.rtNEATDeployed = True;
         self.EnableSliders()
-        self._sliders['EE'].Disable()
         pauseButton = self._buttons['OnPause']
         pauseButton.Enable()
 
     def OnDeployQLearning(self, event):
         self.send("qlearning 0")
+        self.rtNEATDeployed = False;
         self.EnableSliders()
         pauseButton = self._buttons['OnPause']
         pauseButton.Enable()
