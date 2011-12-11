@@ -310,14 +310,13 @@ namespace OpenNero
         inline
         void TryOverride(const char* name, Result& result)
         {
-
             try {
                 if (python::override f = this->get_override(name)) {
                     python::object res = f();
                     python::extract<Result> extraction(res);
                     result = extraction();
                 } else {
-                    AssertMsg(false, "Unable to find Python override for method: " << name);
+                    LOG_F_WARNING("scripting", "Unable to find Python override for method: " << name);
                 }
             } catch (python::error_already_set const &) {
                 ScriptingEngine::instance().LogError();
