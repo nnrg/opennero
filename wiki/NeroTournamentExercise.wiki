@@ -68,7 +68,12 @@ easier to figure out issues as they happen.
 In order to provide the best experience for everyone, we may release
 bug fixes before the tournament submissions are due. Below is a concise summary of such fixes:
 
-====Most recent release: <font color="red">2011-12-07</font> ====
+====Most recent release: <font color="red">2011-12-11</font> ====
+
+==== Notes for 2011-12-11 ====
+  * View additional information about reinforcement learning agents, such as fitness, lifetime, hitpoints and agent id.
+  * Fix assertion at the end of agent lifetime in Maze
+  * Scoring and reporting tweaks for Battle
 
 ==== Recently fixed issues ====
 If you are experiencing any of the following, try upgrading to the most recent version:
