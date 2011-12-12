@@ -84,9 +84,12 @@ class ScriptServer:
                         if s in self.outputs:
                             self.outputs.remove(s)
                 except socket.error, e:
-                    print 'ScriptServer socket error'
-                    self.inputs.remove(e)
-                    self.outputs.remove(e)
+                    print 'ScriptServer socket error: %s' % e
+                    s.close();
+                    if s in self.inputs:
+                        self.inputs.remove(s)
+                    if s in self.outputs:
+                        self.outputs.remove(s)
         return None
 
 def GetScriptServer(port=PORT):
