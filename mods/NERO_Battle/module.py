@@ -5,8 +5,17 @@ import NERO.constants as constants
 import NeroEnvironment
 import OpenNero
 
+# this value, between 0 (slowest) and 100 (fastest) 
+# overrides the default from NERO Training
+BATTLE_DEFAULT_SPEEDUP = 80
 
 class NeroModule(NERO.module.NeroModule):
+    def __init__(self):
+        NERO.module.NeroModule.__init__(self)
+        if OpenNero.getAppConfig().rendertype != 'null':
+            self.set_speedup(BATTLE_DEFAULT_SPEEDUP)
+            print 'setting speedup for on-screen battle'
+
     def create_environment(self):
         return NeroEnvironment.NeroEnvironment()
 
