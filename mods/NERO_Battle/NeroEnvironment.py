@@ -11,6 +11,7 @@ class NeroEnvironment(NERO.NeroEnvironment.NeroEnvironment):
         NERO.NeroEnvironment.NeroEnvironment.__init__(self)
         self.script = 'NERO_Battle/menu.py'
         self.print_damage = -1
+        self.last_damage = []
 
     def step(self, agent, action):
         """
@@ -52,14 +53,15 @@ class NeroEnvironment(NERO.NeroEnvironment.NeroEnvironment):
 
         if len(damages) == 2:
             ss = []
-            print 'damages sustained by:',
             for t, d in sorted(damages.iteritems()):
                 s = '%s: %d' % (constants.TEAM_LABELS[t], d)
                 ss.append(s)
-                print s,
-            print
-            if not constants.getDisplayHint():
-                OpenNero.setWindowCaption('Damage sustained: ' + ' '.join(ss))
+            ss = tuple(ss)
+            if self.last_damage != ss:
+                print 'damages sustained by: ' +' '.join(ss)
+                self.last_damage = ss
+                if not constants.getDisplayHint():
+                    OpenNero.setWindowCaption('Damage sustained: ' + ' '.join(ss))
 
         if winner is not None:
             s = constants.TEAM_LABELS[winner] + ' team wins!!!'
