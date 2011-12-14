@@ -66,6 +66,12 @@ class NeroEnvironment(NERO.NeroEnvironment.NeroEnvironment):
         if winner is not None:
             s = constants.TEAM_LABELS[winner] + ' team wins!!!'
             print s
+            try:
+                if OpenNero.getAppConfig().rendertype != 'null':
+                    import tkMessageBox
+                    tkMessageBox.showinfo('NERO Battle Results', s)
+            except:
+                pass
             if not constants.getDisplayHint():
                 OpenNero.setWindowCaption(s)
             OpenNero.disable_ai()
