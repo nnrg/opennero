@@ -146,6 +146,31 @@ http://www.cs.utexas.edu/users/risto/pictures/menu2.png
 The trees are sensed as small walls; in the current version they
 cannot be created or modified though.
 
+==== Over-head display ====
+
+By hitting the *F2* key, you can cycle through additional information about 
+each agent that may be useful during training. This "over-head" display
+shows up as a bit of text above each agent on the field. When an over-head
+display is active, the window title will change to say what is being 
+displayed. Some of information is specific to Neuroevolution, and some is
+specific to RL.
+
+  * fitness
+    * for RL, this is the cumulative reward over the agent's lifetime. Because the meaning of the reward values can change with the adjustment of sliders, the exact meaning and units of this value depend on the current slider setting.
+    * for rtNEAT, this is the *relative* fitness of the organism compared to the rest of the population. This is calculated as the weighted sum of the Z-scores (the number of standard deviations above or below population average) of the agent in each of the fitness slider categories.
+  * time alive
+    * for RL, this is simply the number of steps on the field that the current individual has been trained for. Generally, the longer an agent is fielded, the more experience it has, and, if using a hash table, the larger its representation in the team file.
+    * for rtNEAT, this is the total time (in frames) that the phenotype has been on the field. Note that this can be larger than a single lifetime because the same network can be "re-spawned" several times if it is considered good enough, because rtNEAT is an elitist steady-state algorithm.
+  * id
+    * for RL, this is the *body id* of the individual, allowing you to keep track of its behavior over time.
+    * for rtNEAT, this is the *genome id*, which you can use to track the behavior and to extract individuals from saved populations for use in combat teams.
+  * species id
+    * for RL, this shows the value 'q' for the default q-learner to allow you to distinguish RL agents from rtNEAT ones.
+    * for rtNEAT, this shows the unique species number that the individual belongs to. rtNEAT uses speciation and fitness sharing in order to protect diversity within the evolving population.
+  * champion:
+    * not available for RL
+    * for rtNEAT, this shows the label 'champ!' above the highest-ranked individual within the current population, allowing you to quickly check what the best behavior so far is according to the current fitness profile.
+
 
 ===Neuroevolution (rtNEAT)===
 
