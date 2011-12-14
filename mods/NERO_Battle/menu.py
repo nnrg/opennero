@@ -18,7 +18,6 @@ class NeroPanel(NERO.menu.NeroPanel):
     def __init__(self, parent):
         NERO.menu.NeroPanel.__init__(self, parent)
         self._sliders['HP'].Enable()
-        del self._sliders['HP']
 
     def add_buttons(self):
         self.add_button('Load Blue Team', self.OnLoad1)
