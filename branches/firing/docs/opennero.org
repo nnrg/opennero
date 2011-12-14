@@ -1,0 +1,42 @@
+* OpenNERO todo list
+** Fixes after NERO tournament
+*** TODO agents getting embedded in the walls
+*** DONE animation speed
+*** TODO pieces off the board
+*** DONE no yellow sensors
+*** TODO don't fire if there is a wall in the way
+*** TODO boxes
+** Overhead display
+*** DONE fitnesses
+*** DONE time alive
+*** TODO hit points (DONE in battle)
+*** DONE genome id #
+*** DONE species id #
+*** DONE champ
+*** TODO rank
+** Roomba
+*** TODO Table collisions
+** Binary release
+*** TODO new Boost
+*** TODO installer for windows
+*** TODO app for Mac OS X
+*** TODO Linux x86
+** Sensors
+*** DONE Add on-target sensor (offensive), (should not see through walls)
+*** TODO Add line-of-fire sensor (defensive), (should not see through walls)
+*** TODO Figure out firing mechanics and looks
+    Currently missing only if other agents move, combine firing scoring to happen equally for everyone
+    depending on orientation of agent, casting ray at it either hits it or not
+*** TODO Need to have artificial firing noise
+** Docs
+*** TODO Project descriptions for Roomba (Shimon)
+** General bugs
+*** DONE full path for log file crashes
+** Other general bugs
+| Issue # | Kind   | Priority | Summary                                                 | Tags            |
+|---------+--------+----------+---------------------------------------------------------+-----------------|
+|      52 | Defect | High     | Camera not reseting when switching back to First Person | *maze*          |
+|      54 | Defect | Low      | Cannot return to overhead view                          | *maze*          |
+|      63 | Task   | High     | Line of fire sensors need to be added to NERO mod       | *nero*          |
+|      65 | Task   | High     | Battle mod needs to reuse NERO environment              | *nero* *battle* |
+|      68 | Defect | Medium   | collision with tables in Roomba                         | *roomba*        |
