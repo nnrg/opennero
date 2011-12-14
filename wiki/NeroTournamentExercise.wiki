@@ -44,7 +44,7 @@ After you are satisfied with your team, you'll save it into a file, and [http://
   * You should test your team first by loading it into NERO_battle and making sure it works as intended.
   * You can submit either the team text file itself (fist rename it so that it will have a .txt extension) or a   gzipped version of it (i.e. with the extension .gz). Gzipping is a good idea if the file is large and would take a long time to upload.
   * In the "Name" field, give your team a fun, recognizable name: it will be used to identify it in the tournament. 
-  * You can submit multiple teams, provided they are different (e.g. trained differently, or consisting of a different combination of agents.). 
+  * You can submit multiple teams (starting 12/14/2011). Just make sure the teams are different, i.e. trained differently, or consisting of different agents.
 
 ==4. Eagerly Await the Results==
 
