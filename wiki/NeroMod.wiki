@@ -325,7 +325,7 @@ and the spawn locations can be changed as in training mode).
 
 The Hitpoints slider specifies how many times each agent can be hit
 before it dies and is removed from the battle.  The game ends when one
-team is completely eliminated or when the time runs out, in which case the team that has more hits on the opponent wins. The current hitpoints are displayed in the title bar of the NERO window.
+team is completely eliminated or when the time runs out, in which case the team that has more hits on the opponent wins. The current hitpoints are displayed in the title bar of the NERO window; the agent that delivered the winning shot will jump up and down in jubilation :-).
 
 The game starts when the user presses the Continue button. The agents
 are spawned only once, and they then have to move around in the
