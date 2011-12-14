@@ -37,7 +37,14 @@ Please read that page carefully.
 
 ==3. Submit Your Team to the Tournament==
 
-After you are satisfied with your team, you'll save it into a file, and submit that file into the tournament. The submission will be done through web upload; detailed instructions will be posted here (on this page) a few days before the deadline. The deadline for submission is *December 15th, 2011 at 11:59pm CST.*
+* The [https://apps.cs.utexas.edu/nero/ submission site] is now open, deadline December 15th, 2011 at 11:59pm CST*
+
+After you are satisfied with your team, you'll save it into a file, and submit that file into the tournament. To submit, please go to [http://apps.cs.utexas.edu/nero/ the submission page]. Note that
+
+  *You should test your team first by loading it into NERO_battle and making sure it works as intended.
+  *You can submit either the population text file itself (rename it so that it will have a .txt extension) or a   gzipped version of it (i.e. with the extension .txt.gz). Gzipping is a good idea if the file is large and would take a long time to upload.
+  * In the "name" field, give your team a fun, recognizable name: it will be used to identify it in the tournament. 
+  *You can submit multiple teams, provided they are different (e.g. trained differently).
 
 ==4. Eagerly Await the Results==
 
