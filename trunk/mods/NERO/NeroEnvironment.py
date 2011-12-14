@@ -275,7 +275,7 @@ class NeroEnvironment(OpenNero.Environment):
         state = self.get_state(agent)
         friends, foes = self.getFriendFoe(agent)
 
-        if self.hitpoints > 0 and state.total_damage >= self.hitpoints:
+        if agent.group != 'Turret' and self.hitpoints > 0 and state.total_damage >= self.hitpoints:
             return reward
 
         R = dict((f, 0) for f in constants.FITNESS_DIMENSIONS)
@@ -325,6 +325,8 @@ class NeroEnvironment(OpenNero.Environment):
                     # count as hit depending on distance
                     self.get_state(target).curr_damage += 1
                     R[constants.FITNESS_HIT_TARGET] = 1
+
+
 
         damage = state.update_damage()
         R[constants.FITNESS_AVOID_FIRE] = -damage

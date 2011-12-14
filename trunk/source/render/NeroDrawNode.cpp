@@ -29,9 +29,6 @@ namespace OpenNero
     {
         // draw our lineset
         LineSet::instance().Render( SceneManager->getVideoDriver() );
-
-        // clear our lineset
-        LineSet::instance().ClearSegments();
     }
     
     const core::aabbox3df& NeroDrawNode::getBoundingBox() const

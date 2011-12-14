@@ -271,6 +271,9 @@ namespace OpenNero
     {
         // This will cause Irrlicht to render the objects
         UpdateRenderSystem(dt);
+        
+        // clear our lineset
+        LineSet::instance().ClearSegments();
 
         // This will look at any input from the user that happened since the 
         // previous call and run the corresponding (Python) actions. This can
