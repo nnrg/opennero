@@ -275,7 +275,7 @@ class NeroEnvironment(OpenNero.Environment):
         state = self.get_state(agent)
         friends, foes = self.getFriendFoe(agent)
 
-        if self.hitpoints > 0 and state.total_damage >= self.hitpoints:
+        if agent.group != 'Turret' and self.hitpoints > 0 and state.total_damage >= self.hitpoints:
             return reward
 
         R = dict((f, 0) for f in constants.FITNESS_DIMENSIONS)
@@ -298,18 +298,20 @@ class NeroEnvironment(OpenNero.Environment):
             R[constants.FITNESS_APPROACH_FLAG] = -d * d
 
         target = self.target(agent)
+        color = constants.TEAM_LABELS[agent.get_team()]
+
         if target is not None:
             source_pos = agent.state.position
             target_pos = target.state.position
             source_pos.z = source_pos.z + 5
             target_pos.z = target_pos.z + 5
-            d = target_pos.getDistanceFrom(source_pos)
-            d = (constants.MAX_SHOT_RADIUS - d)/constants.MAX_SHOT_RADIUS
-            if random.random() > d/2: # attempt a shot depending on distance
-                color = constants.TEAM_LABELS[agent.get_team()]
-                if color == 'red':
+            dist = target_pos.getDistanceFrom(source_pos)
+            d = (constants.MAX_SHOT_RADIUS - dist)/constants.MAX_SHOT_RADIUS
+            if random.random() < d/2: # attempt a shot depending on distance
+                team_color = constants.TEAM_LABELS[agent.get_team()]
+                if team_color == 'red':
                     color = OpenNero.Color(255, 255, 0, 0)
-                elif color == 'blue':
+                elif team_color == 'blue':
                     color = OpenNero.Color(255, 0, 0, 255)
                 else:
                     color = OpenNero.Color(255, 255, 255, 0)
@@ -321,10 +323,12 @@ class NeroEnvironment(OpenNero.Environment):
                     True,
                     wall_color,
                     color)
-                if len(obstacles) == 0 and random.random() > d/2:
+                if len(obstacles) == 0 and random.random() < d/2:
                     # count as hit depending on distance
                     self.get_state(target).curr_damage += 1
                     R[constants.FITNESS_HIT_TARGET] = 1
+
+
 
         damage = state.update_damage()
         R[constants.FITNESS_AVOID_FIRE] = -damage

@@ -241,7 +241,7 @@ namespace OpenNero
 
         ISceneNode_IPtr mpSkyBox;                       ///< Sky box for background of the scene
 
-        ISceneNode_IPtr mpNeroNode;                ///< A special node for drawing lines
+        ISceneNode_IPtr mpNeroNode;                     ///< A special node for drawing lines
 
         GuiManagerPtr mpGuiManager;                     ///< Manager of our gui pieces
 

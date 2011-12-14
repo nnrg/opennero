@@ -34,6 +34,10 @@ namespace OpenNero
         core::aabbox3df mBBox;
     };
 
+	/// @cond
+    typedef boost::intrusive_ptr<OpenNero::NeroDrawNode>     NeroDrawNode_IPtr;
+    /// @endcond
+    
 };//end OpenNero
 
 #endif // _GAME_RENDER_NERO_DRAW_NODE_H_
