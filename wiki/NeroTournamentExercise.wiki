@@ -37,9 +37,9 @@ Please read that page carefully.
 
 ==3. Submit Your Team to the Tournament==
 
-* The [https://apps.cs.utexas.edu/nero/ submission site] is now open, deadline December 15th, 2011 at 11:59pm CST*
+* The tournament submissions are now closed. We will be evaluating the teams and post detailed tournament results soon!
 
-After you are satisfied with your team, you'll save it into a file, and [http://apps.cs.utexas.edu/nero/ submit that file into the tournament].  Note that
+After you are satisfied with your team, you'll save it into a file, and submit that file into the tournament.  Note that
 
   * You should test your team first by loading it into NERO_battle and making sure it works as intended.
   * You can submit either the team text file itself (fist rename it so that it will have a .txt extension) or a   gzipped version of it (i.e. with the extension .gz). Gzipping is a good idea if the file is large and would take a long time to upload.
@@ -75,7 +75,10 @@ easier to figure out issues as they happen.
 In order to provide the best experience for everyone, we may release
 bug fixes before the tournament submissions are due. Below is a concise summary of such fixes:
 
-====Most recent release: <font color="red">2011-12-11</font> ====
+====Most recent release: <font color="red">2011-12-14</font> ====
+
+==== Notes for 2011-12-14 ====
+ * Cosmetic fixes for battle shooting display and heads-up battle speed.
 
 ==== Notes for 2011-12-11 ====
   * View additional information about reinforcement learning agents, such as fitness, lifetime, hitpoints and agent id.
