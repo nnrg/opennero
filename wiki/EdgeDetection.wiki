@@ -13,8 +13,7 @@ Once you have the standard distribution of OpenNERO, you need to <a href="hw5_vi
 
 ==2. Install the Python Imaging Library==
 
-We're going to be using the <a href="http://www.pythonware.com/products/pil/">Python Imaging Library</a> to help with loading, saving, and manipulating the images we take in OpenNERO. To install PIL, download the latest version (1.1.7) for your OS (<a href="http://www.pythonware.com/products/pil/">linux,
-  windows</a>, <a href="http://pythonmac.org/packages/py25-fat/">MacOSX</a>).
+We're going to be using the <a href="http://www.pythonware.com/products/pil/">Python Imaging Library</a> to help with loading, saving, and manipulating the images we take in OpenNERO. To install PIL, download the latest version (1.1.7) for your OS (<a href="http://www.pythonware.com/products/pil/">linux, windows</a>, <a href="http://pythonmac.org/packages/py25-fat/">MacOSX</a>).
 
 In linux, install with:
 {{{
