@@ -160,9 +160,13 @@ namespace OpenNero
     /// deserialize this brain from a text string
     void TDBrain::from_string(const std::string& s)
     {
-        std::istringstream iss(s);
-        boost::archive::text_iarchive ia(iss);
-        ia >> *this;
+        try {
+            std::istringstream iss(s);
+            boost::archive::text_iarchive ia(iss);
+            ia >> *this;
+        } catch (boost::archive::archive_exception const& e) {
+            LOG_F_ERROR("ai.rl", "unable to load agent because of error, " << e.what());
+        }
     }
 }
 
