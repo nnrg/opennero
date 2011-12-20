@@ -5,7 +5,7 @@ cd $(dirname $(readlink -f $0))
 
 # start child process
 ./OpenNERO \
-  --log nero_battle.log \
+  --log $4 \
   --mod NERO_Battle \
   --modpath NERO_Battle:_NERO:common \
   --headless \
