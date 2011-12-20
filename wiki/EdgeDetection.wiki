@@ -102,17 +102,17 @@ Your classifier should implement the `classify` and `train` methods. Each time a
 ===5b. Invent a set of features===
 Each edge detected image is a black image with a white pixel for each edge. Along with information about whether each pixel is an edge, it's also useful to know the orientation of the edges. This information is derived by looking at the maximum gradient from the edge pixel to any of its neighbors. Thus, each call to `classify` also passes an array of orientation values for each pixel, with the following values:
 
-<center><img src="hw5_pixel_orientation.png"/></center>
+<img src="http://opennero.googlecode.com/svn/wiki/OpenNERO-pixel-orientation.png"/>
 
 For instance, if the maximum change in pixel intensity was from the target pixel to the pixel immediately to its right, the orientation of the target pixel would be 90 degrees. See section 24.2.1 of your textbook for more information on how this process works.
 
 Your features should be based on the detected edges you receive from the edge detection algorithm. For example:
 
-  * Number of edge pixels < 100
-  * Percentage of pixels that are edge pixels < 20%
-  * Number of edge pixels in the top half of the image that are oriented upward (315, 0, or 45) < 50
+  * Number of edge pixels > 100
+  * Percentage of pixels that are edge pixels > 20%
+  * Number of edge pixels in the top half of the image that are oriented upward (315, 0, or 45) > 50
 
-For each feature, calculate the probability of each class containing that feature. For example, if half of the Syndey examples have more than 100 edge pixels, you would calculate P(C = Sydney | Number of edge pixels &gt; 100) = 0.5. The result will be a probability matrix where each column is a different class and each row is a different feature; the individual cells correspond to the probability that an example is in that class given it has that feature.
+For each feature, calculate the probability of each class containing that feature. For example, if half of the Syndey examples have more than 100 edge pixels, you would calculate P(C = Sydney | Number of edge pixels > 100) = 0.5. The result will be a probability matrix where each column is a different class and each row is a different feature; the individual cells correspond to the probability that an example is in that class given it has that feature.
 
 Use the training set to calculate your probability matrix, use the testing set to gauge your accuracy and determine whether you need to add more features or if you're starting to overfit, and use the validation set as a hold-out set that you classify *only at the very end of the experiment, once you've decided you're finished*.
 
