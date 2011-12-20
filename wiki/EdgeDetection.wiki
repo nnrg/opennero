@@ -2,118 +2,112 @@
 
 Edge detection (see section 24.2.1 of <a href="http://aima.cs.berkeley.edu">AIMA</a>) is one of the building blocks of Computer Vision. Given an image, an edge detection algorithm determines which pixels lay along the boundary of two different elements, such as an agent's head and a distant mountain. Detecting edges is a starting point for numerous higher-level processes including object detection.
 
-==1. Get a fresh version of OpenNero==
 
-The following steps should help get you up and running in OpenNERO:
+<wiki:video url="http://www.youtube.com/watch?v=PlrKywV5ep8"/>
 
-  * Install it on your own machine by downloading one of the <a href="http://code.google.com/p/opennero/downloads/list">prebuilt binaries</a>
-  * <a href="http://code.google.com/p/opennero/wiki/BuildingOpenNero">Build OpenNERO</a> on your own machine using the source code.
+==Running the Demo==
 
-Once you have the standard distribution of OpenNERO, you need to <a href="hw5_vision.zip">download the modified NERO files for this assignment</a>. Replace your existing OpenNERO NERO files with the ones in the zip file.
+To run the demo,
 
-==2. Install the Python Imaging Library==
+  # <a href="http://code.google.com/p/opennero/wiki/BuildingOpenNero">Build OpenNERO</a> using the cs343vision2 branch.
+  # Install the <a href="http://www.pythonware.com/products/pil/">Python Imaging Library</a> by downloading the latest version (1.1.7) for your OS (<a href="http://www.pythonware.com/products/pil/">linux, windows</a>, <a href="http://pythonmac.org/packages/py25-fat/">MacOSX</a>).
+  # Start the NERO mod.
+  # Click the First Person Agent button.
+  # Position your agent with the W, A, S, and D keys.
+  # Take a snapshot by clicking the Snapshot button.
 
-We're going to be using the <a href="http://www.pythonware.com/products/pil/">Python Imaging Library</a> to help with loading, saving, and manipulating the images we take in OpenNERO. To install PIL, download the latest version (1.1.7) for your OS (<a href="http://www.pythonware.com/products/pil/">linux, windows</a>, <a href="http://pythonmac.org/packages/py25-fat/">MacOSX</a>).
+Each snapshot will automatically be processed by OpenNERO and the results will be displayed in a four-panel window.
 
-In linux, install with:
-{{{
-tar xzf Imaging-1.1.7.tar.gz
-cd Imaging-1.1.7
-python setup.py build
-python setup.py install
-}}}
+Note that the default version included in the demo is a slower, more canonical implementation of the edge detection algorithm; it may take up to 2 minutes to process an image, depending on the speed of your computer. An optimized version is available in `show_image_fast.py` and should complete its analysis in about 10 seconds, but requires `numpy` and `scipy` to be installed.
 
-To test your installation of PIL, download a PNG image file such as <a href="hw5_stapler.png">this stapler</a>:
+==Four-Panel Window Results==
 
-{{{
-import Image
-im = Image.open("hw5_stapler.png")
-print im.format, im.size, im.mode
-# >> PNG (600, 468) RGBA
-bw = im.convert("L")
-bw.save("hw5_bw_stapler.png", "PNG")
-}}}
+Each time you take a snapshot, it's processed in four phases and the results are displayed together in one panel. Below is a description of each panel.
 
-The resulting file should look like <a href="hw5_stapler_bw.png">this black and white version of the stapler</a>.
+===Color===
+The upper left panel displays the raw, color snapshot taken.
 
-If you want to create a new, blank image with the same dimensions and color mode as the black and white photo but perhaps with some custom values based on calculations stored in an array (e.g., if you have an array of edge pixels and want to create an image with them):
+===Black and White===
+The upper right panel displays the color snapshot converted to black and white.
+
+===Smoothed===
+The lower left panel displays the black and white image after having applied a Gaussian filter to smooth out the edges and prepare it for edge detection. The code to perform this smoothing is found in `show_image.py` and excerpted below:
 
 {{{
-im = Image.new(screen.mode, screen.size)
-im_pixels = im.load()
-# iterate over your array and set the image pixels with im_pixels[x,y] = ...
-im.save("image.png", "PNG")
+# Apply Gaussian filter
+sigma = 1
+bw_pix = bw.load()
+convolution = [ [0 for col in range(bw.size[1])] for row in range(bw.size[0])]
+# Loop over every pixel in the image and apply the Gaussian filter
+for (x,y) in itertools.product(range(bw.size[0]), range(bw.size[1])):
+    gauss_totals = 0
+    # For each neighboring pixel
+    for(u, v) in itertools.product(range(-3*sigma + x,3*sigma+1+x),range(-3*sigma + y,3*sigma+1+y)):
+        if(u < 0 or v < 0 or u >= width or v >= height):
+            continue
+        gauss_totals += gaussian(x-u,y-v,sigma)
+        convolution[x][y] += (bw_pix[u,v]) * gaussian(x-u,y-v,sigma)
+    convolution[x][y] /= gauss_totals
+
+smoothed = Image.new(bw.mode, bw.size)
+smoothed_pix = smoothed.load()
+for x, xval in enumerate(convolution):
+    for y, yval in enumerate(convolution[x]):
+        smoothed_pix[x,y] = int(convolution[x][y])
+
 }}}
 
-Keep in mind that in a black and white photo, the values for each pixel are in the range [0,255]. For more information about using PIL with the Image class, see the <a href="http://www.pythonware.com/library/pil/handbook/image.htm">online handbook</a>.
-
-==3. Install `numpy` and `scipy`==
-
-You'll need to <a href="http://www.scipy.org/Installing_SciPy">install numpy and scipy</a> if you're not already able to import them.
-
-==4. Create training, testing, and validation sets in OpenNERO==
-
-Load the NERO mod in OpenNERO and click the `First Person Agent` button. This enables you to now move around in first person and take snapshots of the different characters and objects in the world. Each time you take a snapshot, it will be processed using a similar method to the edge detection algorithm is described in section 24.2.1 of your AIMA (third edition) textbook. The results window shows you each of the four steps of edge detection: original (upper left), black and white (upper right), smoothed with a Gaussian filter (lower left), and finally edge pixels detected (lower right). Each intermediate image is saved into the `snapshots` folder with a timestamped filename. Although each of the images is saved, you should *only use the images saved in `NERO/snapshots/edges` in your classifier*.
-
-Take at least 40 training, 20 testing, and 20 validation pictures in this world, with a good mix of each of the objects. You want to be able to classify:
-
-  * Steve, the robot agent from the maze world.
-  * Sydney, a human agent.
-  * a tree.
-  * a green cube.
-
-Make sure you have a few of each class of objects in each of your datasets. Also, since the agents are spawned randomly in the world, make sure you gather your samples from multiple runs of the environment; otherwise, your classifier may be learning characteristics about the specific instance of the environment (e.g., mountains and walls in the background) rather than identifying the objects.
-
-==5. Create Your Object Classifier==
-You'll be using a naive Bayes classifier and a set of custom features to classify objects.
-
-===5a. Implement a naive Bayes classifer===
-As a reminder, a naive Bayes classifier works under the (naive) assumption that all feature probabilities are independent. If we are trying to determine the probability that a certain image should be classified as type C, given that it has a certain collection of features {f1, f2, ..., fn}, then we can write that as P(C | f1, f2, ..., fn). Since we are assuming each of our features is independent given C, we can simplify this to be P(C | f1, f2, ..., fn) = P(C | f1) `*` P(C | f2) `*` ... `*` P(C | fn). To create a classifier, you simply calculate the probability score for each possible value of C (i.e., C = Syndey, C = Steve, C = Tree, C = Cube) and choose the C with the highest score.
-
-In the `NERO/classify.py` file, you'll notice a skeleton for your classifier:
+===Edges===
+The lower right panel displays the edge-detected image. The code to perform this smoothing is found in `show_image.py` and excerpted below:
 
 {{{
-"""
-This is your object classifier. You should implement the train and
-classify methods for this assignment.
-"""
-class ObjectClassifier():
-    labels = ['Tree', 'Sydney', 'Steve', 'Cube']
-    
-    """
-    Everytime a snapshot is taken, this method is called and
-    the result is displayed on top of the four-image panel.
-    """
-    def classify(self, edge_pixels, orientations):
-        return random.choice(self.labels)
-    
-    """
-    This is your training method. Feel free to change the
-    definition to take a directory name or whatever else you
-    like. The load_image (below) function may be helpful in
-    reading in each image from your datasets.
-    """
-    def train(self):
-        pass
+neighbor_offsets = [(-1,-1,225), (-1,0,270), (-1,1,315), (0,1,0), (0,-1,180), (1,0,90), (1,1,45), (1,-1,125)]
+
+gradient_threshold = 10
+
+neighbor_offsets = [(-1,-1,225), (-1,0,270), (-1,1,315), (0,1,0), (0,-1,180), (1,0,90), (1,1,45), (1,-1,125)]
+
+gradients = [ [(0,0) for col in range(bw.size[1])] for row in range(bw.size[0])]
+
+# Loop over every pixel in the image and calculate the largest gradient
+for (x,y) in itertools.product(range(bw.size[0]), range(bw.size[1])):
+    pixel = convolution[x][y]
+    # For each immediately neighboring pixel
+    for (uidx, vidx, angle) in neighbor_offsets:
+        u = x + uidx
+        v = y + vidx
+        if u < 0 or y < 0 or u >= width or v >= height:
+            continue
+        gradient = abs(convolution[u][v] - pixel)
+        if gradient > gradients[x][y][0]:
+            gradients[x][y] = (gradient, angle)
+
+# Draw the edges
+edges = bw.point(lambda i: 255)
+edges_pix = edges.load()
+
+results = [ [(False,0) for col in range(bw.size[1])] for row in range(bw.size[0])]
+
+# Loop over every pixel in the image and determine if it's an edge pixel
+for (x,y) in itertools.product(range(bw.size[0]), range(bw.size[1])):
+    gradient = gradients[x][y]
+    # the gradient must be greater than some threshold set by the user
+    if gradient[0] < gradient_threshold:
+        continue
+    is_max = True
+    # determine if the gradient is a local maximum
+    for (uidx, vidx, angle) in neighbor_offsets:
+        u = x + uidx
+        v = y + vidx
+        if u < 0 or y < 0 or u >= width or v >= height:
+            continue
+        if gradients[u][v][0] > gradient[0]:
+            is_max = False
+            break
+    if is_max:
+        edges_pix[x,y] = 0
+        results[x][y] = (True,angle)
 }}}
 
-Your classifier should implement the `classify` and `train` methods. Each time a snapshot is taken, your `classify` method will be invoked and the results will be displayed at the top of the four-image panel. You probably want to train your model _offline_, then you can simply load your trained model in your constructor.
-
-===5b. Invent a set of features===
-Each edge detected image is a black image with a white pixel for each edge. Along with information about whether each pixel is an edge, it's also useful to know the orientation of the edges. This information is derived by looking at the maximum gradient from the edge pixel to any of its neighbors. Thus, each call to `classify` also passes an array of orientation values for each pixel, with the following values:
-
-<img src="http://opennero.googlecode.com/svn/wiki/OpenNERO-pixel-orientation.png"/>
-
-For instance, if the maximum change in pixel intensity was from the target pixel to the pixel immediately to its right, the orientation of the target pixel would be 90 degrees. See section 24.2.1 of your textbook for more information on how this process works.
-
-Your features should be based on the detected edges you receive from the edge detection algorithm. For example:
-
-  * Number of edge pixels > 100
-  * Percentage of pixels that are edge pixels > 20%
-  * Number of edge pixels in the top half of the image that are oriented upward (315, 0, or 45) > 50
-
-For each feature, calculate the probability of each class containing that feature. For example, if half of the Syndey examples have more than 100 edge pixels, you would calculate P(C = Sydney | Number of edge pixels > 100) = 0.5. The result will be a probability matrix where each column is a different class and each row is a different feature; the individual cells correspond to the probability that an example is in that class given it has that feature.
-
-Use the training set to calculate your probability matrix, use the testing set to gauge your accuracy and determine whether you need to add more features or if you're starting to overfit, and use the validation set as a hold-out set that you classify *only at the very end of the experiment, once you've decided you're finished*.
-
-Remember, the more features you create and the more dimensions each feature has, the more powerful your classifier can be. However, you'll also need more training samples and be in danger of overfitting. Start with a small number of simple binary features at first, and gradually expand until you are happy with your classification error.
+==Next Steps==
+Now that you've seen how edge detection works, you can build an object recognition system on top of it. One very basic approach to object recognition is to train a machine learning classifier on a training set of edge-detected images. To implement your classifier, see the [ObjectRecognitionExercise Object Recognition exercise page].
