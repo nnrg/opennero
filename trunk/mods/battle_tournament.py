@@ -28,13 +28,13 @@ FLAGS.add_option('-t', '--test', action='store_true',
 
 
 def test_bracket(team1, team2, duration):
-    '''Just print out the teams we're pitting against each other.'''
+    """Just print out the teams we're pitting against each other."""
     logging.info('bracket matchup: %s vs %s', team1, team2)
     return 'damages sustained by: blue: 0 red: 1'
 
 
 def run_battle_locally(team1, team2, duration):
-    '''Run a battle locally (i.e. on the local CPU) for duration seconds.'''
+    """Run a battle locally (i.e. on the local CPU) for duration seconds."""
     logging.info('running battle locally: %s vs %s', team1, team2)
     opa = os.path.abspath
     battle = subprocess.Popen(
@@ -43,23 +43,23 @@ def run_battle_locally(team1, team2, duration):
     return battle.communicate()[0]
 
 
-CONDOR_TEMPLATE = '''\
+CONDOR_TEMPLATE = """\
 +Group = "GRAD"
 +Project = "AI_OPENNERO"
 +ProjectDescription = "opennero tournament"
 Universe = vanilla
-Requirements = Lucid
+Requirements = Arch == "X86_64"
 Input = /dev/null
 Error = %(logfile)s.stderr
 Output = %(logfile)s.stdout
 Log = %(logfile)s.condor
 Executable = condor_battle.sh
-Arguments = %(team1)s %(team2)s %(duration)d
+Arguments = %(team1)s %(team2)s %(duration)d %(logfile)s.result
 Queue 1
-'''
+"""
 
 def run_battle_on_condor(team1, team2, duration):
-    '''Run a battle on condor for duration seconds.'''
+    """Run a battle on condor for duration seconds."""
     def fmt(s):
         return re.sub(r'\W+', '_', os.path.splitext(s)[0])
     logfile = 'nero_battle_%s_%s_%d_%d' % (
@@ -72,12 +72,17 @@ def run_battle_on_condor(team1, team2, duration):
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE)
 
-    submit.communicate(CONDOR_TEMPLATE % dict(
+    submit_command = CONDOR_TEMPLATE % dict(
         logfile=logfile,
         duration=duration,
         team1=os.path.abspath(team1),
         team2=os.path.abspath(team2),
-        ))
+        )
+
+    with open(logfile + '.submit','w') as f:
+        print >> f, submit_command
+
+    submit.communicate(submit_command)
 
     # wait for the job to complete and return the logging output.
     condition = subprocess.Popen(
@@ -87,11 +92,11 @@ def run_battle_on_condor(team1, team2, duration):
 
     condition.wait()
 
-    return open('%s.stdout' % logfile).read()
+    return open('%s.result' % logfile).read()
 
 
 def parse_scores(stdout):
-    '''Parse scores out of some opennero logging output.'''
+    """Parse scores out of some opennero logging output."""
     scores = [(-1, -1)]
     for line in stdout.splitlines():
         m = re.search(r'damages sustained by: blue: (\d+) red: (\d+)$', line)
@@ -117,10 +122,10 @@ def schedule_battles(fight, team_queue, score_queue):
 
 
 def round_robin(opts, teams, team_queue, score_queue):
-    '''Given a set of teams, run a round-robin (all-pairs) tournament.
+    """Given a set of teams, run a round-robin (all-pairs) tournament.
 
     Returns a map from team name to total score.
-    '''
+    """
     waiting = 0
     for i, team1 in enumerate(teams):
         for j, team2 in enumerate(teams):
@@ -137,10 +142,10 @@ def round_robin(opts, teams, team_queue, score_queue):
 
 
 def parallel_matchups(opts, team_pairs, team_queue, score_queue):
-    '''Given a list of team pairs, run each pair in parallel.
+    """Given a list of team pairs, run each pair in parallel.
 
     Generates a sequence of ((winner, score), (loser, score)) pairs.
-    '''
+    """
     waiting = 0
     for team1, team2 in team_pairs:
         if team1 is None or team2 is None:
@@ -161,8 +166,8 @@ def parallel_matchups(opts, team_pairs, team_queue, score_queue):
 
 
 def world_cup(opts, teams, team_queue, score_queue):
-    '''Run a world-cup-style tournament.
-    '''
+    """Run a world-cup-style tournament.
+    """
     # TODO: not finished
     raise NotImplementedError
 
@@ -173,7 +178,7 @@ def world_cup(opts, teams, team_queue, score_queue):
         '--bracket-size must be a power of 2'
 
     def partition(s, n):
-        '''Divide set s into n approximately equal-sized groups.'''
+        """Divide set s into n approximately equal-sized groups."""
         groups = [[] for _ in range(n)]
         i = 0
         while s:
@@ -196,14 +201,14 @@ def world_cup(opts, teams, team_queue, score_queue):
 
 
 def double_elimination(opts, teams, team_queue, score_queue):
-    '''Run a double-elimination tournament.
+    """Run a double-elimination tournament.
 
     Returns (winner, scoreboard). The scoreboard is a map from team to score.
-    '''
+    """
     scoreboard = dict((t, 0) for t in teams)
 
     def pairs(s):
-        '''Create a list of pairs from elements in list s.'''
+        """Create a list of pairs from elements in list s."""
         h = len(s) // 2
         pairs = []
         for i in range(h):
@@ -211,7 +216,7 @@ def double_elimination(opts, teams, team_queue, score_queue):
         return pairs
 
     def matches(ps):
-        '''Run the given set of pairs in parallel, assembling the results.'''
+        """Run the given set of pairs in parallel, assembling the results."""
         results = parallel_matchups(opts, ps, team_queue, score_queue)
         for (winner, ws), (loser, ls) in results:
             scoreboard[winner] += ws
@@ -219,7 +224,7 @@ def double_elimination(opts, teams, team_queue, score_queue):
             yield winner, loser
 
     def pad_to_power_of_2(s):
-        '''Append sufficient Nones to s to make its length a power of 2.'''
+        """Append sufficient Nones to s to make its length a power of 2."""
         l = 2 ** int(math.ceil(math.log(len(s), 2))) - len(s)
         return s + [None] * l
 
