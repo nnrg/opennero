@@ -1,6 +1,6 @@
 #summary EdgeDetection Demo
 
-In this assignment you will create a Computer Vision (CV) system to classify different objects in OpenNERO. To create this system, you will build a training set of snapshots, design custom features, and implement a naive Bayes classifier. You will use the first-person NERO mod in OpenNERO to take a series of training, testing, and validation images containing objects to classify. Your resulting CV system will be able to walk around the NERO world and identify objects.
+Edge detection (see section 24.2.1 of <a href="http://aima.cs.berkeley.edu">AIMA</a>) is one of the building blocks of Computer Vision. Given an image, an edge detection algorithm determines which pixels lay along the boundary of two different elements, such as an agent's head and a distant mountain. Detecting edges is a starting point for numerous higher-level processes including object detection.
 
 ==1. Get a fresh version of OpenNero==
 
