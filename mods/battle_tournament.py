@@ -228,6 +228,10 @@ def double_elimination(opts, teams, team_queue, score_queue):
         l = 2 ** int(math.ceil(math.log(len(s), 2))) - len(s)
         return s + [None] * l
 
+    def pad_to_multiple_of_2(s):
+	"""Append sufficient Nones to s to make it have even length."""
+	return s + [None] * (len(s) % 2) 
+
     winners = teams
     losers = []
 
@@ -240,7 +244,7 @@ def double_elimination(opts, teams, team_queue, score_queue):
                 losers.append(loser)
         logging.debug('%dL: W%s, L%s', level, winners, losers)
         if len(losers) > 1:
-            for _, loser in matches(pairs(pad_to_power_of_2(losers))):
+            for _, loser in matches(pairs(pad_to_multiple_of_2(losers))):
                 losers.remove(loser)
         level += 1
 
