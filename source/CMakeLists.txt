@@ -16,14 +16,26 @@ FILE(GLOB_RECURSE OpenNERO_headers *.h)
 FILE(GLOB_RECURSE OpenNERO_tests ../test/*.cpp)
 
 # find the Boost C++ libraries
-SET(Boost_ADDITIONAL_VERSIONS 1.48.0 1.48 1.47.0 1.47 1.46.1 1.46.0 1.46 1.45.0 1.45 1.44.0 1.44 1.43.0 1.43 1.42.0 1.42 1.41.0 1.41 1.40.0 1.40 1.39.0 1.39 1.38.0 1.38 1.37.0 1.37)
+
+# if linking against a custom (recent) version of boost without removing the system version, try:
+#SET(Boost_USE_MULTITHREADED "NO")
+
+# if not finding the version installed, add the version number here
+SET(Boost_ADDITIONAL_VERSIONS 1.48.0 1.48 1.47.0 1.47 1.46.1 1.46.0 1.46 1.45.0 1.45 1.44.0 1.44 1.43.0 1.43 1.42.0 1.42)
+
 FIND_PACKAGE (Boost COMPONENTS python filesystem serialization system date_time)
 IF (${Boost_MINOR_VERSION} LESS 35)
   FIND_PACKAGE (Boost COMPONENTS python filesystem serialization date_time)
 ENDIF (${Boost_MINOR_VERSION} LESS 35)
 
 IF (NOT Boost_FOUND)
-  MESSAGE(FATAL_ERROR "Boost libraries were not found")
+  # show an error message that boost was not found
+  MESSAGE(FATAL_ERROR "Boost libraries were not found, please install from http://www.boost.org/")
+ELSE (NOT Boost_FOUND)
+  # show the boost libraries that were found
+  foreach(arg ${Boost_LIBRARIES})
+    MESSAGE(STATUS "Boost library: ${arg}")
+  endforeach(arg ${Boost_LIBRARIES})
 ENDIF (NOT Boost_FOUND)
 
 # Find the Python libraries
