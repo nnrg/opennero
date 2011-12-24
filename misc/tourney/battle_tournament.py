@@ -52,7 +52,8 @@ CONDOR_TEMPLATE = """\
 +Project = "AI_OPENNERO"
 +ProjectDescription = "opennero tournament"
 Universe = vanilla
-Requirements = Arch == "X86_64"
+Requirements = Arch == "X86_64" && Memory >= 2000
+Image_Size = 250 Meg
 Input = /dev/null
 Error = %(logfile)s.stderr
 Output = %(logfile)s.stdout
@@ -106,8 +107,8 @@ def parse_scores(stdout):
             # NB -- scores here are reversed from the log file because a team
             # gets points for causing damage to its opponent.
             scores.append((int(m.group(2)), int(m.group(1))))
-    logging.debug('parsed %d scores from %dkB of stdout data: %s',
-                  len(scores), len(stdout) // 1000, scores[-1])
+    #logging.debug('parsed %d scores from %dkB of stdout data: %s',
+    #              len(scores), len(stdout) // 1000, scores[-1])
     return scores[-1]
 
 
@@ -131,9 +132,10 @@ def round_robin(opts, teams, team_queue, score_queue):
     waiting = 0
     for i, team1 in enumerate(teams):
         for j, team2 in enumerate(teams):
-            for _ in range(opts.rounds):
-                team_queue.put((team1, team2, opts.duration))
-                waiting += 1
+            for _ in range(opts.round_robin):
+                if team1 != team2:
+                    team_queue.put((team1, team2, opts.duration))
+                    waiting += 1
     scoreboard = collections.defaultdict(int)
     while waiting > 0:
         waiting -= 1
@@ -163,7 +165,6 @@ def parallel_matchups(opts, team_pairs, team_queue, score_queue):
         # check the match actually ran and retry a few times
         if score1 >= 0 and score2 >= 0 or n > 10:
             waiting -= 1
-            logging.info('failed to play %s v %s, giving up', team1, team2)
         else:
             tries[(team1,team2)] = n+1
             team_queue.put((team1, team2, opts.duration))
@@ -222,10 +223,7 @@ def double_elimination(opts, teams, team_queue, score_queue):
     def pairs(s):
         """Create a list of pairs from elements in list s."""
         h = len(s) // 2
-        pairs = []
-        for i in range(h):
-            pairs.append((s[i], s[h + i]))
-        return pairs
+        return zip(s[0:h],reversed(s[h:]))
 
     def matches(ps):
         """Run the given set of pairs in parallel, assembling the results."""
@@ -242,22 +240,23 @@ def double_elimination(opts, teams, team_queue, score_queue):
 
     def pad_to_multiple_of_2(s):
 	"""Append sufficient Nones to s to make it have even length."""
-	return s + [None] * (len(s) % 2) 
+	return s + [None] * (len(s) % 2)
 
     winners = teams
     losers = []
 
     level = 0
     while len(winners) > 1 or len(losers) > 1:
-        logging.debug('%dW: W%s, L%s', level, winners, losers)
+        logging.debug('level %d, %d winners, %d losers', level, len(winners), len(losers))
         if len(winners) > 1:
             for _, loser in matches(pairs(pad_to_power_of_2(winners))):
                 winners.remove(loser)
                 losers.append(loser)
-        logging.debug('%dL: W%s, L%s', level, winners, losers)
-        if len(losers) > 1:
-            for _, loser in matches(pairs(pad_to_multiple_of_2(losers))):
+        logging.debug(' - level %d, %d winners, %d losers', level, len(winners), len(losers))
+        while len(losers) >= len(winners) and len(losers) > 1:
+            for _, loser in matches(pairs(pad_to_power_of_2(losers))):
                 losers.remove(loser)
+            logging.debug(' - level %d, %d winners, %d losers', level, len(winners), len(losers))
         level += 1
 
     # If the winners-bracket team loses the final match, both teams will have
