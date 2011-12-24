@@ -32,13 +32,17 @@ def test_bracket(team1, team2, duration):
     logging.info('bracket matchup: %s vs %s', team1, team2)
     return 'damages sustained by: blue: 0 red: 1'
 
+def fmt(s):
+    return re.sub(r'\W+', '_', os.path.splitext(s)[0])
 
 def run_battle_locally(team1, team2, duration):
     """Run a battle locally (i.e. on the local CPU) for duration seconds."""
     logging.info('running battle locally: %s vs %s', team1, team2)
     opa = os.path.abspath
+    logfile = 'nero_battle_%s_%s_%d_%d' % (
+        fmt(team1), fmt(team2), time.time(), os.getpid())
     battle = subprocess.Popen(
-        ['./condor_battle.sh', opa(team1), opa(team2), str(duration)],
+        ['./condor_battle.sh', opa(team1), opa(team2), str(duration), logfile],
         stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     return battle.communicate()[0]
 
@@ -60,8 +64,6 @@ Queue 1
 
 def run_battle_on_condor(team1, team2, duration):
     """Run a battle on condor for duration seconds."""
-    def fmt(s):
-        return re.sub(r'\W+', '_', os.path.splitext(s)[0])
     logfile = 'nero_battle_%s_%s_%d_%d' % (
         fmt(team1), fmt(team2), time.time(), os.getpid())
     logging.info('running battle on condor: %s', logfile)
@@ -154,9 +156,19 @@ def parallel_matchups(opts, team_pairs, team_queue, score_queue):
             team1, team2 = team2, team1
         team_queue.put((team1, team2, opts.duration))
         waiting += 1
+    tries = {}
     while waiting > 0:
         (team1, score1), (team2, score2) = score_queue.get()
-        waiting -= 1
+        n = tries.get( (team1, team2), 0 )
+        # check the match actually ran and retry a few times
+        if score1 >= 0 and score2 >= 0 or n > 10:
+            waiting -= 1
+            logging.info('failed to play %s v %s, giving up', team1, team2)
+        else:
+            tries[(team1,team2)] = n+1
+            team_queue.put((team1, team2, opts.duration))
+            logging.info('failed to play %s v %s, retrying %d', team1, team2, n+1)
+            continue
         if score2 > score1 or (score1 == score2 and random.random() < 0.5):
             logging.info('%s:%d defeats %s:%d', team2, score2, team1, score1)
             yield (team2, score2), (team1, score1)
