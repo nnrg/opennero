@@ -1,0 +1,118 @@
+body {
+  color: black;
+  background: white;
+  font-family: "Times New Roman", Times, serif;
+  font-size: 12pt;
+  margin: 0.2em 0.2em 0.2em 0.2em;
+  border: 0.5pt dotted #CCCCCC;
+  padding: 0.2em 0.2em 0.2em 0.2em;
+}
+
+h1 {
+  color: black;
+  background: #C0C0FF;
+  margin: 0px 0px 0px 0px;
+  padding: 3px 3px 3px 3px;
+}
+
+h2 {
+  color: black;
+  background: #CFCFCF;
+  margin: 0px 0px 0px 0px;
+  padding: 2px 2px 2px 2px;
+}
+
+h3 {
+  color: black;
+  background: #DFDFDF;
+  margin: 0px 0px 0px 0px;
+  padding: 1px 1px 1px 1px;
+}
+
+h4 {
+  color: black;
+  background: #EFEFEF;
+  margin: 1em 0em 0em 0em;
+  padding: 0px 0px 0px 0px;
+}
+
+a {
+  color: #000066;
+  text-decoration: underline;
+}
+
+a:active {
+  color: #FFC0C0;
+}
+
+a:hover {
+  background: #F0F0F0;
+}
+
+a:visited {
+  color: #006666;
+}
+
+cite {
+  font-size: 8pt;
+}
+
+address { 
+  font-style: normal;
+}
+
+td {
+  vertical-align: top;
+}
+
+table.schedule {
+  font: 10pt sans-serif;
+}
+
+.floatleft {
+  float: left;
+  margin: 5px 5px 5px 5px;
+}
+
+.floatright {
+  float: right;
+  margin: 5px 5px 5px 5px;
+}
+
+.vcard { 
+  margin: 0.5em 0.5em 1.0em 0.5em;
+  background: #B0F0B0;
+}
+
+ul {
+  list-style: square;
+}
+
+li.restricted { 
+  list-style: url("../Images/longhorn.jpg");
+}
+
+.restricted > a { 
+  background: #CC9966;
+}
+
+.hidden {
+  display: none;
+}
+
+.visible {
+  display: block;
+}
+
+.type { 
+  font-weight: bold;
+}
+
+pre {
+  margin-left: 5em;
+  margin-right: 5em;
+  border: 0.5pt dotted #CCCCCC;
+  background: #F0F0F0;
+  font-family: courier;
+  color: blue;
+}
