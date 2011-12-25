@@ -1,3 +1,6 @@
-#summary One-sentence summary of this page.
+#summary The results for the 2011 tournament
 
-The results will be posted here soon after the deadline.
+== Preliminary Results Update ==
+
+ * We played multiple double-elimination tournaments and found it to be somewhat unstable: with different random initializations, we got a different winner each time (although the same teams usually ended up in the top 16 or so). You can see [http://www.cs.utexas.edu/~ikarpov/tourney2011/prelim/ a sample double elimination tournament here] (please note that these results may change!).
+ * To get the final results, we decided to run a round robin instead, which is taking some time (sorry!). Stay tuned for final results!
