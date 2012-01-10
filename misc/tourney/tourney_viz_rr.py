@@ -10,7 +10,7 @@ import glob
 import re
 import os
 import os.path
-from tourney_viz import FLAGS, get_team_name
+from tourney_viz_de import FLAGS, get_team_name
 from pylab import *
 
 # add our own options
@@ -34,6 +34,7 @@ def main():
     re_fname3 = re.compile(re_fname3_str)
 
     data = {}
+    datadiff = {}
 
     counts = {}
 
@@ -69,7 +70,13 @@ def main():
                         #counts[(team1, team2)] = cnt + 1
                         #data[(team1, team2)] = (prv * cnt + score1 - score2) / float(cnt + 1)
                         data[(team1, team2)] = score1 - score2
-    print logname, len(data), len(teams), len(teams) * (len(teams) - 1)
+                        datadiff[(team1, team2)] = (score1, score2)
+        print logname, len(data), len(teams), len(teams) * (len(teams) - 1)
+
+    with open('tourney-run-RR-raw.txt','w') as f:
+        for team1, team2 in data:
+            score1, score2 = datadiff[(team1, team2)]
+            print >>f, '%s\t%d\t%s\t%d' % (team1, score1, team2, score2)
 
     N = len(teams)
 
@@ -95,7 +102,6 @@ def main():
     for fname in os.listdir(opts.teamdir):
         fsize = os.stat(os.path.join(opts.teamdir,fname)).st_size
         key = fmt(fname)
-        print fname, key
         team_sizes[key] = fsize
         team_names[key] = fname
         c = (np.isnan(matrix)).sum(1)
