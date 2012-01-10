@@ -1,19 +1,23 @@
-import sys
-import os
-import re
-import optparse
+#!/usr/bin/env python
 
 """
 Convert the output of a double-elimination tournament into a DOT-file and an HTML file
 """
 
+__author__ = "Igor Karpov (ikarpov@cs.utexas.edu)"
+
+import sys
+import os
+import re
+import csv
+import optparse
+
 NODES = {}
 TEAM_NAMES = None
-TEAM_NAMES_FILE = 'entries.csv'
-TEAM_NAME_PREFIX = ''
 
 FLAGS = optparse.OptionParser(usage='%s [OPTIONS] ...' % sys.argv[0])
 FLAGS.add_option('-p', '--prefix', type="string", dest="prefix", default='')
+FLAGS.add_option('-t', '--teams', type="string", dest="team_names_file", default='entries.csv')
 
 def get_node(key, silent = False):
     """ Get a unique key for a node """
@@ -24,14 +28,18 @@ def get_node(key, silent = False):
         if not silent: print 'node [ shape = box, label = "%s" ] %d;' % (key, idx)
     return str(NODES[key])
 
-def read_team_names():
-    import csv
+def fmt(s):
+    return re.sub(r'\W+', '_', os.path.splitext(s)[0])
+
+def read_team_names(opts):
     team_names = {}
-    with open(TEAM_NAMES_FILE, 'rb') as f:
+    with open(opts.team_names_file, 'rb') as f:
         reader = csv.reader(f)
         for row in reader:
-            fname = row[2].replace(' ', '_').replace("'", '_')
-            team_names[fname] = '%s (%s)' % (fname.replace(".txt",''), row[0])
+            fname = row[2].replace('.gz','')
+            basename, ext = os.path.splitext(fname)
+            fname = fmt(fname)
+            team_names[fname] = '%s (%s)' % (basename, row[0])
     return team_names
 
 def get_label(key):
@@ -39,11 +47,11 @@ def get_label(key):
         key = key[len(TEAM_NAME_PREFIX):]
     return key
 
-def get_team_name(key):
+def get_team_name(opts, key):
     global TEAM_NAMES
     if TEAM_NAMES is None:
-        TEAM_NAMES = read_team_names()
-    return TEAM_NAMES.get(key, key)
+        TEAM_NAMES = read_team_names(opts)
+    return TEAM_NAMES[re.sub(r'\_+', '_', key)]
 
 def print_graph(hh, winner, top=None):
     """ print the graph starting from the winner """
@@ -144,14 +152,14 @@ def main():
     winner = DTA[-1][0]
     loser = DTA[-1][2]
 
-    sys.stdout = open('winners.dot','w')
+    sys.stdout = open('winners-bracket.dot','w')
     print 'digraph opennero_tourney_2011_winners {'
     print '  rankdir=RL;'
     print_graph(winner_tree, winner)
     print '}'
     sys.stdout.close()
 
-    sys.stdout = open('losers.dot','w')
+    sys.stdout = open('losers-bracket.dot','w')
     print 'digraph opennero_tourney_2011_losers {'
     print '  rankdir=RL;'
     print_graph(loser_tree, loser)
@@ -178,13 +186,13 @@ def main():
     print '</tbody></table>'
 
     print "<h2>Winners' Bracket</h2>"
-    print '<p><a href="winners.pdf"><img src="winners.png"/></a></p>'
+    print '<p><a href="winners-bracket.pdf"><img src="winners-bracket.png"/></a></p>'
     print "<ul>"
     print_html(winner_tree, winner)
     print '</ul><hr/>'
 
     print "<h2>Losers' Bracket</h2>"
-    print '<p><a href="losers.pdf"><img src="losers.png"/></a></p>'
+    print '<p><a href="losers-bracket.pdf"><img src="losers-bracket.png"/></a></p>'
     print "<ul>"
     print_html(loser_tree, loser)
     print "</ul>"
