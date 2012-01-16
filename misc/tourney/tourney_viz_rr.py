@@ -6,12 +6,14 @@ Convert the output of a round-robin tournament into a color matrix plots
 
 __author__ = "Igor Karpov (ikarpov@cs.utexas.edu)"
 
-import glob
 import re
 import os
 import os.path
-from tourney_viz_de import FLAGS, get_team_name
+import glob
+import gzip
 from pylab import *
+
+from tourney_viz_de import FLAGS, get_team_name
 
 # add our own options
 FLAGS.add_option('-v', '--verbose', help='print info along the way', action='store_true', default=True)
@@ -24,8 +26,8 @@ def fmt(s):
 def main():
     opts, rargs = FLAGS.parse_args()
 
-    prefix = opts.prefix.replace(os.path.sep, '_')
-    re_fname_str = r'.*%s\_(.+)\_\_.*%s\_(.+)\_\d*\_\d*.result' % (prefix, prefix)
+    prefix = opts.prefix.replace(os.path.sep, r'\_')
+    re_fname_str = r'.*%s\_(.+)\_\_%s\_(.+)\_\d+\_\d+.result' % (prefix, prefix)
     re_fname = re.compile(re_fname_str)
     re_damage =  re.compile(r'damages sustained by: blue: (\d+) red: (\d+)$')
     re_fname2_str = r'.*LOG CREATED.*%s\_(.+)\_\_.*%s\_(.+).result' % (prefix, prefix)
@@ -46,7 +48,8 @@ def main():
         lognames = ['RR.log']
 
     for logname in lognames:
-        with open(logname) as f:
+        opener = gzip.open if logname.endswith('.gz') else open
+        with opener(logname) as f:
             team1, team2 = None, None
             for line in f:
                 line = line.strip()
@@ -64,14 +67,13 @@ def main():
                     m = re_damage.search(line)
                     if m:
                         score1, score2 = int(m.group(2)), int(m.group(1))
-                        #print team1, score1, team2, score2
                         #cnt = counts.get((team1, team2), 0)
                         #prv = data.get((team1, team2), 0)
                         #counts[(team1, team2)] = cnt + 1
                         #data[(team1, team2)] = (prv * cnt + score1 - score2) / float(cnt + 1)
                         data[(team1, team2)] = score1 - score2
                         datadiff[(team1, team2)] = (score1, score2)
-        print logname, len(data), len(teams), len(teams) * (len(teams) - 1)
+        print 'Read in %s with %d teams and %d/%d games.' % (logname, len(teams), len(data), len(teams) * (len(teams) - 1))
 
     with open('tourney-run-RR-raw.txt','w') as f:
         for team1, team2 in data:
