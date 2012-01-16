@@ -33,10 +33,10 @@ def fmt(s):
 
 def read_team_names(opts):
     team_names = {}
-    with open(opts.team_names_file, 'rb') as f:
+    with open(opts.team_names_file, 'rU') as f:
         reader = csv.reader(f)
         for row in reader:
-            fname = row[2].replace('.gz','')
+            fname = row[1].replace('.gz','')
             basename, ext = os.path.splitext(fname)
             fname = fmt(fname)
             team_names[fname] = '%s (%s)' % (basename, row[0])
