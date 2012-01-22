@@ -26,6 +26,7 @@
     * MazeLearnerExercise
     * AdvancedMazeExercise
     * NeroTournamentExercise
+      * TournamentResults2011
  * [RunningOpenNero Running]
    * [MazeMod The Maze mod]
    * [BlocksWorldMod Blocks World mod]
