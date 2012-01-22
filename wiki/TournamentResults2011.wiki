@@ -7,7 +7,8 @@
 
 As part of the [https://www.ai-class.com Introduction to Artificial Intelligence] course offered online by Stanford University, the [http://opennero.googlecode.com OpenNERO] team at [http://www.cs.utexas.edu/ UTCS] hosted an online machine learning tournament. Anyone was allowed to participate by submitting online a team of virtual agent controllers for the [NeroMod NERO Machine Learning Game] module of [http://opennero.googlecode.com OpenNERO].  In each match, two teams of autonomous agents with individual sensor arrays, controllers and action outputs attempt to outsmart each other by firing virtual lasers which remove opponent agents from play.  The only difference between the teams is in the training of the controllers contributed by the competitors.
 
-<a href="http://www.cs.utexas.edu/users/risto/pictures/nerogame2.png"><img src="http://www.cs.utexas.edu/users/risto/pictures/nerogame2.png" width="400" height="300"/></a>
+<table border="0"><tr>
+<td><wiki:toc max_depth="3"/></td><td><img src="http://www.cs.utexas.edu/users/risto/pictures/nerogame2.png" height="400"/></td></tr></table>
 
 We accepted two types of controllers: artificial neural network controllers of arbitrary weight and topology, and hash tables approximating the behavior function. The [http://code.google.com/p/opennero/wiki/NeroMod NERO module of OpenNERO] by default provides two methods of training these controller types, namely [http://nn.cs.utexas.edu/?rtneat rtNEAT] for the networks and a time-difference reinforcement learning method, Q-learning, for the tables.  The competitors have the ability to extend and/or modify these training methods as well as create their own training environments and regimens. It is this training that determines how fit the team will be when pitted against other teams submitted to the tournament.
 
@@ -97,27 +98,27 @@ Individual match scores from the tournament are available for download as well: 
 
 In order to get an idea of what happens in each battle, we have included several sample video recordings of individual matches.  In all of the games you will see simulated lasers fire.  <font color="green">GREEN</font> lines indicate that the laser has hit a wall. <font color="blue">BLUE</font> means the laser was successfully fired by the blue team (team 1) and <font color="red">RED</font> means it was successfully fired by the red team (team 2).
 
-=== Sample Battle 1: "synth.pop (Peter Kishalov, Blue)" vs "me - Rambo" (Miron Sorin, Red) ===
-
-<wiki:video url="http://www.youtube.com/watch?v=im63iJPweJM"/>
+=== Sample Battle 1 ===
 
 <strong>Video 1: <font color="blue">synth.pop (Peter Kishalov)</font> vs <font color="red">me - Rambo (Miron Sorin)</font></strong>
 
+<wiki:video url="http://www.youtube.com/watch?v=im63iJPweJM"/>
+
 The two top-ranked teams by average score difference are pitted against each other in this match. Their strategies appear similar at first glance - the teams both hug the wall closely and follow each other lock step. However, small differences in speed make this jousting match heavily favor the red team, which is able to take shots at the blue team as it comes around the corner.
 
-=== Sample Battle 2: `EvilCowards` (Evil Cowards, Blue) vs. "me - Rambo" (Miron Sorin, Red) ===
-
-<wiki:video url="http://www.youtube.com/watch?v=tAErUOh5mbY"/>
+=== Sample Battle 2 ===
 
 <strong>Video 2: <font color="blue">`EvilCowards` (Evil Cowards)</font> vs. <font color="red">me - Rambo (Miron Sorin)</font></strong>
 
+<wiki:video url="http://www.youtube.com/watch?v=tAErUOh5mbY"/>
+
 The higher-ranked "me - Rambo" loses to a team that only has 106 victories. The strategies here are quite different - instead of sticking to the wall, the Evil Cowards team chooses to spread out and stay away, taking shots from afar.
 
-=== Sample Battle 3: `EvilCowards` (Blue) vs. synth.pop (Peter Kishalov, Red) ===
-
-<wiki:video url="http://www.youtube.com/watch?v=Cxj85GGX8Is"/>
+=== Sample Battle 3 ===
 
 <strong>Video 3: <font color="blue">`EvilCowards`</font> vs.  <font color="red">synth.pop (Peter Kishalov)</font></strong>
+
+<wiki:video url="http://www.youtube.com/watch?v=Cxj85GGX8Is"/>
 
 While the higher-ranked "me - Rambo", loses to the team `EvilCowards`, "synth.pop" does not. The strategy it uses to defeat `EvilCowards` is also quite interesting - the team splits up into two, and effectively outflanks the opponent team while distracting it. This means that there is no transitive property in this space - just because team A beats team B and team B beats team C, does not mean that team A will beat team C.
 
