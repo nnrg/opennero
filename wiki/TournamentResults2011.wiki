@@ -39,10 +39,10 @@ The complete listing is available for download as a tab-separated file:   [http:
 || synth-flag.pop (Peter Kishalov)   ||                   130 ||
 || me - Rambo (Miron Sorin)          ||                   126 ||
 || lolwutamidoing (Kevin)            ||                   126 ||
-|| `PollusPirata` (Mario Tambos)       ||                   125 ||
+|| !PollusPirata (Mario Tambos)       ||                   125 ||
 || Cyber-trout (Brian Murphy)        ||                   124 ||
-|| `CirclingBullies` (`CirclingBullies`) ||                   123 ||
-|| `SneakySnipers` (`SneakySnipers`)     ||                   121 ||
+|| !CirclingBullies (!CirclingBullies) ||                   123 ||
+|| !SneakySnipers (!SneakySnipers)     ||                   121 ||
 || Tut (Tut)                         ||                   121 ||
 || coward1 (Caciula Maricel)         ||                   120 ||
 
@@ -56,9 +56,9 @@ Teams can also be ranked according to the average score difference acheived acro
 || lolwutamidoing (Kevin)             ||     385.83 ||              68.26 ||
 || synth-flag.pop (Peter Kishalov)    ||     383.84 ||              60.03 ||
 || Cyber-trout (Brian Murphy)         ||     376.19 ||              69.59 ||
-|| `CirclingBullies` (`CirclingBullies`)  ||     367.02 ||              67.78 ||
+|| !CirclingBullies (!CirclingBullies)  ||     367.02 ||              67.78 ||
 || coward1 (Caciula Maricel)          ||     349.67 ||              74.90 ||
-|| `PollusPirata` (Mario Tambos)        ||     312.96 ||              62.46 ||
+|| !PollusPirata (Mario Tambos)        ||     312.96 ||              62.46 ||
 || generado6 (Luis Deleon)            ||     300.88 ||              60.87 ||
 || bettersnipers (Speedy Caterpillar) ||     292.88 ||              67.96 ||
 
@@ -108,7 +108,7 @@ The two top-ranked teams by average score difference are pitted against each oth
 
 === Sample Battle 2 ===
 
-<strong>Video 2: <font color="blue">`EvilCowards` (Evil Cowards)</font> vs. <font color="red">me - Rambo (Miron Sorin)</font></strong>
+<strong>Video 2: <font color="blue">!EvilCowards (Evil Cowards)</font> vs. <font color="red">me - Rambo (Miron Sorin)</font></strong>
 
 <wiki:video url="http://www.youtube.com/watch?v=tAErUOh5mbY"/>
 
@@ -116,11 +116,11 @@ The higher-ranked "me - Rambo" loses to a team that only has 106 victories. The 
 
 === Sample Battle 3 ===
 
-<strong>Video 3: <font color="blue">`EvilCowards`</font> vs.  <font color="red">synth.pop (Peter Kishalov)</font></strong>
+<strong>Video 3: <font color="blue">!EvilCowards</font> vs.  <font color="red">synth.pop (Peter Kishalov)</font></strong>
 
 <wiki:video url="http://www.youtube.com/watch?v=Cxj85GGX8Is"/>
 
-While the higher-ranked "me - Rambo", loses to the team `EvilCowards`, "synth.pop" does not. The strategy it uses to defeat `EvilCowards` is also quite interesting - the team splits up into two, and effectively outflanks the opponent team while distracting it. This means that there is no transitive property in this space - just because team A beats team B and team B beats team C, does not mean that team A will beat team C.
+While the higher-ranked "me - Rambo", loses to the team !EvilCowards, "synth.pop" does not. The strategy it uses to defeat !EvilCowards is also quite interesting - the team splits up into two, and effectively outflanks the opponent team while distracting it. This means that there is no transitive property in this space - just because team A beats team B and team B beats team C, does not mean that team A will beat team C.
 
 == Discussion ==
 
@@ -140,13 +140,13 @@ Several of the best teams in the tournament independently adopted similar strate
 
 The most prominent strategy among winning teams was to train agents to move as a group around the central wall. This strategy shows up in several of the top 10 teams, but most notably in synth.pop and me - Rambo. These teams actively pursued their opponents by forming agents into a "train" that ran around the wall and, by grouping together, was usually able to eliminate opponents effectively.
 
-A second strategy was adopted by several teams but ended up somewhat less successful in the round-robin tournament. In this strategy, most agents backpedaled away from the opponents and the central wall. Backpedaling preserves the ability of the agents to fire at opponents, while increasing the distance to the opposing team. Backing up was sometimes effective against the "train" strategy because a team could eliminate the train of opponents as they appeared around the edge of the wall. Examples of this strategy included `EvilCowards` and `SneakySnipers`.
+A second strategy was adopted by several teams but ended up somewhat less successful in the round-robin tournament. In this strategy, most agents backpedaled away from the opponents and the central wall. Backpedaling preserves the ability of the agents to fire at opponents, while increasing the distance to the opposing team. Backing up was sometimes effective against the "train" strategy because a team could eliminate the train of opponents as they appeared around the edge of the wall. Examples of this strategy included !EvilCowards and !SneakySnipers.
 
 Some teams followed an intermediate strategy, where all agents on the team would run to the right or left of the wall, mostly as a group. Interestingly, this strategy seemed to perform the least well in our tournament. Against the teams that adopted a "train" strategy, agents following the "run in the middle" strategy were often not pointed toward their opponents, and thus could be fired upon without recourse. Similarly, teams following the "middle" strategy tended to fail against "backpedaling" teams because the "middle" agents again tended to not be pointed toward enemy agents often enough to fire successfully. One team that adopted the "middle" strategy was okarma_warriors, which earned just 15 wins in the round-robin tournament.
 
 === Strategy cycles ===
 
-Perhaps most interestingly, we identified at least one cycle of winning strategies among the top teams in the tournament. The third-place me - Rambo (a "train" team) tends to defeat the firstplace synth.pop (also a "train" team), mostly due to subtle differences in timing. synth.pop tends to win versus 24th-place `EvilCowards` (a "backpedaling" team), because the synth.pop train splits into two and breaches the wall from both edges simultaneously. However, `EvilCowards` frequently defeats me - Rambo in the battle task, because agents in the me - Rambo train are eliminated one-at-a-time as they come around the wall!
+Perhaps most interestingly, we identified at least one cycle of winning strategies among the top teams in the tournament. The third-place me - Rambo (a "train" team) tends to defeat the firstplace synth.pop (also a "train" team), mostly due to subtle differences in timing. synth.pop tends to win versus 24th-place !EvilCowards (a "backpedaling" team), because the synth.pop train splits into two and breaches the wall from both edges simultaneously. However, !EvilCowards frequently defeats me - Rambo in the battle task, because agents in the me - Rambo train are eliminated one-at-a-time as they come around the wall!
 
 This is just one example, but there are other cycles in the tournament graph as well. The implication is that there is not a team in the tournament that is objectively better than all other teams; instead, the task is such that strategies must be able to adapt to their individual opponents.
 
