@@ -154,7 +154,7 @@ This is just one example, but there are other cycles in the tournament graph as 
 
 === Downloading Teams ===
 
-As we get permission from participants to make their teams available for download, we will post the individual teams here.
+As we get permission from participants to make their teams available for download, we will commit the gzipped files to this folder: [http://opennero.googlecode.com/svn/trunk/misc/tourney/teams/ misc/tourney/teams].
 
 Because OpenNERO will likely change, these teams will perform differently in future versions. Thus, when replaying matches between these teams, be sure to use the version of OpenNERO that was used during the tournament. This version can be built from source by checking out the subversion tag [http://code.google.com/p/opennero/source/browse/#svn%2Ftags%2Ftourney2011 tags/tourney2011] or by downloading the specific binary distributions equivalent to this tag:
 
