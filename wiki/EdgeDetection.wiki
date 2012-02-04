@@ -3,7 +3,7 @@
 
 ==Introduction==
 
-The first step in many vision systems is to detect the edges in the image  (see section 24.2.1 of <a href="http://aima.cs.berkeley.edu">AIMA</a>). Given an image, an edge detection algorithm determines which pixels lay along the boundary of two different elements, such as an agent's head and a distant mountain. The edge maps and histograms can then be classified into different objects. In this demo you'll drive a NERO agent around the environment and take snapshots of different objects in it. Each snapshot will then be processed through smoothing and edge detection; building a system that labels these objects is left for an exercise.
+The first step in many vision systems is to detect the edges in the image  (see section 24.2.1 of <a href="http://aima.cs.berkeley.edu">AIMA</a>). Given an image, an edge detection algorithm determines which pixels lay along the boundary of two different elements, such as an agent's head and a distant mountain. The edge maps and histograms can then be classified into different objects. In this demo you will drive a NERO agent around the environment and take snapshots of different objects in it. Each snapshot will then be processed through smoothing and edge detection; building a system that labels these objects is left for an exercise.
 
 The video below shows how it works; you can also run OpenNERO yourself
 to test it interactively.
@@ -117,6 +117,6 @@ for (x,y) in itertools.product(range(bw.size[0]), range(bw.size[1])):
 
 ==Next Steps==
 
-Now that you've seen how edge detection works, you can build an object recognition system on top of it. One very basic approach to object recognition is to train a machine learning classifier on a training set of edge-detected images. (Each snapshot that you take and its processed versions are saved into the <tt>snapshots</tt> folder with a timestamped filename, allowing you to easily collect such a training set.)
+Now that you have seen how edge detection works, you can build an object recognition system on top of it. One very basic approach to object recognition is to train a machine learning classifier on a training set of edge-detected images. (Each snapshot that you take and its processed versions are saved into the <tt>snapshots</tt> folder with a timestamped filename, allowing you to easily collect such a training set.)
 To implement your classifier, see the [ObjectRecognitionExercise Object Recognition exercise page].
 After you have done this Exercise, the result of the classification is also displayed in the four-panel window: You can then walk around the environment, labeling objects that you see!
