@@ -64,7 +64,7 @@ for x, xval in enumerate(convolution):
 }}}
 
 ===Edges===
-The lower right panel displays the edge-detected image. The code to perform this smoothing is found in `show_image.py` and excerpted below:
+The lower right panel displays the edge-detected image. The code to perform this process is found in `show_image.py` and excerpted below:
 
 {{{
 neighbor_offsets = [(-1,-1,225), (-1,0,270), (-1,1,315), (0,1,0), (0,-1,180), (1,0,90), (1,1,45), (1,-1,125)]
