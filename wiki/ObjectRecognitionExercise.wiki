@@ -67,7 +67,7 @@ Take at least 40 training, 20 testing, and 20 validation pictures in this world,
 Make sure you have a few of each class of objects in each of your datasets. Also, since the agents are spawned randomly in the world, make sure you gather your samples from multiple runs of the environment; otherwise, your classifier may be learning characteristics about the specific instance of the environment (e.g., mountains and walls in the background) rather than identifying the objects.
 
 ==5. Create Your Object Classifier==
-You'll be using a naive Bayes classifier and a set of custom features to classify objects.
+You will be using a naive Bayes classifier and a set of custom features to classify objects.
 
 ===5a. Implement a naive Bayes classifer===
 As a reminder, a naive Bayes classifier works under the (naive) assumption that all feature probabilities are independent. If we are trying to determine the probability that a certain image should be classified as type C, given that it has a certain collection of features {f1, f2, ..., fn}, then we can write that as P(C | f1, f2, ..., fn). Since we are assuming each of our features is independent given C, we can simplify this to be P(C | f1, f2, ..., fn) = P(C | f1) `*` P(C | f2) `*` ... `*` P(C | fn). To create a classifier, you simply calculate the probability score for each possible value of C (i.e., C = Syndey, C = Steve, C = Tree, C = Cube) and choose the C with the highest score.
