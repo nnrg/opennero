@@ -51,7 +51,7 @@ Keep in mind that in a black and white photo, the values for each pixel are in t
 
 ==3. Install `numpy` and `scipy`==
 
-You will need to <a href="http://www.scipy.org/Installing_SciPy">install numpy and scipy</a> if you're not already able to import them.
+You will need to <a href="http://www.scipy.org/Installing_SciPy">install numpy and scipy</a> if you are not already able to import them.
 
 ==4. Create training, testing, and validation sets in OpenNERO==
 
@@ -70,9 +70,9 @@ Make sure you have a few of each class of objects in each of your datasets. Also
 You will be using a naive Bayes classifier and a set of custom features to classify objects.
 
 ===5a. Implement a naive Bayes classifer===
-As a reminder, a naive Bayes classifier works under the (naive) assumption that all feature probabilities are independent. If we are trying to determine the probability that a certain image should be classified as type C, given that it has a certain collection of features {f1, f2, ..., fn}, then we can write that as P(C | f1, f2, ..., fn). Since we are assuming each of our features is independent given C, we can simplify this to be P(C | f1, f2, ..., fn) = P(C | f1) `*` P(C | f2) `*` ... `*` P(C | fn). To create a classifier, you simply calculate the probability score for each possible value of C (i.e., C = Syndey, C = Steve, C = Tree, C = Cube) and choose the C with the highest score.
+As a reminder, a naive Bayes classifier works under the (naive) assumption that all feature probabilities are independent. If we are trying to determine the probability that a certain image should be classified as type C, given that it has a certain collection of features {f1, f2, ..., fn}, then we can write that as P(C | f1, f2, ..., fn). Since we are assuming each of our features is independent given C, we can simplify this to be P(C | f1, f2, ..., fn) = P(C | f1) `*` P(C | f2) `*` ... `*` P(C | fn). To create a classifier, you simply calculate the probability score for each possible value of C (i.e., C = Sydney, C = Steve, C = Tree, C = Cube) and choose the C with the highest score.
 
-In the `NERO/classify.py` file, you'll notice a skeleton for your classifier:
+In the `NERO/classify.py` file, you will notice a skeleton for your classifier:
 
 {{{
 """
@@ -102,7 +102,7 @@ class ObjectClassifier():
 Your classifier should implement the `classify` and `train` methods. Each time a snapshot is taken, your `classify` method will be invoked and the results will be displayed at the top of the four-image panel. You probably want to train your model _offline_, then you can simply load your trained model in your constructor.
 
 ===5b. Invent a set of features===
-Each edge detected image is a black image with a white pixel for each edge. Along with information about whether each pixel is an edge, it's also useful to know the orientation of the edges. This information is derived by looking at the maximum gradient from the edge pixel to any of its neighbors. Thus, each call to `classify` also passes an array of orientation values for each pixel, with the following values:
+Each edge detected image is a black image with a white pixel for each edge. Along with information about whether each pixel is an edge, it is also useful to know the orientation of the edges. This information is derived by looking at the maximum gradient from the edge pixel to any of its neighbors. Thus, each call to `classify` also passes an array of orientation values for each pixel, with the following values:
 
 <img src="http://opennero.googlecode.com/svn/wiki/OpenNERO-pixel-orientation.png"/>
 
@@ -114,8 +114,8 @@ Your features should be based on the detected edges you receive from the edge de
   * Percentage of pixels that are edge pixels > 20%
   * Number of edge pixels in the top half of the image that are oriented upward (315, 0, or 45) > 50
 
-For each feature, calculate the probability of each class containing that feature. For example, if half of the Syndey examples have more than 100 edge pixels, you would calculate P(C = Sydney | Number of edge pixels > 100) = 0.5. The result will be a probability matrix where each column is a different class and each row is a different feature; the individual cells correspond to the probability that an example is in that class given it has that feature.
+For each feature, calculate the probability of each class containing that feature. For example, if half of the Sydney examples have more than 100 edge pixels, you would calculate P(C = Sydney | Number of edge pixels > 100) = 0.5. The result will be a probability matrix where each column is a different class and each row is a different feature; the individual cells correspond to the probability that an example is in that class given it has that feature.
 
-Use the training set to calculate your probability matrix, use the testing set to gauge your accuracy and determine whether you need to add more features or if you're starting to overfit, and use the validation set as a hold-out set that you classify *only at the very end of the experiment, once you've decided you're finished*.
+Use the training set to calculate your probability matrix, use the testing set to gauge your accuracy and determine whether you need to add more features or if you are starting to overfit, and use the validation set as a hold-out set that you classify *only at the very end of the experiment, once you have decided you are finished*.
 
-Remember, the more features you create and the more dimensions each feature has, the more powerful your classifier can be. However, you'll also need more training samples and be in danger of overfitting. Start with a small number of simple binary features at first, and gradually expand until you are happy with your classification error.
+Remember, the more features you create and the more dimensions each feature has, the more powerful your classifier can be. However, you will also need more training samples and be in danger of overfitting. Start with a small number of simple binary features at first, and gradually expand until you are happy with your classification error.
