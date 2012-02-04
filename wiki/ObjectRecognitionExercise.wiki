@@ -1,6 +1,6 @@
 #summary Object Recognition Exercise
 
-=Objecct Recognition=
+=Object Recognition=
 
 In this assignment you will create a Computer Vision (CV) system to classify different objects in OpenNERO. To create this system, you will build a training set of snapshots, design custom features, and implement a naive Bayes classifier. You will use the first-person NERO mod in OpenNERO to take a series of training, testing, and validation images containing objects to classify. Your resulting CV system will be able to walk around the NERO world and identify objects.
 
@@ -51,7 +51,7 @@ Keep in mind that in a black and white photo, the values for each pixel are in t
 
 ==3. Install `numpy` and `scipy`==
 
-You'll need to <a href="http://www.scipy.org/Installing_SciPy">install numpy and scipy</a> if you're not already able to import them.
+You will need to <a href="http://www.scipy.org/Installing_SciPy">install numpy and scipy</a> if you're not already able to import them.
 
 ==4. Create training, testing, and validation sets in OpenNERO==
 
