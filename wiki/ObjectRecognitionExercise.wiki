@@ -2,7 +2,7 @@
 
 In this assignment you will create a Computer Vision (CV) system to classify different objects in OpenNERO. To create this system, you will build a training set of snapshots, design custom features, and implement a naive Bayes classifier. You will use the first-person NERO mod in OpenNERO to take a series of training, testing, and validation images containing objects to classify. Your resulting CV system will be able to walk around the NERO world and identify objects.
 
-==1. Get a fresh version of OpenNero==
+==1. Get a fresh version of OpenNERO==
 
 The following steps should help get you up and running in OpenNERO:
 
@@ -13,7 +13,7 @@ Once you have the standard distribution of OpenNERO, you need to <a href="hw5_vi
 
 ==2. Install the Python Imaging Library==
 
-We're going to be using the <a href="http://www.pythonware.com/products/pil/">Python Imaging Library</a> to help with loading, saving, and manipulating the images we take in OpenNERO. To install PIL, download the latest version (1.1.7) for your OS (<a href="http://www.pythonware.com/products/pil/">linux, windows</a>, <a href="http://pythonmac.org/packages/py25-fat/">MacOSX</a>).
+We are going to be using the <a href="http://www.pythonware.com/products/pil/">Python Imaging Library</a> to help with loading, saving, and manipulating the images we take in OpenNERO. To install PIL, download the latest version (1.1.7) for your OS (<a href="http://www.pythonware.com/products/pil/">linux, windows</a>, <a href="http://pythonmac.org/packages/py25-fat/">MacOSX</a>).
 
 In linux, install with:
 {{{
