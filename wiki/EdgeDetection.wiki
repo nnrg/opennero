@@ -118,5 +118,5 @@ for (x,y) in itertools.product(range(bw.size[0]), range(bw.size[1])):
 ==Next Steps==
 
 Now that you have seen how edge detection works, you can build an object recognition system on top of it. One very basic approach to object recognition is to train a machine learning classifier on a training set of edge-detected images. (Each snapshot that you take and its processed versions are saved into the <tt>snapshots</tt> folder with a timestamped filename, allowing you to easily collect such a training set.)
-To implement your classifier, see the [ObjectRecognitionExercise Object Recognition exercise page].
+To implement your classifier, see the [ObjectRecognitionExercise Object Recognition Exercise page].
 After you have done this Exercise, the result of the classification is also displayed in the four-panel window: You can then walk around the environment, labeling objects that you see!
