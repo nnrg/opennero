@@ -11,6 +11,7 @@ import os
 import re
 import csv
 import optparse
+import subprocess
 
 NODES = {}
 TEAM_NAMES = None
@@ -51,20 +52,20 @@ def get_team_name(opts, key):
     global TEAM_NAMES
     if TEAM_NAMES is None:
         TEAM_NAMES = read_team_names(opts)
-    return TEAM_NAMES[re.sub(r'\_+', '_', key)]
+    return TEAM_NAMES.get(re.sub(r'\_+', '_', key), key)
 
-def print_graph(hh, winner, top=None):
+def print_graph(opts, hh, winner, top=None):
     """ print the graph starting from the winner """
     if not top:
         top = winner
     if winner not in hh or not hh[winner]:
         return
     team1, score1, team2, score2 = hh[winner].pop(-1)
-    next = '%s:%d v \\n%s:%d' % (get_team_name(team1),score1,get_team_name(team2),score2)
+    next = '%s:%d v \\n%s:%d' % (get_team_name(opts, team1),score1,get_team_name(opts, team2),score2)
     s = get_node(next) + '->' + get_node(top) + ' [color=blue];' #% get_team_name(winner)
     print s
-    print_graph(hh, team1, next)
-    print_graph(hh, team2, next)
+    print_graph(opts, hh, team1, next)
+    print_graph(opts, hh, team2, next)
 
 def print_header():
     """ Print the HTML page header """
@@ -86,18 +87,18 @@ def print_footer():
     """ Pring the HTML page footer """
     print '</body></html>'
 
-def print_html(hh, winner):
+def print_html(opts, hh, winner):
     """ Print the HTML tree startig with the winner """
     if winner not in hh or not hh[winner]:
         return
     team1, score1, team2, score2 = hh[winner].pop(-1)
-    next = '%s:%d v %s:%d' % (get_team_name(team1),score1,get_team_name(team2),score2)
+    next = '%s:%d v %s:%d' % (get_team_name(opts, team1),score1,get_team_name(opts, team2),score2)
     nodename = 'node'+get_node(next, True)
     print '''<li><a href="#" onclick="toggleVisibility('%(nodename)s'); return false;">[+/-]</a> %(text)s <div id="%(nodename)s">''' % {'nodename': nodename, 'text': next}
     if team1 in hh and hh[team1] or team2 in hh and hh[team2]:
         print '<ul>'
-        print_html(hh, team1)
-        print_html(hh, team2)
+        print_html(opts, hh, team1)
+        print_html(opts, hh, team2)
         print '</ul>'
     print '</div></li>'
 
@@ -137,13 +138,13 @@ def main():
             if not tourney_winner:
                 m = re_winner.match(line)
                 if m:
-                    tourney_winner = get_team_name(get_label(m.group(1)))
+                    tourney_winner = get_team_name(opts, get_label(m.group(1)))
                     print 'tourney_winner:',tourney_winner
             else:
                 m = re_score.match(line)
                 if m:
                     score = int(m.group(1))
-                    team = get_team_name(get_label(m.group(2)))
+                    team = get_team_name(opts, get_label(m.group(2)))
                     SCORES.append( (score, team) )
                     print 'score:', score, team
 
@@ -155,16 +156,26 @@ def main():
     sys.stdout = open('winners-bracket.dot','w')
     print 'digraph opennero_tourney_2011_winners {'
     print '  rankdir=RL;'
-    print_graph(winner_tree, winner)
+    print_graph(opts, winner_tree, winner)
     print '}'
     sys.stdout.close()
 
     sys.stdout = open('losers-bracket.dot','w')
     print 'digraph opennero_tourney_2011_losers {'
     print '  rankdir=RL;'
-    print_graph(loser_tree, loser)
+    print_graph(opts, loser_tree, loser)
     print '}'
     sys.stdout.close()
+
+    for lang in ['pdf','png']:
+        for fname in ['winners-bracket', 'losers-bracket']:
+            try:
+                command = 'dot -T{lang} -o {fname}.{lang} {fname}.dot'.format(fname=fname,lang=lang)
+                retcode = subprocess.call(command, shell=True)
+                if retcode < 0:
+                    print >>sys.stderr, 'Error code {retcode} when running {command}'.format(retcode=-retcode, command=command)
+            except OSError, e:
+                print >>sys.stderr, 'Error when running "{command}":'.format(command=command), e
 
     winner_tree, loser_tree = get_the_trees(DTA)
 
@@ -188,13 +199,13 @@ def main():
     print "<h2>Winners' Bracket</h2>"
     print '<p><a href="winners-bracket.pdf"><img src="winners-bracket.png"/></a></p>'
     print "<ul>"
-    print_html(winner_tree, winner)
+    print_html(opts, winner_tree, winner)
     print '</ul><hr/>'
 
     print "<h2>Losers' Bracket</h2>"
     print '<p><a href="losers-bracket.pdf"><img src="losers-bracket.png"/></a></p>'
     print "<ul>"
-    print_html(loser_tree, loser)
+    print_html(opts, loser_tree, loser)
     print "</ul>"
 
     print_footer()
