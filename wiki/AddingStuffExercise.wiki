@@ -199,7 +199,7 @@ These two parts are configured using an XML template file as follows:
 
 Copy this template to `TESTMOD/data/character/SydneyAgent.xml`.
 
-The `Render` section in this file is similar to what we have seen previously.  The files referenced in this section can be obtained from [http://opennero.googlecode.com/svn/trunk/mods/Maze/data/shapes/character/sydney.md2 mods/Maze/data/shapes/character/sydney.md2] and [http://opennero.googlecode.com/svn/trunk/mods/Maze/data/shapes/character/sydney.bmp mods/Maze/data/shapes/character/sydney.bmp].  Copy them to `TESTMOD/data/character/`.
+The `Render` section in this file is similar to what we have seen previously.  The files referenced in this section can be obtained from [http://opennero.googlecode.com/svn/trunk/mods/common/data/shapes/character/sydney.md2 mods/common/data/shapes/character/sydney.md2] and [http://opennero.googlecode.com/svn/trunk/mods/common/data/shapes/character/sydney.bmp mods/common/data/shapes/character/sydney.bmp].  Copy them to `TESTMOD/data/character/`.
 
 The `AI` section specifies a Python class `TestAgent` that contains the behavior of the agent, e.g. what actions the agent takes in response to its sensor readings.  We will discuss the details of this class in another exercise.  A simple `TestAgent` class that ignores the agent's sensor readings and moves the agent in response to keyboard arrow keys is implemented in [http://opennero.googlecode.com/svn/wiki/AddingStuffExerciseFiles/agent.py agent.py].  Copy this file to your `TESTMOD` directory.
 
