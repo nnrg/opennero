@@ -15,6 +15,8 @@
      * [NeuroEvolution Neuroevolution]
    * Multi-Agent Systems
      * [NeroMod NERO Machine Learning Game]
+   * Vision
+     * [EdgeDetection Edge Detection]
  * [OpenNeroExercises Exercises]
     * AddingStuffExercise
     * CreateRoombaAgentExercise
