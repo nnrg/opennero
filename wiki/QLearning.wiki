@@ -75,6 +75,6 @@ The parameters passed to the QLearningBrain constructor are:
 
 An important next step is to implement a function approximator that allows learning more fine-grained behavior. There are many varieties of such approximators: a simple example is a linear approximator in the [QLearningExercise Q-learning exercise page]. A neural network can also be trained to approximate a continuous space based on a discrete Q-table. Coming up with better function approximators is an active area of reinforcement learning research.
 
-An interesting and fun exercise is to train agents for the [NeroMod NERO game] using reinforcement learning; see the [NeroTournamentExercise tournament] assignment page for details.
+An interesting and fun exercise is to train agents for the [NeroMod NERO game] using reinforcement learning.
 
 Other reinforcement learning methods are possible to implement in OpenNERO as well, such as Sarsa, policy iteration, etc.; see e.g. Chapter 21 in [http://aima.cs.berkeley.edu/ AIMA] for details.
