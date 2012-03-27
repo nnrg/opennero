@@ -1,0 +1,18 @@
+<Template>
+	<Render>
+		<MaterialType>solid</MaterialType>
+		<MaterialFlagLighting>true</MaterialFlagLighting>
+		<AniMesh>data/shapes/cube/cube.obj</AniMesh>
+		<CastsShadow>true</CastsShadow>
+		<Scale>0.2 0.2 0.1</Scale>
+        <FPSCamera>
+                <attach_point>2.5 0 0</attach_point>
+                <target>50 0 0</target>
+                <near_plane>0.1</near_plane>
+                <far_plane>1000</far_plane>
+        </FPSCamera>
+	</Render>
+	<AI>
+		<Python agent="Maze.agent.FirstPersonAgent()" />
+	</AI>
+</Template>
