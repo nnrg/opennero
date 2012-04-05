@@ -26,9 +26,9 @@ namespace OpenNero
     BOOST_PTR_DECL( Camera );
     BOOST_PTR_DECL( GuiManager );
     /// @endcond
-    
+
     /**
-     * The SimContext is the entire game state. It stores all the objects in 
+     * The SimContext is the entire game state. It stores all the objects in
      * in the simulation.
      */
     class SimContext : public BOOST_SHARED_THIS(SimContext)
@@ -52,7 +52,7 @@ namespace OpenNero
 
         /// handle an event
         bool HandleEvent( const irr::SEvent& event );
-        
+
         /// @}
 
         /// For SimContext
@@ -60,7 +60,7 @@ namespace OpenNero
 
         /// Initialize a simcontext given a device
         bool Initialize(IrrlichtDevice_IPtr device);
-        
+
         /// @}
 
         bool onPush(int argc, char** argv);
@@ -83,7 +83,7 @@ namespace OpenNero
                         const Vector3f& rot = Vector3f(0,0,0),
                         const Vector3f& scale = Vector3f(1,1,1),
                         const std::string& label = std::string(),
-                        uint32_t collision = 0, 
+                        uint32_t collision = 0,
                         uint32_t type = 0);
 
         /// Remove an object by it's ID
@@ -101,19 +101,19 @@ namespace OpenNero
 		/// Find the first object that intersects the specified ray
 		bool FindInRay( SimEntityData& hitEntity,
                         Vector3f& hitPos,
-                        const Vector3f& origin, 
-                        const Vector3f& target, 
-                        const uint32_t& type = 0, 
-                        const bool val = false, 
+                        const Vector3f& origin,
+                        const Vector3f& target,
+                        const uint32_t& type = 0,
+                        const bool val = false,
                         const SColor& foundColor = SColor(255,255,0,0),
                         const SColor& noneColor = SColor(255,255,255,0)
                       ) const;
 
 		/// Find the first object that intersects the specified ray
-		boost::python::tuple PyFindInRay( const Vector3f& origin, 
-                                          const Vector3f& target, 
-                                          const uint32_t& type = 0, 
-                                          const bool val = false, 
+		boost::python::tuple PyFindInRay( const Vector3f& origin,
+                                          const Vector3f& target,
+                                          const uint32_t& type = 0,
+                                          const bool val = false,
                                           const SColor& foundColor = SColor(255,255,0,0),
                                           const SColor& noneColor = SColor(255,255,255,0)
                                         ) const;
@@ -140,7 +140,7 @@ namespace OpenNero
 		bool SetObjectAnimation( SimId id, const std::string& animationType );
         void SetObjectAnimationSpeed( SimId id, float32_t framesPerSecond );
         /// @}
-        
+
         /// Push the changes made to the object without animation
         void UpdateObjectImmediately( SimId id );
 
@@ -183,7 +183,7 @@ namespace OpenNero
 
         /// How long, in seconds, to wait between executing AI frames
         void SetFrameDelay(float32_t delay) { mpSimulation->SetFrameDelay(delay); }
-        
+
         /// @}
 
         /// return the active camera
@@ -194,19 +194,19 @@ namespace OpenNero
 
         /// move the world forward by time dt
         void ProcessTick(float32_t dt);
-        
+
         /// process the animation frame thats frac between two AI frames
         void ProcessAnimationTick(float32_t dt, float32_t frac);
 
         /// return the simulation
         SimulationPtr getSimulation() { return mpSimulation; }
-        
+
         /// return the simulation while changing nothing
         const SimulationPtr getSimulation() const { return mpSimulation; }
 
         /// return the next free Id
         SimId ReserveNewId() { return mpSimulation->ReserveNewId(); }
-        
+
     protected:
 
         /// update the various subsystems
@@ -220,7 +220,7 @@ namespace OpenNero
         void UpdateScriptingSystem(float32_t dt);
 		/// update simulation
         void UpdateSimulation(float32_t dt);
-        
+
         /// @}
 
     private:
@@ -252,9 +252,9 @@ namespace OpenNero
         SColor              mClearColor;                ///< Screen Clear Color
 
         PyIOMap             mIOMap;                     ///< The input map for this context
-        
+
         InputReceiver       mInputReceiver;             ///< The current input receiver
-        
+
         FPSCounter          mFPSCounter;                ///< Frames Per Second counter
     };
 
@@ -296,7 +296,7 @@ namespace OpenNero
         LOG_F_ERROR("game", "Failed to load object template " << modTemplateName );
         return boost::shared_ptr<ObjTemp>();
     }
-    
+
 } //end OpenNero
 
 #endif // _GAME_SIMCONTEXT_H_
