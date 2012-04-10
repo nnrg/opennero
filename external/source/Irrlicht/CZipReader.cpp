@@ -104,7 +104,7 @@ IFileArchive* CArchiveLoaderZIP::createArchive(io::IReadFile* file, bool ignoreC
 		file->read(&sig, 2);
 
 #ifdef __BIG_ENDIAN__
-		os::Byteswap::byteswap(sig);
+		sig = os::Byteswap::byteswap(sig);
 #endif
 
 		file->seek(0);
@@ -126,7 +126,7 @@ bool CArchiveLoaderZIP::isALoadableFileFormat(io::IReadFile* file) const
 
 	file->read( &header.Sig, 4 );
 #ifdef __BIG_ENDIAN__
-	os::Byteswap::byteswap(header.Sig);
+	header.Sig = os::Byteswap::byteswap(header.Sig);
 #endif
 
 	return header.Sig == 0x04034b50 || // ZIP
@@ -198,7 +198,7 @@ bool CZipReader::scanLocalHeader2()
 	File->read( &temp.header.Sig, 4 );
 
 #ifdef __BIG_ENDIAN__
-	os::Byteswap::byteswap(temp.header.Sig);
+	temp.header.Sig = os::Byteswap::byteswap(temp.header.Sig);
 #endif
 
 	sprintf ( buf, "sig: %08x,%s,", temp.header.Sig, sigName ( temp.header.Sig ) );
@@ -276,8 +276,8 @@ bool CZipReader::scanGZipHeader()
 	{
 
 #ifdef __BIG_ENDIAN__
-		os::Byteswap::byteswap(header.sig);
-		os::Byteswap::byteswap(header.time);
+		header.sig = os::Byteswap::byteswap(header.sig);
+		header.time = os::Byteswap::byteswap(header.time);
 #endif
 
 		// check header value
@@ -293,7 +293,7 @@ bool CZipReader::scanGZipHeader()
 			File->read(&dataLen, 2);
 
 #ifdef __BIG_ENDIAN__
-			os::Byteswap::byteswap(dataLen);
+			dataLen = os::Byteswap::byteswap(dataLen);
 #endif
 
 			// skip it
@@ -358,8 +358,8 @@ bool CZipReader::scanGZipHeader()
 		File->read(&entry.header.DataDescriptor.UncompressedSize, 4);
 
 #ifdef __BIG_ENDIAN__
-		os::Byteswap::byteswap(entry.header.DataDescriptor.CRC32);
-		os::Byteswap::byteswap(entry.header.DataDescriptor.UncompressedSize);
+		entry.header.DataDescriptor.CRC32 = os::Byteswap::byteswap(entry.header.DataDescriptor.CRC32);
+		entry.header.DataDescriptor.UncompressedSize = os::Byteswap::byteswap(entry.header.DataDescriptor.UncompressedSize);
 #endif
 
 		// now we've filled all the fields, this is just a standard deflate block

@@ -33,7 +33,7 @@ bool CGUIModalScreen::canTakeFocus(IGUIElement* target) const
 {
     return (target && ((const IGUIElement*)target == this // this element can take it
                         || isMyChild(target)    // own childs also
-                        || (target->getType() == EGUIET_MODAL_SCREEN )// other modals also fine
+                        || (target->getType() == EGUIET_MODAL_SCREEN )	// other modals also fine (is now on top or explicitely requested)
                         || (target->getParent() && target->getParent()->getType() == EGUIET_MODAL_SCREEN )))   // childs of other modals will do
             ;
 }
@@ -86,16 +86,36 @@ bool CGUIModalScreen::OnEvent(const SEvent& event)
 		switch(event.GUIEvent.EventType)
 		{
 		case EGET_ELEMENT_FOCUSED:
+			if ( event.GUIEvent.Caller == this && isMyChild(event.GUIEvent.Element) )
+			{
+				Environment->removeFocus(0);	// can't setFocus otherwise at it still has focus here
+				Environment->setFocus(event.GUIEvent.Element);
+				MouseDownTime = os::Timer::getTime();
+				return true;
+			}			
 			if ( !canTakeFocus(event.GUIEvent.Caller))
 			{
-				Environment->setFocus(this);
+				if ( !Children.empty() )
+					Environment->setFocus(*(Children.begin()));
+				else
+					Environment->setFocus(this);
 			}
 			IGUIElement::OnEvent(event);
 			return false;
 		case EGET_ELEMENT_FOCUS_LOST:
 			if ( !canTakeFocus(event.GUIEvent.Element))
             {
-				MouseDownTime = os::Timer::getTime();
+            	if ( isMyChild(event.GUIEvent.Caller) )
+				{
+					if ( !Children.empty() )
+						Environment->setFocus(*(Children.begin()));
+					else
+						Environment->setFocus(this);
+				}
+				else
+				{
+					MouseDownTime = os::Timer::getTime();
+				}
 				return true;
 			}
 			else
@@ -118,7 +138,7 @@ bool CGUIModalScreen::OnEvent(const SEvent& event)
 		break;
 	}
 
-	IGUIElement::OnEvent(event);
+	IGUIElement::OnEvent(event);	// anyone knows why events are passed on here? Causes p.e. problems when this is child of a CGUIWindow.
 
 	return true; // absorb everything else
 }

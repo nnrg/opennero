@@ -70,7 +70,7 @@ protected:
 	mutable core::array<core::triangle3df> Triangles;
 
 	IAnimatedMeshSceneNode* AnimatedNode;
-	mutable s32 LastMeshFrame;
+	mutable u32 LastMeshFrame;
 };
 
 } // end namespace scene

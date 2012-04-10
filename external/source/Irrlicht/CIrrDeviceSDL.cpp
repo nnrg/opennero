@@ -488,7 +488,7 @@ bool CIrrDeviceSDL::run()
 				joyevent.JoystickEvent.ButtonStates |= (SDL_JoystickGetButton(joystick, j)<<j);
 
 			// query all axes, already in correct range
-			const int numAxes = core::min_(SDL_JoystickNumAxes(joystick), 6);
+			const int numAxes = core::min_(SDL_JoystickNumAxes(joystick), SEvent::SJoystickEvent::NUMBER_OF_AXES);
 			joyevent.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_X]=0;
 			joyevent.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_Y]=0;
 			joyevent.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_Z]=0;
