@@ -243,25 +243,7 @@ IGUITab* CGUITabControl::addTab(const wchar_t* caption, s32 id)
 	if (!skin)
 		return 0;
 
-	core::rect<s32> r;
-	if ( VerticalAlignment == EGUIA_UPPERLEFT )
-	{
-		r.UpperLeftCorner.X = 1;
-		r.UpperLeftCorner.Y = TabHeight;
-
-		r.LowerRightCorner.X = AbsoluteRect.getWidth()-1;
-		r.LowerRightCorner.Y = AbsoluteRect.getHeight()-1;
-	}
-	else
-	{
-		r.UpperLeftCorner.X = 1;
-		r.UpperLeftCorner.Y = 1;
-
-		r.LowerRightCorner.X = AbsoluteRect.getWidth()-1;
-		r.LowerRightCorner.Y = AbsoluteRect.getHeight()-TabHeight;
-	}
-
-	CGUITab* tab = new CGUITab(Tabs.size(), Environment, this, r, id);
+	CGUITab* tab = new CGUITab(Tabs.size(), Environment, this, calcTabPos(), id);
 
 	tab->setText(caption);
 	tab->setAlignment(EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT, EGUIA_UPPERLEFT, EGUIA_LOWERRIGHT);
@@ -529,6 +511,40 @@ bool CGUITabControl::selectTab(core::position2d<s32> p)
 }
 
 
+core::rect<s32> CGUITabControl::calcTabPos()
+{
+	core::rect<s32> r;
+	r.UpperLeftCorner.X = 0;
+	r.LowerRightCorner.X = AbsoluteRect.getWidth();
+	if ( Border )
+	{
+		++r.UpperLeftCorner.X;
+		--r.LowerRightCorner.X;
+	}
+
+	if ( VerticalAlignment == EGUIA_UPPERLEFT )
+	{
+		r.UpperLeftCorner.Y = TabHeight+2;
+		r.LowerRightCorner.Y = AbsoluteRect.getHeight()-1;
+		if ( Border )
+		{
+			--r.LowerRightCorner.Y;
+		}
+	}
+	else
+	{
+		r.UpperLeftCorner.Y = 0;
+		r.LowerRightCorner.Y = AbsoluteRect.getHeight()-(TabHeight+2);
+		if ( Border )
+		{
+			++r.UpperLeftCorner.Y;
+		}
+	}
+
+	return r;
+}
+
+
 //! draws the element and its children
 void CGUITabControl::draw()
 {
@@ -610,8 +626,10 @@ void CGUITabControl::draw()
 			skin->draw3DTabButton(this, false, frameRect, &AbsoluteClippingRect, VerticalAlignment);
 
 			// draw text
+			core::rect<s32> textClipRect(frameRect);	// TODO: exact size depends on borders in draw3DTabButton which we don't get with current interface
+			textClipRect.clipAgainst(AbsoluteClippingRect);
 			font->draw(text, frameRect, Tabs[i]->getTextColor(),
-				true, true, &frameRect);
+				true, true, &textClipRect);
 		}
 	}
 
@@ -628,8 +646,10 @@ void CGUITabControl::draw()
 			skin->draw3DTabButton(this, true, frameRect, &AbsoluteClippingRect, VerticalAlignment);
 
 			// draw text
+			core::rect<s32> textClipRect(frameRect);	// TODO: exact size depends on borders in draw3DTabButton which we don't get with current interface
+			textClipRect.clipAgainst(AbsoluteClippingRect);
 			font->draw(activeTab->getText(), frameRect, activeTab->getTextColor(),
-				true, true, &frameRect);
+				true, true, &textClipRect);
 
 			tr.UpperLeftCorner.X = AbsoluteRect.UpperLeftCorner.X;
 			tr.LowerRightCorner.X = left - 1;
@@ -778,6 +798,12 @@ void CGUITabControl::setTabVerticalAlignment( EGUI_ALIGNMENT alignment )
 
 	recalculateScrollButtonPlacement();
 	recalculateScrollBar();
+
+	core::rect<s32> r(calcTabPos());
+	for ( u32 i=0; i<Tabs.size(); ++i )
+	{
+		Tabs[i]->setRelativePosition(r);
+	}
 }
 
 void CGUITabControl::recalculateScrollButtonPlacement()
