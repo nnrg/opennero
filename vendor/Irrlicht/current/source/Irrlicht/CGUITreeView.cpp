@@ -583,10 +583,10 @@ void CGUITreeView::recalculateItemHeight()
 	}
 
 	if ( ScrollBarV )
-		ScrollBarV->setMax( TotalItemHeight - AbsoluteRect.getHeight() );
+		ScrollBarV->setMax( core::max_(0,TotalItemHeight - AbsoluteRect.getHeight()) );
 
 	if ( ScrollBarH )
-		ScrollBarH->setMax( TotalItemWidth - AbsoluteRect.getWidth() );
+		ScrollBarH->setMax( core::max_(0, TotalItemWidth - AbsoluteRect.getWidth()) );
 
 }
 
@@ -625,7 +625,7 @@ bool CGUITreeView::OnEvent( const SEvent &event )
 				{
 				case EMIE_MOUSE_WHEEL:
 					if ( ScrollBarV )
-						ScrollBarV->setPos( ScrollBarV->getPos() + (s32)event.MouseInput.Wheel * -10 );
+						ScrollBarV->setPos( ScrollBarV->getPos() + (event.MouseInput.Wheel < 0 ? -1 : 1) * -10 );
 					return true;
 					break;
 

@@ -162,7 +162,7 @@ void CGUIListBox::recalculateItemHeight()
 	}
 
 	TotalItemHeight = ItemHeight * Items.size();
-	ScrollBar->setMax(TotalItemHeight - AbsoluteRect.getHeight());
+	ScrollBar->setMax( core::max_(0, TotalItemHeight - AbsoluteRect.getHeight()) );
 	s32 minItemHeight = ItemHeight > 0 ? ItemHeight : 1;
 	ScrollBar->setSmallStep ( minItemHeight );
 	ScrollBar->setLargeStep ( 2*minItemHeight );
@@ -388,7 +388,7 @@ bool CGUIListBox::OnEvent(const SEvent& event)
 				switch(event.MouseInput.Event)
 				{
 				case EMIE_MOUSE_WHEEL:
-					ScrollBar->setPos(ScrollBar->getPos() + (s32)event.MouseInput.Wheel*-ItemHeight/2);
+					ScrollBar->setPos(ScrollBar->getPos() + (event.MouseInput.Wheel < 0 ? -1 : 1)*-ItemHeight/2);
 					return true;
 
 				case EMIE_LMOUSE_PRESSED_DOWN:

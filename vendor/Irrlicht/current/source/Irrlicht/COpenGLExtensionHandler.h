@@ -1207,6 +1207,7 @@ inline void COpenGLExtensionHandler::extGlDeleteObject(GLhandleARB object)
 
 inline void COpenGLExtensionHandler::extGlGetAttachedObjects(GLhandleARB program, GLsizei maxcount, GLsizei* count, GLhandleARB* shaders)
 {
+	*count=0;
 #ifdef _IRR_OPENGL_USE_EXTPOINTER_
 	if (pGlGetAttachedObjectsARB)
 		pGlGetAttachedObjectsARB(program, maxcount, count, shaders);

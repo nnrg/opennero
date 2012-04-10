@@ -83,7 +83,7 @@ void CGUIAttributeEditor::refreshAttribs()
 		// try to create attribute
 		stringc str = Attribs->getAttributeTypeString(i);
 		str += "_attribute";
-		CGUIAttribute* n = (CGUIAttribute*)Environment->addGUIElement(str.c_str(), this);
+		CGUIAttribute* n = (CGUIAttribute*)Environment->addGUIElement(str.c_str(), 0);
 
 		if (n)
 		{
@@ -95,9 +95,15 @@ void CGUIAttributeEditor::refreshAttribs()
 		else
 		{
 			// create a generic string editor
-			AttribList.push_back(new CGUIStringAttribute(Environment, this, getID()));
+			n = new CGUIStringAttribute(Environment, 0, getID());
+			AttribList.push_back(n);
 			// dont grab it because we created it with new
 		}
+
+		// We can't set "this" as parent above as we need functionality
+		// of the overloaded addChild which isn't called in the constructor.
+		// (that's a general Irrlicht messup with too fat constructors)
+		addChild(n);
 
 		AttribList[i]->setSubElement(true);
 		AttribList[i]->setRelativePosition(r);

@@ -315,7 +315,8 @@ public:
 	{
 		ControlAmbientColor->drop();
 		ControlDiffuseColor->drop();
-		ControlEmissiveColor->drop();
+		if ( ControlEmissiveColor )
+			ControlEmissiveColor->drop();
 		ControlSpecularColor->drop();
 	}
 
@@ -350,7 +351,7 @@ public:
 	}
 
 	// Update all changed colors in the light data
-	void updateMaterialColors(video::SLight & lightData)
+	void updateLightColors(video::SLight & lightData)
 	{
 		if ( ControlAmbientColor->isDirty() )
 			lightData.AmbientColor = video::SColorf( ControlAmbientColor->getColor() );
@@ -366,7 +367,8 @@ public:
 		ControlAmbientColor->resetDirty();
 		ControlDiffuseColor->resetDirty();
 		ControlSpecularColor->resetDirty();
-		ControlEmissiveColor->resetDirty();
+		if ( ControlEmissiveColor )
+			ControlEmissiveColor->resetDirty();
 	}
 
 protected:
@@ -504,6 +506,8 @@ struct SMeshNodeControl
 			TextureControl2->drop();
 		if ( ControlVertexColors )
 			ControlVertexColors->drop();
+		if ( AllColorsControl )
+			AllColorsControl->drop();
 	}
 
 	void init(scene::IMeshSceneNode* node, IrrlichtDevice * device, const core::position2d<s32> & pos, const wchar_t * description)
@@ -670,6 +674,12 @@ struct SLightNodeControl
 	{
 	}
 
+	virtual ~SLightNodeControl()
+	{
+		if ( AllColorsControl )
+			AllColorsControl->drop();
+	}
+
 	void init(scene::ILightSceneNode* node, gui::IGUIEnvironment* guiEnv, const core::position2d<s32> & pos, const wchar_t * description)
 	{
 		if ( Initialized || !node || !guiEnv) // initializing twice or with invalid data not allowed
@@ -687,7 +697,7 @@ struct SLightNodeControl
 			return;
 
 		video::SLight & lightData = SceneNode->getLightData();
-		AllColorsControl->updateMaterialColors(lightData);
+		AllColorsControl->updateLightColors(lightData);
 	}
 
 protected:
@@ -801,7 +811,7 @@ protected:
 			return false;
 		Device->setWindowCaption( DriverTypeNames[Config.DriverType] );
 		Device->setEventReceiver(this);
-		
+
 		scene::ISceneManager* smgr = Device->getSceneManager();
 		video::IVideoDriver * driver = Device->getVideoDriver ();
 		gui::IGUIEnvironment* guiEnv = Device->getGUIEnvironment();
@@ -811,7 +821,7 @@ protected:
 		gui::IGUIFont* font = guiEnv->getFont("../../media/fonthaettenschweiler.bmp");
 		if (font)
 			skin->setFont(font);
-		
+
 		// remove some alpha value because it makes those menus harder to read otherwise
 		video::SColor col3dHighLight( skin->getColor(gui::EGDC_APP_WORKSPACE) );
 		col3dHighLight.setAlpha(255);
@@ -822,7 +832,7 @@ protected:
 		// Add some textures which are useful to test material settings
 		createDefaultTextures(driver);
 
-		// create a menu 
+		// create a menu
 		gui::IGUIContextMenu * menuBar = guiEnv->addMenu();
 		menuBar->addItem(L"File", -1, true, true);
 
@@ -854,7 +864,7 @@ protected:
 														video::SColorf(1.0f, 1.0f, 1.0f),
 														100.0f);
 		LightControl.init(nodeLight, guiEnv, core::position2d<s32>(270,20), L"light" );
-		
+
 		// one large cube around everything. That's mainly to make the light more obvious.
 		scene::IMeshSceneNode* backgroundCube = smgr->addCubeSceneNode (200.0f, 0, -1, core::vector3df(0, 0, 0),
 										   core::vector3df(45, 0, 0),
@@ -1005,6 +1015,8 @@ protected:
 			}
 		}
 		driver->addTexture (io::path("GRAYSCALE_A8R8G8B8"), imageA8R8G8B8);
+
+		imageA8R8G8B8->drop();
 	}
 
 	// Load a texture and make sure nodes know it when more textures are available.

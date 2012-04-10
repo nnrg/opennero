@@ -14,7 +14,7 @@ namespace scene
 
 //! constructor
 CTriangleSelector::CTriangleSelector(const ISceneNode* node)
-: SceneNode(node), AnimatedNode(0), LastMeshFrame(-1)
+: SceneNode(node), AnimatedNode(0), LastMeshFrame(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CTriangleSelector");
@@ -24,7 +24,7 @@ CTriangleSelector::CTriangleSelector(const ISceneNode* node)
 
 //! constructor
 CTriangleSelector::CTriangleSelector(const IMesh* mesh, const ISceneNode* node)
-: SceneNode(node), AnimatedNode(0)
+: SceneNode(node), AnimatedNode(0), LastMeshFrame(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CTriangleSelector");
@@ -34,7 +34,7 @@ CTriangleSelector::CTriangleSelector(const IMesh* mesh, const ISceneNode* node)
 }
 
 CTriangleSelector::CTriangleSelector(IAnimatedMeshSceneNode* node)
-: SceneNode(reinterpret_cast<ISceneNode*>(node)), AnimatedNode(node)
+: SceneNode(node), AnimatedNode(node), LastMeshFrame(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CTriangleSelector");
@@ -43,17 +43,18 @@ CTriangleSelector::CTriangleSelector(IAnimatedMeshSceneNode* node)
 	if (!AnimatedNode)
 		return;
 
-	IAnimatedMesh * animatedMesh = AnimatedNode->getMesh();
+	IAnimatedMesh* animatedMesh = AnimatedNode->getMesh();
 	if (!animatedMesh)
 		return;
 
-	IMesh * mesh = animatedMesh->getMesh((s32)AnimatedNode->getFrameNr());
+	LastMeshFrame = (u32)AnimatedNode->getFrameNr();
+	IMesh* mesh = animatedMesh->getMesh(LastMeshFrame);
 
 	if (mesh)
 		createFromMesh(mesh);
 }
 
-void CTriangleSelector::createFromMesh(const IMesh * mesh)
+void CTriangleSelector::createFromMesh(const IMesh* mesh)
 {
 	const u32 cnt = mesh->getMeshBufferCount();
 	u32 totalFaceCount = 0;
@@ -138,7 +139,7 @@ void CTriangleSelector::updateFromMesh(const IMesh* mesh) const
 
 //! constructor
 CTriangleSelector::CTriangleSelector(const core::aabbox3d<f32>& box, const ISceneNode* node)
-: SceneNode(node)
+: SceneNode(node), AnimatedNode(0), LastMeshFrame(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CTriangleSelector");
@@ -154,7 +155,7 @@ void CTriangleSelector::update(void) const
 	if (!AnimatedNode)
 		return; //< harmless no-op
 
-	s32 currentFrame = (s32)AnimatedNode->getFrameNr();
+	const u32 currentFrame = (u32)AnimatedNode->getFrameNr();
 	if (currentFrame == LastMeshFrame)
 		return; //< Nothing to do
 

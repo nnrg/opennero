@@ -1,8 +1,8 @@
 VERSION_MAJOR = 1
 VERSION_MINOR = 7
-VERSION_RELEASE = 2-SVN
+VERSION_RELEASE = 3
 VERSION = $(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE)
-# Irrlicht Engine 1.7.2-SVN
+# Irrlicht Engine 1.7.3
 # Makefile for Linux
 #
 # To use, just run:
@@ -81,7 +81,7 @@ STATIC_LIB = libIrrlicht.a
 LIB_PATH = ../../lib/$(SYSTEM)
 INSTALL_DIR = /usr/local/lib
 sharedlib install: SHARED_LIB = libIrrlicht.so
-staticlib sharedlib: LDFLAGS += --no-export-all-symbols --add-stdcall-alias
+#staticlib sharedlib: LDFLAGS += --no-export-all-symbols --add-stdcall-alias
 sharedlib: LDFLAGS += -L/usr/X11R6/lib$(LIBSELECT) -lGL -lXxf86vm
 staticlib sharedlib: CXXINCS += -I/usr/X11R6/include
 
@@ -98,7 +98,7 @@ sharedlib_osx: LDFLAGS += -L/usr/X11R6/lib$(LIBSELECT) -lGL -lXxf86vm
 #Windows specific options
 IRRLICHT_DLL := ../../bin/Win32-gcc/Irrlicht.dll
 sharedlib_win32 staticlib_win32: SYSTEM = Win32-gcc
-sharedlib_win32: LDFLAGS += -lgdi32 -lopengl32 -ld3dx9d -lwinmm
+sharedlib_win32: LDFLAGS += -lgdi32 -lopengl32 -ld3dx9d -lwinmm -Wl,--no-export-all-symbols -Wl,--add-stdcall-alias
 sharedlib_win32 staticlib_win32: CPPFLAGS += -DIRR_COMPILE_WITH_DX9_DEV_PACK -D__GNUWIN32__ -D_WIN32 -DWIN32 -D_WINDOWS -D_MBCS -D_USRDLL
 staticlib_win32: CPPFLAGS += -D_IRR_STATIC_LIB_
 
@@ -108,7 +108,7 @@ all linux: staticlib
 
 # Builds Irrlicht as shared lib (libIrrlicht.so.versionNumber) and copies it into lib/Linux
 sharedlib: $(LINKOBJ)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -shared -Wl,-soname,$(SHARED_LIB).$(VERSION_MAJOR).$(VERSION_MINOR) -o $(SHARED_LIB).$(VERSION) $^ $(LDFLAGS)
+	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -shared -Wl,-soname,$(SHARED_LIB).$(VERSION_MAJOR).$(VERSION_MINOR).$(VERSION_RELEASE) -o $(SHARED_LIB).$(VERSION) $^ $(LDFLAGS)
 	mkdir -p $(LIB_PATH)
 	cp $(SHARED_LIB).$(VERSION) $(LIB_PATH)
 
