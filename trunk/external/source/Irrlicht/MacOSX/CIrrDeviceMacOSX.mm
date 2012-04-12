@@ -631,7 +631,7 @@ bool CIrrDeviceMacOSX::createWindow()
 		CGLSetParameter(CGLContext,kCGLCPSwapInterval,&newSwapInterval);
 		if (IsSoftwareRenderer && CreationParams.DriverType != video::EDT_NULL)
 		{
-			long order = -1; // below window
+			const GLint order = -1; // below window
 			CGLSetParameter(CGLContext, kCGLCPSurfaceOrder, &order);
 		}
 	}
