@@ -50,3 +50,7 @@ The controls can be easily redefined, but in general, the following keys should 
 == [NeroMod NERO] ==
 
 [http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png]
+
+== Headless Mode ==
+
+See [RuningOpenNeroHeadless] for how to run without the GUI when performing experiments.
