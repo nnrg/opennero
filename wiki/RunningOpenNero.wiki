@@ -53,4 +53,4 @@ The controls can be easily redefined, but in general, the following keys should 
 
 == Headless Mode ==
 
-See [RuningOpenNeroHeadless] for how to run without the GUI when performing experiments.
+See [RunningOpenNeroHeadless Running Headless] for how to run without the GUI when performing experiments.
