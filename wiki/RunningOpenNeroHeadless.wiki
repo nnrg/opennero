@@ -12,7 +12,7 @@ The basic process is pretty straightforward:
  # write a script that starts OpenNERO in _headless_ mode (without GUI) and stops it after the experiment is completed
  # either run this script manually or use a cluster system like Condor to run it for you
 
-We will use the OpenNERO tournament runner to illustrate how this is done. See [http://code.google.com/p/opennero/wiki/TournamentResults2011#Running_your_own_tournament Running Your Own Tournament] for an explanation of what it allows you to do. The scripts used in these examples can be found in [/p/opennero/source/browse/#svn%2Ftrunk%2Fmisc%2Ftourney misc/tourney].
+We will use the OpenNERO tournament runner to illustrate how this is done. See [http://code.google.com/p/opennero/wiki/TournamentResults2011#Running_your_own_tournament Running Your Own Tournament] for an explanation of what it allows you to do. The scripts used in these examples can be found in [http://code.google.com/p/opennero/source/browse/#svn%2Ftrunk%2Fmisc%2Ftourney misc/tourney].
 
 == Make OpenNERO start doing stuff ==
 
