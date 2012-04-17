@@ -1,5 +1,6 @@
 #summary How to run experiments in OpenNERO without invoking the graphical user interface
 #labels Exercise
+#sidebar TableOfContents
 
 = Introduction =
 
