@@ -1,0 +1,22 @@
+#summary InstallVision
+
+= Installing the OpenNERO Vision Extension =
+
+Follow the steps below to install the vision extension to OpenNERO.
+
+==1. Get a fresh version of OpenNERO==
+
+The following steps should help get you up and running in OpenNERO:
+
+  * Install it on your own machine by downloading one of the <a href="http://code.google.com/p/opennero/downloads/list">prebuilt binaries</a>
+  * <a href="http://code.google.com/p/opennero/wiki/BuildingOpenNero">Build OpenNERO</a> on your own machine using the source code.
+
+Once you have the standard distribution of OpenNERO, you need to <a href="hw5_vision.zip">download the modified NERO files for this assignment</a>. Replace your existing OpenNERO NERO files with the ones in the <a href="https://opennero.googlecode.com/svn/wiki/vision.zip">zip file</a>.
+
+==2. Install the Python Imaging Library==
+
+We are going to be using the <a href="http://www.pythonware.com/products/pil/">Python Imaging Library</a> to help with loading, saving, and manipulating the images we take in OpenNERO. If you do not already have it installed, see the [InstallPIL install instructions].
+
+==3. Install `numpy` and `scipy`==
+
+You will need to <a href="http://www.scipy.org/Installing_SciPy">install numpy and scipy</a> if you are not already able to import them.
