@@ -11,7 +11,7 @@ The following steps should help get you up and running in OpenNERO:
   * Install it on your own machine by downloading one of the <a href="http://code.google.com/p/opennero/downloads/list">prebuilt binaries</a>
   * <a href="http://code.google.com/p/opennero/wiki/BuildingOpenNero">Build OpenNERO</a> on your own machine using the source code.
 
-Once you have the standard distribution of OpenNERO, you need to <a href="hw5_vision.zip">download the modified NERO files for this assignment</a>. Replace your existing OpenNERO NERO files with the ones in the <a href="http://code.google.com/p/opennero/wiki/vision.zip">zip file</a>.
+Once you have the standard distribution of OpenNERO, you need to <a href="hw5_vision.zip">download the modified NERO files for this assignment</a>. Replace your existing OpenNERO NERO files with the ones in the <a href="https://opennero.googlecode.com/svn/wiki/vision.zip">zip file</a>.
 
 ==2. Install the Python Imaging Library==
 
