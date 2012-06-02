@@ -15,14 +15,13 @@ to test it interactively.
 
 To run the demo,
 
-  # <a href="http://code.google.com/p/opennero/wiki/BuildingOpenNero">Build OpenNERO</a> using the cs343vision2 branch.
-  # Install the <a href="http://www.pythonware.com/products/pil/">Python Imaging Library</a> by downloading the latest version (1.1.7) for your OS (<a href="http://www.pythonware.com/products/pil/">linux, windows</a>, <a href="http://pythonmac.org/packages/py25-fat/">MacOSX</a>).
+  # [InstallVision Install the vision extension] for OpenNERO.
   # Start the NERO mod.
   # Click the First Person Agent button.
   # Position your agent with the W, A, S, and D keys.
   # When you have an object in sight, press the Snapshot button.
 
-Each snapshot will automatically be processed by OpenNERO and the results will be displayed in a four-panel window. Note that the default version included in the demo is a slower, more canonical implementation of the edge detection algorithm; it may take up to 2 minutes to process an image, depending on the speed of your computer. An optimized version is available in `show_image_fast.py` and should complete its analysis in about 10 seconds, but requires `numpy` and `scipy` to be installed.
+Each snapshot will automatically be processed by OpenNERO and the results will be displayed in a four-panel window. Note that the default version included in the demo is a faster, more efficient implementation of the canonical edge detection algorithm; it should complete its analysis in about 10 seconds and requires `numpy` and `scipy` to be installed. If you prefer to use the slower, more canonical implementation of the edge detection algorithm, or if you are not able to install `numpy` or `scipy`, you can checkout the cs343vision2 branch.
 
 ==Four-Panel Window Results==
 
