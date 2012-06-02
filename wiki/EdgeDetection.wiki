@@ -37,83 +37,10 @@ The upper left panel displays the raw, color snapshot taken.
 The upper right panel displays the color snapshot converted to black and white.
 
 ===Smoothed===
-The lower left panel displays the black and white image after having applied a Gaussian filter to smooth out the edges and prepare it for edge detection. The code to perform this smoothing is found in `show_image.py` and excerpted below:
-
-{{{
-# Apply Gaussian filter
-sigma = 1
-bw_pix = bw.load()
-convolution = [ [0 for col in range(bw.size[1])] for row in range(bw.size[0])]
-# Loop over every pixel in the image and apply the Gaussian filter
-for (x,y) in itertools.product(range(bw.size[0]), range(bw.size[1])):
-    gauss_totals = 0
-    # For each neighboring pixel
-    for(u, v) in itertools.product(range(-3*sigma + x,3*sigma+1+x),range(-3*sigma + y,3*sigma+1+y)):
-        if(u < 0 or v < 0 or u >= width or v >= height):
-            continue
-        gauss_totals += gaussian(x-u,y-v,sigma)
-        convolution[x][y] += (bw_pix[u,v]) * gaussian(x-u,y-v,sigma)
-    convolution[x][y] /= gauss_totals
-
-smoothed = Image.new(bw.mode, bw.size)
-smoothed_pix = smoothed.load()
-for x, xval in enumerate(convolution):
-    for y, yval in enumerate(convolution[x]):
-        smoothed_pix[x,y] = int(convolution[x][y])
-
-}}}
+The lower left panel displays the black and white image after having applied a Gaussian filter to smooth out the edges and prepare it for edge detection. The code to perform this smoothing is found in `show_image.py` and [GaussianSmoothingCode excerpted here].
 
 ===Edges===
-The lower right panel displays the edge-detected image. The code to perform this process is found in `show_image.py` and excerpted below:
-
-{{{
-neighbor_offsets = [(-1,-1,225), (-1,0,270), (-1,1,315), (0,1,0), (0,-1,180), (1,0,90), (1,1,45), (1,-1,125)]
-
-gradient_threshold = 10
-
-neighbor_offsets = [(-1,-1,225), (-1,0,270), (-1,1,315), (0,1,0), (0,-1,180), (1,0,90), (1,1,45), (1,-1,125)]
-
-gradients = [ [(0,0) for col in range(bw.size[1])] for row in range(bw.size[0])]
-
-# Loop over every pixel in the image and calculate the largest gradient
-for (x,y) in itertools.product(range(bw.size[0]), range(bw.size[1])):
-    pixel = convolution[x][y]
-    # For each immediately neighboring pixel
-    for (uidx, vidx, angle) in neighbor_offsets:
-        u = x + uidx
-        v = y + vidx
-        if u < 0 or y < 0 or u >= width or v >= height:
-            continue
-        gradient = abs(convolution[u][v] - pixel)
-        if gradient > gradients[x][y][0]:
-            gradients[x][y] = (gradient, angle)
-
-# Draw the edges
-edges = bw.point(lambda i: 255)
-edges_pix = edges.load()
-
-results = [ [(False,0) for col in range(bw.size[1])] for row in range(bw.size[0])]
-
-# Loop over every pixel in the image and determine if it's an edge pixel
-for (x,y) in itertools.product(range(bw.size[0]), range(bw.size[1])):
-    gradient = gradients[x][y]
-    # the gradient must be greater than some threshold set by the user
-    if gradient[0] < gradient_threshold:
-        continue
-    is_max = True
-    # determine if the gradient is a local maximum
-    for (uidx, vidx, angle) in neighbor_offsets:
-        u = x + uidx
-        v = y + vidx
-        if u < 0 or y < 0 or u >= width or v >= height:
-            continue
-        if gradients[u][v][0] > gradient[0]:
-            is_max = False
-            break
-    if is_max:
-        edges_pix[x,y] = 0
-        results[x][y] = (True,angle)
-}}}
+The lower right panel displays the edge-detected image. The code to perform this process is found in `show_image.py` and [EdgeDetectionCode excerpted here].
 
 ==Next Steps==
 
