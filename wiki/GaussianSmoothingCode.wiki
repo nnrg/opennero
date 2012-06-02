@@ -1,6 +1,6 @@
 #summary GaussianSmoothingCode
 
-= Code =
+= Gaussian Smoothing Code =
 
 Below is the relevant code from `show_image.py` to perform Gaussian smoothing on an image.
 
