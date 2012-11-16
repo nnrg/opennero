@@ -1,4 +1,6 @@
 #summary Building OpenNERO with the Human Guided Neuroevolution Extensions.
+#sidebar TableOfContents
+----
 
 = Introduction =
 
