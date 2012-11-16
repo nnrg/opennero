@@ -1,0 +1,19 @@
+#summary Building OpenNERO with the Human Guided Neuroevolution Extensions.
+
+= Introduction =
+
+This page describes how to build OpenNERO with [HumanGuidedNeuroevolution Human Guided Neuroevolution] extensions to participate in the [NeroTournament2012 2012 OpenNERO tournament].
+
+= Details =
+
+The basic process is similar to that already outlined in BuildingOpenNero, with a few changes:
+
+  * If your system does not have it, download and install the latest [http://www.oracle.com/technetwork/java/javase/downloads/index.html Java Development Kit]. If you want to modify the Java part of the code, we recommend also installing [http://netbeans.org/downloads/ Netbeans] or a bundle of both.
+    * On Linux, use your package manager (apt-get, yum or similar) to install the netbeans package.
+  * Download and install [http://maven.apache.org/download.html Apache Maven].
+  * Download and install GNU [http://www.gnu.org/software/bison/ Bison] and [http://flex.sourceforge.net/ Flex].
+    * On Mac OS X, install Xcode and the command line tools.
+    * On Linux, install the flex and bison packages.
+    * On Windows, download the Win32 versions of [http://gnuwin32.sourceforge.net/packages/bison.htm Bison] and [http://gnuwin32.sourceforge.net/packages/flex.htm Flex].
+
+Then, follow the build instructions on [BuildingOpenNero Building OpenNERO] page.
