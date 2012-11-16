@@ -1,6 +1,7 @@
  * [http://code.google.com/p/opennero/ Introduction]
  * [OpenNeroPrerequisites Prerequisites]
  * [BuildingOpenNero Building]
+   * [BuildingOpenNero2012 Building for Tournament 2012]
  * [SystemOverview System Overview]
  * Demonstrations
    * Search
