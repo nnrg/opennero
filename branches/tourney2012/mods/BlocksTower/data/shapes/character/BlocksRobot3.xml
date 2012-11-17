@@ -1,0 +1,14 @@
+<Template>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>true</MaterialFlagLighting>
+	<AniMesh>data/shapes/steve/steve_red_unarmed.md2</AniMesh>
+	<Texture0>data/shapes/steve/steve_red.jpg</Texture0>
+    <CastsShadow>true</CastsShadow>
+    <DrawLabel>true</DrawLabel>
+    <Scale>0.2 0.2 0.2</Scale>
+  </Render>
+  <AI>
+    <Python agent="BlocksTower.agent.TowerAgent3()" />
+  </AI>
+</Template>
