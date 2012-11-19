@@ -4,6 +4,7 @@ import NERO.module
 import NERO.constants as constants
 import NeroEnvironment
 import OpenNero
+import common
 
 # this value, between 0 (slowest) and 100 (fastest)
 # overrides the default from NERO Training
@@ -42,6 +43,15 @@ def getMod():
     if not NERO.module.gMod:
         NERO.module.gMod = NeroModule()
     return NERO.module.gMod
+
+script_server = None
+    
+def getServer():
+    global script_server
+    if script_server is None:
+        script_server = common.menu_utils.GetScriptServer()
+        common.startScript("NERO_Battle/menu.py")
+    return script_server
 
 def parseInput(strn):
     if strn == "deploy" or len(strn) < 2:
