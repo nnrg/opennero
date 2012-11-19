@@ -93,6 +93,8 @@ namespace OpenNero
         // Stat-tallying methods
         void tally(Reward sample);
         
+        U32 GetNumTrials() const { return m_NumLifetimeTrials; }
+
         /// Stat-retrieval methods
         const Reward& getStats() const { return m_LifetimeAverage; }
     };

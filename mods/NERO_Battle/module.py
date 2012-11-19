@@ -5,7 +5,7 @@ import NERO.constants as constants
 import NeroEnvironment
 import OpenNero
 
-# this value, between 0 (slowest) and 100 (fastest) 
+# this value, between 0 (slowest) and 100 (fastest)
 # overrides the default from NERO Training
 BATTLE_DEFAULT_SPEEDUP = 80
 

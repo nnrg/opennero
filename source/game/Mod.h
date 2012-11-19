@@ -28,7 +28,7 @@ namespace OpenNero
         bool FindUserResource(const std::string& name, std::string& path);
         
         /// set the path of this mod by parsing a colon-separated string
-        void SetPath(const std::string& path);
+        void SetPath(std::string path);
         
         /// get the path of this mod (separated by ':')
         std::string GetPath();
