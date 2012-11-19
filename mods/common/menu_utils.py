@@ -24,7 +24,7 @@ def receive(channel):
         return ''
     try:
         size = socket.ntohl(struct.unpack("I", size)[0])
-    except struct.error, e:
+    except struct.error as e:
         return ''
     buf = ''
     while len(buf) < size:
@@ -32,9 +32,9 @@ def receive(channel):
             buf += channel.recv(size - len(buf))
         except socket.error as msg:
             return ''
-    if len(buf) and buf[0] == '[':
+    try:
         return unmarshall(buf)[0]
-    else:
+    except:
         return buf
 
 HOST = '127.0.0.1'
@@ -78,7 +78,6 @@ class ScriptServer:
             if s is self.server:
                 # this is a new connection
                 client, address = self.server.accept()
-                print 'ScriptServer got connection %d from %s' % (client.fileno(), address)
                 self.scriptmap[client] = address
                 #client.setblocking(0)
                 self.inputs.append(client)
@@ -90,7 +89,6 @@ class ScriptServer:
                 if data is not None:
                     return data
                 else:
-                    print 'ScriptServer: %d hung up' % s.fileno()
                     s.close()
                     if s in self.inputs:
                         self.inputs.remove(s)
