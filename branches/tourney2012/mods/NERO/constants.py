@@ -88,6 +88,9 @@ N_ACTIONS = 2
 # Network bias value
 NEAT_BIAS = 0.3
 
+MENU_JAR = 'TrainingWindow.jar'
+MENU_CLASS = 'edu.utexas.cs.nn.opennero.gui.TrainingUI'
+
 #############################
 ### FITNESS CONFIGURATION ###
 #############################
@@ -101,6 +104,10 @@ FITNESS_AVOID_FIRE = 'Avoid fire'
 FITNESS_DIMENSIONS = [FITNESS_STAND_GROUND, FITNESS_STICK_TOGETHER,
     FITNESS_APPROACH_ENEMY, FITNESS_APPROACH_FLAG, FITNESS_HIT_TARGET,
     FITNESS_AVOID_FIRE]
+FITNESS_NAMES = dict(zip(FITNESS_DIMENSIONS, [
+            'STAND_GROUND', 'STICK_TOGETHER',
+            'APPROACH_ENEMY', 'APPROACH_FLAG', 'HIT_TARGET',
+            'AVOID_FIRE']))
 
 FITNESS_INDEX = dict([(f,i) for i,f in enumerate(FITNESS_DIMENSIONS)])
 

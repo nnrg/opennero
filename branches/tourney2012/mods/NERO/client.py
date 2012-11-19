@@ -5,6 +5,7 @@ import common
 import common.gui as gui
 import constants
 import module
+import agent
 
 guiMan = None
 modify_object_id = {}
@@ -21,6 +22,10 @@ def switchToHub():
     module.delMod()
     OpenNero.switchMod('hub', 'hub:common')
 
+# control for keyboard agent
+def key(key):
+    agent.KeyboardAgent.keys.add(key) # tell the keyboard agent that a key has been hit this frame
+    
 def blank():
     pass
 
@@ -34,6 +39,12 @@ def createInputMapping():
     ioMap.BindKey( "KEY_F1", "onPress", common.openWiki('NeroMod') )
     ioMap.BindKey( "KEY_F2", "onPress", showDisplayHint )
 
+    # Keyboard control
+    ioMap.BindKey( "KEY_RIGHT", "onHold", lambda: key('right') )
+    ioMap.BindKey( "KEY_LEFT", "onHold", lambda: key('left') )
+    ioMap.BindKey( "KEY_UP", "onHold", lambda: key('fwd') )
+    ioMap.BindKey( "KEY_DOWN", "onHold", lambda: lambda: key('back') )
+    
     ioMap.BindMouseAction( "moveX", mouse_action)
     ioMap.BindMouseAction( "moveY", mouse_action)
     ioMap.BindMouseButton( "left"  , "onPress"    , reset_mouse_action)

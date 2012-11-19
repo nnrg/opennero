@@ -69,6 +69,26 @@ class AgentState:
         rot.z = heading
         self.agent.state.rotation = rot
 
+class AgentTrace:
+    '''
+    Class for storing the trace of an agent
+    '''
+    def __init__(self):
+        self.initial_step = None
+        self.position = []
+        self.rotation = []
+        self.velocity = []
+        self.sensors = []
+        self.actions = []
+
+    def print_trace(self, filename):
+        with open(filename, 'w') as file:
+            for i in range(len(self.position)):
+                file.write(str([self.position[i].x, self.position[i].y, self.position[i].z]))
+                file.write(str([self.rotation[i].x, self.rotation[i].y, self.rotation[i].z]))
+            for i in range(len(self.sensors)):
+                file.write(str(self.sensors[i]))
+                file.write(str(self.actions[i]))
 
 class NeroEnvironment(OpenNero.Environment):
     """
@@ -94,12 +114,19 @@ class NeroEnvironment(OpenNero.Environment):
 
         self.reward_weights = dict((f, 0.) for f in constants.FITNESS_DIMENSIONS)
 
-        self.script = 'NERO/menu.py'
-
         # we only want to compute the center of mass of friends once per tick
         self.friend_center = dict((team, None) for team in constants.TEAMS)
         # we need to know when to update the friend center
         self.friend_center_cache = dict((team, {}) for team in constants.TEAMS)
+        
+        self.tracing = False             # indicates if the agent is being traced
+        self.simdisplay = True           # indicates if the simulation of agents is being displayed
+        self.trace = None                # trace of agents
+        self.use_trace = False           # use loaded trace for calculating reward
+        self.run_backprop = False        # whether to run backprop if trace is loaded
+        self.path_markers_trace = []     # ids of objects used to mark path of trace
+        self.path_markers_champ = []     # ids of objects used to mark path of champ
+        self.bbmarkers = []
 
     def set_weight(self, key, value):
         self.reward_weights[key] = value
@@ -244,7 +271,7 @@ class NeroEnvironment(OpenNero.Environment):
                 agent.state.rotation = r
             state.reset_pose(p, r)
             return agent.info.reward.get_instance()
-        
+
         # display agent info if neccessary
         if hasattr(agent, 'set_display_hint'):
             agent.set_display_hint()
@@ -303,13 +330,13 @@ class NeroEnvironment(OpenNero.Environment):
             target_pos = target.state.position
             source_pos.z = source_pos.z + 5
             target_pos.z = target_pos.z + 5
-            d = target_pos.getDistanceFrom(source_pos)
-            d = (constants.MAX_SHOT_RADIUS - d)/constants.MAX_SHOT_RADIUS
-            if random.random() > d/2: # attempt a shot depending on distance
-                color = constants.TEAM_LABELS[agent.get_team()]
-                if color == 'red':
+            dist = target_pos.getDistanceFrom(source_pos)
+            d = (constants.MAX_SHOT_RADIUS - dist)/constants.MAX_SHOT_RADIUS
+            if random.random() < d/2: # attempt a shot depending on distance
+                team_color = constants.TEAM_LABELS[agent.get_team()]
+                if team_color == 'red':
                     color = OpenNero.Color(255, 255, 0, 0)
-                elif color == 'blue':
+                elif team_color == 'blue':
                     color = OpenNero.Color(255, 0, 0, 255)
                 else:
                     color = OpenNero.Color(255, 255, 255, 0)
@@ -321,12 +348,10 @@ class NeroEnvironment(OpenNero.Environment):
                     True,
                     wall_color,
                     color)
-                if len(obstacles) == 0 and random.random() > d/2:
+                if len(obstacles) == 0 and random.random() < d/2:
                     # count as hit depending on distance
                     self.get_state(target).curr_damage += 1
                     R[constants.FITNESS_HIT_TARGET] = 1
-
-
 
         damage = state.update_damage()
         R[constants.FITNESS_AVOID_FIRE] = -damage
@@ -366,19 +391,35 @@ class NeroEnvironment(OpenNero.Environment):
         observations[constants.SENSOR_INDEX_TARGETING[0]] = int(self.target(agent) is not None)
 
         friends, foes = self.getFriendFoe(agent)
-        if not friends:
-            return observations
 
-        # the 2 before that are the angle and heading to the center of mass of
-        # the agent's team
-        ax, ay = agent.state.position.x, agent.state.position.y
-        cx, cy = self.get_friend_center(agent, friends)
-        fd = self.distance((ax, ay), (cx, cy))
-        ah = agent.state.rotation.z
-        fh = self.angle((ax, ay, ah), (cx, cy)) + 180.0
-        if fd <= constants.MAX_FRIEND_DISTANCE:
-            observations[constants.SENSOR_INDEX_FRIEND_RADAR[0]] = fd / 15.0
-            observations[constants.SENSOR_INDEX_FRIEND_RADAR[1]] = fh / 360.0
+        if friends:
+            # the 2 before that are the angle and heading to the center of mass of
+            # the agent's team
+            ax, ay = agent.state.position.x, agent.state.position.y
+            cx, cy = self.get_friend_center(agent, friends)
+            fd = self.distance((ax, ay), (cx, cy))
+            ah = agent.state.rotation.z
+            fh = self.angle((ax, ay, ah), (cx, cy)) + 180.0
+            if fd <= constants.MAX_FRIEND_DISTANCE:
+                observations[constants.SENSOR_INDEX_FRIEND_RADAR[0]] = fd / 15.0
+                observations[constants.SENSOR_INDEX_FRIEND_RADAR[1]] = fh / 360.0
+
+        if self.tracing:
+            if self.trace.initial_step is None:
+                self.trace.initial_step = agent.step
+            self.trace.position.append(agent.state.position)
+            self.trace.rotation.append(agent.state.rotation)
+            self.trace.sensors.append([o for o in observations])
+        
+        from agent import KeyboardAgent
+        if self.tracing and isinstance(agent, KeyboardAgent):
+            #id = common.addObject(
+            #    'data/shapes/cube/YellowCube.xml',
+            #    position = agent.state.position,
+            #    scale = OpenNero.Vector3f(0.25, 0.25, 0.25),
+            #    type = constants.OBJECT_TYPE_LEVEL_GEOM)
+            self.path_markers_trace.append(id)
+
         return observations
 
     def get_friend_center(self, agent, friends):
@@ -482,5 +523,64 @@ class NeroEnvironment(OpenNero.Environment):
         """
         cleanup the world
         """
-        common.killScript(self.script)
+        common.killScript((constants.MENU_JAR, constants.MENU_CLASS))
         return True
+    
+    def start_tracing(self):
+        '''
+        create trace object and start tracing
+        tracing of only one agent is currently supported
+        '''
+        self.trace = AgentTrace()
+        self.tracing = True
+
+    def stop_tracing(self):
+        '''
+        stop tracing the agent
+        '''
+        self.tracing = False
+
+    def save_trace(self, filename):
+        '''
+        pickle the current trace in the given file
+        '''
+        if not self.trace:
+            print 'empty trace on save'
+        with open(filename, 'w') as file:
+            pickle.dump(self.trace, file)
+
+    def use_demonstration(self):
+        '''
+        Start using the currently loaded demonstration
+        '''
+        if self.trace is not None:
+            print 'starting to use demonstration'
+            self.use_trace = True
+        else:
+            print 'no demonstration to use'
+            
+    def load_trace(self, filename):
+        '''
+        load previously pickled trace from the given file
+        '''
+        with open(filename, 'r') as file:
+            self.trace = pickle.load(file)
+        self.use_trace = True
+        for pos in self.trace.position:
+            id = common.addObject(
+                "data/shapes/cube/YellowCube.xml",
+                position = pos,
+                scale = OpenNero.Vector3f(0.25,0.25,0.25),
+                type = constants.OBJECT_TYPE_LEVEL_GEOM)
+            self.path_markers_trace.append(id)
+
+    def cancel_demonstration(self):
+        '''
+        unload previously loaded trace
+        '''
+        self.tracing = False
+        self.trace = None
+        self.use_trace = False
+        while len(self.path_markers_trace) > 0:
+            id = self.path_markers_trace.pop()
+            common.removeObject(id)

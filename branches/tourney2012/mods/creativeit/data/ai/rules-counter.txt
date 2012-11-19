@@ -1,0 +1,14 @@
+# demonstrates how to use a counter in the advice language.
+
+# move straight for a certain number of time steps, turn left, and
+# then move straight again. g0 is the counter variable.
+if g0 > 0.1 and g0 < 0.13 {
+   a0 = 1
+   a1 = 1
+}
+else {
+   a0 = 1
+   a1 = 0
+}
+
+g0 = g0 + 0.001

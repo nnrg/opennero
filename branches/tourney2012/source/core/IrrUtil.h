@@ -130,11 +130,14 @@ namespace OpenNero
 	/// a container of irrlicht ptrs using intrusive ptrs
     struct IrrHandles
 	{
+
+    private:
 		IrrlichtDevice_IPtr	    mpIrrDevice;	///< Irrlicht Device
 		IVideoDriver_IPtr		mpVideoDriver;	///< Irrlicht Video Driver
 		ISceneManager_IPtr		mpSceneManager;	///< Irrlicht SceneManager
 		IGuiEnvironment_IPtr	mpGuiEnv;		///< Irrlicht Gui
 
+    public:
 		/// constructor
         IrrHandles() {}
 
@@ -144,7 +147,27 @@ namespace OpenNero
               mpVideoDriver(handles.mpVideoDriver),
               mpSceneManager(handles.mpSceneManager),
               mpGuiEnv(handles.mpGuiEnv)
-        {}               
+        {}
+        
+        /// device constructor
+        explicit IrrHandles( IrrlichtDevice_IPtr device );
+        
+        /// getters for Irrlicht handles
+        /// @{
+        
+        irr::IrrlichtDevice* getDevice();
+        const irr::IrrlichtDevice* getDevice() const;
+        
+        irr::video::IVideoDriver* getVideoDriver();
+        const irr::video::IVideoDriver* getVideoDriver() const;
+        
+        irr::scene::ISceneManager* getSceneManager();
+        const irr::scene::ISceneManager* getSceneManager() const;
+        
+        irr::gui::IGUIEnvironment* getGuiEnv();
+        const irr::gui::IGUIEnvironment* getGuiEnv() const;
+        
+        /// @}
 	};
 
 	/// a container of irrlicht ptrs using raw ptrs (to stop circular references)
@@ -168,11 +191,11 @@ namespace OpenNero
         {}
 
 		/// constructor from IrrHandles
-		IrrHandles_Weak( const IrrHandles& handles )
-            : mpIrrDevice(handles.mpIrrDevice.get()),
-              mpVideoDriver(handles.mpVideoDriver.get()),
-              mpSceneManager(handles.mpSceneManager.get()),
-              mpGuiEnv(handles.mpGuiEnv.get())
+		IrrHandles_Weak( IrrHandles& handles )
+            : mpIrrDevice(handles.getDevice()),
+              mpVideoDriver(handles.getVideoDriver()),
+              mpSceneManager(handles.getSceneManager()),
+              mpGuiEnv(handles.getGuiEnv())
         {}	
 	};
 
