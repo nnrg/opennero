@@ -254,6 +254,7 @@ class NeroModule:
         '''
         OpenNero.disable_ai()
         team = constants.OBJECT_TYPE_TEAM_0
+        self.curr_team = team
         #self.environment.remove_all_agents(team)
         location = (self.spawn_x[team], self.spawn_y[team], 2)
         agnt = common.addObject(
