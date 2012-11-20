@@ -138,6 +138,7 @@ public class TrainingUI extends javax.swing.JFrame {
     
     private void log(String line) {
         logger.append(line);
+        logger.append("\n");
     }
 
     public void start() {
