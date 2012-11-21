@@ -29,19 +29,6 @@ public class SocketClient {
         }
     }
     
-    private Serializer serializer = new Persister();
-    
-    public String toXml(Object o) {
-        try {
-            StringWriter sw = new StringWriter();
-            serializer.write(o, sw);
-            return sw.toString();
-        } catch (Exception e) {
-            System.err.println("Could not serialize object of type " + o.getClass().getName());
-            return "";
-        }
-    }
-    
     public String receive() {
         if (socket == null) {
             return null;

@@ -29,7 +29,12 @@ public enum Constants {
     /**
      * The port to connect to
      */
-    PORT(8888);
+    PORT(8888), 
+    
+    /**
+     * Log file for recording the training procedure.
+     */
+    LOG_FILE("Training.log");
         
     private String defaultValue;
 

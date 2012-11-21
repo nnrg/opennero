@@ -1,6 +1,7 @@
 package edu.utexas.cs.nn.opennero.gui;
 
 import edu.utexas.cs.nn.opennero.Command;
+import edu.utexas.cs.nn.opennero.Constants;
 import edu.utexas.cs.nn.opennero.ErrorMessage;
 import edu.utexas.cs.nn.opennero.Genome;
 import edu.utexas.cs.nn.opennero.Message;
@@ -14,15 +15,17 @@ import java.awt.BasicStroke;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.IOException;
 import java.util.EnumMap;
+import java.util.logging.FileHandler;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JSlider;
 import javax.swing.Timer;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
-import javax.swing.text.BadLocationException;
-import javax.swing.text.Document;
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -66,6 +69,21 @@ public class TrainingUI extends javax.swing.JFrame {
     private JFreeChart jchartFitness;
     
     private Population population = new Population();
+
+    /**
+     * Logger to append to Training.log log file.
+     */
+    public static final Logger LOGGER = Logger.getLogger(TrainingUI.class.getName());
+    static {
+        try {            
+            LOGGER.addHandler(new FileHandler(Constants.LOG_FILE.get(), true));
+        } catch (IOException ex) {
+            LOGGER.log(Level.SEVERE, "Could not write to " + Constants.LOG_FILE.get(), ex);
+        } catch (SecurityException ex) {
+            LOGGER.log(Level.SEVERE, "Could not write to " + Constants.LOG_FILE.get(), ex);
+        }
+    }
+    
     
     public final static int COUNT = 5*60;
     public final static float MIN = -100;
@@ -75,7 +93,9 @@ public class TrainingUI extends javax.swing.JFrame {
      * Creates new form FitnessShapingFrame
      */
     public TrainingUI() {
+        
         initComponents();
+        
         fitnessSliders.put(Dimension.APPROACH_ENEMY, sliderApproachEnemy);
         fitnessSliders.put(Dimension.APPROACH_FLAG, sliderApproachFlag);
         fitnessSliders.put(Dimension.AVOID_FIRE, sliderAvoidFire);
@@ -85,58 +105,11 @@ public class TrainingUI extends javax.swing.JFrame {
         
         addCharts();
 
-        this.textpaneAdvice.getDocument().addDocumentListener(new DocumentListener() {
-
-            public void anyUpdate(DocumentEvent de) {
-                adviceModified = true;
-                bCancel.setEnabled(true);
-                bApply.setEnabled(true);
-            }
-            
-            public void insertUpdate(DocumentEvent de) {
-                anyUpdate(de);
-            }
-
-            public void removeUpdate(DocumentEvent de) {
-                anyUpdate(de);
-            }
-
-            public void changedUpdate(DocumentEvent de) {
-                anyUpdate(de);
-            }
-            
-        });
-        this.thread = new Thread(new Runnable() {
-            Serializer ser = new Persister();
-            public void run() {
-                String msg = socketClient.receive();
-                while (msg != null) {
-                    try {
-                        Message m = ser.read(Message.class, msg);
-                        Content c = m.getContent();
-                        if (c.getClass().equals(Genome.class)) {
-                            Genome genome = (Genome)c;
-                            population.add(genome);
-                            Genome fittest = population.getFittest();
-                            log(String.format(
-                                    "Population size: %d, champ: %d(%d), champ fitness: %f", 
-                                    population.size(), fittest.getId(), fittest.getBodyId(), fittest.getFitness()));
-                        } else if (c.getClass().equals(ErrorMessage.class)) {
-                            ErrorMessage error = (ErrorMessage)c;
-                            JOptionPane.showMessageDialog(TrainingUI.this, error.text, error.name, JOptionPane.ERROR_MESSAGE);
-                        }
-                    } catch (Exception ex) {
-                        ex.printStackTrace(System.err);
-                        JOptionPane.showMessageDialog(TrainingUI.this, "Could not receive data from OpenNERO");
-                    }
-                    msg = socketClient.receive();
-                }
-            }
-
-        });
+        this.textpaneAdvice.getDocument().addDocumentListener(new AdviceListener());
+        this.thread = new Thread(new StreamReader());
     }
     
-    private void log(String line) {
+    private void infoToUser(String line) {
         logger.append(line);
         logger.append("\n");
     }
@@ -601,6 +574,11 @@ public class TrainingUI extends javax.swing.JFrame {
 
     private SocketClient socketClient = SocketClient.instance;
     
+    private void record(Message m) {
+        LOGGER.info(m.toXML());
+        infoToUser(m.toString());
+    }
+    
     private void bApplyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bApplyActionPerformed
         if (weightsModified) {
             FitnessWeights weights = new FitnessWeights();
@@ -609,33 +587,26 @@ public class TrainingUI extends javax.swing.JFrame {
                 weights.put(d, v);
             }
             Message m = new Message(weights);
-            String xml = socketClient.toXml(m);
-            if (socketClient.send(xml)) {
+            if (socketClient.send(m.toXML())) {
                 this.lastWeights = weights;
                 for (Dimension d : Dimension.values()) {
                     float v = weights.get(d);
                     fitnessCharts.get(d).setTitle(String.format("%s (%.01f%%)", d.toString(), v));
                 }
-                log(m.toString());
+                record(m);
             } else {
-                JOptionPane.showMessageDialog(this,
-                    "Could not set fitness weights.",
-                    "Fitness/Reward error",
-                    JOptionPane.ERROR_MESSAGE);
+                errorToUser("Could not set fitness weights.", "Fitness Error");
             }
         }
         if (adviceModified) {
             Advice advice = new Advice(this.textpaneAdvice.getText());
             Message m = new Message(advice);
-            String xml = socketClient.toXml(m);
+            String xml = m.toXML();
             if (socketClient.send(xml)) {
                 this.lastAdvice = advice;
-                log(m.toString());
+                record(m);
             } else {
-                JOptionPane.showMessageDialog(this,
-                    "Could not send advice.",
-                    "Advice error",
-                    JOptionPane.ERROR_MESSAGE);
+                errorToUser("Could not send advice.", "Advice Error");
             }
         }
         if (recordingExample) {
@@ -654,9 +625,11 @@ public class TrainingUI extends javax.swing.JFrame {
             for (Dimension d : Dimension.values()) {
                 this.fitnessSliders.get(d).setValue((int)Math.round(this.lastWeights.get(d)));
             }
+            LOGGER.info("fitness cancelled");
         }
         if (adviceModified) {
             this.textpaneAdvice.setText(lastAdvice.getAdvice());
+            LOGGER.info("advice cancelled");
         }
         if (recordingExample) {
             sendCommand("example", "cancel");
@@ -676,14 +649,11 @@ public class TrainingUI extends javax.swing.JFrame {
 
     private void sendCommand(String command, String arg) {
         Message m = new Message(new Command(command, arg));
-        String xml = socketClient.toXml(m);
+        String xml = m.toXML();
         if (socketClient.send(xml)) {
-            log(m.toString());
+            record(m);
         } else {
-            JOptionPane.showMessageDialog(this,
-                "Could not send command.",
-                "Command error",
-                JOptionPane.ERROR_MESSAGE);
+            errorToUser(String.format("Could not send command %s, arg %s", command, arg), "Command Error");
         }
     }
     
@@ -747,13 +717,13 @@ public class TrainingUI extends javax.swing.JFrame {
                 }
             }
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(TrainingUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            TrainingUI.LOGGER.log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(TrainingUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            TrainingUI.LOGGER.log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(TrainingUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            TrainingUI.LOGGER.log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(TrainingUI.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            TrainingUI.LOGGER.log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
 
@@ -876,5 +846,74 @@ public class TrainingUI extends javax.swing.JFrame {
         ValueAxis range = plot.getRangeAxis();
         range.setRange(MIN * 1.1, MAX * 1.1);
         panelWeights.add(new ChartPanel(jchartFitness), BorderLayout.CENTER);
+    }
+    
+    public void errorToUser(String text, String title, Throwable ex) {
+        LOGGER.log(Level.SEVERE, text, ex);
+        JOptionPane.showMessageDialog(this, text, title, JOptionPane.ERROR_MESSAGE);
+        logger.append("Error: " + title + ": " + text);
+        logger.append("\n");
+    }
+
+    public void errorToUser(String text, String title) {
+        LOGGER.log(Level.SEVERE, text);
+        JOptionPane.showMessageDialog(this, text, title, JOptionPane.ERROR_MESSAGE);
+        logger.append("Error: " + title + ": " + text);
+        logger.append("\n");
+    }
+
+    class StreamReader implements Runnable {
+
+        Serializer ser = new Persister();
+
+        public StreamReader() {
+        }
+        
+        public void run() {
+            String msg = socketClient.receive();
+            while (msg != null) {
+                try {
+                    Message m = ser.read(Message.class, msg);
+                    Content c = m.getContent();
+                    if (c.getClass().equals(Genome.class)) {
+                        Genome genome = (Genome)c;
+                        population.add(genome);
+                        Genome fittest = population.getFittest();
+                        record(m);
+                    } else if (c.getClass().equals(ErrorMessage.class)) {
+                        ErrorMessage error = (ErrorMessage)c;
+                        errorToUser(error.text, error.name);
+                    }
+                } catch (Exception ex) {
+                    errorToUser("Could not recieve data from OpenNERO", "Communication Error", ex);
+                    ex.printStackTrace(System.err);
+                }
+                msg = socketClient.receive();
+            }
+        }
+    }
+
+    private class AdviceListener implements DocumentListener {
+
+        public AdviceListener() {
+        }
+
+        public void anyUpdate(DocumentEvent de) {
+            adviceModified = true;
+            bCancel.setEnabled(true);
+            bApply.setEnabled(true);
+        }
+
+        public void insertUpdate(DocumentEvent de) {
+            anyUpdate(de);
+        }
+
+        public void removeUpdate(DocumentEvent de) {
+            anyUpdate(de);
+        }
+
+        public void changedUpdate(DocumentEvent de) {
+            anyUpdate(de);
+        }
     }
 }
