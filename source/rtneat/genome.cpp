@@ -6,6 +6,7 @@
 #include <cmath>
 #include <cassert>
 #include <sstream>
+#include <set>
 #include <boost/tokenizer.hpp>
 
 using namespace NEAT;
