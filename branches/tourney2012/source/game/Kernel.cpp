@@ -136,6 +136,7 @@ namespace OpenNero
         {
             mTransitionInfo.mActive = false;
             switchMod( mTransitionInfo.mDevice, mTransitionInfo.mNewModName, mTransitionInfo.mNewModDir );
+            mTransitionInfo.mDevice.reset();
         }
 
         // tick the current context
@@ -233,9 +234,6 @@ namespace OpenNero
 
         AssertMsg( mCurMod->context, "Failed to create SimContext" );
         AssertMsg( device, "Failed to initialize rendering device" );
-
-		// save the device
-		mIrrDevice    = device;
 
         if( mCurMod->context )
         {
