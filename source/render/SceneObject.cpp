@@ -573,11 +573,11 @@ namespace OpenNero
 
             // set up the triangle selector for this object
             //if (data.GetType() > 0) {
-            ITriangleSelector_IPtr tri_selector = GetTriangleSelector();
-            if (tri_selector) {
-                tri_selector->drop();
-            } else {
-                LOG_F_WARNING("collision", "could not create triangle selector for collisions with object " << GetId());
+            {
+                ITriangleSelector_IPtr tri_selector = GetTriangleSelector();
+                if (!tri_selector) {
+                    LOG_F_WARNING("collision", "could not create triangle selector for collisions with object " << GetId());
+                }
             }
             //}
 
