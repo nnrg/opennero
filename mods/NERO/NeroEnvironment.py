@@ -413,11 +413,11 @@ class NeroEnvironment(OpenNero.Environment):
         
         from agent import KeyboardAgent
         if self.tracing and isinstance(agent, KeyboardAgent):
-            #id = common.addObject(
-            #    'data/shapes/cube/YellowCube.xml',
-            #    position = agent.state.position,
-            #    scale = OpenNero.Vector3f(0.25, 0.25, 0.25),
-            #    type = constants.OBJECT_TYPE_LEVEL_GEOM)
+            id = common.addObject(
+                'data/shapes/cube/YellowCube.xml',
+                position = agent.state.position,
+                scale = OpenNero.Vector3f(0.25, 0.25, 0.25),
+                type = constants.OBJECT_TYPE_LEVEL_GEOM)
             self.path_markers_trace.append(id)
 
         return observations
