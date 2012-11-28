@@ -86,7 +86,7 @@ N_SENSORS += len(TARGETING_SENSORS)
 N_ACTIONS = 2
 
 # Network bias value
-NEAT_BIAS = 0.3
+NEAT_BIAS = 1.0
 
 MENU_JAR = 'TrainingWindow.jar'
 MENU_CLASS = 'edu.utexas.cs.nn.opennero.gui.TrainingUI'
