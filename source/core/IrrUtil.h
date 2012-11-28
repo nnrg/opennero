@@ -16,8 +16,9 @@
 #include "core/Common.h"
 #include "core/Bitstream.h"
 
-namespace boost
-{   
+#include <boost/intrusive_ptr.hpp>
+
+namespace irr {
 	/**
 	 * Reference increase function called by boost::intrusive_ptr,
 	 * created to allow boost and irrlicht to work together in ref
@@ -27,9 +28,12 @@ namespace boost
     inline
         void intrusive_ptr_add_ref( irr::IReferenceCounted* unknown )
     {
+
         AssertMsg( unknown, "Invalid IReferenceCounted ptr passed into add_ref" );        
         unknown->grab();
+
     }
+
 
 	/**
 	 * Reference decrease function called by boost::intrusive_ptr,
@@ -47,7 +51,6 @@ namespace boost
 
 namespace OpenNero
 {
-
     /// typedefs for irrlicht types in case we ever decide to move away
     /// @{
     /// 2d integer rectangle
@@ -143,14 +146,16 @@ namespace OpenNero
 
 		/// copy constructor
         IrrHandles( const IrrHandles& handles )
-            : mpIrrDevice(handles.mpIrrDevice),
-              mpVideoDriver(handles.mpVideoDriver),
-              mpSceneManager(handles.mpSceneManager),
-              mpGuiEnv(handles.mpGuiEnv)
+        : mpIrrDevice(handles.mpIrrDevice),
+            mpVideoDriver(handles.mpVideoDriver),
+            mpSceneManager(handles.mpSceneManager),
+            mpGuiEnv(handles.mpGuiEnv)
         {}
-        
+
         /// device constructor
         explicit IrrHandles( IrrlichtDevice_IPtr device );
+
+        ~IrrHandles() {}
         
         /// getters for Irrlicht handles
         /// @{
