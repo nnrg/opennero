@@ -216,7 +216,7 @@ public class TrainingUI extends javax.swing.JFrame {
                     .add(buttonLoadTeam)
                     .add(buttonSaveTeam))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 499, Short.MAX_VALUE)
+                .add(jScrollPane5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
                 .addContainerGap())
         );
         panelMainLayout.setVerticalGroup(
@@ -235,7 +235,7 @@ public class TrainingUI extends javax.swing.JFrame {
                         .add(buttonLoadTeam)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(buttonSaveTeam)
-                        .add(0, 217, Short.MAX_VALUE))))
+                        .add(0, 253, Short.MAX_VALUE))))
         );
 
         paneTabs.addTab("Main", panelMain);
@@ -358,7 +358,7 @@ public class TrainingUI extends javax.swing.JFrame {
                     .add(sliderApproachFlag, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 408, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(sliderHitTarget, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 408, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(sliderAvoidFire, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 408, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(117, Short.MAX_VALUE))
+                .addContainerGap(40, Short.MAX_VALUE))
         );
         panelFitnessLayout.setVerticalGroup(
             panelFitnessLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -387,7 +387,7 @@ public class TrainingUI extends javax.swing.JFrame {
                 .add(panelFitnessLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(labAvoidFire)
                     .add(sliderAvoidFire, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(24, Short.MAX_VALUE))
+                .addContainerGap(60, Short.MAX_VALUE))
         );
 
         paneTabs.addTab("Change Rewards", panelFitness);
@@ -403,7 +403,7 @@ public class TrainingUI extends javax.swing.JFrame {
         textpaneAdviceExamples.setEditable(false);
         textpaneAdviceExamples.setBackground(new java.awt.Color(204, 204, 204));
         textpaneAdviceExamples.setContentType("text/html"); // NOI18N
-        textpaneAdviceExamples.setText("<html>\n  <head>\n\n  </head>\n  <body>\n<pre><tt><i><font color=\"#9A1900\"># Go around a wall</font></i>\n<b><font color=\"#0000FF\">if</font></b> s9 <font color=\"#990000\">&gt;</font> <font color=\"#993399\">0.5</font> {\n\ta0 <font color=\"#990000\">=</font> <font color=\"#993399\">1</font>\n\ta1 <font color=\"#990000\">=</font> <font color=\"#993399\">1</font>\n} <b><font color=\"#0000FF\">elif</font></b> s10 <font color=\"#990000\">&gt;</font> <font color=\"#993399\">0.5</font> {\n\ta0 <font color=\"#990000\">=</font> <font color=\"#993399\">1</font>\n\ta1 <font color=\"#990000\">=</font> -<font color=\"#993399\">1</font>\n}\n</tt></pre>\n<pre><tt><i><font color=\"#9A1900\"># Go to a target</font></i>\n<b><font color=\"#0000FF\">if</font></b> s3 <font color=\"#990000\">&lt;</font> s4 {\n\ta0 <font color=\"#990000\">=</font> <font color=\"#993399\">1</font>\n\ta1 <font color=\"#990000\">=</font> <font color=\"#993399\">1</font>\n} <b><font color=\"#0000FF\">else</font></b> {\n\ta0 <font color=\"#990000\">=</font> <font color=\"#993399\">1</font>\n\ta1 <font color=\"#990000\">=</font> -<font color=\"#993399\">1</font>\n}\n</tt></pre>\n  </body>\n</html>\n");
+        textpaneAdviceExamples.setText("<html>\n  <head>\n\n  </head>\n  <body>\n<pre><tt><i><font color=\"#9A1900\"># Go to a flag</font></i>\n<b><font color=\"#0000FF\">if</font></b> s6 <font color=\"#990000\">&lt;</font> s7 {\n\ta0 <font color=\"#990000\">=</font> <font color=\"#993399\">1</font>\n\ta1 <font color=\"#990000\">=</font> <font color=\"#993399\">1</font>\n} <b><font color=\"#0000FF\">else</font></b> {\n\ta0 <font color=\"#990000\">=</font> <font color=\"#993399\">1</font>\n\ta1 <font color=\"#990000\">=</font> -<font color=\"#993399\">1</font>\n}\n</tt></pre>\n  </body>\n</html>\n");
         jScrollPane3.setViewportView(textpaneAdviceExamples);
 
         org.jdesktop.layout.GroupLayout panelAdviceLayout = new org.jdesktop.layout.GroupLayout(panelAdvice);
@@ -412,17 +412,14 @@ public class TrainingUI extends javax.swing.JFrame {
             panelAdviceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(panelAdviceLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(panelAdviceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(labelAdvice, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 287, Short.MAX_VALUE)
-                    .add(jScrollPane1))
                 .add(panelAdviceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(panelAdviceLayout.createSequentialGroup()
-                        .add(17, 17, 17)
-                        .add(labelAdviceTemplate, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 286, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                    .add(panelAdviceLayout.createSequentialGroup()
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.UNRELATED)
-                        .add(jScrollPane3, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 276, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)))
-                .addContainerGap(84, Short.MAX_VALUE))
+                    .add(labelAdvice, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 287, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 298, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
+                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
+                .add(panelAdviceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
+                    .add(labelAdviceTemplate, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
+                    .add(jScrollPane3))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         panelAdviceLayout.setVerticalGroup(
             panelAdviceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -432,8 +429,8 @@ public class TrainingUI extends javax.swing.JFrame {
                     .add(labelAdvice))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(panelAdviceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jScrollPane3, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE)
-                    .add(jScrollPane1))
+                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE)
+                    .add(jScrollPane3))
                 .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -460,11 +457,11 @@ public class TrainingUI extends javax.swing.JFrame {
             .add(panelExampleLayout.createSequentialGroup()
                 .addContainerGap()
                 .add(buttonGiveExample)
-                .addContainerGap(535, Short.MAX_VALUE))
+                .addContainerGap(458, Short.MAX_VALUE))
             .add(panelExampleLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                 .add(panelExampleLayout.createSequentialGroup()
                     .addContainerGap()
-                    .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 664, Short.MAX_VALUE)
+                    .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 587, Short.MAX_VALUE)
                     .addContainerGap()))
         );
         panelExampleLayout.setVerticalGroup(
@@ -472,12 +469,12 @@ public class TrainingUI extends javax.swing.JFrame {
             .add(panelExampleLayout.createSequentialGroup()
                 .add(130, 130, 130)
                 .add(buttonGiveExample)
-                .addContainerGap(174, Short.MAX_VALUE))
+                .addContainerGap(210, Short.MAX_VALUE))
             .add(panelExampleLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                 .add(panelExampleLayout.createSequentialGroup()
                     .addContainerGap()
                     .add(jScrollPane4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(212, Short.MAX_VALUE)))
+                    .addContainerGap(256, Short.MAX_VALUE)))
         );
 
         paneTabs.addTab("Give Examples", panelExample);
@@ -494,11 +491,11 @@ public class TrainingUI extends javax.swing.JFrame {
             panelProgressLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(panelProgressLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(tabsPlot, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 674, Short.MAX_VALUE))
+                .add(tabsPlot, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 597, Short.MAX_VALUE))
         );
         panelProgressLayout.setVerticalGroup(
             panelProgressLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(tabsPlot, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 335, Short.MAX_VALUE)
+            .add(tabsPlot, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)
         );
 
         paneTabs.addTab("Monitor Progress", panelProgress);
@@ -540,21 +537,22 @@ public class TrainingUI extends javax.swing.JFrame {
             .add(layout.createSequentialGroup()
                 .addContainerGap()
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(paneTabs)
                     .add(layout.createSequentialGroup()
                         .add(buttonHelp)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 292, Short.MAX_VALUE)
                         .add(buttonPause)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(bCancel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                        .add(bApply))))
+                        .add(bApply))
+                    .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
+                        .add(paneTabs, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE)
+                        .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(0, 0, 0)
-                .add(paneTabs, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 363, Short.MAX_VALUE)
+                .add(paneTabs, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(bApply)
