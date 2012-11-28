@@ -48,12 +48,14 @@ class NeroModule:
         # The sense() method in the ForageEnvironment class use these network bounds
         # to scale the sensor values.
         for i in range(constants.N_SENSORS):
-            self.sbounds_network.add_continuous(-1, 1)
+            self.sbounds_network.add_continuous(0, 1)
             self.sbounds_advice.add_continuous(0, 1)
 
         # The last sensor is the bias, which always takes the value 1 (upper bound).
         self.sbounds_network.add_continuous(0, 1)
         self.sbounds_advice.add_continuous(0, 1)
+
+        print 'sbounds_network', self.sbounds_network
         
     def setup_map(self):
         """
@@ -366,7 +368,7 @@ class NeroModule:
         rtneat = OpenNero.get_ai("rtneat-%s" % team)
         if rtneat:
             try:
-                rtneat.advice = OpenNero.Advice(advice, rtneat, constants.N_SENSORS, constants.N_ACTIONS, True, self.sbounds_network, self.sbounds_advice)
+                rtneat.advice = OpenNero.Advice(advice, rtneat, constants.N_SENSORS+1, constants.N_ACTIONS, True, self.sbounds_network, self.sbounds_advice)
             except RuntimeError as err:
                 err_msg = \
                     '<message><content class="edu.utexas.cs.nn.opennero.ErrorMessage"' + \
