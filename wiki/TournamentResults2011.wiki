@@ -166,7 +166,10 @@ Because OpenNERO will likely change, these teams will perform differently in fut
 
 === Scripts ===
 
+A collection of scripts for running the tournament is maintained in the repository under misc/tourney. In order to run the tournament on a Linux machine, copy the scripts from this directory to the directory with the OpenNERO executable. Use the `--help` command-line argument to find out more about how to run these scripts.
+
   * [http://code.google.com/p/opennero/source/browse/trunk/misc/tourney/battle_tournament.py battle_tournament.py] - use this script to run a double-elimination or a round-robin tournament over a collection of teams. The script supports parallelization over machine cores or over a [http://research.cs.wisc.edu/condor/ Condor] cluster system.
+  * [http://code.google.com/p/opennero/source/browse/trunk/misc/tourney/condor_battle.sh condor_battle.sh] - this script is used to run a single time-limited match between two teams. It accepts four parameters: the two team files, a time limit (in seconds), and a log file to record the match to.
   * [http://code.google.com/p/opennero/source/browse/trunk/misc/tourney/tourney_viz_de.py tourney_viz_de.py] - use the output of battle_tournament.py in double-elimination mode to generate a detailed HTML page and [http://www.graphviz.org/ GraphViz] based visualizations of tournament results.
   * [http://code.google.com/p/opennero/source/browse/trunk/misc/tourney/tourney_viz_rr.py tourney_viz_rr.py] - use the output of battle_tournament.py in round-robin mode to generate a set of matrix plots and other information (which is included in this page).
 
