@@ -124,6 +124,10 @@ class NeroModule:
     def create_environment(self):
         return NeroEnvironment.NeroEnvironment()
 
+    def remove_flag(self):
+        if self.flag_id:
+            common.removeObject(self.flag_id)
+
     def change_flag(self, loc):
         if self.flag_id:
             common.removeObject(self.flag_id)
