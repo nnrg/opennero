@@ -87,6 +87,9 @@ def show_context_menu():
     def move_object():
         modify_object_id['move'] = selected_object_id
 
+    def remove_flag():
+        module.getMod().remove_flag()
+
     def place_flag():
         module.getMod().change_flag([location.x, location.y, 0])
 
@@ -130,6 +133,10 @@ def show_context_menu():
         wallButton = gui.create_button(guiMan, 'wall', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
         wallButton.OnMouseLeftClick = lambda: add_wall()
         contextMenu.addItem('Add wall', wallButton)
+
+        rmFlagButton = gui.create_button(guiMan, 'flag', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
+        rmFlagButton.OnMouseLeftClick = lambda: remove_flag()
+        contextMenu.addItem('Remove Flag', rmFlagButton)
 
         flagButton = gui.create_button(guiMan, 'flag', OpenNero.Pos2i(0, 0), OpenNero.Pos2i(0, 0), '')
         flagButton.OnMouseLeftClick = lambda: place_flag()
