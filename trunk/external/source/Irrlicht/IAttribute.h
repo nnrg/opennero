@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -14,6 +14,7 @@
 #include "triangle3d.h"
 #include "position2d.h"
 #include "rect.h"
+#include "dimension2d.h"
 #include "matrix4.h"
 #include "quaternion.h"
 #include "plane3d.h"
@@ -92,7 +93,7 @@ public:
 	virtual void setUserPointer(void* v)	{};
 
 	virtual void setEnum(const char* enumValue, const char* const* enumerationLiterals) {};
-	virtual void setTexture(video::ITexture*)	{};
+	virtual void setTexture(video::ITexture*, const path& filename)	{};
 
 	core::stringc Name;
 

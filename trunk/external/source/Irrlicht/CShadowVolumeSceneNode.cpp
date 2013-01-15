@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -6,7 +6,10 @@
 #include "ISceneManager.h"
 #include "IMesh.h"
 #include "IVideoDriver.h"
+#include "ICameraSceneNode.h"
+#include "SViewFrustum.h"
 #include "SLight.h"
+#include "os.h"
 
 namespace irr
 {
@@ -34,128 +37,123 @@ CShadowVolumeSceneNode::~CShadowVolumeSceneNode()
 {
 	if (ShadowMesh)
 		ShadowMesh->drop();
-
-	for (u32 i=0; i<ShadowVolumes.size(); ++i)
-		delete [] ShadowVolumes[i].vertices;
 }
 
 
-void CShadowVolumeSceneNode::createShadowVolume(const core::vector3df& light)
+void CShadowVolumeSceneNode::createShadowVolume(const core::vector3df& light, bool isDirectional)
 {
 	SShadowVolume* svp = 0;
+	core::aabbox3d<f32>* bb = 0;
 
 	// builds the shadow volume and adds it to the shadow volume list.
 
 	if (ShadowVolumes.size() > ShadowVolumesUsed)
 	{
 		// get the next unused buffer
-		svp = &ShadowVolumes[ShadowVolumesUsed];
-		if (svp->size >= IndexCount*5)
-			svp->count = 0;
-		else
-		{
-			svp->size = IndexCount*5;
-			svp->count = 0;
-			delete [] svp->vertices;
-			svp->vertices = new core::vector3df[svp->size];
-		}
 
-		++ShadowVolumesUsed;
+		svp = &ShadowVolumes[ShadowVolumesUsed];
+		svp->set_used(0);
+
+		bb = &ShadowBBox[ShadowVolumesUsed];
 	}
 	else
 	{
-		// add a buffer
-		SShadowVolume tmp;
-		// lets make a rather large shadowbuffer
-		tmp.size = IndexCount*5;
-		tmp.count = 0;
-		tmp.vertices = new core::vector3df[tmp.size];
-		ShadowVolumes.push_back(tmp);
-		svp = &ShadowVolumes[ShadowVolumes.size()-1];
-		++ShadowVolumesUsed;
+		ShadowVolumes.push_back(SShadowVolume());
+		svp = &ShadowVolumes.getLast();
+
+		ShadowBBox.push_back(core::aabbox3d<f32>());
+		bb = &ShadowBBox.getLast();
 	}
+	svp->reallocate(IndexCount*5);
+	++ShadowVolumesUsed;
 
-	const u32 faceCount = IndexCount / 3;
-
-	if (faceCount * 6 > Edges.size())
-		Edges.set_used(faceCount*6);
-
+	// We use triangle lists
+	Edges.set_used(IndexCount*2);
 	u32 numEdges = 0;
-	const core::vector3df ls = light * Infinity; // light scaled
 
-	//if (UseZFailMethod)
-	//	createZFailVolume(faceCount, numEdges, light, svp);
-	//else
-	//	createZPassVolume(faceCount, numEdges, light, svp, false);
+	numEdges=createEdgesAndCaps(light, svp, bb);
 
-	// the createZFailVolume does currently not work 100% correctly,
-	// so we create createZPassVolume with caps if the zfail method
-	// is used
-	createZPassVolume(faceCount, numEdges, light, svp, UseZFailMethod);
-
+	// for all edges add the near->far quads
 	for (u32 i=0; i<numEdges; ++i)
 	{
-		core::vector3df &v1 = Vertices[Edges[2*i+0]];
-		core::vector3df &v2 = Vertices[Edges[2*i+1]];
-		core::vector3df v3(v1 - ls);
-		core::vector3df v4(v2 - ls);
+		const core::vector3df &v1 = Vertices[Edges[2*i+0]];
+		const core::vector3df &v2 = Vertices[Edges[2*i+1]];
+		const core::vector3df v3(v1+(v1 - light).normalize()*Infinity);
+		const core::vector3df v4(v2+(v2 - light).normalize()*Infinity);
 
 		// Add a quad (two triangles) to the vertex list
-		if (svp->vertices && svp->count < svp->size-5)
-		{
-			svp->vertices[svp->count++] = v1;
-			svp->vertices[svp->count++] = v2;
-			svp->vertices[svp->count++] = v3;
+#ifdef _DEBUG
+		if (svp->size() >= svp->allocated_size()-5)
+			os::Printer::log("Allocation too small.", ELL_DEBUG);
+#endif
+		svp->push_back(v1);
+		svp->push_back(v2);
+		svp->push_back(v3);
 
-			svp->vertices[svp->count++] = v2;
-			svp->vertices[svp->count++] = v4;
-			svp->vertices[svp->count++] = v3;
-		}
+		svp->push_back(v2);
+		svp->push_back(v4);
+		svp->push_back(v3);
 	}
 }
 
 
-void CShadowVolumeSceneNode::createZFailVolume(s32 faceCount, u32& numEdges,
-						const core::vector3df& light,
-						SShadowVolume* svp)
+#define IRR_USE_ADJACENCY
+#define IRR_USE_REVERSE_EXTRUDED
+
+u32 CShadowVolumeSceneNode::createEdgesAndCaps(const core::vector3df& light,
+					SShadowVolume* svp, core::aabbox3d<f32>* bb)
 {
-	s32 i;
-	const core::vector3df ls = light * Infinity;
+	u32 numEdges=0;
+	const u32 faceCount = IndexCount / 3;
+
+	if(faceCount >= 1)
+		bb->reset(Vertices[Indices[0]]);
+	else
+		bb->reset(0,0,0);
 
 	// Check every face if it is front or back facing the light.
-	for (i=0; i<faceCount; ++i)
+	for (u32 i=0; i<faceCount; ++i)
 	{
-		const u16 wFace0 = Indices[3*i+0];
-		const u16 wFace1 = Indices[3*i+1];
-		const u16 wFace2 = Indices[3*i+2];
+		const core::vector3df v0 = Vertices[Indices[3*i+0]];
+		const core::vector3df v1 = Vertices[Indices[3*i+1]];
+		const core::vector3df v2 = Vertices[Indices[3*i+2]];
 
-		const core::vector3df v0 = Vertices[wFace0];
-		const core::vector3df v1 = Vertices[wFace1];
-		const core::vector3df v2 = Vertices[wFace2];
+#ifdef IRR_USE_REVERSE_EXTRUDED
+		FaceData[i]=core::triangle3df(v0,v1,v2).isFrontFacing(light);
+#else
+		FaceData[i]=core::triangle3df(v2,v1,v0).isFrontFacing(light);
+#endif
 
-		if (core::triangle3df(v0,v1,v2).isFrontFacing(light))
+		if (UseZFailMethod && FaceData[i])
 		{
-			FaceData[i] = false; // it's a back facing face
+#ifdef _DEBUG
+			if (svp->size() >= svp->allocated_size()-5)
+				os::Printer::log("Allocation too small.", ELL_DEBUG);
+#endif
+			// add front cap from light-facing faces
+			svp->push_back(v2);
+			svp->push_back(v1);
+			svp->push_back(v0);
 
-			if (svp->vertices && svp->count < svp->size-5)
-			{
-				// add front cap
-				svp->vertices[svp->count++] = v0;
-				svp->vertices[svp->count++] = v2;
-				svp->vertices[svp->count++] = v1;
+			// add back cap
+			const core::vector3df i0 = v0+(v0-light).normalize()*Infinity;
+			const core::vector3df i1 = v1+(v1-light).normalize()*Infinity;
+			const core::vector3df i2 = v2+(v2-light).normalize()*Infinity;
 
-				// add back cap
-				svp->vertices[svp->count++] = v0 - ls;
-				svp->vertices[svp->count++] = v1 - ls;
-				svp->vertices[svp->count++] = v2 - ls;
-			}
+			svp->push_back(i0);
+			svp->push_back(i1);
+			svp->push_back(i2);
+
+			bb->addInternalPoint(i0);
+			bb->addInternalPoint(i1);
+			bb->addInternalPoint(i2);
 		}
-		else
-			FaceData[i] = true; // it's a front facing face
 	}
 
-	for(i=0; i<faceCount; ++i)
+	// Create edges
+	for (u32 i=0; i<faceCount; ++i)
 	{
+		// check all front facing faces
 		if (FaceData[i] == true)
 		{
 			const u16 wFace0 = Indices[3*i+0];
@@ -166,7 +164,11 @@ void CShadowVolumeSceneNode::createZFailVolume(s32 faceCount, u32& numEdges,
 			const u16 adj1 = Adjacency[3*i+1];
 			const u16 adj2 = Adjacency[3*i+2];
 
-			if (adj0 != (u16)-1 && FaceData[adj0] == false)
+			// add edges if face is adjacent to back-facing face
+			// or if no adjacent face was found
+#ifdef IRR_USE_ADJACENCY
+			if (adj0 == i || FaceData[adj0] == false)
+#endif
 			{
 				// add edge v0-v1
 				Edges[2*numEdges+0] = wFace0;
@@ -174,7 +176,9 @@ void CShadowVolumeSceneNode::createZFailVolume(s32 faceCount, u32& numEdges,
 				++numEdges;
 			}
 
-			if (adj1 != (u16)-1 && FaceData[adj1] == false)
+#ifdef IRR_USE_ADJACENCY
+			if (adj1 == i || FaceData[adj1] == false)
+#endif
 			{
 				// add edge v1-v2
 				Edges[2*numEdges+0] = wFace1;
@@ -182,7 +186,9 @@ void CShadowVolumeSceneNode::createZFailVolume(s32 faceCount, u32& numEdges,
 				++numEdges;
 			}
 
-			if (adj2 != (u16)-1 && FaceData[adj2] == false)
+#ifdef IRR_USE_ADJACENCY
+			if (adj2 == i || FaceData[adj2] == false)
+#endif
 			{
 				// add edge v2-v0
 				Edges[2*numEdges+0] = wFace2;
@@ -191,62 +197,22 @@ void CShadowVolumeSceneNode::createZFailVolume(s32 faceCount, u32& numEdges,
 			}
 		}
 	}
-}
-
-
-void CShadowVolumeSceneNode::createZPassVolume(s32 faceCount,
-						u32& numEdges,
-						core::vector3df light,
-						SShadowVolume* svp, bool caps)
-{
-	light *= Infinity;
-	if (light == core::vector3df(0,0,0))
-		light = core::vector3df(0.0001f,0.0001f,0.0001f);
-
-	for (s32 i=0; i<faceCount; ++i)
-	{
-		const u16 wFace0 = Indices[3*i+0];
-		const u16 wFace1 = Indices[3*i+1];
-		const u16 wFace2 = Indices[3*i+2];
-
-		if (core::triangle3df(Vertices[wFace0],Vertices[wFace1],Vertices[wFace2]).isFrontFacing(light))
-		{
-			Edges[2*numEdges+0] = wFace0;
-			Edges[2*numEdges+1] = wFace1;
-			++numEdges;
-
-			Edges[2*numEdges+0] = wFace1;
-			Edges[2*numEdges+1] = wFace2;
-			++numEdges;
-
-			Edges[2*numEdges+0] = wFace2;
-			Edges[2*numEdges+1] = wFace0;
-			++numEdges;
-
-			if (caps && svp->vertices && svp->count < svp->size-5)
-			{
-				svp->vertices[svp->count++] = Vertices[wFace0];
-				svp->vertices[svp->count++] = Vertices[wFace2];
-				svp->vertices[svp->count++] = Vertices[wFace1];
-
-				svp->vertices[svp->count++] = Vertices[wFace0] - light;
-				svp->vertices[svp->count++] = Vertices[wFace1] - light;
-				svp->vertices[svp->count++] = Vertices[wFace2] - light;
-			}
-		}
-	}
+	return numEdges;
 }
 
 
 void CShadowVolumeSceneNode::setShadowMesh(const IMesh* mesh)
 {
-    if ( ShadowMesh == mesh )
-        return;
+	if (ShadowMesh == mesh)
+		return;
 	if (ShadowMesh)
 		ShadowMesh->drop();
 	ShadowMesh = mesh;
 	if (ShadowMesh)
+	{
 		ShadowMesh->grab();
+		Box = ShadowMesh->getBoundingBox();
+	}
 }
 
 
@@ -255,15 +221,21 @@ void CShadowVolumeSceneNode::updateShadowVolumes()
 	const u32 oldIndexCount = IndexCount;
 	const u32 oldVertexCount = VertexCount;
 
-	VertexCount = 0;
-	IndexCount = 0;
-	ShadowVolumesUsed = 0;
-
 	const IMesh* const mesh = ShadowMesh;
 	if (!mesh)
 		return;
 
+	// create as much shadow volumes as there are lights but
+	// do not ignore the max light settings.
+	const u32 lightCount = SceneManager->getVideoDriver()->getDynamicLightCount();
+	if (!lightCount)
+		return;
+
 	// calculate total amount of vertices and indices
+
+	VertexCount = 0;
+	IndexCount = 0;
+	ShadowVolumesUsed = 0;
 
 	u32 i;
 	u32 totalVertices = 0;
@@ -279,19 +251,11 @@ void CShadowVolumeSceneNode::updateShadowVolumes()
 
 	// allocate memory if necessary
 
-	if (totalVertices > Vertices.size())
-		Vertices.set_used(totalVertices);
-
-	if (totalIndices > Indices.size())
-	{
-		Indices.set_used(totalIndices);
-
-		if (UseZFailMethod)
-			FaceData.set_used(totalIndices / 3);
-	}
+	Vertices.set_used(totalVertices);
+	Indices.set_used(totalIndices);
+	FaceData.set_used(totalIndices / 3);
 
 	// copy mesh
-
 	for (i=0; i<bufcnt; ++i)
 	{
 		const IMeshBuffer* buf = mesh->getMeshBuffer(i);
@@ -307,23 +271,18 @@ void CShadowVolumeSceneNode::updateShadowVolumes()
 	}
 
 	// recalculate adjacency if necessary
-	if (oldVertexCount != VertexCount && oldIndexCount != IndexCount && UseZFailMethod)
+	if (oldVertexCount != VertexCount || oldIndexCount != IndexCount)
 		calculateAdjacency();
 
-	// create as much shadow volumes as there are lights but
-	// do not ignore the max light settings.
-
-	const u32 lights = SceneManager->getVideoDriver()->getDynamicLightCount();
 	core::matrix4 mat = Parent->getAbsoluteTransformation();
 	mat.makeInverse();
 	const core::vector3df parentpos = Parent->getAbsolutePosition();
-	core::vector3df lpos;
 
 	// TODO: Only correct for point lights.
-	for (i=0; i<lights; ++i)
+	for (i=0; i<lightCount; ++i)
 	{
 		const video::SLight& dl = SceneManager->getVideoDriver()->getDynamicLight(i);
-		lpos = dl.Position;
+		core::vector3df lpos = dl.Position;
 		if (dl.CastShadows &&
 			fabs((lpos - parentpos).getLengthSQ()) <= (dl.Radius*dl.Radius*4.0f))
 		{
@@ -344,7 +303,6 @@ void CShadowVolumeSceneNode::OnRegisterSceneNode()
 	}
 }
 
-
 //! renders the node.
 void CShadowVolumeSceneNode::render()
 {
@@ -356,21 +314,47 @@ void CShadowVolumeSceneNode::render()
 	driver->setTransform(video::ETS_WORLD, Parent->getAbsoluteTransformation());
 
 	for (u32 i=0; i<ShadowVolumesUsed; ++i)
-		driver->drawStencilShadowVolume(ShadowVolumes[i].vertices,
-			ShadowVolumes[i].count, UseZFailMethod);
-
-	if ( DebugDataVisible & scene::EDS_MESH_WIRE_OVERLAY )
 	{
-		video::SMaterial mat;
-		mat.Lighting = false;
-		mat.Wireframe = true;
-		mat.ZBuffer = true;
-		driver->setMaterial(mat);
-		driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
+		bool drawShadow = true;
 
-		for (u32 i=0; i<ShadowVolumesUsed; ++i)
-			driver->drawVertexPrimitiveList(ShadowVolumes[i].vertices,
-			ShadowVolumes[i].count,0,0,video::EVT_STANDARD,scene::EPT_LINES);
+		if (UseZFailMethod && SceneManager->getActiveCamera())
+		{
+			// Disable shadows drawing, when back cap is behind of ZFar plane.
+
+			SViewFrustum frust = *SceneManager->getActiveCamera()->getViewFrustum();
+
+			core::matrix4 invTrans(Parent->getAbsoluteTransformation(), core::matrix4::EM4CONST_INVERSE);
+			frust.transform(invTrans);
+
+			core::vector3df edges[8];
+			ShadowBBox[i].getEdges(edges);
+
+			core::vector3df largestEdge = edges[0];
+			f32 maxDistance = core::vector3df(SceneManager->getActiveCamera()->getPosition() - edges[0]).getLength();
+			f32 curDistance = 0.f;
+
+			for(int j = 1; j < 8; ++j)
+			{
+				curDistance = core::vector3df(SceneManager->getActiveCamera()->getPosition() - edges[j]).getLength();
+
+				if(curDistance > maxDistance)
+				{
+					maxDistance = curDistance;
+					largestEdge = edges[j];
+				}
+			}
+
+			if (!(frust.planes[scene::SViewFrustum::VF_FAR_PLANE].classifyPointRelation(largestEdge) != core::ISREL3D_FRONT))
+				drawShadow = false;
+		}
+
+		if(drawShadow)
+			driver->drawStencilShadowVolume(ShadowVolumes[i], UseZFailMethod, DebugDataVisible);
+		else
+		{
+			core::array<core::vector3df> triangles;
+			driver->drawStencilShadowVolume(triangles, UseZFailMethod, DebugDataVisible);
+		}
 	}
 }
 
@@ -383,52 +367,49 @@ const core::aabbox3d<f32>& CShadowVolumeSceneNode::getBoundingBox() const
 
 
 //! Generates adjacency information based on mesh indices.
-void CShadowVolumeSceneNode::calculateAdjacency(f32 epsilon)
+void CShadowVolumeSceneNode::calculateAdjacency()
 {
 	Adjacency.set_used(IndexCount);
-
-	epsilon *= epsilon;
 
 	// go through all faces and fetch their three neighbours
 	for (u32 f=0; f<IndexCount; f+=3)
 	{
 		for (u32 edge = 0; edge<3; ++edge)
 		{
-			core::vector3df v1 = Vertices[Indices[f+edge]];
-			core::vector3df v2 = Vertices[Indices[f+((edge+1)%3)]];
+			const core::vector3df& v1 = Vertices[Indices[f+edge]];
+			const core::vector3df& v2 = Vertices[Indices[f+((edge+1)%3)]];
 
 			// now we search an_O_ther _F_ace with these two
 			// vertices, which is not the current face.
-
 			u32 of;
 
 			for (of=0; of<IndexCount; of+=3)
 			{
+				// only other faces
 				if (of != f)
 				{
-					s32 cnt1 = 0;
-					s32 cnt2 = 0;
+					bool cnt1 = false;
+					bool cnt2 = false;
 
 					for (s32 e=0; e<3; ++e)
 					{
-						const f32 t1 = v1.getDistanceFromSQ(Vertices[Indices[of+e]]);
-						if (core::iszero(t1))
-							++cnt1;
+						if (v1.equals(Vertices[Indices[of+e]]))
+							cnt1=true;
 
-						const f32 t2 = v2.getDistanceFromSQ(Vertices[Indices[of+e]]);
-						if (core::iszero(t2))
-							++cnt2;
+						if (v2.equals(Vertices[Indices[of+e]]))
+							cnt2=true;
 					}
-
-					if (cnt1 == 1 && cnt2 == 1)
+					// one match for each vertex, i.e. edge is the same
+					if (cnt1 && cnt2)
 						break;
 				}
 			}
 
-			if (of == IndexCount)
-				Adjacency[f + edge] = f;
+			// no adjacent edges -> store face number, else store adjacent face
+			if (of >= IndexCount)
+				Adjacency[f + edge] = f/3;
 			else
-				Adjacency[f + edge] = of / 3;
+				Adjacency[f + edge] = of/3;
 		}
 	}
 }
@@ -436,4 +417,3 @@ void CShadowVolumeSceneNode::calculateAdjacency(f32 epsilon)
 
 } // end namespace scene
 } // end namespace irr
-

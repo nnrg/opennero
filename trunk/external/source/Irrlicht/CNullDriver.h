@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -13,12 +13,18 @@
 #include "irrString.h"
 #include "irrMap.h"
 #include "IAttributes.h"
+#include "IMesh.h"
 #include "IMeshBuffer.h"
+#include "IMeshSceneNode.h"
 #include "CFPSCounter.h"
 #include "S3DVertex.h"
 #include "SVertexIndex.h"
 #include "SLight.h"
 #include "SExposedVideoData.h"
+
+#ifdef _MSC_VER
+#pragma warning( disable: 4996)
+#endif
 
 namespace irr
 {
@@ -54,6 +60,9 @@ namespace video
 
 		//! queries the features of the driver, returns true if feature is available
 		virtual bool queryFeature(E_VIDEO_DRIVER_FEATURE feature) const;
+
+		//! Get attributes of the actual video driver
+		const io::IAttributes& getDriverAttributes() const;
 
 		//! sets transformation
 		virtual void setTransform(E_TRANSFORMATION_STATE state, const core::matrix4& mat);
@@ -275,7 +284,7 @@ namespace video
 		//! Draws a shadow volume into the stencil buffer. To draw a stencil shadow, do
 		//! this: Frist, draw all geometry. Then use this method, to draw the shadow
 		//! volume. Then, use IVideoDriver::drawStencilShadow() to visualize the shadow.
-		virtual void drawStencilShadowVolume(const core::vector3df* triangles, s32 count, bool zfail=true);
+		virtual void drawStencilShadowVolume(const core::array<core::vector3df>& triangles, bool zfail=true, u32 debugDataVisible=0);
 
 		//! Fills the stencil shadow with color. After the shadow volume has been drawn
 		//! into the stencil buffer using IVideoDriver::drawStencilShadowVolume(), use this
@@ -363,6 +372,9 @@ namespace video
 		//! Draws a mesh buffer
 		virtual void drawMeshBuffer(const scene::IMeshBuffer* mb);
 
+		//! Draws the normals of a mesh buffer
+		virtual void drawMeshBufferNormals(const scene::IMeshBuffer* mb, f32 length=10.f, SColor color=0xffffffff);
+
 	protected:
 		struct SHWBufferLink
 		{
@@ -395,17 +407,18 @@ namespace video
 		//! updates hardware buffer if needed  (only some drivers can)
 		virtual bool updateHardwareBuffer(SHWBufferLink *HWBuffer) {return false;}
 
-		//! Create hardware buffer from mesh (only some drivers can)
-		virtual SHWBufferLink *createHardwareBuffer(const scene::IMeshBuffer* mb) {return 0;}
-
 		//! Draw hardware buffer (only some drivers can)
 		virtual void drawHardwareBuffer(SHWBufferLink *HWBuffer) {}
 
-		//! Update all hardware buffers, remove unused ones
-		virtual void updateAllHardwareBuffers();
-
 		//! Delete hardware buffer
 		virtual void deleteHardwareBuffer(SHWBufferLink *HWBuffer);
+
+		//! Create hardware buffer from mesh (only some drivers can)
+		virtual SHWBufferLink *createHardwareBuffer(const scene::IMeshBuffer* mb) {return 0;}
+
+	public:
+		//! Update all hardware buffers, remove unused ones
+		virtual void updateAllHardwareBuffers();
 
 		//! Remove hardware buffer
 		virtual void removeHardwareBuffer(const scene::IMeshBuffer* mb);
@@ -416,7 +429,43 @@ namespace video
 		//! is vbo recommended on this mesh?
 		virtual bool isHardwareBufferRecommend(const scene::IMeshBuffer* mb);
 
-	public:
+		//! Create occlusion query.
+		/** Use node for identification and mesh for occlusion test. */
+		virtual void addOcclusionQuery(scene::ISceneNode* node,
+				const scene::IMesh* mesh=0);
+
+		//! Remove occlusion query.
+		virtual void removeOcclusionQuery(scene::ISceneNode* node);
+
+		//! Remove all occlusion queries.
+		virtual void removeAllOcclusionQueries();
+
+		//! Run occlusion query. Draws mesh stored in query.
+		/** If the mesh shall not be rendered visible, use
+		overrideMaterial to disable the color and depth buffer. */
+		virtual void runOcclusionQuery(scene::ISceneNode* node, bool visible=false);
+
+		//! Run all occlusion queries. Draws all meshes stored in queries.
+		/** If the meshes shall not be rendered visible, use
+		overrideMaterial to disable the color and depth buffer. */
+		virtual void runAllOcclusionQueries(bool visible=false);
+
+		//! Update occlusion query. Retrieves results from GPU.
+		/** If the query shall not block, set the flag to false.
+		Update might not occur in this case, though */
+		virtual void updateOcclusionQuery(scene::ISceneNode* node, bool block=true);
+
+		//! Update all occlusion queries. Retrieves results from GPU.
+		/** If the query shall not block, set the flag to false.
+		Update might not occur in this case, though */
+		virtual void updateAllOcclusionQueries(bool block=true);
+
+		//! Return query result.
+		/** Return value is the number of visible pixels/fragments.
+		The value is a safe approximation, i.e. can be larger than the
+		actual value of pixels. */
+		virtual u32 getOcclusionQueryResult(scene::ISceneNode* node) const;
+
 		//! Only used by the engine internally.
 		/** Used to notify the driver that the window was resized. */
 		virtual void OnResize(const core::dimension2d<u32>& size);
@@ -487,7 +536,7 @@ namespace video
 			u32 verticesOut = 0,
 			IShaderConstantSetCallBack* callback = 0,
 			E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
-			s32 userData=0);
+			s32 userData = 0, E_GPU_SHADING_LANGUAGE shadingLang = EGSL_DEFAULT);
 
 		//! Like IGPUProgrammingServices::addShaderMaterial() (look there for a detailed description),
 		//! but tries to load the programs from files.
@@ -506,7 +555,7 @@ namespace video
 			u32 verticesOut = 0,
 			IShaderConstantSetCallBack* callback = 0,
 			E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
-			s32 userData=0);
+			s32 userData = 0, E_GPU_SHADING_LANGUAGE shadingLang = EGSL_DEFAULT);
 
 		//! Like IGPUProgrammingServices::addShaderMaterial() (look there for a detailed description),
 		//! but tries to load the programs from files.
@@ -525,7 +574,7 @@ namespace video
 			u32 verticesOut = 0,
 			IShaderConstantSetCallBack* callback = 0,
 			E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
-			s32 userData=0);
+			s32 userData = 0, E_GPU_SHADING_LANGUAGE shadingLang = EGSL_DEFAULT);
 
 		//! Returns a pointer to the mesh manipulator.
 		virtual scene::IMeshManipulator* getMeshManipulator();
@@ -534,7 +583,7 @@ namespace video
 		virtual void clearZBuffer();
 
 		//! Returns an image created from the last rendered frame.
-		virtual IImage* createScreenShot();
+		virtual IImage* createScreenShot(video::ECOLOR_FORMAT format=video::ECF_UNKNOWN, video::E_RENDER_TARGET target=video::ERT_FRAME_BUFFER);
 
 		//! Writes the provided image to disk file
 		virtual bool writeImageToFile(IImage* image, const io::path& filename, u32 param = 0);
@@ -546,7 +595,8 @@ namespace video
 		virtual void setMaterialRendererName(s32 idx, const char* name);
 
 		//! Creates material attributes list from a material, usable for serialization and more.
-		virtual io::IAttributes* createAttributesFromMaterial(const video::SMaterial& material);
+		virtual io::IAttributes* createAttributesFromMaterial(const video::SMaterial& material,
+			io::SAttributeReadWriteOptions* options=0);
 
 		//! Fills an SMaterial structure from attributes.
 		virtual void fillMaterialStructureFromAttributes(video::SMaterial& outMaterial, io::IAttributes* attributes);
@@ -592,6 +642,19 @@ namespace video
 
 		//! Returns the maximum texture size supported.
 		virtual core::dimension2du getMaxTextureSize() const;
+
+		//! Color conversion convenience function
+		/** Convert an image (as array of pixels) from source to destination
+		array, thereby converting the color format. The pixel size is
+		determined by the color formats.
+		\param sP Pointer to source
+		\param sF Color format of source
+		\param sN Number of pixels to convert, both array must be large enough
+		\param dP Pointer to destination
+		\param dF Color format of destination
+		*/
+		virtual void convertColor(const void* sP, ECOLOR_FORMAT sF, s32 sN,
+				void* dP, ECOLOR_FORMAT dF) const;
 
 		//! deprecated method
 		virtual ITexture* createRenderTargetTexture(const core::dimension2d<u32>& size,
@@ -665,7 +728,7 @@ namespace video
 		{
 			SDummyTexture(const io::path& name) : ITexture(name), size(0,0) {};
 
-			virtual void* lock(bool readOnly = false, u32 mipmapLevel=0) { return 0; };
+			virtual void* lock(E_TEXTURE_LOCK_MODE mode=ETLM_READ_WRITE, u32 mipmapLevel=0) { return 0; };
 			virtual void unlock(){}
 			virtual const core::dimension2d<u32>& getOriginalSize() const { return size; }
 			virtual const core::dimension2d<u32>& getSize() const { return size; }
@@ -675,8 +738,65 @@ namespace video
 			virtual void regenerateMipMapLevels(void* mipmapData=0) {};
 			core::dimension2d<u32> size;
 		};
-
 		core::array<SSurface> Textures;
+
+		struct SOccQuery
+		{
+			SOccQuery(scene::ISceneNode* node, const scene::IMesh* mesh=0) : Node(node), Mesh(mesh), PID(0), Result(~0), Run(~0)
+			{
+				if (Node)
+					Node->grab();
+				if (Mesh)
+					Mesh->grab();
+			}
+
+			SOccQuery(const SOccQuery& other) : Node(other.Node), Mesh(other.Mesh), PID(other.PID), Result(other.Result), Run(other.Run)
+			{
+				if (Node)
+					Node->grab();
+				if (Mesh)
+					Mesh->grab();
+			}
+
+			~SOccQuery()
+			{
+				if (Node)
+					Node->drop();
+				if (Mesh)
+					Mesh->drop();
+			}
+
+			SOccQuery& operator=(const SOccQuery& other)
+			{
+				Node=other.Node;
+				Mesh=other.Mesh;
+				PID=other.PID;
+				Result=other.Result;
+				Run=other.Run;
+				if (Node)
+					Node->grab();
+				if (Mesh)
+					Mesh->grab();
+				return *this;
+			}
+
+			bool operator==(const SOccQuery& other) const
+			{
+				return other.Node==Node;
+			}
+
+			scene::ISceneNode* Node;
+			const scene::IMesh* Mesh;
+			union
+			{
+				void* PID;
+				unsigned int UID;
+			};
+			u32 Result;
+			u32 Run;
+		};
+		core::array<SOccQuery> OcclusionQueries;
+
 		core::array<video::IImageLoader*> SurfaceLoader;
 		core::array<video::IImageWriter*> SurfaceWriter;
 		core::array<SLight> Lights;
@@ -706,6 +826,8 @@ namespace video
 		f32 FogDensity;
 		SColor FogColor;
 		SExposedVideoData ExposedData;
+
+		io::IAttributes* DriverAttributes;
 
 		SOverrideMaterial OverrideMaterial;
 		SMaterial OverrideMaterial2D;

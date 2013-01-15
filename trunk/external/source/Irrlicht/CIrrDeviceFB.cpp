@@ -1,5 +1,5 @@
 // Copyright (C) 2002-2007 Nikolaus Gebhardt
-// Copyright (C) 2007-2010 Christian Stehno
+// Copyright (C) 2007-2012 Christian Stehno
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -56,7 +56,7 @@ CIrrDeviceFB::CIrrDeviceFB(const SIrrlichtCreationParameters& params)
 	linuxversion += " ";
 	linuxversion += FBInfo.machine;
 
-	Operator = new COSOperator(linuxversion.c_str());
+	Operator = new COSOperator(linuxversion);
 	os::Printer::log(linuxversion.c_str(), ELL_INFORMATION);
 
 	// create window
@@ -200,7 +200,7 @@ void CIrrDeviceFB::createDriver()
 		
 	case video::EDT_BURNINGSVIDEO:
 		#ifdef _IRR_COMPILE_WITH_BURNINGSVIDEO_
-		VideoDriver = video::createSoftwareDriver2(CreationParams.WindowSize, CreationParams.Fullscreen, FileSystem, this);
+		VideoDriver = video::createBurningVideoDriver(CreationParams, FileSystem, this);
 		#else
 		os::Printer::log("Burning's video driver was not compiled in.", ELL_WARNING);
 		#endif

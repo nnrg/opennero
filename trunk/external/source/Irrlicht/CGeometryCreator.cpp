@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -8,7 +8,6 @@
 #include "SMesh.h"
 #include "IMesh.h"
 #include "IVideoDriver.h"
-#include "CImage.h"
 #include "os.h"
 
 namespace irr
@@ -265,7 +264,7 @@ IMesh* CGeometryCreator::createTerrainMesh(video::IImage* texture,
 			{
 				c8 textureName[64];
 				// create texture for this block
-				video::IImage* img = new video::CImage(texture->getColorFormat(), texture->getDimension());
+				video::IImage* img = driver->createImage(texture->getColorFormat(), core::dimension2d<u32>(core::floor32(blockSize.Width*thRel.X), core::floor32(blockSize.Height*thRel.Y)));
 				texture->copyTo(img, core::position2di(0,0), core::recti(
 					core::position2d<s32>(core::floor32(processed.X*thRel.X), core::floor32(processed.Y*thRel.Y)),
 					core::dimension2d<u32>(core::floor32(blockSize.Width*thRel.X), core::floor32(blockSize.Height*thRel.Y))), 0);
@@ -364,7 +363,7 @@ IMesh* CGeometryCreator::createSphereMesh(f32 radius, u32 polyCountX, u32 polyCo
 
 	buffer->Indices.reallocate((polyCountX * polyCountY) * 6);
 
-	const video::SColor clr(100, 255,255,255);
+	const video::SColor clr(255, 255,255,255);
 
 	u32 level = 0;
 
@@ -871,7 +870,7 @@ IMesh* CGeometryCreator::createVolumeLightMesh(
 	Buffer->recalculateBoundingBox();
 
 	Buffer->Material.MaterialType = video::EMT_ONETEXTURE_BLEND;
-	Buffer->Material.MaterialTypeParam = pack_texureBlendFunc( video::EBF_SRC_COLOR, video::EBF_SRC_ALPHA, video::EMFN_MODULATE_1X );
+	Buffer->Material.MaterialTypeParam = pack_textureBlendFunc( video::EBF_SRC_COLOR, video::EBF_SRC_ALPHA, video::EMFN_MODULATE_1X );
 
 	Buffer->Material.Lighting = false;
 	Buffer->Material.ZWriteEnable = false;

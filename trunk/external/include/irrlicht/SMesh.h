@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -32,6 +32,16 @@ namespace scene
 			for (u32 i=0; i<MeshBuffers.size(); ++i)
 				MeshBuffers[i]->drop();
 		}
+
+		//! clean mesh
+		virtual void clear()
+		{
+			for (u32 i=0; i<MeshBuffers.size(); ++i)
+				MeshBuffers[i]->drop();
+			MeshBuffers.clear();
+			BoundingBox.reset ( 0.f, 0.f, 0.f );
+		}
+
 
 		//! returns amount of mesh buffers.
 		virtual u32 getMeshBufferCount() const
@@ -84,6 +94,7 @@ namespace scene
 		}
 
 		//! adds a MeshBuffer
+		/** The bounding box is not updated automatically. */
 		void addMeshBuffer(IMeshBuffer* buf)
 		{
 			if (buf)

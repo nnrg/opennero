@@ -2,7 +2,6 @@
 #include "core/File.h"
 #include "game/Mod.h"
 #include <sstream>
-#define BOOST_FILESYSTEM_VERSION 2
 #include <boost/filesystem.hpp>
 
 #if NERO_PLATFORM_WINDOWS

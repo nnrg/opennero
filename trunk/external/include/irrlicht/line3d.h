@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -63,7 +63,7 @@ class line3d
 		/** \return Center of line. */
 		vector3d<T> getMiddle() const
 		{
-			return (start + end) * (T)0.5;
+			return (start + end)/(T)2;
 		}
 
 		//! Get vector of line

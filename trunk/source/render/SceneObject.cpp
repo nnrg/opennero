@@ -200,9 +200,23 @@ namespace OpenNero
                  GetTriangleSelector()->getTriangles(triangles, arraySize, outTriangleCount, line, transform);
             }
 
-            const ISceneNode* getSceneNodeForTriangle(u32 triangleIndex) const
+            ISceneNode* getSceneNodeForTriangle(u32 triangleIndex) const
             {
                  return GetTriangleSelector()->getSceneNodeForTriangle(triangleIndex);
+            }
+            
+            u32 getSelectorCount() const
+            {
+                return GetTriangleSelector()->getSelectorCount();
+            }
+            
+            ITriangleSelector* getSelector(u32 index)
+            {
+                return GetTriangleSelector()->getSelector(index);
+            }
+            
+            const ITriangleSelector* getSelector(u32 index) const {
+                return GetTriangleSelector()->getSelector(index);
             }
         };
     }

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -182,6 +182,8 @@ void CGUISpriteBank::draw2DSpriteBatch(	const core::array<u32>& indices,
 {
 	const irr::u32 drawCount = core::min_<u32>(indices.size(), pos.size());
 
+	if( Textures.empty() )
+		return;
 	core::array<SDrawBatch> drawBatches(Textures.size());
 	for(u32 i = 0;i < Textures.size();i++)
 	{

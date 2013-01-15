@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine" and the "irrXML" project.
 // For conditions of distribution and use, see copyright notice in irrlicht.h and/or irrXML.h
 
@@ -120,7 +120,7 @@
 	The irrXML license is based on the zlib license. Basicly, this means you can do with
 	irrXML whatever you want:
 
-	Copyright (C) 2002-2010 Nikolaus Gebhardt
+	Copyright (C) 2002-2012 Nikolaus Gebhardt
 
 	This software is provided 'as-is', without any express or implied
 	warranty. In no event will the authors be held liable for any damages
@@ -189,7 +189,8 @@ namespace io
 		//! End of an xml element such as &lt;/foo&gt;
 		EXN_ELEMENT_END,
 
-		//! Text within an xml element: &lt;foo&gt; this is the text. &lt;foo&gt;
+		//! Text within an xml element: &lt;foo&gt; this is the text. &lt;/foo&gt;
+		//! Also text between 2 xml elements: &lt;/foo&gt; this is the text. &lt;foo&gt;
 		EXN_TEXT,
 
 		//! An xml comment like &lt;!-- I am a comment --&gt; or a DTD definition.
@@ -338,13 +339,13 @@ namespace io
 		virtual float getAttributeValueAsFloat(int idx) const = 0;
 
 		//! Returns the name of the current node.
-		/** Only non null, if the node type is EXN_ELEMENT.
+		/** Only valid, if the node type is EXN_ELEMENT.
 		\return Name of the current node or 0 if the node has no name. */
 		virtual const char_type* getNodeName() const = 0;
 
 		//! Returns data of the current node.
-		/** Only non null if the node has some
-		data and it is of type EXN_TEXT or EXN_UNKNOWN. */
+		/** Only valid if the node has some
+		data and it is of type EXN_TEXT, EXN_COMMENT, EXN_CDATA or EXN_UNKNOWN. */
 		virtual const char_type* getNodeData() const = 0;
 
 		//! Returns if an element is an empty element, like &lt;foo />
@@ -366,15 +367,30 @@ namespace io
 	};
 
 
+	template <typename T>
+	struct xmlChar
+	{
+		T c;
+		xmlChar<T>() {}
+		xmlChar<T>(char in) : c(static_cast<T>(in)) {}
+		xmlChar<T>(wchar_t in) : c(static_cast<T>(in)) {}
+		explicit xmlChar<T>(unsigned char in) : c(static_cast<T>(in)) {}
+		explicit xmlChar<T>(unsigned short in) : c(static_cast<T>(in)) {}
+		explicit xmlChar<T>(unsigned int in) : c(static_cast<T>(in)) {}
+		explicit xmlChar<T>(unsigned long in) : c(static_cast<T>(in)) {}
+		operator T() const { return c; }
+		void operator=(int t) { c=static_cast<T>(t); }
+	};
+
 	//! defines the utf-16 type.
 	/** Not using wchar_t for this because
 	wchar_t has 16 bit on windows and 32 bit on other operating systems. */
-	typedef unsigned short char16;
+	typedef xmlChar<unsigned short> char16;
 
 	//! defines the utf-32 type.
 	/** Not using wchar_t for this because
 	wchar_t has 16 bit on windows and 32 bit on other operating systems. */
-	typedef unsigned long char32;
+	typedef xmlChar<unsigned int> char32;
 
 	//! A UTF-8 or ASCII character xml parser.
 	/** This means that all character data will be returned in 8 bit ASCII or UTF-8 by this parser.

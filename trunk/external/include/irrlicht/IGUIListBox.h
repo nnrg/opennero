@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -31,6 +31,10 @@ namespace gui
 
 
 	//! Default list box GUI element.
+	/** \par This element can create the following events of type EGUI_EVENT_TYPE:
+	\li EGET_LISTBOX_CHANGED
+	\li EGET_LISTBOX_SELECTED_AGAIN
+	*/
 	class IGUIListBox : public IGUIElement
 	{
 	public:
@@ -55,6 +59,10 @@ namespace gui
 
 		//! Removes an item from the list
 		virtual void removeItem(u32 index) = 0;
+
+		//! get the the id of the item at the given absolute coordinates
+		/** \return The id of the listitem or -1 when no item is at those coordinates*/
+		virtual s32 getItemAt(s32 xpos, s32 ypos) const = 0;
 
 		//! Returns the icon of an item
 		virtual s32 getIcon(u32 index) const = 0;
@@ -85,10 +93,10 @@ namespace gui
 		virtual bool isAutoScrollEnabled() const = 0;
 
 		//! set all item colors at given index to color
-		virtual void setItemOverrideColor(u32 index, const video::SColor &color) = 0;
+		virtual void setItemOverrideColor(u32 index, video::SColor color) = 0;
 
 		//! set all item colors of specified type at given index to color
-		virtual void setItemOverrideColor(u32 index, EGUI_LISTBOX_COLOR colorType, const video::SColor &color) = 0;
+		virtual void setItemOverrideColor(u32 index, EGUI_LISTBOX_COLOR colorType, video::SColor color) = 0;
 
 		//! clear all item colors at index
 		virtual void clearItemOverrideColor(u32 index) = 0;

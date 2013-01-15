@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -60,11 +60,12 @@ const io::path& CFileList::getFullFileName(u32 index) const
 }
 
 //! adds a file or folder
-u32 CFileList::addItem(const io::path& fullPath, u32 size, bool isDirectory, u32 id)
+u32 CFileList::addItem(const io::path& fullPath, u32 offset, u32 size, bool isDirectory, u32 id)
 {
 	SFileListEntry entry;
+	entry.ID   = id ? id : Files.size();
+	entry.Offset = offset;
 	entry.Size = size;
-	entry.ID   = id;
 	entry.Name = fullPath;
 	entry.Name.replace('\\', '/');
 	entry.IsDirectory = isDirectory;
@@ -116,23 +117,30 @@ u32 CFileList::getFileSize(u32 index) const
 	return index < Files.size() ? Files[index].Size : 0;
 }
 
+//! Returns the size of a file
+u32 CFileList::getFileOffset(u32 index) const
+{
+	return index < Files.size() ? Files[index].Offset : 0;
+}
+
 
 //! Searches for a file or folder within the list, returns the index
 s32 CFileList::findFile(const io::path& filename, bool isDirectory = false) const
 {
 	SFileListEntry entry;
+	// we only need FullName to be set for the search
 	entry.FullName = filename;
 	entry.IsDirectory = isDirectory;
 
-	// swap
+	// exchange
 	entry.FullName.replace('\\', '/');
 
 	// remove trailing slash
-	if (entry.Name.lastChar() == '/')
+	if (entry.FullName.lastChar() == '/')
 	{
 		entry.IsDirectory = true;
-		entry.Name[ entry.Name.size()-1] = 0;
-		entry.Name.validate();
+		entry.FullName[entry.FullName.size()-1] = 0;
+		entry.FullName.validate();
 	}
 
 	if (IgnoreCase)
@@ -144,11 +152,13 @@ s32 CFileList::findFile(const io::path& filename, bool isDirectory = false) cons
 	return Files.binary_search(entry);
 }
 
+
 //! Returns the base path of the file list
 const io::path& CFileList::getPath() const
 {
 	return Path;
 }
+
 
 } // end namespace irr
 } // end namespace io

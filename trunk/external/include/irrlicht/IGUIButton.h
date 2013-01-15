@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -52,6 +52,9 @@ namespace gui
 	};
 
 	//! GUI Button interface.
+	/** \par This element can create the following events of type EGUI_EVENT_TYPE:
+	\li EGET_BUTTON_CLICKED
+	*/
 	class IGUIButton : public IGUIElement
 	{
 	public:
@@ -64,6 +67,15 @@ namespace gui
 		/** If this is set to zero, the button uses the font of the skin.
 		\param font: New font to set. */
 		virtual void setOverrideFont(IGUIFont* font=0) = 0;
+
+		//! Gets the override font (if any)
+		/** \return The override font (may be 0) */
+		virtual IGUIFont* getOverrideFont(void) const = 0;
+
+		//! Get the font which is used right now for drawing
+		/** Currently this is the override font when one is set and the
+		font of the active skin otherwise */
+		virtual IGUIFont* getActiveFont() const = 0;
 
 		//! Sets an image which should be displayed on the button when it is in normal state.
 		/** \param image: Image to be displayed */

@@ -1,4 +1,5 @@
-// Copyright (C) 2005-2010 Etienne Petitjean
+// Copyright (C) 2005-2006 Etienne Petitjean
+// Copyright (C) 2007-2012 Christian Stehno
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in Irrlicht.h
 
@@ -8,7 +9,9 @@
 
 #import <Cocoa/Cocoa.h>
 #import <OpenGL/gl.h>
+#ifndef __MAC_10_6
 #import <Carbon/Carbon.h>
+#endif
 
 #include "CIrrDeviceMacOSX.h"
 #include "IEventReceiver.h"
@@ -28,6 +31,147 @@
 #import <time.h>
 #import "AppDelegate.h"
 
+// only OSX 10.5 seems to not need these defines...
+#if !defined(__MAC_10_5) || defined(__MAC_10_6)
+// Contents from Events.h from Carbon/HIToolbox but we need it with Cocoa too
+// and for some reason no Cocoa equivalent of these constants seems provided.
+// So I'm doing like everyone else and using copy-and-paste.
+
+/*
+ *  Summary:
+ *	Virtual keycodes
+ *
+ *  Discussion:
+ *	These constants are the virtual keycodes defined originally in
+ *	Inside Mac Volume V, pg. V-191. They identify physical keys on a
+ *	keyboard. Those constants with "ANSI" in the name are labeled
+ *	according to the key position on an ANSI-standard US keyboard.
+ *	For example, kVK_ANSI_A indicates the virtual keycode for the key
+ *	with the letter 'A' in the US keyboard layout. Other keyboard
+ *	layouts may have the 'A' key label on a different physical key;
+ *	in this case, pressing 'A' will generate a different virtual
+ *	keycode.
+ */
+enum {
+	kVK_ANSI_A		= 0x00,
+	kVK_ANSI_S		= 0x01,
+	kVK_ANSI_D		= 0x02,
+	kVK_ANSI_F		= 0x03,
+	kVK_ANSI_H		= 0x04,
+	kVK_ANSI_G		= 0x05,
+	kVK_ANSI_Z		= 0x06,
+	kVK_ANSI_X		= 0x07,
+	kVK_ANSI_C		= 0x08,
+	kVK_ANSI_V		= 0x09,
+	kVK_ANSI_B		= 0x0B,
+	kVK_ANSI_Q		= 0x0C,
+	kVK_ANSI_W		= 0x0D,
+	kVK_ANSI_E		= 0x0E,
+	kVK_ANSI_R		= 0x0F,
+	kVK_ANSI_Y		= 0x10,
+	kVK_ANSI_T		= 0x11,
+	kVK_ANSI_1		= 0x12,
+	kVK_ANSI_2		= 0x13,
+	kVK_ANSI_3		= 0x14,
+	kVK_ANSI_4		= 0x15,
+	kVK_ANSI_6		= 0x16,
+	kVK_ANSI_5		= 0x17,
+	kVK_ANSI_Equal		= 0x18,
+	kVK_ANSI_9		= 0x19,
+	kVK_ANSI_7		= 0x1A,
+	kVK_ANSI_Minus		= 0x1B,
+	kVK_ANSI_8		= 0x1C,
+	kVK_ANSI_0		= 0x1D,
+	kVK_ANSI_RightBracket   = 0x1E,
+	kVK_ANSI_O		= 0x1F,
+	kVK_ANSI_U		= 0x20,
+	kVK_ANSI_LeftBracket	= 0x21,
+	kVK_ANSI_I		= 0x22,
+	kVK_ANSI_P		= 0x23,
+	kVK_ANSI_L		= 0x25,
+	kVK_ANSI_J		= 0x26,
+	kVK_ANSI_Quote		= 0x27,
+	kVK_ANSI_K		= 0x28,
+	kVK_ANSI_Semicolon	= 0x29,
+	kVK_ANSI_Backslash	= 0x2A,
+	kVK_ANSI_Comma		= 0x2B,
+	kVK_ANSI_Slash		= 0x2C,
+	kVK_ANSI_N		= 0x2D,
+	kVK_ANSI_M		= 0x2E,
+	kVK_ANSI_Period		= 0x2F,
+	kVK_ANSI_Grave		= 0x32,
+	kVK_ANSI_KeypadDecimal  = 0x41,
+	kVK_ANSI_KeypadMultiply = 0x43,
+	kVK_ANSI_KeypadPlus	= 0x45,
+	kVK_ANSI_KeypadClear	= 0x47,
+	kVK_ANSI_KeypadDivide   = 0x4B,
+	kVK_ANSI_KeypadEnter	= 0x4C,
+	kVK_ANSI_KeypadMinus	= 0x4E,
+	kVK_ANSI_KeypadEquals   = 0x51,
+	kVK_ANSI_Keypad0	= 0x52,
+	kVK_ANSI_Keypad1	= 0x53,
+	kVK_ANSI_Keypad2	= 0x54,
+	kVK_ANSI_Keypad3	= 0x55,
+	kVK_ANSI_Keypad4	= 0x56,
+	kVK_ANSI_Keypad5	= 0x57,
+	kVK_ANSI_Keypad6	= 0x58,
+	kVK_ANSI_Keypad7	= 0x59,
+	kVK_ANSI_Keypad8	= 0x5B,
+	kVK_ANSI_Keypad9	= 0x5C
+};
+
+/* keycodes for keys that are independent of keyboard layout*/
+enum {
+	kVK_Return		= 0x24,
+	kVK_Tab			= 0x30,
+	kVK_Space		= 0x31,
+	kVK_Delete		= 0x33,
+	kVK_Escape		= 0x35,
+	kVK_Command		= 0x37,
+	kVK_Shift		= 0x38,
+	kVK_CapsLock		= 0x39,
+	kVK_Option		= 0x3A,
+	kVK_Control		= 0x3B,
+	kVK_RightShift		= 0x3C,
+	kVK_RightOption		= 0x3D,
+	kVK_RightControl	= 0x3E,
+	kVK_Function		= 0x3F,
+	kVK_F17			= 0x40,
+	kVK_VolumeUp		= 0x48,
+	kVK_VolumeDown		= 0x49,
+	kVK_Mute		= 0x4A,
+	kVK_F18			= 0x4F,
+	kVK_F19			= 0x50,
+	kVK_F20			= 0x5A,
+	kVK_F5			= 0x60,
+	kVK_F6			= 0x61,
+	kVK_F7			= 0x62,
+	kVK_F3			= 0x63,
+	kVK_F8			= 0x64,
+	kVK_F9			= 0x65,
+	kVK_F11			= 0x67,
+	kVK_F13			= 0x69,
+	kVK_F16			= 0x6A,
+	kVK_F14			= 0x6B,
+	kVK_F10			= 0x6D,
+	kVK_F12			= 0x6F,
+	kVK_F15			= 0x71,
+	kVK_Help		= 0x72,
+	kVK_Home		= 0x73,
+	kVK_PageUp		= 0x74,
+	kVK_ForwardDelete	= 0x75,
+	kVK_F4			= 0x76,
+	kVK_End			= 0x77,
+	kVK_F2			= 0x78,
+	kVK_PageDown		= 0x79,
+	kVK_F1			= 0x7A,
+	kVK_LeftArrow		= 0x7B,
+	kVK_RightArrow		= 0x7C,
+	kVK_DownArrow		= 0x7D,
+	kVK_UpArrow		= 0x7E
+};
+#endif
+
 #if defined _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
 
 #include <IOKit/IOKitLib.h>
@@ -43,12 +187,12 @@
 
 struct JoystickComponent
 {
-	IOHIDElementCookie cookie;				// unique value which identifies element, will NOT change
-	long min;								// reported min value possible
-	long max;								// reported max value possible
+	IOHIDElementCookie cookie; // unique value which identifies element, will NOT change
+	long min; // reported min value possible
+	long max; // reported max value possible
 
-	long minRead;							//min read value
-	long maxRead;							//max read value
+	long minRead; //min read value
+	long maxRead; //max read value
 
 	JoystickComponent() : min(0), minRead(0), max(0), maxRead(0)
 	{
@@ -61,10 +205,9 @@ struct JoystickInfo
 	irr::core::array <JoystickComponent> buttonComp;
 	irr::core::array <JoystickComponent> hatComp;
 
-	int	hats;
-	int	axes;
-	int	buttons;
-
+	int hats;
+	int axes;
+	int buttons;
 	int numActiveJoysticks;
 
 	irr::SEvent persistentData;
@@ -72,8 +215,8 @@ struct JoystickInfo
 	IOHIDDeviceInterface ** interface;
 	bool removed;
 	char joystickName[256];
-	long usage;								// usage page from IOUSBHID Parser.h which defines general usage
-	long usagePage;							// usage within above page from IOUSBHID Parser.h which defines specific usage
+	long usage; // usage page from IOUSBHID Parser.h which defines general usage
+	long usagePage; // usage within above page from IOUSBHID Parser.h which defines specific usage
 
 	JoystickInfo() : hats(0), axes(0), buttons(0), interface(0), removed(false), usage(0), usagePage(0), numActiveJoysticks(0)
 	{
@@ -138,7 +281,6 @@ static void addJoystickComponent (CFTypeRef refElement, JoystickInfo* joyInfo)
 	CFTypeRef refUsagePage = CFDictionaryGetValue ((CFDictionaryRef)refElement, CFSTR(kIOHIDElementUsagePageKey));
 	CFTypeRef refUsage = CFDictionaryGetValue ((CFDictionaryRef)refElement, CFSTR(kIOHIDElementUsageKey));
 
-
 	if ((refElementType) && (CFNumberGetValue ((CFNumberRef)refElementType, kCFNumberLongType, &elementType)))
 	{
 		/* look at types of interest */
@@ -151,43 +293,43 @@ static void addJoystickComponent (CFTypeRef refElement, JoystickInfo* joyInfo)
 				switch (usagePage) /* only interested in kHIDPage_GenericDesktop and kHIDPage_Button */
 				{
 					case kHIDPage_GenericDesktop:
+					{
+						switch (usage) /* look at usage to determine function */
 						{
-							switch (usage) /* look at usage to determine function */
+							case kHIDUsage_GD_X:
+							case kHIDUsage_GD_Y:
+							case kHIDUsage_GD_Z:
+							case kHIDUsage_GD_Rx:
+							case kHIDUsage_GD_Ry:
+							case kHIDUsage_GD_Rz:
+							case kHIDUsage_GD_Slider:
+							case kHIDUsage_GD_Dial:
+							case kHIDUsage_GD_Wheel:
 							{
-								case kHIDUsage_GD_X:
-								case kHIDUsage_GD_Y:
-								case kHIDUsage_GD_Z:
-								case kHIDUsage_GD_Rx:
-								case kHIDUsage_GD_Ry:
-								case kHIDUsage_GD_Rz:
-								case kHIDUsage_GD_Slider:
-								case kHIDUsage_GD_Dial:
-								case kHIDUsage_GD_Wheel:
-								{
-									joyInfo->axes++;
-									JoystickComponent newComponent;
-									addComponentInfo(refElement, &newComponent, joyInfo->numActiveJoysticks);
-									joyInfo->axisComp.push_back(newComponent);
-								}
-								break;
-								case kHIDUsage_GD_Hatswitch:
-								{
-									joyInfo->hats++;
-									JoystickComponent newComponent;
-									addComponentInfo(refElement, &newComponent, joyInfo->numActiveJoysticks);
-									joyInfo->hatComp.push_back(newComponent);
-								}
-								break;
+								joyInfo->axes++;
+								JoystickComponent newComponent;
+								addComponentInfo(refElement, &newComponent, joyInfo->numActiveJoysticks);
+								joyInfo->axisComp.push_back(newComponent);
 							}
+							break;
+							case kHIDUsage_GD_Hatswitch:
+							{
+								joyInfo->hats++;
+								JoystickComponent newComponent;
+								addComponentInfo(refElement, &newComponent, joyInfo->numActiveJoysticks);
+								joyInfo->hatComp.push_back(newComponent);
+							}
+							break;
 						}
+					}
 						break;
 					case kHIDPage_Button:
-						{
-							joyInfo->buttons++;
-							JoystickComponent newComponent;
-							addComponentInfo(refElement, &newComponent, joyInfo->numActiveJoysticks);
-							joyInfo->buttonComp.push_back(newComponent);
-						}
+					{
+						joyInfo->buttons++;
+						JoystickComponent newComponent;
+						addComponentInfo(refElement, &newComponent, joyInfo->numActiveJoysticks);
+						joyInfo->buttonComp.push_back(newComponent);
+					}
 						break;
 					default:
 						break;
@@ -209,7 +351,6 @@ static void addJoystickComponent (CFTypeRef refElement, JoystickInfo* joyInfo)
 			}
 		}
 	}
-
 }
 
 static void getJoystickComponentArrayHandler (const void * value, void * parameter)
@@ -335,12 +476,13 @@ namespace irr
 {
 //! constructor
 CIrrDeviceMacOSX::CIrrDeviceMacOSX(const SIrrlichtCreationParameters& param)
-	: CIrrDeviceStub(param), Window(NULL), IsActive(true), OGLContext(NULL), CGLContext(NULL),
-	SoftwareDriverTarget(0), IsSoftwareRenderer(false), IsResizable(false),
-	IsShiftDown(false), IsControlDown(false), MouseButtonStates(0)
+	: CIrrDeviceStub(param), Window(NULL), CGLContext(NULL), OGLContext(NULL),
+	SoftwareDriverTarget(0), DeviceWidth(0), DeviceHeight(0),
+	ScreenWidth(0), ScreenHeight(0), MouseButtonStates(0), SoftwareRendererType(0),
+	IsActive(true), IsFullscreen(false), IsShiftDown(false), IsControlDown(false), IsResizable(false)
 {
 	struct utsname name;
-	NSString	*path;
+	NSString *path;
 
 	#ifdef _DEBUG
 	setDebugName("CIrrDeviceMacOSX");
@@ -369,21 +511,32 @@ CIrrDeviceMacOSX::CIrrDeviceMacOSX(const SIrrlichtCreationParameters& param)
 	os::Printer::log(name.version,ELL_INFORMATION);
 
 	initKeycodes();
+
+	VideoModeList.setDesktop(CreationParams.Bits, core::dimension2d<u32>([[NSScreen mainScreen] frame].size.width, [[NSScreen mainScreen] frame].size.height));
+
+	bool success = true;
 	if (CreationParams.DriverType != video::EDT_NULL)
-		createWindow();
+		success = createWindow();
+
+	// in case of failure, one can check VideoDriver for initialization
+	if (!success)
+		return;
 
 	setResizable(false);
-
 	CursorControl = new CCursorControl(CreationParams.WindowSize, this);
-	createDriver();
 
+	createDriver();
 	createGUIAndScene();
 }
 
 CIrrDeviceMacOSX::~CIrrDeviceMacOSX()
 {
 	[SoftwareDriverTarget release];
-	SetSystemUIMode(kUIModeNormal, 0);
+#ifdef __MAC_10_6
+	[NSApp setPresentationOptions:(NSApplicationPresentationDefault)];
+#else
+	SetSystemUIMode(kUIModeNormal, kUIOptionAutoShowMenuBar);
+#endif
 	closeDevice();
 #if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
 	for (u32 joystick = 0; joystick < ActiveJoysticks.size(); ++joystick)
@@ -410,6 +563,9 @@ void CIrrDeviceMacOSX::closeDevice()
 		[Window setReleasedWhenClosed:TRUE];
 		[Window release];
 		Window = NULL;
+
+		if (IsFullscreen)
+			CGReleaseAllDisplays();
 	}
 	else
 	{
@@ -431,19 +587,24 @@ void CIrrDeviceMacOSX::closeDevice()
 		}
 	}
 
+	IsFullscreen = false;
 	IsActive = false;
 	CGLContext = NULL;
 }
 
 bool CIrrDeviceMacOSX::createWindow()
 {
-	CGDisplayErr            error;
-	bool                    result=false;
-	CGDirectDisplayID       display=CGMainDisplayID();
-	CGLPixelFormatObj       pixelFormat;
-	CGRect                  displayRect;
-	CFDictionaryRef         displaymode, olddisplaymode;
-	GLint                   numPixelFormats, newSwapInterval;
+	CGDisplayErr error;
+	bool result=false;
+	CGDirectDisplayID display=CGMainDisplayID();
+	CGLPixelFormatObj pixelFormat;
+	CGRect displayRect;
+#ifdef __MAC_10_6
+	CGDisplayModeRef displaymode, olddisplaymode;
+#else
+	CFDictionaryRef displaymode, olddisplaymode;
+#endif
+	GLint numPixelFormats, newSwapInterval;
 
 	int alphaSize = CreationParams.WithAlphaChannel?4:0;
 	int depthSize = CreationParams.ZBufferBits;
@@ -453,186 +614,272 @@ bool CIrrDeviceMacOSX::createWindow()
 	ScreenWidth = (int) CGDisplayPixelsWide(display);
 	ScreenHeight = (int) CGDisplayPixelsHigh(display);
 
-	VideoModeList.setDesktop(CreationParams.Bits, core::dimension2d<u32>(ScreenWidth, ScreenHeight));
-
-	if (!CreationParams.Fullscreen)
+	// we need to check where the exceptions may happen and work at them
+	// for now we will just catch them to be able to avoid an app exit
+	@try
 	{
-		if(!CreationParams.WindowId) //create another window when WindowId is null
+		if (!CreationParams.Fullscreen)
 		{
-			Window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,CreationParams.WindowSize.Width,CreationParams.WindowSize.Height) styleMask:NSTitledWindowMask+NSClosableWindowMask+NSResizableWindowMask backing:NSBackingStoreBuffered defer:FALSE];
-		}
-
-		if (Window != NULL || CreationParams.WindowId)
-		{
-			NSOpenGLPixelFormatAttribute windowattribs[] =
+			if(!CreationParams.WindowId) //create another window when WindowId is null
 			{
-					NSOpenGLPFANoRecovery,
-					NSOpenGLPFAAccelerated,
-					NSOpenGLPFADepthSize,     (NSOpenGLPixelFormatAttribute)depthSize,
-					NSOpenGLPFAColorSize,     (NSOpenGLPixelFormatAttribute)CreationParams.Bits,
-					NSOpenGLPFAAlphaSize,     (NSOpenGLPixelFormatAttribute)alphaSize,
-					NSOpenGLPFASampleBuffers, (NSOpenGLPixelFormatAttribute)1,
-					NSOpenGLPFASamples,       (NSOpenGLPixelFormatAttribute)CreationParams.AntiAlias,
-					NSOpenGLPFAStencilSize,   (NSOpenGLPixelFormatAttribute)(CreationParams.Stencilbuffer?1:0),
-					NSOpenGLPFADoubleBuffer,
-					(NSOpenGLPixelFormatAttribute)nil
-			};
+				NSBackingStoreType type = (CreationParams.DriverType == video::EDT_OPENGL) ? NSBackingStoreBuffered : NSBackingStoreNonretained;
 
-			if (CreationParams.AntiAlias<2)
-			{
-				windowattribs[ 9] = (NSOpenGLPixelFormatAttribute)0;
-				windowattribs[11] = (NSOpenGLPixelFormatAttribute)0;
+				Window = [[NSWindow alloc] initWithContentRect:NSMakeRect(0,0,CreationParams.WindowSize.Width,CreationParams.WindowSize.Height) styleMask:NSTitledWindowMask+NSClosableWindowMask+NSResizableWindowMask backing:type defer:FALSE];
 			}
 
-			NSOpenGLPixelFormat *format;
-			for (int i=0; i<3; ++i)
+			if (Window != NULL || CreationParams.WindowId)
 			{
-				if (1==i)
+				if (CreationParams.DriverType == video::EDT_OPENGL)
 				{
-					// Second try without stencilbuffer
-					if (CreationParams.Stencilbuffer)
+					NSOpenGLPixelFormatAttribute windowattribs[] =
 					{
-						windowattribs[13]=(NSOpenGLPixelFormatAttribute)0;
+						NSOpenGLPFANoRecovery,
+						NSOpenGLPFAAccelerated,
+						NSOpenGLPFADepthSize, (NSOpenGLPixelFormatAttribute)depthSize,
+						NSOpenGLPFAColorSize, (NSOpenGLPixelFormatAttribute)CreationParams.Bits,
+						NSOpenGLPFAAlphaSize, (NSOpenGLPixelFormatAttribute)alphaSize,
+						NSOpenGLPFASampleBuffers, (NSOpenGLPixelFormatAttribute)1,
+						NSOpenGLPFASamples, (NSOpenGLPixelFormatAttribute)CreationParams.AntiAlias,
+						NSOpenGLPFAStencilSize, (NSOpenGLPixelFormatAttribute)(CreationParams.Stencilbuffer?1:0),
+						NSOpenGLPFADoubleBuffer,
+						(NSOpenGLPixelFormatAttribute)nil
+					};
+
+					if (CreationParams.AntiAlias<2)
+					{
+						windowattribs[ 9] = (NSOpenGLPixelFormatAttribute)0;
+						windowattribs[11] = (NSOpenGLPixelFormatAttribute)0;
 					}
-					else
-						continue;
-				}
-				else if (2==i)
-				{
-					// Third try without Doublebuffer
-					os::Printer::log("No doublebuffering available.", ELL_WARNING);
-					windowattribs[14]=(NSOpenGLPixelFormatAttribute)nil;
-				}
 
-				format = [[NSOpenGLPixelFormat alloc] initWithAttributes:windowattribs];
-				if (format == NULL)
-				{
-					if (CreationParams.AntiAlias>1)
+					NSOpenGLPixelFormat *format;
+					for (int i=0; i<3; ++i)
 					{
-						while (!format && windowattribs[12]>1)
+						if (1==i)
 						{
-							windowattribs[12] = (NSOpenGLPixelFormatAttribute)((int)windowattribs[12]-1);
-							format = [[NSOpenGLPixelFormat alloc] initWithAttributes:windowattribs];
-						}
-
-						if (!format)
-						{
-							windowattribs[9] = (NSOpenGLPixelFormatAttribute)0;
-							windowattribs[11] = (NSOpenGLPixelFormatAttribute)0;
-							format = [[NSOpenGLPixelFormat alloc] initWithAttributes:windowattribs];
-							if (!format)
+							// Second try without stencilbuffer
+							if (CreationParams.Stencilbuffer)
 							{
-								// reset values for next try
-								windowattribs[9] = (NSOpenGLPixelFormatAttribute)1;
-								windowattribs[11] = (NSOpenGLPixelFormatAttribute)CreationParams.AntiAlias;
+								windowattribs[13]=(NSOpenGLPixelFormatAttribute)0;
 							}
 							else
-							{
-								os::Printer::log("No FSAA available.", ELL_WARNING);
-							}
-
+								continue;
 						}
+						else if (2==i)
+						{
+							// Third try without Doublebuffer
+							os::Printer::log("No doublebuffering available.", ELL_WARNING);
+							windowattribs[14]=(NSOpenGLPixelFormatAttribute)nil;
+						}
+
+						format = [[NSOpenGLPixelFormat alloc] initWithAttributes:windowattribs];
+						if (format == NULL)
+						{
+							if (CreationParams.AntiAlias>1)
+							{
+								while (!format && windowattribs[12]>1)
+								{
+									windowattribs[12] = (NSOpenGLPixelFormatAttribute)((int)windowattribs[12]-1);
+									format = [[NSOpenGLPixelFormat alloc] initWithAttributes:windowattribs];
+								}
+
+								if (!format)
+								{
+									windowattribs[9] = (NSOpenGLPixelFormatAttribute)0;
+									windowattribs[11] = (NSOpenGLPixelFormatAttribute)0;
+									format = [[NSOpenGLPixelFormat alloc] initWithAttributes:windowattribs];
+									if (!format)
+									{
+										// reset values for next try
+										windowattribs[9] = (NSOpenGLPixelFormatAttribute)1;
+										windowattribs[11] = (NSOpenGLPixelFormatAttribute)CreationParams.AntiAlias;
+									}
+									else
+									{
+										os::Printer::log("No FSAA available.", ELL_WARNING);
+									}
+								}
+							}
+						}
+						else
+							break;
+					}
+					CreationParams.AntiAlias = windowattribs[11];
+					CreationParams.Stencilbuffer=(windowattribs[13]==1);
+
+					if (format != NULL)
+					{
+						OGLContext = [[NSOpenGLContext alloc] initWithFormat:format shareContext:NULL];
+						[format release];
 					}
 				}
-				else
-					break;
-			}
-			CreationParams.AntiAlias = windowattribs[11];
-			CreationParams.Stencilbuffer=(windowattribs[13]==1);
 
-			if (format != NULL)
-			{
-				OGLContext = [[NSOpenGLContext alloc] initWithFormat:format shareContext:NULL];
-				[format release];
-			}
-
-			if (OGLContext != NULL)
-			{
-				if (!CreationParams.WindowId)
+				if (OGLContext != NULL || CreationParams.DriverType != video::EDT_OPENGL)
 				{
-					[Window center];
-					[Window setDelegate:[NSApp delegate]];
-					[OGLContext setView:[Window contentView]];
-					[Window setAcceptsMouseMovedEvents:TRUE];
-					[Window setIsVisible:TRUE];
-					[Window makeKeyAndOrderFront:nil];
-				}
-				else //use another window for drawing
-					[OGLContext setView:(NSView*)CreationParams.WindowId];
+					if (!CreationParams.WindowId)
+					{
+						[Window center];
+						[Window setDelegate:[NSApp delegate]];
 
-				CGLContext = (CGLContextObj) [OGLContext CGLContextObj];
-				DeviceWidth = CreationParams.WindowSize.Width;
-				DeviceHeight = CreationParams.WindowSize.Height;
-				result = true;
+						if(CreationParams.DriverType == video::EDT_OPENGL)
+							[OGLContext setView:[Window contentView]];
+
+						[Window setAcceptsMouseMovedEvents:TRUE];
+						[Window setIsVisible:TRUE];
+						[Window makeKeyAndOrderFront:nil];
+					}
+					else if(CreationParams.DriverType == video::EDT_OPENGL) //use another window for drawing
+						[OGLContext setView:(NSView*)CreationParams.WindowId];
+
+					if (CreationParams.DriverType == video::EDT_OPENGL)
+						CGLContext = (CGLContextObj) [OGLContext CGLContextObj];
+
+					DeviceWidth = CreationParams.WindowSize.Width;
+					DeviceHeight = CreationParams.WindowSize.Height;
+					result = true;
+				}
+			}
+		}
+		else
+		{
+			IsFullscreen = true;
+
+#ifdef __MAC_10_6
+			displaymode = CGDisplayCopyDisplayMode(display);
+
+			CFArrayRef Modes = CGDisplayCopyAllDisplayModes(display, NULL);
+
+			for(int i = 0; i < CFArrayGetCount(Modes); ++i)
+			{
+				CGDisplayModeRef CurrentMode = (CGDisplayModeRef)CFArrayGetValueAtIndex(Modes, i);
+
+				u8 Depth = 0;
+
+				CFStringRef pixEnc = CGDisplayModeCopyPixelEncoding(CurrentMode);
+
+				if(CFStringCompare(pixEnc, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+					Depth = 32;
+				else
+					if(CFStringCompare(pixEnc, CFSTR(IO16BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+						Depth = 16;
+					else
+						if(CFStringCompare(pixEnc, CFSTR(IO8BitIndexedPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+							Depth = 8;
+
+				if(Depth == CreationParams.Bits)
+					if((CGDisplayModeGetWidth(CurrentMode) == CreationParams.WindowSize.Width) && (CGDisplayModeGetHeight(CurrentMode) == CreationParams.WindowSize.Height))
+					{
+						displaymode = CurrentMode;
+						break;
+					}
+			}
+#else
+			displaymode = CGDisplayBestModeForParameters(display,CreationParams.Bits,CreationParams.WindowSize.Width,CreationParams.WindowSize.Height,NULL);
+#endif
+
+			if (displaymode != NULL)
+			{
+#ifdef __MAC_10_6
+				olddisplaymode = CGDisplayCopyDisplayMode(display);
+#else
+				olddisplaymode = CGDisplayCurrentMode(display);
+#endif
+
+				error = CGCaptureAllDisplays();
+				if (error == CGDisplayNoErr)
+				{
+#ifdef __MAC_10_6
+					error = CGDisplaySetDisplayMode(display, displaymode, NULL);
+#else
+					error = CGDisplaySwitchToMode(display, displaymode);
+#endif
+
+					if (error == CGDisplayNoErr)
+					{
+						if (CreationParams.DriverType == video::EDT_OPENGL)
+						{
+							CGLPixelFormatAttribute	fullattribs[] =
+							{
+								kCGLPFAFullScreen,
+								kCGLPFADisplayMask, (CGLPixelFormatAttribute)CGDisplayIDToOpenGLDisplayMask(display),
+								kCGLPFADoubleBuffer,
+								kCGLPFANoRecovery,
+								kCGLPFAAccelerated,
+								kCGLPFADepthSize, (CGLPixelFormatAttribute)depthSize,
+								kCGLPFAColorSize, (CGLPixelFormatAttribute)CreationParams.Bits,
+								kCGLPFAAlphaSize, (CGLPixelFormatAttribute)alphaSize,
+								kCGLPFASampleBuffers, (CGLPixelFormatAttribute)(CreationParams.AntiAlias?1:0),
+								kCGLPFASamples, (CGLPixelFormatAttribute)CreationParams.AntiAlias,
+								kCGLPFAStencilSize, (CGLPixelFormatAttribute)(CreationParams.Stencilbuffer?1:0),
+								(CGLPixelFormatAttribute)NULL
+							};
+
+							pixelFormat = NULL;
+							numPixelFormats = 0;
+							CGLChoosePixelFormat(fullattribs,&pixelFormat,&numPixelFormats);
+
+							if (pixelFormat != NULL)
+							{
+								CGLCreateContext(pixelFormat,NULL,&CGLContext);
+								CGLDestroyPixelFormat(pixelFormat);
+							}
+
+							if (CGLContext != NULL)
+							{
+#ifdef __MAC_10_6
+								CGLSetFullScreenOnDisplay(CGLContext, CGDisplayIDToOpenGLDisplayMask(display));
+#else
+								CGLSetFullScreen(CGLContext);
+#endif
+								displayRect = CGDisplayBounds(display);
+								ScreenWidth = DeviceWidth = (int)displayRect.size.width;
+								ScreenHeight = DeviceHeight = (int)displayRect.size.height;
+								CreationParams.WindowSize.set(ScreenWidth, ScreenHeight);
+								result = true;
+							}
+						}
+						else
+						{
+							Window = [[NSWindow alloc] initWithContentRect:[[NSScreen mainScreen] frame] styleMask:NSBorderlessWindowMask backing:NSBackingStoreNonretained defer:NO screen:[NSScreen mainScreen]];
+
+							[Window setLevel: CGShieldingWindowLevel()];
+							[Window setAcceptsMouseMovedEvents:TRUE];
+							[Window setIsVisible:TRUE];
+							[Window makeKeyAndOrderFront:nil];
+
+							displayRect = CGDisplayBounds(display);
+							ScreenWidth = DeviceWidth = (int)displayRect.size.width;
+							ScreenHeight = DeviceHeight = (int)displayRect.size.height;
+							CreationParams.WindowSize.set(ScreenWidth, ScreenHeight);
+							result = true;
+						}
+					}
+					if (!result)
+						CGReleaseAllDisplays();
+				}
 			}
 		}
 	}
-	else
+	@catch (NSException *exception)
 	{
-		displaymode = CGDisplayBestModeForParameters(display,CreationParams.Bits,CreationParams.WindowSize.Width,CreationParams.WindowSize.Height,NULL);
-		if (displaymode != NULL)
-		{
-			olddisplaymode = CGDisplayCurrentMode(display);
-			error = CGCaptureAllDisplays();
-			if (error == CGDisplayNoErr)
-			{
-				error = CGDisplaySwitchToMode(display,displaymode);
-				if (error == CGDisplayNoErr)
-				{
-					CGLPixelFormatAttribute	fullattribs[] =
-					{
-						kCGLPFAFullScreen,
-						kCGLPFADisplayMask, (CGLPixelFormatAttribute)CGDisplayIDToOpenGLDisplayMask(display),
-						kCGLPFADoubleBuffer,
-						kCGLPFANoRecovery,
-						kCGLPFAAccelerated,
-						kCGLPFADepthSize, (CGLPixelFormatAttribute)depthSize,
-						kCGLPFAColorSize, (CGLPixelFormatAttribute)CreationParams.Bits,
-						kCGLPFAAlphaSize, (CGLPixelFormatAttribute)alphaSize,
-						kCGLPFASampleBuffers, (CGLPixelFormatAttribute)(CreationParams.AntiAlias?1:0),
-						kCGLPFASamples, (CGLPixelFormatAttribute)CreationParams.AntiAlias,
-						kCGLPFAStencilSize, (CGLPixelFormatAttribute)(CreationParams.Stencilbuffer?1:0),
-						(CGLPixelFormatAttribute)NULL
-					};
-
-					pixelFormat = NULL;
-					numPixelFormats = 0;
-					CGLChoosePixelFormat(fullattribs,&pixelFormat,&numPixelFormats);
-
-					if (pixelFormat != NULL)
-					{
-						CGLCreateContext(pixelFormat,NULL,&CGLContext);
-						CGLDestroyPixelFormat(pixelFormat);
-					}
-
-					if (CGLContext != NULL)
-					{
-						CGLSetFullScreen(CGLContext);
-						displayRect = CGDisplayBounds(display);
-						ScreenWidth = DeviceWidth = (int)displayRect.size.width;
-						ScreenHeight = DeviceHeight = (int)displayRect.size.height;
-						CreationParams.WindowSize.set(ScreenWidth, ScreenHeight);
-						result = true;
-					}
-				}
-				if (!result)
-					CGReleaseAllDisplays();
-			}
-		}
+		closeDevice();
+		result = false;
 	}
 
 	if (result)
 	{
 		// fullscreen?
 		if (Window == NULL && !CreationParams.WindowId) //hide menus in fullscreen mode only
+#ifdef __MAC_10_6
+			[NSApp setPresentationOptions:(NSApplicationPresentationAutoHideDock | NSApplicationPresentationAutoHideMenuBar)];
+#else
 			SetSystemUIMode(kUIModeAllHidden, kUIOptionAutoShowMenuBar);
-		CGLSetCurrentContext(CGLContext);
-		newSwapInterval = (CreationParams.Vsync) ? 1 : 0;
-		CGLSetParameter(CGLContext,kCGLCPSwapInterval,&newSwapInterval);
-		if (IsSoftwareRenderer && CreationParams.DriverType != video::EDT_NULL)
+#endif
+
+		if(CreationParams.DriverType == video::EDT_OPENGL)
 		{
-			const GLint order = -1; // below window
-			CGLSetParameter(CGLContext, kCGLCPSurfaceOrder, &order);
+			CGLSetCurrentContext(CGLContext);
+			newSwapInterval = (CreationParams.Vsync) ? 1 : 0;
+			CGLSetParameter(CGLContext,kCGLCPSwapInterval,&newSwapInterval);
 		}
 	}
 
@@ -646,7 +893,8 @@ void CIrrDeviceMacOSX::setResize(int width, int height)
 	DeviceHeight = height;
 
 	// update the size of the opengl rendering context
-	[OGLContext update];
+	if(OGLContext);
+		[OGLContext update];
 
 	// resize the driver to the inner pane size
 	if (Window)
@@ -656,6 +904,7 @@ void CIrrDeviceMacOSX::setResize(int width, int height)
 	}
 	else
 		getVideoDriver()->OnResize(core::dimension2d<u32>( (s32)width, (s32)height));
+
 	if (CreationParams.WindowId && OGLContext)
 		[(NSOpenGLContext *)OGLContext update];
 }
@@ -668,7 +917,7 @@ void CIrrDeviceMacOSX::createDriver()
 		case video::EDT_SOFTWARE:
 		#ifdef _IRR_COMPILE_WITH_SOFTWARE_
 			VideoDriver = video::createSoftwareDriver(CreationParams.WindowSize, CreationParams.Fullscreen, FileSystem, this);
-			IsSoftwareRenderer = true;
+			SoftwareRendererType = 2;
 		#else
 			os::Printer::log("No Software driver support compiled in.", ELL_ERROR);
 		#endif
@@ -676,8 +925,8 @@ void CIrrDeviceMacOSX::createDriver()
 
 		case video::EDT_BURNINGSVIDEO:
 		#ifdef _IRR_COMPILE_WITH_BURNINGSVIDEO_
-			VideoDriver = video::createSoftwareDriver2(CreationParams.WindowSize, CreationParams.Fullscreen, FileSystem, this);
-			IsSoftwareRenderer = true;
+			VideoDriver = video::createBurningVideoDriver(CreationParams, FileSystem, this);
+			SoftwareRendererType = 1;
 		#else
 			os::Printer::log("Burning's video driver was not compiled in.", ELL_ERROR);
 		#endif
@@ -717,6 +966,8 @@ void CIrrDeviceMacOSX::flush()
 
 bool CIrrDeviceMacOSX::run()
 {
+	NSAutoreleasePool* Pool = [[NSAutoreleasePool alloc] init];
+
 	NSEvent *event;
 	irr::SEvent	ievent;
 
@@ -845,6 +1096,8 @@ bool CIrrDeviceMacOSX::run()
 
 	pollJoysticks();
 
+	[Pool release];
+
 	return (![[NSApp delegate] isQuit] && IsActive);
 }
 
@@ -885,7 +1138,11 @@ void CIrrDeviceMacOSX::setWindowCaption(const wchar_t* text)
 	{
 		size = wcstombs(title,text,1024);
 		title[1023] = 0;
+#ifdef __MAC_10_6
+		NSString* name = [NSString stringWithCString:title encoding:NSUTF8StringEncoding];
+#else
 		NSString* name = [NSString stringWithCString:title length:size];
+#endif
 		[Window setTitle:name];
 		[name release];
 	}
@@ -928,9 +1185,12 @@ void CIrrDeviceMacOSX::postKeyEvent(void *event,irr::SEvent &ievent,bool pressed
 		mkey = mchar = 0;
 		skipCommand = false;
 		c = [str characterAtIndex:0];
+		mchar = c;
 
-		iter = KeyCodes.find(c);
+		iter = KeyCodes.find([(NSEvent *)event keyCode]);
 		if (iter != KeyCodes.end())
+			mkey = (*iter).second;
+		else if ((iter = KeyCodes.find(c))  != KeyCodes.end())
 			mkey = (*iter).second;
 		else
 		{
@@ -973,7 +1233,6 @@ void CIrrDeviceMacOSX::postKeyEvent(void *event,irr::SEvent &ievent,bool pressed
 
 		postEventFromUser(ievent);
 	}
-	[str release];
 }
 
 
@@ -991,8 +1250,15 @@ void CIrrDeviceMacOSX::postMouseEvent(void *event,irr::SEvent &ievent)
 	}
 	else
 	{
-		ievent.MouseInput.X = (int)[NSEvent mouseLocation].x;
-		ievent.MouseInput.Y = DeviceHeight - (int)[NSEvent mouseLocation].y;
+		CGEventRef ourEvent = CGEventCreate(NULL);
+		CGPoint point = CGEventGetLocation(ourEvent);
+		CFRelease(ourEvent);
+
+		ievent.MouseInput.X = (int)point.x;
+		ievent.MouseInput.Y = (int)point.y;
+
+		if (ievent.MouseInput.Y < 0)
+			post = false;
 	}
 
 	if (post)
@@ -1004,22 +1270,36 @@ void CIrrDeviceMacOSX::postMouseEvent(void *event,irr::SEvent &ievent)
 
 void CIrrDeviceMacOSX::storeMouseLocation()
 {
-	NSPoint	p;
-	int	x,y;
-
-	p = [NSEvent mouseLocation];
+	int x,y;
 
 	if (Window != NULL)
 	{
+		NSPoint	p;
+		p = [NSEvent mouseLocation];
 		p = [Window convertScreenToBase:p];
 		x = (int)p.x;
 		y = DeviceHeight - (int)p.y;
 	}
 	else
 	{
-		x = (int)p.x;
-		y = (int)p.y;
-		y -= (ScreenHeight - DeviceHeight);
+		CGEventRef ourEvent = CGEventCreate(NULL);
+		CGPoint point = CGEventGetLocation(ourEvent);
+		CFRelease(ourEvent);
+
+		x = (int)point.x;
+		y = (int)point.y;
+
+		const core::position2di& curr = ((CCursorControl *)CursorControl)->getPosition();
+		if (curr.X != x || curr.Y != y)
+		{
+			// In fullscreen mode, events are not sent regularly so rely on polling
+			irr::SEvent ievent;
+			ievent.EventType = irr::EET_MOUSE_INPUT_EVENT;
+			ievent.MouseInput.Event = irr::EMIE_MOUSE_MOVED;
+			ievent.MouseInput.X = x;
+			ievent.MouseInput.Y = y;
+			postEventFromUser(ievent);
+		}
 	}
 
 	((CCursorControl *)CursorControl)->updateInternalCursorPosition(x,y);
@@ -1047,7 +1327,15 @@ void CIrrDeviceMacOSX::setMouseLocation(int x,int y)
 
 	c.x = p.x;
 	c.y = p.y;
+
+#ifdef __MAC_10_6
+	/*CGEventSourceRef SourceRef = CGEventSourceCreate(0);
+	CGEventSourceSetLocalEventsSuppressionInterval(SourceRef, 0);
+	CFRelease(SourceRef);*/
 	CGSetLocalEventsSuppressionInterval(0);
+#else
+	CGSetLocalEventsSuppressionInterval(0);
+#endif
 	CGWarpMouseCursorPosition(c);
 }
 
@@ -1063,42 +1351,115 @@ void CIrrDeviceMacOSX::setCursorVisible(bool visible)
 
 void CIrrDeviceMacOSX::initKeycodes()
 {
-	KeyCodes[NSUpArrowFunctionKey]     = irr::KEY_UP;
-	KeyCodes[NSDownArrowFunctionKey]   = irr::KEY_DOWN;
-	KeyCodes[NSLeftArrowFunctionKey]   = irr::KEY_LEFT;
-	KeyCodes[NSRightArrowFunctionKey]  = irr::KEY_RIGHT;
-	KeyCodes[NSF1FunctionKey]          = irr::KEY_F1;
-	KeyCodes[NSF2FunctionKey]          = irr::KEY_F2;
-	KeyCodes[NSF3FunctionKey]          = irr::KEY_F3;
-	KeyCodes[NSF4FunctionKey]          = irr::KEY_F4;
-	KeyCodes[NSF5FunctionKey]          = irr::KEY_F5;
-	KeyCodes[NSF6FunctionKey]          = irr::KEY_F6;
-	KeyCodes[NSF7FunctionKey]          = irr::KEY_F7;
-	KeyCodes[NSF8FunctionKey]          = irr::KEY_F8;
-	KeyCodes[NSF9FunctionKey]          = irr::KEY_F9;
-	KeyCodes[NSF10FunctionKey]         = irr::KEY_F10;
-	KeyCodes[NSF11FunctionKey]         = irr::KEY_F11;
-	KeyCodes[NSF12FunctionKey]         = irr::KEY_F12;
-	KeyCodes[NSF13FunctionKey]         = irr::KEY_F13;
-	KeyCodes[NSF14FunctionKey]         = irr::KEY_F14;
-	KeyCodes[NSF15FunctionKey]         = irr::KEY_F15;
-	KeyCodes[NSF16FunctionKey]         = irr::KEY_F16;
-	KeyCodes[NSHomeFunctionKey]        = irr::KEY_HOME;
-	KeyCodes[NSEndFunctionKey]         = irr::KEY_END;
-	KeyCodes[NSInsertFunctionKey]      = irr::KEY_INSERT;
-	KeyCodes[NSDeleteFunctionKey]      = irr::KEY_DELETE;
-	KeyCodes[NSHelpFunctionKey]        = irr::KEY_HELP;
-	KeyCodes[NSSelectFunctionKey]      = irr::KEY_SELECT;
-	KeyCodes[NSPrintFunctionKey]       = irr::KEY_PRINT;
-	KeyCodes[NSExecuteFunctionKey]     = irr::KEY_EXECUT;
+	KeyCodes[kVK_UpArrow] = irr::KEY_UP;
+	KeyCodes[kVK_DownArrow] = irr::KEY_DOWN;
+	KeyCodes[kVK_LeftArrow] = irr::KEY_LEFT;
+	KeyCodes[kVK_RightArrow] = irr::KEY_RIGHT;
+	KeyCodes[kVK_F1]	= irr::KEY_F1;
+	KeyCodes[kVK_F2]	= irr::KEY_F2;
+	KeyCodes[kVK_F3]	= irr::KEY_F3;
+	KeyCodes[kVK_F4]	= irr::KEY_F4;
+	KeyCodes[kVK_F5]	= irr::KEY_F5;
+	KeyCodes[kVK_F6]	= irr::KEY_F6;
+	KeyCodes[kVK_F7]	= irr::KEY_F7;
+	KeyCodes[kVK_F8]	= irr::KEY_F8;
+	KeyCodes[kVK_F9]	= irr::KEY_F9;
+	KeyCodes[kVK_F10]	= irr::KEY_F10;
+	KeyCodes[kVK_F11]	= irr::KEY_F11;
+	KeyCodes[kVK_F12]	= irr::KEY_F12;
+	KeyCodes[kVK_F13]	= irr::KEY_F13;
+	KeyCodes[kVK_F14]	= irr::KEY_F14;
+	KeyCodes[kVK_F15]	= irr::KEY_F15;
+	KeyCodes[kVK_F16]	= irr::KEY_F16;
+	KeyCodes[kVK_F17]	= irr::KEY_F17;
+	KeyCodes[kVK_F18]	= irr::KEY_F18;
+	KeyCodes[kVK_F19]	= irr::KEY_F19;
+	KeyCodes[kVK_F20]	= irr::KEY_F20;
+	KeyCodes[kVK_Home]	= irr::KEY_HOME;
+	KeyCodes[kVK_End]	= irr::KEY_END;
+	KeyCodes[NSInsertFunctionKey] = irr::KEY_INSERT;
+	KeyCodes[kVK_ForwardDelete] = irr::KEY_DELETE;
+	KeyCodes[kVK_Help] = irr::KEY_HELP;
+	KeyCodes[NSSelectFunctionKey] = irr::KEY_SELECT;
+	KeyCodes[NSPrintFunctionKey] = irr::KEY_PRINT;
+	KeyCodes[NSExecuteFunctionKey] = irr::KEY_EXECUT;
 	KeyCodes[NSPrintScreenFunctionKey] = irr::KEY_SNAPSHOT;
-	KeyCodes[NSPauseFunctionKey]       = irr::KEY_PAUSE;
-	KeyCodes[NSScrollLockFunctionKey]  = irr::KEY_SCROLL;
-	KeyCodes[0x7F]                     = irr::KEY_BACK;
-	KeyCodes[0x09]                     = irr::KEY_TAB;
-	KeyCodes[0x0D]                     = irr::KEY_RETURN;
-	KeyCodes[0x03]                     = irr::KEY_RETURN;
-	KeyCodes[0x1B]                     = irr::KEY_ESCAPE;
+	KeyCodes[NSPauseFunctionKey] = irr::KEY_PAUSE;
+	KeyCodes[NSScrollLockFunctionKey] = irr::KEY_SCROLL;
+	KeyCodes[kVK_Delete] = irr::KEY_BACK;
+	KeyCodes[kVK_Tab] = irr::KEY_TAB;
+	KeyCodes[kVK_Return] = irr::KEY_RETURN;
+	KeyCodes[kVK_Escape] = irr::KEY_ESCAPE;
+	KeyCodes[kVK_Control] = irr::KEY_CONTROL;
+	KeyCodes[kVK_RightControl] = irr::KEY_RCONTROL;
+	KeyCodes[kVK_Command] = irr::KEY_MENU;
+	KeyCodes[kVK_Shift] = irr::KEY_SHIFT;
+	KeyCodes[kVK_RightShift] = irr::KEY_RSHIFT;
+	KeyCodes[kVK_Space] = irr::KEY_SPACE;
+
+	KeyCodes[kVK_ANSI_A] = irr::KEY_KEY_A;
+	KeyCodes[kVK_ANSI_B] = irr::KEY_KEY_B;
+	KeyCodes[kVK_ANSI_C] = irr::KEY_KEY_C;
+	KeyCodes[kVK_ANSI_D] = irr::KEY_KEY_D;
+	KeyCodes[kVK_ANSI_E] = irr::KEY_KEY_E;
+	KeyCodes[kVK_ANSI_F] = irr::KEY_KEY_F;
+	KeyCodes[kVK_ANSI_G] = irr::KEY_KEY_G;
+	KeyCodes[kVK_ANSI_H] = irr::KEY_KEY_H;
+	KeyCodes[kVK_ANSI_I] = irr::KEY_KEY_I;
+	KeyCodes[kVK_ANSI_J] = irr::KEY_KEY_J;
+	KeyCodes[kVK_ANSI_K] = irr::KEY_KEY_K;
+	KeyCodes[kVK_ANSI_L] = irr::KEY_KEY_L;
+	KeyCodes[kVK_ANSI_M] = irr::KEY_KEY_M;
+	KeyCodes[kVK_ANSI_N] = irr::KEY_KEY_N;
+	KeyCodes[kVK_ANSI_O] = irr::KEY_KEY_O;
+	KeyCodes[kVK_ANSI_P] = irr::KEY_KEY_P;
+	KeyCodes[kVK_ANSI_Q] = irr::KEY_KEY_Q;
+	KeyCodes[kVK_ANSI_R] = irr::KEY_KEY_R;
+	KeyCodes[kVK_ANSI_S] = irr::KEY_KEY_S;
+	KeyCodes[kVK_ANSI_T] = irr::KEY_KEY_T;
+	KeyCodes[kVK_ANSI_U] = irr::KEY_KEY_U;
+	KeyCodes[kVK_ANSI_V] = irr::KEY_KEY_V;
+	KeyCodes[kVK_ANSI_W] = irr::KEY_KEY_W;
+	KeyCodes[kVK_ANSI_X] = irr::KEY_KEY_X;
+	KeyCodes[kVK_ANSI_X] = irr::KEY_KEY_X;
+	KeyCodes[kVK_ANSI_Y] = irr::KEY_KEY_Y;
+	KeyCodes[kVK_ANSI_Z] = irr::KEY_KEY_Z;
+
+	KeyCodes[kVK_ANSI_0] = irr::KEY_KEY_0;
+	KeyCodes[kVK_ANSI_1] = irr::KEY_KEY_1;
+	KeyCodes[kVK_ANSI_2] = irr::KEY_KEY_2;
+	KeyCodes[kVK_ANSI_3] = irr::KEY_KEY_3;
+	KeyCodes[kVK_ANSI_4] = irr::KEY_KEY_4;
+	KeyCodes[kVK_ANSI_5] = irr::KEY_KEY_5;
+	KeyCodes[kVK_ANSI_6] = irr::KEY_KEY_6;
+	KeyCodes[kVK_ANSI_7] = irr::KEY_KEY_7;
+	KeyCodes[kVK_ANSI_8] = irr::KEY_KEY_8;
+	KeyCodes[kVK_ANSI_9] = irr::KEY_KEY_9;
+
+	KeyCodes[kVK_ANSI_Slash] = irr::KEY_DIVIDE;
+	KeyCodes[kVK_ANSI_Comma] = irr::KEY_COMMA;
+	KeyCodes[kVK_ANSI_Period] = irr::KEY_PERIOD;
+	KeyCodes[kVK_PageUp] = irr::KEY_PRIOR;
+	KeyCodes[kVK_PageDown] = irr::KEY_NEXT;
+
+	KeyCodes[kVK_ANSI_Keypad0] = irr::KEY_NUMPAD0;
+	KeyCodes[kVK_ANSI_Keypad1] = irr::KEY_NUMPAD1;
+	KeyCodes[kVK_ANSI_Keypad2] = irr::KEY_NUMPAD2;
+	KeyCodes[kVK_ANSI_Keypad3] = irr::KEY_NUMPAD3;
+	KeyCodes[kVK_ANSI_Keypad4] = irr::KEY_NUMPAD4;
+	KeyCodes[kVK_ANSI_Keypad5] = irr::KEY_NUMPAD5;
+	KeyCodes[kVK_ANSI_Keypad6] = irr::KEY_NUMPAD6;
+	KeyCodes[kVK_ANSI_Keypad7] = irr::KEY_NUMPAD7;
+	KeyCodes[kVK_ANSI_Keypad8] = irr::KEY_NUMPAD8;
+	KeyCodes[kVK_ANSI_Keypad9] = irr::KEY_NUMPAD9;
+
+	KeyCodes[kVK_ANSI_KeypadDecimal] = irr::KEY_DECIMAL;
+	KeyCodes[kVK_ANSI_KeypadMultiply] = irr::KEY_MULTIPLY;
+	KeyCodes[kVK_ANSI_KeypadPlus] = irr::KEY_PLUS;
+	KeyCodes[kVK_ANSI_KeypadClear] = irr::KEY_OEM_CLEAR;
+	KeyCodes[kVK_ANSI_KeypadDivide] = irr::KEY_DIVIDE;
+	KeyCodes[kVK_ANSI_KeypadEnter] = irr::KEY_RETURN;
+	KeyCodes[kVK_ANSI_KeypadMinus] = irr::KEY_SUBTRACT;
 }
 
 
@@ -1120,14 +1481,14 @@ bool CIrrDeviceMacOSX::isResizable() const
 	return IsResizable;
 }
 
-	
+
 void CIrrDeviceMacOSX::minimizeWindow()
 {
 	if (Window != NULL)
 		[Window miniaturize:[NSApp self]];
 }
 
-	
+
 //! Maximizes the window if possible.
 void CIrrDeviceMacOSX::maximizeWindow()
 {
@@ -1149,7 +1510,7 @@ bool CIrrDeviceMacOSX::present(video::IImage* surface, void* windowId, core::rec
 	if (!surface)
 		return false;
 
-	if (IsSoftwareRenderer)
+	if (SoftwareRendererType > 0)
 	{
 		const u32 colorSamples=3;
 		// do we need to change the size?
@@ -1191,14 +1552,25 @@ bool CIrrDeviceMacOSX::present(video::IImage* surface, void* windowId, core::rec
 		const u32 minWidth = core::min_(surface->getDimension().Width, (u32)areaRect.size.width);
 		for (u32 y=0; y!=srcheight; ++y)
 		{
-#if 0
-			if (surface->getColorFormat() == video::ECF_A8R8G8B8)
-				video::CColorConverter::convert_A8R8G8B8toB8G8R8(srcdata, minWidth, destData);
+			if(SoftwareRendererType == 2)
+			{
+				if (surface->getColorFormat() == video::ECF_A8R8G8B8)
+					video::CColorConverter::convert_A8R8G8B8toB8G8R8(srcdata, minWidth, destData);
+				else if (surface->getColorFormat() == video::ECF_A1R5G5B5)
+					video::CColorConverter::convert_A1R5G5B5toB8G8R8(srcdata, minWidth, destData);
+				else
+					video::CColorConverter::convert_viaFormat(srcdata, surface->getColorFormat(), minWidth, destData, video::ECF_R8G8B8);
+			}
 			else
-				video::CColorConverter::convert_A1R5G5B5toB8G8R8(srcdata, minWidth, destData);
-#else
-			video::CColorConverter::convert_viaFormat(srcdata, surface->getColorFormat(), minWidth, destData, video::ECF_R8G8B8);
-#endif
+			{
+				if (surface->getColorFormat() == video::ECF_A8R8G8B8)
+					video::CColorConverter::convert_A8R8G8B8toR8G8B8(srcdata, minWidth, destData);
+				else if (surface->getColorFormat() == video::ECF_A1R5G5B5)
+					video::CColorConverter::convert_A1R5G5B5toR8G8B8(srcdata, minWidth, destData);
+				else
+					video::CColorConverter::convert_viaFormat(srcdata, surface->getColorFormat(), minWidth, destData, video::ECF_R8G8B8);
+			}
+
 			srcdata += srcPitch;
 			destData += destPitch;
 		}
@@ -1461,6 +1833,35 @@ video::IVideoModeList* CIrrDeviceMacOSX::getVideoModeList()
 		CGDirectDisplayID display;
 		display = CGMainDisplayID();
 
+#ifdef __MAC_10_6
+		CFArrayRef Modes = CGDisplayCopyAllDisplayModes(display, NULL);
+
+		for(int i = 0; i < CFArrayGetCount(Modes); ++i)
+		{
+			CGDisplayModeRef CurrentMode = (CGDisplayModeRef)CFArrayGetValueAtIndex(Modes, i);
+
+			u8 Depth = 0;
+
+			CFStringRef pixEnc = CGDisplayModeCopyPixelEncoding(CurrentMode);
+
+			if(CFStringCompare(pixEnc, CFSTR(IO32BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+				Depth = 32;
+			else
+			if(CFStringCompare(pixEnc, CFSTR(IO16BitDirectPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+				Depth = 16;
+			else
+			if(CFStringCompare(pixEnc, CFSTR(IO8BitIndexedPixels), kCFCompareCaseInsensitive) == kCFCompareEqualTo)
+				Depth = 8;
+
+			if(Depth)
+			{
+				unsigned int Width = CGDisplayModeGetWidth(CurrentMode);
+				unsigned int Height = CGDisplayModeGetHeight(CurrentMode);
+
+				VideoModeList.addMode(core::dimension2d<u32>(Width, Height), Depth);
+			}
+		}
+#else
 		CFArrayRef availableModes = CGDisplayAvailableModes(display);
 		unsigned int numberOfAvailableModes = CFArrayGetCount(availableModes);
 		for (u32 i= 0; i<numberOfAvailableModes; ++i)
@@ -1480,6 +1881,7 @@ video::IVideoModeList* CIrrDeviceMacOSX::getVideoModeList()
 			VideoModeList.addMode(core::dimension2d<u32>(width, height),
 				bitsPerPixel);
 		}
+#endif
 	}
 	return &VideoModeList;
 }
@@ -1487,3 +1889,4 @@ video::IVideoModeList* CIrrDeviceMacOSX::getVideoModeList()
 } // end namespace
 
 #endif // _IRR_COMPILE_WITH_OSX_DEVICE_
+

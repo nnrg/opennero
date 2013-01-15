@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -166,15 +166,29 @@ IImage* CImageLoaderTGA::loadImage(io::IReadFile* file) const
 	switch(header.PixelDepth)
 	{
 	case 8:
-		image = new CImage(ECF_A1R5G5B5,
-			core::dimension2d<u32>(header.ImageWidth, header.ImageHeight));
-		if (image)
-			CColorConverter::convert8BitTo16Bit((u8*)data,
-				(s16*)image->lock(),
-				header.ImageWidth,header.ImageHeight,
-				header.ImageType == 3 ? 0 : (s32*) palette,
-				0,
-				(header.ImageDescriptor&0x20)==0);
+		{
+			if (header.ImageType==3) // grey image
+			{
+				image = new CImage(ECF_R8G8B8,
+					core::dimension2d<u32>(header.ImageWidth, header.ImageHeight));
+				if (image)
+					CColorConverter::convert8BitTo24Bit((u8*)data,
+						(u8*)image->lock(),
+						header.ImageWidth,header.ImageHeight,
+						0, 0, (header.ImageDescriptor&0x20)==0);
+			}
+			else
+			{
+				image = new CImage(ECF_A1R5G5B5,
+					core::dimension2d<u32>(header.ImageWidth, header.ImageHeight));
+				if (image)
+					CColorConverter::convert8BitTo16Bit((u8*)data,
+						(s16*)image->lock(),
+						header.ImageWidth,header.ImageHeight,
+						(s32*) palette, 0,
+						(header.ImageDescriptor&0x20)==0);
+			}
+		}
 		break;
 	case 16:
 		image = new CImage(ECF_A1R5G5B5,

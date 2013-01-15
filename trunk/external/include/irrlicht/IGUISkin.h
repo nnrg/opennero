@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -31,8 +31,10 @@ namespace gui
 	{
 		//! Default windows look and feel
 		EGST_WINDOWS_CLASSIC=0,
+
 		//! Like EGST_WINDOWS_CLASSIC, but with metallic shaded windows and buttons
 		EGST_WINDOWS_METALLIC,
+
 		//! Burning's skin
 		EGST_BURNING_SKIN,
 
@@ -99,6 +101,15 @@ namespace gui
 		EGDC_ICON,
 		//! Selected icons in a list or tree
 		EGDC_ICON_HIGH_LIGHT,
+		//! Grayed (disabled) window symbols like on close buttons, scroll bars and check boxes
+		EGDC_GRAY_WINDOW_SYMBOL,
+		//! Window background for editable field (editbox, checkbox-field)
+		EGDC_EDITABLE,
+		//! Grayed (disabled) window background for editable field (editbox, checkbox-field)
+		EGDC_GRAY_EDITABLE,
+		//! Show focus of window background for editable field (editbox or when checkbox-field is pressed)
+		EGDC_FOCUSED_EDITABLE,
+
 		//! this value is not used, it only specifies the amount of default colors
 		//! available.
 		EGDC_COUNT
@@ -128,6 +139,10 @@ namespace gui
 		"WindowSymbol",
 		"Icon",
 		"IconHighlight",
+		"GrayWindowSymbol",
+		"Editable",
+		"GrayEditable",
+		"FocusedEditable",
 		0,
 	};
 
@@ -142,9 +157,9 @@ namespace gui
 		EGDS_WINDOW_BUTTON_WIDTH,
 		//! width of a checkbox check
 		EGDS_CHECK_BOX_WIDTH,
-		//! deprecated
+		//! \deprecated This may be removed by Irrlicht 1.9
 		EGDS_MESSAGE_BOX_WIDTH,
-		//! deprecated
+		//! \deprecated This may be removed by Irrlicht 1.9
 		EGDS_MESSAGE_BOX_HEIGHT,
 		//! width of a default button
 		EGDS_BUTTON_WIDTH,
@@ -164,12 +179,18 @@ namespace gui
 		EGDS_MESSAGE_BOX_MIN_TEXT_WIDTH,
 		//! maximal space to reserve for messagebox text-width
 		EGDS_MESSAGE_BOX_MAX_TEXT_WIDTH,
-		//! deprecated - this was a typo. Should be removed for 1.8
-		EGDS_MESSAGE_BOX_MAX_TEST_WIDTH = EGDS_MESSAGE_BOX_MAX_TEXT_WIDTH,
 		//! minimal space to reserve for messagebox text-height
 		EGDS_MESSAGE_BOX_MIN_TEXT_HEIGHT,
 		//! maximal space to reserve for messagebox text-height
 		EGDS_MESSAGE_BOX_MAX_TEXT_HEIGHT,
+		//! pixels to move the button image to the right when a pushbutton is pressed
+		EGDS_BUTTON_PRESSED_IMAGE_OFFSET_X,
+		//! pixels to move the button image down when a pushbutton is pressed
+		EGDS_BUTTON_PRESSED_IMAGE_OFFSET_Y,
+		//! pixels to move the button text to the right when a pushbutton is pressed
+		EGDS_BUTTON_PRESSED_TEXT_OFFSET_X,
+		//! pixels to move the button text down when a pushbutton is pressed
+		EGDS_BUTTON_PRESSED_TEXT_OFFSET_Y,
 
 		//! this value is not used, it only specifies the amount of default sizes
 		//! available.
@@ -197,6 +218,10 @@ namespace gui
 		"MessageBoxMaxTextWidth",
 		"MessageBoxMinTextHeight",
 		"MessageBoxMaxTextHeight",
+		"ButtonPressedImageOffsetX",
+		"ButtonPressedImageOffsetY"
+		"ButtonPressedTextOffsetX",
+		"ButtonPressedTextOffsetY",
 		0
 	};
 
@@ -281,6 +306,7 @@ namespace gui
 		EGDI_MORE_DOWN,
 		//! plus icon for trees
 		EGDI_EXPAND,
+
 		//! minus icon for trees
 		EGDI_COLLAPSE,
 		//! file icon for file selection

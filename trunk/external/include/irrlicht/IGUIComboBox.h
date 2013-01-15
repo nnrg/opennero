@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -13,6 +13,9 @@ namespace gui
 {
 
 	//! Combobox widget
+	/** \par This element can create the following events of type EGUI_EVENT_TYPE:
+	\li EGET_COMBO_BOX_CHANGED
+	*/
 	class IGUIComboBox : public IGUIElement
 	{
 	public:
@@ -55,6 +58,12 @@ namespace gui
 		\param vertical: EGUIA_UPPERLEFT to align with top edge,
 		EGUIA_LOWEERRIGHT for bottom edge, or EGUIA_CENTER for centered text (default). */
 		virtual void setTextAlignment(EGUI_ALIGNMENT horizontal, EGUI_ALIGNMENT vertical) = 0;
+
+		//! Set the maximal number of rows for the selection listbox
+		virtual void setMaxSelectionRows(u32 max) = 0;
+
+		//! Get the maximimal number of rows for the selection listbox
+		virtual u32 getMaxSelectionRows() const = 0;
 	};
 
 

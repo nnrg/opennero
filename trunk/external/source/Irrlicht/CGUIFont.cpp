@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -11,7 +11,6 @@
 #include "IReadFile.h"
 #include "IVideoDriver.h"
 #include "IGUISpriteBank.h"
-#include "CImage.h"
 
 namespace irr
 {
@@ -32,7 +31,9 @@ CGUIFont::CGUIFont(IGUIEnvironment *env, const io::path& filename)
 		// don't grab environment, to avoid circular references
 		Driver = Environment->getVideoDriver();
 
-		SpriteBank = Environment->addEmptySpriteBank(filename);
+		SpriteBank = Environment->getSpriteBank(filename);
+		if (!SpriteBank)	// could be default-font which has no file
+			SpriteBank = Environment->addEmptySpriteBank(filename);
 		if (SpriteBank)
 			SpriteBank->grab();
 	}
@@ -51,7 +52,13 @@ CGUIFont::~CGUIFont()
 		Driver->drop();
 
 	if (SpriteBank)
+	{
 		SpriteBank->drop();
+		// TODO: spritebank still exists in gui-environment and should be removed here when it's
+		// reference-count is 1. Just can't do that from here at the moment.
+		// But spritebank would not be able to drop textures anyway because those are in texture-cache
+		// where they can't be removed unless materials start reference-couting 'em.
+	}
 }
 
 
@@ -60,6 +67,8 @@ bool CGUIFont::load(io::IXMLReader* xml)
 {
 	if (!SpriteBank)
 		return false;
+
+	SpriteBank->clear();
 
 	while (xml->read())
 	{
@@ -191,6 +200,9 @@ bool CGUIFont::load(io::IXMLReader* xml)
 
 void CGUIFont::setMaxHeight()
 {
+	if ( !SpriteBank )
+		return;
+
 	MaxHeight = 0;
 	s32 t;
 
@@ -231,7 +243,7 @@ bool CGUIFont::load(const io::path& filename)
 //! load & prepare font from ITexture
 bool CGUIFont::loadTexture(video::IImage* image, const io::path& name)
 {
-	if (!image)
+	if (!image || !SpriteBank)
 		return false;
 
 	s32 lowerRightPositions = 0;
@@ -241,7 +253,7 @@ bool CGUIFont::loadTexture(video::IImage* image, const io::path& name)
 	switch(image->getColorFormat())
 	{
 	case video::ECF_R5G6B5:
-		tmpImage =  new video::CImage(video::ECF_A1R5G5B5,image->getDimension());
+		tmpImage =  Driver->createImage(video::ECF_A1R5G5B5,image->getDimension());
 		image->copyTo(tmpImage);
 		deleteTmpImage=true;
 		break;
@@ -249,10 +261,13 @@ bool CGUIFont::loadTexture(video::IImage* image, const io::path& name)
 	case video::ECF_A8R8G8B8:
 		break;
 	case video::ECF_R8G8B8:
-		tmpImage = new video::CImage(video::ECF_A8R8G8B8,image->getDimension());
+		tmpImage = Driver->createImage(video::ECF_A8R8G8B8,image->getDimension());
 		image->copyTo(tmpImage);
 		deleteTmpImage=true;
 		break;
+	default:
+		os::Printer::log("Unknown texture format provided for CGUIFont::loadTexture", ELL_ERROR);
+		return false;
 	}
 	readPositions(tmpImage, lowerRightPositions);
 
@@ -293,6 +308,9 @@ bool CGUIFont::loadTexture(video::IImage* image, const io::path& name)
 
 void CGUIFont::readPositions(video::IImage* image, s32& lowerRightPositions)
 {
+	if (!SpriteBank )
+		return;
+
 	const core::dimension2d<u32> size = image->getDimension();
 
 	video::SColor colorTopLeft = image->getPixel(0,0);
@@ -467,10 +485,10 @@ void CGUIFont::draw(const core::stringw& text, const core::rect<s32>& position,
 					bool hcenter, bool vcenter, const core::rect<s32>* clip
 				)
 {
-	if (!Driver)
+	if (!Driver || !SpriteBank)
 		return;
 
-	core::dimension2d<s32> textDimension;	// NOTE: don't make this u32 or the >> later on can fail when the dimension widht is < position width
+	core::dimension2d<s32> textDimension;	// NOTE: don't make this u32 or the >> later on can fail when the dimension width is < position width
 	core::position2d<s32> offset = position.UpperLeftCorner;
 
 	if (hcenter || vcenter || clip)

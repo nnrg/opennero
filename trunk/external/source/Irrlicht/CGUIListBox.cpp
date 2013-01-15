@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -125,6 +125,23 @@ void CGUIListBox::removeItem(u32 id)
 }
 
 
+s32 CGUIListBox::getItemAt(s32 xpos, s32 ypos) const
+{
+	if ( 	xpos < AbsoluteRect.UpperLeftCorner.X || xpos >= AbsoluteRect.LowerRightCorner.X
+		||	ypos < AbsoluteRect.UpperLeftCorner.Y || ypos >= AbsoluteRect.LowerRightCorner.Y
+		)
+		return -1;
+
+	if ( ItemHeight == 0 )
+		return -1;
+
+	s32 item = ((ypos - AbsoluteRect.UpperLeftCorner.Y - 1) + ScrollBar->getPos()) / ItemHeight;
+	if ( item < 0 || item >= (s32)Items.size())
+		return -1;
+
+	return item;
+}
+
 //! clears the list
 void CGUIListBox::clear()
 {
@@ -213,7 +230,7 @@ void CGUIListBox::setSelected(const wchar_t *item)
 //! called if an event happened.
 bool CGUIListBox::OnEvent(const SEvent& event)
 {
-	if (IsEnabled)
+	if (isEnabled())
 	{
 		switch(event.EventType)
 		{
@@ -438,15 +455,9 @@ void CGUIListBox::selectNew(s32 ypos, bool onlyHover)
 	u32 now = os::Timer::getTime();
 	s32 oldSelected = Selected;
 
-	// find new selected item.
-	if (ItemHeight!=0)
-		Selected = ((ypos - AbsoluteRect.UpperLeftCorner.Y - 1) + ScrollBar->getPos()) / ItemHeight;
-
-	if (Selected<0)
+	Selected = getItemAt(AbsoluteRect.UpperLeftCorner.X, ypos);
+	if (Selected<0 && !Items.empty())
 		Selected = 0;
-	else
-	if ((u32)Selected >= Items.size())
-		Selected = Items.size() - 1;
 
 	recalculateScrollPos();
 
@@ -800,7 +811,7 @@ void CGUIListBox::swapItems(u32 index1, u32 index2)
 }
 
 
-void CGUIListBox::setItemOverrideColor(u32 index, const video::SColor &color)
+void CGUIListBox::setItemOverrideColor(u32 index, video::SColor color)
 {
 	for ( u32 c=0; c < EGUI_LBC_COUNT; ++c )
 	{
@@ -810,7 +821,7 @@ void CGUIListBox::setItemOverrideColor(u32 index, const video::SColor &color)
 }
 
 
-void CGUIListBox::setItemOverrideColor(u32 index, EGUI_LISTBOX_COLOR colorType, const video::SColor &color)
+void CGUIListBox::setItemOverrideColor(u32 index, EGUI_LISTBOX_COLOR colorType, video::SColor color)
 {
 	if ( index >= Items.size() || colorType < 0 || colorType >= EGUI_LBC_COUNT )
 		return;

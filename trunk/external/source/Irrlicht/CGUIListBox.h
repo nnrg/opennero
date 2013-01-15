@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -70,6 +70,9 @@ namespace gui
 		//! removes an item from the list
 		virtual void removeItem(u32 id);
 
+		//! get the the id of the item at the given absolute coordinates
+		virtual s32 getItemAt(s32 xpos, s32 ypos) const;
+
 		//! Sets the sprite bank which should be used to draw list icons. This font is set to the sprite bank of
 		//! the built-in-font by default. A sprite can be displayed in front of every list item.
 		//! An icon is an index within the icon sprite bank. Several default icons are available in the
@@ -92,10 +95,10 @@ namespace gui
 		virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options);
 
 		//! set all item colors at given index to color
-		virtual void setItemOverrideColor(u32 index, const video::SColor &color);
+		virtual void setItemOverrideColor(u32 index, video::SColor color);
 
 		//! set all item colors of specified type at given index to color
-		virtual void setItemOverrideColor(u32 index, EGUI_LISTBOX_COLOR colorType, const video::SColor &color);
+		virtual void setItemOverrideColor(u32 index, EGUI_LISTBOX_COLOR colorType, video::SColor color);
 
 		//! clear all item colors at index
 		virtual void clearItemOverrideColor(u32 index);

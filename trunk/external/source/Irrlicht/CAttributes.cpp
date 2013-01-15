@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -230,7 +230,7 @@ void CAttributes::setAttribute(s32 index, const core::array<core::stringw>& valu
 
 
 //! Returns attribute index from name, -1 if not found
-s32 CAttributes::findAttribute(const c8* attributeName)
+s32 CAttributes::findAttribute(const c8* attributeName) const
 {
 	for (u32 i=0; i<Attributes.size(); ++i)
 		if (Attributes[i]->Name == attributeName)
@@ -240,7 +240,7 @@ s32 CAttributes::findAttribute(const c8* attributeName)
 }
 
 
-IAttribute* CAttributes::getAttributeP(const c8* attributeName)
+IAttribute* CAttributes::getAttributeP(const c8* attributeName) const
 {
 	for (u32 i=0; i<Attributes.size(); ++i)
 		if (Attributes[i]->Name == attributeName)
@@ -294,7 +294,7 @@ void CAttributes::setAttribute(const c8* attributeName, s32 value)
 //! \param attributeName: Name of the attribute to get.
 //! \return Returns value of the attribute previously set by setAttribute() as integer
 //! or 0 if attribute is not set.
-s32 CAttributes::getAttributeAsInt(const c8* attributeName)
+s32 CAttributes::getAttributeAsInt(const c8* attributeName) const
 {
 	IAttribute* att = getAttributeP(attributeName);
 	if (att)
@@ -416,6 +416,28 @@ core::rect<s32> CAttributes::getAttributeAsRect(const c8* attributeName)
 		return core::rect<s32>();
 }
 
+//! Sets a attribute as dimension2d
+void CAttributes::setAttribute(const c8* attributeName, core::dimension2d<u32> value)
+{
+	IAttribute* att = getAttributeP(attributeName);
+	if (att)
+		att->setDimension2d(value);
+	else
+		Attributes.push_back(new CDimension2dAttribute(attributeName, value));
+}
+
+//! Gets an attribute as dimension2d
+//! \param attributeName: Name of the attribute to get.
+//! \return Returns value of the attribute previously set by setAttribute()
+core::dimension2d<u32> CAttributes::getAttributeAsDimension2d(const c8* attributeName)
+{
+	IAttribute* att = getAttributeP(attributeName);
+	if (att)
+		return att->getDimension2d();
+	else
+		return core::dimension2d<u32>();
+}
+
 //! Sets a attribute as vector
 void CAttributes::setAttribute(const c8* attributeName, core::vector3df value)
 {
@@ -424,6 +446,16 @@ void CAttributes::setAttribute(const c8* attributeName, core::vector3df value)
 		att->setVector(value);
 	else
 		Attributes.push_back(new CVector3DAttribute(attributeName, value));
+}
+
+//! Sets a attribute as vector
+void CAttributes::setAttribute(const c8* attributeName, core::vector2df value)
+{
+	IAttribute* att = getAttributeP(attributeName);
+	if (att)
+		att->setVector2d(value);
+	else
+		Attributes.push_back(new CVector2DAttribute(attributeName, value));
 }
 
 //! Gets an attribute as vector
@@ -436,6 +468,16 @@ core::vector3df CAttributes::getAttributeAsVector3d(const c8* attributeName)
 		return att->getVector();
 	else
 		return core::vector3df();
+}
+
+//! Gets an attribute as vector
+core::vector2df CAttributes::getAttributeAsVector2d(const c8* attributeName)
+{
+	IAttribute* att = getAttributeP(attributeName);
+	if (att)
+		return att->getVector2d();
+	else
+		return core::vector2df();
 }
 
 //! Sets an attribute as binary data
@@ -509,13 +551,13 @@ void CAttributes::getAttributeEnumerationLiteralsOfEnumeration(const c8* attribu
 }
 
 //! Sets an attribute as texture reference
-void CAttributes::setAttribute(const c8* attributeName, video::ITexture* value )
+void CAttributes::setAttribute(const c8* attributeName, video::ITexture* value, const io::path& filename)
 {
 	IAttribute* att = getAttributeP(attributeName);
 	if (att)
-		att->setTexture(value);
+		att->setTexture(value, filename);
 	else
-		Attributes.push_back(new CTextureAttribute(attributeName, value, Driver));
+		Attributes.push_back(new CTextureAttribute(attributeName, value, Driver, filename));
 }
 
 
@@ -614,7 +656,7 @@ bool CAttributes::getAttributeAsBool(s32 index)
 
 //! Gets an attribute as integer value
 //! \param index: Index value, must be between 0 and getAttributeCount()-1.
-s32 CAttributes::getAttributeAsInt(s32 index)
+s32 CAttributes::getAttributeAsInt(s32 index) const
 {
 	if ((u32)index < Attributes.size())
 		return Attributes[index]->getInt();
@@ -664,7 +706,16 @@ core::vector3df CAttributes::getAttributeAsVector3d(s32 index)
 		return core::vector3df();
 }
 
-//! Gets an attribute as rectangle
+//! Gets an attribute as 2d vector
+core::vector2df CAttributes::getAttributeAsVector2d(s32 index)
+{
+	if ((u32)index < Attributes.size())
+		return Attributes[index]->getVector2d();
+	else
+		return core::vector2df();
+}
+
+//! Gets an attribute as position2d
 //! \param index: Index value, must be between 0 and getAttributeCount()-1.
 core::position2di CAttributes::getAttributeAsPosition2d(s32 index)
 {
@@ -682,6 +733,16 @@ core::rect<s32>  CAttributes::getAttributeAsRect(s32 index)
 		return Attributes[index]->getRect();
 	else
 		return core::rect<s32>();
+}
+
+//! Gets an attribute as dimension2d
+//! \param index: Index value, must be between 0 and getAttributeCount()-1.
+core::dimension2d<u32>  CAttributes::getAttributeAsDimension2d(s32 index)
+{
+	if ((u32)index < Attributes.size())
+		return Attributes[index]->getDimension2d();
+	else
+		return core::dimension2d<u32>();
 }
 
 
@@ -799,6 +860,13 @@ void CAttributes::addVector3d(const c8* attributeName, core::vector3df value)
 	Attributes.push_back(new CVector3DAttribute(attributeName, value));
 }
 
+//! Adds an attribute as 2d vector
+void CAttributes::addVector2d(const c8* attributeName, core::vector2df value)
+{
+	Attributes.push_back(new CVector2DAttribute(attributeName, value));
+}
+
+
 //! Adds an attribute as 2d position
 void CAttributes::addPosition2d(const c8* attributeName, core::position2di value)
 {
@@ -811,6 +879,12 @@ void CAttributes::addRect(const c8* attributeName, core::rect<s32> value)
 	Attributes.push_back(new CRectAttribute(attributeName, value));
 }
 
+//! Adds an attribute as dimension2d
+void CAttributes::addDimension2d(const c8* attributeName, core::dimension2d<u32> value)
+{
+	Attributes.push_back(new CDimension2dAttribute(attributeName, value));
+}
+
 //! Adds an attribute as binary data
 void CAttributes::addBinary(const c8* attributeName, void* data, s32 dataSizeInBytes)
 {
@@ -818,9 +892,9 @@ void CAttributes::addBinary(const c8* attributeName, void* data, s32 dataSizeInB
 }
 
 //! Adds an attribute as texture reference
-void CAttributes::addTexture(const c8* attributeName, video::ITexture* texture)
+void CAttributes::addTexture(const c8* attributeName, video::ITexture* texture, const io::path& filename)
 {
-	Attributes.push_back(new CTextureAttribute(attributeName, texture, Driver));
+	Attributes.push_back(new CTextureAttribute(attributeName, texture, Driver, filename));
 }
 
 //! Returns if an attribute with a name exists
@@ -887,6 +961,13 @@ void CAttributes::setAttribute(s32 index, core::vector3df v)
 		Attributes[index]->setVector(v);
 }
 
+//! Sets a attribute as vector
+void CAttributes::setAttribute(s32 index, core::vector2df v)
+{
+	if ((u32)index < Attributes.size())
+		Attributes[index]->setVector2d(v);
+}
+
 //! Sets a attribute as position
 void CAttributes::setAttribute(s32 index, core::position2di v)
 {
@@ -899,6 +980,13 @@ void CAttributes::setAttribute(s32 index, core::rect<s32> v)
 {
 	if ((u32)index < Attributes.size())
 		Attributes[index]->setRect(v);
+}
+
+//! Sets a attribute as dimension2d
+void CAttributes::setAttribute(s32 index, core::dimension2d<u32> v)
+{
+	if ((u32)index < Attributes.size())
+		Attributes[index]->setDimension2d(v);
 }
 
 //! Sets an attribute as binary data
@@ -918,10 +1006,10 @@ void CAttributes::setAttribute(s32 index, const char* enumValue, const char* con
 
 
 //! Sets an attribute as texture reference
-void CAttributes::setAttribute(s32 index, video::ITexture* texture)
+void CAttributes::setAttribute(s32 index, video::ITexture* texture, const io::path& filename)
 {
 	if ((u32)index < Attributes.size())
-		Attributes[index]->setTexture(texture);
+		Attributes[index]->setTexture(texture, filename);
 }
 
 
@@ -1420,6 +1508,12 @@ void CAttributes::readAttributeFromXML(io::IXMLReader* reader)
 		Attributes.getLast()->setString(reader->getAttributeValue(L"value"));
 	}
 	else
+	if (element == L"vector2d")
+	{
+		addVector2d(name.c_str(), core::vector2df());
+		Attributes.getLast()->setString(reader->getAttributeValue(L"value"));
+	}
+	else
 	if (element == L"position")
 	{
 		addPosition2d(name.c_str(), core::position2di());
@@ -1492,6 +1586,12 @@ void CAttributes::readAttributeFromXML(io::IXMLReader* reader)
 	{
 		// It's debatable if a pointer should be set or not, but it's more likely that adding it now would wreck user-applications.
 		// Also it probably doesn't makes sense setting this to a value when it comes from file.
+	}
+	else
+	if (element == L"dimension2d")
+	{
+		addDimension2d(name.c_str(), core::dimension2d<u32>());
+		Attributes.getLast()->setString(reader->getAttributeValue(L"value"));
 	}
 }
 

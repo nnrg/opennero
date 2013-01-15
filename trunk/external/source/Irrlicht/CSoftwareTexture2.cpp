@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt / Thomas Alten
+// Copyright (C) 2002-2012 Nikolaus Gebhardt / Thomas Alten
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -66,6 +66,8 @@ CSoftwareTexture2::CSoftwareTexture2(IImage* image, const io::path& name,
 			MipMap[0] = new CImage(BURNINGSHADER_COLOR_FORMAT, optSize);
 			image->copyToScalingBoxFilter ( MipMap[0],0, false );
 		}
+
+		OrigImageDataSizeInPixels = (f32) 0.3f * MipMap[0]->getImageDataSizeInPixels();
 	}
 
 	regenerateMipMapLevels(mipmapData);
@@ -139,6 +141,8 @@ void CSoftwareTexture2::regenerateMipMapLevels(void* mipmapData)
 		else
 		{
 			MipMap[i] = new CImage(BURNINGSHADER_COLOR_FORMAT, newSize);
+
+			//static u32 color[] = { 0, 0xFFFF0000, 0xFF00FF00,0xFF0000FF,0xFFFFFF00,0xFFFF00FF,0xFF00FFFF,0xFF0F0F0F };
 			MipMap[i]->fill ( 0 );
 			MipMap[0]->copyToScalingBoxFilter( MipMap[i], 0, false );
 		}

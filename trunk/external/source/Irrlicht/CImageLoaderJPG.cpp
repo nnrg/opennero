@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -15,6 +15,9 @@ namespace irr
 {
 namespace video
 {
+
+// Static members
+io::path CImageLoaderJPG::Filename;
 
 //! constructor
 CImageLoaderJPG::CImageLoaderJPG()
@@ -107,7 +110,9 @@ void CImageLoaderJPG::output_message(j_common_ptr cinfo)
 	// display the error message.
 	c8 temp1[JMSG_LENGTH_MAX];
 	(*cinfo->err->format_message)(cinfo, temp1);
-	os::Printer::log("JPEG FATAL ERROR",temp1, ELL_ERROR);
+	core::stringc errMsg("JPEG FATAL ERROR in ");
+	errMsg += core::stringc(Filename);
+	os::Printer::log(errMsg.c_str(),temp1, ELL_ERROR);
 }
 #endif // _IRR_COMPILE_WITH_LIBJPEG_
 
@@ -133,8 +138,14 @@ bool CImageLoaderJPG::isALoadableFileFormat(io::IReadFile* file) const
 IImage* CImageLoaderJPG::loadImage(io::IReadFile* file) const
 {
 	#ifndef _IRR_COMPILE_WITH_LIBJPEG_
+	os::Printer::log("Can't load as not compiled with _IRR_COMPILE_WITH_LIBJPEG_:", file->getFileName(), ELL_DEBUG);
 	return 0;
 	#else
+
+	if (!file)
+		return 0;
+
+	Filename = file->getFileName();
 
 	u8 **rowPtr=0;
 	u8* input = new u8[file->getSize()];
@@ -209,6 +220,7 @@ IImage* CImageLoaderJPG::loadImage(io::IReadFile* file) const
 		cinfo.out_color_space=JCS_RGB;
 		cinfo.out_color_components=3;
 	}
+	cinfo.output_gamma=2.2;
 	cinfo.do_fancy_upsampling=FALSE;
 
 	// Start decompressor

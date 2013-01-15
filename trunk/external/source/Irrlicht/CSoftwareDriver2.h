@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt / Thomas Alten
+// Copyright (C) 2002-2012 Nikolaus Gebhardt / Thomas Alten
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -11,6 +11,7 @@
 #include "CImage.h"
 #include "os.h"
 #include "irrString.h"
+#include "SIrrCreationParameters.h"
 
 namespace irr
 {
@@ -21,7 +22,7 @@ namespace video
 	public:
 
 		//! constructor
-		CBurningVideoDriver(const core::dimension2d<u32>& windowSize, bool fullscreen, io::IFileSystem* io, video::IImagePresenter* presenter);
+		CBurningVideoDriver(const irr::SIrrlichtCreationParameters& params, io::IFileSystem* io, video::IImagePresenter* presenter);
 
 		//! destructor
 		virtual ~CBurningVideoDriver();
@@ -88,6 +89,11 @@ namespace video
 			const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect = 0,
 			SColor color=SColor(255,255,255,255), bool useAlphaChannelOfTexture=false);
 
+	//! Draws a part of the texture into the rectangle.
+		virtual void draw2DImage(const video::ITexture* texture, const core::rect<s32>& destRect,
+				const core::rect<s32>& sourceRect, const core::rect<s32>* clipRect = 0,
+				const video::SColor* const colors=0, bool useAlphaChannelOfTexture=false);
+
 		//! Draws a 3d line.
 		virtual void draw3DLine(const core::vector3df& start,
 			const core::vector3df& end, SColor color = SColor(255,255,255,255));
@@ -130,7 +136,7 @@ namespace video
 		virtual void clearZBuffer();
 
 		//! Returns an image created from the last rendered frame.
-		virtual IImage* createScreenShot();
+		virtual IImage* createScreenShot(video::ECOLOR_FORMAT format=video::ECF_UNKNOWN, video::E_RENDER_TARGET target=video::ERT_FRAME_BUFFER);
 
 		//! Returns the maximum amount of primitives (mostly vertices) which
 		//! the device is able to render with one drawIndexedTriangleList
@@ -140,7 +146,7 @@ namespace video
 		//! Draws a shadow volume into the stencil buffer. To draw a stencil shadow, do
 		//! this: First, draw all geometry. Then use this method, to draw the shadow
 		//! volume. Then, use IVideoDriver::drawStencilShadow() to visualize the shadow.
-		virtual void drawStencilShadowVolume(const core::vector3df* triangles, s32 count, bool zfail);
+		virtual void drawStencilShadowVolume(const core::array<core::vector3df>& triangles, bool zfail=true, u32 debugDataVisible=0);
 
 		//! Fills the stencil shadow with color. After the shadow volume has been drawn
 		//! into the stencil buffer using IVideoDriver::drawStencilShadowVolume(), use this
@@ -156,6 +162,9 @@ namespace video
 
 		//! Returns the maximum texture size supported.
 		virtual core::dimension2du getMaxTextureSize() const;
+
+		virtual IDepthBuffer * getDepthBuffer () { return DepthBuffer; }
+		virtual IStencilBuffer * getStencilBuffer () { return StencilBuffer; }
 
 	protected:
 
@@ -187,6 +196,7 @@ namespace video
 		IBurningShader* BurningShader[ETR2_COUNT];
 
 		IDepthBuffer* DepthBuffer;
+		IStencilBuffer* StencilBuffer;
 
 
 		/*
@@ -201,6 +211,7 @@ namespace video
 			ETS_CURRENT,
 			ETS_CLIPSCALE,
 			ETS_VIEW_INVERSE,
+			ETS_WORLD_INVERSE,
 
 			ETS_COUNT_BURNING
 		};
@@ -215,6 +226,7 @@ namespace video
 		core::matrix4 Transformation[ETS_COUNT_BURNING];
 
 		void getCameraPosWorldSpace ();
+		void getLightPosObjectSpace ();
 
 
 		// Vertex Cache
@@ -226,7 +238,7 @@ namespace video
 					const void* indices, u32 indexCount,
 					E_VERTEX_TYPE vType,scene::E_PRIMITIVE_TYPE pType,
 					E_INDEX_TYPE iType);
-		void VertexCache_get ( s4DVertex ** face );
+		void VertexCache_get ( const s4DVertex ** face );
 		void VertexCache_getbypass ( s4DVertex ** face );
 
 		void VertexCache_fill ( const u32 sourceIndex,const u32 destIndex );
@@ -254,7 +266,7 @@ namespace video
 
 		void ndc_2_dc_and_project ( s4DVertex *dest,s4DVertex *source, u32 vIn ) const;
 		f32 screenarea ( const s4DVertex *v0 ) const;
-		void select_polygon_mipmap ( s4DVertex *source, u32 vIn, u32 tex, const core::dimension2du& texSize );
+		void select_polygon_mipmap ( s4DVertex *source, u32 vIn, u32 tex, const core::dimension2du& texSize ) const;
 		f32 texelarea ( const s4DVertex *v0, int tex ) const;
 
 

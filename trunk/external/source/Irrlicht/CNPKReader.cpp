@@ -1,5 +1,5 @@
-// Copyright (C) 2002-2009 Nikolaus Gebhardt
-// Copyright (C) 2009-2010 Christian Stehno
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
+// Copyright (C) 2009-2012 Christian Stehno
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 // Based on the NPK reader from Irrlicht
@@ -222,8 +222,7 @@ bool CNPKReader::scanLocalHeader()
 #ifdef IRR_DEBUG_NPK_READER
 		os::Printer::log("Name", entry.Name);
 #endif
-		addItem((isDir?dirName:dirName+entry.Name), entry.Length, isDir, Offsets.size());
-		Offsets.push_back(entry.Offset+header.Offset);
+		addItem((isDir?dirName:dirName+entry.Name), entry.Offset+header.Offset, entry.Length, isDir);
 	}
 	return true;
 }
@@ -244,12 +243,11 @@ IReadFile* CNPKReader::createAndOpenFile(const io::path& filename)
 //! opens a file by index
 IReadFile* CNPKReader::createAndOpenFile(u32 index)
 {
-	if (index < Files.size())
-	{
-		return createLimitReadFile(Files[index].FullName, File, Offsets[Files[index].ID], Files[index].Size);
-	}
-	else
+	if (index >= Files.size() )
 		return 0;
+
+	const SFileListEntry &entry = Files[index];
+	return createLimitReadFile( entry.FullName, File, entry.Offset, entry.Size );
 }
 
 void CNPKReader::readString(core::stringc& name)

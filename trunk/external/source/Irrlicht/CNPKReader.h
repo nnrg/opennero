@@ -1,5 +1,5 @@
-// Copyright (C) 2002-2009 Nikolaus Gebhardt
-// Copyright (C) 2009-2010 Christian Stehno
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
+// Copyright (C) 2009-2012 Christian Stehno
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -117,9 +117,6 @@ namespace io
 		void readString(core::stringc& name);
 
 		IReadFile* File;
-
-		//! Contains offsets of the files from the start of the archive file
-		core::array<u32> Offsets;
 	};
 
 } // end namespace io

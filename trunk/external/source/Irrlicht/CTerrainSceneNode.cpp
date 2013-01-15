@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -37,12 +37,9 @@ namespace scene
 	: ITerrainSceneNode(parent, mgr, id, position, rotation, scale),
 	TerrainData(patchSize, maxLOD, position, rotation, scale), RenderBuffer(0),
 	VerticesToRender(0), IndicesToRender(0), DynamicSelectorUpdate(false),
-	OverrideDistanceThreshold(false), UseDefaultRotationPivot(true), ForceRecalculation(false),
-	OldCameraPosition(core::vector3df(-99999.9f, -99999.9f, -99999.9f)),
-	OldCameraRotation(core::vector3df(-99999.9f, -99999.9f, -99999.9f)),
-	OldCameraUp(core::vector3df(-99999.9f, -99999.9f, -99999.9f)),
+	OverrideDistanceThreshold(false), UseDefaultRotationPivot(true), ForceRecalculation(true),
 	CameraMovementDelta(10.0f), CameraRotationDelta(1.0f),CameraFOVDelta(0.1f),
-	TCoordScale1(1.0f), TCoordScale2(1.0f), FileSystem(fs)
+	TCoordScale1(1.0f), TCoordScale2(1.0f), SmoothFactor(0), FileSystem(fs)
 	{
 		#ifdef _DEBUG
 		setDebugName("CTerrainSceneNode");
@@ -94,6 +91,7 @@ namespace scene
 		}
 
 		HeightmapFile = file->getFileName();
+		SmoothFactor = smoothFactor;
 
 		// Get the dimension of the heightmap data
 		TerrainData.Size = heightMap->getDimension().Width;
@@ -168,7 +166,7 @@ namespace scene
 				vertex.Normal.set(0.0f, 1.0f, 0.0f);
 				vertex.Color = vertexColor;
 				vertex.Pos.X = fx;
-				vertex.Pos.Y = (f32) heightMap->getPixel(TerrainData.Size-x-1,z).getLuminance();
+				vertex.Pos.Y = (f32) heightMap->getPixel(TerrainData.Size-x-1,z).getLightness();
 				vertex.Pos.Z = fz;
 
 				vertex.TCoords.X = vertex.TCoords2.X = 1.f-fx2;
@@ -539,11 +537,10 @@ namespace scene
 		if (!Mesh->getMeshBufferCount())
 			return;
 
-		TerrainData.Position = TerrainData.Position;
-		s32 vtxCount = Mesh->getMeshBuffer(0)->getVertexCount();
 		core::matrix4 rotMatrix;
 		rotMatrix.setRotationDegrees(TerrainData.Rotation);
 
+		const s32 vtxCount = Mesh->getMeshBuffer(0)->getVertexCount();
 		for (s32 i = 0; i < vtxCount; ++i)
 		{
 			RenderBuffer->getVertexBuffer()[i].Pos = Mesh->getMeshBuffer(0)->getPosition(i) * TerrainData.Scale + TerrainData.Position;
@@ -570,21 +567,21 @@ namespace scene
 		if (!IsVisible || !SceneManager->getActiveCamera())
 			return;
 
-		preRenderLODCalculations();
-		preRenderIndicesCalculations();
+		SceneManager->registerNodeForRendering(this);
+
+		preRenderCalculationsIfNeeded();
+
+		// Do Not call ISceneNode::OnRegisterSceneNode(), this node should have no children (luke: is this comment still true, as ISceneNode::OnRegisterSceneNode() is called?)
+
 		ISceneNode::OnRegisterSceneNode();
 		ForceRecalculation = false;
 	}
 
-
-	void CTerrainSceneNode::preRenderLODCalculations()
+	void CTerrainSceneNode::preRenderCalculationsIfNeeded()
 	{
 		scene::ICameraSceneNode * camera = SceneManager->getActiveCamera();
-		if(!camera)
+		if (!camera)
 			return;
-
-		SceneManager->registerNodeForRendering(this);
-		// Do Not call ISceneNode::OnRegisterSceneNode(), this node should have no children
 
 		// Determine the camera rotation, based on the camera direction.
 		const core::vector3df cameraPosition = camera->getAbsolutePosition();
@@ -612,12 +609,27 @@ namespace scene
 			}
 		}
 
+		//we need to redo calculations...
+
 		OldCameraPosition = cameraPosition;
 		OldCameraRotation = cameraRotation;
 		OldCameraUp = cameraUp;
 		OldCameraFOV = CameraFOV;
 
-		const SViewFrustum* frustum = SceneManager->getActiveCamera()->getViewFrustum();
+		preRenderLODCalculations();
+		preRenderIndicesCalculations();
+	}
+
+	void CTerrainSceneNode::preRenderLODCalculations()
+	{
+		scene::ICameraSceneNode * camera = SceneManager->getActiveCamera();
+
+		if (!camera)
+			return;
+
+		const core::vector3df cameraPosition = camera->getAbsolutePosition();
+
+		const SViewFrustum* frustum = camera->getViewFrustum();
 
 		// Determine each patches LOD based on distance from camera (and whether or not they are in
 		// the view frustum).
@@ -626,22 +638,15 @@ namespace scene
 		{
 			if (frustum->getBoundingBox().intersectsWithBox(TerrainData.Patches[j].BoundingBox))
 			{
-				const f32 distance = (cameraPosition.X - TerrainData.Patches[j].Center.X) * (cameraPosition.X - TerrainData.Patches[j].Center.X) +
-					(cameraPosition.Y - TerrainData.Patches[j].Center.Y) * (cameraPosition.Y - TerrainData.Patches[j].Center.Y) +
-					(cameraPosition.Z - TerrainData.Patches[j].Center.Z) * (cameraPosition.Z - TerrainData.Patches[j].Center.Z);
+				const f32 distance = cameraPosition.getDistanceFromSQ(TerrainData.Patches[j].Center);
 
-				for (s32 i = TerrainData.MaxLOD - 1; i >= 0; --i)
+				TerrainData.Patches[j].CurrentLOD = 0;
+				for (s32 i = TerrainData.MaxLOD - 1; i>0; --i)
 				{
 					if (distance >= TerrainData.LODDistanceThreshold[i])
 					{
 						TerrainData.Patches[j].CurrentLOD = i;
 						break;
-					}
-					//else if (i == 0)
-					{
-						// If we've turned off a patch from viewing, because of the frustum, and now we turn around and it's
-						// too close, we need to turn it back on, at the highest LOD. The if above doesn't catch this.
-						TerrainData.Patches[j].CurrentLOD = 0;
 					}
 				}
 			}
@@ -757,46 +762,13 @@ namespace scene
 
 			if (DebugDataVisible & scene::EDS_NORMALS)
 			{
-				IAnimatedMesh * arrow = SceneManager->addArrowMesh(
-						"__debugnormal", 0xFFECEC00,
-						0xFF999900, 4, 8, 1.f, 0.6f, 0.05f,
-						0.3f);
-				if (0 == arrow)
-				{
-					arrow = SceneManager->getMesh( "__debugnormal");
-				}
-				IMesh *mesh = arrow->getMesh(0);
-
-				// find a good scaling factor
-
-				core::matrix4 m2;
-
 				// draw normals
-				driver->setTransform(video::ETS_WORLD, core::IdentityMatrix);
-				for (u32 i=0; i != RenderBuffer->getVertexCount(); ++i)
-				{
-					const core::vector3df& v = RenderBuffer->getNormal(i);
-					// align to v->Normal
-					if (core::vector3df(0,-1,0)==v)
-					{
-						m2.makeIdentity();
-						m2[5]=-m2[5];
-					}
-					else
-					{
-						core::quaternion quatRot;
-						m2=quatRot.rotationFromTo(v,core::vector3df(0,1,0)).getMatrix();
-					}
-
-					m2.setTranslation(RenderBuffer->getPosition(i));
-					m2=AbsoluteTransformation*m2;
-
-					driver->setTransform(video::ETS_WORLD, m2 );
-					for (u32 a = 0; a != mesh->getMeshBufferCount(); ++a)
-						driver->drawMeshBuffer(mesh->getMeshBuffer(a));
-				}
-				driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
+				const f32 debugNormalLength = SceneManager->getParameters()->getAttributeAsFloat(DEBUG_NORMAL_LENGTH);
+				const video::SColor debugNormalColor = SceneManager->getParameters()->getAttributeAsColor(DEBUG_NORMAL_COLOR);
+				driver->drawMeshBufferNormals(RenderBuffer, debugNormalLength, debugNormalColor);
 			}
+
+			driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
 
 			static u32 lastTime = 0;
 
@@ -1125,8 +1097,8 @@ namespace scene
 					mb->getVertexBuffer()[x + yd].Pos.Y =
 						(mb->getVertexBuffer()[x-1 + yd].Pos.Y + //left
 						mb->getVertexBuffer()[x+1 + yd].Pos.Y + //right
-						mb->getVertexBuffer()[x   + yd - TerrainData.Size].Pos.Y + //above
-						mb->getVertexBuffer()[x   + yd + TerrainData.Size].Pos.Y) * 0.25f; //below
+						mb->getVertexBuffer()[x + yd - TerrainData.Size].Pos.Y + //above
+						mb->getVertexBuffer()[x + yd + TerrainData.Size].Pos.Y) * 0.25f; //below
 				}
 				yd += TerrainData.Size;
 			}
@@ -1274,54 +1246,57 @@ namespace scene
 	void CTerrainSceneNode::calculatePatchData()
 	{
 		// Reset the Terrains Bounding Box for re-calculation
-		TerrainData.BoundingBox = core::aabbox3df(999999.9f, 999999.9f, 999999.9f, -999999.9f, -999999.9f, -999999.9f);
+		TerrainData.BoundingBox.reset(RenderBuffer->getPosition(0));
 
 		for (s32 x = 0; x < TerrainData.PatchCount; ++x)
 		{
 			for (s32 z = 0; z < TerrainData.PatchCount; ++z)
 			{
 				const s32 index = x * TerrainData.PatchCount + z;
-				TerrainData.Patches[index].CurrentLOD = 0;
+				SPatch& patch = TerrainData.Patches[index];
+				patch.CurrentLOD = 0;
 
+				const s32 xstart = x*TerrainData.CalcPatchSize;
+				const s32 xend = xstart+TerrainData.CalcPatchSize;
+				const s32 zstart = z*TerrainData.CalcPatchSize;
+				const s32 zend = zstart+TerrainData.CalcPatchSize;
 				// For each patch, calculate the bounding box (mins and maxes)
-				TerrainData.Patches[index].BoundingBox = core::aabbox3df(999999.9f, 999999.9f, 999999.9f,
-					-999999.9f, -999999.9f, -999999.9f);
+				patch.BoundingBox.reset(RenderBuffer->getPosition(xstart*TerrainData.Size + zstart));
 
-				for (s32 xx = x*(TerrainData.CalcPatchSize); xx <= (x + 1) * TerrainData.CalcPatchSize; ++xx)
-					for (s32 zz = z*(TerrainData.CalcPatchSize); zz <= (z + 1) * TerrainData.CalcPatchSize; ++zz)
-						TerrainData.Patches[index].BoundingBox.addInternalPoint(RenderBuffer->getVertexBuffer()[xx * TerrainData.Size + zz].Pos);
-
+				for (s32 xx = xstart; xx <= xend; ++xx)
+					for (s32 zz = zstart; zz <= zend; ++zz)
+						patch.BoundingBox.addInternalPoint(RenderBuffer->getVertexBuffer()[xx * TerrainData.Size + zz].Pos);
 
 				// Reconfigure the bounding box of the terrain as a whole
-				TerrainData.BoundingBox.addInternalBox(TerrainData.Patches[index].BoundingBox);
+				TerrainData.BoundingBox.addInternalBox(patch.BoundingBox);
 
 				// get center of Patch
-				TerrainData.Patches[index].Center = TerrainData.Patches[index].BoundingBox.getCenter();
+				patch.Center = patch.BoundingBox.getCenter();
 
 				// Assign Neighbours
 				// Top
 				if (x > 0)
-					TerrainData.Patches[index].Top = &TerrainData.Patches[(x-1) * TerrainData.PatchCount + z];
+					patch.Top = &TerrainData.Patches[(x-1) * TerrainData.PatchCount + z];
 				else
-					TerrainData.Patches[index].Top = 0;
+					patch.Top = 0;
 
 				// Bottom
 				if (x < TerrainData.PatchCount - 1)
-					TerrainData.Patches[index].Bottom = &TerrainData.Patches[(x+1) * TerrainData.PatchCount + z];
+					patch.Bottom = &TerrainData.Patches[(x+1) * TerrainData.PatchCount + z];
 				else
-					TerrainData.Patches[index].Bottom = 0;
+					patch.Bottom = 0;
 
 				// Left
 				if (z > 0)
-					TerrainData.Patches[index].Left = &TerrainData.Patches[x * TerrainData.PatchCount + z - 1];
+					patch.Left = &TerrainData.Patches[x * TerrainData.PatchCount + z - 1];
 				else
-					TerrainData.Patches[index].Left = 0;
+					patch.Left = 0;
 
 				// Right
 				if (z < TerrainData.PatchCount - 1)
-					TerrainData.Patches[index].Right = &TerrainData.Patches[x * TerrainData.PatchCount + z + 1];
+					patch.Right = &TerrainData.Patches[x * TerrainData.PatchCount + z + 1];
 				else
-					TerrainData.Patches[index].Right = 0;
+					patch.Right = 0;
 			}
 		}
 
@@ -1378,8 +1353,6 @@ namespace scene
 		if (!Mesh->getMeshBufferCount())
 			return 0;
 
-		f32 height = -999999.9f;
-
 		core::matrix4 rotMatrix;
 		rotMatrix.setRotationDegrees(TerrainData.Rotation);
 		core::vector3df pos(x, 0.0f, z);
@@ -1390,6 +1363,7 @@ namespace scene
 		s32 X(core::floor32(pos.X));
 		s32 Z(core::floor32(pos.Z));
 
+		f32 height = -FLT_MAX;
 		if (X >= 0 && X < TerrainData.Size-1 &&
 				Z >= 0 && Z < TerrainData.Size-1)
 		{
@@ -1425,6 +1399,7 @@ namespace scene
 		out->addString("Heightmap", HeightmapFile.c_str());
 		out->addFloat("TextureScale1", TCoordScale1);
 		out->addFloat("TextureScale2", TCoordScale2);
+		out->addInt("SmoothFactor", SmoothFactor);
 	}
 
 
@@ -1435,6 +1410,7 @@ namespace scene
 		io::path newHeightmap = in->getAttributeAsString("Heightmap");
 		f32 tcoordScale1 = in->getAttributeAsFloat("TextureScale1");
 		f32 tcoordScale2 = in->getAttributeAsFloat("TextureScale2");
+		s32 smoothFactor = in->getAttributeAsInt("SmoothFactor");
 
 		// set possible new heightmap
 
@@ -1443,7 +1419,7 @@ namespace scene
 			io::IReadFile* file = FileSystem->createAndOpenFile(newHeightmap.c_str());
 			if (file)
 			{
-				loadHeightMap(file, video::SColor(255,255,255,255), 0);
+				loadHeightMap(file, video::SColor(255,255,255,255), smoothFactor);
 				file->drop();
 			}
 			else

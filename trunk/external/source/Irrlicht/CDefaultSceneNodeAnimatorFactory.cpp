@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -43,11 +43,13 @@ CDefaultSceneNodeAnimatorFactory::CDefaultSceneNodeAnimatorFactory(ISceneManager
 		CursorControl->grab();
 }
 
+
 CDefaultSceneNodeAnimatorFactory::~CDefaultSceneNodeAnimatorFactory()
 {
 	if (CursorControl)
 		CursorControl->drop();
 }
+
 
 //! creates a scene node animator based on its type id
 ISceneNodeAnimator* CDefaultSceneNodeAnimatorFactory::createSceneNodeAnimator(ESCENE_NODE_ANIMATOR_TYPE type, ISceneNode* target)

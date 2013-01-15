@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 //
@@ -17,8 +17,6 @@
 #include "SMeshBuffer.h"
 #include "IReadFile.h"
 #include "IAttributes.h"
-#include "CImage.h"
-#include "CColorConverter.h"
 
 #include "CMY3DHelper.h"
 #include "os.h"
@@ -178,7 +176,7 @@ IAnimatedMesh* CMY3DMeshFileLoader::createMesh(io::IReadFile* file)
 				gotLightMap = true;
 			}
 
-			const core::stringc name = namebuf;
+			const core::stringc name(namebuf);
 			const s32 pos = name.findLast('.');
 			const core::stringc LightingMapStr = "LightingMap";
 			const s32 ls = LightingMapStr.size();

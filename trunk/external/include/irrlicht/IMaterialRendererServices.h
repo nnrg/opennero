@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -65,6 +65,12 @@ public:
 	*/
 	virtual bool setVertexShaderConstant(const c8* name, const f32* floats, int count) = 0;
 
+	//! Bool interface for the above.
+	virtual bool setVertexShaderConstant(const c8* name, const bool* bools, int count) = 0;
+
+	//! Int interface for the above.
+	virtual bool setVertexShaderConstant(const c8* name, const s32* ints, int count) = 0;
+
 	//! Sets a vertex shader constant.
 	/** Can be used if you created a shader using pixel/vertex shader
 	assembler or ARB_fragment_program or ARB_vertex_program.
@@ -82,6 +88,12 @@ public:
 	\param count Amount of floats in array.
 	\return True if successful. */
 	virtual bool setPixelShaderConstant(const c8* name, const f32* floats, int count) = 0;
+
+	//! Bool interface for the above.
+	virtual bool setPixelShaderConstant(const c8* name, const bool* bools, int count) = 0;
+
+	//! Int interface for the above.
+	virtual bool setPixelShaderConstant(const c8* name, const s32* ints, int count) = 0;
 
 	//! Sets a pixel shader constant.
 	/** Can be used if you created a shader using pixel/vertex shader
