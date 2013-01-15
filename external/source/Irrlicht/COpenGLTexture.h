@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -57,7 +57,7 @@ public:
 	virtual ~COpenGLTexture();
 
 	//! lock function
-	virtual void* lock(bool readOnly=false, u32 mipmapLevel=0);
+	virtual void* lock(E_TEXTURE_LOCK_MODE mode=ETLM_READ_WRITE, u32 mipmapLevel=0);
 
 	//! unlock function
 	virtual void unlock();
@@ -138,6 +138,7 @@ protected:
 
 	u8 MipLevelStored;
 	bool HasMipMaps;
+	bool MipmapLegacyMode;
 	bool IsRenderTarget;
 	bool AutomaticMipmapUpdate;
 	bool ReadOnlyLock;
@@ -172,7 +173,7 @@ protected:
 
 
 //! OpenGL FBO depth texture.
-class COpenGLFBODepthTexture : public COpenGLFBOTexture
+class COpenGLFBODepthTexture : public COpenGLTexture
 {
 public:
 	//! FrameBufferObject depth constructor

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -105,6 +105,21 @@ namespace video
 
 		//! Supports geometry shaders
 		EVDF_GEOMETRY_SHADER,
+
+		//! Supports occlusion queries
+		EVDF_OCCLUSION_QUERY,
+
+		//! Supports polygon offset/depth bias for avoiding z-fighting
+		EVDF_POLYGON_OFFSET,
+
+		//! Support for different blend functions. Without, only ADD is available
+		EVDF_BLEND_OPERATIONS,
+
+		//! Support for texture coord transformation via texture matrix
+		EVDF_TEXTURE_MATRIX,
+
+		//! Support for NVidia's CG shader language
+		EVDF_CG,
 
 		//! Only used for counting the elements of this enum
 		EVDF_COUNT

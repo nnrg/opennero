@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -10,8 +10,8 @@
 #include "IMeshCache.h"
 #include "IAnimatedMesh.h"
 #include "IMaterialRenderer.h"
-
 #include "os.h"
+#include "CShadowVolumeSceneNode.h"
 
 namespace irr
 {
@@ -24,7 +24,7 @@ COctreeSceneNode::COctreeSceneNode(ISceneNode* parent, ISceneManager* mgr,
 					 s32 id, s32 minimalPolysPerNode)
 	: IMeshSceneNode(parent, mgr, id), StdOctree(0), LightMapOctree(0),
 	TangentsOctree(0), VertexType((video::E_VERTEX_TYPE)-1),
-	MinimalPolysPerNode(minimalPolysPerNode), Mesh(0),
+	MinimalPolysPerNode(minimalPolysPerNode), Mesh(0), Shadow(0),
 	UseVBOs(OCTREE_USE_HARDWARE), UseVisibilityAndVBOs(OCTREE_USE_VISIBILITY),
 	BoxBased(OCTREE_BOX_BASED)
 {
@@ -37,6 +37,8 @@ COctreeSceneNode::COctreeSceneNode(ISceneNode* parent, ISceneManager* mgr,
 //! destructor
 COctreeSceneNode::~COctreeSceneNode()
 {
+	if (Shadow)
+		Shadow->drop();
 	deleteTree();
 }
 
@@ -101,6 +103,9 @@ void COctreeSceneNode::render()
 	++PassCount;
 
 	driver->setTransform(video::ETS_WORLD, AbsoluteTransformation);
+
+	if (Shadow)
+		Shadow->updateShadowVolumes();
 
 	SViewFrustum frust = *camera->getViewFrustum();
 
@@ -281,6 +286,40 @@ void COctreeSceneNode::render()
 }
 
 
+//! Removes a child from this scene node.
+//! Implemented here, to be able to remove the shadow properly, if there is one,
+//! or to remove attached childs.
+bool COctreeSceneNode::removeChild(ISceneNode* child)
+{
+	if (child && Shadow == child)
+	{
+		Shadow->drop();
+		Shadow = 0;
+	}
+
+	return ISceneNode::removeChild(child);
+}
+
+
+//! Creates shadow volume scene node as child of this node
+//! and returns a pointer to it.
+IShadowVolumeSceneNode* COctreeSceneNode::addShadowVolumeSceneNode(
+		const IMesh* shadowMesh, s32 id, bool zfailmethod, f32 infinity)
+{
+	if (!SceneManager->getVideoDriver()->queryFeature(video::EVDF_STENCIL_BUFFER))
+		return 0;
+
+	if (!shadowMesh)
+		shadowMesh = Mesh; // if null is given, use the mesh of node
+
+	if (Shadow)
+		Shadow->drop();
+
+	Shadow = new CShadowVolumeSceneNode(shadowMesh, this, SceneManager, id,  zfailmethod, infinity);
+	return Shadow;
+}
+
+
 //! returns the axis aligned bounding box of this node
 const core::aabbox3d<f32>& COctreeSceneNode::getBoundingBox() const
 {
@@ -289,6 +328,8 @@ const core::aabbox3d<f32>& COctreeSceneNode::getBoundingBox() const
 
 
 //! creates the tree
+/* This method has a lot of duplication and overhead. Moreover, the tangents mesh conversion does not really work. I think we need a a proper mesh implementation for octrees, which handle all vertex types internally. Converting all structures to just one vertex type is always problematic.
+Thanks to Auria for fixing major parts of this method. */
 bool COctreeSceneNode::createTree(IMesh* mesh)
 {
 	if (!mesh)
@@ -301,7 +342,7 @@ bool COctreeSceneNode::createTree(IMesh* mesh)
 
 	Mesh = mesh;
 
-	u32 beginTime = os::Timer::getRealTime();
+	const u32 beginTime = os::Timer::getRealTime();
 
 	u32 nodeCount = 0;
 	u32 polyCount = 0;
@@ -311,12 +352,28 @@ bool COctreeSceneNode::createTree(IMesh* mesh)
 
 	if (mesh->getMeshBufferCount())
 	{
-		VertexType = mesh->getMeshBuffer(0)->getVertexType();
+		// check for "larger" buffer types
+		VertexType = video::EVT_STANDARD;
+		u32 meshReserve = 0;
+		for (i=0; i<mesh->getMeshBufferCount(); ++i)
+		{
+			const IMeshBuffer* b = mesh->getMeshBuffer(i);
+			if (b->getVertexCount() && b->getIndexCount())
+			{
+				++meshReserve;
+				if (b->getVertexType() == video::EVT_2TCOORDS)
+					VertexType = video::EVT_2TCOORDS;
+				else if (b->getVertexType() == video::EVT_TANGENTS)
+					VertexType = video::EVT_TANGENTS;
+			}
+		}
+		Materials.reallocate(Materials.size()+meshReserve);
 
 		switch(VertexType)
 		{
 		case video::EVT_STANDARD:
 			{
+				StdMeshes.reallocate(StdMeshes.size() + meshReserve);
 				for (i=0; i<mesh->getMeshBufferCount(); ++i)
 				{
 					IMeshBuffer* b = mesh->getMeshBuffer(i);
@@ -331,8 +388,21 @@ bool COctreeSceneNode::createTree(IMesh* mesh)
 
 						u32 v;
 						nchunk.Vertices.reallocate(b->getVertexCount());
-						for (v=0; v<b->getVertexCount(); ++v)
-							nchunk.Vertices.push_back(((video::S3DVertex*)b->getVertices())[v]);
+						switch (b->getVertexType())
+						{
+						case video::EVT_STANDARD:
+							for (v=0; v<b->getVertexCount(); ++v)
+								nchunk.Vertices.push_back(((video::S3DVertex*)b->getVertices())[v]);
+							break;
+						case video::EVT_2TCOORDS:
+							for (v=0; v<b->getVertexCount(); ++v)
+								nchunk.Vertices.push_back(((video::S3DVertex2TCoords*)b->getVertices())[v]);
+							break;
+						case video::EVT_TANGENTS:
+							for (v=0; v<b->getVertexCount(); ++v)
+								nchunk.Vertices.push_back(((video::S3DVertexTangents*)b->getVertices())[v]);
+							break;
+						}
 
 						polyCount += b->getIndexCount();
 
@@ -348,22 +418,11 @@ bool COctreeSceneNode::createTree(IMesh* mesh)
 			break;
 		case video::EVT_2TCOORDS:
 			{
-				IMeshBuffer* b;
-				u32 meshReserve = 0;
-				for ( i=0; i < mesh->getMeshBufferCount(); ++i)
-				{
-					b = mesh->getMeshBuffer(i);
-					if (b->getVertexCount() && b->getIndexCount())
-					{
-						meshReserve += 1;
-					}
-
-				}
-				LightMapMeshes.reallocate ( LightMapMeshes.size() + meshReserve );
+				LightMapMeshes.reallocate(LightMapMeshes.size() + meshReserve);
 
 				for ( i=0; i < mesh->getMeshBufferCount(); ++i)
 				{
-					b = mesh->getMeshBuffer(i);
+					IMeshBuffer* b = mesh->getMeshBuffer(i);
 
 					if (b->getVertexCount() && b->getIndexCount())
 					{
@@ -382,8 +441,21 @@ bool COctreeSceneNode::createTree(IMesh* mesh)
 
 						u32 v;
 						nchunk.Vertices.reallocate(b->getVertexCount());
-						for (v=0; v<b->getVertexCount(); ++v)
-							nchunk.Vertices.push_back(((video::S3DVertex2TCoords*)b->getVertices())[v]);
+						switch (b->getVertexType())
+						{
+						case video::EVT_STANDARD:
+							for (v=0; v<b->getVertexCount(); ++v)
+								nchunk.Vertices.push_back(((video::S3DVertex*)b->getVertices())[v]);
+							break;
+						case video::EVT_2TCOORDS:
+							for (v=0; v<b->getVertexCount(); ++v)
+								nchunk.Vertices.push_back(((video::S3DVertex2TCoords*)b->getVertices())[v]);
+							break;
+						case video::EVT_TANGENTS:
+							for (v=0; v<b->getVertexCount(); ++v)
+								nchunk.Vertices.push_back(((video::S3DVertexTangents*)b->getVertices())[v]);
+							break;
+						}
 
 						polyCount += b->getIndexCount();
 						nchunk.Indices.reallocate(b->getIndexCount());
@@ -398,6 +470,8 @@ bool COctreeSceneNode::createTree(IMesh* mesh)
 			break;
 		case video::EVT_TANGENTS:
 			{
+				TangentsMeshes.reallocate(TangentsMeshes.size() + meshReserve);
+
 				for (u32 i=0; i<mesh->getMeshBufferCount(); ++i)
 				{
 					IMeshBuffer* b = mesh->getMeshBuffer(i);
@@ -411,8 +485,27 @@ bool COctreeSceneNode::createTree(IMesh* mesh)
 
 						u32 v;
 						nchunk.Vertices.reallocate(b->getVertexCount());
-						for (v=0; v<b->getVertexCount(); ++v)
-							nchunk.Vertices.push_back(((video::S3DVertexTangents*)b->getVertices())[v]);
+						switch (b->getVertexType())
+						{
+						case video::EVT_STANDARD:
+							for (v=0; v<b->getVertexCount(); ++v)
+							{
+								const video::S3DVertex& tmpV = ((video::S3DVertex*)b->getVertices())[v];
+								nchunk.Vertices.push_back(video::S3DVertexTangents(tmpV.Pos, tmpV.Color, tmpV.TCoords));
+							}
+							break;
+						case video::EVT_2TCOORDS:
+							for (v=0; v<b->getVertexCount(); ++v)
+							{
+								const video::S3DVertex2TCoords& tmpV = ((video::S3DVertex2TCoords*)b->getVertices())[v];
+								nchunk.Vertices.push_back(video::S3DVertexTangents(tmpV.Pos, tmpV.Color, tmpV.TCoords));
+							}
+							break;
+						case video::EVT_TANGENTS:
+							for (v=0; v<b->getVertexCount(); ++v)
+								nchunk.Vertices.push_back(((video::S3DVertexTangents*)b->getVertices())[v]);
+							break;
+						}
 
 						polyCount += b->getIndexCount();
 						nchunk.Indices.reallocate(b->getIndexCount());
@@ -428,7 +521,7 @@ bool COctreeSceneNode::createTree(IMesh* mesh)
 		}
 	}
 
-	u32 endTime = os::Timer::getRealTime();
+	const u32 endTime = os::Timer::getRealTime();
 	c8 tmp[255];
 	sprintf(tmp, "Needed %ums to create Octree SceneNode.(%u nodes, %u polys)",
 		endTime - beginTime, nodeCount, polyCount/3);

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -15,6 +15,7 @@ namespace irr
 	// lots of prototypes:
 	class ILogger;
 	class CLogger;
+	class IRandomizer;
 
 	namespace gui
 	{
@@ -39,9 +40,8 @@ namespace irr
 		IVideoDriver* createSoftwareDriver(const core::dimension2d<u32>& windowSize,
 				bool fullscreen, io::IFileSystem* io,
 				video::IImagePresenter* presenter);
-		IVideoDriver* createSoftwareDriver2(const core::dimension2d<u32>& windowSize,
-				bool fullscreen, io::IFileSystem* io,
-				video::IImagePresenter* presenter);
+		IVideoDriver* createBurningVideoDriver(const irr::SIrrlichtCreationParameters& params,
+				io::IFileSystem* io, video::IImagePresenter* presenter);
 		IVideoDriver* createNullDriver(io::IFileSystem* io, const core::dimension2d<u32>& screenSize);
 	}
 
@@ -98,6 +98,15 @@ namespace irr
 		//! Returns a pointer to the logger.
 		virtual ILogger* getLogger();
 
+		//! Provides access to the engine's currently set randomizer.
+		virtual IRandomizer* getRandomizer() const;
+
+		//! Sets a new randomizer.
+		virtual void setRandomizer(IRandomizer* r);
+
+		//! Creates a new default randomizer.
+		virtual IRandomizer* createDefaultRandomizer() const;
+
 		//! Returns the operation system opertator object.
 		virtual IOSOperator* getOSOperator();
 
@@ -116,7 +125,7 @@ namespace irr
 		//! Get the current Gamma Value for the Display
 		virtual bool getGammaRamp( f32 &red, f32 &green, f32 &blue, f32 &brightness, f32 &contrast );
 
-		//! Set the maximal elapsed time between 2 clicks to generate doubleclicks for the mouse. It also affects tripleclick behaviour.
+		//! Set the maximal elapsed time between 2 clicks to generate doubleclicks for the mouse. It also affects tripleclick behavior.
 		//! When set to 0 no double- and tripleclicks will be generated.
 		virtual void setDoubleClickTime( u32 timeMs );
 
@@ -149,6 +158,7 @@ namespace irr
 		IEventReceiver* UserReceiver;
 		CLogger* Logger;
 		IOSOperator* Operator;
+		IRandomizer* Randomizer;
 		io::IFileSystem* FileSystem;
 		scene::ISceneManager* InputReceivingSceneManager;
 

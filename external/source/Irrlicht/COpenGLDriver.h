@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in Irrlicht.h
 
@@ -24,6 +24,10 @@ namespace irr
 // also includes the OpenGL stuff
 #include "COpenGLExtensionHandler.h"
 
+#ifdef _IRR_COMPILE_WITH_CG_
+#include "Cg/cg.h"
+#endif
+
 namespace irr
 {
 
@@ -33,19 +37,20 @@ namespace video
 
 	class COpenGLDriver : public CNullDriver, public IMaterialRendererServices, public COpenGLExtensionHandler
 	{
+		friend class COpenGLTexture;
 	public:
 
 		#ifdef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
 		COpenGLDriver(const SIrrlichtCreationParameters& params, io::IFileSystem* io, CIrrDeviceWin32* device);
 		//! inits the windows specific parts of the open gl driver
-		bool initDriver(SIrrlichtCreationParameters params, CIrrDeviceWin32* device);
+		bool initDriver(CIrrDeviceWin32* device);
 		bool changeRenderContext(const SExposedVideoData& videoData, CIrrDeviceWin32* device);
 		#endif
 
 		#ifdef _IRR_COMPILE_WITH_X11_DEVICE_
 		COpenGLDriver(const SIrrlichtCreationParameters& params, io::IFileSystem* io, CIrrDeviceLinux* device);
 		//! inits the GLX specific parts of the open gl driver
-		bool initDriver(SIrrlichtCreationParameters params, CIrrDeviceLinux* device);
+		bool initDriver(CIrrDeviceLinux* device);
 		bool changeRenderContext(const SExposedVideoData& videoData, CIrrDeviceLinux* device);
 		#endif
 
@@ -98,6 +103,30 @@ namespace video
 
 		//! Draw hardware buffer
 		virtual void drawHardwareBuffer(SHWBufferLink *HWBuffer);
+
+		//! Create occlusion query.
+		/** Use node for identification and mesh for occlusion test. */
+		virtual void addOcclusionQuery(scene::ISceneNode* node,
+				const scene::IMesh* mesh=0);
+
+		//! Remove occlusion query.
+		virtual void removeOcclusionQuery(scene::ISceneNode* node);
+
+		//! Run occlusion query. Draws mesh stored in query.
+		/** If the mesh shall not be rendered visible, use
+		overrideMaterial to disable the color and depth buffer. */
+		virtual void runOcclusionQuery(scene::ISceneNode* node, bool visible=false);
+
+		//! Update occlusion query. Retrieves results from GPU.
+		/** If the query shall not block, set the flag to false.
+		Update might not occur in this case, though */
+		virtual void updateOcclusionQuery(scene::ISceneNode* node, bool block=true);
+
+		//! Return query result.
+		/** Return value is the number of visible pixels/fragments.
+		The value is a safe approximation, i.e. can be larger then the
+		actual value of pixels. */
+		virtual u32 getOcclusionQueryResult(scene::ISceneNode* node) const;
 
 		//! draws a vertex primitive list
 		virtual void drawVertexPrimitiveList(const void* vertices, u32 vertexCount,
@@ -213,7 +242,7 @@ namespace video
 		//! Draws a shadow volume into the stencil buffer. To draw a stencil shadow, do
 		//! this: First, draw all geometry. Then use this method, to draw the shadow
 		//! volume. Then, use IVideoDriver::drawStencilShadow() to visualize the shadow.
-		virtual void drawStencilShadowVolume(const core::vector3df* triangles, s32 count, bool zfail);
+		virtual void drawStencilShadowVolume(const core::array<core::vector3df>& triangles, bool zfail, u32 debugDataVisible=0);
 
 		//! Fills the stencil shadow with color. After the shadow volume has been drawn
 		//! into the stencil buffer using IVideoDriver::drawStencilShadowVolume(), use this
@@ -257,8 +286,20 @@ namespace video
 		//! Sets a constant for the vertex shader based on a name.
 		virtual bool setVertexShaderConstant(const c8* name, const f32* floats, int count);
 
+		//! Bool interface for the above.
+		virtual bool setVertexShaderConstant(const c8* name, const bool* bools, int count);
+
+		//! Int interface for the above.
+		virtual bool setVertexShaderConstant(const c8* name, const s32* ints, int count);
+
 		//! Sets a constant for the pixel shader based on a name.
 		virtual bool setPixelShaderConstant(const c8* name, const f32* floats, int count);
+
+		//! Bool interface for the above.
+		virtual bool setPixelShaderConstant(const c8* name, const bool* bools, int count);
+
+		//! Int interface for the above.
+		virtual bool setPixelShaderConstant(const c8* name, const s32* ints, int count);
 
 		//! sets the current Texture
 		//! Returns whether setting was a success or not.
@@ -290,7 +331,8 @@ namespace video
 				u32 verticesOut = 0,
 				IShaderConstantSetCallBack* callback = 0,
 				E_MATERIAL_TYPE baseMaterial = video::EMT_SOLID,
-				s32 userData = 0);
+				s32 userData = 0,
+				E_GPU_SHADING_LANGUAGE shadingLang = EGSL_DEFAULT);
 
 		//! Returns a pointer to the IVideoDriver interface. (Implementation for
 		//! IMaterialRendererServices)
@@ -320,7 +362,7 @@ namespace video
 		virtual void clearZBuffer();
 
 		//! Returns an image created from the last rendered frame.
-		virtual IImage* createScreenShot();
+		virtual IImage* createScreenShot(video::ECOLOR_FORMAT format=video::ECF_UNKNOWN, video::E_RENDER_TARGET target=video::ERT_FRAME_BUFFER);
 
 		//! checks if an OpenGL error has happend and prints it
 		//! for performance reasons only available in debug mode
@@ -351,8 +393,22 @@ namespace video
 		ITexture* createDepthTexture(ITexture* texture, bool shared=true);
 		void removeDepthTexture(ITexture* texture);
 
+		//! Removes a texture from the texture cache and deletes it, freeing lot of memory.
+		void removeTexture(ITexture* texture);
+
 		//! Convert E_PRIMITIVE_TYPE to OpenGL equivalent
 		GLenum primitiveTypeToGL(scene::E_PRIMITIVE_TYPE type) const;
+
+		//! Convert E_BLEND_FACTOR to OpenGL equivalent
+		GLenum getGLBlend(E_BLEND_FACTOR factor) const;
+
+		//! Get ZBuffer bits.
+		GLenum getZBufferBits() const;
+
+		//! Get Cg context
+		#ifdef _IRR_COMPILE_WITH_CG_
+		const CGcontext& getCgContext();
+		#endif
 
 	private:
 
@@ -365,13 +421,13 @@ namespace video
 		void uploadClipPlane(u32 index);
 
 		//! inits the parts of the open gl driver used on all platforms
-		bool genericDriverInit(const core::dimension2d<u32>& screenSize, bool stencilBuffer);
+		bool genericDriverInit();
 		//! returns a device dependent texture from a software surface (IImage)
 		virtual video::ITexture* createDeviceDependentTexture(IImage* surface, const io::path& name, void* mipmapData);
 
 		//! creates a transposed matrix in supplied GLfloat array to pass to OpenGL
-		inline void createGLMatrix(GLfloat gl_matrix[16], const core::matrix4& m);
-		inline void createGLTextureMatrix(GLfloat gl_matrix[16], const core::matrix4& m);
+		inline void getGLMatrix(GLfloat gl_matrix[16], const core::matrix4& m);
+		inline void getGLTextureMatrix(GLfloat gl_matrix[16], const core::matrix4& m);
 
 		//! Set GL pipeline to desired texture wrap modes of the material
 		void setWrapMode(const SMaterial& material);
@@ -396,7 +452,7 @@ namespace video
 		void assignHardwareLight(u32 lightIndex);
 
 		//! helper function for render setup.
-		void createColorBuffer(const void* vertices, u32 vertexCount, E_VERTEX_TYPE vType);
+		void getColorBuffer(const void* vertices, u32 vertexCount, E_VERTEX_TYPE vType);
 
 		//! helper function doing the actual rendering.
 		void renderArray(const void* indexList, u32 primitiveCount,
@@ -422,7 +478,71 @@ namespace video
 
 		SMaterial Material, LastMaterial;
 		COpenGLTexture* RenderTargetTexture;
-		const ITexture* CurrentTexture[MATERIAL_MAX_TEXTURES];
+		core::array<video::IRenderTarget> MRTargets;
+		class STextureStageCache
+		{
+			const ITexture* CurrentTexture[MATERIAL_MAX_TEXTURES];
+		public:
+			STextureStageCache()
+			{
+				for (u32 i=0; i<MATERIAL_MAX_TEXTURES; ++i)
+				{
+					CurrentTexture[i] = 0;
+				}
+			}
+
+			~STextureStageCache()
+			{
+				clear();
+			}
+
+			void set(u32 stage, const ITexture* tex)
+			{
+				if (stage<MATERIAL_MAX_TEXTURES)
+				{
+					const ITexture* oldTexture=CurrentTexture[stage];
+					if (tex)
+						tex->grab();
+					CurrentTexture[stage]=tex;
+					if (oldTexture)
+						oldTexture->drop();
+				}
+			}
+
+			const ITexture* operator[](int stage) const
+			{
+				if ((u32)stage<MATERIAL_MAX_TEXTURES)
+					return CurrentTexture[stage];
+				else
+					return 0;
+			}
+
+			void remove(const ITexture* tex)
+			{
+				for (s32 i = MATERIAL_MAX_TEXTURES-1; i>= 0; --i)
+				{
+					if (CurrentTexture[i] == tex)
+					{
+						tex->drop();
+						CurrentTexture[i] = 0;
+					}
+				}
+			}
+
+			void clear()
+			{
+				// Drop all the CurrentTexture handles
+				for (u32 i=0; i<MATERIAL_MAX_TEXTURES; ++i)
+				{
+					if (CurrentTexture[i])
+					{
+						CurrentTexture[i]->drop();
+						CurrentTexture[i] = 0;
+					}
+				}
+			}
+		};
+		STextureStageCache CurrentTexture;
 		core::array<ITexture*> DepthTextures;
 		struct SUserClipPlane
 		{
@@ -444,8 +564,7 @@ namespace video
 		//! Render target type for render operations
 		E_RENDER_TARGET CurrentTarget;
 
-		bool Doublebuffer;
-		bool Stereo;
+		SIrrlichtCreationParameters Params;
 
 		//! All the lights that have been requested; a hardware limited
 		//! number of them will be used at once.
@@ -464,19 +583,22 @@ namespace video
 			HDC HDc; // Private GDI Device Context
 			HWND Window;
 		#ifdef _IRR_COMPILE_WITH_WINDOWS_DEVICE_
-			CIrrDeviceWin32 *Device;
+			CIrrDeviceWin32 *Win32Device;
 		#endif
 		#endif
 		#ifdef _IRR_COMPILE_WITH_X11_DEVICE_
 			GLXDrawable Drawable;
 			Display* X11Display;
-			CIrrDeviceLinux *Device;
+			CIrrDeviceLinux *X11Device;
 		#endif
 		#ifdef _IRR_COMPILE_WITH_OSX_DEVICE_
-			CIrrDeviceMacOSX *Device;
+			CIrrDeviceMacOSX *OSXDevice;
 		#endif
 		#ifdef _IRR_COMPILE_WITH_SDL_DEVICE_
-			CIrrDeviceSDL *Device;
+			CIrrDeviceSDL *SDLDevice;
+		#endif
+		#ifdef _IRR_COMPILE_WITH_CG_
+		CGcontext CgContext;
 		#endif
 
 		E_DEVICE_TYPE DeviceType;

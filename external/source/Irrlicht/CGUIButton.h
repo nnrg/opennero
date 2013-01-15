@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -36,6 +36,12 @@ namespace gui
 
 		//! sets another skin independent font. if this is set to zero, the button uses the font of the skin.
 		virtual void setOverrideFont(IGUIFont* font=0);
+
+		//! Gets the override font (if any)
+		virtual IGUIFont* getOverrideFont() const;
+
+		//! Get the font which is used right now for drawing
+		virtual IGUIFont* getActiveFont() const;
 
 		//! Sets an image which should be displayed on the button when it is in normal state.
 		virtual void setImage(video::ITexture* image=0);
@@ -119,7 +125,7 @@ namespace gui
 		core::rect<s32> ImageRect;
 		core::rect<s32> PressedImageRect;
 
-		u32 ClickTime;
+		u32 ClickTime, HoverTime, FocusTime;
 
 		bool IsPushButton;
 		bool Pressed;

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -30,12 +30,31 @@ namespace gui
 		//! Sets another skin independent font.
 		virtual void setOverrideFont(IGUIFont* font=0);
 
+		//! Gets the override font (if any)
+		/** \return The override font (may be 0) */
+		virtual IGUIFont* getOverrideFont() const;
+
+		//! Get the font which is used right now for drawing
+		/** Currently this is the override font when one is set and the
+		font of the active skin otherwise */
+		virtual IGUIFont* getActiveFont() const;
+
 		//! Sets another color for the text.
 		virtual void setOverrideColor(video::SColor color);
+
+		//! Gets the override color
+		virtual video::SColor getOverrideColor() const;
 
 		//! Sets if the text should use the overide color or the
 		//! color in the gui skin.
 		virtual void enableOverrideColor(bool enable);
+
+		//! Checks if an override color is enabled
+		/** \return true if the override color is enabled, false otherwise */
+		virtual bool isOverrideColorEnabled(void) const;
+
+		//! Sets whether to draw the background
+		virtual void setDrawBackground(bool draw);
 
 		//! Turns the border on or off
 		virtual void setDrawBorder(bool border);
@@ -130,6 +149,7 @@ namespace gui
 
 		bool MouseMarking;
 		bool Border;
+		bool Background;
 		bool OverrideColorEnabled;
 		s32 MarkBegin;
 		s32 MarkEnd;

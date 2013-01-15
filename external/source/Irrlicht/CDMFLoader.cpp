@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 //
@@ -29,7 +29,6 @@
 #include "irrString.h"
 #include "irrMath.h"
 #include "dmfsupport.h"
-#include "CImage.h"
 
 namespace irr
 {
@@ -275,7 +274,7 @@ IAnimatedMesh* CDMFLoader::createMesh(io::IReadFile* file)
 				findFile(use_mat_dirs, path, materiali[i].pathName, materiali[i].textureName);
 				tex = driver->getTexture(materiali[i].textureName);
 			}
-			//Primary texture is just a colour
+			//Primary texture is just a color
 			else if(materiali[i].textureFlag==1)
 			{
 				video::SColor color(axtoi(materiali[i].textureName.c_str()));
@@ -285,14 +284,14 @@ IAnimatedMesh* CDMFLoader::createMesh(io::IReadFile* file)
 				if (color.getAlpha()!=255 && materiali[i].textureBlend==4)
 					driver->setTextureCreationFlag(video::ETCF_ALWAYS_32_BIT,true);
 
-				video::CImage *immagine= new video::CImage(video::ECF_A8R8G8B8,
+				video::IImage *immagine= driver->createImage(video::ECF_A8R8G8B8,
 					core::dimension2d<u32>(8,8));
 				immagine->fill(color);
 				tex = driver->addTexture("", immagine);
 				immagine->drop();
 
 				//to support transparent materials
-				if(color.getAlpha()!=255 && materiali[i].textureBlend==4)
+				if (color.getAlpha()!=255 && materiali[i].textureBlend==4)
 				{
 					mat.MaterialType = video::EMT_TRANSPARENT_ALPHA_CHANNEL;
 					mat.MaterialTypeParam =(((f32) (color.getAlpha()-1))/255.0f);

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -27,8 +27,14 @@ namespace video
 // PNG function for error handling
 static void png_cpexcept_error(png_structp png_ptr, png_const_charp msg)
 {
-	os::Printer::log("PNG FATAL ERROR", msg, ELL_ERROR);
-    longjmp(png_jmpbuf(png_ptr), 1);
+	os::Printer::log("PNG fatal error", msg, ELL_ERROR);
+	longjmp(png_jmpbuf(png_ptr), 1);
+}
+
+// PNG function for warning handling
+static void png_cpexcept_warn(png_structp png_ptr, png_const_charp msg)
+{
+	os::Printer::log("PNG warning", msg, ELL_WARNING);
 }
 
 // PNG function for file reading
@@ -37,7 +43,7 @@ void PNGAPI user_read_data_fcn(png_structp png_ptr, png_bytep data, png_size_t l
 	png_size_t check;
 
 	// changed by zola {
-    io::IReadFile* file=(io::IReadFile*)png_get_io_ptr(png_ptr);
+	io::IReadFile* file=(io::IReadFile*)png_get_io_ptr(png_ptr);
 	check=(png_size_t) file->read((void*)data,(u32)length);
 	// }
 
@@ -107,7 +113,7 @@ IImage* CImageLoaderPng::loadImage(io::IReadFile* file) const
 
 	// Allocate the png read struct
 	png_structp png_ptr = png_create_read_struct(PNG_LIBPNG_VER_STRING,
-		NULL, (png_error_ptr)png_cpexcept_error, NULL);
+		NULL, (png_error_ptr)png_cpexcept_error, (png_error_ptr)png_cpexcept_warn);
 	if (!png_ptr)
 	{
 		os::Printer::log("LOAD PNG: Internal PNG create read struct failure\n", file->getFileName(), ELL_ERROR);
@@ -178,7 +184,22 @@ IImage* CImageLoaderPng::loadImage(io::IReadFile* file) const
 	if (ColorType==PNG_COLOR_TYPE_GRAY || ColorType==PNG_COLOR_TYPE_GRAY_ALPHA)
 		png_set_gray_to_rgb(png_ptr);
 
-	// Update the changes
+	int intent;
+	const double screen_gamma = 2.2;
+
+	if (png_get_sRGB(png_ptr, info_ptr, &intent))
+		png_set_gamma(png_ptr, screen_gamma, 0.45455);
+	else
+	{
+		double image_gamma;
+		if (png_get_gAMA(png_ptr, info_ptr, &image_gamma))
+			png_set_gamma(png_ptr, screen_gamma, image_gamma);
+		else
+			png_set_gamma(png_ptr, screen_gamma, 0.45455);
+	}
+
+	// Update the changes in between, as we need to get the new color type
+	// for proper processing of the RGBA type
 	png_read_update_info(png_ptr, info_ptr);
 	{
 		// Use temporary variables to avoid passing casted pointers
@@ -199,18 +220,6 @@ IImage* CImageLoaderPng::loadImage(io::IReadFile* file) const
 #else
 		png_set_bgr(png_ptr);
 #endif
-	}
-
-	// Update the changes
-	{
-		// Use temporary variables to avoid passing casted pointers
-		png_uint_32 w,h;
-		// Extract info
-		png_get_IHDR(png_ptr, info_ptr,
-			&w, &h,
-			&BitDepth, &ColorType, NULL, NULL, NULL);
-		Width=w;
-		Height=h;
 	}
 
 	// Create the image structure to be filled by png data
@@ -266,7 +275,6 @@ IImage* CImageLoaderPng::loadImage(io::IReadFile* file) const
 	return 0;
 #endif // _IRR_COMPILE_WITH_LIBPNG_
 }
-
 
 
 IImageLoader* createImageLoaderPNG()

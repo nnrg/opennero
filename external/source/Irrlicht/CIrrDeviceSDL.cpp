@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -30,15 +30,13 @@ namespace irr
 	{
 
 		#ifdef _IRR_COMPILE_WITH_DIRECT3D_8_
-		IVideoDriver* createDirectX8Driver(const core::dimension2d<u32>& screenSize, HWND window,
-			u32 bits, bool fullscreen, bool stencilbuffer, io::IFileSystem* io,
-			bool pureSoftware, bool highPrecisionFPU, bool vsync, u8 antiAlias);
+		IVideoDriver* createDirectX8Driver(const irr::SIrrlichtCreationParameters& params,
+			io::IFileSystem* io, HWND window);
 		#endif
 
 		#ifdef _IRR_COMPILE_WITH_DIRECT3D_9_
-		IVideoDriver* createDirectX9Driver(const core::dimension2d<u32>& screenSize, HWND window,
-			u32 bits, bool fullscreen, bool stencilbuffer, io::IFileSystem* io,
-			bool pureSoftware, bool highPrecisionFPU, bool vsync, u8 antiAlias);
+		IVideoDriver* createDirectX9Driver(const irr::SIrrlichtCreationParameters& params,
+			io::IFileSystem* io, HWND window);
 		#endif
 
 		#ifdef _IRR_COMPILE_WITH_OPENGL_
@@ -96,7 +94,7 @@ CIrrDeviceSDL::CIrrDeviceSDL(const SIrrlichtCreationParameters& param)
 	sdlversion += ".";
 	sdlversion += Info.version.patch;
 
-	Operator = new COSOperator(sdlversion.c_str());
+	Operator = new COSOperator(sdlversion);
 	os::Printer::log(sdlversion.c_str(), ELL_INFORMATION);
 
 	// create keymap
@@ -223,11 +221,7 @@ void CIrrDeviceSDL::createDriver()
 	case video::EDT_DIRECT3D8:
 		#ifdef _IRR_COMPILE_WITH_DIRECT3D_8_
 
-		VideoDriver = video::createDirectX8Driver(CreationParams.WindowSize, Info.window,
-			CreationParams.Bits, CreationParams.Fullscreen, CreationParams.Stencilbuffer,
-			FileSystem, false, CreationParams.HighPrecisionFPU, CreationParams.Vsync,
-			CreationParams.AntiAlias);
-
+		VideoDriver = video::createDirectX8Driver(CreationParams, FileSystem, HWnd);
 		if (!VideoDriver)
 		{
 			os::Printer::log("Could not create DIRECT3D8 Driver.", ELL_ERROR);
@@ -241,11 +235,7 @@ void CIrrDeviceSDL::createDriver()
 	case video::EDT_DIRECT3D9:
 		#ifdef _IRR_COMPILE_WITH_DIRECT3D_9_
 
-		VideoDriver = video::createDirectX9Driver(CreationParams.WindowSize, Info.window,
-			CreationParams.Bits, CreationParams.Fullscreen, CreationParams.Stencilbuffer,
-			FileSystem, false, CreationParams.HighPrecisionFPU, CreationParams.Vsync,
-			CreationParams.AntiAlias);
-
+		VideoDriver = video::createDirectX9Driver(CreationParams, FileSystem, HWnd);
 		if (!VideoDriver)
 		{
 			os::Printer::log("Could not create DIRECT3D9 Driver.", ELL_ERROR);
@@ -266,7 +256,7 @@ void CIrrDeviceSDL::createDriver()
 
 	case video::EDT_BURNINGSVIDEO:
 		#ifdef _IRR_COMPILE_WITH_BURNINGSVIDEO_
-		VideoDriver = video::createSoftwareDriver2(CreationParams.WindowSize, CreationParams.Fullscreen, FileSystem, this);
+		VideoDriver = video::createBurningVideoDriver(CreationParams, FileSystem, this);
 		#else
 		os::Printer::log("Burning's video driver was not compiled in.", ELL_ERROR);
 		#endif
@@ -468,7 +458,7 @@ bool CIrrDeviceSDL::run()
 
 #if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
 	// TODO: Check if the multiple open/close calls are too expensive, then
-        // open/close in the constructor/destructor instead
+	// open/close in the constructor/destructor instead
 
 	// update joystick states manually
 	SDL_JoystickUpdate();
@@ -580,8 +570,8 @@ bool CIrrDeviceSDL::activateJoysticks(core::array<SJoystickInfo> & joystickInfo)
 	{
 		char logString[256];
 		(void)sprintf(logString, "Found joystick %d, %d axes, %d buttons '%s'",
-		 joystick, joystickInfo[joystick].Axes,
-   joystickInfo[joystick].Buttons, joystickInfo[joystick].Name.c_str());
+		joystick, joystickInfo[joystick].Axes,
+		joystickInfo[joystick].Buttons, joystickInfo[joystick].Name.c_str());
 		os::Printer::log(logString, ELL_INFORMATION);
 	}
 

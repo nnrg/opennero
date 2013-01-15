@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -98,12 +98,14 @@ namespace scene
 		\param zfailmethod: If set to true, the shadow will use the
 		zfail method, if not, zpass is used.
 		\param infinity: Value used by the shadow volume algorithm to
-		scale the shadow volume.
+		scale the shadow volume (for zfail shadow volume we support only
+		finite shadows, so camera zfar must be larger than shadow back cap,
+		which is depend on infinity parameter).
 		\return Pointer to the created shadow scene node. This pointer
 		should not be dropped. See IReferenceCounted::drop() for more
 		information. */
 		virtual IShadowVolumeSceneNode* addShadowVolumeSceneNode(const IMesh* shadowMesh=0,
-			s32 id=-1, bool zfailmethod=true, f32 infinity=10000.0f) = 0;
+			s32 id=-1, bool zfailmethod=true, f32 infinity=1000.0f) = 0;
 
 
 		//! Get a pointer to a joint in the mesh (if the mesh is a bone based mesh).
@@ -130,12 +132,6 @@ namespace scene
 		/** \return Amount of joints in the mesh. */
 		virtual u32 getJointCount() const = 0;
 
-		//! Deprecated command, please use getJointNode
-		virtual ISceneNode* getMS3DJointNode(const c8* jointName) = 0;
-
-		//! Deprecated command, please use getJointNode
-		virtual ISceneNode* getXJointNode(const c8* jointName) = 0;
-
 		//! Starts a default MD2 animation.
 		/** With this method it is easily possible to start a Run,
 		Attack, Die or whatever animation, if the mesh contained in
@@ -161,7 +157,7 @@ namespace scene
 		animation with this name could be found. */
 		virtual bool setMD2Animation(const c8* animationName) = 0;
 
-		//! Returns the current displayed frame number.
+		//! Returns the currently displayed frame number.
 		virtual f32 getFrameNr() const = 0;
 		//! Returns the current start frame number.
 		virtual s32 getStartFrame() const = 0;
@@ -172,6 +168,10 @@ namespace scene
 		/** If set to false, animations will not be played looped. */
 		virtual void setLoopMode(bool playAnimationLooped) = 0;
 
+		//! returns the current loop mode
+		/** When true the animations are played looped */
+		virtual bool getLoopMode() const = 0;
+
 		//! Sets a callback interface which will be called if an animation playback has ended.
 		/** Set this to 0 to disable the callback again.
 		Please note that this will only be called when in non looped
@@ -179,7 +179,7 @@ namespace scene
 		virtual void setAnimationEndCallback(IAnimationEndCallBack* callback=0) = 0;
 
 		//! Sets if the scene node should not copy the materials of the mesh but use them in a read only style.
-		/* In this way it is possible to change the materials a mesh
+		/** In this way it is possible to change the materials a mesh
 		causing all mesh scene nodes referencing this mesh to change
 		too. */
 		virtual void setReadOnlyMaterials(bool readonly) = 0;
@@ -210,7 +210,7 @@ namespace scene
 		virtual void animateJoints(bool CalculateAbsolutePositions=true) = 0;
 
 		//! render mesh ignoring its transformation.
-		/** Used with ragdolls. Culling is unaffected. */
+		/** Culling is unaffected. */
 		virtual void setRenderFromIdentity( bool On )=0;
 
 		//! Creates a clone of this scene node and its children.

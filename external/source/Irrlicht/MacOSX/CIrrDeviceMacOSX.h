@@ -1,4 +1,5 @@
-// Copyright (C) 2005-2010 Etienne Petitjean
+// Copyright (C) 2005-2006 Etienne Petitjean
+// Copyright (C) 2007-2012 Christian Stehno
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in Irrlicht.h
 
@@ -70,10 +71,10 @@ namespace irr
 
 		//! Minimizes the window if possible
 		virtual void minimizeWindow();
-		
+
 		//! Maximizes the window if possible.
 		virtual void maximizeWindow();
-		
+
 		//! Restore the window to normal size if possible.
 		virtual void restoreWindow();
 
@@ -224,21 +225,22 @@ namespace irr
 		void postKeyEvent(void *event, irr::SEvent &ievent, bool pressed);
 		void pollJoysticks();
 
-		NSWindow           *Window;
-		CGLContextObj       CGLContext;
-		NSOpenGLContext    *OGLContext;
-		int	                DeviceWidth,
-		                    DeviceHeight;
-		std::map<int,int>	KeyCodes;
-		int                 ScreenWidth,
-		                    ScreenHeight;
-		bool                IsActive;
-		NSBitmapImageRep   *SoftwareDriverTarget;
-		bool                IsSoftwareRenderer,
-		                    IsShiftDown,
-		                    IsControlDown,
-		                    IsResizable;
-		u32                 MouseButtonStates;
+		NSWindow *Window;
+		CGLContextObj CGLContext;
+		NSOpenGLContext *OGLContext;
+		NSBitmapImageRep *SoftwareDriverTarget;
+		std::map<int,int> KeyCodes;
+		int DeviceWidth;
+		int DeviceHeight;
+		int ScreenWidth;
+		int ScreenHeight;
+		u32 MouseButtonStates;
+        u32 SoftwareRendererType;
+        bool IsFullscreen;
+		bool IsActive;
+		bool IsShiftDown;
+		bool IsControlDown;
+		bool IsResizable;
 	};
 
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt / Thomas Alten
+// Copyright (C) 2002-2012 Nikolaus Gebhardt / Thomas Alten
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -509,7 +509,7 @@ class CBurningShader_Raster_Reference : public IBurningShader
 public:
 
 	//! constructor
-	CBurningShader_Raster_Reference(IDepthBuffer* depthBuffer);
+	CBurningShader_Raster_Reference(CBurningVideoDriver* driver);
 
 	//! draws an indexed triangle list
 	virtual void drawTriangle ( const s4DVertex *a,const s4DVertex *b,const s4DVertex *c );
@@ -536,8 +536,8 @@ private:
 };
 
 //! constructor
-CBurningShader_Raster_Reference::CBurningShader_Raster_Reference(IDepthBuffer* depthBuffer)
-: IBurningShader(depthBuffer)
+CBurningShader_Raster_Reference::CBurningShader_Raster_Reference(CBurningVideoDriver* driver)
+: IBurningShader(driver)
 {
 	#ifdef _DEBUG
 	setDebugName("CBurningShader_Raster_Reference");
@@ -1129,9 +1129,9 @@ namespace video
 
 
 //! creates a flat triangle renderer
-IBurningShader* createTriangleRendererReference(IDepthBuffer* depthBuffer)
+IBurningShader* createTriangleRendererReference(CBurningVideoDriver* driver)
 {
-	return new CBurningShader_Raster_Reference(depthBuffer);
+	return new CBurningShader_Raster_Reference(driver);
 }
 
 

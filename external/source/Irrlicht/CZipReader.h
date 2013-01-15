@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -25,16 +25,8 @@ namespace io
 	// zero in the local header
 	const s16 ZIP_INFO_IN_DATA_DESCRIPTOR =	0x0008;
 
-#if defined(_MSC_VER) || defined(__BORLANDC__) || defined (__BCPLUSPLUS__)
-#	pragma pack( push, packing )
-#	pragma pack( 1 )
-#	define PACK_STRUCT
-#elif defined( __GNUC__ )
-#	define PACK_STRUCT	__attribute__((packed))
-#else
-#	error compiler not supported
-#endif
-
+// byte-align structures
+#include "irrpack.h"
 
 	struct SZIPFileDataDescriptor
 	{
@@ -60,23 +52,23 @@ namespace io
 
 	struct SZIPFileCentralDirFileHeader
 	{
-		u32 central_file_header_signature;	// 'PK0102' (0x02014b50)
-		u16 version_made_by;
-		u16 version_needed_to_extract;
-		u16 general_purpose_bit_flag;
-		u16 compression_method;
-		u16 last_mod_file_time;
-		u16 last_mod_file_date;
-		u32 crc_32;
-		u32 compressed_size;
-		u32 uncompressed_size;
-		u16 filename_length;
-		u16 extra_field_length;
-		u16 file_comment_length;
-		u16 disk_number_start;
-		u16 internal_file_attributes;
-		u32 external_file_attributes;
-		u32 relative_offset_of_local_header;
+		u32 Sig;	// 'PK0102' (0x02014b50)
+		u16 VersionMadeBy;
+		u16 VersionToExtract;
+		u16 GeneralBitFlag;
+		u16 CompressionMethod;
+		u16 LastModFileTime;
+		u16 LastModFileDate;
+		u32 CRC32;
+		u32 CompressedSize;
+		u32 UncompressedSize;
+		u16 FilenameLength;
+		u16 ExtraFieldLength;
+		u16 FileCommentLength;
+		u16 DiskNumberStart;
+		u16 InternalFileAttributes;
+		u32 ExternalFileAttributes;
+		u32 RelativeOffsetOfLocalHeader;
 
 		// filename (variable size)
 		// extra field (variable size)
@@ -86,14 +78,14 @@ namespace io
 
 	struct SZIPFileCentralDirEnd
 	{
-		u32 sig;			// 'PK0506' end_of central dir signature			// (0x06054b50)
-		u16 numberDisk;		// number of this disk
-		u16 numberStart;	// number of the disk with the start of the central directory
-		u16 totalDisk;		// total number of entries in the central dir on this disk
-		u16 totalEntries;	// total number of entries in the central dir
-		u32 size;			// size of the central directory
-		u32 offset;			// offset of start of centraldirectory with respect to the starting disk number
-		u16 comment_length;	// zipfile comment length
+		u32 Sig;			// 'PK0506' end_of central dir signature			// (0x06054b50)
+		u16 NumberDisk;		// number of this disk
+		u16 NumberStart;	// number of the disk with the start of the central directory
+		u16 TotalDisk;		// total number of entries in the central dir on this disk
+		u16 TotalEntries;	// total number of entries in the central dir
+		u32 Size;			// size of the central directory
+		u32 Offset;			// offset of start of centraldirectory with respect to the starting disk number
+		u16 CommentLength;	// zipfile comment length
 		// zipfile comment (variable size)
 	} PACK_STRUCT;
 
@@ -131,11 +123,7 @@ namespace io
 	} PACK_STRUCT;
 
 // Default alignment
-#if defined(_MSC_VER) || defined(__BORLANDC__) || defined (__BCPLUSPLUS__)
-#	pragma pack( pop, packing )
-#endif
-
-#undef PACK_STRUCT
+#include "irrunpack.h"
 
 	//! Contains extended info about zip files in the archive
 	struct SZipFileEntry
@@ -211,18 +199,23 @@ namespace io
 
 	protected:
 
-		IReadFile* File;
-
 		//! reads the next file header from a ZIP file, returns false if there are no more headers.
-		bool scanZipHeader();
+		/* if ignoreGPBits is set, the item will be read despite missing
+		file information. This is used when reading items from the central
+		directory. */
+		bool scanZipHeader(bool ignoreGPBits=false);
 
 		//! the same but for gzip files
 		bool scanGZipHeader();
 
-		bool IsGZip;
+		bool scanCentralDirectoryHeader();
+
+		IReadFile* File;
 
 		// holds extended info about files
 		core::array<SZipFileEntry> FileInfo;
+
+		bool IsGZip;
 	};
 
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -11,7 +11,7 @@ namespace scene
 {
 
 //! constructor
-CTriangleBBSelector::CTriangleBBSelector(const ISceneNode* node)
+CTriangleBBSelector::CTriangleBBSelector(ISceneNode* node)
 : CTriangleSelector(node)
 {
 	#ifdef _DEBUG
@@ -25,7 +25,7 @@ CTriangleBBSelector::CTriangleBBSelector(const ISceneNode* node)
 
 //! Gets all triangles.
 void CTriangleBBSelector::getTriangles(core::triangle3df* triangles,
-					s32 arraySize, s32& outTriangleCount, 
+					s32 arraySize, s32& outTriangleCount,
 					const core::matrix4* transform) const
 {
 	if (!SceneNode)
@@ -56,6 +56,22 @@ void CTriangleBBSelector::getTriangles(core::triangle3df* triangles,
 
 	// call parent
 	CTriangleSelector::getTriangles(triangles, arraySize, outTriangleCount,	transform);
+}
+
+void CTriangleBBSelector::getTriangles(core::triangle3df* triangles,
+					s32 arraySize, s32& outTriangleCount,
+					const core::aabbox3d<f32>& box,
+					const core::matrix4* transform) const
+{
+	return getTriangles(triangles, arraySize, outTriangleCount, transform);
+}
+
+void CTriangleBBSelector::getTriangles(core::triangle3df* triangles,
+					s32 arraySize, s32& outTriangleCount,
+					const core::line3d<f32>& line,
+					const core::matrix4* transform) const
+{
+	return getTriangles(triangles, arraySize, outTriangleCount, transform);
 }
 
 

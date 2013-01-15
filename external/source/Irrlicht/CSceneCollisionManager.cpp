@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -303,7 +303,7 @@ void CSceneCollisionManager::getPickedNodeFromBBAndSelector(
 			core::triangle3df candidateTriangle;
 
 			// do intersection test in object space
-			const ISceneNode * hitNode = 0;
+			ISceneNode * hitNode = 0;
 			if (box.intersectsWithLine(line) &&
 				getCollisionPoint(ray, selector, candidateCollisionPoint, candidateTriangle, hitNode))
 			{
@@ -349,7 +349,7 @@ ISceneNode* CSceneCollisionManager::getSceneNodeFromCameraBB(
 bool CSceneCollisionManager::getCollisionPoint(const core::line3d<f32>& ray,
 		ITriangleSelector* selector, core::vector3df& outIntersection,
 		core::triangle3df& outTriangle,
-		const ISceneNode*& outNode)
+		ISceneNode*& outNode)
 {
 	if (!selector)
 	{
@@ -358,6 +358,9 @@ bool CSceneCollisionManager::getCollisionPoint(const core::line3d<f32>& ray,
 	}
 
 	s32 totalcnt = selector->getTriangleCount();
+	if ( totalcnt <= 0 )
+		return false;
+
 	Triangles.set_used(totalcnt);
 
 	s32 cnt = 0;
@@ -423,7 +426,7 @@ core::vector3df CSceneCollisionManager::getCollisionResultPosition(
 		core::triangle3df& triout,
 		core::vector3df& hitPosition,
 		bool& outFalling,
-		const ISceneNode*& outNode,
+		ISceneNode*& outNode,
 		f32 slidingSpeed,
 		const core::vector3df& gravity)
 {
@@ -691,7 +694,7 @@ core::vector3df CSceneCollisionManager::collideEllipsoidWithWorld(
 		core::triangle3df& triout,
 		core::vector3df& hitPosition,
 		bool& outFalling,
-		const ISceneNode*& outNode)
+		ISceneNode*& outNode)
 {
 	if (!selector || radius.X == 0.0f || radius.Y == 0.0f || radius.Z == 0.0f)
 		return position;
@@ -874,7 +877,7 @@ core::line3d<f32> CSceneCollisionManager::getRayFromScreenCoordinates(
 
 //! Calculates 2d screen position from a 3d position.
 core::position2d<s32> CSceneCollisionManager::getScreenCoordinatesFrom3DPosition(
-	const core::vector3df & pos3d, ICameraSceneNode* camera)
+	const core::vector3df & pos3d, ICameraSceneNode* camera, bool useViewPort)
 {
 	if (!SceneManager || !Driver)
 		return core::position2d<s32>(-1000,-1000);
@@ -885,8 +888,11 @@ core::position2d<s32> CSceneCollisionManager::getScreenCoordinatesFrom3DPosition
 	if (!camera)
 		return core::position2d<s32>(-1000,-1000);
 
-	const core::rect<s32>& viewPort = Driver->getViewPort();
-	core::dimension2d<u32> dim(viewPort.getWidth(), viewPort.getHeight());
+	core::dimension2d<u32> dim;
+	if (useViewPort)
+		dim.set(Driver->getViewPort().getWidth(), Driver->getViewPort().getHeight());
+	else
+		dim=(Driver->getCurrentRenderTargetSize());
 
 	dim.Width /= 2;
 	dim.Height /= 2;
@@ -905,7 +911,7 @@ core::position2d<s32> CSceneCollisionManager::getScreenCoordinatesFrom3DPosition
 		core::reciprocal(transformedPos[3]);
 
 	return core::position2d<s32>(
-			core::round32(dim.Width * transformedPos[0] * zDiv) + dim.Width,
+			dim.Width + core::round32(dim.Width * (transformedPos[0] * zDiv)),
 			dim.Height - core::round32(dim.Height * (transformedPos[1] * zDiv)));
 }
 
@@ -913,22 +919,23 @@ core::position2d<s32> CSceneCollisionManager::getScreenCoordinatesFrom3DPosition
 inline bool CSceneCollisionManager::getLowestRoot(f32 a, f32 b, f32 c, f32 maxR, f32* root)
 {
 	// check if solution exists
-	f32 determinant = b*b - 4.0f*a*c;
+	const f32 determinant = b*b - 4.0f*a*c;
 
 	// if determinant is negative, no solution
-	if (determinant < 0.0f) return false;
+	if (determinant < 0.0f || a == 0.f )
+		return false;
 
 	// calculate two roots: (if det==0 then x1==x2
 	// but lets disregard that slight optimization)
-	// burningwater: sqrt( 0) is an illegal operation.... smth should be done...
 
-	f32 sqrtD = (f32)sqrt(determinant);
-
-	f32 r1 = (-b - sqrtD) / (2*a);
-	f32 r2 = (-b + sqrtD) / (2*a);
+	const f32 sqrtD = sqrtf(determinant);
+	const f32 invDA = core::reciprocal(2*a);
+	f32 r1 = (-b - sqrtD) * invDA;
+	f32 r2 = (-b + sqrtD) * invDA;
 
 	// sort so x1 <= x2
-	if (r1 > r2) { f32 tmp=r2; r2=r1; r1=tmp; }
+	if (r1 > r2)
+		core::swap(r1,r2);
 
 	// get lowest root
 	if (r1 > 0 && r1 < maxR)

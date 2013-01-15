@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -68,6 +68,8 @@ void CLightSceneNode::render()
 				driver->draw3DLine(core::vector3df(0.f, 0.f, 0.f),
 						LightData.Direction * LightData.Radius,
 						LightData.DiffuseColor.toSColor());
+				break;
+			default:
 				break;
 		}
 	}
@@ -188,7 +190,8 @@ void CLightSceneNode::doLightRecalc()
 		const f32 r = LightData.Radius * LightData.Radius * 0.5f;
 		BBox.MaxEdge.set( r, r, r );
 		BBox.MinEdge.set( -r, -r, -r );
-		setAutomaticCulling( scene::EAC_BOX );
+		//setAutomaticCulling( scene::EAC_BOX );
+		setAutomaticCulling( scene::EAC_OFF );
 		LightData.Position = getAbsolutePosition();
 	}
 	if (LightData.Type == video::ELT_DIRECTIONAL)

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -99,6 +99,9 @@ private:
 	/* Terminate source --- called by jpeg_finish_decompress() after all
 	data has been read.  Often a no-op. */
 	static void term_source (j_decompress_ptr cinfo);
+
+	// Copy filename to have it around for error-messages
+	static io::path Filename;
 
 	#endif // _IRR_COMPILE_WITH_LIBJPEG_
 };

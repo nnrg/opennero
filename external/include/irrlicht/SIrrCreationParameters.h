@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -29,6 +29,7 @@ namespace irr
 			Stencilbuffer(false),
 			Vsync(false),
 			AntiAlias(0),
+			HandleSRGB(false),
 			WithAlphaChannel(false),
 			Doublebuffer(true),
 			IgnoreInput(false),
@@ -36,7 +37,14 @@ namespace irr
 			HighPrecisionFPU(false),
 			EventReceiver(0),
 			WindowId(0),
+#ifdef _DEBUG
+			LoggingLevel(ELL_DEBUG),
+#else
 			LoggingLevel(ELL_INFORMATION),
+#endif
+			DisplayAdapter(0),
+			DriverMultithreaded(false),
+			UsePerformanceTimer(true),
 			SDK_version_do_not_use(IRRLICHT_SDK_VERSION)
 		{
 		}
@@ -56,6 +64,7 @@ namespace irr
 			Stencilbuffer = other.Stencilbuffer;
 			Vsync = other.Vsync;
 			AntiAlias = other.AntiAlias;
+			HandleSRGB = other.HandleSRGB;
 			WithAlphaChannel = other.WithAlphaChannel;
 			Doublebuffer = other.Doublebuffer;
 			IgnoreInput = other.IgnoreInput;
@@ -64,6 +73,9 @@ namespace irr
 			EventReceiver = other.EventReceiver;
 			WindowId = other.WindowId;
 			LoggingLevel = other.LoggingLevel;
+			DriverMultithreaded = other.DriverMultithreaded;
+			DisplayAdapter = other.DisplayAdapter;
+			UsePerformanceTimer = other.UsePerformanceTimer;
 			return *this;
 		}
 
@@ -131,6 +143,21 @@ namespace irr
 		NONMASKABLE.
 		Default value: 0 - disabled */
 		u8 AntiAlias;
+
+		//! Flag to enable proper sRGB and linear color handling
+		/** In most situations, it is desireable to have the color handling in
+		non-linear sRGB color space, and only do the intermediate color
+		calculations in linear RGB space. If this flag is enabled, the device and
+		driver try to assure that all color input and output are color corrected
+		and only the internal color representation is linear. This means, that
+		the color output is properly gamma-adjusted to provide the brighter
+		colors for monitor display. And that blending and lighting give a more
+		natural look, due to proper conversion from non-linear colors into linear
+		color space for blend operations. If this flag is enabled, all texture colors
+		(which are usually in sRGB space) are correctly displayed. However vertex colors
+		and other explicitly set values have to be manually encoded in linear color space.
+		Default value: false. */
+		bool HandleSRGB;
 
 		//! Whether the main framebuffer uses an alpha channel.
 		/** In some situations it might be desireable to get a color
@@ -238,6 +265,23 @@ namespace irr
 		then you have to change it here.
 		*/
 		ELOG_LEVEL LoggingLevel;
+
+		//! Allows to select which graphic card is used for rendering when more than one card is in the system.
+		/** So far only supported on D3D */
+		u32 DisplayAdapter;
+
+		//! Create the driver multithreaded.
+		/** Default is false. Enabling this can slow down your application.
+			Note that this does _not_ make Irrlicht threadsafe, but only the underlying driver-API for the graphiccard.
+			So far only supported on D3D. */
+		bool DriverMultithreaded;
+
+		//! Enables use of high performance timers on Windows platform.
+		/** When performance timers are not used, standard GetTickCount()
+		is used instead which usually has worse resolution, but also less
+		problems with speed stepping and other techniques.
+		*/
+		bool UsePerformanceTimer;
 
 		//! Don't use or change this parameter.
 		/** Always set it to IRRLICHT_SDK_VERSION, which is done by default.

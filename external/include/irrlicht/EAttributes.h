@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -40,7 +40,7 @@ enum E_ATTRIBUTE_TYPE
 	// 2d position attribute
 	EAT_POSITION2D,
 
-	// vector 2d
+	// vector 2d attribute
 	EAT_VECTOR2D,
 
 	// rectangle attribute
@@ -84,6 +84,9 @@ enum E_ATTRIBUTE_TYPE
 
 	// user pointer void*
 	EAT_USER_POINTER,
+
+	// dimension attribute
+	EAT_DIMENSION2D,
 
 	// known attribute type count
 	EAT_COUNT,

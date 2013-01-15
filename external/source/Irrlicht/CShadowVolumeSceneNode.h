@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -30,6 +30,7 @@ namespace scene
 		virtual void setShadowMesh(const IMesh* mesh);
 
 		//! Updates the shadow volumes for current light positions.
+		/** Called each render cycle from Animated Mesh SceneNode render method. */
 		virtual void updateShadowVolumes();
 
 		//! pre render method
@@ -46,37 +47,33 @@ namespace scene
 
 	private:
 
-		struct SShadowVolume
-		{
-			core::vector3df* vertices;
-			u32 count;
-			u32 size;
-		};
+		typedef core::array<core::vector3df> SShadowVolume;
 
-		void createShadowVolume(const core::vector3df& pos);
-		void createZPassVolume(s32 faceCount, u32& numEdges, core::vector3df light, SShadowVolume* svp, bool caps);
-		void createZFailVolume(s32 faceCount, u32& numEdges, const core::vector3df& light, SShadowVolume* svp);
+		void createShadowVolume(const core::vector3df& pos, bool isDirectional=false);
+		u32 createEdgesAndCaps(const core::vector3df& light, SShadowVolume* svp, core::aabbox3d<f32>* bb);
 
 		//! Generates adjacency information based on mesh indices.
-		void calculateAdjacency(f32 epsilon=0.0001f);
+		void calculateAdjacency();
 
 		core::aabbox3d<f32> Box;
 
 		// a shadow volume for every light
 		core::array<SShadowVolume> ShadowVolumes;
 
+		// a back cap bounding box for every light
+		core::array<core::aabbox3d<f32> > ShadowBBox;
+
 		core::array<core::vector3df> Vertices;
 		core::array<u16> Indices;
 		core::array<u16> Adjacency;
 		core::array<u16> Edges;
-		// used for zfail method, if face is front facing
+		// tells if face is front facing
 		core::array<bool> FaceData;
 
 		const scene::IMesh* ShadowMesh;
 
 		u32 IndexCount;
 		u32 VertexCount;
-
 		u32 ShadowVolumesUsed;
 
 		f32 Infinity;
@@ -88,4 +85,3 @@ namespace scene
 } // end namespace irr
 
 #endif
-

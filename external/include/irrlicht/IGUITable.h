@@ -1,4 +1,4 @@
-// Copyright (C) 2003-2010 Nikolaus Gebhardt
+// Copyright (C) 2003-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -81,6 +81,11 @@ namespace gui
 	};
 
 	//! Default list box GUI element.
+	/** \par This element can create the following events of type EGUI_EVENT_TYPE:
+	\li EGET_TABLE_CHANGED
+	\li EGET_TABLE_SELECTED_AGAIN
+	\li EGET_TABLE_HEADER_CHANGED
+	*/
 	class IGUITable : public IGUIElement
 	{
 	public:
@@ -112,6 +117,9 @@ namespace gui
 
 		//! Set the width of a column
 		virtual void setColumnWidth(u32 columnIndex, u32 width) = 0;
+
+		//! Get the width of a column
+		virtual u32 getColumnWidth(u32 columnIndex) const = 0;
 
 		//! columns can be resized by drag 'n drop
 		virtual void setResizableColumns(bool resizable) = 0;

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -25,13 +25,16 @@ namespace irr
 namespace io
 {
 	class IAttributes;
+	struct SAttributeReadWriteOptions;
 	class IReadFile;
 	class IWriteFile;
 } // end namespace io
 namespace scene
 {
 	class IMeshBuffer;
+	class IMesh;
 	class IMeshManipulator;
+	class ISceneNode;
 } // end namespace scene
 
 namespace video
@@ -82,11 +85,11 @@ namespace video
 		ETS_COUNT
 	};
 
-	//! enumeration for signalling ressources which were lost after the last render cycle
-	/** These values can be signalled by the driver, telling the app that some ressources
+	//! enumeration for signaling resources which were lost after the last render cycle
+	/** These values can be signaled by the driver, telling the app that some resources
 	were lost and need to be recreated. Irrlicht will sometimes recreate the actual objects,
 	but the content needs to be recreated by the application. */
-	enum E_LOST_RESSOURCE
+	enum E_LOST_RESOURCE
 	{
 		//! The whole device/driver is lost
 		ELR_DEVICE = 1,
@@ -180,17 +183,23 @@ namespace video
 						case EMF_ZWRITE_ENABLE: material.ZWriteEnable = Material.ZWriteEnable; break;
 						case EMF_BACK_FACE_CULLING: material.BackfaceCulling = Material.BackfaceCulling; break;
 						case EMF_FRONT_FACE_CULLING: material.FrontfaceCulling = Material.FrontfaceCulling; break;
-						case EMF_FOG_ENABLE: material.FogEnable = Material.FogEnable; break;
-						case EMF_NORMALIZE_NORMALS: material.NormalizeNormals = Material.NormalizeNormals; break;
-						case EMF_ANTI_ALIASING: material.AntiAliasing = Material.AntiAliasing; break;
-						case EMF_COLOR_MASK: material.ColorMask = Material.ColorMask; break;
 						case EMF_BILINEAR_FILTER: material.TextureLayer[0].BilinearFilter = Material.TextureLayer[0].BilinearFilter; break;
 						case EMF_TRILINEAR_FILTER: material.TextureLayer[0].TrilinearFilter = Material.TextureLayer[0].TrilinearFilter; break;
 						case EMF_ANISOTROPIC_FILTER: material.TextureLayer[0].AnisotropicFilter = Material.TextureLayer[0].AnisotropicFilter; break;
+						case EMF_FOG_ENABLE: material.FogEnable = Material.FogEnable; break;
+						case EMF_NORMALIZE_NORMALS: material.NormalizeNormals = Material.NormalizeNormals; break;
 						case EMF_TEXTURE_WRAP:
 							material.TextureLayer[0].TextureWrapU = Material.TextureLayer[0].TextureWrapU;
 							material.TextureLayer[0].TextureWrapV = Material.TextureLayer[0].TextureWrapV;
 							break;
+						case EMF_ANTI_ALIASING: material.AntiAliasing = Material.AntiAliasing; break;
+						case EMF_COLOR_MASK: material.ColorMask = Material.ColorMask; break;
+						case EMF_COLOR_MATERIAL: material.ColorMaterial = Material.ColorMaterial; break;
+						case EMF_USE_MIP_MAPS: material.UseMipMaps = Material.UseMipMaps; break;
+						case EMF_BLEND_OPERATION: material.BlendOperation = Material.BlendOperation; break;
+						case EMF_POLYGON_OFFSET:
+							material.PolygonOffsetDirection = Material.PolygonOffsetDirection;
+							material.PolygonOffsetFactor = Material.PolygonOffsetFactor; break;
 						}
 					}
 				}
@@ -205,26 +214,35 @@ namespace video
 				E_COLOR_PLANE colorMask=ECP_ALL,
 				E_BLEND_FACTOR blendFuncSrc=EBF_ONE,
 				E_BLEND_FACTOR blendFuncDst=EBF_ONE_MINUS_SRC_ALPHA,
-				bool blendEnable=false) :
+				E_BLEND_OPERATION blendOp=EBO_NONE) :
 			RenderTexture(texture),
 			TargetType(ERT_RENDER_TEXTURE), ColorMask(colorMask),
 			BlendFuncSrc(blendFuncSrc), BlendFuncDst(blendFuncDst),
-			BlendEnable(blendEnable) {}
+			BlendOp(blendOp) {}
 		IRenderTarget(E_RENDER_TARGET target,
 				E_COLOR_PLANE colorMask=ECP_ALL,
 				E_BLEND_FACTOR blendFuncSrc=EBF_ONE,
 				E_BLEND_FACTOR blendFuncDst=EBF_ONE_MINUS_SRC_ALPHA,
-				bool blendEnable=false) :
+				E_BLEND_OPERATION blendOp=EBO_NONE) :
 			RenderTexture(0),
 			TargetType(target), ColorMask(colorMask),
 			BlendFuncSrc(blendFuncSrc), BlendFuncDst(blendFuncDst),
-			BlendEnable(blendEnable) {}
+			BlendOp(blendOp) {}
+		bool operator!=(const IRenderTarget& other) const
+		{
+			return ((RenderTexture != other.RenderTexture) ||
+				(TargetType != other.TargetType) ||
+				(ColorMask != other.ColorMask) ||
+				(BlendFuncSrc != other.BlendFuncSrc) ||
+				(BlendFuncDst != other.BlendFuncDst) ||
+				(BlendOp != other.BlendOp));
+		}
 		ITexture* RenderTexture;
 		E_RENDER_TARGET TargetType:8;
 		E_COLOR_PLANE ColorMask:8;
 		E_BLEND_FACTOR BlendFuncSrc:4;
 		E_BLEND_FACTOR BlendFuncDst:4;
-		bool BlendEnable;
+		E_BLEND_OPERATION BlendOp:4;
 	};
 
 	//! Interface to driver which is able to perform 2d and 3d graphics functions.
@@ -281,6 +299,25 @@ namespace video
 		\param flag When true the feature is disabled, otherwise it is enabled. */
 		virtual void disableFeature(E_VIDEO_DRIVER_FEATURE feature, bool flag=true) =0;
 
+		//! Get attributes of the actual video driver
+		/** The following names can be queried for the given types:
+		MaxTextures (int) The maximum number of simultaneous textures supported by the driver. This can be less than the supported number of textures of the driver. Use _IRR_MATERIAL_MAX_TEXTURES_ to adapt the number.
+		MaxSupportedTextures (int) The maximum number of simultaneous textures supported by the fixed function pipeline of the (hw) driver. The actual supported number of textures supported by the engine can be lower.
+		MaxLights (int) Number of hardware lights supported in the fixed function pipieline of the driver, typically 6-8. Use light manager or deferred shading for more.
+		MaxAnisotropy (int) Number of anisotropy levels supported for filtering. At least 1, max is typically at 16 or 32.
+		MaxUserClipPlanes (int) Number of additional clip planes, which can be set by the user via dedicated driver methods.
+		MaxAuxBuffers (int) Special render buffers, which are currently not really usable inside Irrlicht. Only supported by OpenGL
+		MaxMultipleRenderTargets (int) Number of render targets which can be bound simultaneously. Rendering to MRTs is done via shaders.
+		MaxIndices (int) Number of indices which can be used in one render call (i.e. one mesh buffer).
+		MaxTextureSize (int) Dimension that a texture may have, both in width and height.
+		MaxGeometryVerticesOut (int) Number of vertices the geometry shader can output in one pass. Only OpenGL so far.
+		MaxTextureLODBias (float) Maximum value for LOD bias. Is usually at around 16, but can be lower on some systems.
+		Version (int) Version of the driver. Should be Major*100+Minor
+		ShaderLanguageVersion (int) Version of the high level shader language. Should be Major*100+Minor.
+		AntiAlias (int) Number of Samples the driver uses for each pixel. 0 and 1 means anti aliasing is off, typical values are 2,4,8,16,32
+		*/
+		virtual const io::IAttributes& getDriverAttributes() const=0;
+
 		//! Check if the driver was recently reset.
 		/** For d3d devices you will need to recreate the RTTs if the
 		driver was reset. Should be queried right after beginScene().
@@ -305,7 +342,7 @@ namespace video
 		//! Retrieve the given image loader
 		/** \param n The index of the loader to retrieve. This parameter is an 0-based
 		array index.
-		\return A pointer to the specified loader, 0 if the index is uncorrect. */
+		\return A pointer to the specified loader, 0 if the index is incorrect. */
 		virtual IImageLoader* getImageLoader(u32 n) = 0;
 
 		//! Retrieve the number of image writers
@@ -315,7 +352,7 @@ namespace video
 		//! Retrieve the given image writer
 		/** \param n The index of the writer to retrieve. This parameter is an 0-based
 		array index.
-		\return A pointer to the specified writer, 0 if the index is uncorrect. */
+		\return A pointer to the specified writer, 0 if the index is incorrect. */
 		virtual IImageWriter* getImageWriter(u32 n) = 0;
 
 		//! Sets a material.
@@ -429,6 +466,43 @@ namespace video
 		//! Remove all hardware buffers
 		virtual void removeAllHardwareBuffers() =0;
 
+		//! Create occlusion query.
+		/** Use node for identification and mesh for occlusion test. */
+		virtual void addOcclusionQuery(scene::ISceneNode* node,
+				const scene::IMesh* mesh=0) =0;
+
+		//! Remove occlusion query.
+		virtual void removeOcclusionQuery(scene::ISceneNode* node) =0;
+
+		//! Remove all occlusion queries.
+		virtual void removeAllOcclusionQueries() =0;
+
+		//! Run occlusion query. Draws mesh stored in query.
+		/** If the mesh shall not be rendered visible, use
+		overrideMaterial to disable the color and depth buffer. */
+		virtual void runOcclusionQuery(scene::ISceneNode* node, bool visible=false) =0;
+
+		//! Run all occlusion queries. Draws all meshes stored in queries.
+		/** If the meshes shall not be rendered visible, use
+		overrideMaterial to disable the color and depth buffer. */
+		virtual void runAllOcclusionQueries(bool visible=false) =0;
+
+		//! Update occlusion query. Retrieves results from GPU.
+		/** If the query shall not block, set the flag to false.
+		Update might not occur in this case, though */
+		virtual void updateOcclusionQuery(scene::ISceneNode* node, bool block=true) =0;
+
+		//! Update all occlusion queries. Retrieves results from GPU.
+		/** If the query shall not block, set the flag to false.
+		Update might not occur in this case, though */
+		virtual void updateAllOcclusionQueries(bool block=true) =0;
+
+		//! Return query result.
+		/** Return value is the number of visible pixels/fragments.
+		The value is a safe approximation, i.e. can be larger than the
+		actual value of pixels. */
+		virtual u32 getOcclusionQueryResult(scene::ISceneNode* node) const =0;
+
 		//! Sets a boolean alpha channel on the texture based on a color key.
 		/** This makes the texture fully transparent at the texels where
 		this color key can be found when using for example draw2DImage
@@ -443,8 +517,9 @@ namespace video
 		position of a pixel instead a color value.
 		\param zeroTexels \deprecated If set to true, then any texels that match
 		the color key will have their color, as well as their alpha, set to zero
-		(i.e. black). This behaviour matches the legacy (buggy) behaviour prior
-		to release 1.5 and is provided for backwards compatibility only.*/
+		(i.e. black). This behavior matches the legacy (buggy) behavior prior
+		to release 1.5 and is provided for backwards compatibility only.
+		This parameter may be removed by Irrlicht 1.9. */
 		virtual void makeColorKeyTexture(video::ITexture* texture,
 						video::SColor color,
 						bool zeroTexels = false) const =0;
@@ -459,8 +534,9 @@ namespace video
 		described above.
 		\param zeroTexels \deprecated If set to true, then any texels that match
 		the color key will have their color, as well as their alpha, set to zero
-		(i.e. black). This behaviour matches the legacy (buggy) behaviour prior
-		to release 1.5 and is provided for backwards compatibility only.*/
+		(i.e. black). This behavior matches the legacy (buggy) behavior prior
+		to release 1.5 and is provided for backwards compatibility only.
+		This parameter may be removed by Irrlicht 1.9. */
 		virtual void makeColorKeyTexture(video::ITexture* texture,
 				core::position2d<s32> colorKeyPixelPos,
 				bool zeroTexels = false) const =0;
@@ -862,7 +938,7 @@ namespace video
 		virtual void draw2DRectangleOutline(const core::recti& pos,
 				SColor color=SColor(255,255,255,255)) =0;
 
-		//! Draws a 2d line.
+		//! Draws a 2d line. Both start and end will be included in coloring.
 		/** \param start Screen coordinates of the start of the line
 		in pixels.
 		\param end Screen coordinates of the start of the line in
@@ -903,12 +979,14 @@ namespace video
 		Please note that the code for the opengl version of the method
 		is based on free code sent in by Philipp Dortmann, lots of
 		thanks go to him!
-		\param triangles Pointer to array of 3d vectors, specifying the
-		shadow volume.
-		\param count Amount of triangles in the array.
+		\param triangles Array of 3d vectors, specifying the shadow
+		volume.
 		\param zfail If set to true, zfail method is used, otherwise
-		zpass. */
-		virtual void drawStencilShadowVolume(const core::vector3df* triangles, s32 count, bool zfail=true) =0;
+		zpass.
+		\param debugDataVisible The debug data that is enabled for this
+		shadow node
+		*/
+		virtual void drawStencilShadowVolume(const core::array<core::vector3df>& triangles, bool zfail=true, u32 debugDataVisible=0) =0;
 
 		//! Fills the stencil shadow with color.
 		/** After the shadow volume has been drawn into the stencil
@@ -937,8 +1015,15 @@ namespace video
 			video::SColor rightDownEdge = video::SColor(255,0,0,0)) =0;
 
 		//! Draws a mesh buffer
-		/** \param mb Buffer to draw; */
+		/** \param mb Buffer to draw */
 		virtual void drawMeshBuffer(const scene::IMeshBuffer* mb) =0;
+
+		//! Draws normals of a mesh buffer
+		/** \param mb Buffer to draw the normals of
+		\param length length scale factor of the normals
+		\param color Color the normals are rendered with
+		*/
+		virtual void drawMeshBufferNormals(const scene::IMeshBuffer* mb, f32 length=10.f, SColor color=0xffffffff) =0;
 
 		//! Sets the fog mode.
 		/** These are global values attached to each 3d object rendered,
@@ -1015,7 +1100,7 @@ namespace video
 
 		//! Returns light data which was previously set by IVideoDriver::addDynamicLight().
 		/** \param idx Zero based index of the light. Must be 0 or
-		greater and smaller than IVideoDriver()::getDynamicLightCount.
+		greater and smaller than IVideoDriver::getDynamicLightCount.
 		\return Light data. */
 		virtual const SLight& getDynamicLight(u32 idx) const =0;
 
@@ -1066,9 +1151,9 @@ namespace video
 		virtual void setTextureCreationFlag(E_TEXTURE_CREATION_FLAG flag, bool enabled=true) =0;
 
 		//! Returns if a texture creation flag is enabled or disabled.
-		/** You can change this value using setTextureCreationMode().
+		/** You can change this value using setTextureCreationFlag().
 		\param flag Texture creation flag.
-		\return The current texture creation mode. */
+		\return The current texture creation flag enabled mode. */
 		virtual bool getTextureCreationFlag(E_TEXTURE_CREATION_FLAG flag) const =0;
 
 		//! Creates a software image from a file.
@@ -1106,8 +1191,8 @@ namespace video
 		/** Requires that there is a suitable image writer registered
 		for writing the image.
 		\param image Image to write.
-		\param file  An already open io::IWriteFile object. The name will be used to determine
-					the appropriate image writer to use.
+		\param file  An already open io::IWriteFile object. The name
+		will be used to determine the appropriate image writer to use.
 		\param param Control parameter for the backend (e.g. compression
 		level).
 		\return True on successful write. */
@@ -1143,23 +1228,23 @@ namespace video
 		virtual IImage* createImage(ECOLOR_FORMAT format, const core::dimension2d<u32>& size) =0;
 
 		//! Creates a software image by converting it to given format from another image.
-		/** \deprecated Create an empty image and use copyTo()
+		/** \deprecated Create an empty image and use copyTo(). This method may be removed by Irrlicht 1.9.
 		\param format Desired color format of the image.
 		\param imageToCopy Image to copy to the new image.
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual IImage* createImage(ECOLOR_FORMAT format, IImage *imageToCopy) =0;
+		_IRR_DEPRECATED_ virtual IImage* createImage(ECOLOR_FORMAT format, IImage *imageToCopy) =0;
 
 		//! Creates a software image from a part of another image.
-		/** \deprecated Create an empty image and use copyTo()
+		/** \deprecated Create an empty image and use copyTo(). This method may be removed by Irrlicht 1.9.
 		\param imageToCopy Image to copy to the new image in part.
 		\param pos Position of rectangle to copy.
 		\param size Extents of rectangle to copy.
 		\return The created image.
 		If you no longer need the image, you should call IImage::drop().
 		See IReferenceCounted::drop() for more information. */
-		virtual IImage* createImage(IImage* imageToCopy,
+		_IRR_DEPRECATED_ virtual IImage* createImage(IImage* imageToCopy,
 				const core::position2d<s32>& pos,
 				const core::dimension2d<u32>& size) =0;
 
@@ -1240,9 +1325,12 @@ namespace video
 		renderer names from getMaterialRendererName() to write out the
 		material type name, so they should be set before.
 		\param material The material to serialize.
+		\param options Additional options which might influence the
+		serialization.
 		\return The io::IAttributes container holding the material
 		properties. */
-		virtual io::IAttributes* createAttributesFromMaterial(const video::SMaterial& material) =0;
+		virtual io::IAttributes* createAttributesFromMaterial(const video::SMaterial& material,
+			io::SAttributeReadWriteOptions* options=0) =0;
 
 		//! Fills an SMaterial structure from attributes.
 		/** Please note that for setting material types of the
@@ -1283,7 +1371,7 @@ namespace video
 
 		//! Make a screenshot of the last rendered frame.
 		/** \return An image created from the last rendered frame. */
-		virtual IImage* createScreenShot() =0;
+		virtual IImage* createScreenShot(video::ECOLOR_FORMAT format=video::ECF_UNKNOWN, video::E_RENDER_TARGET target=video::ERT_FRAME_BUFFER) =0;
 
 		//! Check if the image is already loaded.
 		/** Works similar to getTexture(), but does not load the texture
@@ -1344,7 +1432,7 @@ namespace video
 		enabled or disabled. */
 		virtual void enableMaterial2D(bool enable=true) =0;
 
-		//! Returns the graphics card vendor name.
+		//! Get the graphics card vendor name.
 		virtual core::stringc getVendorInfo() =0;
 
 		//! Only used by the engine internally.
@@ -1359,8 +1447,21 @@ namespace video
 		\param flag Default behavior is to disable ZWrite, i.e. false. */
 		virtual void setAllowZWriteOnTransparent(bool flag) =0;
 
-		//! Returns the maximum texture size supported.
+		//! Get the maximum texture size supported.
 		virtual core::dimension2du getMaxTextureSize() const =0;
+
+		//! Color conversion convenience function
+		/** Convert an image (as array of pixels) from source to destination
+		array, thereby converting the color format. The pixel size is
+		determined by the color formats.
+		\param sP Pointer to source
+		\param sF Color format of source
+		\param sN Number of pixels to convert, both array must be large enough
+		\param dP Pointer to destination
+		\param dF Color format of destination
+		*/
+		virtual void convertColor(const void* sP, ECOLOR_FORMAT sF, s32 sN,
+				void* dP, ECOLOR_FORMAT dF) const =0;
 	};
 
 } // end namespace video
@@ -1368,4 +1469,3 @@ namespace video
 
 
 #endif
-

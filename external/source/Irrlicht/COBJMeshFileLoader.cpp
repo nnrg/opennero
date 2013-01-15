@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -143,7 +143,7 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 				c8 grp[WORD_BUFFER_LENGTH];
 				bufPtr = goAndCopyNextWord(grp, bufPtr, WORD_BUFFER_LENGTH, bufEnd);
 #ifdef _IRR_DEBUG_OBJ_LOADER_
-	os::Printer::log("Loaded group start",grp);
+	os::Printer::log("Loaded group start",grp, ELL_DEBUG);
 #endif
 				if (useGroups)
 				{
@@ -161,12 +161,12 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 				c8 smooth[WORD_BUFFER_LENGTH];
 				bufPtr = goAndCopyNextWord(smooth, bufPtr, WORD_BUFFER_LENGTH, bufEnd);
 #ifdef _IRR_DEBUG_OBJ_LOADER_
-	os::Printer::log("Loaded smoothing group start",smooth);
+	os::Printer::log("Loaded smoothing group start",smooth, ELL_DEBUG);
 #endif
 				if (core::stringc("off")==smooth)
 					smoothingGroup=0;
 				else
-					smoothingGroup=core::strtol10(smooth, 0);
+					smoothingGroup=core::strtoul10(smooth);
 			}
 			break;
 
@@ -176,7 +176,7 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 				c8 matName[WORD_BUFFER_LENGTH];
 				bufPtr = goAndCopyNextWord(matName, bufPtr, WORD_BUFFER_LENGTH, bufEnd);
 #ifdef _IRR_DEBUG_OBJ_LOADER_
-	os::Printer::log("Loaded material start",matName);
+	os::Printer::log("Loaded material start",matName, ELL_DEBUG);
 #endif
 				mtlName=matName;
 				mtlChanged=true;
@@ -187,7 +187,7 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 		{
 			c8 vertexWord[WORD_BUFFER_LENGTH]; // for retrieving vertex data
 			video::S3DVertex v;
-			// Assign vertex color from currently active material's diffuse colour
+			// Assign vertex color from currently active material's diffuse color
 			if (mtlChanged)
 			{
 				// retrieve the material
@@ -219,7 +219,7 @@ IAnimatedMesh* COBJMeshFileLoader::createMesh(io::IReadFile* file)
 				Idx[1] = Idx[2] = -1;
 
 				// read in next vertex's data
-				u32 wlength = copyWord(vertexWord, linePtr, WORD_BUFFER_LENGTH, bufEnd);
+				u32 wlength = copyWord(vertexWord, linePtr, WORD_BUFFER_LENGTH, endPtr);
 				// this function will also convert obj's 1-based index to c++'s 0-based index
 				retrieveVertexIndices(vertexWord, Idx, vertexWord+wlength+1, vertexBuffer.size(), textureCoordBuffer.size(), normalsBuffer.size());
 				v.Pos = vertexBuffer[Idx[0]];
@@ -468,8 +468,8 @@ const c8* COBJMeshFileLoader::readTextures(const c8* bufPtr, const c8* const buf
 //						currMaterial->Meshbuffer->Material.Textures[1] = texture;
 //						currMaterial->Meshbuffer->Material.MaterialType=video::EMT_REFLECTION_2_LAYER;
 		}
-		// Set diffuse material colour to white so as not to affect texture colour
-		// Because Maya set diffuse colour Kd to black when you use a diffuse colour map
+		// Set diffuse material color to white so as not to affect texture color
+		// Because Maya set diffuse color Kd to black when you use a diffuse color map
 		// But is this the right thing to do?
 		currMaterial->Meshbuffer->Material.DiffuseColor.set(
 			currMaterial->Meshbuffer->Material.DiffuseColor.getAlpha(), 255, 255, 255 );
@@ -830,7 +830,8 @@ core::stringc COBJMeshFileLoader::copyLine(const c8* inBuf, const c8* bufEnd)
 			break;
 		++ptr;
 	}
-	return core::stringc(inBuf, (u32)(ptr-inBuf+1));
+	// we must avoid the +1 in case the array is used up
+	return core::stringc(inBuf, (u32)(ptr-inBuf+((ptr < bufEnd) ? 1 : 0)));
 }
 
 
@@ -861,10 +862,9 @@ bool COBJMeshFileLoader::retrieveVertexIndices(c8* vertexData, s32* idx, const c
 			// number is completed. Convert and store it
 			word[i] = '\0';
 			// if no number was found index will become 0 and later on -1 by decrement
-			if (word[0]=='-')
+			idx[idxType] = core::strtol10(word);
+			if (idx[idxType]<0)
 			{
-				idx[idxType] = core::strtol10(word+1,0);
-				idx[idxType] *= -1;
 				switch (idxType)
 				{
 					case 0:
@@ -879,7 +879,7 @@ bool COBJMeshFileLoader::retrieveVertexIndices(c8* vertexData, s32* idx, const c
 				}
 			}
 			else
-				idx[idxType] = core::strtol10(word,0)-1;
+				idx[idxType]-=1;
 
 			// reset the word
 			word[0] = '\0';

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -54,7 +54,7 @@ public:
 	virtual bool existsAttribute(const c8* attributeName);
 
 	//! Returns attribute index from name, -1 if not found
-	virtual s32 findAttribute(const c8* attributeName);
+	virtual s32 findAttribute(const c8* attributeName) const;
 
 	//! Removes all attributes
 	virtual void clear();
@@ -84,11 +84,11 @@ public:
 	//! Gets an attribute as integer value
 	//! \param attributeName: Name of the attribute to get.
 	//! \return Returns value of the attribute previously set by setAttribute()
-	virtual s32 getAttributeAsInt(const c8* attributeName);
+	virtual s32 getAttributeAsInt(const c8* attributeName) const;
 
 	//! Gets an attribute as integer value
 	//! \param index: Index value, must be between 0 and getAttributeCount()-1.
-	virtual s32 getAttributeAsInt(s32 index);
+	virtual s32 getAttributeAsInt(s32 index) const;
 
 	//! Sets an attribute as integer value
 	virtual void setAttribute(s32 index, s32 value);
@@ -375,6 +375,32 @@ public:
 	//! Sets an attribute as vector
 	virtual void setAttribute(s32 index, core::vector3df v);
 
+
+	/*
+
+		Vector2d Attribute
+
+	*/
+
+	//! Adds an attribute as 2d vector
+	virtual void addVector2d(const c8* attributeName, core::vector2df value);
+
+	//! Sets a attribute as 2d vector
+	virtual void setAttribute(const c8* attributeName, core::vector2df v);
+
+	//! Gets an attribute as 2d vector
+	//! \param attributeName: Name of the attribute to get.
+	//! \return Returns value of the attribute previously set by setAttribute()
+	virtual core::vector2df getAttributeAsVector2d(const c8* attributeName);
+
+	//! Gets an attribute as 3d vector
+	//! \param index: Index value, must be between 0 and getAttributeCount()-1.
+	virtual core::vector2df getAttributeAsVector2d(s32 index);
+
+	//! Sets an attribute as vector
+	virtual void setAttribute(s32 index, core::vector2df v);
+
+
 	/*
 
 		Position2d Attribute
@@ -422,6 +448,31 @@ public:
 
 	//! Sets an attribute as rectangle
 	virtual void setAttribute(s32 index, core::rect<s32> v);
+
+
+	/*
+
+		Dimension2d Attribute
+
+	*/
+
+	//! Adds an attribute as dimension2d
+	virtual void addDimension2d(const c8* attributeName, core::dimension2d<u32> value);
+
+	//! Sets an attribute as dimension2d
+	virtual void setAttribute(const c8* attributeName, core::dimension2d<u32> v);
+
+	//! Gets an attribute as dimension2d
+	//! \param attributeName: Name of the attribute to get.
+	//! \return Returns value of the attribute previously set by setAttribute()
+	virtual core::dimension2d<u32> getAttributeAsDimension2d(const c8* attributeName);
+
+	//! Gets an attribute as dimension2d
+	//! \param index: Index value, must be between 0 and getAttributeCount()-1.
+	virtual core::dimension2d<u32> getAttributeAsDimension2d(s32 index);
+
+	//! Sets an attribute as dimension2d
+	virtual void setAttribute(s32 index, core::dimension2d<u32> v);
 
 
 	/*
@@ -602,10 +653,10 @@ public:
 	*/
 
 	//! Adds an attribute as texture reference
-	virtual void addTexture(const c8* attributeName, video::ITexture* texture);
+	virtual void addTexture(const c8* attributeName, video::ITexture* texture, const io::path& filename = "");
 
 	//! Sets an attribute as texture reference
-	virtual void setAttribute(const c8* attributeName, video::ITexture* texture );
+	virtual void setAttribute(const c8* attributeName, video::ITexture* texture, const io::path& filename = "");
 
 	//! Gets an attribute as texture reference
 	//! \param attributeName: Name of the attribute to get.
@@ -616,7 +667,7 @@ public:
 	virtual video::ITexture* getAttributeAsTexture(s32 index);
 
 	//! Sets an attribute as texture reference
-	virtual void setAttribute(s32 index, video::ITexture* texture);
+	virtual void setAttribute(s32 index, video::ITexture* texture, const io::path& filename = "");
 
 
 
@@ -649,7 +700,7 @@ protected:
 
 	core::array<IAttribute*> Attributes;
 
-	IAttribute* getAttributeP(const c8* attributeName);
+	IAttribute* getAttributeP(const c8* attributeName) const;
 
 	video::IVideoDriver* Driver;
 };

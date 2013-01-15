@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -86,8 +86,12 @@ public:
 	// implementations for the render services
 	virtual void setBasicRenderStates(const SMaterial& material, const SMaterial& lastMaterial, bool resetAllRenderstates);
 	virtual bool setVertexShaderConstant(const c8* name, const f32* floats, int count);
+	virtual bool setVertexShaderConstant(const c8* name, const bool* bools, int count);
+	virtual bool setVertexShaderConstant(const c8* name, const s32* ints, int count);
 	virtual void setVertexShaderConstant(const f32* data, s32 startRegister, s32 constantAmount=1);
 	virtual bool setPixelShaderConstant(const c8* name, const f32* floats, int count);
+	virtual bool setPixelShaderConstant(const c8* name, const bool* bools, int count);
+	virtual bool setPixelShaderConstant(const c8* name, const s32* ints, int count);
 	virtual void setPixelShaderConstant(const f32* data, s32 startRegister, s32 constantAmount=1);
 	virtual IVideoDriver* getVideoDriver();
 
@@ -123,7 +127,7 @@ protected:
 	};
 
 	GLhandleARB Program;
-    GLuint Program2;
+	GLuint Program2;
 	core::array<SUniformInfo> UniformInfo;
 	s32 UserData;
 };

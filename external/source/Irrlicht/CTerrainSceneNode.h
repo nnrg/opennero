@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -217,44 +217,34 @@ namespace scene
 				ISceneManager* newManager);
 
 	private:
-
 		friend class CTerrainTriangleSelector;
 
 		struct SPatch
 		{
 			SPatch()
-			: CurrentLOD(-1), Top(0), Bottom(0), Right(0), Left(0)
+			: Top(0), Bottom(0), Right(0), Left(0), CurrentLOD(-1)
 			{
 			}
 
-			s32			CurrentLOD;
-			core::aabbox3df		BoundingBox;
-			core::vector3df		Center;
-			SPatch*			Top;
-			SPatch*			Bottom;
-			SPatch*			Right;
-			SPatch*			Left;
+			SPatch* Top;
+			SPatch* Bottom;
+			SPatch* Right;
+			SPatch* Left;
+			s32 CurrentLOD;
+			core::aabbox3df BoundingBox;
+			core::vector3df Center;
 		};
 
 		struct STerrainData
 		{
-			STerrainData()
-			: Size(0), PatchSize(0), CalcPatchSize(0),
-				PatchCount(0), MaxLOD(0),
-				BoundingBox(core::aabbox3df( 99999.9f, 99999.9f, 99999.9f, -99999.9f, -99999.9f, -99999.9f)),
-				Patches(0)
-			{
-			}
-
 			STerrainData(s32 patchSize, s32 maxLOD, const core::vector3df& position, const core::vector3df& rotation, const core::vector3df& scale)
-			: Size(0), Position(position), Rotation(rotation), Scale(scale),
-				PatchSize(patchSize), CalcPatchSize(patchSize-1),
-				PatchCount(0), MaxLOD(maxLOD),
-				BoundingBox(core::aabbox3df( 99999.9f, 99999.9f, 99999.9f, -99999.9f, -99999.9f, -99999.9f)),
-				Patches(0)
+			: Patches(0), Size(0), Position(position), Rotation(rotation),
+				Scale(scale), PatchSize(patchSize), CalcPatchSize(patchSize-1),
+				PatchCount(0), MaxLOD(maxLOD)
 			{
 			}
 
+			SPatch*		Patches;
 			s32		Size;
 			core::vector3df	Position;
 			core::vector3df	Rotation;
@@ -267,9 +257,11 @@ namespace scene
 			s32		MaxLOD;
 			core::aabbox3df	BoundingBox;
 			core::array<f64> LODDistanceThreshold;
-			SPatch*		Patches;
 		};
-
+    
+    
+    virtual void preRenderCalculationsIfNeeded();
+    
 		virtual void preRenderLODCalculations();
 		virtual void preRenderIndicesCalculations();
 
@@ -316,7 +308,7 @@ namespace scene
 		core::vector3df	OldCameraPosition;
 		core::vector3df	OldCameraRotation;
 		core::vector3df	OldCameraUp;
-		f32				OldCameraFOV;
+		f32             OldCameraFOV;
 		f32 CameraMovementDelta;
 		f32 CameraRotationDelta;
 		f32 CameraFOVDelta;
@@ -324,6 +316,7 @@ namespace scene
 		// needed for (de)serialization
 		f32 TCoordScale1;
 		f32 TCoordScale2;
+		s32 SmoothFactor;
 		io::path HeightmapFile;
 		io::IFileSystem* FileSystem;
 	};

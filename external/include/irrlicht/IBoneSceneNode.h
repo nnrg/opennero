@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -60,8 +60,8 @@ namespace scene
 			ISceneNode(parent, mgr, id),positionHint(-1),scaleHint(-1),rotationHint(-1) { }
 
 		//! Get the name of the bone
-		/** \deprecated Use getName instead. */
-		virtual const c8* getBoneName() const { return getName(); }
+		/** \deprecated Use getName instead. This method may be removed by Irrlicht 1.9 */
+		_IRR_DEPRECATED_ virtual const c8* getBoneName() const { return getName(); }
 
 		//! Get the index of the bone
 		virtual u32 getBoneIndex() const = 0;

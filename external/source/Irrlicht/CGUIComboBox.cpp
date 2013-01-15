@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -24,7 +24,7 @@ CGUIComboBox::CGUIComboBox(IGUIEnvironment* environment, IGUIElement* parent,
 	s32 id, core::rect<s32> rectangle)
 	: IGUIComboBox(environment, parent, id, rectangle),
 	ListButton(0), SelectedText(0), ListBox(0), LastFocus(0),
-	Selected(-1), HAlign(EGUIA_UPPERLEFT), VAlign(EGUIA_CENTER), HasFocus(false)
+	Selected(-1), HAlign(EGUIA_UPPERLEFT), VAlign(EGUIA_CENTER), MaxSelectionRows(5), HasFocus(false)
 {
 	#ifdef _DEBUG
 	setDebugName("CGUIComboBox");
@@ -78,6 +78,26 @@ void CGUIComboBox::setTextAlignment(EGUI_ALIGNMENT horizontal, EGUI_ALIGNMENT ve
 	HAlign = horizontal;
 	VAlign = vertical;
 	SelectedText->setTextAlignment(horizontal, vertical);
+}
+
+
+//! Set the maximal number of rows for the selection listbox
+void CGUIComboBox::setMaxSelectionRows(u32 max)
+{
+	MaxSelectionRows = max;
+
+	// force recalculation of open listbox
+	if (ListBox)
+	{
+		openCloseMenu();
+		openCloseMenu();
+	}
+}
+
+//! Get the maximimal number of rows for the selection listbox
+u32 CGUIComboBox::getMaxSelectionRows() const
+{
+	return MaxSelectionRows;
 }
 
 
@@ -182,7 +202,7 @@ void CGUIComboBox::setSelected(s32 idx)
 //! called if an event happened.
 bool CGUIComboBox::OnEvent(const SEvent& event)
 {
-	if (IsEnabled)
+	if (isEnabled())
 	{
 		switch(event.EventType)
 		{
@@ -238,7 +258,10 @@ bool CGUIComboBox::OnEvent(const SEvent& event)
 					setSelected((s32)Items.size() -1);
 
 				if (Selected != oldSelected)
+				{
 					sendSelectionChangedEvent();
+					return true;
+				}
 
 				if (absorb)
 					return true;
@@ -321,7 +344,10 @@ bool CGUIComboBox::OnEvent(const SEvent& event)
 						setSelected((s32)Items.size() -1);
 
 					if (Selected != oldSelected)
+					{
 						sendSelectionChangedEvent();
+						return true;
+					}
 				}
 			default:
 				break;
@@ -377,8 +403,8 @@ void CGUIComboBox::draw()
 		SelectedText->setDrawBackground(false);
 		SelectedText->setOverrideColor(skin->getColor(EGDC_GRAY_TEXT));
 	}
-	ListButton->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_CURSOR_DOWN), skin->getColor(EGDC_WINDOW_SYMBOL));
-	ListButton->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_CURSOR_DOWN), skin->getColor(EGDC_WINDOW_SYMBOL));
+	ListButton->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_CURSOR_DOWN), skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL));
+	ListButton->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_CURSOR_DOWN), skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL));
 
 
 	core::rect<s32> frameRect(AbsoluteRect);
@@ -408,10 +434,10 @@ void CGUIComboBox::openCloseMenu()
 			Parent->bringToFront(this);
 
 		IGUISkin* skin = Environment->getSkin();
-		s32 h = Items.size();
+		u32 h = Items.size();
 
-		if (h > 10)
-			h = 5;
+		if (h > getMaxSelectionRows())
+			h = getMaxSelectionRows();
 		if (h == 0)
 			h = 1;
 
@@ -450,6 +476,7 @@ void CGUIComboBox::serializeAttributes(io::IAttributes* out, io::SAttributeReadW
 
 	out->addEnum ("HTextAlign", HAlign, GUIAlignmentNames);
 	out->addEnum ("VTextAlign", VAlign, GUIAlignmentNames);
+	out->addInt("MaxSelectionRows", (s32)MaxSelectionRows );
 
 	out->addInt	("Selected",	Selected );
 	out->addInt	("ItemCount",	Items.size());
@@ -470,6 +497,7 @@ void CGUIComboBox::deserializeAttributes(io::IAttributes* in, io::SAttributeRead
 
 	setTextAlignment( (EGUI_ALIGNMENT) in->getAttributeAsEnumeration("HTextAlign", GUIAlignmentNames),
                       (EGUI_ALIGNMENT) in->getAttributeAsEnumeration("VTextAlign", GUIAlignmentNames));
+	setMaxSelectionRows( (u32)(in->getAttributeAsInt("MaxSelectionRows")) );
 
 	// clear the list
 	clear();

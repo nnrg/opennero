@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -80,6 +80,9 @@ public:
 	//! add an externally loaded font
 	virtual IGUIFont* addFont(const io::path& name, IGUIFont* font);
 
+	//! remove loaded font
+	virtual void removeFont(IGUIFont* font);
+
 	//! returns default font
 	virtual IGUIFont* getBuiltInFont() const;
 
@@ -113,7 +116,7 @@ public:
 
 	//! adds an image. The returned pointer must not be dropped.
 	virtual IGUIImage* addImage(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0);
+		IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0, bool useAlphaChannel=true);
 
 	//! adds a checkbox
 	virtual IGUICheckBox* addCheckBox(bool checked, const core::rect<s32>& rectangle, IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0);
@@ -131,7 +134,9 @@ public:
 	virtual IGUIMeshViewer* addMeshViewer(const core::rect<s32>& rectangle, IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0);
 
 	//! Adds a file open dialog.
-	virtual IGUIFileOpenDialog* addFileOpenDialog(const wchar_t* title = 0, bool modal=true, IGUIElement* parent=0, s32 id=-1);
+	virtual IGUIFileOpenDialog* addFileOpenDialog(const wchar_t* title = 0,
+			bool modal=true, IGUIElement* parent=0, s32 id=-1,
+			bool restoreCWD=false, io::path::char_type* startDir=0);
 
 	//! Adds a color select dialog.
 	virtual IGUIColorSelectDialog* addColorSelectDialog(const wchar_t* title = 0, bool modal=true, IGUIElement* parent=0, s32 id=-1);
@@ -186,6 +191,9 @@ public:
 
 	//! Returns the element with the focus
 	virtual IGUIElement* getFocus() const;
+
+	//! Returns the element last known to be under the mouse
+	virtual IGUIElement* getHovered() const;
 
 	//! Adds an element for fading in or out.
 	virtual IGUIInOutFader* addInOutFader(const core::rect<s32>* rectangle=0, IGUIElement* parent=0, s32 id=-1);
@@ -302,6 +310,7 @@ private:
 	io::IFileSystem* FileSystem;
 	IEventReceiver* UserReceiver;
 	IOSOperator* Operator;
+	static const io::path DefaultFontName;
 };
 
 } // end namespace gui

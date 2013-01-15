@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt / Thomas Alten
+// Copyright (C) 2002-2012 Nikolaus Gebhardt / Thomas Alten
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -28,8 +28,13 @@ namespace irr
 
 		u32 srcPixelMul;
 		u32 dstPixelMul;
-	};
 
+		bool stretch;
+		float x_stretch;
+		float y_stretch;
+
+		SBlitJob() : stretch(false) {}
+	};
 
 	// Bitfields Cohen Sutherland
 	enum eClipCode
@@ -164,7 +169,7 @@ inline void GetClip(AbsRectangle &clipping, video::IImage * t)
 	return alpha in [0;256] Granularity from 32-Bit ARGB
 	add highbit alpha ( alpha > 127 ? + 1 )
 */
-static inline u32 extractAlpha ( const u32 c )
+static inline u32 extractAlpha(const u32 c)
 {
 	return ( c >> 24 ) + ( c >> 31 );
 }
@@ -173,7 +178,7 @@ static inline u32 extractAlpha ( const u32 c )
 	return alpha in [0;255] Granularity and 32-Bit ARGB
 	add highbit alpha ( alpha > 127 ? + 1 )
 */
-static inline u32 packAlpha ( const u32 c )
+static inline u32 packAlpha(const u32 c)
 {
 	return (c > 127 ? c - 1 : c) << 24;
 }
@@ -183,7 +188,7 @@ static inline u32 packAlpha ( const u32 c )
 	Scale Color by (1/value)
 	value 0 - 256 ( alpha )
 */
-inline u32 PixelLerp32 ( const u32 source, const u32 value )
+inline u32 PixelLerp32(const u32 source, const u32 value)
 {
 	u32 srcRB = source & 0x00FF00FF;
 	u32 srcXG = (source & 0xFF00FF00) >> 8;
@@ -249,7 +254,7 @@ static void RenderLine32_Decal(video::IImage *t,
 	m = dy << 1;
 
 	run = dx;
-	while ( run )
+	do
 	{
 		*dst = argb;
 
@@ -261,7 +266,7 @@ static void RenderLine32_Decal(video::IImage *t,
 			d -= c;
 		}
 		run -= 1;
-	}
+	} while (run>=0);
 
 	t->unlock();
 }
@@ -316,7 +321,7 @@ static void RenderLine32_Blend(video::IImage *t,
 
 	run = dx;
 	const u32 packA = packAlpha ( alpha );
-	while ( run )
+	do
 	{
 		*dst = packA | PixelBlend32( *dst, argb, alpha );
 
@@ -328,7 +333,7 @@ static void RenderLine32_Blend(video::IImage *t,
 			d -= c;
 		}
 		run -= 1;
-	}
+	} while (run>=0);
 
 	t->unlock();
 }
@@ -381,7 +386,7 @@ static void RenderLine16_Decal(video::IImage *t,
 	m = dy << 1;
 
 	run = dx;
-	while ( run )
+	do
 	{
 		*dst = (u16)argb;
 
@@ -393,7 +398,7 @@ static void RenderLine16_Decal(video::IImage *t,
 			d -= c;
 		}
 		run -= 1;
-	}
+	} while (run>=0);
 
 	t->unlock();
 }
@@ -448,7 +453,7 @@ static void RenderLine16_Blend(video::IImage *t,
 
 	run = dx;
 	const u16 packA = alpha ? 0x8000 : 0;
-	while ( run )
+	do
 	{
 		*dst = packA | PixelBlend16( *dst, argb, alpha );
 
@@ -460,7 +465,7 @@ static void RenderLine16_Blend(video::IImage *t,
 			d -= c;
 		}
 		run -= 1;
-	}
+	} 	while (run>=0);
 
 	t->unlock();
 }
@@ -470,38 +475,87 @@ static void RenderLine16_Blend(video::IImage *t,
 */
 static void executeBlit_TextureCopy_x_to_x( const SBlitJob * job )
 {
-	const void *src = (void*) job->src;
-	void *dst = (void*) job->dst;
-
-	const u32 widthPitch = job->width * job->dstPixelMul;
-	for ( s32 dy = 0; dy != job->height; ++dy )
+	const u32 w = job->width;
+	const u32 h = job->height;
+	if (job->stretch)
 	{
-		memcpy( dst, src, widthPitch );
+		const u32 *src = static_cast<const u32*>(job->src);
+		u32 *dst = static_cast<u32*>(job->dst);
+		const float wscale = 1.f/job->x_stretch;
+		const float hscale = 1.f/job->y_stretch;
 
-		src = (void*) ( (u8*) (src) + job->srcPitch );
-		dst = (void*) ( (u8*) (dst) + job->dstPitch );
+		for ( u32 dy = 0; dy < h; ++dy )
+		{
+			const u32 src_y = (u32)(dy*hscale);
+			src = (u32*) ( (u8*) (job->src) + job->srcPitch*src_y );
+			
+			for ( u32 dx = 0; dx < w; ++dx )
+			{
+				const u32 src_x = (u32)(dx*wscale);
+				dst[dx] = src[src_x];
+			}
+			dst = (u32*) ( (u8*) (dst) + job->dstPitch );
+		}
+	}
+	else
+	{
+		const u32 widthPitch = job->width * job->dstPixelMul;
+		const void *src = (void*) job->src;
+		void *dst = (void*) job->dst;
+
+		for ( u32 dy = 0; dy != h; ++dy )
+		{
+			memcpy( dst, src, widthPitch );
+
+			src = (void*) ( (u8*) (src) + job->srcPitch );
+			dst = (void*) ( (u8*) (dst) + job->dstPitch );
+		}
 	}
 }
-
 
 /*!
 */
 static void executeBlit_TextureCopy_32_to_16( const SBlitJob * job )
 {
+	const u32 w = job->width;
+	const u32 h = job->height;
 	const u32 *src = static_cast<const u32*>(job->src);
 	u16 *dst = static_cast<u16*>(job->dst);
 
-	for ( s32 dy = 0; dy != job->height; ++dy )
+	if (job->stretch)
 	{
-		for ( s32 dx = 0; dx != job->width; ++dx )
-		{
-			//16 bit Blitter depends on pre-multiplied color
-			const u32 s = PixelLerp32( src[dx] | 0xFF000000, extractAlpha( src[dx] ) );
-			dst[dx] = video::A8R8G8B8toA1R5G5B5( s );
-		}
+		const float wscale = 1.f/job->x_stretch;
+		const float hscale = 1.f/job->y_stretch;
 
-		src = (u32*) ( (u8*) (src) + job->srcPitch );
-		dst = (u16*) ( (u8*) (dst) + job->dstPitch );
+		for ( u32 dy = 0; dy < h; ++dy )
+		{
+			const u32 src_y = (u32)(dy*hscale);
+			src = (u32*) ( (u8*) (job->src) + job->srcPitch*src_y );
+			
+			for ( u32 dx = 0; dx < w; ++dx )
+			{
+				const u32 src_x = (u32)(dx*wscale);
+				//16 bit Blitter depends on pre-multiplied color
+				const u32 s = PixelLerp32( src[src_x] | 0xFF000000, extractAlpha( src[src_x] ) );
+				dst[dx] = video::A8R8G8B8toA1R5G5B5( s );
+			}
+			dst = (u16*) ( (u8*) (dst) + job->dstPitch );
+		}
+	}
+	else
+	{
+		for ( u32 dy = 0; dy != h; ++dy )
+		{
+			for ( u32 dx = 0; dx != w; ++dx )
+			{
+				//16 bit Blitter depends on pre-multiplied color
+				const u32 s = PixelLerp32( src[dx] | 0xFF000000, extractAlpha( src[dx] ) );
+				dst[dx] = video::A8R8G8B8toA1R5G5B5( s );
+			}
+
+			src = (u32*) ( (u8*) (src) + job->srcPitch );
+			dst = (u16*) ( (u8*) (dst) + job->dstPitch );
+		}
 	}
 }
 
@@ -509,21 +563,43 @@ static void executeBlit_TextureCopy_32_to_16( const SBlitJob * job )
 */
 static void executeBlit_TextureCopy_24_to_16( const SBlitJob * job )
 {
-	const void *src = (void*) job->src;
-	u16 *dst = (u16*) job->dst;
+	const u32 w = job->width;
+	const u32 h = job->height;
+	const u8 *src = static_cast<const u8*>(job->src);
+	u16 *dst = static_cast<u16*>(job->dst);
 
-	for ( s32 dy = 0; dy != job->height; ++dy )
+	if (job->stretch)
 	{
-		u8 * s = (u8*) src;
+		const float wscale = 3.f/job->x_stretch;
+		const float hscale = 1.f/job->y_stretch;
 
-		for ( s32 dx = 0; dx != job->width; ++dx )
+		for ( u32 dy = 0; dy < h; ++dy )
 		{
-			dst[dx] = video::RGBA16(s[0], s[1], s[2]);
-			s += 3;
+			const u32 src_y = (u32)(dy*hscale);
+			src = (u8*)(job->src) + job->srcPitch*src_y;
+			
+			for ( u32 dx = 0; dx < w; ++dx )
+			{
+				const u8* src_x = src+(u32)(dx*wscale);
+				dst[dx] = video::RGBA16(src_x[0], src_x[1], src_x[2]);
+			}
+			dst = (u16*) ( (u8*) (dst) + job->dstPitch );
 		}
+	}
+	else
+	{
+		for ( u32 dy = 0; dy != h; ++dy )
+		{
+			const u8* s = src;
+			for ( u32 dx = 0; dx != w; ++dx )
+			{
+				dst[dx] = video::RGBA16(s[0], s[1], s[2]);
+				s += 3;
+			}
 
-		src = (void*) ( (u8*) (src) + job->srcPitch );
-		dst = (u16*) ( (u8*) (dst) + job->dstPitch );
+			src = src+job->srcPitch;
+			dst = (u16*) ( (u8*) (dst) + job->dstPitch );
+		}
 	}
 }
 
@@ -532,116 +608,235 @@ static void executeBlit_TextureCopy_24_to_16( const SBlitJob * job )
 */
 static void executeBlit_TextureCopy_16_to_32( const SBlitJob * job )
 {
-	const u16 *src = (u16*) job->src;
-	u32 *dst = (u32*) job->dst;
+	const u32 w = job->width;
+	const u32 h = job->height;
+	const u16 *src = static_cast<const u16*>(job->src);
+	u32 *dst = static_cast<u32*>(job->dst);
 
-	for ( s32 dy = 0; dy != job->height; ++dy )
+	if (job->stretch)
 	{
-		for ( s32 dx = 0; dx != job->width; ++dx )
-		{
-			dst[dx] = video::A1R5G5B5toA8R8G8B8( src[dx] );
-		}
+		const float wscale = 1.f/job->x_stretch;
+		const float hscale = 1.f/job->y_stretch;
 
-		src = (u16*) ( (u8*) (src) + job->srcPitch );
-		dst = (u32*) ( (u8*) (dst) + job->dstPitch );
+		for ( u32 dy = 0; dy < h; ++dy )
+		{
+			const u32 src_y = (u32)(dy*hscale);
+			src = (u16*) ( (u8*) (job->src) + job->srcPitch*src_y );
+			
+			for ( u32 dx = 0; dx < w; ++dx )
+			{
+				const u32 src_x = (u32)(dx*wscale);
+				dst[dx] = video::A1R5G5B5toA8R8G8B8(src[src_x]);
+			}
+			dst = (u32*) ( (u8*) (dst) + job->dstPitch );
+		}
+	}
+	else
+	{
+		for ( u32 dy = 0; dy != h; ++dy )
+		{
+			for ( u32 dx = 0; dx != w; ++dx )
+			{
+				dst[dx] = video::A1R5G5B5toA8R8G8B8( src[dx] );
+			}
+
+			src = (u16*) ( (u8*) (src) + job->srcPitch );
+			dst = (u32*) ( (u8*) (dst) + job->dstPitch );
+		}
 	}
 }
 
 static void executeBlit_TextureCopy_16_to_24( const SBlitJob * job )
 {
-	const u16 *src = (u16*) job->src;
-	u8 *dst = (u8*) job->dst;
+	const u32 w = job->width;
+	const u32 h = job->height;
+	const u16 *src = static_cast<const u16*>(job->src);
+	u8 *dst = static_cast<u8*>(job->dst);
 
-	for ( s32 dy = 0; dy != job->height; ++dy )
+	if (job->stretch)
 	{
-		for ( s32 dx = 0; dx != job->width; ++dx )
-		{
-			u32 colour = video::A1R5G5B5toA8R8G8B8( src[dx] );
-			u8 * writeTo = &dst[dx * 3];
-			*writeTo++ = (colour >> 16)& 0xFF;
-			*writeTo++ = (colour >> 8) & 0xFF;
-			*writeTo++ = colour & 0xFF;
-		}
+		const float wscale = 1.f/job->x_stretch;
+		const float hscale = 1.f/job->y_stretch;
 
-		src = (u16*) ( (u8*) (src) + job->srcPitch );
-		dst += job->dstPitch;
+		for ( u32 dy = 0; dy < h; ++dy )
+		{
+			const u32 src_y = (u32)(dy*hscale);
+			src = (u16*) ( (u8*) (job->src) + job->srcPitch*src_y );
+			
+			for ( u32 dx = 0; dx < w; ++dx )
+			{
+				const u32 src_x = (u32)(dx*wscale);
+				u32 color = video::A1R5G5B5toA8R8G8B8(src[src_x]);
+				u8 * writeTo = &dst[dx * 3];
+				*writeTo++ = (color >> 16)& 0xFF;
+				*writeTo++ = (color >> 8) & 0xFF;
+				*writeTo++ = color & 0xFF;
+			}
+			dst += job->dstPitch;
+		}
+	}
+	else
+	{
+		for ( u32 dy = 0; dy != h; ++dy )
+		{
+			for ( u32 dx = 0; dx != w; ++dx )
+			{
+				u32 color = video::A1R5G5B5toA8R8G8B8(src[dx]);
+				u8 * writeTo = &dst[dx * 3];
+				*writeTo++ = (color >> 16)& 0xFF;
+				*writeTo++ = (color >> 8) & 0xFF;
+				*writeTo++ = color & 0xFF;
+			}
+
+			src = (u16*) ( (u8*) (src) + job->srcPitch );
+			dst += job->dstPitch;
+		}
 	}
 }
-
 
 /*!
 */
 static void executeBlit_TextureCopy_24_to_32( const SBlitJob * job )
 {
-	void *src = (void*) job->src;
-	u32 *dst = (u32*) job->dst;
+	const u32 w = job->width;
+	const u32 h = job->height;
+	const u8 *src = static_cast<const u8*>(job->src);
+	u32 *dst = static_cast<u32*>(job->dst);
 
-	for ( s32 dy = 0; dy != job->height; ++dy )
+	if (job->stretch)
 	{
-		u8 * s = (u8*) src;
+		const float wscale = 3.f/job->x_stretch;
+		const float hscale = 1.f/job->y_stretch;
 
-		for ( s32 dx = 0; dx != job->width; ++dx )
+		for ( u32 dy = 0; dy < h; ++dy )
 		{
-			dst[dx] = 0xFF000000 | s[0] << 16 | s[1] << 8 | s[2];
-			s += 3;
+			const u32 src_y = (u32)(dy*hscale);
+			src = (const u8*)job->src+(job->srcPitch*src_y);
+			
+			for ( u32 dx = 0; dx < w; ++dx )
+			{
+				const u8* s = src+(u32)(dx*wscale);
+				dst[dx] = 0xFF000000 | s[0] << 16 | s[1] << 8 | s[2];
+			}
+			dst = (u32*) ( (u8*) (dst) + job->dstPitch );
 		}
+	}
+	else
+	{
+		for ( s32 dy = 0; dy != job->height; ++dy )
+		{
+			const u8* s = src;
 
-		src = (void*) ( (u8*) (src) + job->srcPitch );
-		dst = (u32*) ( (u8*) (dst) + job->dstPitch );
+			for ( s32 dx = 0; dx != job->width; ++dx )
+			{
+				dst[dx] = 0xFF000000 | s[0] << 16 | s[1] << 8 | s[2];
+				s += 3;
+			}
+
+			src = src + job->srcPitch;
+			dst = (u32*) ( (u8*) (dst) + job->dstPitch );
+		}
 	}
 }
 
 static void executeBlit_TextureCopy_32_to_24( const SBlitJob * job )
 {
-	const u32 * src = (u32*) job->src;
-	u8 * dst = (u8*) job->dst;
+	const u32 w = job->width;
+	const u32 h = job->height;
+	const u32 *src = static_cast<const u32*>(job->src);
+	u8 *dst = static_cast<u8*>(job->dst);
 
-	for ( s32 dy = 0; dy != job->height; ++dy )
+	if (job->stretch)
 	{
-		for ( s32 dx = 0; dx != job->width; ++dx )
+		const float wscale = 1.f/job->x_stretch;
+		const float hscale = 1.f/job->y_stretch;
+
+		for ( u32 dy = 0; dy < h; ++dy )
 		{
-			u8 * writeTo = &dst[dx * 3];
-			*writeTo++ = (src[dx] >> 16)& 0xFF;
-			*writeTo++ = (src[dx] >> 8) & 0xFF;
-			*writeTo++ = src[dx] & 0xFF;
+			const u32 src_y = (u32)(dy*hscale);
+			src = (u32*) ( (u8*) (job->src) + job->srcPitch*src_y);
+
+			for ( u32 dx = 0; dx < w; ++dx )
+			{
+				const u32 src_x = src[(u32)(dx*wscale)];
+				u8 * writeTo = &dst[dx * 3];
+				*writeTo++ = (src_x >> 16)& 0xFF;
+				*writeTo++ = (src_x >> 8) & 0xFF;
+				*writeTo++ = src_x & 0xFF;
+			}
+			dst += job->dstPitch;
 		}
-
-		src = (u32*) ( (u8*) (src) + job->srcPitch );
-		dst += job->dstPitch ;
 	}
+	else
+	{
+		for ( u32 dy = 0; dy != h; ++dy )
+		{
+			for ( u32 dx = 0; dx != w; ++dx )
+			{
+				u8 * writeTo = &dst[dx * 3];
+				*writeTo++ = (src[dx] >> 16)& 0xFF;
+				*writeTo++ = (src[dx] >> 8) & 0xFF;
+				*writeTo++ = src[dx] & 0xFF;
+			}
 
+			src = (u32*) ( (u8*) (src) + job->srcPitch );
+			dst += job->dstPitch;
+		}
+	}
 }
-
 
 /*!
 */
 static void executeBlit_TextureBlend_16_to_16( const SBlitJob * job )
 {
-	u32 dx;
-	s32 dy;
+	const u32 w = job->width;
+	const u32 h = job->height;
+	const u32 rdx = w>>1;
 
-	u32 *src = (u32*) job->src;
+	const u32 *src = (u32*) job->src;
 	u32 *dst = (u32*) job->dst;
 
-
-	const u32 rdx = job->width >> 1;
-	const u32 off = core::if_c_a_else_b( job->width & 1 ,job->width - 1, 0 );
-
-
-	for ( dy = 0; dy != job->height; ++dy )
+	if (job->stretch)
 	{
-		for ( dx = 0; dx != rdx; ++dx )
+		const float wscale = 1.f/job->x_stretch;
+		const float hscale = 1.f/job->y_stretch;
+		const u32 off = core::if_c_a_else_b(w&1, (u32)((w-1)*wscale), 0);
+		for ( u32 dy = 0; dy < h; ++dy )
 		{
-			dst[dx] = PixelBlend16_simd( dst[dx], src[dx] );
-		}
+			const u32 src_y = (u32)(dy*hscale);
+			src = (u32*) ( (u8*) (job->src) + job->srcPitch*src_y );
+			
+			for ( u32 dx = 0; dx < rdx; ++dx )
+			{
+				const u32 src_x = (u32)(dx*wscale);
+				dst[dx] = PixelBlend16_simd( dst[dx], src[src_x] );
+			}
+			if ( off )
+			{
+				((u16*) dst)[off] = PixelBlend16( ((u16*) dst)[off], ((u16*) src)[off] );
+			}
 
-		if ( off )
+			dst = (u32*) ( (u8*) (dst) + job->dstPitch );
+		}
+	}
+	else
+	{
+		const u32 off = core::if_c_a_else_b(w&1, w-1, 0);
+		for (u32 dy = 0; dy != h; ++dy )
 		{
-			((u16*) dst)[off] = PixelBlend16( ((u16*) dst)[off], ((u16*) src)[off] );
-		}
+			for (u32 dx = 0; dx != rdx; ++dx )
+			{
+				dst[dx] = PixelBlend16_simd( dst[dx], src[dx] );
+			}
 
-		src = (u32*) ( (u8*) (src) + job->srcPitch );
-		dst = (u32*) ( (u8*) (dst) + job->dstPitch );
+			if ( off )
+			{
+				((u16*) dst)[off] = PixelBlend16( ((u16*) dst)[off], ((u16*) src)[off] );
+			}
+
+			src = (u32*) ( (u8*) (src) + job->srcPitch );
+			dst = (u32*) ( (u8*) (dst) + job->dstPitch );
+		}
 	}
 }
 
@@ -649,17 +844,40 @@ static void executeBlit_TextureBlend_16_to_16( const SBlitJob * job )
 */
 static void executeBlit_TextureBlend_32_to_32( const SBlitJob * job )
 {
-	u32 *src = (u32*) job->src;
+	const u32 w = job->width;
+	const u32 h = job->height;
+	const u32 *src = (u32*) job->src;
 	u32 *dst = (u32*) job->dst;
 
-	for ( s32 dy = 0; dy != job->height; ++dy )
+	if (job->stretch)
 	{
-		for ( s32 dx = 0; dx != job->width; ++dx )
+		const float wscale = 1.f/job->x_stretch;
+		const float hscale = 1.f/job->y_stretch;
+		for ( u32 dy = 0; dy < h; ++dy )
 		{
-			dst[dx] = PixelBlend32( dst[dx], src[dx] );
+			const u32 src_y = (u32)(dy*hscale);
+			src = (u32*) ( (u8*) (job->src) + job->srcPitch*src_y );
+			
+			for ( u32 dx = 0; dx < w; ++dx )
+			{
+				const u32 src_x = (u32)(dx*wscale);
+				dst[dx] = PixelBlend32( dst[dx], src[src_x] );
+			}
+
+			dst = (u32*) ( (u8*) (dst) + job->dstPitch );
 		}
-		src = (u32*) ( (u8*) (src) + job->srcPitch );
-		dst = (u32*) ( (u8*) (dst) + job->dstPitch );
+	}
+	else
+	{
+		for ( u32 dy = 0; dy != h; ++dy )
+		{
+			for ( u32 dx = 0; dx != w; ++dx )
+			{
+				dst[dx] = PixelBlend32( dst[dx], src[dx] );
+			}
+			src = (u32*) ( (u8*) (src) + job->srcPitch );
+			dst = (u32*) ( (u8*) (dst) + job->dstPitch );
+		}
 	}
 }
 
@@ -708,30 +926,13 @@ static void executeBlit_TextureBlendColor_32_to_32( const SBlitJob * job )
 */
 static void executeBlit_Color_16_to_16( const SBlitJob * job )
 {
+	const u16 c = video::A8R8G8B8toA1R5G5B5(job->argb);
 	u16 *dst = (u16*) job->dst;
 
-	u16 c0 = video::A8R8G8B8toA1R5G5B5( job->argb );
-	u32 c = c0 | c0 << 16;
-
-	if ( 0 == (job->srcPitch & 3 ) )
+	for ( s32 dy = 0; dy != job->height; ++dy )
 	{
-		for ( s32 dy = 0; dy != job->height; ++dy )
-		{
-			memset32( dst, c, job->srcPitch );
-			dst = (u16*) ( (u8*) (dst) + job->dstPitch );
-		}
-	}
-	else
-	{
-		s32 dx = job->width - 1;
-
-		for ( s32 dy = 0; dy != job->height; ++dy )
-		{
-			memset32( dst, c, job->srcPitch );
-			dst[dx] = c0;
-			dst = (u16*) ( (u8*) (dst) + job->dstPitch );
-		}
-
+		memset16(dst, c, job->srcPitch);
+		dst = (u16*) ( (u8*) (dst) + job->dstPitch );
 	}
 }
 
@@ -927,10 +1128,8 @@ static s32 Blit(eBlitter operation,
 	job.width = job.Dest.x1 - job.Dest.x0;
 	job.height = job.Dest.y1 - job.Dest.y0;
 
-
 	job.Source.x0 = sourceClip.x0 + ( job.Dest.x0 - v.x0 );
 	job.Source.x1 = job.Source.x0 + job.width;
-
 	job.Source.y0 = sourceClip.y0 + ( job.Dest.y0 - v.y0 );
 	job.Source.y1 = job.Source.y0 + job.height;
 
@@ -962,6 +1161,111 @@ static s32 Blit(eBlitter operation,
 
 	return 1;
 }
+
+static s32 StretchBlit(eBlitter operation,
+		video::IImage* dest, const core::rect<s32> *destRect,
+		const core::rect<s32> *srcRect, video::IImage* const source,
+		u32 argb)
+{
+	tExecuteBlit blitter = getBlitter2( operation, dest, source );
+	if ( 0 == blitter )
+	{
+		return 0;
+	}
+
+	SBlitJob job;
+
+	// Clipping
+	setClip ( job.Source, srcRect, source, 1 );
+	setClip ( job.Dest, destRect, dest, 0 );
+
+	job.width = job.Dest.x1-job.Dest.x0;
+	job.height = job.Dest.y1-job.Dest.y0;
+
+	job.argb = argb;
+
+	// use original dest size, despite any clipping
+	job.x_stretch = (float)destRect->getWidth() / (float)(job.Source.x1-job.Source.x0);
+	job.y_stretch = (float)destRect->getHeight() / (float)(job.Source.y1-job.Source.y0);
+	job.stretch = (job.x_stretch != 1.f) || (job.y_stretch != 1.f);
+
+	if ( source )
+	{
+		job.srcPitch = source->getPitch();
+		job.srcPixelMul = source->getBytesPerPixel();
+		job.src = (void*) ( (u8*) source->lock() + ( job.Source.y0 * job.srcPitch ) + ( job.Source.x0 * job.srcPixelMul ) );
+	}
+	else
+	{
+		// use srcPitch for color operation on dest
+		job.srcPitch = job.width * dest->getBytesPerPixel();
+	}
+
+	job.dstPitch = dest->getPitch();
+	job.dstPixelMul = dest->getBytesPerPixel();
+	job.dst = (void*) ( (u8*) dest->lock() + ( job.Dest.y0 * job.dstPitch ) + ( job.Dest.x0 * job.dstPixelMul ) );
+
+	blitter( &job );
+
+	if ( source )
+		source->unlock();
+
+	if ( dest )
+		dest->unlock();
+
+	return 1;
+}
+
+
+// Methods for Software drivers
+//! draws a rectangle
+static void drawRectangle(video::IImage* img, const core::rect<s32>& rect, const video::SColor &color)
+{
+	Blit(color.getAlpha() == 0xFF ? BLITTER_COLOR : BLITTER_COLOR_ALPHA,
+			img, 0, &rect.UpperLeftCorner, 0, &rect, color.color);
+}
+
+
+//! draws a line from to with color
+static void drawLine(video::IImage* img, const core::position2d<s32>& from,
+					 const core::position2d<s32>& to, const video::SColor &color)
+{
+	AbsRectangle clip;
+	GetClip(clip, img);
+
+	core::position2d<s32> p[2];
+	if (ClipLine( clip, p[0], p[1], from, to))
+	{
+		u32 alpha = extractAlpha(color.color);
+
+		switch(img->getColorFormat())
+		{
+		case video::ECF_A1R5G5B5:
+				if (alpha == 256)
+				{
+					RenderLine16_Decal(img, p[0], p[1], video::A8R8G8B8toA1R5G5B5(color.color));
+				}
+				else
+				{
+					RenderLine16_Blend(img, p[0], p[1], video::A8R8G8B8toA1R5G5B5(color.color), alpha >> 3);
+				}
+				break;
+		case video::ECF_A8R8G8B8:
+				if (alpha == 256)
+				{
+					RenderLine32_Decal(img, p[0], p[1], color.color);
+				}
+				else
+				{
+					RenderLine32_Blend(img, p[0], p[1], color.color, alpha);
+				}
+				break;
+		default:
+				break;
+		}
+	}
+}
+
 
 }
 
