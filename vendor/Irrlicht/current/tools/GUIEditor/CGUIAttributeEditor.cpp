@@ -85,19 +85,15 @@ void CGUIAttributeEditor::refreshAttribs()
 		str += "_attribute";
 		CGUIAttribute* n = (CGUIAttribute*)Environment->addGUIElement(str.c_str(), 0);
 
+		// if this doesn't exist, use a string editor
+		if (!n)
+			n = (CGUIAttribute*)Environment->addGUIElement("string_attribute", 0);
+
 		if (n)
 		{
-			// add custom attribute editor
 			AttribList.push_back(n);
 			n->setParentID(getID());
 			n->grab();
-		}
-		else
-		{
-			// create a generic string editor
-			n = new CGUIStringAttribute(Environment, 0, getID());
-			AttribList.push_back(n);
-			// dont grab it because we created it with new
 		}
 
 		// We can't set "this" as parent above as we need functionality

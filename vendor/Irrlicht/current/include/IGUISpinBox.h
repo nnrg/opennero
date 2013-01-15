@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2010 Michael Zeilfelder
+// Copyright (C) 2006-2012 Michael Zeilfelder
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -14,6 +14,9 @@ namespace gui
 	class IGUIEditBox;
 
 	//! Single line edit box + spin buttons
+	/** \par This element can create the following events of type EGUI_EVENT_TYPE:
+	\li EGET_SPINBOX_CHANGED
+	*/
 	class IGUISpinBox : public IGUIElement
 	{
 	public:
@@ -50,6 +53,7 @@ namespace gui
 		virtual void setStepSize(f32 step=1.f) = 0;
 
 		//! Sets the number of decimal places to display.
+		//! Note that this also rounds the range to the same number of decimal places.
 		/** \param places: The number of decimal places to display, use -1 to reset */
 		virtual void setDecimalPlaces(s32 places) = 0;
 

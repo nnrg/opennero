@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -50,7 +50,7 @@ class line2d
 
 		//! Get length of line
 		/** \return Length of the line. */
-		f64 getLength() const { return start.getDistanceFrom(end); }
+		T getLength() const { return start.getDistanceFrom(end); }
 
 		//! Get squared length of the line
 		/** \return Squared length of line. */
@@ -60,7 +60,7 @@ class line2d
 		/** \return center of the line. */
 		vector2d<T> getMiddle() const
 		{
-			return (start + end) * (T)0.5;
+			return (start + end)/(T)2;
 		}
 
 		//! Get the vector of the line.
@@ -69,24 +69,26 @@ class line2d
 
 		//! Tests if this line intersects with another line.
 		/** \param l: Other line to test intersection with.
+		\param checkOnlySegments: Default is to check intersection between the begin and endpoints.
+		When set to false the function will check for the first intersection point when extending the lines.
 		\param out: If there is an intersection, the location of the
 		intersection will be stored in this vector.
 		\return True if there is an intersection, false if not. */
-		bool intersectWith(const line2d<T>& l, vector2d<T>& out) const
+		bool intersectWith(const line2d<T>& l, vector2d<T>& out, bool checkOnlySegments=true) const
 		{
 			// Uses the method given at:
-			// http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/ 
-			const f32 commonDenominator = (f32)((l.end.Y - l.start.Y)*(end.X - start.X) -
-											(l.end.X - l.start.X)*(end.Y - start.Y));
+			// http://local.wasp.uwa.edu.au/~pbourke/geometry/lineline2d/
+			const f32 commonDenominator = (f32)(l.end.Y - l.start.Y)*(end.X - start.X) -
+											(l.end.X - l.start.X)*(end.Y - start.Y);
 
-			const f32 numeratorA = (f32)((l.end.X - l.start.X)*(start.Y - l.start.Y) -
-											(l.end.Y - l.start.Y)*(start.X -l.start.X));
+			const f32 numeratorA = (f32)(l.end.X - l.start.X)*(start.Y - l.start.Y) -
+											(l.end.Y - l.start.Y)*(start.X -l.start.X);
 
-			const f32 numeratorB = (f32)((end.X - start.X)*(start.Y - l.start.Y) -
-											(end.Y - start.Y)*(start.X -l.start.X)); 
+			const f32 numeratorB = (f32)(end.X - start.X)*(start.Y - l.start.Y) -
+											(end.Y - start.Y)*(start.X -l.start.X);
 
 			if(equals(commonDenominator, 0.f))
-			{ 
+			{
 				// The lines are either coincident or parallel
 				// if both numerators are 0, the lines are coincident
 				if(equals(numeratorA, 0.f) && equals(numeratorB, 0.f))
@@ -140,8 +142,8 @@ class line2d
 							out += l.start;
 						if (l.end != maxp && l.end != minp)
 							out += l.end;
-						out.X = (T)(out.X*0.5f);
-						out.Y = (T)(out.Y*0.5f);
+						out.X = (T)(out.X/2);
+						out.Y = (T)(out.Y/2);
 					}
 
 					return true; // coincident
@@ -153,17 +155,17 @@ class line2d
 			// Get the point of intersection on this line, checking that
 			// it is within the line segment.
 			const f32 uA = numeratorA / commonDenominator;
-			if(uA < 0.f || uA > 1.f)
+			if(checkOnlySegments && (uA < 0.f || uA > 1.f) )
 				return false; // Outside the line segment
 
 			const f32 uB = numeratorB / commonDenominator;
-			if(uB < 0.f || uB > 1.f)
+			if(checkOnlySegments && (uB < 0.f || uB > 1.f))
 				return false; // Outside the line segment
 
 			// Calculate the intersection point.
 			out.X = (T)(start.X + uA * (end.X - start.X));
 			out.Y = (T)(start.Y + uA * (end.Y - start.Y));
-			return true; 
+			return true;
 		}
 
 		//! Get unit vector of the line.
@@ -209,19 +211,26 @@ class line2d
 		}
 
 		//! Get the closest point on this line to a point
-		vector2d<T> getClosestPoint(const vector2d<T>& point) const
+		/** \param checkOnlySegments: Default (true) is to return a point on the line-segment (between begin and end) of the line.
+		When set to false the function will check for the first the closest point on the the line even when outside the segment. */
+		vector2d<T> getClosestPoint(const vector2d<T>& point, bool checkOnlySegments=true) const
 		{
-			vector2d<T> c = point - start;
-			vector2d<T> v = end - start;
-			T d = (T)v.getLength();
+			vector2d<f64> c((f64)(point.X-start.X), (f64)(point.Y- start.Y));
+			vector2d<f64> v((f64)(end.X-start.X), (f64)(end.Y-start.Y));
+			f64 d = v.getLength();
+			if ( d == 0 )	// can't tell much when the line is just a single point
+				return start;
 			v /= d;
-			T t = v.dotProduct(c);
+			f64 t = v.dotProduct(c);
 
-			if (t < (T)0.0) return start;
-			if (t > d) return end;
+			if ( checkOnlySegments )
+			{
+				if (t < 0) return vector2d<T>((T)start.X, (T)start.Y);
+				if (t > d) return vector2d<T>((T)end.X, (T)end.Y);
+			}
 
 			v *= t;
-			return start + v;
+			return vector2d<T>((T)(start.X + v.X), (T)(start.Y + v.Y));
 		}
 
 		//! Start point of the line.
@@ -229,6 +238,29 @@ class line2d
 		//! End point of the line.
 		vector2d<T> end;
 };
+
+	// partial specialization to optimize <f32> lines (avoiding casts)
+	template <>
+	inline vector2df line2d<irr::f32>::getClosestPoint(const vector2df& point, bool checkOnlySegments) const
+	{
+		vector2df c = point - start;
+		vector2df v = end - start;
+		f32 d = (f32)v.getLength();
+		if ( d == 0 )	// can't tell much when the line is just a single point
+			return start;
+		v /= d;
+		f32 t = v.dotProduct(c);
+
+		if ( checkOnlySegments )
+		{
+			if (t < 0) return start;
+			if (t > d) return end;
+		}
+
+		v *= t;
+		return start + v;
+	}
+
 
 	//! Typedef for an f32 line.
 	typedef line2d<f32> line2df;

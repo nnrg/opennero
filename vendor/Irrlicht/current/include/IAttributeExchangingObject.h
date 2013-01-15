@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -43,7 +43,7 @@ struct SAttributeReadWriteOptions
 	s32 Flags;
 
 	//! Optional filename
-	const c8* Filename;
+	const fschar_t* Filename;
 };
 
 

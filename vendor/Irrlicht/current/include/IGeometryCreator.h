@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -60,9 +60,9 @@ public:
 	*/
 	IMesh* createPlaneMesh(
 			const core::dimension2d<f32>& tileSize,
-			const core::dimension2d<u32>& tileCount,
-			video::SMaterial* material,
-			const core::dimension2d<f32>& textureRepeatCount) const
+			const core::dimension2d<u32>& tileCount=core::dimension2du(1,1),
+			video::SMaterial* material=0,
+			const core::dimension2df& textureRepeatCount=core::dimension2df(1.f,1.f)) const
 	{
 		return createHillPlaneMesh(tileSize, tileCount, material, 0.f, core::dimension2df(), textureRepeatCount);
 	}
@@ -71,7 +71,7 @@ public:
 	/**
 	\param texture The texture to apply to the terrain.
 	\param heightmap An image that will be interpreted as a heightmap. The
-	brightness (average colour) of each pixel is interpreted as a height,
+	brightness (average color) of each pixel is interpreted as a height,
 	with a 255 brightness pixel producing the maximum height.
 	\param stretchSize The size that each pixel will produce, i.e. a
 	512x512 heightmap

@@ -1,4 +1,4 @@
-// Copyright (C) 2009 Christian Stehno
+// Copyright (C) 2009-2012 Christian Stehno
 // No rights reserved: this software is in the public domain.
 
 #include "testUtils.h"
@@ -35,7 +35,6 @@ bool simple_xml( irr::io::IFileSystem * fs )
 	}
 
 	reader->drop();
-
 	return retVal;
 }
 
@@ -102,7 +101,6 @@ bool cdata( irr::io::IFileSystem * fs )
 	}
 
 	reader->drop();
-
 	return result;
 }
 
@@ -157,10 +155,15 @@ bool testXML(void)
 
 	bool result = true;
 
+	logTestString("Test simple XML reader features.\n");
 	result &= simple_xml(device->getFileSystem());
+	logTestString("Test XML reader CDATA support.\n");
 	result &= cdata(device->getFileSystem());
+	logTestString("Test XML reader attribute support.\n");
 	result &= attributeValues(device->getFileSystem());	
 
+	device->closeDevice();
+	device->run();
 	device->drop();
 	return result;
 }

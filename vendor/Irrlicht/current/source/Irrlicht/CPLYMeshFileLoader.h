@@ -1,4 +1,4 @@
-// Copyright (C) 2009-2010 Gaz Davidson
+// Copyright (C) 2009-2012 Gaz Davidson
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -6,6 +6,7 @@
 #define __C_PLY_MESH_FILE_LOADER_H_INCLUDED__
 
 #include "IMeshLoader.h"
+#include "ISceneManager.h"
 #include "CDynamicMeshBuffer.h"
 
 namespace irr
@@ -30,7 +31,7 @@ class CPLYMeshFileLoader : public IMeshLoader
 public:
 
 	//! Constructor
-	CPLYMeshFileLoader();
+	CPLYMeshFileLoader(scene::ISceneManager* smgr);
 
 	//! Destructor
 	virtual ~CPLYMeshFileLoader();
@@ -132,6 +133,7 @@ private:
 
 	core::array<SPLYElement*> ElementList;
 
+	scene::ISceneManager* SceneManager;
 	io::IReadFile *File;
 	c8 *Buffer;
 	bool IsBinaryFile, IsWrongEndian, EndOfFile;

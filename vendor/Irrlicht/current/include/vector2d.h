@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -237,7 +237,7 @@ public:
 	\return Returns a value between 0 and 90. */
 	inline f64 getAngleWith(const vector2d<T>& b) const
 	{
-		f64 tmp = X*b.X + Y*b.Y;
+		f64 tmp = (f64)(X*b.X + Y*b.Y);
 
 		if (tmp == 0.0)
 			return 90.0;

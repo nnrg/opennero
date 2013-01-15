@@ -188,6 +188,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\billboards.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\burningsVideo.cpp"
 				>
 			</File>
@@ -224,6 +228,10 @@
 				>
 			</File>
 			<File
+				RelativePath=".\drawVertexPrimitive.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\enumerateImageManipulators.cpp"
 				>
 			</File>
@@ -245,6 +253,10 @@
 			</File>
 			<File
 				RelativePath=".\guiDisabledMenu.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\ioScene.cpp"
 				>
 			</File>
 			<File
@@ -272,7 +284,11 @@
 				>
 			</File>
 			<File
-				RelativePath=".\line2dIntersectWith.cpp"
+				RelativePath=".\lights.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\testLine2d.cpp"
 				>
 			</File>
 			<File
@@ -285,6 +301,10 @@
 			</File>
 			<File
 				RelativePath=".\makeColorKeyTexture.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\material.cpp"
 				>
 			</File>
 			<File
@@ -304,7 +324,19 @@
 				>
 			</File>
 			<File
+				RelativePath=".\mrt.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\orthoCam.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\planeMatrix.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\projectionMatrix.cpp"
 				>
 			</File>
 			<File
@@ -324,11 +356,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\screenshot.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\serializeAttributes.cpp"
 				>
 			</File>
 			<File
+				RelativePath=".\skinnedMesh.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\softwareDevice.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\stencilshadow.cpp"
 				>
 			</File>
 			<File
@@ -384,7 +428,7 @@
 				>
 			</File>
 			<File
-				RelativePath=".\transparentAlphaChannelRef.cpp"
+				RelativePath=".\transparentMaterials.cpp"
 				>
 			</File>
 			<File
@@ -392,7 +436,23 @@
 				>
 			</File>
 			<File
+				RelativePath=".\triangleSelector.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\userClipPlane.cpp"
+				>
+			</File>
+			<File
 				RelativePath=".\vectorPositionDimension2d.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\videoDriver.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\viewPort.cpp"
 				>
 			</File>
 			<File

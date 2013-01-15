@@ -1,4 +1,4 @@
-// Copyright (C) 2006-2010 Michael Zeilfelder
+// Copyright (C) 2006-2012 Michael Zeilfelder
 // This file uses the licence of the Irrlicht Engine.
 
 #include "CGUISpinBox.h"
@@ -31,12 +31,6 @@ CGUISpinBox::CGUISpinBox(const wchar_t* text, bool border,IGUIEnvironment* envir
 
 	CurrentIconColor = video::SColor(255,255,255,255);
 	s32 ButtonWidth = 16;
-	IGUISpriteBank *sb = 0;
-	if (environment && environment->getSkin())
-	{
-		ButtonWidth = environment->getSkin()->getSize(EGDS_SCROLLBAR_SIZE);
-		sb = environment->getSkin()->getSpriteBank();
-	}
 
 	ButtonSpinDown = Environment->addButton(
 		core::rect<s32>(rectangle.getWidth() - ButtonWidth, rectangle.getHeight()/2 +1,
@@ -86,7 +80,7 @@ void CGUISpinBox::refreshSprites()
 	if (sb)
 	{
 		IGUISkin * skin = Environment->getSkin();
-		CurrentIconColor = skin->getColor(EGDC_WINDOW_SYMBOL);
+		CurrentIconColor = skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
 		ButtonSpinDown->setSpriteBank(sb);
 		ButtonSpinDown->setSprite(EGBS_BUTTON_UP, skin->getIcon(EGDI_SMALL_CURSOR_DOWN), CurrentIconColor);
 		ButtonSpinDown->setSprite(EGBS_BUTTON_DOWN, skin->getIcon(EGDI_SMALL_CURSOR_DOWN), CurrentIconColor);
@@ -129,8 +123,18 @@ f32 CGUISpinBox::getValue() const
 
 void CGUISpinBox::setRange(f32 min, f32 max)
 {
+	if (max<min)
+		core::swap(min, max);
 	RangeMin = min;
 	RangeMax = max;
+
+	// we have to round the range - otherwise we can get into an infinte setValue/verifyValueRange cycle.
+	wchar_t str[100];
+	swprintf(str, 99, FormatString.c_str(), RangeMin);
+	RangeMin = core::fast_atof(core::stringc(str).c_str());
+	swprintf(str, 99, FormatString.c_str(), RangeMax);
+	RangeMax = core::fast_atof(core::stringc(str).c_str());
+
 	verifyValueRange();
 }
 
@@ -171,6 +175,7 @@ void CGUISpinBox::setDecimalPlaces(s32 places)
 		FormatString += places;
 		FormatString += "f";
 	}
+	setRange( RangeMin, RangeMax );
 	setValue(getValue());
 }
 
@@ -215,7 +220,7 @@ bool CGUISpinBox::OnEvent(const SEvent& event)
 					changeEvent = true;
 				}
 			}
-			if ( event.GUIEvent.EventType == EGET_EDITBOX_CHANGED )
+			if (event.GUIEvent.EventType == EGET_EDITBOX_CHANGED || event.GUIEvent.EventType == EGET_EDITBOX_ENTER)
 			{
 				if (event.GUIEvent.Caller == EditBox)
 				{
@@ -246,13 +251,26 @@ bool CGUISpinBox::OnEvent(const SEvent& event)
 }
 
 
+void CGUISpinBox::draw()
+{
+	if ( !isVisible() )
+		return;
+
+	IGUISkin* skin = Environment->getSkin();
+	if (!skin)
+		return;
+
+	video::SColor iconColor = skin->getColor(isEnabled() ? EGDC_WINDOW_SYMBOL : EGDC_GRAY_WINDOW_SYMBOL);
+	if ( iconColor != CurrentIconColor )
+	{
+		refreshSprites();
+	}
+
+	IGUISpinBox::draw();
+}
+
 void CGUISpinBox::verifyValueRange()
 {
-	// TODO: This should be called in "draw" similar to the way it's done in CGUIWindow.
-	// But guess I can't in bugfix-release as overloading draw would break binary compitibility.
-	// So added here to allow users at least to manually force the element to having new skin-colors.
-	refreshSprites();
-
 	f32 val = getValue();
 	if ( val+core::ROUNDING_ERROR_f32 < RangeMin )
 		val = RangeMin;

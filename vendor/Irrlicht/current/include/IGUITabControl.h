@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -23,8 +23,10 @@ namespace gui
 		IGUITab(IGUIEnvironment* environment, IGUIElement* parent, s32 id, core::rect<s32> rectangle)
 			: IGUIElement(EGUIET_TAB, environment, parent, id, rectangle) {}
 
-		//! Returns number of tab if in tabcontrol.
-		/** Can be accessed later IGUITabControl::getTab() by this number. */
+		//! Returns zero based index of tab if in tabcontrol.
+		/** Can be accessed later IGUITabControl::getTab() by this number.
+			Note that this number can change when other tabs are inserted or removed .
+		*/
 		virtual s32 getNumber() const = 0;
 
 		//! sets if the tab should draw its background
@@ -47,6 +49,9 @@ namespace gui
 	};
 
 	//! A standard tab control
+	/** \par This element can create the following events of type EGUI_EVENT_TYPE:
+	\li EGET_TAB_CHANGED
+	*/
 	class IGUITabControl : public IGUIElement
 	{
 	public:
@@ -57,6 +62,16 @@ namespace gui
 
 		//! Adds a tab
 		virtual IGUITab* addTab(const wchar_t* caption, s32 id=-1) = 0;
+
+		//! Insert the tab at the given index
+		/** \return The tab on success or NULL on failure. */
+		virtual IGUITab* insertTab(s32 idx, const wchar_t* caption, s32 id=-1) = 0;
+
+		//! Removes a tab from the tabcontrol
+		virtual void removeTab(s32 idx) = 0;
+
+		//! Clears the tabcontrol removing all tabs
+		virtual void clear() = 0;
 
 		//! Returns amount of tabs in the tabcontrol
 		virtual s32 getTabCount() const = 0;
@@ -75,10 +90,14 @@ namespace gui
 		//! Brings a tab to front.
 		/** \param tab: pointer to the tab.
 		\return Returns true if successful. */
-		virtual bool setActiveTab(IGUIElement *tab) = 0;
+		virtual bool setActiveTab(IGUITab *tab) = 0;
 
 		//! Returns which tab is currently active
 		virtual s32 getActiveTab() const = 0;
+
+		//! get the the id of the tab at the given absolute coordinates
+		/** \return The id of the tab or -1 when no tab is at those coordinates*/
+		virtual s32 getTabAt(s32 xpos, s32 ypos) const = 0;
 
 		//! Set the height of the tabs
 		virtual void setTabHeight( s32 height ) = 0;

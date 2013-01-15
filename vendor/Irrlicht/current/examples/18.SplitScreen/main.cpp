@@ -4,7 +4,7 @@ A tutorial by Max Winkel.
 
 In this tutorial we'll learn how to use splitscreen (e.g. for racing-games)
 with Irrlicht. We'll create a viewport divided
-into 4 parts, wtih 3 fixed cameras and one user-controlled.
+into 4 parts, with 3 fixed cameras and one user-controlled.
 
 Ok, let's start with the headers (I think there's
 nothing to say about it)
@@ -73,7 +73,7 @@ VideoDriver, load an animated mesh from .md2 and a map from
 .pk3. Because that's old stuff, I won't explain every step.
 Just take care of the maps position.
 */
-int main(int argc, char** argv)
+int main()
 {
 	// ask user for driver
 	video::E_DRIVER_TYPE driverType=driverChoiceConsole();
@@ -109,7 +109,7 @@ int main(int argc, char** argv)
 	}
 
 	//Load map
-	device->getFileSystem()->addZipFileArchive("../../media/map-20kdm2.pk3");
+	device->getFileSystem()->addFileArchive("../../media/map-20kdm2.pk3");
 	IAnimatedMesh *map = smgr->getMesh("20kdm2.bsp");
 	if (map)
 	{
@@ -202,8 +202,8 @@ Sounds a little complicated, but you'll see it isn't:
 
 		/*
 		As you can probably see, the image is rendered for every
-		viewport seperately. That means, that you'll loose much performance.
-		Ok, if you're aksing "How do I have to set the viewport
+		viewport separately. That means, that you'll loose much performance.
+		Ok, if you're asking "How do I have to set the viewport
 		to get this or that screen?", don't panic. It's really
 		easy: In the rect-function you define 4 coordinates:
 		- X-coordinate of the corner left top
@@ -216,7 +216,7 @@ Sounds a little complicated, but you'll see it isn't:
 		- 1st viewport: 0,0,ResX/2,ResY
 		- 2nd viewport: ResX/2,0,ResX,ResY
 
-		If you didn't fully understand, just play arround with the example
+		If you didn't fully understand, just play around with the example
 		to check out what happens.
 
 		Now we just view the current fps and shut down the engine,

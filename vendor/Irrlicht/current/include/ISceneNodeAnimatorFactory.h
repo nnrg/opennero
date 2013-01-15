@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -27,8 +27,6 @@ namespace scene
 	class ISceneNodeAnimatorFactory : public virtual IReferenceCounted
 	{
 	public:
-
-		virtual ~ISceneNodeAnimatorFactory() {}
 
 		//! creates a scene node animator based on its type id
 		/** \param type: Type of the scene node animator to add.

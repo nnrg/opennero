@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt / Thomas Alten
+// Copyright (C) 2002-2012 Nikolaus Gebhardt / Thomas Alten
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -36,7 +36,7 @@ public:
 	virtual ~CSoftwareTexture2();
 
 	//! lock function
-	virtual void* lock(bool readOnly = false, u32 mipmapLevel=0)
+	virtual void* lock(E_TEXTURE_LOCK_MODE mode=ETLM_READ_WRITE, u32 mipmapLevel=0)
 	{
 		if (Flags & GEN_MIPMAP)
 			MipMapLOD=mipmapLevel;
@@ -59,7 +59,8 @@ public:
 	//! Returns the size of the largest mipmap.
 	f32 getLODFactor( const f32 texArea ) const
 	{
-		return MipMap[0]->getImageDataSizeInPixels () * texArea;
+		return OrigImageDataSizeInPixels * texArea;
+		//return MipMap[0]->getImageDataSizeInPixels () * texArea;
 	}
 
 	//! Returns (=size) of the texture.
@@ -122,6 +123,7 @@ public:
 	}
 
 private:
+	f32 OrigImageDataSizeInPixels;
 	core::dimension2d<u32> OrigSize;
 
 	CImage * MipMap[SOFTWARE_DRIVER_2_MIPMAPPING_MAX];

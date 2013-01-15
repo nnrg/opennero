@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2009 Christian Stehno, Colin MacDonald
+// Copyright (C) 2008-2012 Christian Stehno, Colin MacDonald
 // No rights reserved: this software is in the public domain.
 
 #include "testUtils.h"
@@ -20,14 +20,25 @@ static bool runTestWithDriver(E_DRIVER_TYPE driverType)
 	IVideoDriver* driver = device->getVideoDriver();
 	ISceneManager * smgr = device->getSceneManager();
 
+	logTestString("Testing driver %ls\n", driver->getName());
+	if (driver->getDriverAttributes().getAttributeAsInt("MaxTextures")<2)
+	{
+		device->closeDevice();
+		device->run();
+		device->drop();
+		return true;
+	}
+
+	stabilizeScreenBackground(driver);
+
 	bool result = true;
-	bool added = device->getFileSystem()->addZipFileArchive("../media/map-20kdm2.pk3");
-	assert(added);
+	bool added = device->getFileSystem()->addFileArchive("../media/map-20kdm2.pk3");
+	assert_log(added);
 
 	if(added)
 	{
 		ISceneNode * node = smgr->addOctreeSceneNode(smgr->getMesh("20kdm2.bsp")->getMesh(0), 0, -1, 1024);
-		assert(node);
+		assert_log(node);
 
 		if (node)
 		{
@@ -45,6 +56,8 @@ static bool runTestWithDriver(E_DRIVER_TYPE driverType)
 		}
 	}
 
+	device->closeDevice();
+	device->run();
 	device->drop();
 
 	return result;
@@ -53,13 +66,8 @@ static bool runTestWithDriver(E_DRIVER_TYPE driverType)
 
 bool lightMaps(void)
 {
-	bool passed = true;
-
-	passed &= runTestWithDriver(EDT_OPENGL);
-	passed &= runTestWithDriver(EDT_BURNINGSVIDEO);
-	passed &= runTestWithDriver(EDT_DIRECT3D9);
-	passed &= runTestWithDriver(EDT_DIRECT3D8);
-
-	return passed;
+	bool result = true;
+	TestWithAllDrivers(runTestWithDriver);
+	return result;
 }
 

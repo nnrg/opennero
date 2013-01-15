@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -56,6 +56,9 @@ namespace gui
 
 		//! set a column width
 		virtual void setColumnWidth(u32 columnIndex, u32 width);
+
+		//! Get the width of a column
+		virtual u32 getColumnWidth(u32 columnIndex) const;
 
 		//! columns can be resized by drag 'n drop
 		virtual void setResizableColumns(bool resizable);

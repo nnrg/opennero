@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -184,7 +184,7 @@ namespace video
 		ITexture* Texture;
 
 		//! Texture Clamp Mode
-		/** Values are tkane from E_TEXTURE_CLAMP. */
+		/** Values are taken from E_TEXTURE_CLAMP. */
 		u8 TextureWrapU:4;
 		u8 TextureWrapV:4;
 

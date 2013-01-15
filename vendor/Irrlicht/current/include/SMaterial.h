@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -22,17 +22,32 @@ namespace video
 	//! Flag for EMT_ONETEXTURE_BLEND, ( BlendFactor ) BlendFunc = source * sourceFactor + dest * destFactor
 	enum E_BLEND_FACTOR
 	{
-		EBF_ZERO	= 0,		//!< src & dest	(0, 0, 0, 0)
-		EBF_ONE,			//!< src & dest	(1, 1, 1, 1)
-		EBF_DST_COLOR, 			//!< src	(destR, destG, destB, destA)
-		EBF_ONE_MINUS_DST_COLOR, 	//!< src	(1-destR, 1-destG, 1-destB, 1-destA)
-		EBF_SRC_COLOR,			//!< dest	(srcR, srcG, srcB, srcA)
+		EBF_ZERO	= 0,			//!< src & dest	(0, 0, 0, 0)
+		EBF_ONE,					//!< src & dest	(1, 1, 1, 1)
+		EBF_DST_COLOR, 				//!< src	(destR, destG, destB, destA)
+		EBF_ONE_MINUS_DST_COLOR,	//!< src	(1-destR, 1-destG, 1-destB, 1-destA)
+		EBF_SRC_COLOR,				//!< dest	(srcR, srcG, srcB, srcA)
 		EBF_ONE_MINUS_SRC_COLOR, 	//!< dest	(1-srcR, 1-srcG, 1-srcB, 1-srcA)
-		EBF_SRC_ALPHA,			//!< src & dest	(srcA, srcA, srcA, srcA)
+		EBF_SRC_ALPHA,				//!< src & dest	(srcA, srcA, srcA, srcA)
 		EBF_ONE_MINUS_SRC_ALPHA,	//!< src & dest	(1-srcA, 1-srcA, 1-srcA, 1-srcA)
-		EBF_DST_ALPHA,			//!< src & dest	(destA, destA, destA, destA)
+		EBF_DST_ALPHA,				//!< src & dest	(destA, destA, destA, destA)
 		EBF_ONE_MINUS_DST_ALPHA,	//!< src & dest	(1-destA, 1-destA, 1-destA, 1-destA)
 		EBF_SRC_ALPHA_SATURATE		//!< src	(min(srcA, 1-destA), idem, ...)
+	};
+
+	//! Values defining the blend operation used when blend is enabled
+	enum E_BLEND_OPERATION
+	{
+		EBO_NONE = 0,	//!< No blending happens
+		EBO_ADD,		//!< Default blending adds the color values
+		EBO_SUBTRACT,	//!< This mode subtracts the color values
+		EBO_REVSUBTRACT,//!< This modes subtracts destination from source
+		EBO_MIN,		//!< Choose minimum value of each color channel
+		EBO_MAX,		//!< Choose maximum value of each color channel
+		EBO_MIN_FACTOR,	//!< Choose minimum value of each color channel after applying blend factors, not widely supported
+		EBO_MAX_FACTOR,	//!< Choose maximum value of each color channel after applying blend factors, not widely supported
+		EBO_MIN_ALPHA,	//!< Choose minimum value of each color channel based on alpha value, not widely supported
+		EBO_MAX_ALPHA	//!< Choose maximum value of each color channel based on alpha value, not widely supported
 	};
 
 	//! MaterialTypeParam: e.g. DirectX: D3DTOP_MODULATE, D3DTOP_MODULATE2X, D3DTOP_MODULATE4X
@@ -98,7 +113,7 @@ namespace video
 
 	//! EMT_ONETEXTURE_BLEND: pack srcFact, dstFact, Modulate and alpha source to MaterialTypeParam
 	/** alpha source can be an OR'ed combination of E_ALPHA_SOURCE values. */
-	inline f32 pack_texureBlendFunc ( const E_BLEND_FACTOR srcFact, const E_BLEND_FACTOR dstFact, const E_MODULATE_FUNC modulate=EMFN_MODULATE_1X, const u32 alphaSource=EAS_TEXTURE )
+	inline f32 pack_textureBlendFunc ( const E_BLEND_FACTOR srcFact, const E_BLEND_FACTOR dstFact, const E_MODULATE_FUNC modulate=EMFN_MODULATE_1X, const u32 alphaSource=EAS_TEXTURE )
 	{
 		const u32 tmp = (alphaSource << 12) | (modulate << 8) | (srcFact << 4) | dstFact;
 		return FR(tmp);
@@ -106,7 +121,7 @@ namespace video
 
 	//! EMT_ONETEXTURE_BLEND: unpack srcFact & dstFact and Modulo to MaterialTypeParam
 	/** The fields don't use the full byte range, so we could pack even more... */
-	inline void unpack_texureBlendFunc ( E_BLEND_FACTOR &srcFact, E_BLEND_FACTOR &dstFact,
+	inline void unpack_textureBlendFunc ( E_BLEND_FACTOR &srcFact, E_BLEND_FACTOR &dstFact,
 			E_MODULATE_FUNC &modulo, u32& alphaSource, const f32 param )
 	{
 		const u32 state = IR(param);
@@ -182,6 +197,28 @@ namespace video
 		ECM_DIFFUSE_AND_AMBIENT
 	};
 
+	//! Flags for the definition of the polygon offset feature
+	/** These flags define whether the offset should be into the screen, or towards the eye. */
+	enum E_POLYGON_OFFSET
+	{
+		//! Push pixel towards the far plane, away from the eye
+		/** This is typically used for rendering inner areas. */
+		EPO_BACK=0,
+		//! Pull pixels towards the camera.
+		/** This is typically used for polygons which should appear on top
+		of other elements, such as decals. */
+		EPO_FRONT=1
+	};
+
+	//! Names for polygon offset direction
+	const c8* const PolygonOffsetDirectionNames[] =
+	{
+		"Back",
+		"Front",
+		0
+	};
+
+
 	//! Maximum number of texture an SMaterial can have.
 	const u32 MATERIAL_MAX_TEXTURES = _IRR_MATERIAL_MAX_TEXTURES_;
 
@@ -195,9 +232,11 @@ namespace video
 			EmissiveColor(0,0,0,0), SpecularColor(255,255,255,255),
 			Shininess(0.0f), MaterialTypeParam(0.0f), MaterialTypeParam2(0.0f), Thickness(1.0f),
 			ZBuffer(ECFN_LESSEQUAL), AntiAliasing(EAAM_SIMPLE), ColorMask(ECP_ALL),
-			ColorMaterial(ECM_DIFFUSE),
-			Wireframe(false), PointCloud(false), GouraudShading(true), Lighting(true), ZWriteEnable(true),
-			BackfaceCulling(true), FrontfaceCulling(false), FogEnable(false), NormalizeNormals(false)
+			ColorMaterial(ECM_DIFFUSE), BlendOperation(EBO_NONE),
+			PolygonOffsetFactor(0), PolygonOffsetDirection(EPO_FRONT),
+			Wireframe(false), PointCloud(false), GouraudShading(true),
+			Lighting(true), ZWriteEnable(true), BackfaceCulling(true), FrontfaceCulling(false),
+			FogEnable(false), NormalizeNormals(false), UseMipMaps(true)
 		{ }
 
 		//! Copy constructor
@@ -246,6 +285,10 @@ namespace video
 			AntiAliasing = other.AntiAliasing;
 			ColorMask = other.ColorMask;
 			ColorMaterial = other.ColorMaterial;
+			BlendOperation = other.BlendOperation;
+			PolygonOffsetFactor = other.PolygonOffsetFactor;
+			PolygonOffsetDirection = other.PolygonOffsetDirection;
+			UseMipMaps = other.UseMipMaps;
 
 			return *this;
 		}
@@ -343,6 +386,20 @@ namespace video
 		a very similar rendering as with lighting turned off, just with light shading. */
 		u8 ColorMaterial:3;
 
+		//! Store the blend operation of choice
+		/** Values to be chosen from E_BLEND_OPERATION. The actual way to use this value
+		is not yet determined, so ignore it for now. */
+		E_BLEND_OPERATION BlendOperation:4;
+
+		//! Factor specifying how far the polygon offset should be made
+		/** Specifying 0 disables the polygon offset. The direction is specified spearately.
+		The factor can be from 0 to 7.*/
+		u8 PolygonOffsetFactor:3;
+
+		//! Flag defining the direction the polygon offset is applied to.
+		/** Can be to front or to back, specififed by values from E_POLYGON_OFFSET. */
+		E_POLYGON_OFFSET PolygonOffsetDirection:1;
+
 		//! Draw as wireframe or filled triangles? Default: false
 		/** The user can access a material flag using
 		\code material.Wireframe=true \endcode
@@ -376,6 +433,10 @@ namespace video
 		//! Should normals be normalized?
 		/** Always use this if the mesh lit and scaled. Default: false */
 		bool NormalizeNormals:1;
+
+		//! Shall mipmaps be used if available
+		/** Sometimes, disabling mipmap usage can be useful. Default: true */
+		bool UseMipMaps:1;
 
 		//! Gets the texture transformation matrix for level i
 		/** \param i The desired level. Must not be larger than MATERIAL_MAX_TEXTURES.
@@ -484,13 +545,18 @@ namespace video
 				}
 				break;
 				case EMF_ANTI_ALIASING:
-					AntiAliasing = value?EAAM_SIMPLE:EAAM_OFF;
-					break;
+					AntiAliasing = value?EAAM_SIMPLE:EAAM_OFF; break;
 				case EMF_COLOR_MASK:
-					ColorMask = value?ECP_ALL:ECP_NONE;
-					break;
+					ColorMask = value?ECP_ALL:ECP_NONE; break;
 				case EMF_COLOR_MATERIAL:
-					ColorMaterial = value?ECM_DIFFUSE:ECM_NONE;
+					ColorMaterial = value?ECM_DIFFUSE:ECM_NONE; break;
+				case EMF_USE_MIP_MAPS:
+					UseMipMaps = value; break;
+				case EMF_BLEND_OPERATION:
+					BlendOperation = value?EBO_ADD:EBO_NONE; break;
+				case EMF_POLYGON_OFFSET:
+					PolygonOffsetFactor = value?1:0;
+					PolygonOffsetDirection = EPO_BACK;
 					break;
 				default:
 					break;
@@ -545,6 +611,12 @@ namespace video
 					return (ColorMask!=ECP_NONE);
 				case EMF_COLOR_MATERIAL:
 					return (ColorMaterial != ECM_NONE);
+				case EMF_USE_MIP_MAPS:
+					return UseMipMaps;
+				case EMF_BLEND_OPERATION:
+					return BlendOperation != EBO_NONE;
+				case EMF_POLYGON_OFFSET:
+					return PolygonOffsetFactor != 0;
 			}
 
 			return false;
@@ -577,7 +649,11 @@ namespace video
 				NormalizeNormals != b.NormalizeNormals ||
 				AntiAliasing != b.AntiAliasing ||
 				ColorMask != b.ColorMask ||
-				ColorMaterial != b.ColorMaterial;
+				ColorMaterial != b.ColorMaterial ||
+				BlendOperation != b.BlendOperation ||
+				PolygonOffsetFactor != b.PolygonOffsetFactor ||
+				PolygonOffsetDirection != b.PolygonOffsetDirection ||
+				UseMipMaps != b.UseMipMaps;
 			for (u32 i=0; (i<MATERIAL_MAX_TEXTURES) && !different; ++i)
 			{
 				different |= (TextureLayer[i] != b.TextureLayer[i]);

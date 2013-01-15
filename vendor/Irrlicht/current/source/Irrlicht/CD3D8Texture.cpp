@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -205,7 +205,7 @@ bool CD3D8Texture::copyTexture(video::IImage* image)
 
 
 //! lock function
-void* CD3D8Texture::lock(bool readOnly, u32 mipmapLevel)
+void* CD3D8Texture::lock(E_TEXTURE_LOCK_MODE mode, u32 mipmapLevel)
 {
 	if (!Texture)
 		return 0;
@@ -215,7 +215,7 @@ void* CD3D8Texture::lock(bool readOnly, u32 mipmapLevel)
 	D3DLOCKED_RECT rect;
 	if(!IsRenderTarget)
 	{
-		hr = Texture->LockRect(mipmapLevel, &rect, 0, readOnly?D3DLOCK_READONLY:0);
+		hr = Texture->LockRect(mipmapLevel, &rect, 0, (mode==ETLM_READ_ONLY)?D3DLOCK_READONLY:0);
 		if (FAILED(hr))
 		{
 			os::Printer::log("Could not lock DIRECT3D9 Texture.", ELL_ERROR);
@@ -251,7 +251,7 @@ void* CD3D8Texture::lock(bool readOnly, u32 mipmapLevel)
 			os::Printer::log("Could not lock DIRECT3D8 Texture.", "Data copy failed.", ELL_ERROR);
 			return 0;
 		}
-		hr = RTTSurface->LockRect(&rect, 0, readOnly?D3DLOCK_READONLY:0);
+		hr = RTTSurface->LockRect(&rect, 0, (mode==ETLM_READ_ONLY)?D3DLOCK_READONLY:0);
 		if(FAILED(hr))
 		{
 			os::Printer::log("Could not lock DIRECT3D8 Texture.", "LockRect failed.", ELL_ERROR);

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -18,6 +18,9 @@ namespace scene
 	name clashes with external scene nodes.*/
 	enum ESCENE_NODE_TYPE
 	{
+		//! of type CSceneManager (note that ISceneManager is not(!) an ISceneNode)
+		ESNT_SCENE_MANAGER	= MAKE_IRR_ID('s','m','n','g'),
+
 		//! simple cube scene node
 		ESNT_CUBE           = MAKE_IRR_ID('c','u','b','e'),
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -70,6 +70,21 @@ enum E_TEXTURE_CREATION_FLAG
 	ETCF_FORCE_32_BIT_DO_NOT_USE = 0x7fffffff
 };
 
+//! Enum for the mode for texture locking. Read-Only, write-only or read/write.
+enum E_TEXTURE_LOCK_MODE
+{
+	//! The default mode. Texture can be read and written to.
+	ETLM_READ_WRITE = 0,
+
+	//! Read only. The texture is downloaded, but not uploaded again.
+	/** Often used to read back shader generated textures. */
+	ETLM_READ_ONLY,
+
+	//! Write only. The texture is not downloaded and might be uninitialised.
+	/** The updated texture is uploaded to the GPU.
+	Used for initialising the shader from the CPU. */
+	ETLM_WRITE_ONLY
+};
 
 //! Interface of a Video Driver dependent Texture.
 /** An ITexture is created by an IVideoDriver by using IVideoDriver::addTexture
@@ -94,18 +109,26 @@ public:
 	pixels. After lock() has been called and all operations on the pixels
 	are done, you must call unlock().
 	Locks are not accumulating, hence one unlock will do for an arbitrary
-	number of previous locks.
-	\param readOnly Specifies that no changes to the locked texture are
-	made. Unspecified behavior will arise if still write access happens.
+	number of previous locks. You should avoid locking different levels without
+	unlocking inbetween, though, because only the last level locked will be
+	unlocked.
+	The size of the i-th mipmap level is defined as max(getSize().Width>>i,1)
+	and max(getSize().Height>>i,1)
+	\param mode Specifies what kind of changes to the locked texture are
+	allowed. Unspecified behavior will arise if texture is written in read
+	only mode or read from in write only mode.
+	Support for this feature depends on the driver, so don't rely on the
+	texture being write-protected when locking with read-only, etc.
 	\param mipmapLevel Number of the mipmapLevel to lock. 0 is main texture.
 	Non-existing levels will silently fail and return 0.
 	\return Returns a pointer to the pixel data. The format of the pixel can
 	be determined by using getColorFormat(). 0 is returned, if
 	the texture cannot be locked. */
-	virtual void* lock(bool readOnly = false, u32 mipmapLevel=0) = 0;
+	virtual void* lock(E_TEXTURE_LOCK_MODE mode=ETLM_READ_WRITE, u32 mipmapLevel=0) = 0;
 
 	//! Unlock function. Must be called after a lock() to the texture.
-	/** One should avoid to call unlock more than once before another lock. */
+	/** One should avoid to call unlock more than once before another lock.
+	The last locked mip level will be unlocked. */
 	virtual void unlock() = 0;
 
 	//! Get original size of the texture.
@@ -133,7 +156,7 @@ public:
 	/** \return The color format of texture. */
 	virtual ECOLOR_FORMAT getColorFormat() const = 0;
 
-	//! Get pitch of texture (in bytes).
+	//! Get pitch of the main texture (in bytes).
 	/** The pitch is the amount of bytes used for a row of pixels in a
 	texture.
 	\return Pitch of texture in bytes. */
@@ -149,11 +172,19 @@ public:
 	}
 
 	//! Regenerates the mip map levels of the texture.
-	/** Required after modifying the texture, usually after calling unlock(). */
+	/** Required after modifying the texture, usually after calling unlock().
+	\param mipmapData Optional parameter to pass in image data which will be
+	used instead of the previously stored or automatically generated mipmap
+	data. The data has to be a continuous pixel data for all mipmaps until
+	1x1 pixel. Each mipmap has to be half the width and height of the previous
+	level. At least one pixel will be always kept.*/
 	virtual void regenerateMipMapLevels(void* mipmapData=0) = 0;
 
 	//! Check whether the texture is a render target
-	/** \return True if this is a render target, otherwise false. */
+	/** Render targets can be set as such in the video driver, in order to
+	render a scene into the texture. Once unbound as render target, they can
+	be used just as usual textures again.
+	\return True if this is a render target, otherwise false. */
 	virtual bool isRenderTarget() const { return false; }
 
 	//! Get name of texture (in most cases this is the filename)

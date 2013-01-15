@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt / Thomas Alten
+// Copyright (C) 2002-2012 Nikolaus Gebhardt / Thomas Alten
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -78,7 +78,7 @@
 #if defined ( SOFTWARE_DRIVER_2_MIPMAPPING )
 	#if defined( BURNINGVIDEO_RENDERER_BEAUTIFUL )
 		#define SOFTWARE_DRIVER_2_MIPMAPPING_MAX		8
-		#define SOFTWARE_DRIVER_2_MIPMAPPING_LOD_BIAS	-1
+		#define SOFTWARE_DRIVER_2_MIPMAPPING_LOD_BIAS	0
 	#elif defined ( BURNINGVIDEO_RENDERER_CE )
 		#define SOFTWARE_DRIVER_2_MIPMAPPING_MAX		4
 		#define SOFTWARE_DRIVER_2_MIPMAPPING_LOD_BIAS	0

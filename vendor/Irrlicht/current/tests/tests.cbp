@@ -38,6 +38,26 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-g" />
+					<Add option="-fno-exceptions" />
+					<Add option="-D_IRR_STATIC_LIB_" />
+					<Add option="-D_DEBUG" />
+				</Compiler>
+				<Linker>
+					<Add library="Xxf86vm" />
+					<Add library="GL" />
+					<Add directory="../lib/Linux/" />
+				</Linker>
+			</Target>
+			<Target title="Linux Release">
+				<Option platforms="Unix;" />
+				<Option output="../bin/gcc/tests" prefix_auto="1" extension_auto="1" />
+				<Option object_output="./Release/" />
+				<Option type="1" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O3" />
+					<Add option="-fno-exceptions" />
+					<Add option="-D_IRR_STATIC_LIB_" />
 				</Compiler>
 				<Linker>
 					<Add library="Xxf86vm" />
@@ -59,6 +79,7 @@
 		<Unit filename="anti-aliasing.cpp" />
 		<Unit filename="archiveReader.cpp" />
 		<Unit filename="b3dAnimation.cpp" />
+		<Unit filename="billboards.cpp" />
 		<Unit filename="burningsVideo.cpp" />
 		<Unit filename="collisionResponseAnimator.cpp" />
 		<Unit filename="color.cpp" />
@@ -68,37 +89,44 @@
 		<Unit filename="draw2DImage.cpp" />
 		<Unit filename="drawPixel.cpp" />
 		<Unit filename="drawRectOutline.cpp" />
+		<Unit filename="drawVertexPrimitive.cpp" />
 		<Unit filename="enumerateImageManipulators.cpp" />
 		<Unit filename="exports.cpp" />
 		<Unit filename="fast_atof.cpp" />
 		<Unit filename="filesystem.cpp" />
 		<Unit filename="flyCircleAnimator.cpp" />
 		<Unit filename="guiDisabledMenu.cpp" />
+		<Unit filename="ioScene.cpp" />
 		<Unit filename="irrArray.cpp" />
 		<Unit filename="irrCoreEquals.cpp" />
 		<Unit filename="irrList.cpp" />
 		<Unit filename="irrMap.cpp" />
 		<Unit filename="irrString.cpp" />
 		<Unit filename="lightMaps.cpp" />
-		<Unit filename="line2dIntersectWith.cpp" />
+		<Unit filename="lights.cpp" />
 		<Unit filename="loadTextures.cpp" />
 		<Unit filename="main.cpp" />
 		<Unit filename="makeColorKeyTexture.cpp" />
+		<Unit filename="material.cpp" />
 		<Unit filename="matrixOps.cpp" />
 		<Unit filename="md2Animation.cpp" />
 		<Unit filename="meshLoaders.cpp" />
 		<Unit filename="meshTransform.cpp" />
+		<Unit filename="mrt.cpp" />
 		<Unit filename="planeMatrix.cpp" />
 		<Unit filename="projectionMatrix.cpp" />
 		<Unit filename="removeCustomAnimator.cpp" />
 		<Unit filename="renderTargetTexture.cpp" />
 		<Unit filename="sceneCollisionManager.cpp" />
 		<Unit filename="sceneNodeAnimator.cpp" />
+		<Unit filename="screenshot.cpp" />
 		<Unit filename="serializeAttributes.cpp" />
+		<Unit filename="skinnedMesh.cpp" />
 		<Unit filename="softwareDevice.cpp" />
 		<Unit filename="terrainSceneNode.cpp" />
 		<Unit filename="testDimension2d.cpp" />
 		<Unit filename="testGeometryCreator.cpp" />
+		<Unit filename="testLine2d.cpp" />
 		<Unit filename="testQuaternion.cpp" />
 		<Unit filename="testS3DVertex.cpp" />
 		<Unit filename="testUtils.cpp" />
@@ -110,9 +138,13 @@
 		<Unit filename="textureFeatures.cpp" />
 		<Unit filename="textureRenderStates.cpp" />
 		<Unit filename="timer.cpp" />
-		<Unit filename="transparentAlphaChannelRef.cpp" />
+		<Unit filename="transparentMaterials.cpp" />
 		<Unit filename="triangle3d.cpp" />
+		<Unit filename="triangleSelector.cpp" />
+		<Unit filename="userClipPlane.cpp" />
 		<Unit filename="vectorPositionDimension2d.cpp" />
+		<Unit filename="videoDriver.cpp" />
+		<Unit filename="viewPort.cpp" />
 		<Unit filename="writeImageToFile.cpp" />
 		<Extensions>
 			<code_completion />

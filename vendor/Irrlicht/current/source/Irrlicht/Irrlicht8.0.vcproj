@@ -866,7 +866,7 @@
 					>
 				</File>
 				<File
-					RelativePath=".\..\..\include\IAnimatedMeshMS3D.h"
+					RelativePath=".\..\..\include\IAnimatedMeshMD3.h"
 					>
 				</File>
 				<File
@@ -945,6 +945,11 @@
 					RelativePath=".\..\..\include\ISceneManager.h"
 					>
 				</File>
+				<File
+					RelativePath=".\..\..\include\ISceneLoader.h"
+					>
+				</File>
+
 				<File
 					RelativePath=".\..\..\include\ISceneNode.h"
 					>
@@ -1459,6 +1464,14 @@
 			Name="video impl"
 			>
 			<File
+				RelativePath="CCgMaterialRenderer.cpp"
+				>
+			</File>
+			<File
+				RelativePath="CCgMaterialRenderer.h"
+				>
+			</File>
+			<File
 				RelativePath="CVideoModeList.cpp"
 				>
 			</File>
@@ -1553,6 +1566,14 @@
 			<Filter
 				Name="OpenGL"
 				>
+				<File
+					RelativePath=".\COpenGLCgMaterialRenderer.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\COpenGLCgMaterialRenderer.h"
+					>
+				</File>
 				<File
 					RelativePath=".\COpenGLDriver.cpp"
 					>
@@ -1706,6 +1727,14 @@
 					>
 				</File>
 				<File
+					RelativePath=".\CImageLoaderDDS.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CImageLoaderDDS.h"
+					>
+				</File>
+				<File
 					RelativePath="CImageLoaderJPG.cpp"
 					>
 				</File>
@@ -1846,6 +1875,14 @@
 				Name="Direct3D9"
 				>
 				<File
+					RelativePath="CD3D9CgMaterialRenderer.cpp"
+					>
+				</File>
+				<File
+					RelativePath="CD3D9CgMaterialRenderer.h"
+					>
+				</File>
+				<File
 					RelativePath=".\CD3D9Driver.cpp"
 					>
 				</File>
@@ -1943,6 +1980,14 @@
 				</File>
 				<File
 					RelativePath=".\CTRGouraudAlphaNoZ2.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CTRNormalMap.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CTRStencilShadow.cpp"
 					>
 				</File>
 				<File
@@ -2075,11 +2120,19 @@
 				>
 			</File>
 			<File
-				RelativePath=".\CSceneManager.cpp"
+				RelativePath="CSceneLoaderIrr.cpp"
 				>
 			</File>
 			<File
-				RelativePath=".\CSceneManager.h"
+				RelativePath="CSceneLoaderIrr.h"
+				>
+			</File>
+			<File
+				RelativePath="CSceneManager.cpp"
+				>
+			</File>
+			<File
+				RelativePath="CSceneManager.h"
 				>
 			</File>
 			<Filter
@@ -2091,6 +2144,20 @@
 				</File>
 				<File
 					RelativePath=".\C3DSMeshFileLoader.h"
+					>
+				</File>
+				<File
+					RelativePath="CSMFMeshFileLoader.cpp">
+				</File>
+				<File
+					RelativePath="CSMFMeshFileLoader.h">
+				</File>
+				<File
+					RelativePath=".\CAnimatedMeshHalfLife.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CAnimatedMeshHalfLife.h"
 					>
 				</File>
 				<File
@@ -2755,19 +2822,19 @@
 				>
 			</File>
 			<File
-				RelativePath="CPakReader.cpp"
-				>
-			</File>
-			<File
-				RelativePath="CPakReader.h"
-				>
-			</File>
-			<File
 				RelativePath="CNPKReader.cpp"
 				>
 			</File>
 			<File
 				RelativePath="CNPKReader.h"
+				>
+			</File>
+			<File
+				RelativePath="CPakReader.cpp"
+				>
+			</File>
+			<File
+				RelativePath="CPakReader.h"
 				>
 			</File>
 			<File
@@ -2788,6 +2855,14 @@
 			</File>
 			<File
 				RelativePath="CTarReader.h"
+				>
+			</File>
+			<File
+				RelativePath=".\CWADReader.cpp"
+				>
+			</File>
+			<File
+				RelativePath=".\CWADReader.h"
 				>
 			</File>
 			<File
@@ -3045,10 +3120,6 @@
 						>
 					</File>
 					<File
-						RelativePath="jpeglib\jchuff.h"
-						>
-					</File>
-					<File
 						RelativePath="jpeglib\jcinit.c"
 						>
 					</File>
@@ -3126,10 +3197,6 @@
 					</File>
 					<File
 						RelativePath="jpeglib\jdhuff.c"
-						>
-					</File>
-					<File
-						RelativePath="jpeglib\jdhuff.h"
 						>
 					</File>
 					<File

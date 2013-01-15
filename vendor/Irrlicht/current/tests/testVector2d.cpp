@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2009 Colin MacDonald
+// Copyright (C) 2008-2012 Colin MacDonald
 // No rights reserved: this software is in the public domain.
 
 #include "testUtils.h"
@@ -14,7 +14,7 @@ static bool compareVectors(const core::vector2d<T> & compare,
 	{
 		logTestString("\nERROR: vector2d %.16f, %.16f != vector2d %.16f, %.16f\n",
 			(f64)compare.X, (f64)compare.Y, (f64)with.X, (f64)with.Y);
-		assert(compare == with);
+		assert_log(compare == with);
 		return false;
 	}
 
@@ -32,7 +32,7 @@ static bool doTests()
 	if(!equals(vec.getDistanceFrom(otherVec), (T)15.8113883))
 	{
 		logTestString("vector2d::getDistanceFrom() failed\n");
-		assert(0);
+		assert_log(0);
 		return false;
 	}
 
@@ -155,6 +155,14 @@ static bool doTests()
 	}
 	tmp = core::vector2d<T>(0, 100);
 	ref = core::vector2d<f64>(0, 100);
+	if (!equals(tmp.getAngle(),ref.getAngle()))
+	{
+		logTestString("\nERROR: angle %.16f != angle %.16f\n",
+			tmp.getAngle(), ref.getAngle());
+		return false;
+	}
+	tmp = core::vector2d<T>(static_cast<T>(-1.53080559e-16), static_cast<T>(2.49999523));
+	ref = core::vector2d<f64>(-1.53080559e-16, 2.49999523);
 	if (!equals(tmp.getAngle(),ref.getAngle()))
 	{
 		logTestString("\nERROR: angle %.16f != angle %.16f\n",

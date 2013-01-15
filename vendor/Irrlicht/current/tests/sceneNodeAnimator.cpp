@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Colin MacDonald
+// Copyright (C) 2008-2012 Colin MacDonald
 // No rights reserved: this software is in the public domain.
 
 #include "testUtils.h"
@@ -11,7 +11,7 @@ using namespace scene;
 bool sceneNodeAnimator(void)
 {
 	IrrlichtDevice * device = irr::createDevice(video::EDT_NULL, dimension2d<u32>(160, 120));
-	assert(device);
+	assert_log(device);
 	if(!device)
 		return false;
 
@@ -101,12 +101,14 @@ bool sceneNodeAnimator(void)
 	textureAnimator->drop();
 	textureAnimatorLooping->drop();
 
+	device->closeDevice();
+	device->run();
 	device->drop();
 
 	if(!result)
 	{
 		logTestString("One or more animators has a bad hasFinished() state\n.");
-		assert(false);
+		assert_log(false);
 	}
 
 	return result;

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -18,6 +18,9 @@ namespace scene
 	modelling tool.
 	The camera is moving relative to the target with the mouse, by pressing either
 	of the three buttons.
+	In order to move the camera, set a new target for the camera. The distance defines
+	the current orbit radius the camera moves on. Distance can be changed via the setter
+	or by mouse events.
 	*/
 	class ISceneNodeAnimatorCameraMaya : public ISceneNodeAnimator
 	{
@@ -41,6 +44,11 @@ namespace scene
 		//! Set the zoom speed
 		virtual void setZoomSpeed(f32 zoomSpeed) = 0;
 
+		//! Returns the current distance, i.e. orbit radius
+		virtual f32 getDistance() const = 0;
+
+		//! Set the distance
+		virtual void setDistance(f32 distance) = 0;
 	};
 
 } // end namespace scene

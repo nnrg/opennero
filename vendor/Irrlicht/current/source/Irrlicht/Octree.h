@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -329,7 +329,7 @@ private:
 						return;
 #if defined (OCTREE_PARENTTEST )
 					if ( r == core::ISREL3D_CLIPPED )
-						parentTest = 1;	// must still check childs
+						parentTest = 1;	// must still check children
 #endif
 				}
 			}

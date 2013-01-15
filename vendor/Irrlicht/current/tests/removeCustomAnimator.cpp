@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2009 Colin MacDonald
+// Copyright (C) 2008-2012 Colin MacDonald
 // No rights reserved: this software is in the public domain.
 
 #include "testUtils.h"
@@ -20,12 +20,12 @@ class CustomAnimator : public ISceneNodeAnimator
 
 
 /** Test that a custom animator can remove itself cleanly from an ISceneNode during its
- *  own animateNode() loop. 
+ *  own animateNode() loop.
  * http://irrlicht.sourceforge.net/phpBB2/viewtopic.php?t=32271 */
 bool removeCustomAnimator(void)
 {
 	IrrlichtDevice * device = irr::createDevice(video::EDT_NULL, dimension2du(160, 120));
-	assert(device);
+	assert_log(device);
 	if(!device)
 		return false;
 
@@ -40,7 +40,9 @@ bool removeCustomAnimator(void)
 	// This should result in both custom animators being removed and
 	// deleted cleanly, without a crash.
 	node->OnAnimate(0);
-	
+
+	device->closeDevice();
+	device->run();
 	device->drop();
 
 	// If we didn't crash, then the test passed.

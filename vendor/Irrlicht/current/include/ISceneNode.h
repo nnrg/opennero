@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -184,7 +184,12 @@ namespace scene
 
 
 		//! Get the absolute transformation of the node. Is recalculated every OnAnimate()-call.
-		//! \return The absolute transformation matrix.
+		/** NOTE: For speed reasons the absolute transformation is not 
+		automatically recalculated on each change of the relative 
+		transformation or by a transformation change of an parent. Instead the
+		update usually happens once per frame in OnAnimate. You can enforce 
+		an update with updateAbsolutePosition().
+		\return The absolute transformation matrix. */
 		virtual const core::matrix4& getAbsoluteTransformation() const
 		{
 			return AbsoluteTransformation;
@@ -508,7 +513,12 @@ namespace scene
 		//! Gets the absolute position of the node in world coordinates.
 		/** If you want the position of the node relative to its parent,
 		use getPosition() instead.
-		\return The current absolute position of the scene node. */
+		NOTE: For speed reasons the absolute position is not 
+		automatically recalculated on each change of the relative 
+		position or by a position change of an parent. Instead the 
+		update usually happens once per frame in OnAnimate. You can enforce 
+		an update with updateAbsolutePosition().
+		\return The current absolute position of the scene node (updated on last call of updateAbsolutePosition). */
 		virtual core::vector3df getAbsolutePosition() const
 		{
 			return AbsoluteTransformation.getTranslation();
@@ -521,7 +531,7 @@ namespace scene
 		their geometry because it is their only reason for existence,
 		for example the OctreeSceneNode.
 		\param state The culling state to be used. */
-		void setAutomaticCulling( E_CULLING_TYPE state)
+		void setAutomaticCulling( u32 state)
 		{
 			AutomaticCullingState = state;
 		}
@@ -529,9 +539,8 @@ namespace scene
 
 		//! Gets the automatic culling state.
 		/** \return The automatic culling state. */
-		E_CULLING_TYPE getAutomaticCulling() const
+		u32 getAutomaticCulling() const
 		{
-			_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 			return AutomaticCullingState;
 		}
 
@@ -540,7 +549,7 @@ namespace scene
 		/** A bitwise OR of the types from @ref irr::scene::E_DEBUG_SCENE_TYPE.
 		Please note that not all scene nodes support all debug data types.
 		\param state The debug data visibility state to be used. */
-		virtual void setDebugDataVisible(s32 state)
+		virtual void setDebugDataVisible(u32 state)
 		{
 			DebugDataVisible = state;
 		}
@@ -548,7 +557,7 @@ namespace scene
 		//! Returns if debug data like bounding boxes are drawn.
 		/** \return A bitwise OR of the debug data values from
 		@ref irr::scene::E_DEBUG_SCENE_TYPE that are currently visible. */
-		s32 isDebugDataVisible() const
+		u32 isDebugDataVisible() const
 		{
 			return DebugDataVisible;
 		}
@@ -687,7 +696,7 @@ namespace scene
 			out->addVector3d("Scale", getScale() );
 
 			out->addBool	("Visible", IsVisible );
-			out->addEnum	("AutomaticCulling", AutomaticCullingState, AutomaticCullingNames);
+			out->addInt	("AutomaticCulling", AutomaticCullingState);
 			out->addInt	("DebugDataVisible", DebugDataVisible );
 			out->addBool	("IsDebugObject", IsDebugObject );
 		}
@@ -712,8 +721,12 @@ namespace scene
 			setScale(in->getAttributeAsVector3d("Scale"));
 
 			IsVisible = in->getAttributeAsBool("Visible");
-			AutomaticCullingState = (scene::E_CULLING_TYPE) in->getAttributeAsEnumeration("AutomaticCulling",
+			s32 tmpState = in->getAttributeAsEnumeration("AutomaticCulling",
 					scene::AutomaticCullingNames);
+			if (tmpState != -1)
+				AutomaticCullingState = (u32)tmpState;
+			else
+				AutomaticCullingState = in->getAttributeAsInt("AutomaticCulling");
 
 			DebugDataVisible = in->getAttributeAsInt("DebugDataVisible");
 			IsDebugObject = in->getAttributeAsBool("IsDebugObject");
@@ -825,10 +838,10 @@ namespace scene
 		s32 ID;
 
 		//! Automatic culling state
-		E_CULLING_TYPE AutomaticCullingState;
+		u32 AutomaticCullingState;
 
 		//! Flag if debug data should be drawn, such as Bounding Boxes.
-		s32 DebugDataVisible;
+		u32 DebugDataVisible;
 
 		//! Is the node visible?
 		bool IsVisible;

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -21,15 +21,7 @@ namespace scene
 #endif
 
 // byte-align structures
-#if defined(_MSC_VER) ||  defined(__BORLANDC__) || defined (__BCPLUSPLUS__)
-#	pragma pack( push, packing )
-#	pragma pack( 1 )
-#	define PACK_STRUCT
-#elif defined( __GNUC__ )
-#	define PACK_STRUCT	__attribute__((packed))
-#else
-#	error compiler not supported
-#endif
+#include "irrpack.h"
 
 namespace {
 // File header
@@ -103,11 +95,7 @@ struct MS3DVertexWeights
 } // end namespace
 
 // Default alignment
-#if defined(_MSC_VER) ||  defined(__BORLANDC__) || defined (__BCPLUSPLUS__)
-#	pragma pack( pop, packing )
-#endif
-
-#undef PACK_STRUCT
+#include "irrunpack.h"
 
 struct SGroup
 {
@@ -403,6 +391,7 @@ bool CMS3DMeshFileLoader::load(io::IReadFile* file)
 
 	if (framesPerSecond<1.f)
 		framesPerSecond=1.f;
+	AnimatedMesh->setAnimationSpeed(framesPerSecond);
 
 // ignore, calculated inside SkinnedMesh
 //	s32 frameCount = *(int*)pPtr;
@@ -469,6 +458,8 @@ bool CMS3DMeshFileLoader::load(io::IReadFile* file)
 
 		jnt->LocalMatrix.setTranslation(
 			core::vector3df(pJoint->Translation[0], pJoint->Translation[1], -pJoint->Translation[2]) );
+		jnt->Animatedposition.set(jnt->LocalMatrix.getTranslation());
+		jnt->Animatedrotation.set(jnt->LocalMatrix.getRotationDegrees());
 
 		parentNames.push_back( (c8*)pJoint->ParentName );
 
@@ -510,7 +501,9 @@ bool CMS3DMeshFileLoader::load(io::IReadFile* file)
 
 			tmpMatrix=jnt->LocalMatrix*tmpMatrix;
 
-			k->rotation  = core::quaternion(tmpMatrix);
+			// IRR_TEST_BROKEN_QUATERNION_USE: TODO - switched from tmpMatrix to tmpMatrix.getTransposed() for downward compatibility. 
+			//								   Not tested so far if this was correct or wrong before quaternion fix!
+			k->rotation  = core::quaternion(tmpMatrix.getTransposed());
 		}
 
 		// get translation keyframes
@@ -542,6 +535,7 @@ bool CMS3DMeshFileLoader::load(io::IReadFile* file)
 	}
 
 	core::array<MS3DVertexWeights> vertexWeights;
+	f32 weightFactor=0;
 
 	if (jointCount && (pHeader->Version == 4) && (pPtr < buffer+fileSize))
 	{
@@ -590,6 +584,10 @@ bool CMS3DMeshFileLoader::load(io::IReadFile* file)
 #ifdef __BIG_ENDIAN__
 			subVersion = os::Byteswap::byteswap(subVersion);
 #endif
+			if (subVersion==1)
+				weightFactor=1.f/255.f;
+			else
+				weightFactor=1.f/100.f;
 			pPtr += sizeof(s32);
 
 #ifdef _IRR_DEBUG_MS3D_LOADER_
@@ -726,7 +724,7 @@ bool CMS3DMeshFileLoader::load(io::IReadFile* file)
 					{
 						ISkinnedMesh::SWeight *w=AnimatedMesh->addWeight(AnimatedMesh->getAllJoints()[boneid]);
 						w->buffer_id = matidx;
-						sum -= (w->strength = vertexWeights[vertidx].weights[0]/100.f);
+						sum -= (w->strength = vertexWeights[vertidx].weights[0]*weightFactor);
 						w->vertex_id = index;
 					}
 					boneid = vertexWeights[vertidx].boneIds[0];
@@ -734,7 +732,7 @@ bool CMS3DMeshFileLoader::load(io::IReadFile* file)
 					{
 						ISkinnedMesh::SWeight *w=AnimatedMesh->addWeight(AnimatedMesh->getAllJoints()[boneid]);
 						w->buffer_id = matidx;
-						sum -= (w->strength = vertexWeights[vertidx].weights[1]/100.f);
+						sum -= (w->strength = vertexWeights[vertidx].weights[1]*weightFactor);
 						w->vertex_id = index;
 					}
 					boneid = vertexWeights[vertidx].boneIds[1];
@@ -742,7 +740,7 @@ bool CMS3DMeshFileLoader::load(io::IReadFile* file)
 					{
 						ISkinnedMesh::SWeight *w=AnimatedMesh->addWeight(AnimatedMesh->getAllJoints()[boneid]);
 						w->buffer_id = matidx;
-						sum -= (w->strength = vertexWeights[vertidx].weights[2]/100.f);
+						sum -= (w->strength = vertexWeights[vertidx].weights[2]*weightFactor);
 						w->vertex_id = index;
 					}
 					boneid = vertexWeights[vertidx].boneIds[2];

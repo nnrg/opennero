@@ -12,9 +12,7 @@
 				<Option compiler="gcc" />
 				<Option projectResourceIncludeDirsRelation="1" />
 				<Compiler>
-					<Add option="-W" />
 					<Add option="-g" />
-					<Add option="-D_IRR_STATIC_LIB_" />
 				</Compiler>
 				<Linker>
 					<Add directory="..\..\lib\Win32-gcc" />
@@ -26,21 +24,21 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-W" />
 					<Add option="-g" />
+					<Add option="-D_IRR_STATIC_LIB_" />
 				</Compiler>
 				<Linker>
 					<Add library="Xxf86vm" />
+					<Add library="Xcursor" />
 					<Add library="GL" />
 					<Add directory="..\..\lib\Linux" />
 				</Linker>
 			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All" targets="Windows;" />
+			<Add alias="All" targets="Windows;Linux;" />
 		</VirtualTargets>
 		<Compiler>
-			<Add option="-W" />
 			<Add option="-g" />
 			<Add directory="..\..\include" />
 		</Compiler>

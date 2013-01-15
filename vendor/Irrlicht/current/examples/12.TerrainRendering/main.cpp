@@ -29,10 +29,10 @@ class MyEventReceiver : public IEventReceiver
 public:
 
 	MyEventReceiver(scene::ISceneNode* terrain, scene::ISceneNode* skybox, scene::ISceneNode* skydome) :
-		Terrain(terrain), Skybox(skybox), Skydome(skydome), showBox(true)
+		Terrain(terrain), Skybox(skybox), Skydome(skydome), showBox(true), showDebug(false)
 	{
-		Skybox->setVisible(true);
-		Skydome->setVisible(false);
+		Skybox->setVisible(showBox);
+		Skydome->setVisible(!showBox);
 	}
 
 	bool OnEvent(const SEvent& event)
@@ -62,6 +62,10 @@ public:
 				Skybox->setVisible(showBox);
 				Skydome->setVisible(!showBox);
 				return true;
+			case irr::KEY_KEY_X: // toggle debug information
+				showDebug=!showDebug;
+				Terrain->setDebugDataVisible(showDebug?scene::EDS_BBOX_ALL:scene::EDS_OFF);
+				return true;
 			default:
 				break;
 			}
@@ -75,6 +79,7 @@ private:
 	scene::ISceneNode* Skybox;
 	scene::ISceneNode* Skydome;
 	bool showBox;
+	bool showDebug;
 };
 
 
@@ -177,7 +182,6 @@ int main()
 	terrain->setMaterialType(video::EMT_DETAIL_MAP);
 
 	terrain->scaleTexture(1.0f, 20.0f);
-	//terrain->setDebugDataVisible ( true );
 
 	/*
 	To be able to do collision with the terrain, we create a triangle selector.
@@ -212,7 +216,7 @@ int main()
 
 	/*
 	To make the user be able to switch between normal and wireframe mode,
-	we create an instance of the event reciever from above and let Irrlicht
+	we create an instance of the event receiver from above and let Irrlicht
 	know about it. In addition, we add the skybox which we already used in
 	lots of Irrlicht examples and a skydome, which is shown mutually
 	exclusive with the skybox by pressing 'S'.

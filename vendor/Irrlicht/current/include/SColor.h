@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -12,6 +12,50 @@ namespace irr
 {
 namespace video
 {
+	//! An enum for the color format of textures used by the Irrlicht Engine.
+	/** A color format specifies how color information is stored. */
+	enum ECOLOR_FORMAT
+	{
+		//! 16 bit color format used by the software driver.
+		/** It is thus preferred by all other irrlicht engine video drivers.
+		There are 5 bits for every color component, and a single bit is left
+		for alpha information. */
+		ECF_A1R5G5B5 = 0,
+
+		//! Standard 16 bit color format.
+		ECF_R5G6B5,
+
+		//! 24 bit color, no alpha channel, but 8 bit for red, green and blue.
+		ECF_R8G8B8,
+
+		//! Default 32 bit color format. 8 bits are used for every component: red, green, blue and alpha.
+		ECF_A8R8G8B8,
+
+		/** Floating Point formats. The following formats may only be used for render target textures. */
+
+		//! 16 bit floating point format using 16 bits for the red channel.
+		ECF_R16F,
+
+		//! 32 bit floating point format using 16 bits for the red channel and 16 bits for the green channel.
+		ECF_G16R16F,
+
+		//! 64 bit floating point format 16 bits are used for the red, green, blue and alpha channels.
+		ECF_A16B16G16R16F,
+
+		//! 32 bit floating point format using 32 bits for the red channel.
+		ECF_R32F,
+
+		//! 64 bit floating point format using 32 bits for the red channel and 32 bits for the green channel.
+		ECF_G32R32F,
+
+		//! 128 bit floating point format. 32 bits are used for the red, green, blue and alpha channels.
+		ECF_A32B32G32R32F,
+
+		//! Unknown color format:
+		ECF_UNKNOWN
+	};
+
+
 	//! Creates a 16 bit A1R5G5B5 color
 	inline u16 RGBA16(u32 r, u32 g, u32 b, u32 a=0xFF)
 	{
@@ -327,6 +371,78 @@ namespace video
 							getBlue()  * mul0 + c1.getBlue()  * mul1 + c2.getBlue()  * mul2 ), 0, 255 ));
 		}
 
+		//! set the color by expecting data in the given format
+		/** \param data: must point to valid memory containing color information in the given format
+			\param format: tells the format in which data is available
+		*/
+		void setData(const void *data, ECOLOR_FORMAT format)
+		{
+			switch (format)
+			{
+				case ECF_A1R5G5B5:
+					color = A1R5G5B5toA8R8G8B8(*(u16*)data);
+					break;
+				case ECF_R5G6B5:
+					color = R5G6B5toA8R8G8B8(*(u16*)data);
+					break;
+				case ECF_A8R8G8B8:
+					color = *(u32*)data;
+					break;
+				case ECF_R8G8B8:
+					{
+						u8* p = (u8*)data;
+						set(255, p[0],p[1],p[2]);
+					}
+					break;
+				default:
+					color = 0xffffffff;
+				break;
+			}
+		}
+
+		//! Write the color to data in the defined format
+		/** \param data: target to write the color. Must contain sufficiently large memory to receive the number of bytes neede for format
+			\param format: tells the format used to write the color into data
+		*/
+		void getData(void *data, ECOLOR_FORMAT format)
+		{
+			switch(format)
+			{
+				case ECF_A1R5G5B5:
+				{
+					u16 * dest = (u16*)data;
+					*dest = video::A8R8G8B8toA1R5G5B5( color );
+				} 
+				break;
+
+				case ECF_R5G6B5:
+				{
+					u16 * dest = (u16*)data;
+					*dest = video::A8R8G8B8toR5G6B5( color );
+				} 
+				break;
+
+				case ECF_R8G8B8:
+				{
+					u8* dest = (u8*)data;
+					dest[0] = (u8)getRed();
+					dest[1] = (u8)getGreen();
+					dest[2] = (u8)getBlue();
+				} 
+				break;
+
+				case ECF_A8R8G8B8:
+				{
+					u32 * dest = (u32*)data;
+					*dest = color;
+				} 
+				break;
+
+				default:
+				break;
+			}
+		}
+
 		//! color in A8R8G8B8 Format
 		u32 color;
 	};
@@ -468,9 +584,10 @@ namespace video
 	};
 
 
-	//! Class representing a color in HSV format
-	/** The color values for hue, saturation, value
-	are stored in a 32 bit floating point variable.
+	//! Class representing a color in HSL format
+	/** The color values for hue, saturation, luminance
+	are stored in 32bit floating point variables. Hue is in range [0,360],
+	Luminance and Saturation are in percent [0,100]
 	*/
 	class SColorHSL
 	{
@@ -478,24 +595,23 @@ namespace video
 		SColorHSL ( f32 h = 0.f, f32 s = 0.f, f32 l = 0.f )
 			: Hue ( h ), Saturation ( s ), Luminance ( l ) {}
 
-		void fromRGB(const SColor &color);
-		void toRGB(SColor &color) const;
+		void fromRGB(const SColorf &color);
+		void toRGB(SColorf &color) const;
 
 		f32 Hue;
 		f32 Saturation;
 		f32 Luminance;
 
 	private:
-		inline u32 toRGB1(f32 rm1, f32 rm2, f32 rh) const;
+		inline f32 toRGB1(f32 rm1, f32 rm2, f32 rh) const;
 
 	};
 
-	inline void SColorHSL::fromRGB(const SColor &color)
+	inline void SColorHSL::fromRGB(const SColorf &color)
 	{
-		const u32 maxValInt = core::max_(color.getRed(), color.getGreen(), color.getBlue());
-		const f32 maxVal = (f32)maxValInt;
+		const f32 maxVal = core::max_(color.getRed(), color.getGreen(), color.getBlue());
 		const f32 minVal = (f32)core::min_(color.getRed(), color.getGreen(), color.getBlue());
-		Luminance = (maxVal/minVal)*0.5f;
+		Luminance = (maxVal+minVal)*50;
 		if (core::equals(maxVal, minVal))
 		{
 			Hue=0.f;
@@ -504,7 +620,7 @@ namespace video
 		}
 
 		const f32 delta = maxVal-minVal;
-		if ( Luminance <= 0.5f )
+		if ( Luminance <= 50 )
 		{
 			Saturation = (delta)/(maxVal+minVal);
 		}
@@ -512,71 +628,70 @@ namespace video
 		{
 			Saturation = (delta)/(2-maxVal-minVal);
 		}
+		Saturation *= 100;
 
-		if (maxValInt == color.getRed())
+		if (core::equals(maxVal, color.getRed()))
 			Hue = (color.getGreen()-color.getBlue())/delta;
-		else if (maxValInt == color.getGreen())
-			Hue = 2+(color.getBlue()-color.getRed())/delta;
+		else if (core::equals(maxVal, color.getGreen()))
+			Hue = 2+((color.getBlue()-color.getRed())/delta);
 		else // blue is max
-			Hue = 4+(color.getRed()-color.getGreen())/delta;
+			Hue = 4+((color.getRed()-color.getGreen())/delta);
 
-		Hue *= (60.0f * core::DEGTORAD);
+		Hue *= 60.0f;
 		while ( Hue < 0.f )
-			Hue += 2.f * core::PI;
+			Hue += 360;
 	}
 
 
-	inline void SColorHSL::toRGB(SColor &color) const
+	inline void SColorHSL::toRGB(SColorf &color) const
 	{
+		const f32 l = Luminance/100;
 		if (core::iszero(Saturation)) // grey
 		{
-			u8 c = (u8) ( Luminance * 255.0 );
-			color.setRed(c);
-			color.setGreen(c);
-			color.setBlue(c);
+			color.set(l, l, l);
 			return;
 		}
 
 		f32 rm2;
 
-		if ( Luminance <= 0.5f )
+		if ( Luminance <= 50 )
 		{
-			rm2 = Luminance + Luminance * Saturation;
+			rm2 = l + l * (Saturation/100);
 		}
 		else
 		{
-			rm2 = Luminance + Saturation - Luminance * Saturation;
+			rm2 = l + (1 - l) * (Saturation/100);
 		}
 
-		const f32 rm1 = 2.0f * Luminance - rm2;
+		const f32 rm1 = 2.0f * l - rm2;
 
-		color.setRed ( toRGB1(rm1, rm2, Hue + (120.0f * core::DEGTORAD )) );
-		color.setGreen ( toRGB1(rm1, rm2, Hue) );
-		color.setBlue ( toRGB1(rm1, rm2, Hue - (120.0f * core::DEGTORAD) ) );
+		const f32 h = Hue / 360.0f;
+		color.set( toRGB1(rm1, rm2, h + 1.f/3.f),
+			toRGB1(rm1, rm2, h),
+			toRGB1(rm1, rm2, h - 1.f/3.f)
+			);
 	}
 
 
-	inline u32 SColorHSL::toRGB1(f32 rm1, f32 rm2, f32 rh) const
+	// algorithm from Foley/Van-Dam
+	inline f32 SColorHSL::toRGB1(f32 rm1, f32 rm2, f32 rh) const
 	{
-		while ( rh > 2.f * core::PI )
-			rh -= 2.f * core::PI;
+		if (rh<0)
+			rh += 1;
+		if (rh>1)
+			rh -= 1;
 
-		while ( rh < 0.f )
-			rh += 2.f * core::PI;
-
-		if (rh < 60.0f * core::DEGTORAD )
-			rm1 = rm1 + (rm2 - rm1) * rh / (60.0f * core::DEGTORAD);
-		else if (rh < 180.0f * core::DEGTORAD )
+		if (rh < 1.f/6.f)
+			rm1 = rm1 + (rm2 - rm1) * rh*6.f;
+		else if (rh < 0.5f)
 			rm1 = rm2;
-		else if (rh < 240.0f * core::DEGTORAD )
-			rm1 = rm1 + (rm2 - rm1) * ( ( 240.0f * core::DEGTORAD ) - rh) /
-				(60.0f * core::DEGTORAD);
+		else if (rh < 2.f/3.f)
+			rm1 = rm1 + (rm2 - rm1) * ((2.f/3.f)-rh)*6.f;
 
-		return (u32) core::round32(rm1 * 255.f);
+		return rm1;
 	}
 
 } // end namespace video
 } // end namespace irr
 
 #endif
-

@@ -7,7 +7,7 @@ Windows, Toolbars, Menus, ComboBoxes, Tabcontrols, Editboxes, Images,
 MessageBoxes, SkyBoxes, and how to parse XML files with the integrated XML
 reader of the engine.
 
-We start like in most other tutorials: Include all nesessary header files, add
+We start like in most other tutorials: Include all necessary header files, add
 a comment to let the engine be linked with the right .lib file in Visual
 Studio, and declare some global variables. We also add two 'using namespace'
 statements, so we do not need to write the whole names of all classes. In this
@@ -311,6 +311,7 @@ void createToolBox()
 	env->addStaticText(L":", core::rect<s32>(10,240,150,265), true, false, t1);
 	env->addStaticText(L"Framerate:",
 			core::rect<s32>(12,240,75,265), false, false, t1);
+	// current frame info
 	env->addStaticText(L"", core::rect<s32>(75,240,200,265), false, false, t1,
 			GUI_ID_ANIMATION_INFO);
 	scrollbar = env->addScrollBar(true,
@@ -351,11 +352,39 @@ void updateToolBox()
 	}
 }
 
+void onKillFocus()
+{
+	// Avoid that the FPS-camera continues moving when the user presses alt-tab while 
+	// moving the camera. 
+	const core::list<scene::ISceneNodeAnimator*>& animators = Camera[1]->getAnimators();
+	core::list<irr::scene::ISceneNodeAnimator*>::ConstIterator iter = animators.begin();
+	while ( iter != animators.end() )
+	{
+		if ( (*iter)->getType() == scene::ESNAT_CAMERA_FPS )
+		{
+			// we send a key-down event for all keys used by this animator
+			scene::ISceneNodeAnimatorCameraFPS * fpsAnimator = static_cast<scene::ISceneNodeAnimatorCameraFPS*>(*iter);
+			const core::array<SKeyMap>& keyMap = fpsAnimator->getKeyMap();
+			for ( irr::u32 i=0; i< keyMap.size(); ++i )
+			{
+				irr::SEvent event;
+				event.EventType = EET_KEY_INPUT_EVENT;
+				event.KeyInput.Key = keyMap[i].KeyCode;
+				event.KeyInput.PressedDown = false;
+				fpsAnimator->OnEvent(event);
+			}
+		}
+		++iter;
+	}
+}
+
 /*
 Function hasModalDialog() checks if we currently have a modal dialog open.
 */
 bool hasModalDialog()
 {
+	if ( !Device )
+		return false;
 	IGUIEnvironment* env = Device->getGUIEnvironment();
 	IGUIElement * focused = env->getFocus();
 	while ( focused )
@@ -727,7 +756,7 @@ int main(int argc, char* argv[])
 		video::SColorf(1.0f,1.0f,1.0f),2000);
 	smgr->setAmbientLight(video::SColorf(0.3f,0.3f,0.3f));
 	// add our media directory as "search path"
-	Device->getFileSystem()->addFolderFileArchive("../../media/");
+	Device->getFileSystem()->addFileArchive("../../media/");
 
 	/*
 	The next step is to read the configuration file. It is stored in the xml
@@ -910,7 +939,7 @@ int main(int argc, char* argv[])
 	/*
 	That's nearly the whole application. We simply show the about message
 	box at start up, and load the first model. To make everything look
-	better, a skybox is created and a user controled camera, to make the
+	better, a skybox is created and a user controlled camera, to make the
 	application a little bit more interactive. Finally, everything is drawn
 	in a standard drawing loop.
 	*/
@@ -953,10 +982,19 @@ int main(int argc, char* argv[])
 	img->setAlignment(EGUIA_UPPERLEFT, EGUIA_UPPERLEFT,
 			EGUIA_LOWERRIGHT, EGUIA_LOWERRIGHT);
 
+	// remember state so we notice when the window does lose the focus
+	bool hasFocus = Device->isWindowFocused();
+
 	// draw everything
 
 	while(Device->run() && driver)
 	{
+		// Catch focus changes (workaround until Irrlicht has events for this)
+		bool focused = Device->isWindowFocused();
+		if ( hasFocus && !focused )
+			onKillFocus();
+		hasFocus = focused;
+
 		if (Device->isWindowActive())
 		{
 			driver->beginScene(true, true, video::SColor(150,50,50,50));

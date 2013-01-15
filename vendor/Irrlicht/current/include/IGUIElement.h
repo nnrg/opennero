@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -454,9 +454,16 @@ public:
 	}
 
 
-	//! Returns true if element is enabled.
+	//! Returns true if element is enabled
+	/** Currently elements do _not_ care about parent-states.
+		So if you want to affect childs you have to enable/disable them all.
+		The only exception to this are sub-elements which also check their parent.
+	*/
 	virtual bool isEnabled() const
 	{
+		if ( isSubElement() && IsEnabled && getParent() )
+			return getParent()->isEnabled();
+
 		_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 		return IsEnabled;
 	}
@@ -537,6 +544,27 @@ public:
 		return false;
 	}
 
+
+	//! Moves a child to the back, so it's siblings are drawn on top of it
+	/** \return True if successful, false if not. */
+	virtual bool sendToBack(IGUIElement* child)
+	{
+		core::list<IGUIElement*>::Iterator it = Children.begin();
+		if (child == (*it))	// already there
+			return true;
+		for (; it != Children.end(); ++it)
+		{
+			if (child == (*it))
+			{
+				Children.erase(it);
+				Children.push_front(child);
+				return true;
+			}
+		}
+
+		_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
+		return false;
+	}
 
 	//! Returns list with children of this element
 	virtual const core::list<IGUIElement*>& getChildren() const
@@ -706,6 +734,29 @@ public:
 	{
 		return GUIElementTypeNames[Type];
 	}
+	
+	//! Returns the name of the element.
+	/** \return Name as character string. */
+	virtual const c8* getName() const
+	{
+		return Name.c_str();
+	}
+
+
+	//! Sets the name of the element.
+	/** \param name New name of the gui element. */
+	virtual void setName(const c8* name)
+	{
+		Name = name;
+	}
+
+
+	//! Sets the name of the element.
+	/** \param name New name of the gui element. */
+	virtual void setName(const core::stringc& name)
+	{
+		Name = name;
+	}
 
 
 	//! Writes attributes of the scene node.
@@ -713,6 +764,7 @@ public:
 	scripting languages, editors, debuggers or xml serialization purposes. */
 	virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const
 	{
+		out->addString("Name", Name.c_str());		
 		out->addInt("Id", ID );
 		out->addString("Caption", getText());
 		out->addRect("Rect", DesiredRect);
@@ -736,6 +788,7 @@ public:
 	scripting languages, editors, debuggers or xml deserialization purposes. */
 	virtual void deserializeAttributes(io::IAttributes* in, io::SAttributeReadWriteOptions* options=0)
 	{
+		setName(in->getAttributeAsString("Name"));
 		setID(in->getAttributeAsInt("Id"));
 		setText(in->getAttributeAsStringW("Caption").c_str());
 		setVisible(in->getAttributeAsBool("Visible"));
@@ -950,8 +1003,11 @@ protected:
 
 	//! tooltip
 	core::stringw ToolTipText;
+	
+	//! users can set this for identificating the element by string
+	core::stringc Name;
 
-	//! id
+	//! users can set this for identificating the element by integer
 	s32 ID;
 
 	//! tab stop like in windows

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 //
@@ -6,7 +6,6 @@
 // I (Nikolaus Gebhardt) did some few changes to this:
 // - replaced logging calls to their os:: counterparts
 // - removed some logging calls
-// - enabled image dropping of CImage again, because that bug has been fixed now
 // - removed setTexture path and replaced it with the directory of the mesh
 // - added EAMT_MY3D file type
 // - fixed a memory leak when decompressing RLE data.
@@ -44,18 +43,9 @@ namespace irr
 namespace scene
 {
 
-//--------------------------------------------------------------------
 // byte-align structures
-#if defined(_MSC_VER) ||  defined(__BORLANDC__) || defined (__BCPLUSPLUS__)
-#   pragma pack( push, packing )
-#   pragma pack( 1 )
-#   define PACK_STRUCT
-#elif defined( __GNUC__ )
-#   define PACK_STRUCT  __attribute__((packed))
-#else
-#   error compiler not supported
-#endif
-//----------------------------------------------------------------------
+#include "irrpack.h"
+
 struct SMyColor
 {   SMyColor () {;}
     SMyColor (s32 __R, s32 __G, s32 __B, s32 __A)
@@ -77,9 +67,7 @@ struct SMyMaterialHeader
 } PACK_STRUCT;
 
 // Default alignment
-#if defined(_MSC_VER) ||  defined(__BORLANDC__) || defined (__BCPLUSPLUS__)
-#   pragma pack( pop, packing )
-#endif
+#include "irrunpack.h"
 
 class CMY3DMeshFileLoader : public IMeshLoader
 {

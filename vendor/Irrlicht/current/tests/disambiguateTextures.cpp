@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2009 Colin MacDonald
+// Copyright (C) 2008-2012 Colin MacDonald
 // No rights reserved: this software is in the public domain.
 
 #include "testUtils.h"
@@ -38,44 +38,47 @@ bool disambiguateTextures(void)
 	IVideoDriver * driver = device->getVideoDriver();
 
 	ITexture * tex1 = driver->getTexture("../media/tools.png");
-	assert(tex1);
+	assert_log(tex1);
 	if(!tex1)
 		logTestString("Unable to open ../media/tools.png\n");
 
 	ITexture * tex2 = driver->getTexture("../media/tools.png");
-	assert(tex2);
+	assert_log(tex2);
 	if(!tex2)
 		logTestString("Unable to open ../media/tools.png\n");
 
 	IReadFile * readFile = device->getFileSystem()->createAndOpenFile("../media/tools.png");
-	assert(readFile);
+	assert_log(readFile);
 	if(!readFile)
 		logTestString("Unable to open ../media/tools.png\n");
 
 	ITexture * tex3 = driver->getTexture(readFile);
-	assert(tex3);
+	assert_log(tex3);
 	if(!readFile)
 		logTestString("Unable to create texture from ../media/tools.png\n");
 
 	readFile->drop();
 
 	// All 3 of the above textures should be identical.
-	assert(tex1 == tex2);
-	assert(tex1 == tex3);
+	assert_log(tex1 == tex2);
+	assert_log(tex1 == tex3);
 
 	stringc newWd = wd + "/empty/empty";
 	bool changed = device->getFileSystem()->changeWorkingDirectoryTo(newWd.c_str());
-	assert(changed);
+	assert_log(changed);
 	ITexture * tex4 = driver->getTexture("../../media/tools.png");
-	assert(tex4);
+	assert_log(tex4);
 	if(!tex4)
 		logTestString("Unable to open ../../media/tools.png\n");
-	assert(tex1 != tex4);
+	assert_log(tex1 != tex4);
 
 	// The working directory must be restored for the other tests to work.
 	changed &= device->getFileSystem()->changeWorkingDirectoryTo(wd.c_str());
 
+	device->closeDevice();
+	device->run();
 	device->drop();
+
 	return (changed && tex1 == tex2 && tex1 == tex3 && tex1 != tex4) ? true : false;
 }
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2009 Colin MacDonald and Christian Stehno
+// Copyright (C) 2008-2012 Colin MacDonald and Christian Stehno
 // No rights reserved: this software is in the public domain.
 
 // This is the entry point for the Irrlicht test suite.
@@ -58,7 +58,7 @@ int main(int argumentCount, char * arguments[])
 	TEST(exports);
 	TEST(irrCoreEquals);
 	TEST(testIrrString);
-	TEST(line2dIntersectWith);
+	TEST(testLine2d);
 	TEST(matrixOps);
 	TEST(testDimension2d);
 	TEST(testVector2d);
@@ -88,31 +88,46 @@ int main(int argumentCount, char * arguments[])
 	TEST(softwareDevice);
 	TEST(b3dAnimation);
 	TEST(burningsVideo);
-	TEST(cursorSetVisible);
-	TEST(drawRectOutline);
-	TEST(flyCircleAnimator);
-	TEST(md2Animation);
-	TEST(testGeometryCreator);
-	TEST(writeImageToFile);
-	TEST(meshTransform);
+	TEST(billboards);
 	TEST(createImage);
-	// all driver checks
-	TEST(drawPixel);
+	TEST(cursorSetVisible);
+	TEST(flyCircleAnimator);
 	TEST(guiDisabledMenu);
 	TEST(makeColorKeyTexture);
+	TEST(md2Animation);
+	TEST(meshTransform);
+	TEST(skinnedMesh);
+	TEST(testGeometryCreator);
+	TEST(writeImageToFile);
+	TEST(ioScene);
+	// all driver checks
+	TEST(videoDriver);
+	TEST(screenshot);
+	TEST(drawPixel);
+	TEST(drawRectOutline);
+	TEST(drawVertexPrimitive);
+	TEST(material);
 	TEST(renderTargetTexture);
 	TEST(textureFeatures);
 	TEST(textureRenderStates);
-	TEST(transparentAlphaChannelRef);
+	TEST(transparentMaterials);
+	TEST(userclipplane);
 	TEST(antiAliasing);
 	TEST(draw2DImage);
+	TEST(lights);
 	TEST(twodmaterial);
-	// TODO: Needs to be fixed first.
-//	TEST(projectionMatrix);
-	// large scenes
+	TEST(viewPort);
+	TEST(mrt);
+	TEST(projectionMatrix);
+	// large scenes/long rendering
+	// shadows are slow
+//	TEST(orthoCam);
+//	TEST(stencilShadow);
+	// q3 maps are slow
 	TEST(planeMatrix);
 	TEST(terrainSceneNode);
 	TEST(lightMaps);
+	TEST(triangleSelector);
 
 	unsigned int numberOfTests = tests.size();
 	unsigned int testToRun = 0;
@@ -127,9 +142,9 @@ int main(int argumentCount, char * arguments[])
 		{
 			for (unsigned int i=0; i<tests.size(); ++i)
 			{
-				printf("%3d: %s\n", i, tests[i].testName);
+				logTestString("%3d: %s\n", i, tests[i].testName);
 			}
-			printf("\n");
+			logTestString("\n");
 			return 0;
 		}
 

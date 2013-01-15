@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2009 Colin MacDonald
+// Copyright (C) 2008-2012 Colin MacDonald
 // No rights reserved: this software is in the public domain.
 
 #include "testUtils.h"
@@ -14,9 +14,9 @@ using namespace gui;
 
 bool guiDisabledMenu(void)
 {
-	IrrlichtDevice *device = createDevice( video::EDT_OPENGL,
+	IrrlichtDevice *device = createDevice( video::EDT_BURNINGSVIDEO,
 											dimension2d<u32>(160, 40), 32);
-	assert(device);
+	assert_log(device);
 	if (!device)
 		return false;
 
@@ -48,7 +48,9 @@ bool guiDisabledMenu(void)
 	env->drawAll();
 	driver->endScene();
 
-	bool result = takeScreenshotAndCompareAgainstReference(driver, "-guiDisabledMenu.png");
+	bool result = takeScreenshotAndCompareAgainstReference(driver, "-guiDisabledMenu.png", 98.77f);
+	device->closeDevice();
+	device->run();
 	device->drop();
 
 	return result;

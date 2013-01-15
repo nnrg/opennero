@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -61,6 +61,12 @@ class IGUIWindow;
 class IGUIElementFactory;
 
 //! GUI Environment. Used as factory and manager of all other GUI elements.
+/** \par This element can create the following events of type EGUI_EVENT_TYPE (which are passed on to focused sub-elements):
+\li EGET_ELEMENT_FOCUS_LOST
+\li EGET_ELEMENT_FOCUSED
+\li EGET_ELEMENT_LEFT
+\li EGET_ELEMENT_HOVERED
+*/
 class IGUIEnvironment : public virtual IReferenceCounted
 {
 public:
@@ -79,6 +85,14 @@ public:
 	//! Returns the element which holds the focus.
 	/** \return Pointer to the element with focus. */
 	virtual IGUIElement* getFocus() const = 0;
+
+	//! Returns the element which was last under the mouse cursor
+	/** NOTE: This information is updated _after_ the user-eventreceiver 
+	received it's mouse-events. To find the hovered element while catching 
+	mouse events you have to use instead:
+	IGUIEnvironment::getRootGUIElement()->getElementFromPoint(mousePos);
+	\return Pointer to the element under the mouse. */
+	virtual IGUIElement* getHovered() const = 0;
 
 	//! Removes the focus from an element.
 	/** Causes a EGET_ELEMENT_FOCUS_LOST event. If the event is absorbed
@@ -156,7 +170,8 @@ public:
 	This pointer should not be dropped. See IReferenceCounted::drop() for
 	more information. */
 	virtual IGUIImageList* createImageList( video::ITexture* texture,
-					core::dimension2d<s32>	imageSize, bool useAlphaChannel ) = 0;
+					core::dimension2d<s32> imageSize,
+					bool useAlphaChannel ) = 0;
 
 	//! Returns pointer to the font with the specified filename.
 	/** Loads the font if it was not loaded before.
@@ -173,6 +188,9 @@ public:
 	\param font Pointer to font to add.
 	\return Pointer to the font stored. This can differ from given parameter if the name previously existed. */
 	virtual IGUIFont* addFont(const io::path& name, IGUIFont* font) = 0;
+
+	//! remove loaded font
+	virtual void removeFont(IGUIFont* font) = 0;
 
 	//! Returns the default built-in font.
 	/** \return Pointer to the default built-in font.
@@ -195,9 +213,8 @@ public:
 
 	//! Returns the root gui element.
 	/** This is the first gui element, the (direct or indirect) parent of all
-	other gui elements.  It is a valid IGUIElement, with dimensions the same
-	size as the screen.	You should not need to use this method directly, unless
-	you wish to reparent GUI elements to the top level.
+	other gui elements. It is a valid IGUIElement, with dimensions the same
+	size as the screen. 
 	\return Pointer to the root element of the GUI. The returned pointer
 	should not be dropped. See IReferenceCounted::drop() for more
 	information. */
@@ -289,11 +306,13 @@ public:
 	\param parent Parent gui element of the image.
 	\param id Id to identify the gui element.
 	\param text Title text of the image.
+	\param useAlphaChannel Sets if the image should use the alpha channel
+	of the texture to draw itself.
 	\return Pointer to the created image element. Returns 0 if an error
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
 	virtual IGUIImage* addImage(const core::rect<s32>& rectangle,
-		IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0) = 0;
+		IGUIElement* parent=0, s32 id=-1, const wchar_t* text=0, bool useAlphaChannel=true) = 0;
 
 	//! Adds a checkbox element.
 	/** \param checked Define the initial state of the check box.
@@ -350,11 +369,16 @@ public:
 	until this messagebox is removed.
 	\param parent Parent gui element of the dialog.
 	\param id Id to identify the gui element.
+	\param restoreCWD If set to true, the current workingn directory will be
+	restored after the dialog is closed in some way. Otherwise the working
+	directory will be the one that the file dialog was last showing.
+	\param startDir Optional path for which the file dialog will be opened.
 	\return Pointer to the created file open dialog. Returns 0 if an error
 	occurred. This pointer should not be dropped. See
 	IReferenceCounted::drop() for more information. */
-	virtual IGUIFileOpenDialog* addFileOpenDialog(const wchar_t* title = 0,
-		bool modal=true, IGUIElement* parent=0, s32 id=-1) = 0;
+	virtual IGUIFileOpenDialog* addFileOpenDialog(const wchar_t* title=0,
+		bool modal=true, IGUIElement* parent=0, s32 id=-1,
+		bool restoreCWD=false, io::path::char_type* startDir=0) = 0;
 
 	//! Adds a color select dialog.
 	/** \param title The title of the dialog.
@@ -558,13 +582,19 @@ public:
 	virtual bool saveGUI(io::IWriteFile* file, IGUIElement* start=0) = 0;
 
 	//! Loads the gui. Note that the current gui is not cleared before.
-	/** \param filename Name of the file.
+	/** When a parent is set the elements will be added below the parent, the parent itself does not deserialize.
+	When the file contains skin-settings from the gui-environment those are always serialized into the 
+	guienvironment independent	of the parent setting.
+	\param filename Name of the file.
 	\param parent Parent for the loaded GUI, root if 0.
 	\return True if loading succeeded, else false. */
 	virtual bool loadGUI(const io::path& filename, IGUIElement* parent=0) = 0;
 
 	//! Loads the gui. Note that the current gui is not cleared before.
-	/** \param file The file to load from.
+	/** When a parent is set the elements will be added below the parent, the parent itself does not deserialize.
+	When the file contains skin-settings from the gui-environment those are always serialized into the 
+	guienvironment independent	of the parent setting.
+	\param file The file to load from.
 	\param parent Parent for the loaded GUI, root if 0.
 	\return True if loading succeeded, else false. */
 	virtual bool loadGUI(io::IReadFile* file, IGUIElement* parent=0) = 0;

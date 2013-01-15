@@ -3,7 +3,7 @@
 This tutorial shows how to use one of the built in more complex materials in
 irrlicht: Per pixel lighted surfaces using normal maps and parallax mapping. It
 will also show how to use fog and moving particle systems. And don't panic: You
-dont need any experience with shaders to use these materials in Irrlicht.
+do not need any experience with shaders to use these materials in Irrlicht.
 
 At first, we need to include all headers and do the stuff we always do, like in
 nearly all other tutorials.
@@ -28,11 +28,12 @@ class MyEventReceiver : public IEventReceiver
 {
 public:
 
-	MyEventReceiver(scene::ISceneNode* room,
+	MyEventReceiver(scene::ISceneNode* room,scene::ISceneNode* earth,
 		gui::IGUIEnvironment* env, video::IVideoDriver* driver)
 	{
 		// store pointer to room so we can change its drawing mode
 		Room = room;
+		Earth = earth;
 		Driver = driver;
 
 		// set a nicer font
@@ -120,10 +121,23 @@ private:
 
 		Room->setMaterialType(type);
 
+		// change material setting
+		switch(ListBox->getSelected())
+		{
+		case 0: type = video::EMT_TRANSPARENT_VERTEX_ALPHA;
+			break;
+		case 1: type = video::EMT_NORMAL_MAP_TRANSPARENT_VERTEX_ALPHA;
+			break;
+		case 2: type = video::EMT_PARALLAX_MAP_TRANSPARENT_VERTEX_ALPHA;
+			break;
+		}
+
+		Earth->setMaterialType(type);
+
 		/*
 		We need to add a warning if the materials will not be able to
 		be displayed 100% correctly. This is no problem, they will be
-		renderered using fall back materials, but at least the user
+		rendered using fall back materials, but at least the user
 		should know that it would look better on better hardware. We
 		simply check if the material renderer is able to draw at full
 		quality on the current hardware. The
@@ -145,6 +159,7 @@ private:
 	gui::IGUIListBox* ListBox;
 
 	scene::ISceneNode* Room;
+	scene::ISceneNode* Earth;
 	video::IVideoDriver* Driver;
 };
 
@@ -184,7 +199,7 @@ int main()
 	driver->setTextureCreationFlag(video::ETCF_ALWAYS_32_BIT, true);
 
 	// add irrlicht logo
-	env->addImage(driver->getTexture("../../media/irrlichtlogo2.png"),
+	env->addImage(driver->getTexture("../../media/irrlichtlogo3.png"),
 		core::position2d<s32>(10,10));
 
 	// add camera
@@ -193,7 +208,6 @@ int main()
 
 	// disable mouse cursor
 	device->getCursorControl()->setVisible(false);
-
 
 	/*
 	Because we want the whole scene to look a little bit scarier, we add
@@ -214,12 +228,14 @@ int main()
 	IMeshManipulator::makePlanarTextureMapping() method.
 	*/
 
-	scene::IAnimatedMesh* roomMesh = smgr->getMesh(
-		"../../media/room.3ds");
+	scene::IAnimatedMesh* roomMesh = smgr->getMesh("../../media/room.3ds");
 	scene::ISceneNode* room = 0;
+	scene::ISceneNode* earth = 0;
 
 	if (roomMesh)
 	{
+		// The Room mesh doesn't have proper Texture Mapping on the
+		// floor, so we can recreate them on runtime
 		smgr->getMeshManipulator()->makePlanarTextureMapping(
 				roomMesh->getMesh(0), 0.003f);
 
@@ -244,7 +260,11 @@ int main()
 
 		if (normalMap)
 			driver->makeNormalMapTexture(normalMap, 9.0f);
-
+/*
+		// The Normal Map and the displacement map/height map in the alpha channel
+		video::ITexture* normalMap =
+			driver->getTexture("../../media/rockwall_NRM.tga");
+*/
 		/*
 		But just setting color and normal map is not everything. The
 		material we want to use needs some additional informations per
@@ -266,12 +286,14 @@ int main()
 				driver->getTexture("../../media/rockwall.jpg"));
 		room->setMaterialTexture(1, normalMap);
 
+		// Stones don't glitter..
 		room->getMaterial(0).SpecularColor.set(0,0,0,0);
+		room->getMaterial(0).Shininess = 0.f;
 
 		room->setMaterialFlag(video::EMF_FOG_ENABLE, true);
 		room->setMaterialType(video::EMT_PARALLAX_MAP_SOLID);
 		// adjust height for parallax effect
-		room->getMaterial(0).MaterialTypeParam = 0.035f;
+		room->getMaterial(0).MaterialTypeParam = 1.f / 64.f;
 
 		// drop mesh because we created it with a create.. call.
 		tangentMesh->drop();
@@ -305,28 +327,28 @@ int main()
 		// scale the mesh by factor 50
 		core::matrix4 m;
 		m.setScale ( core::vector3df(50,50,50) );
-		manipulator->transformMesh( tangentSphereMesh, m );
+		manipulator->transform( tangentSphereMesh, m );
 
-		scene::ISceneNode *sphere = smgr->addMeshSceneNode(tangentSphereMesh);
+		earth = smgr->addMeshSceneNode(tangentSphereMesh);
 
-		sphere->setPosition(core::vector3df(-70,130,45));
+		earth->setPosition(core::vector3df(-70,130,45));
 
 		// load heightmap, create normal map from it and set it
 		video::ITexture* earthNormalMap = driver->getTexture("../../media/earthbump.jpg");
 		if (earthNormalMap)
 		{
 			driver->makeNormalMapTexture(earthNormalMap, 20.0f);
-			sphere->setMaterialTexture(1, earthNormalMap);
-			sphere->setMaterialType(video::EMT_NORMAL_MAP_TRANSPARENT_VERTEX_ALPHA);
+			earth->setMaterialTexture(1, earthNormalMap);
+			earth->setMaterialType(video::EMT_NORMAL_MAP_TRANSPARENT_VERTEX_ALPHA);
 		}
 
 		// adjust material settings
-		sphere->setMaterialFlag(video::EMF_FOG_ENABLE, true);
+		earth->setMaterialFlag(video::EMF_FOG_ENABLE, true);
 
 		// add rotation animator
 		scene::ISceneNodeAnimator* anim =
 			smgr->createRotationAnimator(core::vector3df(0,0.1f,0));
-		sphere->addAnimator(anim);
+		earth->addAnimator(anim);
 		anim->drop();
 
 		// drop mesh because we created it with a create.. call.
@@ -341,7 +363,7 @@ int main()
 	attached.
 	*/
 
-	// add light 1 (nearly red)
+	// add light 1 (more green)
 	scene::ILightSceneNode* light1 =
 		smgr->addLightSceneNode(0, core::vector3df(0,0,0),
 		video::SColorf(0.5f, 1.0f, 0.5f, 0.0f), 800.0f);
@@ -356,13 +378,13 @@ int main()
 	anim->drop();
 
 	// attach billboard to the light
-	scene::ISceneNode* bill =
+	scene::IBillboardSceneNode* bill =
 		smgr->addBillboardSceneNode(light1, core::dimension2d<f32>(60, 60));
 
 	bill->setMaterialFlag(video::EMF_LIGHTING, false);
 	bill->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
 	bill->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
-	bill->setMaterialTexture(0, driver->getTexture("../../media/particlered.bmp"));
+	bill->setMaterialTexture(0, driver->getTexture("../../media/particlegreen.jpg"));
 
 	/*
 	Now the same again, with the second light. The difference is that we
@@ -377,7 +399,7 @@ int main()
 	where higher versions of pixel/vertex shaders will be implemented too.
 	*/
 
-	// add light 2 (gray)
+	// add light 2 (red)
 	scene::ISceneNode* light2 =
 		smgr->addLightSceneNode(0, core::vector3df(0,0,0),
 		video::SColorf(1.0f, 0.2f, 0.2f, 0.0f), 800.0f);
@@ -393,7 +415,7 @@ int main()
 	bill->setMaterialFlag(video::EMF_LIGHTING, false);
 	bill->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
 	bill->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
-	bill->setMaterialTexture(0, driver->getTexture("../../media/particlewhite.bmp"));
+	bill->setMaterialTexture(0, driver->getTexture("../../media/particlered.bmp"));
 
 	// add particle system
 	scene::IParticleSystemSceneNode* ps =
@@ -404,7 +426,7 @@ int main()
 		core::aabbox3d<f32>(-3,0,-3,3,1,3),
 		core::vector3df(0.0f,0.03f,0.0f),
 		80,100,
-		video::SColor(0,255,255,255), video::SColor(0,255,255,255),
+		video::SColor(10,255,255,255), video::SColor(10,255,255,255),
 		400,1100);
 	em->setMinStartSize(core::dimension2d<f32>(30.0f, 40.0f));
 	em->setMaxStartSize(core::dimension2d<f32>(30.0f, 40.0f));
@@ -421,10 +443,9 @@ int main()
 	ps->setMaterialFlag(video::EMF_LIGHTING, false);
 	ps->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
 	ps->setMaterialTexture(0, driver->getTexture("../../media/fireball.bmp"));
-	ps->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	ps->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
 
-
-	MyEventReceiver receiver(room, env, driver);
+	MyEventReceiver receiver(room, earth, env, driver);
 	device->setEventReceiver(&receiver);
 
 	/*

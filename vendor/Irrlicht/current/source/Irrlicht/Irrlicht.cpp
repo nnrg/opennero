@@ -1,10 +1,10 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
 #include "IrrCompileConfig.h"
 
-static const char* const copyright = "Irrlicht Engine (c) 2002-2010 Nikolaus Gebhardt";
+static const char* const copyright = "Irrlicht Engine (c) 2002-2012 Nikolaus Gebhardt";
 
 #ifdef _IRR_WINDOWS_
 	#include <windows.h>
@@ -89,17 +89,17 @@ namespace irr
 
 #ifdef _IRR_COMPILE_WITH_SDL_DEVICE_
 		if (params.DeviceType == EIDT_SDL || (!dev && params.DeviceType == EIDT_BEST))
-		dev = new CIrrDeviceSDL(params);
+			dev = new CIrrDeviceSDL(params);
 #endif
 
 #ifdef _IRR_COMPILE_WITH_FB_DEVICE_
 		if (params.DeviceType == EIDT_FRAMEBUFFER || (!dev && params.DeviceType == EIDT_BEST))
-		dev = new CIrrDeviceFB(params);
+			dev = new CIrrDeviceFB(params);
 #endif
 
 #ifdef _IRR_COMPILE_WITH_CONSOLE_DEVICE_
 		if (params.DeviceType == EIDT_CONSOLE || (!dev && params.DeviceType == EIDT_BEST))
-		dev = new CIrrDeviceConsole(params);
+			dev = new CIrrDeviceConsole(params);
 #endif
 
 		if (dev && !dev->getVideoDriver() && params.DriverType != video::EDT_NULL)
@@ -116,6 +116,7 @@ namespace irr
 namespace core
 {
 	const matrix4 IdentityMatrix(matrix4::EM4CONST_IDENTITY);
+	irr::core::stringc LOCALE_DECIMAL_POINTS(".");
 }
 
 namespace video

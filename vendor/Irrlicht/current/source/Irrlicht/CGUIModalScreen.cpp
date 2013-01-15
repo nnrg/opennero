@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -32,9 +32,9 @@ CGUIModalScreen::CGUIModalScreen(IGUIEnvironment* environment, IGUIElement* pare
 bool CGUIModalScreen::canTakeFocus(IGUIElement* target) const
 {
     return (target && ((const IGUIElement*)target == this // this element can take it
-                        || isMyChild(target)    // own childs also
+                        || isMyChild(target)    // own children also
                         || (target->getType() == EGUIET_MODAL_SCREEN )	// other modals also fine (is now on top or explicitely requested)
-                        || (target->getParent() && target->getParent()->getType() == EGUIET_MODAL_SCREEN )))   // childs of other modals will do
+                        || (target->getParent() && target->getParent()->getType() == EGUIET_MODAL_SCREEN )))   // children of other modals will do
             ;
 }
 
@@ -77,7 +77,7 @@ bool CGUIModalScreen::isPointInside(const core::position2d<s32>& point) const
 //! called if an event happened.
 bool CGUIModalScreen::OnEvent(const SEvent& event)
 {
-    if (!IsEnabled || !isVisible() )
+    if (!isEnabled() || !isVisible() )
         return IGUIElement::OnEvent(event);
 
     switch(event.EventType)

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -29,14 +29,14 @@ namespace irr
 
 #if defined(_IRR_COMPILE_WITH_X11_DEVICE_)
 // constructor  linux
-COSOperator::COSOperator(const c8* osversion, CIrrDeviceLinux* device)
-: IrrDeviceLinux(device)
+	COSOperator::COSOperator(const core::stringc& osVersion, CIrrDeviceLinux* device)
+: OperatingSystem(osVersion), IrrDeviceLinux(device)
 {
 }
 #endif
 
 // constructor
-COSOperator::COSOperator(const c8* osVersion) : OperatingSystem(osVersion)
+COSOperator::COSOperator(const core::stringc& osVersion) : OperatingSystem(osVersion)
 {
 	#ifdef _DEBUG
 	setDebugName("COSOperator");
@@ -45,9 +45,9 @@ COSOperator::COSOperator(const c8* osVersion) : OperatingSystem(osVersion)
 
 
 //! returns the current operating system version as string.
-const wchar_t* COSOperator::getOperationSystemVersion() const
+const core::stringc& COSOperator::getOperatingSystemVersion() const
 {
-	return OperatingSystem.c_str();
+	return OperatingSystem;
 }
 
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2009 Colin MacDonald
+// Copyright (C) 2008-2012 Colin MacDonald
 // No rights reserved: this software is in the public domain.
 
 #include "testUtils.h"
@@ -55,12 +55,14 @@ bool cursorSetVisible(void)
 	// each actual change of visibility.
 	bool result = (moveTrapper.MouseMovesReceived <= 3);
 
+	device->closeDevice();
+	device->run();
 	device->drop();
 
 	if(!result)
 	{
 		logTestString("ERROR: cursorSetVisible received %d events.\n", moveTrapper.MouseMovesReceived);
-		assert(false);
+		assert_log(false);
 	}
 
 	return result;

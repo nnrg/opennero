@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -75,7 +75,16 @@ namespace video
 		EMF_COLOR_MASK = 0x8000,
 
 		//! ColorMaterial enum for vertex color interpretation
-		EMF_COLOR_MATERIAL = 0x10000
+		EMF_COLOR_MATERIAL = 0x10000,
+
+		//! Flag for enabling/disabling mipmap usage
+		EMF_USE_MIP_MAPS = 0x20000,
+
+		//! Flag for blend operation
+		EMF_BLEND_OPERATION = 0x40000,
+
+		//! Flag for polygon offset
+		EMF_POLYGON_OFFSET = 0x80000
 	};
 
 } // end namespace video

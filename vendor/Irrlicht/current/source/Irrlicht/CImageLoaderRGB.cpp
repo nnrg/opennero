@@ -1,4 +1,4 @@
-//! Copyright (C) 2009-2010 Gary Conway
+//! Copyright (C) 2009-2012 Gary Conway
 //! This file is part of the "Irrlicht Engine".
 //! For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -355,9 +355,11 @@ bool CImageLoaderRGB::readOffsetTables(io::IReadFile* file, rgbStruct& rgb) cons
 	rgb.TableLen = rgb.Header.Ysize * rgb.Header.Zsize ; // calc size of tables
 
 	// return error if unable to allocate tables
-	if ( !(rgb.StartTable = new u32[rgb.TableLen]) )
+	rgb.StartTable = new u32[rgb.TableLen];
+	if (!rgb.StartTable)
 		return false;
-	if ( !(rgb.LengthTable = new u32[rgb.TableLen]) )
+	rgb.LengthTable = new u32[rgb.TableLen];
+	if (!rgb.LengthTable)
 		return false;
 
 	file->seek(512);
@@ -649,3 +651,4 @@ IImageLoader* createImageLoaderRGB()
 } // end namespace irr
 
 #endif
+

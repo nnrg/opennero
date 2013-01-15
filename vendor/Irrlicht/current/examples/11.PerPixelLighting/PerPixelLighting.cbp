@@ -14,7 +14,6 @@
 				<Option projectResourceIncludeDirsRelation="1" />
 				<Compiler>
 					<Add option="-g" />
-					<Add option="-W" />
 				</Compiler>
 				<Linker>
 					<Add directory="..\..\lib\Win32-gcc" />
@@ -28,19 +27,20 @@
 				<Option projectResourceIncludeDirsRelation="1" />
 				<Compiler>
 					<Add option="-g" />
-					<Add option="-W" />
 				</Compiler>
 				<Linker>
+					<Add library="Xxf86vm" />
+					<Add library="Xcursor" />
+					<Add library="GL" />
 					<Add directory="..\..\lib\Linux" />
 				</Linker>
 			</Target>
 		</Build>
 		<VirtualTargets>
-			<Add alias="All" targets="Windows;" />
+			<Add alias="All" targets="Windows;Linux;" />
 		</VirtualTargets>
 		<Compiler>
 			<Add option="-g" />
-			<Add option="-W" />
 			<Add directory="..\..\include" />
 		</Compiler>
 		<Linker>

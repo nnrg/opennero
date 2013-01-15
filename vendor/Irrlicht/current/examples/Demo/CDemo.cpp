@@ -322,6 +322,7 @@ void CDemo::switchToNextScene()
 
 			camera = sm->addCameraSceneNodeFPS(0, 100.0f, .4f, -1, keyMap, 9, false, 3.f);
 			camera->setPosition(core::vector3df(108,140,-140));
+			camera->setFarValue(5000.0f);
 
 			scene::ISceneNodeAnimatorCollisionResponse* collider =
 				sm->createCollisionResponseAnimator(
@@ -359,7 +360,7 @@ void CDemo::loadSceneData()
 		core::matrix4 m;
 		m.setTranslation(core::vector3df(-1300,-70,-1249));
 
-		for ( i = 0; i!= scene::quake3::E_Q3_MESH_SIZE; ++i )
+		for ( i = 0; i != scene::quake3::E_Q3_MESH_SIZE; ++i )
 			sm->getMeshManipulator()->transform(quakeLevelMesh->getMesh(i), m);
 
 		quakeLevelNode = sm->addOctreeSceneNode(
@@ -525,7 +526,7 @@ void CDemo::loadSceneData()
 	scene::IParticleEmitter* em = campFire->createBoxEmitter(
 		core::aabbox3d<f32>(-7,0,-7,7,1,7),
 		core::vector3df(0.0f,0.06f,0.0f),
-		80,100, video::SColor(0,255,255,255),video::SColor(0,255,255,255), 800,2000);
+		80,100, video::SColor(1,255,255,255),video::SColor(1,255,255,255), 800,2000);
 
 	em->setMinStartSize(core::dimension2d<f32>(20.0f, 10.0f));
 	em->setMaxStartSize(core::dimension2d<f32>(20.0f, 10.0f));
@@ -539,7 +540,7 @@ void CDemo::loadSceneData()
 	campFire->setMaterialFlag(video::EMF_LIGHTING, false);
 	campFire->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
 	campFire->setMaterialTexture(0, driver->getTexture("../../media/fireball.bmp"));
-	campFire->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+	campFire->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
 
 	// load music
 
@@ -620,7 +621,7 @@ void CDemo::shoot()
 	core::line3d<f32> line(start, end);
 
 	// get intersection point with map
-	const scene::ISceneNode* hitNode;
+	scene::ISceneNode* hitNode;
 	if (sm->getSceneCollisionManager()->getCollisionPoint(
 		line, mapSelector, end, triangle, hitNode))
 	{
@@ -703,7 +704,7 @@ void CDemo::createParticleImpacts()
 
 			scene::IParticleEmitter* em = pas->createBoxEmitter(
 				core::aabbox3d<f32>(-5,-5,-5,5,5,5),
-				Impacts[i].outVector, 20,40, video::SColor(0,255,255,255),video::SColor(0,255,255,255),
+				Impacts[i].outVector, 20,40, video::SColor(50,255,255,255),video::SColor(50,255,255,255),
 				1200,1600, 20);
 
 			pas->setEmitter(em);
@@ -716,7 +717,7 @@ void CDemo::createParticleImpacts()
 			pas->setMaterialFlag(video::EMF_LIGHTING, false);
 			pas->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
 			pas->setMaterialTexture(0, device->getVideoDriver()->getTexture("../../media/smoke.bmp"));
-			pas->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA);
+			pas->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR);
 
 			scene::ISceneNodeAnimator* anim = sm->createDeleteAnimator(2000);
 			pas->addAnimator(anim);

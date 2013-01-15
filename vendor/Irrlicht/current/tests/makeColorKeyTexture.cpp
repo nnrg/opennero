@@ -1,4 +1,4 @@
-// Copyright (C) 2008 Colin MacDonald
+// Copyright (C) 2008-2012 Colin MacDonald
 // No rights reserved: this software is in the public domain.
 
 #include "testUtils.h"
@@ -54,6 +54,8 @@ static bool doTestWith(E_DRIVER_TYPE driverType,
 
 	bool result = takeScreenshotAndCompareAgainstReference(driver, screenshotName);
 
+	device->closeDevice();
+	device->run();
 	device->drop();
 
 	return result;
@@ -63,21 +65,10 @@ bool makeColorKeyTexture(void)
 {
 	bool result = true;
 	
-	//result &= doTestWith(EDT_DIRECT3D9, false);
-	//result &= doTestWith(EDT_BURNINGSVIDEO, false);
-	result &= doTestWith(EDT_SOFTWARE, false);
-	//result &= doTestWith(EDT_OPENGL, false);
-
-	//result &= doTestWith(EDT_DIRECT3D9, true);
-	//result &= doTestWith(EDT_BURNINGSVIDEO, true);
-	result &= doTestWith(EDT_SOFTWARE, true);
-	//result &= doTestWith(EDT_OPENGL, true);
-
-/*
-	bool result = doTestWith(EDT_SOFTWARE, false);
 	result &= doTestWith(EDT_BURNINGSVIDEO, false);
-	result &= doTestWith(EDT_SOFTWARE, true);
+	result &= doTestWith(EDT_SOFTWARE, false);
 	result &= doTestWith(EDT_BURNINGSVIDEO, true);
-*/
+	result &= doTestWith(EDT_SOFTWARE, true);
+
 	return result;
 }

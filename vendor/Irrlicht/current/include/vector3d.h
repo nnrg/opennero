@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -327,7 +327,7 @@ namespace core
 		this vector.  The calculation assumes the pole at (0,1,0) and
 		returns the angles in X and Y.
 		*/
-		vector3d<T> getSphericalCoordinateAngles()
+		vector3d<T> getSphericalCoordinateAngles() const
 		{
 			vector3d<T> angle;
 			const f64 length = X*X + Y*Y + Z*Z;
@@ -394,6 +394,16 @@ namespace core
 			array[3] = 0;
 		}
 
+		//! Fills an array of 3 values with the vector data (usually floats).
+		/** Useful for setting in shader constants for example.*/
+		void getAs3Values(T* array) const
+		{
+			array[0] = X;
+			array[1] = Y;
+			array[2] = Z;
+		}
+
+
 		//! X coordinate of the vector
 		T X;
 
@@ -412,7 +422,7 @@ namespace core
 	inline vector3d<s32>& vector3d<s32>::operator /=(s32 val) {X/=val;Y/=val;Z/=val; return *this;}
 
 	template <>
-	inline vector3d<s32> vector3d<s32>::getSphericalCoordinateAngles()
+	inline vector3d<s32> vector3d<s32>::getSphericalCoordinateAngles() const
 	{
 		vector3d<s32> angle;
 		const f64 length = X*X + Y*Y + Z*Z;

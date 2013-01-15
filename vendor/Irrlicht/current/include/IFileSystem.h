@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -111,23 +111,58 @@ public:
 	you use a different extension then you can use this parameter to force
 	a specific type of archive.
 	\param password An optional password, which is used in case of encrypted archives.
+	\param retArchive A pointer that will be set to the archive that is added.
 	\return True if the archive was added successfully, false if not. */
 	virtual bool addFileArchive(const path& filename, bool ignoreCase=true,
 			bool ignorePaths=true,
 			E_FILE_ARCHIVE_TYPE archiveType=EFAT_UNKNOWN,
-			const core::stringc& password="") =0;
+			const core::stringc& password="",
+			IFileArchive** retArchive=0) =0;
 
-	//! Adds an external archive loader to the engine.
-	/** Use this function to add support for new archive types to the
-	engine, for example proprietary or encrypted file storage. */
-	virtual void addArchiveLoader(IArchiveLoader* loader) =0;
+	//! Adds an archive to the file system.
+	/** After calling this, the Irrlicht Engine will also search and open
+	files directly from this archive. This is useful for hiding data from
+	the end user, speeding up file access and making it possible to access
+	for example Quake3 .pk3 files, which are just renamed .zip files. By
+	default Irrlicht supports ZIP, PAK, TAR, PNK, and directories as
+	archives. You can provide your own archive types by implementing
+	IArchiveLoader and passing an instance to addArchiveLoader.
+	Irrlicht supports AES-encrypted zip files, and the advanced compression
+	techniques lzma and bzip2.
+	If you want to add a directory as an archive, prefix its name with a
+	slash in order to let Irrlicht recognize it as a folder mount (mypath/).
+	Using this technique one can build up a search order, because archives
+	are read first, and can be used more easily with relative filenames.
+	\param file: Archive to add to the file system.
+	\param ignoreCase: If set to true, files in the archive can be accessed without
+	writing all letters in the right case.
+	\param ignorePaths: If set to true, files in the added archive can be accessed
+	without its complete path.
+	\param archiveType: If no specific E_FILE_ARCHIVE_TYPE is selected then
+	the type of archive will depend on the extension of the file name. If
+	you use a different extension then you can use this parameter to force
+	a specific type of archive.
+	\param password An optional password, which is used in case of encrypted archives.
+	\param retArchive A pointer that will be set to the archive that is added.
+	\return True if the archive was added successfully, false if not. */
+	virtual bool addFileArchive(IReadFile* file, bool ignoreCase=true,
+			bool ignorePaths=true,
+			E_FILE_ARCHIVE_TYPE archiveType=EFAT_UNKNOWN,
+			const core::stringc& password="",
+			IFileArchive** retArchive=0) =0;
+
+	//! Adds an archive to the file system.
+	/** \param archive: The archive to add to the file system.
+	\return True if the archive was added successfully, false if not. */
+	virtual bool addFileArchive(IFileArchive* archive) =0;
 
 	//! Get the number of archives currently attached to the file system
 	virtual u32 getFileArchiveCount() const =0;
 
 	//! Removes an archive from the file system.
-	/** This will close the archive and free any file handles, but will not close resources which have already
-	been loaded and are now cached, for example textures and meshes.
+	/** This will close the archive and free any file handles, but will not
+	close resources which have already been loaded and are now cached, for
+	example textures and meshes.
 	\param index: The index of the archive to remove
 	\return True on success, false on failure */
 	virtual bool removeFileArchive(u32 index) =0;
@@ -135,10 +170,24 @@ public:
 	//! Removes an archive from the file system.
 	/** This will close the archive and free any file handles, but will not
 	close resources which have already been loaded and are now cached, for
-	example textures and meshes.
-	\param filename The archive of the given name will be removed
+	example textures and meshes. Note that a relative filename might be
+	interpreted differently on each call, depending on the current working
+	directory. In case you want to remove an archive that was added using
+	a relative path name, you have to change to the same working directory
+	again. This means, that the filename given on creation is not an
+	identifier for the archive, but just a usual filename that is used for
+	locating the archive to work with.
+	\param filename The archive pointed to by the name will be removed
 	\return True on success, false on failure */
 	virtual bool removeFileArchive(const path& filename) =0;
+
+	//! Removes an archive from the file system.
+	/** This will close the archive and free any file handles, but will not
+	close resources which have already been loaded and are now cached, for
+	example textures and meshes.
+	\param archive The archive to remove.
+	\return True on success, false on failure */
+	virtual bool removeFileArchive(const IFileArchive* archive) =0;
 
 	//! Changes the search order of attached archives.
 	/**
@@ -149,9 +198,23 @@ public:
 	//! Get the archive at a given index.
 	virtual IFileArchive* getFileArchive(u32 index) =0;
 
+	//! Adds an external archive loader to the engine.
+	/** Use this function to add support for new archive types to the
+	engine, for example proprietary or encrypted file storage. */
+	virtual void addArchiveLoader(IArchiveLoader* loader) =0;
+
+	//! Gets the number of archive loaders currently added
+	virtual u32 getArchiveLoaderCount() const = 0;
+
+	//! Retrieve the given archive loader
+	/** \param index The index of the loader to retrieve. This parameter is an 0-based
+	array index.
+	\return A pointer to the specified loader, 0 if the index is incorrect. */
+	virtual IArchiveLoader* getArchiveLoader(u32 index) const = 0;
+
 	//! Adds a zip archive to the file system.
 	/** \deprecated This function is provided for compatibility
-	with older versions of Irrlicht and may be removed in future versions,
+	with older versions of Irrlicht and may be removed in Irrlicht 1.9,
 	you should use addFileArchive instead.
 	After calling this, the Irrlicht Engine will search and open files directly from this archive too.
 	This is useful for hiding data from the end user, speeding up file access and making it possible to
@@ -162,14 +225,14 @@ public:
 	\param ignorePaths: If set to true, files in the added archive can be accessed
 	without its complete path.
 	\return True if the archive was added successfully, false if not. */
-	virtual bool addZipFileArchive(const c8* filename, bool ignoreCase=true, bool ignorePaths=true)
+	_IRR_DEPRECATED_ virtual bool addZipFileArchive(const c8* filename, bool ignoreCase=true, bool ignorePaths=true)
 	{
 		return addFileArchive(filename, ignoreCase, ignorePaths, EFAT_ZIP);
 	}
 
 	//! Adds an unzipped archive (or basedirectory with subdirectories..) to the file system.
 	/** \deprecated This function is provided for compatibility
-	with older versions of Irrlicht and may be removed in future versions,
+	with older versions of Irrlicht and may be removed in Irrlicht 1.9,
 	you should use addFileArchive instead.
 	Useful for handling data which will be in a zip file
 	\param filename: Filename of the unzipped zip archive base directory to add to the file system.
@@ -178,14 +241,14 @@ public:
 	\param ignorePaths: If set to true, files in the added archive can be accessed
 	without its complete path.
 	\return True if the archive was added successful, false if not. */
-	virtual bool addFolderFileArchive(const c8* filename, bool ignoreCase=true, bool ignorePaths=true)
+	_IRR_DEPRECATED_ virtual bool addFolderFileArchive(const c8* filename, bool ignoreCase=true, bool ignorePaths=true)
 	{
 		return addFileArchive(filename, ignoreCase, ignorePaths, EFAT_FOLDER);
 	}
 
 	//! Adds a pak archive to the file system.
 	/** \deprecated This function is provided for compatibility
-	with older versions of Irrlicht and may be removed in future versions,
+	with older versions of Irrlicht and may be removed in Irrlicht 1.9,
 	you should use addFileArchive instead.
 	After calling this, the Irrlicht Engine will search and open files directly from this archive too.
 	This is useful for hiding data from the end user, speeding up file access and making it possible to
@@ -196,7 +259,7 @@ public:
 	\param ignorePaths: If set to true, files in the added archive can be accessed
 	without its complete path.(should not use with Quake2 paks
 	\return True if the archive was added successful, false if not. */
-	virtual bool addPakFileArchive(const c8* filename, bool ignoreCase=true, bool ignorePaths=true)
+	_IRR_DEPRECATED_ virtual bool addPakFileArchive(const c8* filename, bool ignoreCase=true, bool ignorePaths=true)
 	{
 		return addFileArchive(filename, ignoreCase, ignorePaths, EFAT_PAK);
 	}
@@ -231,6 +294,9 @@ public:
 
 	//! flatten a path and file name for example: "/you/me/../." becomes "/you"
 	virtual path& flattenFilename(path& directory, const path& root="/") const =0;
+
+	//! Get the relative filename, relative to the given directory
+	virtual path getRelativeFilename(const path& filename, const path& directory) const =0;
 
 	//! Creates a list of files and directories in the current working directory and returns it.
 	/** \return a Pointer to the created IFileList is returned. After the list has been used

@@ -1,4 +1,4 @@
-// Copyright (C) 2007-2010 Nikolaus Gebhardt / Thomas Alten
+// Copyright (C) 2007-2012 Nikolaus Gebhardt / Thomas Alten
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -75,31 +75,23 @@ namespace scene
 
 
 // byte-align structures
-#if defined(_MSC_VER) || defined(__BORLANDC__) || defined (__BCPLUSPLUS__)
-#	pragma pack( push, packing )
-#	pragma pack( 1 )
-#	define PACK_STRUCT
-#elif defined( __GNUC__ )
-#	define PACK_STRUCT	__attribute__((packed))
-#else
-#	error compiler not supported
-#endif
+#include "irrpack.h"
 
 	//! this holds the header info of the MD3 file
 	struct SMD3Header
 	{
 		c8	headerID[4];	//id of file, always "IDP3"
-		s32	Version;		//this is a version number, always 15
+		s32	Version;	//this is a version number, always 15
 		s8	fileName[68];	//sometimes left Blank... 65 chars, 32bit aligned == 68 chars
-		s32	numFrames;		//number of KeyFrames
-		s32	numTags;		//number of 'tags' per frame
-		s32	numMeshes;		//number of meshes/skins
+		s32	numFrames;	//number of KeyFrames
+		s32	numTags;	//number of 'tags' per frame
+		s32	numMeshes;	//number of meshes/skins
 		s32	numMaxSkins;	//maximum number of unique skins used in md3 file. artefact md2
-		s32	frameStart;		//starting position of frame-structur
-		s32	tagStart;		//starting position of tag-structures
-		s32	tagEnd;			//ending position of tag-structures/starting position of mesh-structures
+		s32	frameStart;	//starting position of frame-structur
+		s32	tagStart;	//starting position of tag-structures
+		s32	tagEnd;		//ending position of tag-structures/starting position of mesh-structures
 		s32	fileSize;
-	};
+	} PACK_STRUCT;
 
 	//! this holds the header info of an MD3 mesh section
 	struct SMD3MeshHeader
@@ -117,7 +109,7 @@ namespace scene
 		s32 offset_st;		//starting position of texvector data, relative to start of Mesh_Header
 		s32 vertexStart;	//starting position of vertex data,relative to start of Mesh_Header
 		s32 offset_end;
-	};
+	} PACK_STRUCT;
 
 
 	//! Compressed Vertex Data
@@ -125,28 +117,24 @@ namespace scene
 	{
 		s16 position[3];
 		u8 normal[2];
-	};
+	} PACK_STRUCT;
 
 	//! Texture Coordinate
 	struct SMD3TexCoord
 	{
 		f32 u;
 		f32 v;
-	};
+	} PACK_STRUCT;
 
 	//! Triangle Index
 	struct SMD3Face
 	{
 		s32 Index[3];
-	};
+	} PACK_STRUCT;
 
 
 // Default alignment
-#if defined(_MSC_VER) || defined(__BORLANDC__) || defined (__BCPLUSPLUS__)
-#	pragma pack( pop, packing )
-#endif
-
-#undef PACK_STRUCT
+#include "irrunpack.h"
 
 	//! Holding Frame Data for a Mesh
 	struct SMD3MeshBuffer : public IReferenceCounted
@@ -177,10 +165,6 @@ namespace scene
 		// construct for searching
 		SMD3QuaternionTag( const core::stringc& name )
 			: Name ( name ) {}
-
-		// construct from a matrix
-		SMD3QuaternionTag ( const core::stringc& name, const core::matrix4 &m )
-			: Name(name), position(m.getTranslation()), rotation(m) {}
 
 		// construct from a position and euler angles in degrees
 		SMD3QuaternionTag ( const core::vector3df &pos, const core::vector3df &angle )
@@ -213,20 +197,20 @@ namespace scene
 	//! holds a associative list of named quaternions
 	struct SMD3QuaternionTagList
 	{
-		SMD3QuaternionTagList ()
+		SMD3QuaternionTagList()
 		{
-			Container.setAllocStrategy ( core::ALLOC_STRATEGY_SAFE );
+			Container.setAllocStrategy(core::ALLOC_STRATEGY_SAFE);
 		}
 
 		// construct copy constructor
-		SMD3QuaternionTagList( const SMD3QuaternionTagList & copyMe )
+		SMD3QuaternionTagList(const SMD3QuaternionTagList& copyMe)
 		{
 			*this = copyMe;
 		}
 
-		virtual ~SMD3QuaternionTagList () {}
+		virtual ~SMD3QuaternionTagList() {}
 
-		SMD3QuaternionTag* get ( const core::stringc& name )
+		SMD3QuaternionTag* get(const core::stringc& name)
 		{
 			SMD3QuaternionTag search ( name );
 			s32 index = Container.linear_search ( search );
@@ -240,14 +224,14 @@ namespace scene
 			return Container.size();
 		}
 
-		void set_used ( u32 new_size)
+		void set_used(u32 new_size)
 		{
-			s32 diff = (s32) new_size - (s32) Container.allocated_size ();
+			s32 diff = (s32) new_size - (s32) Container.allocated_size();
 			if ( diff > 0 )
 			{
-				SMD3QuaternionTag e ( "" );
+				SMD3QuaternionTag e("");
 				for ( s32 i = 0; i < diff; ++i )
-					Container.push_back ( e );
+					Container.push_back(e);
 			}
 		}
 
@@ -261,9 +245,9 @@ namespace scene
 			return Container[index];
 		}
 
-		void push_back ( const SMD3QuaternionTag& other )
+		void push_back(const SMD3QuaternionTag& other)
 		{
-			Container.push_back ( other );
+			Container.push_back(other);
 		}
 
 		SMD3QuaternionTagList& operator = (const SMD3QuaternionTagList & copyMe)
@@ -292,7 +276,7 @@ namespace scene
 		}
 
 		core::stringc Name;
-		core::array < SMD3MeshBuffer * > Buffer;
+		core::array<SMD3MeshBuffer*> Buffer;
 		SMD3QuaternionTagList TagList;
 		SMD3Header MD3Header;
 	};
@@ -304,13 +288,13 @@ namespace scene
 	public:
 
 		//! tune how many frames you want to render inbetween.
-		virtual void setInterpolationShift ( u32 shift, u32 loopMode ) = 0;
+		virtual void setInterpolationShift(u32 shift, u32 loopMode) =0;
 
 		//! get the tag list of the mesh.
-		virtual SMD3QuaternionTagList *getTagList(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop) = 0;
+		virtual SMD3QuaternionTagList* getTagList(s32 frame, s32 detailLevel, s32 startFrameLoop, s32 endFrameLoop) =0;
 
 		//! get the original md3 mesh.
-		virtual SMD3Mesh * getOriginalMesh () = 0;
+		virtual SMD3Mesh* getOriginalMesh() =0;
 	};
 
 } // end namespace scene

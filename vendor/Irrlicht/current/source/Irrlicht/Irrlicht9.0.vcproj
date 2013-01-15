@@ -79,7 +79,7 @@
 				Name="VCLinkerTool"
 				UseLibraryDependencyInputs="true"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib winmm.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib opengl32.lib"
 				OutputFile="..\..\bin\Win32-visualstudio\Irrlicht.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -179,7 +179,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib opengl32.lib winmm.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib opengl32.lib"
 				OutputFile="..\..\bin\Win32-visualstudio\Irrlicht.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -255,8 +255,9 @@
 				StringPooling="true"
 				ExceptionHandling="0"
 				RuntimeLibrary="0"
+				StructMemberAlignment="0"
 				BufferSecurityCheck="false"
-				EnableFunctionLevelLinking="true"
+				EnableFunctionLevelLinking="false"
 				EnableEnhancedInstructionSet="2"
 				FloatingPointModel="2"
 				RuntimeTypeInfo="false"
@@ -268,7 +269,6 @@
 				WarnAsError="false"
 				SuppressStartupBanner="true"
 				DebugInformationFormat="0"
-				CallingConvention="1"
 				CompileAs="0"
 			/>
 			<Tool
@@ -285,7 +285,7 @@
 			<Tool
 				Name="VCLinkerTool"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib winmm.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib opengl32.lib"
 				OutputFile="..\..\bin\Win32-visualstudio\Irrlicht.dll"
 				LinkIncremental="1"
 				SuppressStartupBanner="true"
@@ -438,6 +438,7 @@
 				Optimization="2"
 				InlineFunctionExpansion="1"
 				EnableIntrinsicFunctions="false"
+				WholeProgramOptimization="false"
 				AdditionalIncludeDirectories="..\..\include;zlib"
 				PreprocessorDefinitions="WIN32;NDEBUG;_WINDOWS;_USRDLL;_IRR_STATIC_LIB_;_CRT_SECURE_NO_DEPRECATE"
 				StringPooling="true"
@@ -639,7 +640,7 @@
 				Name="VCLinkerTool"
 				UseLibraryDependencyInputs="true"
 				AdditionalOptions="/MACHINE:I386"
-				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib opengl32.lib winmm.lib"
+				AdditionalDependencies="kernel32.lib user32.lib gdi32.lib opengl32.lib"
 				OutputFile="..\..\bin\Win32-visualstudio\Irrlicht.dll"
 				LinkIncremental="2"
 				SuppressStartupBanner="true"
@@ -731,6 +732,10 @@
 			<Filter
 				Name="video"
 				>
+				<File
+					RelativePath="..\..\include\EDriverFeatures.h"
+					>
+				</File>
 				<File
 					RelativePath="..\..\include\EDriverTypes.h"
 					>
@@ -984,7 +989,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\include\IAnimatedMeshMS3D.h"
+					RelativePath="..\..\include\IAnimatedMeshMD3.h"
 					>
 				</File>
 				<File
@@ -1101,6 +1106,10 @@
 				</File>
 				<File
 					RelativePath="..\..\include\ISceneCollisionManager.h"
+					>
+				</File>
+				<File
+					RelativePath="..\..\include\ISceneLoader.h"
 					>
 				</File>
 				<File
@@ -1372,6 +1381,14 @@
 					>
 				</File>
 				<File
+					RelativePath="CSceneLoaderIrr.cpp"
+					>
+				</File>
+				<File
+					RelativePath="CSceneLoaderIrr.h"
+					>
+				</File>
+				<File
 					RelativePath="CSceneManager.cpp"
 					>
 				</File>
@@ -1392,6 +1409,14 @@
 					</File>
 					<File
 						RelativePath="C3DSMeshFileLoader.h"
+						>
+					</File>
+					<File
+						RelativePath=".\CAnimatedMeshHalfLife.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\CAnimatedMeshHalfLife.h"
 						>
 					</File>
 					<File
@@ -1556,6 +1581,14 @@
 					</File>
 					<File
 						RelativePath="CSkinnedMesh.h"
+						>
+					</File>
+					<File
+						RelativePath="CSMFMeshFileLoader.cpp"
+						>
+					</File>
+					<File
+						RelativePath="CSMFMeshFileLoader.h"
 						>
 					</File>
 					<File
@@ -2020,6 +2053,14 @@
 				Name="video"
 				>
 				<File
+					RelativePath="CCgMaterialRenderer.cpp"
+					>
+				</File>
+				<File
+					RelativePath="CCgMaterialRenderer.h"
+					>
+				</File>
+				<File
 					RelativePath="CVideoModeList.cpp"
 					>
 				</File>
@@ -2114,6 +2155,14 @@
 				<Filter
 					Name="OpenGL"
 					>
+					<File
+						RelativePath=".\COpenGLCgMaterialRenderer.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\COpenGLCgMaterialRenderer.h"
+						>
+					</File>
 					<File
 						RelativePath="COpenGLDriver.cpp"
 						>
@@ -2235,6 +2284,10 @@
 					Name="Null"
 					>
 					<File
+						RelativePath=".\CBlit.h"
+						>
+					</File>
+					<File
 						RelativePath="CColorConverter.cpp"
 						>
 					</File>
@@ -2342,6 +2395,14 @@
 							>
 						</File>
 						<File
+							RelativePath=".\CImageLoaderDDS.cpp"
+							>
+						</File>
+						<File
+							RelativePath=".\CImageLoaderDDS.h"
+							>
+						</File>
+						<File
 							RelativePath="CImageLoaderJPG.cpp"
 							>
 						</File>
@@ -2410,6 +2471,14 @@
 				<Filter
 					Name="Direct3D9"
 					>
+					<File
+						RelativePath="CD3D9CgMaterialRenderer.cpp"
+						>
+					</File>
+					<File
+						RelativePath="CD3D9CgMaterialRenderer.h"
+						>
+					</File>
 					<File
 						RelativePath="CD3D9Driver.cpp"
 						>
@@ -2508,6 +2577,14 @@
 					</File>
 					<File
 						RelativePath="CTRGouraudAlphaNoZ2.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\CTRNormalMap.cpp"
+						>
+					</File>
+					<File
+						RelativePath=".\CTRStencilShadow.cpp"
 						>
 					</File>
 					<File
@@ -2766,10 +2843,6 @@
 							>
 						</File>
 						<File
-							RelativePath="jpeglib\jchuff.h"
-							>
-						</File>
-						<File
 							RelativePath="jpeglib\jcinit.c"
 							>
 						</File>
@@ -2847,10 +2920,6 @@
 						</File>
 						<File
 							RelativePath="jpeglib\jdhuff.c"
-							>
-						</File>
-						<File
-							RelativePath="jpeglib\jdhuff.h"
 							>
 						</File>
 						<File
@@ -3293,6 +3362,14 @@
 				</File>
 				<File
 					RelativePath="CTarReader.h"
+					>
+				</File>
+				<File
+					RelativePath=".\CWADReader.cpp"
+					>
+				</File>
+				<File
+					RelativePath=".\CWADReader.h"
 					>
 				</File>
 				<File

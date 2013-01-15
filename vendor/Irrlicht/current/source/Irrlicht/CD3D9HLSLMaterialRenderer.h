@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -50,6 +50,12 @@ public:
 	//! \param floats: Pointer to array of floats
 	//! \param count: Amount of floats in array.
 	virtual bool setVariable(bool vertexShader, const c8* name, const f32* floats, int count);
+
+	//! Bool interface for the above.
+	virtual bool setVariable(bool vertexShader, const c8* name, const bool* bools, int count);
+
+	//! Int interface for the above.
+	virtual bool setVariable(bool vertexShader, const c8* name, const s32* ints, int count);
 
 	bool OnRender(IMaterialRendererServices* service, E_VERTEX_TYPE vtxtype);
 

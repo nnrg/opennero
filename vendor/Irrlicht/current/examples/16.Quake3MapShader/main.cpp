@@ -31,7 +31,7 @@ to ask the user for a driver type using the console.
 #endif
 
 #ifdef IRRLICHT_QUAKE3_ARENA
-	#define QUAKE3_STORAGE_FORMAT	addZipFileArchive
+	#define QUAKE3_STORAGE_FORMAT	addFileArchive
 	#define QUAKE3_STORAGE_1	"../../media/map-20kdm2.pk3"
 	#define QUAKE3_MAP_NAME			"maps/20kdm2.bsp"
 #endif
@@ -145,7 +145,7 @@ int IRRCALLCONV main(int argc, char* argv[])
 	gui::IGUIEnvironment* gui = device->getGUIEnvironment();
 
 	//! add our private media directory to the file system
-	device->getFileSystem()->addFolderFileArchive("../../media/");
+	device->getFileSystem()->addFileArchive("../../media/");
 
 	/*
 	To display the Quake 3 map, we first need to load it. Quake 3 maps
@@ -176,7 +176,7 @@ int IRRCALLCONV main(int argc, char* argv[])
 	which is currently visible. An alternative to the Octree would be a
 	AnimatedMeshSceneNode, which would draw always the complete geometry of
 	the mesh, without optimization. Try it out: Write addAnimatedMeshSceneNode
-	instead of addOctreeSceneNode and compare the primitives drawed by the
+	instead of addOctreeSceneNode and compare the primitives drawn by the
 	video driver. (There is a getPrimitiveCountDrawed() method in the
 	IVideoDriver class). Note that this optimization with the Octree is only
 	useful when drawing huge meshes consisting of lots of geometry.
@@ -253,7 +253,7 @@ int IRRCALLCONV main(int argc, char* argv[])
 	Now we only need a Camera to look at the Quake 3 map. And we want to
 	create a user controlled camera. There are some different cameras
 	available in the Irrlicht engine. For example the Maya Camera which can
-	be controlled compareable to the camera in Maya: Rotate with left mouse
+	be controlled comparable to the camera in Maya: Rotate with left mouse
 	button pressed, Zoom with both buttons pressed, translate with right
 	mouse button pressed. This could be created with
 	addCameraSceneNodeMaya(). But for this example, we want to create a

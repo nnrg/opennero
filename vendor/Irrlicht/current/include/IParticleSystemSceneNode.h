@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -64,6 +64,14 @@ public:
 	Default is true. */
 	virtual void setParticlesAreGlobal(bool global=true) = 0;
 
+	//! Remove all currently visible particles
+	virtual void clearParticles() = 0;
+
+	//! Do manually update the particles.
+ 	//! This should only be called when you want to render the node outside the scenegraph,
+ 	//! as the node will care about this otherwise automatically.
+	virtual void doParticleSystem(u32 time) = 0;
+
 	//! Gets the particle emitter, which creates the particles.
 	/** \return The particle emitter. Can be 0 if none is set. */
 	virtual IParticleEmitter* getEmitter() =0;
@@ -90,6 +98,10 @@ public:
 	work.
 	\param affector: New affector. */
 	virtual void addAffector(IParticleAffector* affector) = 0;
+
+	//! Get a list of all particle affectors.
+	/** \return The list of particle affectors attached to this node. */
+	virtual const core::list<IParticleAffector*>& getAffectors() const = 0;
 
 	//! Removes all particle affectors in the particle system.
 	virtual void removeAllAffectors() = 0;
@@ -447,7 +459,7 @@ public:
 	//! Creates a fade out particle affector.
 	/** This affector modifies the color of every particle and and reaches
 	the final color when the particle dies. This affector looks really
-	good, if the EMT_TRANSPARENT_VERTEX_ALPHA material is used and the
+	good, if the EMT_TRANSPARENT_ADD_COLOR material is used and the
 	targetColor is video::SColor(0,0,0,0): Particles are fading out into
 	void with this setting.
 	\param targetColor: Color whereto the color of the particle is changed.

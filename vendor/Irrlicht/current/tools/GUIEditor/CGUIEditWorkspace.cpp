@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt / Gaz Davidson
+// Copyright (C) 2002-2012 Nikolaus Gebhardt / Gaz Davidson
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -16,6 +16,7 @@
 #include "CGUIEditWindow.h"
 #include "IGUIContextMenu.h"
 #include "IGUIFileOpenDialog.h"
+#include "IGUITreeView.h"
 #include "CGUIAttribute.h"
 #include "CMemoryReadWriteFile.h"
 
@@ -178,10 +179,10 @@ void CGUIEditWorkspace::selectNextSibling()
 {
 	IGUIElement* p=0;
 
-	if (!SelectedElement)
-		p = Parent;
-	else
+	if (SelectedElement && SelectedElement->getParent())
 		p = SelectedElement->getParent();
+	else
+		p = Parent;
 
 	core::list<IGUIElement*>::ConstIterator it = p->getChildren().begin();
 	// find selected element
@@ -201,10 +202,10 @@ void CGUIEditWorkspace::selectPreviousSibling()
 {
 	IGUIElement* p=0;
 
-	if (!SelectedElement)
-		p = Parent;
-	else
+	if (SelectedElement && SelectedElement->getParent())
 		p = SelectedElement->getParent();
+	else
+		p = Parent;
 
 	core::list<IGUIElement*>::ConstIterator it = p->getChildren().getLast();
 	// find selected element
@@ -237,6 +238,7 @@ bool CGUIEditWorkspace::OnEvent(const SEvent &e)
 					if (SelectedElement)
 					{
 						SelectedElement->deserializeAttributes(EditorWindow->getAttributeEditor()->getAttribs());
+						EditorWindow->updateTree();
 					}
 					return true;
 				}
@@ -268,6 +270,7 @@ bool CGUIEditWorkspace::OnEvent(const SEvent &e)
 					setSelectedElement(0);
 					MouseOverElement = 0;
 					el->remove();
+					EditorWindow->updateTree();
 				}
 				break;
 			case KEY_KEY_X:
@@ -466,7 +469,10 @@ bool CGUIEditWorkspace::OnEvent(const SEvent &e)
 				setSelectedElement(0);
 
 				// move
-				core::position2d<s32> p = sel->getParent()->getAbsolutePosition().UpperLeftCorner;
+				core::position2d<s32> p(0,0);
+				if (sel->getParent())
+					p = sel->getParent()->getAbsolutePosition().UpperLeftCorner;
+
 				sel->setRelativePosition(SelectedArea - p);
 
 				// select
@@ -570,6 +576,13 @@ bool CGUIEditWorkspace::OnEvent(const SEvent &e)
 	case EET_GUI_EVENT:
 		switch(e.GUIEvent.EventType)
 		{
+        case EGET_TREEVIEW_NODE_SELECT:
+        {
+            IGUITreeViewNode* eventnode = ((IGUITreeView*)e.GUIEvent.Caller)->getLastEventNode();
+            if(!eventnode->isRoot())
+                setSelectedElement((IGUIElement*)(eventnode->getData()));
+            break;
+        }
 		// load a gui file
 		case EGET_FILE_SELECTED:
 			dialog = (IGUIFileOpenDialog*)e.GUIEvent.Caller;
@@ -635,10 +648,12 @@ bool CGUIEditWorkspace::OnEvent(const SEvent &e)
 					CurrentMode = EGUIEDM_SELECT_NEW_PARENT;
 					break;
 				case EGUIEDMC_BRING_TO_FRONT:
-					SelectedElement->getParent()->bringToFront(SelectedElement);
+					if (SelectedElement->getParent())
+						SelectedElement->getParent()->bringToFront(SelectedElement);
 					break;
 
 				case EGUIEDMC_SAVE_ELEMENT:
+                    //TODO: add 'save' dialog.
 					Environment->saveGUI("guiTest.xml", SelectedElement ? SelectedElement : Environment->getRootGUIElement() );
 					break;
 
@@ -678,6 +693,7 @@ bool CGUIEditWorkspace::OnEvent(const SEvent &e)
 					}
 					break;
 				}
+				EditorWindow->updateTree();
 			}
 			return true;
 		default:

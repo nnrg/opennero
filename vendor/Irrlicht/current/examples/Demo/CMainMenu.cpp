@@ -25,9 +25,9 @@ bool CMainMenu::run(bool& outFullscreen, bool& outMusic, bool& outShadows,
 		core::dimension2d<u32>(512, 384), 16, false, false, false, this);
 
 	if (MenuDevice->getFileSystem()->existFile("irrlicht.dat"))
-		MenuDevice->getFileSystem()->addZipFileArchive("irrlicht.dat");
+		MenuDevice->getFileSystem()->addFileArchive("irrlicht.dat");
 	else
-		MenuDevice->getFileSystem()->addZipFileArchive("../../media/irrlicht.dat");
+		MenuDevice->getFileSystem()->addFileArchive("../../media/irrlicht.dat");
 
 	video::IVideoDriver* driver = MenuDevice->getVideoDriver();
 	scene::ISceneManager* smgr = MenuDevice->getSceneManager();
@@ -63,7 +63,7 @@ bool CMainMenu::run(bool& outFullscreen, bool& outMusic, bool& outShadows,
 	box->addItem(L"OpenGL 1.5");
 	box->addItem(L"Direct3D 8.1");
 	box->addItem(L"Direct3D 9.0c");
-	box->addItem(L"Burning's Video 0.44");
+	box->addItem(L"Burning's Video 0.47");
 	box->addItem(L"Irrlicht Software Renderer 1.0");
 	box->setSelected(selected);
 

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -7,6 +7,7 @@
 
 #include "ISceneNodeAnimator.h"
 #include "IEventReceiver.h"
+#include "irrArray.h"
 
 namespace irr
 {
@@ -38,10 +39,17 @@ namespace scene
 		//! Set the rotation speed in degrees
 		virtual void setRotateSpeed(f32 rotateSpeed) = 0;
 
-		//! Sets the keyboard mapping for this animator
+		//! Sets the keyboard mapping for this animator (old style)
 		/** \param map Array of keyboard mappings, see irr::SKeyMap
 		\param count Size of the keyboard map array. */
 		virtual void setKeyMap(SKeyMap *map, u32 count) = 0;
+
+		//! Sets the keyboard mapping for this animator
+		//!	\param keymap The new keymap array 
+		virtual void setKeyMap(const core::array<SKeyMap>& keymap) = 0;
+
+		//! Gets the keyboard mapping for this animator
+		virtual const core::array<SKeyMap>& getKeyMap() const = 0;
 
 		//! Sets whether vertical movement should be allowed.
 		/** If vertical movement is enabled then the camera may fight with 

@@ -593,7 +593,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\include\IAnimatedMeshMS3D.h"
+					RelativePath="..\..\include\IAnimatedMeshMD3.h"
 					>
 				</File>
 				<File
@@ -1592,6 +1592,7 @@
 					RelativePath="CTRTextureBlend.cpp"
 					>
 				</File>
+
 				<File
 					RelativePath="CTRTextureDetailMap2.cpp"
 					>
@@ -1738,6 +1739,14 @@
 				</File>
 				<File
 					RelativePath="C3DSMeshFileLoader.h"
+					>
+				</File>
+				<File
+					RelativePath="CSMFMeshFileLoader.cpp"
+					>
+				</File>
+				<File
+					RelativePath="CSMFMeshFileLoader.h"
 					>
 				</File>
 				<File
@@ -2684,10 +2693,6 @@
 						>
 					</File>
 					<File
-						RelativePath="jpeglib\jchuff.h"
-						>
-					</File>
-					<File
 						RelativePath="jpeglib\jcinit.c"
 						>
 					</File>
@@ -2765,10 +2770,6 @@
 					</File>
 					<File
 						RelativePath="jpeglib\jdhuff.c"
-						>
-					</File>
-					<File
-						RelativePath="jpeglib\jdhuff.h"
 						>
 					</File>
 					<File

@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -15,22 +15,35 @@
 #include "irrString.h"
 #include "COSOperator.h"
 #include "dimension2d.h"
+#include "IGUISpriteBank.h"
 #include <winuser.h>
+#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
+#ifdef _IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_
+#define DIRECTINPUT_VERSION 0x0800
+#include <dinput.h>
+#ifdef _MSC_VER
+#pragma comment(lib, "dinput8.lib")
+#pragma comment(lib, "dxguid.lib")
+#endif
+#else
+#ifdef _MSC_VER
+#pragma comment(lib, "winmm.lib")
+#endif
+#endif
+#endif
 
 namespace irr
 {
 	namespace video
 	{
 		#ifdef _IRR_COMPILE_WITH_DIRECT3D_8_
-		IVideoDriver* createDirectX8Driver(const core::dimension2d<u32>& screenSize, HWND window,
-			u32 bits, bool fullscreen, bool stencilbuffer, io::IFileSystem* io,
-			bool pureSoftware, bool highPrecisionFPU, bool vsync, u8 antiAlias);
+		IVideoDriver* createDirectX8Driver(const irr::SIrrlichtCreationParameters& params,
+			io::IFileSystem* io, HWND window);
 		#endif
 
 		#ifdef _IRR_COMPILE_WITH_DIRECT3D_9_
-		IVideoDriver* createDirectX9Driver(const core::dimension2d<u32>& screenSize, HWND window,
-			u32 bits, bool fullscreen, bool stencilbuffer, io::IFileSystem* io,
-			bool pureSoftware, bool highPrecisionFPU, bool vsync, u8 antiAlias);
+		IVideoDriver* createDirectX9Driver(const irr::SIrrlichtCreationParameters& params,
+			io::IFileSystem* io, HWND window);
 		#endif
 
 		#ifdef _IRR_COMPILE_WITH_OPENGL_
@@ -38,6 +51,390 @@ namespace irr
 			io::IFileSystem* io, CIrrDeviceWin32* device);
 		#endif
 	}
+} // end namespace irr
+
+namespace irr
+{
+struct SJoystickWin32Control
+{
+	CIrrDeviceWin32* Device;
+
+#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_) && defined(_IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_)
+	IDirectInput8* DirectInputDevice;
+#endif
+#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_)
+	struct JoystickInfo
+	{
+		u32 Index;
+#ifdef _IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_
+		core::stringc Name;
+		GUID guid;
+		LPDIRECTINPUTDEVICE8 lpdijoy;
+		DIDEVCAPS devcaps;
+		u8 axisValid[8];
+#else
+		JOYCAPS Caps;
+#endif
+	};
+	core::array<JoystickInfo> ActiveJoysticks;
+#endif
+
+	SJoystickWin32Control(CIrrDeviceWin32* dev) : Device(dev)
+	{
+#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_) && defined(_IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_)
+		DirectInputDevice=0;
+		if (DI_OK != (DirectInput8Create(GetModuleHandle(NULL), DIRECTINPUT_VERSION, IID_IDirectInput8, (void**)&DirectInputDevice, NULL)))
+		{
+			os::Printer::log("Could not create DirectInput8 Object", ELL_WARNING);
+			return;
+		}
+#endif
+	}
+	~SJoystickWin32Control()
+	{
+#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_) && defined(_IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_)
+		for(u32 joystick = 0; joystick < ActiveJoysticks.size(); ++joystick)
+		{
+			LPDIRECTINPUTDEVICE8 dev = ActiveJoysticks[joystick].lpdijoy;
+			if (dev)
+			{
+				dev->Unacquire();
+			}
+			dev->Release();
+		}
+
+		if (DirectInputDevice)
+			DirectInputDevice->Release();
+#endif
+	}
+
+#if defined(_IRR_COMPILE_WITH_JOYSTICK_EVENTS_) && defined(_IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_)
+	static BOOL CALLBACK EnumJoysticks(LPCDIDEVICEINSTANCE lpddi, LPVOID cp)
+	{
+		SJoystickWin32Control* p=(SJoystickWin32Control*)cp;
+		p->directInputAddJoystick(lpddi);
+		return DIENUM_CONTINUE;
+	}
+	void directInputAddJoystick(LPCDIDEVICEINSTANCE lpddi)
+	{
+		//Get the GUID of the joystuck
+		const GUID guid = lpddi->guidInstance;
+
+		JoystickInfo activeJoystick;
+		activeJoystick.Index=ActiveJoysticks.size();
+		activeJoystick.guid=guid;
+		activeJoystick.Name=lpddi->tszProductName;
+		if (FAILED(DirectInputDevice->CreateDevice(guid, &activeJoystick.lpdijoy, NULL)))
+		{
+			os::Printer::log("Could not create DirectInput device", ELL_WARNING);
+			return;
+		}
+
+		activeJoystick.devcaps.dwSize=sizeof(activeJoystick.devcaps);
+		if (FAILED(activeJoystick.lpdijoy->GetCapabilities(&activeJoystick.devcaps)))
+		{
+			os::Printer::log("Could not create DirectInput device", ELL_WARNING);
+			return;
+		}
+
+		if (FAILED(activeJoystick.lpdijoy->SetCooperativeLevel(Device->HWnd, DISCL_BACKGROUND | DISCL_EXCLUSIVE)))
+		{
+			os::Printer::log("Could not set DirectInput device cooperative level", ELL_WARNING);
+			return;
+		}
+
+		if (FAILED(activeJoystick.lpdijoy->SetDataFormat(&c_dfDIJoystick2)))
+		{
+			os::Printer::log("Could not set DirectInput device data format", ELL_WARNING);
+			return;
+		}
+
+		if (FAILED(activeJoystick.lpdijoy->Acquire()))
+		{
+			os::Printer::log("Could not set DirectInput cooperative level", ELL_WARNING);
+			return;
+		}
+
+		DIJOYSTATE2 info;
+		if (FAILED(activeJoystick.lpdijoy->GetDeviceState(sizeof(info),&info)))
+		{
+			os::Printer::log("Could not read DirectInput device state", ELL_WARNING);
+			return;
+		}
+
+		ZeroMemory(activeJoystick.axisValid,sizeof(activeJoystick.axisValid));
+		activeJoystick.axisValid[0]= (info.lX!=0) ? 1 : 0;
+		activeJoystick.axisValid[1]= (info.lY!=0) ? 1 : 0;
+		activeJoystick.axisValid[2]= (info.lZ!=0) ? 1 : 0;
+		activeJoystick.axisValid[3]= (info.lRx!=0) ? 1 : 0;
+		activeJoystick.axisValid[4]= (info.lRy!=0) ? 1 : 0;
+		activeJoystick.axisValid[5]= (info.lRz!=0) ? 1 : 0;
+
+		int caxis=0;
+		for (u8 i=0; i<6; i++)
+		{
+			if (activeJoystick.axisValid[i])
+				caxis++;
+		}
+
+		for (u8 i=0; i<(activeJoystick.devcaps.dwAxes)-caxis; i++)
+		{
+			if (i+caxis < 8)
+				activeJoystick.axisValid[i+caxis]=1;
+		}
+
+		ActiveJoysticks.push_back(activeJoystick);
+	}
+#endif
+
+void pollJoysticks()
+{
+#if defined _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
+#ifdef _IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_
+	if(0 == ActiveJoysticks.size())
+		return;
+
+	u32 joystick;
+	DIJOYSTATE2 info;
+
+	for(joystick = 0; joystick < ActiveJoysticks.size(); ++joystick)
+	{
+		// needs to be reset for each joystick
+		// request ALL values and POV as continuous if possible
+
+		const DIDEVCAPS & caps = ActiveJoysticks[joystick].devcaps;
+		// if no POV is available don't ask for POV values
+
+		if (!FAILED(ActiveJoysticks[joystick].lpdijoy->GetDeviceState(sizeof(info),&info)))
+		{
+			SEvent event;
+
+			event.EventType = irr::EET_JOYSTICK_INPUT_EVENT;
+			event.JoystickEvent.Joystick = (u8)joystick;
+
+			event.JoystickEvent.POV = (u16)info.rgdwPOV[0];
+			// set to undefined if no POV value was returned or the value
+			// is out of range
+			if ((caps.dwPOVs==0) || (event.JoystickEvent.POV > 35900))
+				event.JoystickEvent.POV = 65535;
+
+			for(int axis = 0; axis < SEvent::SJoystickEvent::NUMBER_OF_AXES; ++axis)
+				event.JoystickEvent.Axis[axis] = 0;
+
+			u16 dxAxis=0;
+			u16 irrAxis=0;
+
+			while (dxAxis < 6 && irrAxis <caps.dwAxes)
+			{
+				bool axisFound=0;
+				s32 axisValue=0;
+
+				switch (dxAxis)
+				{
+				case 0:
+					axisValue=info.lX;
+					break;
+				case 1:
+					axisValue=info.lY;
+					break;
+				case 2:
+					axisValue=info.lZ;
+					break;
+				case 3:
+					axisValue=info.lRx;
+					break;
+				case 4:
+					axisValue=info.lRy;
+					break;
+				case 5:
+					axisValue=info.lRz;
+					break;
+				case 6:
+					axisValue=info.rglSlider[0];
+					break;
+				case 7:
+					axisValue=info.rglSlider[1];
+					break;
+				default:
+					break;
+				}
+
+				if (ActiveJoysticks[joystick].axisValid[dxAxis]>0)
+					axisFound=1;
+
+				if (axisFound)
+				{
+					s32 val=axisValue - 32768;
+
+					if (val <-32767) val=-32767;
+					if (val > 32767) val=32767;
+					event.JoystickEvent.Axis[irrAxis]=(s16)(val);
+					irrAxis++;
+				}
+
+				dxAxis++;
+			}
+
+			u32 buttons=0;
+			BYTE* bytebuttons=info.rgbButtons;
+			for (u16 i=0; i<32; i++)
+			{
+				if (bytebuttons[i] >0)
+				{
+					buttons |= (1 << i);
+				}
+			}
+			event.JoystickEvent.ButtonStates = buttons;
+
+			(void)Device->postEventFromUser(event);
+		}
+	}
+#else
+	if (0 == ActiveJoysticks.size())
+		return;
+
+	u32 joystick;
+	JOYINFOEX info;
+
+	for(joystick = 0; joystick < ActiveJoysticks.size(); ++joystick)
+	{
+		// needs to be reset for each joystick
+		// request ALL values and POV as continuous if possible
+		info.dwSize = sizeof(info);
+		info.dwFlags = JOY_RETURNALL|JOY_RETURNPOVCTS;
+		const JOYCAPS & caps = ActiveJoysticks[joystick].Caps;
+		// if no POV is available don't ask for POV values
+		if (!(caps.wCaps & JOYCAPS_HASPOV))
+			info.dwFlags &= ~(JOY_RETURNPOV|JOY_RETURNPOVCTS);
+		if(JOYERR_NOERROR == joyGetPosEx(ActiveJoysticks[joystick].Index, &info))
+		{
+			SEvent event;
+
+			event.EventType = irr::EET_JOYSTICK_INPUT_EVENT;
+			event.JoystickEvent.Joystick = (u8)joystick;
+
+			event.JoystickEvent.POV = (u16)info.dwPOV;
+			// set to undefined if no POV value was returned or the value
+			// is out of range
+			if (!(info.dwFlags & JOY_RETURNPOV) || (event.JoystickEvent.POV > 35900))
+				event.JoystickEvent.POV = 65535;
+
+			for(int axis = 0; axis < SEvent::SJoystickEvent::NUMBER_OF_AXES; ++axis)
+				event.JoystickEvent.Axis[axis] = 0;
+
+			event.JoystickEvent.ButtonStates = info.dwButtons;
+
+			switch(caps.wNumAxes)
+			{
+			default:
+			case 6:
+				event.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_V] =
+					(s16)((65535 * (info.dwVpos - caps.wVmin)) / (caps.wVmax - caps.wVmin) - 32768);
+
+			case 5:
+				event.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_U] =
+					(s16)((65535 * (info.dwUpos - caps.wUmin)) / (caps.wUmax - caps.wUmin) - 32768);
+
+			case 4:
+				event.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_R] =
+					(s16)((65535 * (info.dwRpos - caps.wRmin)) / (caps.wRmax - caps.wRmin) - 32768);
+
+			case 3:
+				event.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_Z] =
+					(s16)((65535 * (info.dwZpos - caps.wZmin)) / (caps.wZmax - caps.wZmin) - 32768);
+
+			case 2:
+				event.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_Y] =
+					(s16)((65535 * (info.dwYpos - caps.wYmin)) / (caps.wYmax - caps.wYmin) - 32768);
+
+			case 1:
+				event.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_X] =
+					(s16)((65535 * (info.dwXpos - caps.wXmin)) / (caps.wXmax - caps.wXmin) - 32768);
+			}
+
+			(void)Device->postEventFromUser(event);
+		}
+	}
+#endif
+#endif // _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
+}
+
+bool activateJoysticks(core::array<SJoystickInfo> & joystickInfo)
+{
+#if defined _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
+#ifdef _IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_
+	if (!DirectInputDevice || (DirectInputDevice->EnumDevices(DI8DEVCLASS_GAMECTRL, SJoystickWin32Control::EnumJoysticks, this, DIEDFL_ATTACHEDONLY )))
+	{
+		os::Printer::log("Could not enum DirectInput8 controllers", ELL_WARNING);
+		return false;
+	}
+
+	for(u32 joystick = 0; joystick < ActiveJoysticks.size(); ++joystick)
+	{
+		JoystickInfo& activeJoystick = ActiveJoysticks[joystick];
+		SJoystickInfo info;
+		info.Axes=activeJoystick.devcaps.dwAxes;
+		info.Buttons=activeJoystick.devcaps.dwButtons;
+		info.Name=activeJoystick.Name;
+		info.PovHat = (activeJoystick.devcaps.dwPOVs  != 0)
+				? SJoystickInfo::POV_HAT_PRESENT : SJoystickInfo::POV_HAT_ABSENT;
+		joystickInfo.push_back(info);
+	}
+	return true;
+#else
+	joystickInfo.clear();
+	ActiveJoysticks.clear();
+
+	const u32 numberOfJoysticks = ::joyGetNumDevs();
+	JOYINFOEX info;
+	info.dwSize = sizeof(info);
+	info.dwFlags = JOY_RETURNALL;
+
+	JoystickInfo activeJoystick;
+	SJoystickInfo returnInfo;
+
+	joystickInfo.reallocate(numberOfJoysticks);
+	ActiveJoysticks.reallocate(numberOfJoysticks);
+
+	u32 joystick = 0;
+	for(; joystick < numberOfJoysticks; ++joystick)
+	{
+		if(JOYERR_NOERROR == joyGetPosEx(joystick, &info)
+			&&
+			JOYERR_NOERROR == joyGetDevCaps(joystick,
+											&activeJoystick.Caps,
+											sizeof(activeJoystick.Caps)))
+		{
+			activeJoystick.Index = joystick;
+			ActiveJoysticks.push_back(activeJoystick);
+
+			returnInfo.Joystick = (u8)joystick;
+			returnInfo.Axes = activeJoystick.Caps.wNumAxes;
+			returnInfo.Buttons = activeJoystick.Caps.wNumButtons;
+			returnInfo.Name = activeJoystick.Caps.szPname;
+			returnInfo.PovHat = ((activeJoystick.Caps.wCaps & JOYCAPS_HASPOV) == JOYCAPS_HASPOV)
+								? SJoystickInfo::POV_HAT_PRESENT : SJoystickInfo::POV_HAT_ABSENT;
+
+			joystickInfo.push_back(returnInfo);
+		}
+	}
+
+	for(joystick = 0; joystick < joystickInfo.size(); ++joystick)
+	{
+		char logString[256];
+		(void)sprintf(logString, "Found joystick %d, %d axes, %d buttons '%s'",
+			joystick, joystickInfo[joystick].Axes,
+			joystickInfo[joystick].Buttons, joystickInfo[joystick].Name.c_str());
+		os::Printer::log(logString, ELL_INFORMATION);
+	}
+
+	return true;
+#endif
+#else
+	return false;
+#endif // _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
+}
+};
 } // end namespace irr
 
 // Get the codepage from the locale language id
@@ -211,7 +608,7 @@ namespace
 
 	HKL KEYBOARD_INPUT_HKL=0;
 	unsigned int KEYBOARD_INPUT_CODEPAGE = 1252;
-};
+}
 
 SEnvMapper* getEnvMapperFromHWnd(HWND hWnd)
 {
@@ -447,19 +844,33 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_SYSCOMMAND:
 		// prevent screensaver or monitor powersave mode from starting
 		if ((wParam & 0xFFF0) == SC_SCREENSAVE ||
-			(wParam & 0xFFF0) == SC_MONITORPOWER)
+			(wParam & 0xFFF0) == SC_MONITORPOWER ||
+			(wParam & 0xFFF0) == SC_KEYMENU
+			)
 			return 0;
+
 		break;
 
 	case WM_ACTIVATE:
 		// we need to take care for screen changes, e.g. Alt-Tab
 		dev = getDeviceFromHWnd(hWnd);
-		if (dev)
+		if (dev && dev->isFullscreen())
 		{
 			if ((wParam&0xFF)==WA_INACTIVE)
+			{
+				// If losing focus we minimize the app to show other one
+				ShowWindow(hWnd,SW_MINIMIZE);
+				// and switch back to default resolution
 				dev->switchToFullScreen(true);
+			}
 			else
+			{
+				// Otherwise we retore the fullscreen Irrlicht app
+				SetForegroundWindow(hWnd);
+				ShowWindow(hWnd, SW_RESTORE);
+				// and set the fullscreen resolution again
 				dev->switchToFullScreen();
+			}
 		}
 		break;
 
@@ -478,7 +889,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		// because Windows forgot about that in the meantime
 		dev = getDeviceFromHWnd(hWnd);
 		if (dev)
+		{
+			dev->getCursorControl()->setActiveIcon( dev->getCursorControl()->getActiveIcon() );
 			dev->getCursorControl()->setVisible( dev->getCursorControl()->isVisible() );
+		}
 		break;
 
 	case WM_INPUTLANGCHANGE:
@@ -496,9 +910,8 @@ namespace irr
 
 //! constructor
 CIrrDeviceWin32::CIrrDeviceWin32(const SIrrlichtCreationParameters& params)
-: CIrrDeviceStub(params), HWnd(0), ChangedToFullScreen(false),
-	IsNonNTWindows(false), Resized(false),
-	ExternalWindow(false), Win32CursorControl(0)
+: CIrrDeviceStub(params), HWnd(0), ChangedToFullScreen(false), Resized(false),
+	ExternalWindow(false), Win32CursorControl(0), JoyControl(0)
 {
 	#ifdef _DEBUG
 	setDebugName("CIrrDeviceWin32");
@@ -507,11 +920,18 @@ CIrrDeviceWin32::CIrrDeviceWin32(const SIrrlichtCreationParameters& params)
 	// get windows version and create OS operator
 	core::stringc winversion;
 	getWindowsVersion(winversion);
-	Operator = new COSOperator(winversion.c_str());
+	Operator = new COSOperator(winversion);
 	os::Printer::log(winversion.c_str(), ELL_INFORMATION);
 
 	// get handle to exe file
 	HINSTANCE hInstance = GetModuleHandle(0);
+
+	// Store original desktop mode.
+
+	memset(&DesktopMode, 0, sizeof(DesktopMode));
+	DesktopMode.dmSize = sizeof(DesktopMode);
+
+	EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &DesktopMode);
 
 	// create the window if we need to and we do not use the null device
 	if (!CreationParams.WindowId && CreationParams.DriverType != video::EDT_NULL)
@@ -527,7 +947,7 @@ CIrrDeviceWin32::CIrrDeviceWin32(const SIrrlichtCreationParameters& params)
 		wcex.cbWndExtra		= 0;
 		wcex.hInstance		= hInstance;
 		wcex.hIcon			= NULL;
-		wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
+		wcex.hCursor		= 0; // LoadCursor(NULL, IDC_ARROW);
 		wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
 		wcex.lpszMenuName	= 0;
 		wcex.lpszClassName	= ClassName;
@@ -578,7 +998,7 @@ CIrrDeviceWin32::CIrrDeviceWin32(const SIrrlichtCreationParameters& params)
 //		CreationParams.WindowSize.Width = realWidth;
 //		CreationParams.WindowSize.Height = realHeight;
 
-		ShowWindow(HWnd, SW_SHOW);
+		ShowWindow(HWnd, SW_SHOWNORMAL);
 		UpdateWindow(HWnd);
 
 		// fix ugly ATI driver bugs. Thanks to ariaci
@@ -601,8 +1021,9 @@ CIrrDeviceWin32::CIrrDeviceWin32(const SIrrlichtCreationParameters& params)
 
 	// create cursor control
 
-	Win32CursorControl = new CCursorControl(CreationParams.WindowSize, HWnd, CreationParams.Fullscreen);
+	Win32CursorControl = new CCursorControl(this, CreationParams.WindowSize, HWnd, CreationParams.Fullscreen);
 	CursorControl = Win32CursorControl;
+	JoyControl = new SJoystickWin32Control(this);
 
 	// initialize doubleclicks with system values
 	MouseMultiClicks.DoubleClickTime = GetDoubleClickTime();
@@ -631,12 +1052,17 @@ CIrrDeviceWin32::CIrrDeviceWin32(const SIrrlichtCreationParameters& params)
 	// get the codepage used for keyboard input
 	KEYBOARD_INPUT_HKL = GetKeyboardLayout(0);
 	KEYBOARD_INPUT_CODEPAGE = LocaleIdToCodepage( LOWORD(KEYBOARD_INPUT_HKL) );
+
+	// inform driver about the window size etc.
+	resizeIfNecessary();
 }
 
 
 //! destructor
 CIrrDeviceWin32::~CIrrDeviceWin32()
 {
+	delete JoyControl;
+
 	// unregister environment
 
 	irr::core::list<SEnvMapper>::Iterator it = EnvMap.begin();
@@ -661,10 +1087,7 @@ void CIrrDeviceWin32::createDriver()
 	case video::EDT_DIRECT3D8:
 		#ifdef _IRR_COMPILE_WITH_DIRECT3D_8_
 
-		VideoDriver = video::createDirectX8Driver(CreationParams.WindowSize, HWnd,
-			CreationParams.Bits, CreationParams.Fullscreen, CreationParams.Stencilbuffer,
-			FileSystem, false, CreationParams.HighPrecisionFPU, CreationParams.Vsync,
-			CreationParams.AntiAlias);
+		VideoDriver = video::createDirectX8Driver(CreationParams, FileSystem, HWnd);
 
 		if (!VideoDriver)
 		{
@@ -679,10 +1102,7 @@ void CIrrDeviceWin32::createDriver()
 	case video::EDT_DIRECT3D9:
 		#ifdef _IRR_COMPILE_WITH_DIRECT3D_9_
 
-		VideoDriver = video::createDirectX9Driver(CreationParams.WindowSize, HWnd,
-			CreationParams.Bits, CreationParams.Fullscreen, CreationParams.Stencilbuffer,
-			FileSystem, false, CreationParams.HighPrecisionFPU, CreationParams.Vsync,
-			CreationParams.AntiAlias);
+		VideoDriver = video::createDirectX9Driver(CreationParams, FileSystem, HWnd);
 
 		if (!VideoDriver)
 		{
@@ -725,7 +1145,7 @@ void CIrrDeviceWin32::createDriver()
 		#ifdef _IRR_COMPILE_WITH_BURNINGSVIDEO_
 		switchToFullScreen();
 
-		VideoDriver = video::createSoftwareDriver2(CreationParams.WindowSize, CreationParams.Fullscreen, FileSystem, this);
+		VideoDriver = video::createBurningVideoDriver(CreationParams, FileSystem, this);
 		#else
 		os::Printer::log("Burning's Video driver was not compiled in.", ELL_ERROR);
 		#endif
@@ -748,27 +1168,15 @@ bool CIrrDeviceWin32::run()
 {
 	os::Timer::tick();
 
-	MSG msg;
+	static_cast<CCursorControl*>(CursorControl)->update();
 
-	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
-	{
-		// No message translation because we don't use WM_CHAR and it would conflict with our
-		// deadkey handling.
-
-		if (ExternalWindow && msg.hwnd == HWnd)
-			WndProc(HWnd, msg.message, msg.wParam, msg.lParam);
-		else
-			DispatchMessage(&msg);
-
-		if (msg.message == WM_QUIT)
-			Close = true;
-	}
+	handleSystemMessages();
 
 	if (!Close)
 		resizeIfNecessary();
 
-	if(!Close)
-		pollJoysticks();
+	if(!Close && JoyControl)
+		JoyControl->pollJoysticks();
 
 	_IRR_IMPLEMENT_MANAGED_MARSHALLING_BUGFIX;
 	return !Close;
@@ -797,7 +1205,7 @@ void CIrrDeviceWin32::sleep(u32 timeMs, bool pauseTimer)
 
 void CIrrDeviceWin32::resizeIfNecessary()
 {
-	if (!Resized)
+	if (!Resized || !getVideoDriver())
 		return;
 
 	RECT r;
@@ -826,28 +1234,12 @@ void CIrrDeviceWin32::resizeIfNecessary()
 //! sets the caption of the window
 void CIrrDeviceWin32::setWindowCaption(const wchar_t* text)
 {
-	DWORD dwResult;
-	if (IsNonNTWindows)
-	{
-		const core::stringc s = text;
-#if defined(_WIN64) || defined(WIN64)
-		SetWindowTextA(HWnd, s.c_str());
-#else
-		SendMessageTimeout(HWnd, WM_SETTEXT, 0,
-				reinterpret_cast<LPARAM>(s.c_str()),
-				SMTO_ABORTIFHUNG, 2000, &dwResult);
-#endif
-	}
-	else
-	{
-#if defined(_WIN64) || defined(WIN64)
-		SetWindowTextW(HWnd, text);
-#else
-		SendMessageTimeoutW(HWnd, WM_SETTEXT, 0,
-				reinterpret_cast<LPARAM>(text),
-				SMTO_ABORTIFHUNG, 2000, &dwResult);
-#endif
-	}
+	// We use SendMessage instead of SetText to ensure proper
+	// function even in cases where the HWND was created in a different thread
+	DWORD_PTR dwResult;
+	SendMessageTimeoutW(HWnd, WM_SETTEXT, 0,
+			reinterpret_cast<LPARAM>(text),
+			SMTO_ABORTIFHUNG, 2000, &dwResult);
 }
 
 
@@ -868,16 +1260,16 @@ bool CIrrDeviceWin32::present(video::IImage* image, void* windowId, core::rect<s
 
 		BITMAPV4HEADER bi;
 		ZeroMemory (&bi, sizeof(bi));
-		bi.bV4Size          = sizeof(BITMAPINFOHEADER);
-		bi.bV4BitCount      = (WORD)image->getBitsPerPixel();
-		bi.bV4Planes        = 1;
-		bi.bV4Width         = image->getDimension().Width;
-		bi.bV4Height        = -((s32)image->getDimension().Height);
+		bi.bV4Size = sizeof(BITMAPINFOHEADER);
+		bi.bV4BitCount = (WORD)image->getBitsPerPixel();
+		bi.bV4Planes = 1;
+		bi.bV4Width = image->getDimension().Width;
+		bi.bV4Height = -((s32)image->getDimension().Height);
 		bi.bV4V4Compression = BI_BITFIELDS;
-		bi.bV4AlphaMask     = image->getAlphaMask();
-		bi.bV4RedMask       = image->getRedMask();
-		bi.bV4GreenMask     = image->getGreenMask();
-		bi.bV4BlueMask      = image->getBlueMask();
+		bi.bV4AlphaMask = image->getAlphaMask();
+		bi.bV4RedMask = image->getRedMask();
+		bi.bV4GreenMask = image->getGreenMask();
+		bi.bV4BlueMask = image->getBlueMask();
 
 		if ( src )
 		{
@@ -908,7 +1300,13 @@ void CIrrDeviceWin32::closeDevice()
 	PeekMessage(&msg, NULL, WM_QUIT, WM_QUIT, PM_REMOVE);
 	PostQuitMessage(0);
 	PeekMessage(&msg, NULL, WM_QUIT, WM_QUIT, PM_REMOVE);
-	DestroyWindow(HWnd);
+	if (!ExternalWindow)
+	{
+		DestroyWindow(HWnd);
+		const fschar_t* ClassName = __TEXT("CIrrDeviceWin32");
+		HINSTANCE hInstance = GetModuleHandle(0);
+		UnregisterClass(ClassName, hInstance);
+	}
 	Close=true;
 }
 
@@ -948,18 +1346,23 @@ bool CIrrDeviceWin32::switchToFullScreen(bool reset)
 {
 	if (!CreationParams.Fullscreen)
 		return true;
+
 	if (reset)
 	{
 		if (ChangedToFullScreen)
-			return (ChangeDisplaySettings(NULL,0)==DISP_CHANGE_SUCCESSFUL);
+		{
+			return (ChangeDisplaySettings(&DesktopMode,0)==DISP_CHANGE_SUCCESSFUL);
+		}
 		else
 			return true;
 	}
 
+	// use default values from current setting
+
 	DEVMODE dm;
 	memset(&dm, 0, sizeof(dm));
 	dm.dmSize = sizeof(dm);
-	// use default values from current setting
+
 	EnumDisplaySettings(NULL, ENUM_CURRENT_SETTINGS, &dm);
 	dm.dmPelsWidth = CreationParams.WindowSize.Width;
 	dm.dmPelsHeight = CreationParams.WindowSize.Height;
@@ -1043,34 +1446,34 @@ typedef BOOL (WINAPI *PGPI)(DWORD, DWORD, DWORD, DWORD, PDWORD);
 // depending on the SDK version and compilers some defines might be available
 // or not
 #ifndef PRODUCT_ULTIMATE
-#define PRODUCT_ULTIMATE                            0x00000001
-#define PRODUCT_HOME_BASIC                          0x00000002
-#define PRODUCT_HOME_PREMIUM                        0x00000003
-#define PRODUCT_ENTERPRISE                          0x00000004
-#define PRODUCT_HOME_BASIC_N                        0x00000005
-#define PRODUCT_BUSINESS                            0x00000006
-#define PRODUCT_STARTER                             0x0000000B
+#define PRODUCT_ULTIMATE	0x00000001
+#define PRODUCT_HOME_BASIC	0x00000002
+#define PRODUCT_HOME_PREMIUM	0x00000003
+#define PRODUCT_ENTERPRISE	0x00000004
+#define PRODUCT_HOME_BASIC_N	0x00000005
+#define PRODUCT_BUSINESS	0x00000006
+#define PRODUCT_STARTER		0x0000000B
 #endif
 #ifndef PRODUCT_ULTIMATE_N
-#define PRODUCT_BUSINESS_N                          0x00000010
-#define PRODUCT_HOME_PREMIUM_N                      0x0000001A
-#define PRODUCT_ENTERPRISE_N                        0x0000001B
-#define PRODUCT_ULTIMATE_N                          0x0000001C
+#define PRODUCT_BUSINESS_N	0x00000010
+#define PRODUCT_HOME_PREMIUM_N	0x0000001A
+#define PRODUCT_ENTERPRISE_N	0x0000001B
+#define PRODUCT_ULTIMATE_N	0x0000001C
 #endif
 #ifndef PRODUCT_STARTER_N
-#define PRODUCT_STARTER_N                           0x0000002F
+#define PRODUCT_STARTER_N	0x0000002F
 #endif
 #ifndef PRODUCT_PROFESSIONAL
-#define PRODUCT_PROFESSIONAL                        0x00000030
-#define PRODUCT_PROFESSIONAL_N                      0x00000031
+#define PRODUCT_PROFESSIONAL	0x00000030
+#define PRODUCT_PROFESSIONAL_N	0x00000031
 #endif
 #ifndef PRODUCT_ULTIMATE_E
-#define PRODUCT_STARTER_E                           0x00000042
-#define PRODUCT_HOME_BASIC_E                        0x00000043
-#define PRODUCT_HOME_PREMIUM_E                      0x00000044
-#define PRODUCT_PROFESSIONAL_E                      0x00000045
-#define PRODUCT_ENTERPRISE_E                        0x00000046
-#define PRODUCT_ULTIMATE_E                          0x00000047
+#define PRODUCT_STARTER_E	0x00000042
+#define PRODUCT_HOME_BASIC_E	0x00000043
+#define PRODUCT_HOME_PREMIUM_E	0x00000044
+#define PRODUCT_PROFESSIONAL_E	0x00000045
+#define PRODUCT_ENTERPRISE_E	0x00000046
+#define PRODUCT_ULTIMATE_E	0x00000047
 #endif
 
 void CIrrDeviceWin32::getWindowsVersion(core::stringc& out)
@@ -1218,12 +1621,12 @@ void CIrrDeviceWin32::getWindowsVersion(core::stringc& out)
 			sprintf(tmp, "version %ld.%ld %s (Build %ld)",
 					osvi.dwMajorVersion,
 					osvi.dwMinorVersion,
-					osvi.szCSDVersion,
+					irr::core::stringc(osvi.szCSDVersion).c_str(),
 					osvi.dwBuildNumber & 0xFFFF);
 		}
 		else
 		{
-			sprintf(tmp, "%s (Build %ld)", osvi.szCSDVersion,
+			sprintf(tmp, "%s (Build %ld)", irr::core::stringc(osvi.szCSDVersion).c_str(),
 			osvi.dwBuildNumber & 0xFFFF);
 		}
 
@@ -1231,8 +1634,6 @@ void CIrrDeviceWin32::getWindowsVersion(core::stringc& out)
 		break;
 
 	case VER_PLATFORM_WIN32_WINDOWS:
-
-		IsNonNTWindows = true;
 
 		if (osvi.dwMajorVersion == 4 && osvi.dwMinorVersion == 0)
 		{
@@ -1254,8 +1655,6 @@ void CIrrDeviceWin32::getWindowsVersion(core::stringc& out)
 		break;
 
 	case VER_PLATFORM_WIN32s:
-
-		IsNonNTWindows = true;
 		out.append("Microsoft Win32s ");
 		break;
 	}
@@ -1339,129 +1738,12 @@ void CIrrDeviceWin32::restoreWindow()
 
 bool CIrrDeviceWin32::activateJoysticks(core::array<SJoystickInfo> & joystickInfo)
 {
-#if defined _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
-	joystickInfo.clear();
-	ActiveJoysticks.clear();
-
-	const u32 numberOfJoysticks = ::joyGetNumDevs();
-	JOYINFOEX info;
-	info.dwSize = sizeof(info);
-	info.dwFlags = JOY_RETURNALL;
-
-	JoystickInfo activeJoystick;
-	SJoystickInfo returnInfo;
-
-	joystickInfo.reallocate(numberOfJoysticks);
-	ActiveJoysticks.reallocate(numberOfJoysticks);
-
-	u32 joystick = 0;
-	for(; joystick < numberOfJoysticks; ++joystick)
-	{
-		if(JOYERR_NOERROR == joyGetPosEx(joystick, &info)
-			&&
-			JOYERR_NOERROR == joyGetDevCaps(joystick,
-											&activeJoystick.Caps,
-											sizeof(activeJoystick.Caps)))
-		{
-			activeJoystick.Index = joystick;
-			ActiveJoysticks.push_back(activeJoystick);
-
-			returnInfo.Joystick = (u8)joystick;
-			returnInfo.Axes = activeJoystick.Caps.wNumAxes;
-			returnInfo.Buttons = activeJoystick.Caps.wNumButtons;
-			returnInfo.Name = activeJoystick.Caps.szPname;
-			returnInfo.PovHat = ((activeJoystick.Caps.wCaps & JOYCAPS_HASPOV) == JOYCAPS_HASPOV)
-								? SJoystickInfo::POV_HAT_PRESENT : SJoystickInfo::POV_HAT_ABSENT;
-
-			joystickInfo.push_back(returnInfo);
-		}
-	}
-
-	for(joystick = 0; joystick < joystickInfo.size(); ++joystick)
-	{
-		char logString[256];
-		(void)sprintf(logString, "Found joystick %d, %d axes, %d buttons '%s'",
-			joystick, joystickInfo[joystick].Axes,
-			joystickInfo[joystick].Buttons, joystickInfo[joystick].Name.c_str());
-		os::Printer::log(logString, ELL_INFORMATION);
-	}
-
-	return true;
-#else
-	return false;
-#endif // _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
+	if (JoyControl)
+		return JoyControl->activateJoysticks(joystickInfo);
+	else
+		return false;
 }
 
-void CIrrDeviceWin32::pollJoysticks()
-{
-#if defined _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
-	if(0 == ActiveJoysticks.size())
-		return;
-
-	u32 joystick;
-	JOYINFOEX info;
-
-	for(joystick = 0; joystick < ActiveJoysticks.size(); ++joystick)
-	{
-		// needs to be reset for each joystick
-		// request ALL values and POV as continuous if possible
-		info.dwSize = sizeof(info);
-		info.dwFlags = JOY_RETURNALL|JOY_RETURNPOVCTS;
-		const JOYCAPS & caps = ActiveJoysticks[joystick].Caps;
-		// if no POV is available don't ask for POV values
-		if (!(caps.wCaps & JOYCAPS_HASPOV))
-			info.dwFlags &= ~(JOY_RETURNPOV|JOY_RETURNPOVCTS);
-		if(JOYERR_NOERROR == joyGetPosEx(ActiveJoysticks[joystick].Index, &info))
-		{
-			SEvent event;
-
-			event.EventType = irr::EET_JOYSTICK_INPUT_EVENT;
-			event.JoystickEvent.Joystick = (u8)joystick;
-
-			event.JoystickEvent.POV = (u16)info.dwPOV;
-			// set to undefined if no POV value was returned or the value
-			// is out of range
-			if (!(info.dwFlags & JOY_RETURNPOV) || (event.JoystickEvent.POV > 35900))
-				event.JoystickEvent.POV = 65535;
-
-			for(int axis = 0; axis < SEvent::SJoystickEvent::NUMBER_OF_AXES; ++axis)
-				event.JoystickEvent.Axis[axis] = 0;
-
-			switch(caps.wNumAxes)
-			{
-			default:
-			case 6:
-				event.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_V] =
-					(s16)((65535 * (info.dwVpos - caps.wVmin)) / (caps.wVmax - caps.wVmin) - 32768);
-
-			case 5:
-				event.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_U] =
-					(s16)((65535 * (info.dwUpos - caps.wUmin)) / (caps.wUmax - caps.wUmin) - 32768);
-
-			case 4:
-				event.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_R] =
-					(s16)((65535 * (info.dwRpos - caps.wRmin)) / (caps.wRmax - caps.wRmin) - 32768);
-
-			case 3:
-				event.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_Z] =
-					(s16)((65535 * (info.dwZpos - caps.wZmin)) / (caps.wZmax - caps.wZmin) - 32768);
-
-			case 2:
-				event.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_Y] =
-					(s16)((65535 * (info.dwYpos - caps.wYmin)) / (caps.wYmax - caps.wYmin) - 32768);
-
-			case 1:
-				event.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_X] =
-					(s16)((65535 * (info.dwXpos - caps.wXmin)) / (caps.wXmax - caps.wXmin) - 32768);
-			}
-
-			event.JoystickEvent.ButtonStates = info.dwButtons;
-
-			(void)postEventFromUser(event);
-		}
-	}
-#endif // _IRR_COMPILE_WITH_JOYSTICK_EVENTS_
-}
 
 //! Set the current Gamma Value for the Display
 bool CIrrDeviceWin32::setGammaRamp( f32 red, f32 green, f32 blue, f32 brightness, f32 contrast )
@@ -1503,6 +1785,28 @@ bool CIrrDeviceWin32::getGammaRamp( f32 &red, f32 &green, f32 &blue, f32 &bright
 
 }
 
+
+//! Process system events
+void CIrrDeviceWin32::handleSystemMessages()
+{
+	MSG msg;
+
+	while (PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
+	{
+		// No message translation because we don't use WM_CHAR and it would conflict with our
+		// deadkey handling.
+
+		if (ExternalWindow && msg.hwnd == HWnd)
+			WndProc(HWnd, msg.message, msg.wParam, msg.lParam);
+		else
+			DispatchMessage(&msg);
+
+		if (msg.message == WM_QUIT)
+			Close = true;
+	}
+}
+
+
 //! Remove all messages pending in the system message loop
 void CIrrDeviceWin32::clearSystemMessages()
 {
@@ -1518,7 +1822,7 @@ void CIrrDeviceWin32::ReportLastWinApiError()
 {
 	// (based on code from ovidiucucu from http://www.codeguru.com/forum/showthread.php?t=318721)
 	LPCTSTR pszCaption = __TEXT("Windows SDK Error Report");
-	DWORD dwError      = GetLastError();
+	DWORD dwError = GetLastError();
 
 	if(NOERROR == dwError)
 	{
@@ -1549,6 +1853,215 @@ void CIrrDeviceWin32::ReportLastWinApiError()
 		}
 	}
 }
+
+// Convert an Irrlicht texture to a Windows cursor
+// Based on http://www.codeguru.com/cpp/w-p/win32/cursors/article.php/c4529/
+HCURSOR CIrrDeviceWin32::TextureToCursor(HWND hwnd, irr::video::ITexture * tex, const core::rect<s32>& sourceRect, const core::position2d<s32> &hotspot)
+{
+	//
+	// create the bitmaps needed for cursors from the texture
+
+	HDC dc = GetDC(hwnd);
+	HDC andDc = CreateCompatibleDC(dc);
+	HDC xorDc = CreateCompatibleDC(dc);
+	HBITMAP andBitmap = CreateCompatibleBitmap(dc, sourceRect.getWidth(), sourceRect.getHeight());
+	HBITMAP xorBitmap = CreateCompatibleBitmap(dc, sourceRect.getWidth(), sourceRect.getHeight());
+
+	HBITMAP oldAndBitmap = (HBITMAP)SelectObject(andDc, andBitmap);
+	HBITMAP oldXorBitmap = (HBITMAP)SelectObject(xorDc, xorBitmap);
+
+
+	video::ECOLOR_FORMAT format = tex->getColorFormat();
+	u32 bytesPerPixel = video::IImage::getBitsPerPixelFromFormat(format) / 8;
+	u32 bytesLeftGap = sourceRect.UpperLeftCorner.X * bytesPerPixel;
+	u32 bytesRightGap = tex->getPitch() - sourceRect.LowerRightCorner.X * bytesPerPixel;
+	const u8* data = (const u8*)tex->lock(video::ETLM_READ_ONLY, 0);
+	data += sourceRect.UpperLeftCorner.Y*tex->getPitch();
+	for ( s32 y = 0; y < sourceRect.getHeight(); ++y )
+	{
+		data += bytesLeftGap;
+		for ( s32 x = 0; x < sourceRect.getWidth(); ++x )
+		{
+			video::SColor pixelCol;
+			pixelCol.setData((const void*)data, format);
+			data += bytesPerPixel;
+
+			if ( pixelCol.getAlpha() == 0 )	// transparent
+			{
+				SetPixel(andDc, x, y, RGB(255,255,255));
+				SetPixel(xorDc, x, y, RGB(0,0,0));
+			}
+			else	// color
+			{
+				SetPixel(andDc, x, y, RGB(0,0,0));
+				SetPixel(xorDc, x, y, RGB(pixelCol.getRed(), pixelCol.getGreen(), pixelCol.getBlue()));
+			}
+		}
+		data += bytesRightGap;
+	}
+	tex->unlock();
+
+	SelectObject(andDc, oldAndBitmap);
+	SelectObject(xorDc, oldXorBitmap);
+
+	DeleteDC(xorDc);
+	DeleteDC(andDc);
+
+	ReleaseDC(hwnd, dc);
+
+	// create the cursor
+
+	ICONINFO iconinfo;
+	iconinfo.fIcon = false;	// type is cursor not icon
+	iconinfo.xHotspot = hotspot.X;
+	iconinfo.yHotspot = hotspot.Y;
+	iconinfo.hbmMask = andBitmap;
+	iconinfo.hbmColor = xorBitmap;
+
+	HCURSOR cursor = CreateIconIndirect(&iconinfo);
+
+	DeleteObject(andBitmap);
+	DeleteObject(xorBitmap);
+
+	return cursor;
+}
+
+
+CIrrDeviceWin32::CCursorControl::CCursorControl(CIrrDeviceWin32* device, const core::dimension2d<u32>& wsize, HWND hwnd, bool fullscreen)
+	: Device(device), WindowSize(wsize), InvWindowSize(0.0f, 0.0f),
+		HWnd(hwnd), BorderX(0), BorderY(0),
+		UseReferenceRect(false), IsVisible(true)
+		, ActiveIcon(gui::ECI_NORMAL), ActiveIconStartTime(0)
+{
+	if (WindowSize.Width!=0)
+		InvWindowSize.Width = 1.0f / WindowSize.Width;
+
+	if (WindowSize.Height!=0)
+		InvWindowSize.Height = 1.0f / WindowSize.Height;
+
+	updateBorderSize(fullscreen, false);
+	initCursors();
+}
+
+CIrrDeviceWin32::CCursorControl::~CCursorControl()
+{
+	for ( u32 i=0; i < Cursors.size(); ++i )
+	{
+		for ( u32 f=0; f < Cursors[i].Frames.size(); ++f )
+		{
+			DestroyCursor(Cursors[i].Frames[f].IconHW);
+		}
+	}
+}
+
+
+void CIrrDeviceWin32::CCursorControl::initCursors()
+{
+	Cursors.push_back( CursorW32(LoadCursor(NULL, IDC_ARROW)) );
+	Cursors.push_back( CursorW32(LoadCursor(NULL, IDC_CROSS)) );
+	Cursors.push_back( CursorW32(LoadCursor(NULL, IDC_HAND)) );
+	Cursors.push_back( CursorW32(LoadCursor(NULL, IDC_HELP)) );
+	Cursors.push_back( CursorW32(LoadCursor(NULL, IDC_IBEAM)) );
+	Cursors.push_back( CursorW32(LoadCursor(NULL, IDC_NO)) );
+	Cursors.push_back( CursorW32(LoadCursor(NULL, IDC_WAIT)) );
+	Cursors.push_back( CursorW32(LoadCursor(NULL, IDC_SIZEALL)) );
+	Cursors.push_back( CursorW32(LoadCursor(NULL, IDC_SIZENESW)) );
+	Cursors.push_back( CursorW32(LoadCursor(NULL, IDC_SIZENWSE)) );
+	Cursors.push_back( CursorW32(LoadCursor(NULL, IDC_SIZENS)) );
+	Cursors.push_back( CursorW32(LoadCursor(NULL, IDC_SIZEWE)) );
+	Cursors.push_back( CursorW32(LoadCursor(NULL, IDC_UPARROW)) );
+}
+
+
+void CIrrDeviceWin32::CCursorControl::update()
+{
+	if ( !Cursors[ActiveIcon].Frames.empty() && Cursors[ActiveIcon].FrameTime )
+	{
+		// update animated cursors. This could also be done by X11 in case someone wants to figure that out (this way was just easier to implement)
+		u32 now = Device->getTimer()->getRealTime();
+		u32 frame = ((now - ActiveIconStartTime) / Cursors[ActiveIcon].FrameTime) % Cursors[ActiveIcon].Frames.size();
+		SetCursor( Cursors[ActiveIcon].Frames[frame].IconHW );
+	}
+}
+
+//! Sets the active cursor icon
+void CIrrDeviceWin32::CCursorControl::setActiveIcon(gui::ECURSOR_ICON iconId)
+{
+	if ( iconId >= (s32)Cursors.size() )
+		return;
+
+	ActiveIcon = iconId;
+	ActiveIconStartTime = Device->getTimer()->getRealTime();
+	if ( Cursors[ActiveIcon].Frames.size() )
+		SetCursor( Cursors[ActiveIcon].Frames[0].IconHW );
+}
+
+
+//! Add a custom sprite as cursor icon.
+gui::ECURSOR_ICON CIrrDeviceWin32::CCursorControl::addIcon(const gui::SCursorSprite& icon)
+{
+	if ( icon.SpriteId >= 0 )
+	{
+		CursorW32 cW32;
+		cW32.FrameTime = icon.SpriteBank->getSprites()[icon.SpriteId].frameTime;
+
+		for ( u32 i=0; i < icon.SpriteBank->getSprites()[icon.SpriteId].Frames.size(); ++i )
+		{
+			irr::u32 texId = icon.SpriteBank->getSprites()[icon.SpriteId].Frames[i].textureNumber;
+			irr::u32 rectId = icon.SpriteBank->getSprites()[icon.SpriteId].Frames[i].rectNumber;
+			irr::core::rect<s32> rectIcon = icon.SpriteBank->getPositions()[rectId];
+
+			HCURSOR hc = Device->TextureToCursor(HWnd, icon.SpriteBank->getTexture(texId), rectIcon, icon.HotSpot);
+			cW32.Frames.push_back( CursorFrameW32(hc) );
+		}
+
+		Cursors.push_back( cW32 );
+		return (gui::ECURSOR_ICON)(Cursors.size() - 1);
+	}
+	return gui::ECI_NORMAL;
+}
+
+
+//! replace the given cursor icon.
+void CIrrDeviceWin32::CCursorControl::changeIcon(gui::ECURSOR_ICON iconId, const gui::SCursorSprite& icon)
+{
+	if ( iconId >= (s32)Cursors.size() )
+		return;
+
+	for ( u32 i=0; i < Cursors[iconId].Frames.size(); ++i )
+		DestroyCursor(Cursors[iconId].Frames[i].IconHW);
+
+	if ( icon.SpriteId >= 0 )
+	{
+		CursorW32 cW32;
+		cW32.FrameTime = icon.SpriteBank->getSprites()[icon.SpriteId].frameTime;
+		for ( u32 i=0; i < icon.SpriteBank->getSprites()[icon.SpriteId].Frames.size(); ++i )
+		{
+			irr::u32 texId = icon.SpriteBank->getSprites()[icon.SpriteId].Frames[i].textureNumber;
+			irr::u32 rectId = icon.SpriteBank->getSprites()[icon.SpriteId].Frames[i].rectNumber;
+			irr::core::rect<s32> rectIcon = icon.SpriteBank->getPositions()[rectId];
+
+			HCURSOR hc = Device->TextureToCursor(HWnd, icon.SpriteBank->getTexture(texId), rectIcon, icon.HotSpot);
+			cW32.Frames.push_back( CursorFrameW32(hc) );
+		}
+
+		Cursors[iconId] = cW32;
+	}
+}
+
+
+//! Return a system-specific size which is supported for cursors. Larger icons will fail, smaller icons might work.
+core::dimension2di CIrrDeviceWin32::CCursorControl::getSupportedIconSize() const
+{
+	core::dimension2di result;
+
+	result.Width = GetSystemMetrics(SM_CXCURSOR);
+	result.Height = GetSystemMetrics(SM_CYCURSOR);
+
+	return result;
+}
+
+
 
 } // end namespace
 

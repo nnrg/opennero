@@ -1,4 +1,4 @@
-// Copyright (C) 2008-2009 Colin MacDonald
+// Copyright (C) 2008-2012 Colin MacDonald
 // No rights reserved: this software is in the public domain.
 
 #include "testUtils.h"
@@ -6,8 +6,6 @@
 using namespace irr;
 using namespace core;
 using namespace scene;
-
-
 
 //! Tests the basic functionality of the software device.
 bool softwareDevice(void)
@@ -50,9 +48,9 @@ bool softwareDevice(void)
 
 	bool result = takeScreenshotAndCompareAgainstReference(driver, "-softwareDevice-rotatedClip.png");
 
+	device->closeDevice();
+	device->run();
 	device->drop();
 
 	return result;
 }
-
-

@@ -9,19 +9,20 @@ Features:
 	- Adjust GammaLevel at runtime
 	- Create SceneNodes for the Shaders
 	- Load EntityList and create Entity SceneNodes
-	- Create Players with Weapons and with Collison Respsone
+	- Create Players with Weapons and with Collision Response
 	- Play music
 
 You can download the Quake III Arena demo ( copyright id software )
 at the following location:
 ftp://ftp.idsoftware.com/idstuff/quake3/win32/q3ademo.exe
 
-This file is copyright 2006-2010 Burningwater, Thomas Alten
+Copyright 2006-2011 Burningwater, Thomas Alten
 */
 
+#include "driverChoice.h"
+#include <irrlicht.h>
 #include "q3factory.h"
 #include "sound.h"
-#include "driverChoice.h"
 
 /*
 	Game Data is used to hold Data which is needed to drive the game
@@ -582,13 +583,12 @@ CQuake3EventHandler::~CQuake3EventHandler ()
 
 
 // create runtime textures smog, fog
-void CQuake3EventHandler::createTextures ()
+void CQuake3EventHandler::createTextures()
 {
 	IVideoDriver * driver = Game->Device->getVideoDriver();
 
-	dimension2du dim ( 64, 64 );
+	dimension2du dim(64, 64);
 
-	video::ITexture* texture;
 	video::IImage* image;
 	u32 i;
 	u32 x;
@@ -608,7 +608,7 @@ void CQuake3EventHandler::createTextures ()
 		}
 		image->unlock();
 		snprintf ( buf, 64, "smoke_%02d", i );
-		texture = driver->addTexture( buf, image );
+		driver->addTexture( buf, image );
 		image->drop ();
 	}
 
@@ -627,10 +627,9 @@ void CQuake3EventHandler::createTextures ()
 		}
 		image->unlock();
 		snprintf ( buf, 64, "fog_%02d", i );
-		texture = driver->addTexture( buf, image );
+		driver->addTexture( buf, image );
 		image->drop ();
 	}
-
 }
 
 
@@ -652,6 +651,8 @@ void CQuake3EventHandler::CreateGUI()
 	env->getSkin()->setColor ( EGDC_BUTTON_TEXT, video::SColor(240,0xAA,0xAA,0xAA) );
 	env->getSkin()->setColor ( EGDC_3D_HIGH_LIGHT, video::SColor(240,0x22,0x22,0x22) );
 	env->getSkin()->setColor ( EGDC_3D_FACE, video::SColor(240,0x44,0x44,0x44) );
+	env->getSkin()->setColor ( EGDC_EDITABLE, video::SColor(240,0x44,0x44,0x44) );
+	env->getSkin()->setColor ( EGDC_FOCUSED_EDITABLE, video::SColor(240,0x54,0x54,0x54) );
 	env->getSkin()->setColor ( EGDC_WINDOW, video::SColor(240,0x66,0x66,0x66) );
 
 	// minimal gui size 800x600
@@ -805,7 +806,7 @@ void CQuake3EventHandler::CreateGUI()
 	gui.SceneTree = env->addTreeView(	rect<s32>( dim.Width - 400, dim.Height - 380, dim.Width - 5, dim.Height - 40 ),
 									gui.Window, -1, true, true, false );
 	gui.SceneTree->setToolTipText ( L"Show the current Scenegraph" );
-	gui.SceneTree->getRoot()->clearChilds();
+	gui.SceneTree->getRoot()->clearChildren();
 	addSceneTreeItem ( Game->Device->getSceneManager()->getRootSceneNode(), gui.SceneTree->getRoot() );
 
 
@@ -828,7 +829,7 @@ void CQuake3EventHandler::CreateGUI()
 
 
 /*
-	Add an Archive to the FileSystems und updates the GUI
+	Add an Archive to the FileSystems and updates the GUI
 */
 void CQuake3EventHandler::AddArchive ( const path& archiveName )
 {
@@ -1288,7 +1289,7 @@ void CQuake3EventHandler::SetGUIActive( s32 command)
 			gui.SceneTree && Game->Device->getGUIEnvironment()->getFocus() != gui.SceneTree
 		)
 	{
-		gui.SceneTree->getRoot()->clearChilds();
+		gui.SceneTree->getRoot()->clearChildren();
 		addSceneTreeItem ( Game->Device->getSceneManager()->getRootSceneNode(), gui.SceneTree->getRoot() );
 	}
 
@@ -1733,7 +1734,7 @@ void CQuake3EventHandler::useItem( Q3Player * player)
 	line3d<f32> line(start, end);
 
 	// get intersection point with map
-	const scene::ISceneNode* hitNode;
+	scene::ISceneNode* hitNode;
 	if (smgr->getSceneCollisionManager()->getCollisionPoint(
 		line, Meta, end, triangle,hitNode))
 	{
@@ -1886,7 +1887,7 @@ void CQuake3EventHandler::createParticleImpacts( u32 now )
 
 			pas->setMaterialFlag(video::EMF_LIGHTING, false);
 			pas->setMaterialFlag(video::EMF_ZWRITE_ENABLE, false);
-			pas->setMaterialType(video::EMT_TRANSPARENT_VERTEX_ALPHA );
+			pas->setMaterialType(video::EMT_TRANSPARENT_ADD_COLOR );
 			pas->setMaterialTexture(0, Game->Device->getVideoDriver()->getTexture( smoke[g].texture ));
 		}
 

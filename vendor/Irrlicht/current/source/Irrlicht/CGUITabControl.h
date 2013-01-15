@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -97,6 +97,15 @@ namespace gui
 		//! Adds a tab that has already been created
 		virtual void addTab(CGUITab* tab);
 
+		//! Insert the tab at the given index
+		virtual IGUITab* insertTab(s32 idx, const wchar_t* caption, s32 id=-1);
+
+		//! Removes a tab from the tabcontrol
+		virtual void removeTab(s32 idx);
+
+		//! Clears the tabcontrol removing all tabs
+		virtual void clear();
+
 		//! Returns amount of tabs in the tabcontrol
 		virtual s32 getTabCount() const;
 
@@ -107,10 +116,13 @@ namespace gui
 		virtual bool setActiveTab(s32 idx);
 
 		//! Brings a tab to front.
-		virtual bool setActiveTab(IGUIElement *tab);
+		virtual bool setActiveTab(IGUITab *tab);
 
 		//! Returns which tab is currently active
 		virtual s32 getActiveTab() const;
+
+		//! get the the id of the tab at the given absolute coordinates
+		virtual s32 getTabAt(s32 xpos, s32 ypos) const;
 
 		//! called if an event happened.
 		virtual bool OnEvent(const SEvent& event);
@@ -156,17 +168,17 @@ namespace gui
 
 	private:
 
-		bool selectTab(core::position2d<s32> p);
 		void scrollLeft();
 		void scrollRight();
 		bool needScrollControl( s32 startIndex=0, bool withScrollControl=false );
-		s32 calcTabWidth(s32 pos, IGUIFont* font, const wchar_t* text, bool withScrollControl );
+		s32 calcTabWidth(s32 pos, IGUIFont* font, const wchar_t* text, bool withScrollControl ) const;
 		core::rect<s32> calcTabPos();
 
 		void recalculateScrollButtonPlacement();
 		void recalculateScrollBar();
+		void refreshSprites();
 
-		core::array<CGUITab*> Tabs;
+		core::array<CGUITab*> Tabs;	// CGUITab* because we need setNumber (which is certainly not nice)
 		s32 ActiveTab;
 		bool Border;
 		bool FillBackground;

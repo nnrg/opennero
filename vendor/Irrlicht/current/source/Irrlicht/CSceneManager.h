@@ -1,4 +1,4 @@
-// Copyright (C) 2002-2010 Nikolaus Gebhardt
+// Copyright (C) 2002-2012 Nikolaus Gebhardt
 // This file is part of the "Irrlicht Engine".
 // For conditions of distribution and use, see copyright notice in irrlicht.h
 
@@ -139,9 +139,9 @@ namespace scene
 		//! Adds a camera scene node which is able to be controlle with the mouse similar
 		//! like in the 3D Software Maya by Alias Wavefront.
 		//! The returned pointer must not be dropped.
-		virtual ICameraSceneNode* addCameraSceneNodeMaya(ISceneNode* parent = 0,
-			f32 rotateSpeed = -1500.0f, f32 zoomSpeed = 200.0f,
-			f32 translationSpeed = 1500.0f, s32 id=-1,
+		virtual ICameraSceneNode* addCameraSceneNodeMaya(ISceneNode* parent=0,
+			f32 rotateSpeed=-1500.f, f32 zoomSpeed=200.f,
+			f32 translationSpeed=1500.f, s32 id=-1, f32 distance=70.f,
 			bool makeActive=true);
 
 		//! Adds a camera scene node which is able to be controled with the mouse and keys
@@ -216,8 +216,9 @@ namespace scene
 
 		//! Adds a terrain mesh to the mesh pool.
 		virtual IAnimatedMesh* addTerrainMesh(const io::path& meshname,	video::IImage* texture, video::IImage* heightmap,
-			const core::dimension2d<f32>& stretchSize,
-			f32 maxHeight, const core::dimension2d<u32>& defaultVertexBlockSize);
+			const core::dimension2d<f32>& stretchSize = core::dimension2d<f32>(10.0f,10.0f),
+			f32 maxHeight=200.0f,
+			const core::dimension2d<u32>& defaultVertexBlockSize = core::dimension2d<u32>(64,64));
 
 		//! Add a arrow mesh to the mesh pool
 		virtual IAnimatedMesh* addArrowMesh(const io::path& name,
@@ -370,6 +371,21 @@ namespace scene
 		//! Adds an external mesh loader.
 		virtual void addExternalMeshLoader(IMeshLoader* externalLoader);
 
+		//! Returns the number of mesh loaders supported by Irrlicht at this time
+		virtual u32 getMeshLoaderCount() const;
+
+		//! Retrieve the given mesh loader
+		virtual IMeshLoader* getMeshLoader(u32 index) const;
+
+		//! Adds an external scene loader.
+		virtual void addExternalSceneLoader(ISceneLoader* externalLoader);
+
+		//! Returns the number of scene loaders supported by Irrlicht at this time
+		virtual u32 getSceneLoaderCount() const;
+
+		//! Retrieve the given scene loader
+		virtual ISceneLoader* getSceneLoader(u32 index) const;
+
 		//! Returns a pointer to the scene collision manager.
 		virtual ISceneCollisionManager* getSceneCollisionManager();
 
@@ -417,7 +433,7 @@ namespace scene
 		virtual ISceneManager* createNewSceneManager(bool cloneContent);
 
 		//! Returns type of the scene node
-		virtual ESCENE_NODE_TYPE getType() const { return ESNT_UNKNOWN; }
+		virtual ESCENE_NODE_TYPE getType() const { return ESNT_SCENE_MANAGER; }
 
 		//! Returns the default scene node factory which can create all built in scene nodes
 		virtual ISceneNodeFactory* getDefaultSceneNodeFactory();
@@ -442,6 +458,9 @@ namespace scene
 		//! Adds a scene node to the scene by name
 		virtual ISceneNode* addSceneNode(const char* sceneNodeTypeName, ISceneNode* parent=0);
 
+		//! creates a scene node animator based on its type name
+		virtual ISceneNodeAnimator* createSceneNodeAnimator(const char* typeName, ISceneNode* target=0);
+
 		//! Returns the default scene node animator factory which can create all built-in scene node animators
 		virtual ISceneNodeAnimatorFactory* getDefaultSceneNodeAnimatorFactory();
 
@@ -455,18 +474,19 @@ namespace scene
 		virtual ISceneNodeAnimatorFactory* getSceneNodeAnimatorFactory(u32 index);
 
 		//! Saves the current scene into a file.
-		//! \param filename: Name of the file .
-		virtual bool saveScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer=0);
+		virtual bool saveScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer=0, ISceneNode* node=0);
 
 		//! Saves the current scene into a file.
-		virtual bool saveScene(io::IWriteFile* file, ISceneUserDataSerializer* userDataSerializer=0);
+		virtual bool saveScene(io::IWriteFile* file, ISceneUserDataSerializer* userDataSerializer=0, ISceneNode* node=0);
+
+		//! Saves the current scene into a file.
+		virtual bool saveScene(io::IXMLWriter* writer, const io::path& currentPath, ISceneUserDataSerializer* userDataSerializer=0, ISceneNode* node=0);
 
 		//! Loads a scene. Note that the current scene is not cleared before.
-		//! \param filename: Name of the file .
-		virtual bool loadScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer=0);
+		virtual bool loadScene(const io::path& filename, ISceneUserDataSerializer* userDataSerializer=0, ISceneNode* rootNode=0);
 
 		//! Loads a scene. Note that the current scene is not cleared before.
-		virtual bool loadScene(io::IReadFile* file, ISceneUserDataSerializer* userDataSerializer=0);
+		virtual bool loadScene(io::IReadFile* file, ISceneUserDataSerializer* userDataSerializer=0, ISceneNode* rootNode=0);
 
 		//! Writes attributes of the scene node.
 		virtual void serializeAttributes(io::IAttributes* out, io::SAttributeReadWriteOptions* options=0) const;
@@ -489,6 +509,12 @@ namespace scene
 		//! Register a custom callbacks manager which gets callbacks during scene rendering.
 		virtual void setLightManager(ILightManager* lightManager);
 
+		//! Get current render time.
+		virtual E_SCENE_NODE_RENDER_PASS getCurrentRendertime() const { return CurrentRendertime; }
+
+		//! Set current render time.
+		virtual void setCurrentRendertime(E_SCENE_NODE_RENDER_PASS currentRendertime) { CurrentRendertime = currentRendertime; }
+
 		//! Get an instance of a geometry creator.
 		virtual const IGeometryCreator* getGeometryCreator(void) const { return GeometryCreator; }
 
@@ -501,19 +527,7 @@ namespace scene
 		void clearDeletionList();
 
 		//! writes a scene node
-		void writeSceneNode(io::IXMLWriter* writer, ISceneNode* node, ISceneUserDataSerializer* userDataSerializer);
-
-		//! reads a scene node
-		void readSceneNode(io::IXMLReader* reader, ISceneNode* parent, ISceneUserDataSerializer* userDataSerializer);
-
-		//! read materials
-		void readMaterials(io::IXMLReader* reader, ISceneNode* node);
-
-		//! reads animators of a node
-		void readAnimators(io::IXMLReader* reader, ISceneNode* node);
-
-		//! reads user data of a node
-		void readUserData(io::IXMLReader* reader, ISceneNode* node, ISceneUserDataSerializer* userDataSerializer);
+		void writeSceneNode(io::IXMLWriter* writer, ISceneNode* node, ISceneUserDataSerializer* userDataSerializer, const fschar_t* currentPath=0, bool init=false);
 
 		struct DefaultNodeEntry
 		{
@@ -596,7 +610,7 @@ namespace scene
 
 		//! render pass lists
 		core::array<ISceneNode*> CameraList;
-		core::array<ILightSceneNode*> LightList;
+		core::array<ISceneNode*> LightList;
 		core::array<ISceneNode*> ShadowNodeList;
 		core::array<ISceneNode*> SkyBoxList;
 		core::array<DefaultNodeEntry> SolidNodeList;
@@ -604,6 +618,7 @@ namespace scene
 		core::array<TransparentNodeEntry> TransparentEffectNodeList;
 
 		core::array<IMeshLoader*> MeshLoaderList;
+		core::array<ISceneLoader*> SceneLoaderList;
 		core::array<ISceneNode*> DeletionList;
 		core::array<ISceneNodeFactory*> SceneNodeFactoryList;
 		core::array<ISceneNodeAnimatorFactory*> SceneNodeAnimatorFactoryList;
