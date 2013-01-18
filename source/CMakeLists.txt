@@ -33,6 +33,10 @@ IF (NOT Boost_FOUND)
   MESSAGE(FATAL_ERROR "Boost libraries were not found, please install from http://www.boost.org/")
 ELSE (NOT Boost_FOUND)
   # show the boost libraries that were found
+  # workaround for extra keywords showing up in Boost_LIBRARIES
+  # see http://public.kitware.com/Bug/view.php?id=12887
+  LIST(REMOVE_ITEM Boost_LIBRARIES "optimized")
+  LIST(REMOVE_ITEM Boost_LIBRARIES "debug")
   foreach(arg ${Boost_LIBRARIES})
     MESSAGE(STATUS "Boost library: ${arg}")
   endforeach(arg ${Boost_LIBRARIES})
