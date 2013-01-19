@@ -84,8 +84,6 @@ namespace OpenNero
 
         LOG_MSG( "Killing OpenNero" );
 
-        irrDevice->drop();
-
     #if NERO_DEBUG
         OpenNero::AssertExt::ReleaseDevice();
     #endif
