@@ -1,0 +1,16 @@
+<Template>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <AniMesh>data/shapes/steve/steve_blue_armed.md2</AniMesh>
+    <CastsShadow>false</CastsShadow>
+    <Texture0>data/shapes/steve/steve_blue.jpg</Texture0>
+    <Scale>0.4 0.4 0.4</Scale>
+    <DrawLabel>true</DrawLabel>
+    <DrawBoundingBox>false</DrawBoundingBox>
+    <Collision>1</Collision>
+  </Render>
+  <AI>
+    <Python agent="NERO.agent.RTNEATAgent()" />
+  </AI>
+</Template>

@@ -1,0 +1,11 @@
+T2 Version 1.41 export info file
+Information for exported file build\maze\data\terrain\island.obj
+Created at 5:7:7 on 13/1/2008 
+
+Saved one mesh with 128 by 128 vertices (16384 total)
+Saved a texture for output, lightmap and blended
+
+Stats:
+World extends from x: -500 z: -500 to x: 500 z: 500
+Minimum height: 0.000000 maximum height: 254.880005
+

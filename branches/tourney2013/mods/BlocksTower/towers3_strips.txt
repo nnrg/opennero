@@ -1,0 +1,8 @@
+Initial state: On(Disk1, Disk2), On(Disk2, Disk3), On(Disk3, Pole1), Clear(Disk1), Clear(Pole2), Clear(Pole3), Smaller(Disk1, Disk2), Smaller(Disk1, Disk3), Smaller(Disk1,Pole1), Smaller(Disk1,Pole2), Smaller(Disk1, Pole3), Smaller(Disk2, Disk3), Smaller(Disk2, Pole1), Smaller(Disk2, Pole2), Smaller(Disk2, Pole3), Smaller(Disk3, Pole1), Smaller(Disk3, Pole2), Smaller(Disk3, Pole3)
+Goal state: On(Disk1, Disk2), On(Disk2, Disk3), On(Disk3, Pole3)
+
+Actions:
+               // Move a disk from source to dest
+               Move(Disk, Source, Dest)
+               Preconditions: Clear(Disk), On(Disk, Source), Clear(Dest), Smaller(Disk, Dest)
+               Postconditions: On(Disk, Dest), !On(Disk, Source), !Clear(Dest), Clear(Source)
