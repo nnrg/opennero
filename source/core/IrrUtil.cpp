@@ -35,4 +35,59 @@ namespace OpenNero
         return ConvertIrrlichtQuaternionToNeroRotation(qSlerp);
     }
     
+    IrrHandles::IrrHandles(IrrlichtDevice_IPtr device)
+    : mpIrrDevice(device)
+    , mpVideoDriver()
+    , mpSceneManager()
+    , mpGuiEnv()
+    {
+        Assert(mpIrrDevice);
+        mpVideoDriver = device->getVideoDriver();
+        Assert(mpVideoDriver);
+        mpSceneManager = device->getSceneManager()->createNewSceneManager();
+        Assert(mpSceneManager);
+        mpGuiEnv = device->getGUIEnvironment();
+        Assert(mpGuiEnv);
+    }
+    
+    irr::IrrlichtDevice* IrrHandles::getDevice()
+    {
+        return mpIrrDevice.get();
+    }
+    
+    const irr::IrrlichtDevice* IrrHandles::getDevice() const
+    {
+        return mpIrrDevice.get();
+    }
+    
+    irr::video::IVideoDriver* IrrHandles::getVideoDriver()
+    {
+        return mpVideoDriver.get();
+    }
+    
+    const irr::video::IVideoDriver* IrrHandles::getVideoDriver() const
+    {
+        return mpVideoDriver.get();
+    }
+    
+    irr::scene::ISceneManager* IrrHandles::getSceneManager()
+    {
+        return mpSceneManager.get();
+    }
+    
+    const irr::scene::ISceneManager* IrrHandles::getSceneManager() const
+    {
+        return mpSceneManager.get();
+    }
+    
+    irr::gui::IGUIEnvironment* IrrHandles::getGuiEnv() 
+    {
+        return mpGuiEnv.get();
+    }
+    
+    const irr::gui::IGUIEnvironment* IrrHandles::getGuiEnv() const
+    {
+        return mpGuiEnv.get();
+    }
+
 } // end OpenNero

@@ -73,13 +73,15 @@ namespace OpenNero
 			{
 #if NERO_DEBUG
 				dump(msg);
+                flush();
 #endif
 			}
 
             /// log a message
             void LogMsg( const char* msg )
             {
-                dump(msg);                
+                dump(msg);
+                flush();
             }
 
             /// log a warning
@@ -122,7 +124,7 @@ namespace OpenNero
             ContainerStreamConnection( const std::string connectionName )
                 : StreamLogConnection<S>(connectionName)
             {
-                setStreamPtr( &mStream );
+                this->setStreamPtr( &mStream );
             }
 
             /// pure virtual destructor to make this class abstract

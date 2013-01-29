@@ -18,18 +18,16 @@ namespace OpenNero
      * @param moveSpeed how fast the camera will translate
      * @param zoomSpeed how fast the camera will zoom
     */
-    Camera::Camera( const IrrHandles& handles, float32_t rotateSpeed, float32_t moveSpeed, float32_t zoomSpeed ) : 
+    Camera::Camera( IrrHandles& handles, float32_t rotateSpeed, float32_t moveSpeed, float32_t zoomSpeed ) : 
         mIrr(handles),
         mRotateSpeed(rotateSpeed),
         mMoveSpeed(moveSpeed),
         mZoomSpeed(zoomSpeed),
-        mCamera()        
+        mCamera()
     {
-        Assert( handles.mpSceneManager ); 
-
         // create our functionality cameras
-        mFuncCameras[ kFunc_Maya ] = ICameraSceneNode_IPtr( handles.mpSceneManager->addCameraSceneNodeMaya( 0, rotateSpeed, zoomSpeed, moveSpeed ) );
-        mFuncCameras[ kFunc_Nero ] = ICameraSceneNode_IPtr( handles.mpSceneManager->addCameraSceneNodeNero( 0, false, 0.05f, rotateSpeed, moveSpeed, zoomSpeed ) );
+        mFuncCameras[ kFunc_Maya ] = ICameraSceneNode_IPtr( handles.getSceneManager()->addCameraSceneNodeMaya( 0, rotateSpeed, zoomSpeed, moveSpeed ) );
+        mFuncCameras[ kFunc_Nero ] = ICameraSceneNode_IPtr( handles.getSceneManager()->addCameraSceneNodeNero( 0, false, 0.05f, rotateSpeed, moveSpeed, zoomSpeed ) );
 
         // start out with the NERO camera
         mCamera = mFuncCameras[ kFunc_Nero ];
@@ -115,11 +113,9 @@ namespace OpenNero
     {
         if( f != getFunctionality() )
         {   
-            Assert( mIrr.mpSceneManager );
-
             mCamera = mFuncCameras[f];
 
-            mIrr.mpSceneManager->setActiveCamera( mCamera.get() );            
+            mIrr.mpSceneManager->setActiveCamera( mCamera.get() );
         }
     }
 

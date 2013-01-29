@@ -75,7 +75,7 @@ namespace OpenNero
         void SetFrameDelay(float32_t delay) { mFrameDelay = delay; }
         
         /// get a triangle selector for all the objects matching the types mask
-        IMetaTriangleSelector_IPtr GetCollisionTriangleSelector( size_t types ) const;
+        IMetaTriangleSelector_IPtr GetCollisionTriangleSelector( size_t types );
 
     protected:
 

@@ -20,8 +20,10 @@ FILE(GLOB_RECURSE OpenNERO_tests ../test/*.cpp)
 # if linking against a custom (recent) version of boost without removing the system version, try:
 #SET(Boost_USE_MULTITHREADED "NO")
 
+#SET(Boost_USE_STATIC_LIBS TRUE)
+
 # if not finding the version installed, add the version number here
-SET(Boost_ADDITIONAL_VERSIONS 1.48.0 1.48 1.47.0 1.47 1.46.1 1.46.0 1.46 1.45.0 1.45 1.44.0 1.44 1.43.0 1.43 1.42.0 1.42)
+SET(Boost_ADDITIONAL_VERSIONS 1.51 1.51.0 1.50.1 1.50 1.50.0 1.49.1 1.49 1.49.0 1.48.0 1.48 1.47.0 1.47 1.46.1 1.46.0 1.46 1.45.0 1.45 1.44.0 1.44 1.43.0 1.43 1.42.0 1.42)
 
 FIND_PACKAGE (Boost COMPONENTS python filesystem serialization system date_time)
 IF (${Boost_MINOR_VERSION} LESS 35)
@@ -60,6 +62,17 @@ IF (PYTHON_FOUND)
   MESSAGE(STATUS "Found Python libraries in " ${PYTHON_INCLUDE_PATH} " and " ${PYTHON_LIBRARIES})
 ENDIF (PYTHON_FOUND)
 
+IF (WIN32)
+  set(CMAKE_INCLUDE_PATH "/GnuWin32/include")
+  message(STATUS "CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}")
+ENDIF (WIN32)
+find_package(BISON)
+find_package(FLEX)
+
+BISON_TARGET(AdviceParser advice/advice.y "${CMAKE_CURRENT_BINARY_DIR}/advice.tab.cc")
+FLEX_TARGET(AdviceScanner advice/advice.l "${CMAKE_CURRENT_BINARY_DIR}/advice.yy.cc")
+ADD_FLEX_BISON_DEPENDENCY(AdviceScanner AdviceParser)
+
 # header include directories
 INCLUDE_DIRECTORIES ( ${OpenNERO_SOURCE_DIR}/external/include/irrlicht )
 INCLUDE_DIRECTORIES ( ${OpenNERO_SOURCE_DIR}/external/include )
@@ -68,10 +81,13 @@ INCLUDE_DIRECTORIES ( ${OpenNERO_SOURCE_DIR}/source )
 INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIR} )
 INCLUDE_DIRECTORIES ( ${PYTHON_INCLUDE_PATH} )
 INCLUDE_DIRECTORIES ( ${OpenNERO_BINARY_DIR}/external/source/Irrlicht ) # irrlicht IrrCompileConfig.h generated
+INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR}/advice/ ) # advice generated files
+INCLUDE_DIRECTORIES ( ${FLEX_INCLUDE_DIRS} )
 LINK_DIRECTORIES (${OpenNERO_BINARY_DIR}/external/source/tiny)
 
 # library linking directories
 IF (Boost_LIBRARY_DIRS)
+  MESSAGE(STATUS "Boost library directory is located in ${Boost_LIBRARY_DIRS}")
   LINK_DIRECTORIES ( ${Boost_LIBRARY_DIRS} )
 ENDIF (Boost_LIBRARY_DIRS)
 
@@ -102,32 +118,38 @@ IF (APPLE)
   SET(MACOSX_BUNDLE_COPYRIGHT "(c) 2006-2011 The University of Texas at Austin")
   SET(MACOSX_BUNDLE_NIB_FILE "MainMenu")
   CONFIGURE_FILE(${CMAKE_MODULE_PATH}/OpenNERO-Info.plist ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
-  ADD_EXECUTABLE(OpenNERO MACOSX_BUNDLE main.cc ${OpenNERO_sources} ${OpenNERO_headers})
+  ADD_EXECUTABLE(OpenNERO MACOSX_BUNDLE main.cc ${OpenNERO_sources} ${OpenNERO_headers} ${BISON_AdviceParser_OUTPUTS} ${FLEX_AdviceScanner_OUTPUTS})
   GET_TARGET_PROPERTY(OpenNERO_LOCATION OpenNERO LOCATION)
   STRING(REGEX REPLACE "\\.app/Contents/MacOS/OpenNERO" "" OpenNERO_LOCATION "${OpenNERO_LOCATION}")
   SET(OpenNERO_APP_RESOURCES "${OpenNERO_LOCATION}.app/Contents/Resources")
+  GET_PROPERTY(OpenNERO_JAVA_JAR GLOBAL PROPERTY OpenNERO_JAVA_JAR)
   ADD_CUSTOM_TARGET(CopyStuff ALL
     COMMAND mkdir -p ${OpenNERO_APP_RESOURCES}
     COMMAND rsync -auv --delete-excluded --exclude='.svn' --exclude='.git' ${OpenNERO_SOURCE_DIR}/mods/* ${OpenNERO_APP_RESOURCES}
     COMMAND cp -f ${CMAKE_CURRENT_BINARY_DIR}/Info.plist ${OpenNERO_LOCATION}.app/Contents
-    COMMAND find ${OpenNERO_LOCATION}.app/Contents -name "\".svn\"" | xargs rm -rf)
+    COMMAND find ${OpenNERO_LOCATION}.app/Contents -name "\".svn\"" | xargs rm -rf
+    COMMAND cp -f ${OpenNERO_JAVA_JAR} ${OpenNERO_APP_RESOURCES}/TrainingWindow.jar)
   ADD_CUSTOM_TARGET(BundleStuff ALL
     COMMAND ${CMAKE_MODULE_PATH}/bundle.py ${OpenNERO_LOCATION}.app OpenNERO)
   ADD_DEPENDENCIES(BundleStuff OpenNERO)
 ELSEIF (UNIX)
-  ADD_EXECUTABLE(OpenNERO main.cc ${OpenNERO_sources} ${OpenNERO_headers})
+  ADD_EXECUTABLE(OpenNERO main.cc ${OpenNERO_sources} ${OpenNERO_headers} ${BISON_AdviceParser_OUTPUTS} ${FLEX_AdviceScanner_OUTPUTS})
   SET(OpenNERO_APP_RESOURCES "${EXECUTABLE_OUTPUT_PATH}")
+  GET_PROPERTY(OpenNERO_JAVA_JAR GLOBAL PROPERTY OpenNERO_JAVA_JAR)
   # CopyStuff will always run - it copies any updated resources from the source tree into the runtime directory
   ADD_CUSTOM_TARGET(CopyStuff ALL
-    COMMAND rsync -auv --delete-excluded --exclude='.svn' --exclude='.git' ${OpenNERO_SOURCE_DIR}/mods/* ${OpenNERO_APP_RESOURCES})
+    COMMAND rsync -auv --delete-excluded --exclude='.svn' --exclude='.git' ${OpenNERO_SOURCE_DIR}/mods/* ${OpenNERO_APP_RESOURCES}
+    COMMAND cp -f ${OpenNERO_JAVA_JAR} ${OpenNERO_APP_RESOURCES}/TrainingWindow.jar)
 ELSE (APPLE)
-  ADD_EXECUTABLE(OpenNERO main.cc ${OpenNERO_sources} ${OpenNERO_headers})
+  ADD_EXECUTABLE(OpenNERO main.cc ${OpenNERO_sources} ${OpenNERO_headers} ${BISON_AdviceParser_OUTPUTS} ${FLEX_AdviceScanner_OUTPUTS})
 ENDIF(APPLE)
 
 TARGET_LINK_LIBRARIES (OpenNERO Irrlicht)
 TARGET_LINK_LIBRARIES (OpenNERO tinyxml)
 TARGET_LINK_LIBRARIES (OpenNERO ${PYTHON_LIBRARIES})
 TARGET_LINK_LIBRARIES (OpenNERO ${Boost_LIBRARIES})
+#TARGET_LINK_LIBRARIES (OpenNERO ${FLEX_LIBRARIES})
+#TARGET_LINK_LIBRARIES (OpenNERO ${BISON_LIBRARIES})
 
 IF (APPLE)
   FIND_LIBRARY(FOUNDATION_LIB Foundation)
@@ -143,23 +165,27 @@ ELSEIF (WIN32)
   FILE(TO_NATIVE_PATH "${OpenNERO_SOURCE_DIR}/mods/" OpenNERO_RESOURCES_DIR)
   FILE(TO_NATIVE_PATH "${OpenNERO_APP_RESOURCES}" OpenNERO_APP_RESOURCES)
   # CopyStuff will always get run - it uses xcopy to update only those files that are newer
+  GET_PROPERTY(OpenNERO_JAVA_JAR GLOBAL PROPERTY OpenNERO_JAVA_JAR)
   ADD_CUSTOM_TARGET(CopyStuff ALL
     COMMAND xcopy /S /D /I /Y "${OpenNERO_RESOURCES_DIR}*" "${OpenNERO_APP_RESOURCES}"
+    COMMAND copy "${OpenNERO_JAVA_JAR}" "${OpenNERO_APP_RESOURCES}\\TrainingWindow.jar"
     VERBATIM)
   # for each Boost DLL we found, copy it to the target directory
   # and add it to the list of things we need to install
   FOREACH (boostlib ${Boost_LIBRARIES})
     STRING(REGEX REPLACE ".lib$" ".dll" boostdll ${boostlib})
-    IF (EXISTS ${boostdll})
+    IF (EXISTS ${boostdll} AND NOT "${boostdll}" STREQUAL "debug")
       INSTALL(PROGRAMS ${boostdll} DESTINATION ".")
+	  MESSAGE(STATUS "Copying boost DLL ${boostdll}")
       FILE(TO_NATIVE_PATH ${boostdll} boostdll)
       ADD_CUSTOM_COMMAND(TARGET CopyStuff POST_BUILD COMMAND xcopy /D /I "${boostdll}" "${OpenNERO_APP_RESOURCES}")
-    ENDIF (EXISTS ${boostdll})
+    ENDIF (EXISTS ${boostdll} AND NOT "${boostdll}" STREQUAL "debug")
   ENDFOREACH (boostlib ${Boost_LIBRARIES})
   # we also need the python dll
   STRING(REGEX REPLACE "(.*)libs/python(..)\\.lib" "\\1python\\2.dll" PYTHON_DLL ${PYTHON_LIBRARIES})
   IF (EXISTS ${PYTHON_DLL})
     FILE(TO_NATIVE_PATH ${PYTHON_DLL} PYTHON_DLL)
+	MESSAGE(STATUS ${PYTHON_DLL})
     ADD_CUSTOM_COMMAND(TARGET CopyStuff POST_BUILD COMMAND xcopy /D /I /Y "${PYTHON_DLL}" "${OpenNERO_APP_RESOURCES}")
   ENDIF (EXISTS ${PYTHON_DLL})
 ELSE(APPLE)
@@ -171,6 +197,8 @@ ELSE(APPLE)
   TARGET_LINK_LIBRARIES(OpenNERO ${Z_LIBRARY})
   TARGET_LINK_LIBRARIES(OpenNERO ${OPENGL_LIBRARY})
 ENDIF (APPLE)
+
+ADD_DEPENDENCIES( CopyStuff BuildJava )
 
 # install targets
 IF (APPLE)

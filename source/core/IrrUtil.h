@@ -16,8 +16,9 @@
 #include "core/Common.h"
 #include "core/Bitstream.h"
 
-namespace boost
-{   
+#include <boost/intrusive_ptr.hpp>
+
+namespace irr {
 	/**
 	 * Reference increase function called by boost::intrusive_ptr,
 	 * created to allow boost and irrlicht to work together in ref
@@ -27,9 +28,12 @@ namespace boost
     inline
         void intrusive_ptr_add_ref( irr::IReferenceCounted* unknown )
     {
+
         AssertMsg( unknown, "Invalid IReferenceCounted ptr passed into add_ref" );        
         unknown->grab();
+
     }
+
 
 	/**
 	 * Reference decrease function called by boost::intrusive_ptr,
@@ -47,7 +51,6 @@ namespace boost
 
 namespace OpenNero
 {
-
     /// typedefs for irrlicht types in case we ever decide to move away
     /// @{
     /// 2d integer rectangle
@@ -130,21 +133,46 @@ namespace OpenNero
 	/// a container of irrlicht ptrs using intrusive ptrs
     struct IrrHandles
 	{
+
+    private:
 		IrrlichtDevice_IPtr	    mpIrrDevice;	///< Irrlicht Device
 		IVideoDriver_IPtr		mpVideoDriver;	///< Irrlicht Video Driver
 		ISceneManager_IPtr		mpSceneManager;	///< Irrlicht SceneManager
 		IGuiEnvironment_IPtr	mpGuiEnv;		///< Irrlicht Gui
 
+    public:
 		/// constructor
         IrrHandles() {}
 
 		/// copy constructor
         IrrHandles( const IrrHandles& handles )
-            : mpIrrDevice(handles.mpIrrDevice),
-              mpVideoDriver(handles.mpVideoDriver),
-              mpSceneManager(handles.mpSceneManager),
-              mpGuiEnv(handles.mpGuiEnv)
-        {}               
+        : mpIrrDevice(handles.mpIrrDevice),
+            mpVideoDriver(handles.mpVideoDriver),
+            mpSceneManager(handles.mpSceneManager),
+            mpGuiEnv(handles.mpGuiEnv)
+        {}
+
+        /// device constructor
+        explicit IrrHandles( IrrlichtDevice_IPtr device );
+
+        ~IrrHandles() {}
+        
+        /// getters for Irrlicht handles
+        /// @{
+        
+        irr::IrrlichtDevice* getDevice();
+        const irr::IrrlichtDevice* getDevice() const;
+        
+        irr::video::IVideoDriver* getVideoDriver();
+        const irr::video::IVideoDriver* getVideoDriver() const;
+        
+        irr::scene::ISceneManager* getSceneManager();
+        const irr::scene::ISceneManager* getSceneManager() const;
+        
+        irr::gui::IGUIEnvironment* getGuiEnv();
+        const irr::gui::IGUIEnvironment* getGuiEnv() const;
+        
+        /// @}
 	};
 
 	/// a container of irrlicht ptrs using raw ptrs (to stop circular references)
@@ -168,11 +196,11 @@ namespace OpenNero
         {}
 
 		/// constructor from IrrHandles
-		IrrHandles_Weak( const IrrHandles& handles )
-            : mpIrrDevice(handles.mpIrrDevice.get()),
-              mpVideoDriver(handles.mpVideoDriver.get()),
-              mpSceneManager(handles.mpSceneManager.get()),
-              mpGuiEnv(handles.mpGuiEnv.get())
+		IrrHandles_Weak( IrrHandles& handles )
+            : mpIrrDevice(handles.getDevice()),
+              mpVideoDriver(handles.getVideoDriver()),
+              mpSceneManager(handles.getSceneManager()),
+              mpGuiEnv(handles.getGuiEnv())
         {}	
 	};
 

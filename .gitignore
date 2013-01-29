@@ -12,3 +12,7 @@ Makefile
 *.sln
 *.xcodeproj
 *.pyc
+java/OpenNERO/target
+/java/jsyntaxpane/jsyntaxpane/target/
+/java/pyrolite-export/nbproject/private
+/java/pyrolite/target/

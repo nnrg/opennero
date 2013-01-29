@@ -76,7 +76,9 @@ namespace OpenNero
 	{
 		Assert( callback );
 
-		IVideoDriver_IPtr driver = irr.mpVideoDriver;		
+		IVideoDriver_IPtr driver = irr.getVideoDriver();
+        
+        Assert(driver);
 
 		if (!driver->queryFeature(video::EVDF_PIXEL_SHADER_1_1) &&
 			!driver->queryFeature(video::EVDF_ARB_FRAGMENT_PROGRAM_1))
@@ -86,10 +88,9 @@ namespace OpenNero
 			!driver->queryFeature(video::EVDF_ARB_VERTEX_PROGRAM_1))
 			return -1;
 
-        Assert( irr.mpIrrDevice );
-        Assert( irr.mpIrrDevice->getVideoDriver() );        
-
-		video::IGPUProgrammingServices* gpu = irr.mpIrrDevice->getVideoDriver()->getGPUProgrammingServices();			
+        Assert( driver );
+        
+		video::IGPUProgrammingServices* gpu = driver->getGPUProgrammingServices();			
 
 		if (gpu)
 		{	
