@@ -82,7 +82,7 @@ namespace OpenNero
         GuiBasePtr CreateElement( uint32_t newElemId )
         {
             Assert( mRes );
-            return GenericConstruction( mRes->mIrr.mpGuiEnv->addEditBox( L"", sDefaultGuiElementPosition, true, NULL, newElemId ) );
+            return GenericConstruction( mRes->mIrr.getGuiEnv()->addEditBox( L"", sDefaultGuiElementPosition, true, NULL, newElemId ) );
         }     
     };
 
@@ -93,7 +93,7 @@ namespace OpenNero
         GuiBasePtr CreateElement( uint32_t newElemId )
         {
             Assert( mRes );
-            return GenericConstruction( mRes->mIrr.mpGuiEnv->addCheckBox( false, sDefaultGuiElementPosition, NULL, newElemId ) );
+            return GenericConstruction( mRes->mIrr.getGuiEnv()->addCheckBox( false, sDefaultGuiElementPosition, NULL, newElemId ) );
         }     
     };
 
@@ -104,7 +104,7 @@ namespace OpenNero
         GuiBasePtr CreateElement( uint32_t newElemId )
         {
             Assert( mRes );
-            return GenericConstruction( mRes->mIrr.mpGuiEnv->addScrollBar( false, sDefaultGuiElementPosition, NULL, newElemId ) );
+            return GenericConstruction( mRes->mIrr.getGuiEnv()->addScrollBar( false, sDefaultGuiElementPosition, NULL, newElemId ) );
         }
     };
 
@@ -115,7 +115,7 @@ namespace OpenNero
         GuiBasePtr CreateElement( uint32_t newElemId )
         {
             Assert( mRes );
-            return GenericConstruction( mRes->mIrr.mpGuiEnv->addScrollBar( true, sDefaultGuiElementPosition, NULL, newElemId ) );
+            return GenericConstruction( mRes->mIrr.getGuiEnv()->addScrollBar( true, sDefaultGuiElementPosition, NULL, newElemId ) );
         }
     };
 
@@ -126,7 +126,7 @@ namespace OpenNero
         GuiBasePtr CreateElement( uint32_t newElemId )
         {
             Assert( mRes );
-            return GenericConstruction( mRes->mIrr.mpGuiEnv->addStaticText( L"", sDefaultGuiElementPosition, false, true, NULL, newElemId ) );
+            return GenericConstruction( mRes->mIrr.getGuiEnv()->addStaticText( L"", sDefaultGuiElementPosition, false, true, NULL, newElemId ) );
         }     
     };
 
@@ -164,7 +164,7 @@ namespace OpenNero
             Assert( mRes );
 
             // create the irr window
-            IGUIWindow* irrWin = mRes->mIrr.mpGuiEnv->addWindow( sDefaultGuiElementPosition, modal, L"", NULL, newElemId );
+            IGUIWindow* irrWin = mRes->mIrr.getGuiEnv()->addWindow( sDefaultGuiElementPosition, modal, L"", NULL, newElemId );
             Assert( irrWin );
 
             // create our window
@@ -225,7 +225,7 @@ namespace OpenNero
         GuiBasePtr CreateElement( uint32_t newElemId )                      \
         {                                                                   \
             Assert( mRes );                                                 \
-            return GenericConstruction( mRes->mIrr.mpGuiEnv->Ctor( sDefaultGuiElementPosition, NULL, newElemId ) ); \
+            return GenericConstruction( mRes->mIrr.getGuiEnv()->Ctor( sDefaultGuiElementPosition, NULL, newElemId ) ); \
         }                                                                   \
     };
 
@@ -448,17 +448,15 @@ namespace OpenNero
     // @param alpha an alpha value in [0,1] how visible the elements should be. 0 means not visible, 1 means full opaque
     void GuiManager::setGuiTransparency( float32_t alpha )
     {
-        Assert( mIrr.mpGuiEnv );
-
         // calculate the alpha value
         const u32 uAlpha = (u32)( alpha * 255 );
 
         // set the alpha value
         for (u32 i=0; i<EGDC_COUNT ; ++i)
 		{
-			SColor col = mIrr.mpGuiEnv->getSkin()->getColor((EGUI_DEFAULT_COLOR)i);
+			SColor col = mIrr.getGuiEnv()->getSkin()->getColor((EGUI_DEFAULT_COLOR)i);
 			col.setAlpha(uAlpha);
-			this->mIrr.mpGuiEnv->getSkin()->setColor((EGUI_DEFAULT_COLOR)i, col);
+			this->mIrr.getGuiEnv()->getSkin()->setColor((EGUI_DEFAULT_COLOR)i, col);
 		}  
     }
 
@@ -467,16 +465,14 @@ namespace OpenNero
     // @return true if the load was successful
     bool GuiManager::setFont( const std::string& fontPath )
     {   
-        Assert( mIrr.mpGuiEnv );        
-        
         // try to load the font
-        IGUIFont* newFont = mIrr.mpGuiEnv->getFont( Kernel::findResource(fontPath).c_str() );
+        IGUIFont* newFont = mIrr.getGuiEnv()->getFont( Kernel::findResource(fontPath).c_str() );
 
         // set it if load was successful
         if( newFont )
         {
             // get the skin to modify
-            IGUISkin* skin = mIrr.mpGuiEnv->getSkin();
+            IGUISkin* skin = mIrr.getGuiEnv()->getSkin();
             if( skin )
             {
                 skin->setFont( newFont );
@@ -493,8 +489,6 @@ namespace OpenNero
     // @param execObj the python function to call when we get a filename
     void GuiManager::openFileChooserDialog( const std::string& dialogTitle, bool modal, PythonExecObject execObj )
     {
-        Assert( mIrr.mpGuiEnv );
-
         // setup our callback structure
         mFileChooser.mWaitingForFilename    = true;
         mFileChooser.mDialogID              = AllocateGuiId();
@@ -506,7 +500,7 @@ namespace OpenNero
         std::wstring wTitle = boost::lexical_cast<std::wstring>(dialogTitle.c_str());
 
         // open the dialog
-        mIrr.mpGuiEnv->addFileOpenDialog( wTitle.c_str(), modal, 0, mFileChooser.mDialogID );
+        mIrr.getGuiEnv()->addFileOpenDialog( wTitle.c_str(), modal, 0, mFileChooser.mDialogID );
     }
 
     // Checks if a file chooser dialog is open
@@ -857,16 +851,16 @@ namespace OpenNero
     {
         Assert(element);
         Assert(element->getIrrGuiElement());
-        Assert(mIrr.mpGuiEnv);
+        Assert(mIrr.getGuiEnv());
 
         if( focused )
         {
-            mIrr.mpGuiEnv->setFocus(element->getIrrGuiElement());
+            mIrr.getGuiEnv()->setFocus(element->getIrrGuiElement());
             mFocusedContainer = element;
         }
         else
         {
-            mIrr.mpGuiEnv->removeFocus(element->getIrrGuiElement());
+            mIrr.getGuiEnv()->removeFocus(element->getIrrGuiElement());
             mFocusedContainer.reset();
         }
     }

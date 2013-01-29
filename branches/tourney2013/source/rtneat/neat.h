@@ -57,6 +57,7 @@ namespace NEAT
     extern S32 print_every; // Tells to print population to file every n generations 
     extern S32 babies_stolen; // The number of babies to siphon off to the champions 
     extern F64 backprop_learning_rate; // Learning rate of back-propagation algorithm
+    extern F64 max_link_weight; // Link weights are capped at this (and negative of this) value
 
     extern MTRand NEATRandGen; // Random number generator; can pass seed value as argument
 
@@ -157,6 +158,10 @@ namespace NEAT
     class Link;
     typedef boost::shared_ptr<Link> LinkPtr;
     typedef boost::weak_ptr<Link> LinkWeakPtr;
+
+    class Factor;
+    typedef boost::shared_ptr<Factor> FactorPtr;
+    typedef boost::weak_ptr<Factor> FactorWeakPtr;
 
     const extern std::string INDENT;
 

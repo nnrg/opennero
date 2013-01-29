@@ -2,19 +2,25 @@
 #include "genome.h"
 #include "innovation.h"
 #include "gene.h"
+#include "factor.h"
 #include <cmath>
 #include <cassert>
 #include <sstream>
+#include <set>
 #include <boost/tokenizer.hpp>
 
 using namespace NEAT;
 using namespace std;
 
-Genome::Genome(S32 id, vector<TraitPtr> t, vector<NNodePtr> n, vector<GenePtr> g)
+// combine two lineages of factors
+void combine_factors(vector<FactorPtr>& newfactors, const vector<FactorPtr>& factors1, const vector<FactorPtr>& factors2);
+
+Genome::Genome(S32 id, vector<TraitPtr> t, vector<NNodePtr> n, vector<GenePtr> g, vector<FactorPtr> f)
     : genome_id(id)
     , traits(t)
     , nodes(n)
     , genes(g)
+    , factors(f)
 {
 }
 
@@ -822,6 +828,14 @@ void Genome::print_to_file(std::ofstream &outFile)
         (*curgene)->print_to_file(outFile);
     }
 
+    { //Output the factors
+        vector<FactorPtr>::iterator curfactor;
+        for (curfactor = factors.begin(); curfactor != factors.end(); 
+             ++curfactor) {
+            (*curfactor)->print_to_file(outFile);
+        }
+    }
+
     outFile<<"genomeend "<<genome_id<<endl;
 }
 
@@ -851,6 +865,7 @@ GenomePtr Genome::duplicate(S32 new_id)
     vector<TraitPtr> traits_dup;
     vector<NNodePtr> nodes_dup;
     vector<GenePtr> genes_dup;
+    vector<FactorPtr> factors_dup;
 
     //Iterators for the old Genome
     vector<TraitPtr>::iterator curtrait;
@@ -916,8 +931,17 @@ GenomePtr Genome::duplicate(S32 new_id)
 
     }
 
+    { // Duplicate Factors
+        vector<FactorPtr>::iterator curfactor;
+        for (curfactor = factors.begin(); curfactor != factors.end(); 
+             ++curfactor) {
+            // factors are immutable, can use the same ptr
+            factors_dup.push_back(*curfactor);
+        }
+    }
+
     //Finally, return the genome
-    GenomePtr newgenome(new Genome(new_id,traits_dup,nodes_dup,genes_dup));
+    GenomePtr newgenome(new Genome(new_id,traits_dup,nodes_dup,genes_dup,factors_dup));
 
     return newgenome;
 
@@ -1105,10 +1129,10 @@ void Genome::mutate_link_weights(F64 power, F64 rate, mutator mut_type)
                 ((*curgene)->lnk)->weight=randnum;
 
             //Cap the weights at 20.0 (experimental)
-            if (((*curgene)->lnk)->weight > 3.0)
-                ((*curgene)->lnk)->weight = 3.0;
-            else if (((*curgene)->lnk)->weight < -3.0)
-                ((*curgene)->lnk)->weight = -3.0;
+            if (((*curgene)->lnk)->weight > NEAT::max_link_weight)
+                ((*curgene)->lnk)->weight = NEAT::max_link_weight;
+            else if (((*curgene)->lnk)->weight < -NEAT::max_link_weight)
+                ((*curgene)->lnk)->weight = -NEAT::max_link_weight;
 
             //Record the innovation
             //(*curgene)->mutation_num+=randnum;
@@ -1779,6 +1803,9 @@ void Genome::mutate_add_sensor(vector<InnovationPtr> &innovs, double &curinnov)
                     //Choose the new weight
                     //newweight=(gaussrand())/1.5;  //Could use a gaussian
                     newweight=randposneg()*randfloat()*3.0; //used to be 10.0
+                    // The above value of 3.0 is not changed to NEAT::max_link_weight, which is set
+                    // large enough to protect weights of advice network, since we don't want such
+                    // large changes in weight mutations.
 
                     //Create the new gene
                     newgene.reset(new Gene(((thetrait[traitnum])),
@@ -2162,7 +2189,10 @@ GenomePtr Genome::mate_multipoint(GenomePtr g, S32 genomeid, F64 fitness1,
 
     }
 
-    new_genome.reset(new Genome(genomeid,newtraits,newnodes,newgenes));
+    vector<FactorPtr> newfactors;
+    combine_factors(newfactors, factors, g->factors);
+
+    new_genome.reset(new Genome(genomeid,newtraits,newnodes,newgenes,newfactors));
 
     //Return the baby Genome
     return (new_genome);
@@ -2174,7 +2204,7 @@ GenomePtr Genome::mate_multipoint_avg(GenomePtr g, S32 genomeid, F64 fitness1,
 {
   //DEBUG cout << "** MATING: " << endl << *this << endl << "** with " << *g << endl;
 
-    //The baby Genome will contain these new Traits, NNodes, and Genes
+    //The baby Genome will contain these new Traits, NNodes, Genes and Factors
     vector<TraitPtr> newtraits;
     vector<NNodePtr> newnodes;
     vector<GenePtr> newgenes;
@@ -2493,8 +2523,11 @@ GenomePtr Genome::mate_multipoint_avg(GenomePtr g, S32 genomeid, F64 fitness1,
 
     }
 
+    vector<FactorPtr> newfactors;
+    combine_factors(newfactors, factors, g->factors);
+
     //Return the baby Genome
-    return GenomePtr(new Genome(genomeid,newtraits,newnodes,newgenes));
+    return GenomePtr(new Genome(genomeid,newtraits,newnodes,newgenes,newfactors));
 
 }
 
@@ -2813,8 +2846,11 @@ GenomePtr Genome::mate_singlepoint(GenomePtr g, S32 genomeid)
 
     }
 
+    vector<FactorPtr> newfactors;
+    combine_factors(newfactors, factors, g->factors);
+
     //Return the baby Genome
-    return GenomePtr(new Genome(genomeid,newtraits,newnodes,newgenes));
+    return GenomePtr(new Genome(genomeid,newtraits,newnodes,newgenes,newfactors));
 
 }
 
@@ -3070,4 +3106,29 @@ void NEAT::print_Genome_tofile(GenomePtr g, const std::string& filename)
     g->print_to_file(oFile);
 
     oFile.close();
+}
+
+void combine_factors(vector<FactorPtr>& newfactors, const vector<FactorPtr>& factors1, const vector<FactorPtr>& factors2) {
+    set<FactorPtr> factorunion;
+    { // copy factors1
+        vector<FactorPtr>::const_iterator curfactor;
+        for (curfactor = factors1.begin(); curfactor != factors1.end();
+             ++curfactor) {
+            factorunion.insert(*curfactor);
+        }
+    }
+    { // copy factors2
+        vector<FactorPtr>::const_iterator curfactor;
+        for (curfactor = factors2.begin(); curfactor != factors2.end();
+             ++curfactor) {
+            factorunion.insert(*curfactor);
+        }
+    }
+    { // copy union
+        set<FactorPtr>::iterator curfactor;
+        for (curfactor = factorunion.begin(); curfactor != factorunion.end();
+             ++curfactor) {
+            newfactors.push_back(*curfactor);
+        }
+    }
 }

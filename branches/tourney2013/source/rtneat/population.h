@@ -110,6 +110,9 @@ namespace NEAT
 
             OrganismPtr remove_worst_probabilistic();
 
+            // Similar to remove_worst(), but considers only the first range organisms.
+            OrganismPtr remove_worst(U32 range);
+
             //KEN: New 2/17/04
             //This method takes an Organism and reassigns what Species it belongs to
             //It is meant to be used so that we can reasses where Organisms should belong
