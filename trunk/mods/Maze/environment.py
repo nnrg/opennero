@@ -637,7 +637,6 @@ class GranularMazeEnvironment(MazeEnvironment):
             rot0 = copy(agent.state.rotation)
             rot0.z = new_heading
             agent.state.rotation = rot0
-            print 'skip', agent.__class__.__name__
             agent.skip() # don't get a new action, just retry this one
             return self.rewards.valid_move(agent)
 
@@ -655,27 +654,39 @@ class GranularMazeEnvironment(MazeEnvironment):
 
     def sense(self, agent, obs):
         """
-        Granular version
+        Compute granular maze environment sensor observations.
+        Fill in the obs vector with 6 values, where:
+          obs[0] is the x position
+          obs[1] is the y position
+          obs[2:5] are "free space" sensors in +r, -r, +c, -c 
+            directions, with 0.0 meaning "wall is very near" and 1.0
+            meaning "free as far as the sensor can see"
         """
         pos = agent.state.position # current position
         rot = agent.state.rotation # current rotation
+
         (x,y,heading) = (pos.x, pos.y, rot.z) # current pose
-        i_obs = 0
-        obs[i_obs] = x; i_obs += 1 # the agent can observe its position
-        obs[i_obs] = y; i_obs += 1 # the agent can observe its position
+        obs[0] = x # the agent can observe its position
+        obs[1] = y # the agent can observe its position
+
+        # current position of the agent
         p0 = agent.state.position
-        for (dr, dc) in MAZE_MOVES:
+
+        # calculate free space in the possible move directions
+        for i, (dr, dc) in enumerate(MAZE_MOVES):
             direction = Vector3f(dr, dc, 0)
-            ray = (p0, p0 + direction * GRID_DX / self.granularity)
-            result = getSimContext().findInRay(ray[0], ray[1], 1, True)
-            if len(result) > 0:
-                (sim, hit) = result
-                len1 = (ray[1] - ray[0]).getLength() # max extent
-                len2 = (hit - ray[0]).getLength() # actual extent
-                if len1 != 0:
-                    obs[i_obs] = len2/len1; i_obs += 1
-                else:
-                    obs[i_obs] = 0; i_obs += 1
+            p1 = p0 + direction * GRID_DX / self.granularity
+            hit_result = getSimContext().findInRay(p0, p1, 1, True)
+            if len(hit_result) > 0:
+                # if the ray hit a wall, return what fraction was clear
+                (sim, hit) = hit_result
+                len1 = (p1 - p0).getLength() # max extent
+                len2 = (hit - p0).getLength() # actual extent
+                obs[2 + i] = len2/len1 if len1 != 0 else 0.0
+            else:
+                # if the ray did not hit a wall, return 1.0
+                obs[2 + i] = 1.0
+
         if not self.agent_info.sensors.validate(obs):
             print 'ERROR: incorect observation!', obs
             print '       should be:', self.agent_info.sensors
