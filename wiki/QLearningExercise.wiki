@@ -33,7 +33,7 @@ Begin by implementing a simple tiling approximator. This function should simply 
 
 Once this is completed and verified, implement a nearest-neighbors approximator. This function should interpolate between the values of the three nearest 8x8 locations. Note that each location should only be interpolated if it is reachable– don't interpolate across walls! Below is an example of how the nearest-neighbors approximator should work.
 
-<img src="http://www.cs.utexas.edu/users/risto/pictures/hw3_interpolation_example.png"/>
+<img src="http://www.cs.utexas.edu/users/risto/public_html/cs343/private/hw3_interpolation_example_aditya.png"/>
 
 In the figure, your agent is currently at state Y and is considering taking the action to move left to X. The function approximator would calculate the Q-value at X by interpolating the values of A, B, and C based on their Euclidean distance to X. For instance, X is 3.5 rows up and 1.5 rows to the left of A, so its distance is sqrt(3.5^2^ + 1.5^2^). Note that since the tiling of the approximator does not line up perfectly with the fine-grained space, every node in the fine-grained (64x64) space will be at least 0.5 rows and columns away from the nearest approximator (8x8) tile.
 
