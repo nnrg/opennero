@@ -37,7 +37,7 @@ As a next step, you will implement nearest-neighbor approximator in order to dis
 Once this is completed and verified, implement a nearest-neighbors approximator. This function should interpolate between the values of the three nearest 8x8 locations. Note that each location should only be interpolated if it is reachable– don't interpolate across walls! Below is an example of how the nearest-neighbors approximator should work.
 
 <figure>
-<img src="hw3_interpolation_example_aditya.png" width="873" height="512" />
+<img src="http://www.cs.utexas.edu/users/risto/cs343/private/hw3_interpolation_example_aditya.png" width="873" height="512" />
 <figcaption>Fig1. Nearest Neighbor Approximator. Value of a given state/location is computed by taking weighted sum of 3 nearest neighbors. Equations for tiling approximator can be derived by considering only one nearest neighbor. Note, since OpenNERO environment is deterministic, Value(Y, Left) = Value(X). </figcaption>
 </figure>
 
