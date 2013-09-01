@@ -28,6 +28,7 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The
  * [http://www.boost.org/doc/libs/release/more/getting_started/windows.html build and install Boost]
    * Use the option `--build-type=complete` with the `.\b2 command.
    * Use the option `-jN` with `.\b2`, where N is the number of cores your computer has.
+   * Do not use Boost 1.54 if you are building with Visual Studio 2013 Preview - use 1.53 instead.
  * [http://www.python.org/download/releases/2.7.2/ Latest Python 2.7.x with source]
  * [http://www.wxpython.org/download.php wxPython]
  * Add python.exe to the Path variable (Control Panel -> System -> Environment Variables)
