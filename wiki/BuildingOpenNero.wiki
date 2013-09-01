@@ -24,8 +24,10 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The
 = Windows =
 == Prerequisites ==
  * [http://www.cmake.org/cmake/resources/software.html cmake]
- * [http://www.microsoft.com/visualstudio/ Microsoft Visual Studio]
- * [http://www.boostpro.com/download/ Boost libraries] (install a binary version of all the libraries for your version of Visual Studio) or [http://www.boost.org/doc/libs/release/more/getting_started/windows.html build and install Boost]
+ * [http://www.microsoft.com/visualstudio/ Microsoft Visual Studio
+ * [http://www.boost.org/doc/libs/release/more/getting_started/windows.html build and install Boost]
+   * Use the option `--build-type=complete` with the `.\b2 command.
+   * Use the option `-jN` with `.\b2`, where N is the number of cores your computer has.
  * [http://www.python.org/download/releases/2.7.2/ Latest Python 2.7.x with source]
  * [http://www.wxpython.org/download.php wxPython]
  * Add python.exe to the Path variable (Control Panel -> System -> Environment Variables)
