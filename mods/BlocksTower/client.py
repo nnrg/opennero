@@ -13,7 +13,9 @@ from BlocksTower.constants import *
 AGENTS = [
     ('Problem reduction', lambda: getMod().start_tower1() ),
     ('State-space search', lambda: getMod().start_tower2() ),
-    ('Goal stacking', lambda: getMod().start_tower3() ),
+    ('Goal stacking - 2 Disk', lambda: getMod().start_tower3() ),
+    ('Goal stacking - 3 Disk', lambda: getMod().start_tower4() ),
+    ('Semantic Parser', lambda: getMod().start_tower5() ),
 ]
 
 class UI:
