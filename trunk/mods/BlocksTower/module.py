@@ -54,20 +54,38 @@ class TowerMod:
 
     def start_tower2(self):
         """ start the tower demo """
-        self.num_towers = 3
+        self.num_towers = 2
         OpenNero.disable_ai()
         self.stop_agent()
         self.set_environment(TowerEnvironment())
         self.agent_id = common.addObject("data/shapes/character/BlocksRobot2.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
         OpenNero.enable_ai()
 
-    def start_tower3(self):
+    def start_tower3(self): #2 Disk Goal Stack Planner
         """ start the tower demo """
         self.num_towers = 2
         OpenNero.disable_ai()
         self.stop_agent()
         self.set_environment(TowerEnvironment())
         self.agent_id = common.addObject("data/shapes/character/BlocksRobot3.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
+        OpenNero.enable_ai()
+        
+    def start_tower4(self): #3 Disk Goal Stack Planner
+        """ start the tower demo """
+        self.num_towers = 3
+        OpenNero.disable_ai()
+        self.stop_agent()
+        self.set_environment(TowerEnvironment())
+        self.agent_id = common.addObject("data/shapes/character/BlocksRobot4.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
+        OpenNero.enable_ai()
+        
+    def start_tower5(self): #Natural Language Processing
+        """ start the tower demo """
+        self.num_towers = 3
+        OpenNero.disable_ai()
+        self.stop_agent()
+        self.set_environment(TowerEnvironment())
+        self.agent_id = common.addObject("data/shapes/character/BlocksRobot5.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
         OpenNero.enable_ai()
         
     def stop_agent(self):
