@@ -29,14 +29,14 @@ Then try running your agent on the fine-grained version. This environment divide
 
 Begin by implementing a simple tiling approximator. This function should simply map the current state back to the standard 8x8 space.
 
-For the simple tiling approximator, think of it this way - lets say you have got just 8x8 memory i.e you can just store 64 value function entries. Now due to the limited memory, you divide the 64x64 world grid into 64 tiles of size 8x8 (just like in the figure below where each one of the four quadrants encapsulates 8x8 states). Having such a coarse tiling means that each 8x8 states falling into a single tile will have the same value function. Of-course this does not help you much in terms of learning (and your agent might wander around aimlessly), because nearby states lying in a single tile are not distinguishable. But such coarse tiling does saves you space. However, do not spend too much time in training your agent. For further details, refer to <a href="http://www.cs.utexas.edu/users/risto/cs343/private/hw-last-year/hw3/hw3_faq.html">FAQs page</a>.
+For the simple tiling approximator, think of it this way - lets say you have got just 8x8 memory i.e you can just store 64 value function entries. Now due to the limited memory, you divide the 64x64 world grid into 64 tiles of size 8x8 (just like in the figure below where each one of the four quadrants encapsulates 8x8 states). Having such a coarse tiling means that each 8x8 states falling into a single tile will have the same value function. Of-course this does not help you much in terms of learning (and your agent might wander around aimlessly), because nearby states lying in a single tile are not distinguishable. But such coarse tiling does saves you space. However, do not spend too much time in training your agent. For further details, refer to <a href="QLearning_faq.html">FAQs page</a>.
 As a next step, you will implement nearest-neighbor approximator in order to distinguish the states falling in a single tile.
 
 ===Nearest-Neighbors Approximator===
 
 Once this is completed and verified, implement a nearest-neighbors approximator. This function should interpolate between the values of the three nearest 8x8 locations. Note that each location should only be interpolated if it is reachable– don't interpolate across walls! Below is an example of how the nearest-neighbors approximator should work.
 
-<img src="http://www.cs.utexas.edu/users/risto/cs343/private/hw3_interpolation_example_aditya.png" width="873" height="512" />
+<img src="interpolation_example.png" width="873" height="512" />
 Fig1. Nearest Neighbor Approximator. Value of a given state/location is computed by taking weighted sum of 3 nearest neighbors. Equations for tiling approximator can be derived by considering only one nearest neighbor. Note, since OpenNERO environment is deterministic, Value(Y, Left) = Value(X).
 
 
@@ -52,7 +52,7 @@ if ((3,4), (3,5)) in get_environment().maze.walls:
 }}}
 
 The walls set uses the coarse-grained (8x8) mapping for rows and columns, which should work out well for your approximator.
-For further details, refer to <a href="http://www.cs.utexas.edu/users/risto/cs343/private/hw-last-year/hw3/hw3_faq.html">FAQs page</a>.
+For further details, refer to <a href="QLearning_faq.html">FAQs page</a>.
 
 ===Switching between approaches===
 
