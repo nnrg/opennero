@@ -28,13 +28,6 @@ class MyDialog:
     def close(self):
         self.top.destroy()
 
-#def returnValueFunction():
-#    print 'ADI - 2. I am here '
-#    root = tk.Tk()
-#    d = MyDialog(root)
-#    root.wait_window(d.top)
-#    return d.value
-
 
 def main():
     root = tk.Tk()
