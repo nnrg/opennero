@@ -31,7 +31,7 @@ namespace OpenNero
     {
         ScriptingEngine& script = ScriptingEngine::instance();
         PythonAITemplatePtr pythonTemplate = 
-            shared_static_cast<PythonAITemplate, ObjectTemplate>(objTemplate);
+            static_pointer_cast<PythonAITemplate, ObjectTemplate>(objTemplate);
         Assert(pythonTemplate);
         std::string py_agent_expression = pythonTemplate->getBrainExpr();
         // TODO: this evaluation line does not work within the context of the module path

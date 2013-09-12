@@ -60,7 +60,7 @@ namespace OpenNero {
 
     bool RandomAgent::LoadFromTemplate(ObjectTemplatePtr objTempl, const SimEntityData& data)
     {
-        RandomAITemplatePtr randomAITempl = shared_static_cast<
+        RandomAITemplatePtr randomAITempl = static_pointer_cast<
             RandomAITemplate, ObjectTemplate>(objTempl);
         _init = AgentInitInfo(randomAITempl->getSensorInfo(),
                               randomAITempl->getActionInfo(),

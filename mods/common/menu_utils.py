@@ -40,6 +40,9 @@ class ScriptServer:
         self.scriptmap = {}
         self.outputs = []
         self.server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        # This will allow us to reopen the socket after an un-clean shutdown.
+        # See https://code.google.com/p/opennero/issues/detail?id=110
+        self.server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         attempts = 10
         while True:
             try:

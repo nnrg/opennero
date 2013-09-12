@@ -277,7 +277,7 @@ namespace OpenNero
                 itr = mObjectTemplates.find(lookupPath);
         if (itr != mObjectTemplates.end() )
         {
-            return shared_static_cast<ObjTemp, ObjectTemplate>(itr->second);
+            return static_pointer_cast<ObjTemp, ObjectTemplate>(itr->second);
         }
 
         LOG_F_MSG( "game", "Loading object template " << modTemplateName );
