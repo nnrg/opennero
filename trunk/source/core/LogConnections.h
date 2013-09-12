@@ -122,7 +122,7 @@ namespace OpenNero
             ContainerStreamConnection( const std::string connectionName )
                 : StreamLogConnection<S>(connectionName)
             {
-                setStreamPtr( &mStream );
+                this->setStreamPtr( &mStream );
             }
 
             /// pure virtual destructor to make this class abstract
