@@ -15,13 +15,13 @@ FILE(GLOB_RECURSE OpenNERO_headers *.h)
 # find all the test source files
 FILE(GLOB_RECURSE OpenNERO_tests ../test/*.cpp)
 
-# find the Boost C++ libraries
+# Find the Boost C++ libraries.
+
+# When trying to figure out why cmake cannot find Boost, uncomment:
+set(Boost_DEBUG 1)
 
 # if linking against a custom (recent) version of boost without removing the system version, try:
 #SET(Boost_USE_MULTITHREADED "NO")
-
-# if not finding the version installed, add the version number here
-SET(Boost_ADDITIONAL_VERSIONS 1.48.0 1.48 1.47.0 1.47 1.46.1 1.46.0 1.46 1.45.0 1.45 1.44.0 1.44 1.43.0 1.43 1.42.0 1.42)
 
 FIND_PACKAGE (Boost COMPONENTS python filesystem serialization system date_time)
 IF (${Boost_MINOR_VERSION} LESS 35)

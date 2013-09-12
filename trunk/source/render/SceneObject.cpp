@@ -514,7 +514,7 @@ namespace OpenNero
         Assert( objTemplate->mpSimFactory );
 
         // cast to object template to the type we expect
-        mSceneObjectTemplate = shared_static_cast< SceneObjectTemplate, ObjectTemplate>( objTemplate );
+        mSceneObjectTemplate = static_pointer_cast< SceneObjectTemplate, ObjectTemplate>( objTemplate );
 
         IrrFactory& irrFactory = mSceneObjectTemplate->mpSimFactory->getIrrFactory();
 
