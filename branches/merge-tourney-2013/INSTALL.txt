@@ -1,0 +1,89 @@
+BUILDING OPENNERO (http://code.google.com/p/opennero/wiki/BuildingOpenNero)
+
+Overview
+
+OpenNERO uses the CMake cross-platform build system. The general steps are:
+
+    Install prerequisites as needed.
+    Check out the source code.
+    Run CMake.
+    Build.
+    Continue to Running OpenNERO 
+
+Mac OS X
+Prerequisites
+
+    Download and install cmake
+    Install Xcode (optional install on the Mac OS X DVD)
+    Install wxPython
+    Build and install Boost Libraries 
+
+Steps to build
+
+    (recommended) create a new directory for your build
+    in your build directory, run cmake -G Xcode /path/to/opennero/checkout
+    open the resulting OpenNERO.xcodeproja Xcode project file
+    Build OpenNERO using Xcode 
+
+Windows
+Prerequisites
+
+    cmake
+    Microsoft Visual Studio
+    Boost libraries (install a binary version of all the libraries for your version of Visual Studio) or build and install Boost
+    Latest Python 2.6.x with source
+    wxPython 
+
+Steps to build
+
+    Open CMake, specify the source directory (opennero checkout directory) and build directory (another directory). Choose 'Suppress dev Warnings -WnoDev?' from the Options menu. Click the Configure button twice, then click the Generate button.
+    Open the OpenNERO.sln solution file and build OpenNERO using Visual Studio.
+    To run from within Visual Studio, set OpenNERO as startup project. Also set the working directory of OpenNERO for debugging to $(TargetDir) (right mouse click on OpenNERO, select properties, debugging). 
+
+Linux
+Summary
+
+    mkdir opennero
+    cd opennero
+    svn checkout http://opennero.googlecode.com/svn/trunk
+    mkdir build-of-trunk
+    cd build-of-trunk
+    cmake ..\trunk
+    make
+    cd dist
+    ./OpenNERO 
+
+Prerequisites
+
+Install the following packages (using sudo apt-get install)
+Required
+
+    libboost-all-dev
+    libx11-dev
+    libxxf86vm-dev
+    libgl-dev
+    libz-dev 
+
+Optional
+
+    python-matplotlib
+    python-wxgtk 
+
+Steps to build
+
+    (recommended) create a new directory for your build
+    in your build directory, run cmake /path/to/opennero/checkout
+    building using make: make 
+
+To run
+
+    cd dist
+    ./OpenNERO 
+
+Update build
+
+    cd trunk
+    svn update
+    cd ..\build-of-trunk
+    make 
+
