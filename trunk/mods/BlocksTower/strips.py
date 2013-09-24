@@ -367,6 +367,9 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
     padding = "".join(["++" for x in range(0,len(current_plan))]) + " "
     plan = []
 
+    #setup debagging info
+    if debug:
+        this_subgoal_action_list = -1
     """
     print "Current Plan: {0}".format("\n".join([x.simple_str() for x in current_plan]))
     print ""
@@ -523,7 +526,7 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
 
             if debug:
                 viewer.display_text(padding + "New State: " + ", ".join([str(x) for x in state]))
-                viewer.user_pause("")
+                #viewer.user_pause("")
 
             i += 1
             found = True
@@ -534,9 +537,29 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
                 viewer.display_text("")
                 viewer.user_pause("++" + padding + "No actions found to satisfy this subgoal. Backtracking...")
                 viewer.display_text("")
+                #check and see if we have an action list to get rid of (i.e. if we had to deal with unmet preconditions)
+                if not(this_subgoal_action_list == -1):
+                    viewer.remove_last_item_viewer(this_subgoal_action_list)
             #current_plan.pop()
             return None
-    viewer.add_item_viewer(" ", [])
+            
+        #if we are done looking at this subgoal clean up any old action lists before moving on
+        if debug:
+            if not(this_subgoal_action_list == -1):
+                #there is an old action list we need to get rid of
+                viewer.remove_last_item_viewer(this_subgoal_action_list)
+                this_subgoal_action_list = -1        
+        ############################
+        #End while goals
+        ###########################
+    
+    #Get rid of all the planning widgets we created, unless it was the initial goal panel
+    if debug:
+        #check and see if we have an action list to get rid of (i.e. if we had to deal with unmet preconditions)
+        if not(this_subgoal_action_list == -1):
+            viewer.remove_last_item_viewer(this_subgoal_action_list)
+        if (depth > 0):
+            viewer.remove_last_item_viewer(this_level_subgoal_view)
     return plan
 
 def contains_contradiction(state, action):
