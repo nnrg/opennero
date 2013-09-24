@@ -243,10 +243,15 @@ show_hidden_as_grey, display_type))
         if (viewer_index < self.MAX_ITEM_VIEWERS):
             self.item_viewers[viewer_index].addItem(item, hidden, completed)
     
-    def remove_item_viewer(self, viewer_index):
-        if (viewer_index < self.MAX_ITEM_VIEWERS):
-            self.item_viewers.remove(self.item_viewers[viewer_index])
+    def remove_last_item_viewer(self, viewer_index=-1):
+        """viewer index can be used as a sanity check"""
+        if (viewer_index == len(self.item_viewers) - 1) or (viewer_index == -1):
+            last_viewer = self.item_viewers.pop()
+            last_viewer.tk_frame.destroy()
+            del last_viewer
             self.number_item_viewers -= 1
+        else:
+            print "WARNING [TreeViewer.remove_last_item_viewer]: viewer_index {} is not the last viewer widget in the array".format(viewer_index)
 
     def display_text(self, s):
         self.message.put(s)
