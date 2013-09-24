@@ -3,13 +3,13 @@ import re
 import sys
 import Tkinter as tk
 import time
-from text_viewer import TextViewer
+from tree_viewer import TreeViewer
 
 viewer = None
 if __name__ == "__main__":
     root = tk.Tk()
     root.title('STRIPS linear planner')
-    viewer = TextViewer(root)
+    viewer = TreeViewer(root)
 
 def join_list(l):
     return ", ".join([str(s) for s in l])
@@ -360,6 +360,7 @@ def linear_solver(world):
             state.append(GroundedCondition(predicate, literals, True))
 
     goals = list(world.goals)
+    
     return linear_solver_helper(world, state, goals, [])
 
 def linear_solver_helper(world, state, goals, current_plan, depth = 0):
@@ -379,11 +380,23 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
     if depth > 15:
         return None
 
+    #display the end goal
+    if debug:
+        if (depth == 0):
+            this_level_subgoal_view = viewer.number_item_viewers
+            viewer.add_item_viewer("Goal", [str(x) for x in goals], -1, range(1, len(goals)))
+        else:
+            this_level_subgoal_view = viewer.number_item_viewers            
+            viewer.add_item_viewer("Preconditions", [str(x) for x in goals], -1, range(1, len(goals)))
+
     i = 0
     while i < len(goals):
         goal = goals[i]
 
         if debug:
+            #viewer.add_item_viewer("State", [str(x) for x in state], 0, [1,3])
+            viewer.remove_hidden_index(i, this_level_subgoal_view)
+            viewer.set_active_index(i, this_level_subgoal_view)
             viewer.display_text(padding + "Current Plan: {0}".format(" -> ".join([x.simple_str() for x in current_plan])))
             viewer.display_text(padding + "Subgoal: {0}".format(goal))
             viewer.display_text(padding + "Other Goals: {0}".format(", ".join([str(x) for x in goals[i+1:]])))
@@ -393,6 +406,7 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
         if satisfied(state, goal):
             # recurse
             if debug:
+                viewer.add_completed_index(i, this_level_subgoal_view)
                 viewer.user_pause(padding + "Satisfied already")
                 viewer.display_text("")
             i += 1
@@ -403,15 +417,19 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
         # otherwise, we need to find a subgoal that will get us to the goal
         # find all the grounded actions which will satisfy the goal
         if debug:
+            this_subgoal_action_list = viewer.number_item_viewers
+            viewer.add_item_viewer("Actions", [x.simple_str() for x in possible_actions])
             viewer.display_text(padding + "List of possible actions that satisfy {0}:".format(goal))
             viewer.display_text("\n".join([padding + x.simple_str() for x in possible_actions]))
-            viewer.user_pause("")
+            #viewer.user_pause("")
+            action_index = 0
 
         found = False
 
         for action in possible_actions:
 
             if debug:
+                viewer.set_active_index(action_index, this_subgoal_action_list)
                 viewer.display_text(padding + "Trying next action to satisfy {0}:".format(goal))
                 viewer.display_text(padding + str(action).replace("\n", "\n" + padding))
                 viewer.user_pause("")
@@ -419,14 +437,18 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
             # check if there is at least 1 action for each precondition which satisfies it
             if not preconditions_reachable(world, action):
                 if debug:
+                    viewer.add_hidden_index(action_index, this_subgoal_action_list)
                     viewer.display_text(padding + "Some preconditions not reachable by any possible action. Skipping...")
+                    action_index += 1                    
                     viewer.user_pause("")
                 continue
 
             # check if the action directly contradicts another goal
             if contains_contradiction(goals, action):
                 if debug:
+                    viewer.add_hidden_index(action_index, this_subgoal_action_list)                    
                     viewer.display_text(padding + "Action violates another goal state. Skipping...")
+                    action_index += 1                    
                     viewer.user_pause("")
                 continue
 
@@ -446,13 +468,16 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
             # we were unable to find
             if solution is None:
                 if debug:
+                    viewer.add_hidden_index(action_index, this_subgoal_action_list)                    
                     viewer.display_text(padding + "No solution found with this action. Skipping...")
+                    action_index += 1
                 current_plan.pop()
                 continue
 
             if debug:
+                viewer.add_completed_index(i, this_level_subgoal_view)                
                 viewer.display_text(padding + "Possible solution found!")
-                viewer.user_pause("")
+                #viewer.user_pause("")
 
 
             # update the state to incorporate the post conditions of our selected action
@@ -473,6 +498,7 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
                 current_plan.pop()
                 continue"""
                 if debug:
+                    [viewer.add_item_to_viewer(str(x), this_level_subgoal_view) for x in clobbered]
                     viewer.display_text(padding + "Path satisfies {0} but clobbers other goals: {1}".format(goal, ", ".join([str(x) for x in clobbered])))
                     viewer.display_text(padding + "Re-adding the clobbered goals to the end of the list")
                     viewer.user_pause("")
@@ -510,7 +536,7 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
                 viewer.display_text("")
             #current_plan.pop()
             return None
-
+    viewer.add_item_viewer(" ", [])
     return plan
 
 def contains_contradiction(state, action):
@@ -587,7 +613,7 @@ def print_plan(plan):
         viewer.display_text(x.simple_str())
         print ' '.join(x.literals)
     viewer.display_text('')
-    viewer.user_pause('Close the window to execute the plan!')
+    viewer.display_text('Close the window to execute the plan!')
 
 def run():
     time.sleep(0.1)
@@ -602,7 +628,7 @@ def run():
         if solution is None:
             viewer.user_pause("No solution found :(")
         else:
-            viewer.user_pause("Solved!")
+            viewer.display_text("Solved!")
             print_plan(solution)
 
 def main():
