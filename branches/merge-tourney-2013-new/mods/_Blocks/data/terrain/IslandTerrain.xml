@@ -1,0 +1,13 @@
+<Template>
+  <ObjectTemplate>
+    <Name>Terrain</Name>
+  </ObjectTemplate>
+  <Render>
+    <MaterialType>detail</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <Terrain>data/terrain/island-heightmap.bmp</Terrain>
+    <Texture0>data/terrain/island0.jpg</Texture0>
+    <ScaleTexture>1 1</ScaleTexture>
+    <Scale>12 12 0.4</Scale>
+  </Render>
+</Template>
