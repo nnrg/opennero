@@ -1116,6 +1116,70 @@ OrganismPtr Population::remove_worst()
     return org_to_kill;
 }
 
+OrganismPtr Population::remove_worst(U32 range)
+{
+
+    F64 adjusted_fitness;
+    F64 min_fitness=999999;
+    vector<OrganismPtr>::iterator curorg;
+    OrganismPtr org_to_kill;
+    vector<OrganismPtr>::iterator deadorg;
+    SpeciesPtr orgs_species; //The species of the dead organism
+    U32 count;
+
+    //Make sure the organism is deleted from its species and the population
+
+    //First find the organism with minimum *adjusted* fitness
+    for (curorg=organisms.begin(), count=0; curorg!=organisms.end() && count<range; ++curorg, ++count)
+    {
+        adjusted_fitness=((*curorg)->fitness)/((*curorg)->species.lock()->organisms.size());
+
+        if ((*curorg)->smited)
+        {
+            //get the next time multiple
+            U32 nextMultiple;
+            if ((*curorg)->time_alive % NEAT::time_alive_minimum == 0)
+                nextMultiple = (*curorg)->time_alive;
+            else
+                nextMultiple = NEAT::time_alive_minimum * ((*curorg)->time_alive / NEAT::time_alive_minimum + 1);
+
+            adjusted_fitness=-9999;
+            (*curorg)->time_alive = nextMultiple;
+        }
+
+        if ( (adjusted_fitness<min_fitness)
+            &&((*curorg)->time_alive
+                >= static_cast<S32>(NEAT::time_alive_minimum) ))
+        {
+            min_fitness=adjusted_fitness;
+            org_to_kill=(*curorg);
+            deadorg=curorg;
+            orgs_species = (*curorg)->species.lock();
+        }
+    }
+
+    if (org_to_kill)
+    {
+
+        //Remove the organism from its species and the population
+        orgs_species->remove_org(org_to_kill); //Remove from species
+        organisms.erase(deadorg); //Remove from population list
+
+        //Did the species become empty?
+        if (orgs_species->organisms.size()==0)
+        {
+            remove_species(orgs_species);
+        }
+        //If not, re-estimate the species average after removing the organism
+        else
+        {
+            orgs_species->estimate_average();
+        }
+    }
+
+    return org_to_kill;
+}
+
 OrganismPtr Population::remove_worst_probabilistic()
 {
 

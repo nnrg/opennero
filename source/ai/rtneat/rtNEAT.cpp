@@ -17,11 +17,11 @@ namespace OpenNero
 
     /// @cond
     BOOST_SHARED_DECL(SimEntity);
-	/// @endcond
+    /// @endcond
 
-	const F32 FRACTION_POPULATION_INELIGIBLE_ALLOWED = 0.5;
+    const F32 FRACTION_POPULATION_INELIGIBLE_ALLOWED = 0.5;
 
-	using namespace NEAT;
+    using namespace NEAT;
 
     namespace {
         const size_t kNumSpeciesTarget = 5; ///< target number of species in the population
@@ -40,17 +40,19 @@ namespace OpenNero
     /// @param param_file file with RTNEAT parameters to load
     /// @param population_size size of the population to construct
     /// @param reward_info the specifications for the multidimensional reward
+    /// @param generational if true then run generational NEAT; otherwise run realtime NEAT
     RTNEAT::RTNEAT(const std::string& filename,
                    const std::string& param_file,
                    size_t population_size,
-                   const RewardInfo& reward_info)
+                   const RewardInfo& reward_info,
+                   bool generational)
         : mPopulation()
         , mWaitingBrainList()
-		, mBrainList()
+        , mBrainList()
         , mBrainBodyMap()
         , mOffspringCount(population_size)
-		, mSpawnTickCount(0)
-		, mEvolutionTickCount(0)
+        , mSpawnTickCount(0)
+        , mEvolutionTickCount(0)
         , mTotalUnitsDeleted(0)
         , mUnitsToDeleteBeforeFirstJudgment(population_size)
         , mTimeBetweenEvolutions(NEAT::time_alive_minimum)
@@ -58,16 +60,18 @@ namespace OpenNero
         , mFitnessWeights(reward_info.size())
         , mEvolutionEnabled(true)
         , mChampionId(-1)
+        , mGenerational(generational)
     {
         NEAT::load_neat_params(Kernel::findResource(param_file));
         NEAT::pop_size = population_size;
-        mPopulation.reset(new Population(filename, population_size));
+        std::string pop_fname = Kernel::findResource(filename);
+        mPopulation.reset(new Population(pop_fname, population_size));
         AssertMsg(mPopulation, "initial population creation failed");
         mOffspringCount = mPopulation->organisms.size();
         AssertMsg(mOffspringCount == population_size, "population has " << mOffspringCount << " organisms instead of " << population_size);
         for (size_t i = 0; i < mPopulation->organisms.size(); ++i)
         {
-			PyOrganismPtr brain(new PyOrganism(mPopulation->organisms[i], reward_info));
+            PyOrganismPtr brain(new PyOrganism(mPopulation->organisms[i], reward_info));
             mWaitingBrainList.push(brain);
             mBrainList.push_back(brain);
         }
@@ -80,25 +84,28 @@ namespace OpenNero
     /// @param population_size size of the population to construct
     /// @param noise variance of the Gaussian used to assign initial weights
     /// @param reward_info the specifications for the multidimensional reward
+    /// @param generational if true then run generational NEAT; otherwise run realtime NEAT
     RTNEAT::RTNEAT(const std::string& param_file,
                    size_t inputs,
                    size_t outputs,
                    size_t population_size,
                    F32 noise,
-                   const RewardInfo& reward_info)
+                   const RewardInfo& reward_info,
+                   bool generational)
         : mPopulation()
         , mWaitingBrainList()
-		, mBrainList()
+        , mBrainList()
         , mBrainBodyMap()
         , mOffspringCount(0)
-		, mSpawnTickCount(0)
-		, mEvolutionTickCount(0)
+        , mSpawnTickCount(0)
+        , mEvolutionTickCount(0)
         , mTotalUnitsDeleted(0)
         , mUnitsToDeleteBeforeFirstJudgment(population_size)
         , mTimeBetweenEvolutions(NEAT::time_alive_minimum)
         , mRewardInfo(reward_info)
         , mFitnessWeights(reward_info.size())
         , mEvolutionEnabled(true)
+        , mGenerational(generational)
     {
         NEAT::load_neat_params(Kernel::findResource(param_file));
         NEAT::pop_size = population_size;
@@ -109,7 +116,7 @@ namespace OpenNero
         AssertMsg(mOffspringCount == population_size, "population has " << mOffspringCount << " organisms instead of " << population_size);
         for (size_t i = 0; i < mPopulation->organisms.size(); ++i)
         {
-			PyOrganismPtr brain(new PyOrganism(mPopulation->organisms[i], reward_info));
+            PyOrganismPtr brain(new PyOrganism(mPopulation->organisms[i], reward_info));
             mWaitingBrainList.push(brain);
             mBrainList.push_back(brain);
         }
@@ -118,7 +125,61 @@ namespace OpenNero
     /// Destructor
     RTNEAT::~RTNEAT()
     {
+    }
 
+
+    /// load sensor values into the network
+    void PyNetwork::load_sensors(py::list l)
+    {
+        std::vector<double> sensors;
+        for (py::ssize_t i = 0; i < py::len(l); ++i)
+            {
+                sensors.push_back(py::extract<double>(l[i]));
+            }
+        mNetwork->load_sensors(sensors);
+    }
+
+    /// load error values into the network
+    void PyNetwork::load_errors(py::list l)
+    {
+        std::vector<double> errors;
+        for (py::ssize_t i = 0; i < py::len(l); ++i)
+            {
+                errors.push_back(py::extract<double>(l[i]));
+            }
+        mNetwork->load_errors(errors);
+    }
+
+    /// get output values from the network
+    py::list PyNetwork::get_outputs()
+    {
+        py::list l;
+        std::vector<NNodePtr>::const_iterator iter;
+        for (iter = mNetwork->outputs.begin(); iter != mNetwork->outputs.end(); ++iter)
+            {
+                l.append((*iter)->get_active_out());
+            }
+        return l;
+    }
+
+    std::ostream& operator<<(std::ostream& output, const PyNetwork& net)
+    {
+        output << net.mNetwork;
+        return output;
+    }
+
+    std::ostream& operator<<(std::ostream& output, const PyOrganism& org)
+    {
+        output << org.mOrganism;
+        return output;
+    }
+    
+    /// load the population from a file
+    bool RTNEAT::load_population(const std::string& pop_file)
+    {
+        std::string fname = Kernel::findResource(pop_file, false);
+        mPopulation.reset(new Population(fname));
+        return true;
     }
 
     /// are we ready to spawn a new organism?
@@ -140,9 +201,10 @@ namespace OpenNero
     {
         BrainBodyMap::left_map::const_iterator found;
         found = mBrainBodyMap.left.find(agent->GetBody());
+        PyOrganismPtr result;
         if (found != mBrainBodyMap.left.end())
         {
-            return found->second;
+            result = found->second;
         }
         else
         {
@@ -154,9 +216,9 @@ namespace OpenNero
                         "new brain: " << brain->GetId() <<
                         " for body: " << agent->GetBody()->GetId());
 
-            return brain;
+            result = brain;
         }
-
+        return result;
     }
 
     /// release the organism that was being used by the agent
@@ -172,23 +234,23 @@ namespace OpenNero
     }
 
     /// save a population to a file
-	std::string RTNEAT::save_population(const std::string& pop_file)
+    std::string RTNEAT::save_population(const std::string& pop_file)
     {
-		// try looking for the filename as is
-		std::string fname = pop_file;
+        // try looking for the filename as is
+        std::string fname = pop_file;
         std::ofstream output(fname.c_str());
-		if (!output) {
-			// try again with our findResource method
-	       std::string fname = Kernel::findResource(pop_file, false);
-		   output.open(fname.c_str());
-		}
         if (!output) {
-			LOG_ERROR("Could not open file: " << fname);
-			return "";
+            // try again with our findResource method
+           std::string fname = Kernel::findResource(pop_file, false);
+           output.open(fname.c_str());
+        }
+        if (!output) {
+            LOG_ERROR("Could not open file: " << fname);
+            return "";
         }
         else
         {
-			LOG_F_MSG("ai.rtneat", "Saving population to file: " << fname);
+            LOG_F_MSG("ai.rtneat", "Saving population to file: " << fname);
             //output << mPopulation;
             mPopulation->print_to_file(output);
             output.close();
@@ -236,9 +298,9 @@ namespace OpenNero
 
     void RTNEAT::ProcessTick( float32_t incAmt )
     {
-		// Increment the spawn tick and evolution tick counters
-		++mSpawnTickCount;
-		++mEvolutionTickCount;
+        // Increment the spawn tick and evolution tick counters
+        ++mSpawnTickCount;
+        ++mEvolutionTickCount;
 
         if (mEvolutionEnabled) {
             tallyAll();
@@ -308,8 +370,8 @@ namespace OpenNero
                 }
                 if (brain->mAbsoluteScore < minAbsoluteScore)
                     minAbsoluteScore = brain->mAbsoluteScore;
-				if (brain->mAbsoluteScore > maxAbsoluteScore) {
-					maxAbsoluteScore = brain->mAbsoluteScore;
+                if (brain->mAbsoluteScore > maxAbsoluteScore) {
+                    maxAbsoluteScore = brain->mAbsoluteScore;
                     champ = brain;
                 }
             }
@@ -448,13 +510,13 @@ namespace OpenNero
         //       rtNEAT with different lifetimes at the same time, but changing it
         //       to a local value requires making changes to the code in source/rtneat
         //       as well.
-		if (lifetime > 0) {
-			NEAT::time_alive_minimum = lifetime;
-			mTimeBetweenEvolutions = (F32)lifetime / FRACTION_POPULATION_INELIGIBLE_ALLOWED / (F32)(mPopulation->organisms.size());
-			LOG_F_DEBUG("ai.rtneat",
-				"time_alive_minimum: " << NEAT::time_alive_minimum <<
-				" mTimeBetweenEvolutions: " << mTimeBetweenEvolutions);
-		}
+        if (lifetime > 0) {
+            NEAT::time_alive_minimum = lifetime;
+            mTimeBetweenEvolutions = (F32)lifetime / FRACTION_POPULATION_INELIGIBLE_ALLOWED / (F32)(mPopulation->organisms.size());
+            LOG_F_DEBUG("ai.rtneat",
+                "time_alive_minimum: " << NEAT::time_alive_minimum <<
+                " mTimeBetweenEvolutions: " << mTimeBetweenEvolutions);
+        }
     }
 
     /// the id of the species of the organism
@@ -463,21 +525,4 @@ namespace OpenNero
         return mOrganism->species.lock()->id;
     }
 
-    std::ostream& operator<<(std::ostream& output, const PyNetwork& net)
-    {
-        // TODO: currently this prints out the whole network in a Boost
-        //       synchronization dump. We probably need to print something
-        //       more useful/readable here.
-        output << net.mNetwork;
-        return output;
-    }
-
-    std::ostream& operator<<(std::ostream& output, const PyOrganism& org)
-    {
-        // TODO: currently this prints out the whole organism in a Boost
-        //       synchronization dump. We probably need to print something
-        //       more useful/readable here.
-        output << org.mOrganism;
-        return output;
-    }
 }

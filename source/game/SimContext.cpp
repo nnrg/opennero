@@ -56,14 +56,8 @@ namespace OpenNero
 
     bool SimContext::Initialize(IrrlichtDevice_IPtr device)
     {
-        Assert( device );
-
         // make copies of the irr handles
-        mIrr.mpIrrDevice = device;
-        mIrr.mpVideoDriver = IVideoDriver_IPtr(mIrr.mpIrrDevice->getVideoDriver() );
-        mIrr.mpSceneManager = ISceneManager_IPtr( mIrr.mpIrrDevice->getSceneManager()->createNewSceneManager(), false);
-        Assert(mIrr.mpSceneManager);
-        mIrr.mpGuiEnv = IGuiEnvironment_IPtr(mIrr.mpIrrDevice->getGUIEnvironment() );
+        mIrr = IrrHandles(device);
 
         mpSimulation.reset( new Simulation( mIrr ) );
 
@@ -98,7 +92,7 @@ namespace OpenNero
         mpGuiManager.reset( new GuiManager( mIrr, mpFactory ) );
 
         // add a custom draw node to the scene manager
-        mpNeroNode = new NeroDrawNode( mIrr.mpSceneManager->getRootSceneNode(), mIrr.mpSceneManager.get(), -1);
+        mpNeroNode = new NeroDrawNode( mIrr.getSceneManager()->getRootSceneNode(), mIrr.getSceneManager(), -1);
         Assert( mpNeroNode );
 
         // initialize the mod from script
@@ -157,14 +151,14 @@ namespace OpenNero
     /// set the fog mode
     void SimContext::SetFog()
     {
-        mIrr.mpVideoDriver->setFog();
+        mIrr.getVideoDriver()->setFog();
     }
 
     /// Kill the current context
     void SimContext::KillGame()
     {
-        AssertMsg( mIrr.mpIrrDevice, "Invalid irrlicht device" );
-        mIrr.mpIrrDevice->closeDevice();
+        AssertMsg( mIrr.getDevice(), "Invalid irrlicht device" );
+        mIrr.getDevice()->closeDevice();
     }
 
     /// Python interface method for adding a python controlled camera to the context
@@ -176,7 +170,7 @@ namespace OpenNero
 
     void SimContext::AddLightSource( const Vector3f& position, float32_t radius, const SColor& color )
     {
-        mIrr.mpSceneManager->addLightSceneNode(NULL, ConvertNeroToIrrlichtPosition(position), color, radius);
+        mIrr.getSceneManager()->addLightSceneNode(NULL, ConvertNeroToIrrlichtPosition(position), color, radius);
     }
 
     /**
@@ -188,17 +182,17 @@ namespace OpenNero
      */
     void SimContext::AddSkyBox( const std::string& box_base_name, const std::string& extension )
     {
-        ITexture* up = mIrr.mpVideoDriver->getTexture( Kernel::findResource(box_base_name + "_up." + extension).c_str() );
-        ITexture* dn = mIrr.mpVideoDriver->getTexture( Kernel::findResource(box_base_name + "_dn." + extension).c_str() );
-        ITexture* lf = mIrr.mpVideoDriver->getTexture( Kernel::findResource(box_base_name + "_lf." + extension).c_str() );
-        ITexture* rt = mIrr.mpVideoDriver->getTexture( Kernel::findResource(box_base_name + "_rt." + extension).c_str() );
-        ITexture* ft = mIrr.mpVideoDriver->getTexture( Kernel::findResource(box_base_name + "_ft." + extension).c_str() );
-        ITexture* bk = mIrr.mpVideoDriver->getTexture( Kernel::findResource(box_base_name + "_bk." + extension).c_str() );
+        ITexture* up = mIrr.getVideoDriver()->getTexture( Kernel::findResource(box_base_name + "_up." + extension).c_str() );
+        ITexture* dn = mIrr.getVideoDriver()->getTexture( Kernel::findResource(box_base_name + "_dn." + extension).c_str() );
+        ITexture* lf = mIrr.getVideoDriver()->getTexture( Kernel::findResource(box_base_name + "_lf." + extension).c_str() );
+        ITexture* rt = mIrr.getVideoDriver()->getTexture( Kernel::findResource(box_base_name + "_rt." + extension).c_str() );
+        ITexture* ft = mIrr.getVideoDriver()->getTexture( Kernel::findResource(box_base_name + "_ft." + extension).c_str() );
+        ITexture* bk = mIrr.getVideoDriver()->getTexture( Kernel::findResource(box_base_name + "_bk." + extension).c_str() );
         if ( !( up && dn && lf && rt && ft && bk ) )
         {
             LOG_F_ERROR( "graphics", "could not load a sky box texture starting with '" << box_base_name << "' and with extension '" << extension << "'.");
         }
-        mpSkyBox = mIrr.mpSceneManager->addSkyBoxSceneNode(up, dn, lf, rt, ft, bk);
+        mpSkyBox = mIrr.getSceneManager()->addSkyBoxSceneNode(up, dn, lf, rt, ft, bk);
     }
 
     GuiManagerPtr SimContext::GetGuiManager()
@@ -257,12 +251,12 @@ namespace OpenNero
 
 	const ISceneManager_IPtr SimContext::GetSceneManager()
 	{
-		return mIrr.mpSceneManager;
+		return mIrr.getSceneManager();
 	}
 
     irr::gui::IGUIFont* SimContext::GetFont()
     {
-        return mIrr.mpIrrDevice->getGUIEnvironment()->getFont( "common/data/gui/fonthaettenschweiler.bmp" );
+        return mIrr.getDevice()->getGUIEnvironment()->getFont( "common/data/gui/fonthaettenschweiler.bmp" );
     }
 
     /// Update all the objects and render
@@ -326,23 +320,19 @@ namespace OpenNero
     void SimContext::UpdateRenderSystem(float32_t dt)
     {
         // draw the scene
-        Assert( mIrr.mpVideoDriver );
-        Assert( mIrr.mpSceneManager );
-        Assert( mIrr.mpGuiEnv );
-
         static bool sClearBackBuffer = true;
         static bool sClearZBuffer    = true;
 
-        mIrr.mpVideoDriver->beginScene( sClearBackBuffer, sClearZBuffer, mClearColor );
-        mIrr.mpSceneManager->drawAll();
-        mIrr.mpGuiEnv->drawAll();
+        mIrr.getVideoDriver()->beginScene( sClearBackBuffer, sClearZBuffer, mClearColor );
+        mIrr.getSceneManager()->drawAll();
+        mIrr.getGuiEnv()->drawAll();
 
         mFPSCounter.registerFrame();
         std::stringstream sstr;
         sstr << mFPSCounter.getFPS();
-        DrawText( Vector2i( 5, 55 ), SColor(255,255,255,255), sstr.str(), mIrr.mpIrrDevice );
+        DrawText( Vector2i( 5, 55 ), SColor(255,255,255,255), sstr.str(), mIrr.getDevice() );
 
-        mIrr.mpVideoDriver->endScene();
+        mIrr.getVideoDriver()->endScene();
 
     }
 
@@ -376,8 +366,8 @@ namespace OpenNero
         mObjectTemplates.clear();
 
         // clear the irrlicht structures
-        if( mIrr.mpSceneManager )
-            mIrr.mpSceneManager->clear();
+        if( mIrr.getSceneManager() )
+            mIrr.getSceneManager()->clear();
 
         // remove all of our elements from the gui
         if( mpGuiManager )
@@ -387,11 +377,11 @@ namespace OpenNero
     /// @param x screen x-coordinate for active camera
     /// @param y screen y-coordinate for active camera
     /// @return the SimEntity intersected first by the ray from the camera origin through the view plane
-    SimEntityPtr SimContext::GetClickedEntity(const int32_t& x, const int32_t& y) const
+    SimEntityPtr SimContext::GetClickedEntity(const int32_t& x, const int32_t& y)
     {
         Pos2i pos(x,y);
         // get scene node
-        ISceneNode* node = mIrr.mpSceneManager->getSceneCollisionManager()->getSceneNodeFromScreenCoordinatesBB(pos);
+        ISceneNode* node = mIrr.getSceneManager()->getSceneCollisionManager()->getSceneNodeFromScreenCoordinatesBB(pos);
         SimEntityPtr result;
         if (node != NULL)
         {
@@ -407,7 +397,7 @@ namespace OpenNero
     /// @param x screen x-coordinate for active camera
     /// @param y screen y-coordinate for active camera
     /// @return the Id of the SimEntity intersected first by the ray from the camera origin through the view plane
-    SimId SimContext::GetClickedEntityId(const int32_t& x, const int32_t& y) const
+    SimId SimContext::GetClickedEntityId(const int32_t& x, const int32_t& y)
     {
         SimEntityPtr ent = GetClickedEntity(x, y);
         if (ent) {
@@ -420,11 +410,11 @@ namespace OpenNero
     /// @param x screen x-coordinate for active camera
     /// @param y screen y-coordinate for active camera
     /// @return 3d ray from the camera origin through the view plane at the screen coordinates (note, this is PAST the actual click coord)
-    Line3f SimContext::GetRayUnderMouse(const int32_t& x, const int32_t& y) const
+    Line3f SimContext::GetRayUnderMouse(const int32_t& x, const int32_t& y)
     {
         Pos2i pos(x,y);
         // get ray
-        Line3f line = mIrr.mpSceneManager->getSceneCollisionManager()->getRayFromScreenCoordinates(pos);
+        Line3f line = mIrr.getSceneManager()->getSceneCollisionManager()->getRayFromScreenCoordinates(pos);
         // convert to NERO coords
         line.setLine(ConvertIrrlichtToNeroPosition(line.start), ConvertIrrlichtToNeroPosition(line.end));
         return line;
@@ -448,9 +438,9 @@ namespace OpenNero
                                 const bool vis, 
                                 const SColor& foundColor,
                                 const SColor& noneColor
-                              ) const
+                              )
 	{
-        ISceneCollisionManager* collider = mIrr.mpSceneManager->getSceneCollisionManager();
+        ISceneCollisionManager* collider = mIrr.getSceneManager()->getSceneCollisionManager();
         Assert(collider);
         Line3f ray(ConvertNeroToIrrlichtPosition(origin), ConvertNeroToIrrlichtPosition(target));
         Triangle3f outTriangle;
@@ -488,7 +478,7 @@ namespace OpenNero
                                       const bool val, 
                                       const SColor& foundColor,
                                       const SColor& noneColor
-                                    ) const
+                                    )
     {
         SimEntityData hitEntity;
         Vector3f hitPos;
@@ -505,10 +495,10 @@ namespace OpenNero
     /// @param x screen x-coordinate for active camera
     /// @param y screen y-coordinate for active camera
     /// @return Approximate 3d position of the click
-    Vector3f SimContext::GetClickedPosition(const int32_t& x, const int32_t& y) const
+    Vector3f SimContext::GetClickedPosition(const int32_t& x, const int32_t& y)
     {
         Pos2i pos(x,y);
-        ISceneCollisionManager* collider = mIrr.mpSceneManager->getSceneCollisionManager();
+        ISceneCollisionManager* collider = mIrr.getSceneManager()->getSceneCollisionManager();
         // get ray
         Line3f ray = collider->getRayFromScreenCoordinates(pos);
         LOG_F_DEBUG("collision", "screen coordinates: " << pos << ", ray: " << ray.start << " - " << ray.end << ", length: " << ray.getLength());
@@ -526,7 +516,7 @@ namespace OpenNero
     }
 
     /// @return the current position of the mouse
-    Pos2i SimContext::GetMousePosition() const
+    Pos2i SimContext::GetMousePosition()
     {
         return mIOMap.GetMousePosition();
     }

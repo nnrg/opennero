@@ -96,7 +96,7 @@ namespace OpenNero
         void SetFog();
 
         /// Get the vector from camera origin to the specified cursor position on screen
-        Line3f GetRayUnderMouse(const int32_t& x, const int32_t& y) const;
+        Line3f GetRayUnderMouse(const int32_t& x, const int32_t& y);
 
 		/// Find the first object that intersects the specified ray
 		bool FindInRay( SimEntityData& hitEntity,
@@ -107,7 +107,7 @@ namespace OpenNero
                         const bool val = false,
                         const SColor& foundColor = SColor(255,255,0,0),
                         const SColor& noneColor = SColor(255,255,255,0)
-                      ) const;
+                      );
 
 		/// Find the first object that intersects the specified ray
 		boost::python::tuple PyFindInRay( const Vector3f& origin,
@@ -116,19 +116,19 @@ namespace OpenNero
                                           const bool val = false,
                                           const SColor& foundColor = SColor(255,255,0,0),
                                           const SColor& noneColor = SColor(255,255,255,0)
-                                        ) const;
+                                        );
 
         /// Get (approximate) 3d position of the click
-        Vector3f GetClickedPosition(const int32_t& x, const int32_t& y) const;
+        Vector3f GetClickedPosition(const int32_t& x, const int32_t& y);
 
         /// Get the SimEntity under the user specified cursor position on screen
-        SimEntityPtr GetClickedEntity(const int32_t& x, const int32_t& y) const;
+        SimEntityPtr GetClickedEntity(const int32_t& x, const int32_t& y);
 
         /// Get the Id of the SimEntity under the user specified cursor position on screen
-        SimId GetClickedEntityId(const int32_t& x, const int32_t& y) const;
+        SimId GetClickedEntityId(const int32_t& x, const int32_t& y);
 
         /// Get the current position of the mouse on the screen
-        Pos2i GetMousePosition() const;
+        Pos2i GetMousePosition();
 
         /// These methods call the corresponding methods of SimEntity specified by the id
         /// @{
@@ -235,7 +235,7 @@ namespace OpenNero
 
     private:
 
-        IrrHandles mIrr;                                ///< Handles to irrlicht things
+        IrrHandles mIrr;                       ///< Handles to irrlicht things
 
         CameraPtr mpCamera;                             ///< Our camera in the scene
 

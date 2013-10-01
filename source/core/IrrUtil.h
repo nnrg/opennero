@@ -46,7 +46,6 @@ namespace irr
 }
 
 namespace OpenNero {
-
   /// typedefs for irrlicht types in case we ever decide to move away
   /// @{
   /// 2d integer rectangle
@@ -137,13 +136,24 @@ namespace OpenNero {
     /// constructor
     IrrHandles() {}
 
-    /// copy constructor
-  IrrHandles( const IrrHandles& handles )
-  : mpIrrDevice(handles.mpIrrDevice),
-      mpVideoDriver(handles.mpVideoDriver),
-      mpSceneManager(handles.mpSceneManager),
-      mpGuiEnv(handles.mpGuiEnv)
-    {}               
+    explicit IrrHandles(IrrlichtDevice_IPtr device);
+
+    irr::IrrlichtDevice* getDevice();
+
+    const irr::IrrlichtDevice* getDevice() const;
+
+    irr::video::IVideoDriver* getVideoDriver();
+
+    const irr::video::IVideoDriver* getVideoDriver() const;
+
+    irr::scene::ISceneManager* getSceneManager();
+
+    const irr::scene::ISceneManager* getSceneManager() const;
+
+    irr::gui::IGUIEnvironment* getGuiEnv();
+
+    const irr::gui::IGUIEnvironment* getGuiEnv() const;
+      
   };
 
   /// a container of irrlicht ptrs using raw ptrs (to stop circular references)
@@ -159,56 +169,58 @@ namespace OpenNero {
     IrrHandles_Weak() {}
 
     /// copy constructor
-  IrrHandles_Weak( const IrrHandles_Weak& handles )
-  : mpIrrDevice(handles.mpIrrDevice),
+    IrrHandles_Weak( const IrrHandles_Weak& handles )
+    : mpIrrDevice(handles.mpIrrDevice),
       mpVideoDriver(handles.mpVideoDriver),
       mpSceneManager(handles.mpSceneManager),
       mpGuiEnv(handles.mpGuiEnv)
     {}
 
     /// constructor from IrrHandles
-  IrrHandles_Weak( const IrrHandles& handles )
-  : mpIrrDevice(handles.mpIrrDevice.get()),
+    IrrHandles_Weak( const IrrHandles& handles )
+    : mpIrrDevice(handles.mpIrrDevice.get()),
       mpVideoDriver(handles.mpVideoDriver.get()),
       mpSceneManager(handles.mpSceneManager.get()),
       mpGuiEnv(handles.mpGuiEnv.get())
     {}	
-  };
+    };
 
-  /// a safe irrlicht grab
-  inline
+    /// a safe irrlicht grab
+    inline
     void SafeIrrGrab( irr::IReferenceCounted* unknown )
-  {
+    {
     if( unknown )
       unknown->grab();
-  }
+    }
 
-  /// a safe irrlicht drop
-  inline
+    /// a safe irrlicht drop
+    inline
     void SafeIrrDrop( irr::IReferenceCounted* unknown )
-  {
+    {
     if( unknown )
       unknown->drop();
-  }
+    }
 
-  /// convenience method for storing an irr vector into a bitstream
-  template< class T > inline Bitstream& operator<<( Bitstream& stream, const irr::core::vector3d<T>& vec )
+    /// convenience method for storing an irr vector into a bitstream
+    template< class T > inline Bitstream&
+    operator<<( Bitstream& stream, const irr::core::vector3d<T>& vec )
     {
       return stream << vec.X << vec.Y << vec.Z;
     }
 
-  /// convenience method for extracting an irr vector from a bitstream
-  template< class T > inline Bitstream& operator>>( Bitstream& stream, irr::core::vector3d<T>& vec )
+    /// convenience method for extracting an irr vector from a bitstream
+    template< class T > inline Bitstream&
+        operator>>( Bitstream& stream, irr::core::vector3d<T>& vec )
     {
       return stream >> vec.X >> vec.Y >> vec.Z;
     }
 
-  /// convenience method for storing an irr color into a bitstream
-  inline Bitstream& operator<<( Bitstream& stream, const irr::video::SColor& col )
-  {
-    stream << col.getAlpha() << col.getRed() << col.getGreen() << col.getBlue();    
-    return stream;
-  }
+    /// convenience method for storing an irr color into a bitstream
+    inline Bitstream& operator<<( Bitstream& stream, const irr::video::SColor& col )
+    {
+        stream << col.getAlpha() << col.getRed() << col.getGreen() << col.getBlue();    
+        return stream;
+    }
 
   /// convenience method for extracting an irr color from a bitstream
   inline Bitstream& operator>>( Bitstream& stream, irr::video::SColor& col )

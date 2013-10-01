@@ -1,0 +1,14 @@
+<Template>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <AniMesh>data/shapes/steve/steve_red_armed.md2</AniMesh>
+    <CastsShadow>false</CastsShadow>
+    <Texture0>data/shapes/steve/steve_red.jpg</Texture0>
+    <Scale>0.6 0.6 0.6</Scale>
+    <DrawLabel>false</DrawLabel>
+  </Render>
+  <AI>
+    <Python agent="NERO.agent.KeyboardAgent()" />
+  </AI>
+</Template>
