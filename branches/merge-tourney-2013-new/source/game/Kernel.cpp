@@ -41,7 +41,7 @@ namespace OpenNero
         if (ensure_existence) {
             if (!Kernel::instance().getMod()->FindResource(path, result)) {
                 AssertMsg(false, "Could not locate resource " << path);
-                LOG_F_ERROR("game", "Could not locate user resource " << path);
+                LOG_F_ERROR("game", "Could not locate resource " << path);
                 return result;
             }
         }

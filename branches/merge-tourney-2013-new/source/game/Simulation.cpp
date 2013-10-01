@@ -263,7 +263,7 @@ namespace OpenNero
     }
     
     /// get a triangle selector for all the objects matching the types mask
-    IMetaTriangleSelector_IPtr Simulation::GetCollisionTriangleSelector( size_t types ) const
+    IMetaTriangleSelector_IPtr Simulation::GetCollisionTriangleSelector( size_t types )
     {
         IMetaTriangleSelector_IPtr meta_selector;
         
@@ -276,7 +276,7 @@ namespace OpenNero
             meta_selector = needle->second;
         } else {
             // if not found, create the selector
-            meta_selector = mIrr.mpSceneManager->createMetaTriangleSelector();
+            meta_selector = mIrr.getSceneManager()->createMetaTriangleSelector();
             SimEntitySet ents = GetEntities(types);
             // iterate over all entities of that type and add them to the selector
             for (SimEntitySet::const_iterator iter = ents.begin(); iter != ents.end(); ++iter)

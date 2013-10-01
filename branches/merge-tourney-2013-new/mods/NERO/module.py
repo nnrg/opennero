@@ -4,12 +4,12 @@ import sys
 import gzip
 import random
 import tempfile
+import xml.etree.ElementTree as ET
 
 import common
 import constants
 import NeroEnvironment
 import OpenNero
-
 
 def rtneat_rewards():
     """
@@ -19,7 +19,6 @@ def rtneat_rewards():
     for f in constants.FITNESS_DIMENSIONS:
         reward.add_continuous(-sys.float_info.max, sys.float_info.max)
     return reward
-
 
 class NeroModule:
     def __init__(self):
@@ -37,7 +36,7 @@ class NeroModule:
         self.spawn_y = {}
         self.set_spawn(x, y, constants.OBJECT_TYPE_TEAM_0)
         self.set_spawn(x, 2 * y, constants.OBJECT_TYPE_TEAM_1)
-
+        
     def setup_map(self):
         """
         setup the test environment
@@ -166,6 +165,8 @@ class NeroModule:
             for agent in self.environment.teams[team]:
                 if agent.group == 'Agent' and agent.ai == 'qlearning':
                     handle.write('\n\n%s' % agent.to_string())
+                if hasattr(agent, 'stats'):
+                    handle.write('\n\n%s' % agent.stats())
 
     #The following is run when the Load button is pressed
     def load_team(self, location, team=constants.OBJECT_TYPE_TEAM_0):
@@ -193,7 +194,7 @@ class NeroModule:
             print 'cannot read', location, 'skipping'
             return
 
-        rtneat, qlearning = self._split_population(contents.splitlines(True))
+        rtneat, qlearning, stats = self._split_population(contents.splitlines(True))
 
         print 'qlearning agents:', qlearning.count('Approximator')
 
@@ -220,20 +221,40 @@ class NeroModule:
             tf = tempfile.NamedTemporaryFile(delete=False)
             tf.write(rtneat)
             tf.close()
+            print tf.name
             OpenNero.set_ai("rtneat-%s" % team, OpenNero.RTNEAT(
                     tf.name, "data/ai/neat-params.dat",
                     pop_size,
-                    rtneat_rewards()))
+                    rtneat_rewards(),
+                    False))
             os.unlink(tf.name)
             while pop_size > 0:
                 self.spawnAgent(ai='rtneat', team=team)
                 pop_size -= 1
 
         OpenNero.enable_ai()
+    
+    def start_demonstration(self):
+        '''
+        start the keyboard agent to collect demonstration example
+        '''
+        OpenNero.disable_ai()
+        team = constants.OBJECT_TYPE_TEAM_0
+        self.curr_team = team
+        #self.environment.remove_all_agents(team)
+        location = (self.spawn_x[team], self.spawn_y[team], 2)
+        agnt = common.addObject(
+            "data/shapes/character/steve_keyboard.xml",
+            position = OpenNero.Vector3f(*location),
+            type=team)
+        OpenNero.enable_ai()
+        self.environment.start_tracing()
+        return agnt
 
     def _split_population(self, lines):
         rtneat = []
         qlearning = []
+        stats = []
         state = 'IDLE'
         for i, line in enumerate(lines):
             if state == 'IDLE':
@@ -243,6 +264,9 @@ class NeroModule:
                 if 'OpenNero' in line and 'Approximator' in line:
                     state = 'QLEARNING'
                     qlearning.append(line)
+                if '<message>' in line:
+                    state = 'STATS'
+                    stats.append(line)
             elif state == 'RTNEAT':
                 rtneat.append(line)
                 if line.startswith('genomeend'):
@@ -252,14 +276,22 @@ class NeroModule:
                     qlearning.append('\n\n')
                     rtneat.append(line)
                     state = 'RTNEAT'
+                elif '<message>' in line:
+                    qlearning.append('\n\n')
+                    stats.append(line)
+                    state = 'STATS'
                 elif line.strip():
                     qlearning.append(line)
                 else:
                     qlearning.append('\n\n')
                     state = 'IDLE'
+            elif state == 'STATS':
+                stats.append(line)
+                if '</message>' in line:
+                    state = 'IDLE'
             else:
                 assert False, 'error on line %d' % i
-        return ''.join(rtneat), ''.join(qlearning)
+        return ''.join(rtneat), ''.join(qlearning), ''.join(stats)
 
     def set_speedup(self, speedup):
         OpenNero.getSimContext().delay = 1.0 - (speedup / 100.0)
@@ -313,7 +345,7 @@ class NeroModule:
             "data/shapes/character/steve_%s_%s.xml" % (color, ai),
             OpenNero.Vector3f(self.spawn_x[team] + dx, self.spawn_y[team] + dy, 2),
             type=team)
-
+    
     def start_rtneat(self, team=constants.OBJECT_TYPE_TEAM_0):
         # initialize the rtNEAT algorithm parameters
         # input layer has enough nodes for all the observations plus a bias
@@ -325,7 +357,8 @@ class NeroModule:
                                  constants.N_ACTIONS,
                                  constants.pop_size,
                                  1.0,
-                                 rtneat_rewards())
+                                 rtneat_rewards(), 
+                                 False)
 
         key = "rtneat-%s" % team
         OpenNero.set_ai(key, rtneat)
@@ -346,31 +379,77 @@ def getMod():
         gMod = NeroModule()
     return gMod
 
+script_server = None
+
+def getServer():
+    global script_server
+    if script_server is None:
+        script_server = common.menu_utils.GetScriptServer()
+        common.startJava(constants.MENU_JAR, constants.MENU_CLASS)
+    return script_server
+
 def parseInput(strn):
-    if strn == "deploy" or len(strn) < 2:
-        return
+    """
+    Parse input from the remote control training interface
+    """
     mod = getMod()
+    root = ET.fromstring(strn)
+
+    if root.tag == 'message':
+        for content in root:
+            msg_type = content.attrib['class'].split('.')[-1]
+            print 'Message received:', msg_type
+
+            if msg_type == 'FitnessWeights':
+                parseInputFitness(content)
+
+            if msg_type == 'Advice':
+                result = parseInputAdvice(content)
+                
+            if msg_type == 'Command':
+                parseInputCommand(content)
+
+def parseInputFitness(content):
+    """
+    Parse fitness/reward related input from training window
+    """
+    mod = getMod()
+    for entry in content.findall('entry'):
+        dim, val = entry.attrib['dimension'], float(entry.text)
+        key = getattr(constants, 'FITNESS_' + dim, None)
+        if key:
+            mod.set_weight(key, val + 100)
+
+def parseInputCommand(content):
+    """
+    Parse commands from training window
+    """
+    mod = getMod()
+    command, arg = content.attrib['command'], content.attrib['arg']
     # first word is command rest is filename
-    loc, val = strn.split(' ',1)
-    vali = 1
-    if strn.isupper():
-        vali = int(val)
-    if loc == "SG": mod.set_weight(constants.FITNESS_STAND_GROUND, vali)
-    if loc == "ST": mod.set_weight(constants.FITNESS_STICK_TOGETHER, vali)
-    if loc == "AE": mod.set_weight(constants.FITNESS_APPROACH_ENEMY, vali)
-    if loc == "AF": mod.set_weight(constants.FITNESS_APPROACH_FLAG, vali)
-    if loc == "HT": mod.set_weight(constants.FITNESS_HIT_TARGET, vali)
-    if loc == "VF": mod.set_weight(constants.FITNESS_AVOID_FIRE, vali)
-    if loc == "LT": mod.ltChange(vali)
-    if loc == "EE": mod.eeChange(vali)
-    if loc == "HP": mod.hpChange(vali)
-    if loc == "SP": mod.set_speedup(vali)
-    if loc == "save1": mod.save_team(val, constants.OBJECT_TYPE_TEAM_0)
-    if loc == "load1": mod.load_team(val, constants.OBJECT_TYPE_TEAM_0)
-    if loc == "rtneat": mod.deploy('rtneat')
-    if loc == "qlearning": mod.deploy('qlearning')
-    if loc == "pause": OpenNero.disable_ai()
-    if loc == "resume": OpenNero.enable_ai()
+    if command.isupper():
+        vali = int(arg)
+    if command == "LT": mod.ltChange(vali)
+    if command == "EE": mod.eeChange(vali)
+    if command == "HP": mod.hpChange(vali)
+    if command == "SP": mod.set_speedup(vali)
+    if command == "save1": mod.save_team(arg, constants.OBJECT_TYPE_TEAM_0)
+    if command == "load1": mod.load_team(arg, constants.OBJECT_TYPE_TEAM_0)
+    if command == "rtneat": mod.deploy('rtneat')
+    if command == "qlearning": mod.deploy('qlearning')
+    if command == "pause": OpenNero.disable_ai()
+    if command == "resume": OpenNero.enable_ai()
+    if command == "example":
+        print 'command: example'
+        if arg == "start":
+            print 'command: example start'
+            mod.start_demonstration()
+        elif arg == "cancel":
+            print 'command: example cancel'
+            OpenNero.get_environment().cancel_demonstration()
+        elif arg == "confirm":
+            print 'command: example confirm'
+            OpenNero.get_environment().use_demonstration()
 
 def ServerMain():
     print "Starting mod NERO"

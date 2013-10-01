@@ -51,16 +51,19 @@ namespace OpenNero
 
         S32 mChampionId; ///< the id of the last champion of the population
 
+        bool mGenerational;               ///< whether to run NEAT in generational or realtime mode
     public:
         /// Constructor
         /// @param filename name of the file with the initial population genomes
         /// @param param_file file with RTNEAT parameters to load
         /// @param population_size size of the population to construct
         /// @param reward_info the specifications for the multidimensional reward
+        /// @param generational if true then run generational NEAT; otherwise run realtime NEAT
         RTNEAT(const std::string& filename,
                const std::string& param_file,
                size_t population_size,
-               const RewardInfo& reward_info);
+               const RewardInfo& reward_info,
+               bool generational = false);
 
         /// Constructor
         /// @param param_file RTNEAT parameter file
@@ -69,18 +72,25 @@ namespace OpenNero
         /// @param population_size size of the population to construct
         /// @param noise variance of the Gaussian used to assign initial weights
         /// @param reward_info the specifications for the multidimensional reward
+        /// @param generational if true then run generational NEAT; otherwise run realtime NEAT
         RTNEAT(const std::string& param_file,
                size_t inputs,
                size_t outputs,
                size_t population_size,
                F32 noise,
-               const RewardInfo& reward_info);
+               const RewardInfo& reward_info,
+               bool generational = false);
 
         /// Destructor
         ~RTNEAT();
 
+        // get the next organism to be evaluated
+        // PyOrganismPtr next_organism(PyOrganismPtr org);
         /// are we ready to spawn a new organism?
         bool ready();
+
+        // evolve and return the next organism to be evaluated
+        // PyOrganismPtr evolve_next_organism();
 
         /// have we been deleted?
         bool has_organism(AgentBrainPtr agent);
@@ -119,6 +129,9 @@ namespace OpenNero
 
         /// check if the evolution is enabled
         bool is_evolution_enabled() const { return mEvolutionEnabled; }
+        
+        /// @return the current population
+        PopulationPtr get_population() { return mPopulation; }
 
         /// load info about this AI from the object template
         bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data) { return true; }
@@ -152,33 +165,36 @@ namespace OpenNero
         void flush() { mNetwork->flush(); }
 
         /// load sensor values into the network
-        void load_sensors(py::list l)
-        {
-            std::vector<double> sensors;
-            for (py::ssize_t i = 0; i < py::len(l); ++i)
-            {
-                sensors.push_back(py::extract<double>(l[i]));
-            }
-            mNetwork->load_sensors(sensors);
-        }
+        void load_sensors(py::list l);
+
+        /// load error values into the network
+        void load_errors(py::list l);
+
+        /// print the activations of all nodes.
+        void show_activation() { mNetwork->show_activation(); }
+
+        /// print the activations of input nodes.
+        void show_input() { mNetwork->show_input(); }
+
+        /// print the activations of output nodes.
+        void show_output() { mNetwork->show_output(); }
 
         /// activate the network for one or more steps until signal reaches output
         bool activate() { return mNetwork->activate(); }
 
+        /// back-propagates error in the network for one or more steps until signal reaches input
+        bool backprop() { return mNetwork->backprop(); }
+
+        /// print connections and their weights with carriage returns
+        void print_links() { mNetwork->print_links(); }
+
         /// get output values from the network
-        py::list get_outputs()
-        {
-            py::list l;
-            std::vector<NNodePtr>::const_iterator iter;
-            for (iter = mNetwork->outputs.begin(); iter != mNetwork->outputs.end(); ++iter)
-            {
-                l.append((*iter)->get_active_out());
-            }
-            return l;
-        }
+        py::list get_outputs();
+
         /// operator to push to an output stream
         friend std::ostream& operator<<(std::ostream& output, const PyNetwork& net);
     };
+
 
     /// A Python wrapper for the Organism class with a simple interface for fitness and network
     class PyOrganism
@@ -197,7 +213,7 @@ namespace OpenNero
 		/// constructor for a PyOrganism
         /// @param org rtNEAT organism to wrap
         /// @param reward_info the info about the multidimensional reward
-        PyOrganism(OrganismPtr org, const RewardInfo& reward_info) : 
+        PyOrganism(OrganismPtr org, const RewardInfo& reward_info) :
             mOrganism(org),
             mAbsoluteScore(0),
             mStats(reward_info),
@@ -216,17 +232,14 @@ namespace OpenNero
 		/// get the genome ID of this organism
         int GetId() const { return mOrganism->gnome->genome_id; }
 
+        /// the id of the species of the organism
+        int GetSpeciesId() const;
+
         /// set the amount of time the organism has to live
     	void SetTimeAlive(int time_alive) { mOrganism->time_alive = time_alive; }
 
         /// get the amount of time that the organism has to live
         int GetTimeAlive() const { return mOrganism->time_alive; }
-
-        /// get network of the organism
-        PyNetworkPtr GetNetwork() const { return PyNetworkPtr(new PyNetwork(mOrganism->net)); }
-
-        /// the id of the species of the organism
-        int GetSpeciesId() const;
 
         /// save this organism to a file
         bool Save(const std::string& fname) const { return mOrganism->print_to_file(fname); }
@@ -237,7 +250,18 @@ namespace OpenNero
         /// Set the organism
         void SetOrganism(OrganismPtr organism) { mOrganism = organism; mAbsoluteScore = 0; }
 
-        /// operator to push to an output stream
+        /// get network of the organism
+        PyNetworkPtr GetNetwork() const { return PyNetworkPtr(new PyNetwork(mOrganism->net)); }
+
+		/// get stats
+        Reward GetStats() const { return mStats.getStats(); }
+
+		/// get number of lifetime trials
+        U32 GetNumTrials() const { return mStats.GetNumTrials(); }
+
+        /// in Lamarckian evolution, save the weights back into the genotype
+        void UpdateGenotype() { mOrganism->update_genotype(); }
+
         friend std::ostream& operator<<(std::ostream& output, const PyOrganism& net);
     };
 }

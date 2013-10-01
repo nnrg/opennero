@@ -72,6 +72,7 @@ LINK_DIRECTORIES (${OpenNERO_BINARY_DIR}/external/source/tiny)
 
 # library linking directories
 IF (Boost_LIBRARY_DIRS)
+  MESSAGE(STATUS "Boost library directory is located in ${Boost_LIBRARY_DIRS}")
   LINK_DIRECTORIES ( ${Boost_LIBRARY_DIRS} )
 ENDIF (Boost_LIBRARY_DIRS)
 
@@ -106,18 +107,18 @@ IF (APPLE)
   GET_TARGET_PROPERTY(OpenNERO_LOCATION OpenNERO LOCATION)
   STRING(REGEX REPLACE "\\.app/Contents/MacOS/OpenNERO" "" OpenNERO_LOCATION "${OpenNERO_LOCATION}")
   SET(OpenNERO_APP_RESOURCES "${OpenNERO_LOCATION}.app/Contents/Resources")
-  ADD_CUSTOM_TARGET(CopyStuff ALL
+ ADD_CUSTOM_TARGET(CopyStuff ALL
     COMMAND mkdir -p ${OpenNERO_APP_RESOURCES}
     COMMAND rsync -auv --delete-excluded --exclude='.svn' --exclude='.git' ${OpenNERO_SOURCE_DIR}/mods/* ${OpenNERO_APP_RESOURCES}
     COMMAND cp -f ${CMAKE_CURRENT_BINARY_DIR}/Info.plist ${OpenNERO_LOCATION}.app/Contents
     COMMAND find ${OpenNERO_LOCATION}.app/Contents -name "\".svn\"" | xargs rm -rf)
-  ADD_CUSTOM_TARGET(BundleStuff ALL
+ ADD_CUSTOM_TARGET(BundleStuff ALL
     COMMAND ${CMAKE_MODULE_PATH}/bundle.py ${OpenNERO_LOCATION}.app OpenNERO)
   ADD_DEPENDENCIES(BundleStuff OpenNERO)
 ELSEIF (UNIX)
   ADD_EXECUTABLE(OpenNERO main.cc ${OpenNERO_sources} ${OpenNERO_headers})
   SET(OpenNERO_APP_RESOURCES "${EXECUTABLE_OUTPUT_PATH}")
-  # CopyStuff will always run - it copies any updated resources from the source tree into the runtime directory
+ # CopyStuff will always run - it copies any updated resources from the source tree into the runtime directory
   ADD_CUSTOM_TARGET(CopyStuff ALL
     COMMAND rsync -auv --delete-excluded --exclude='.svn' --exclude='.git' ${OpenNERO_SOURCE_DIR}/mods/* ${OpenNERO_APP_RESOURCES})
 ELSE (APPLE)
@@ -143,23 +144,25 @@ ELSEIF (WIN32)
   FILE(TO_NATIVE_PATH "${OpenNERO_SOURCE_DIR}/mods/" OpenNERO_RESOURCES_DIR)
   FILE(TO_NATIVE_PATH "${OpenNERO_APP_RESOURCES}" OpenNERO_APP_RESOURCES)
   # CopyStuff will always get run - it uses xcopy to update only those files that are newer
-  ADD_CUSTOM_TARGET(CopyStuff ALL
+ ADD_CUSTOM_TARGET(CopyStuff ALL
     COMMAND xcopy /S /D /I /Y "${OpenNERO_RESOURCES_DIR}*" "${OpenNERO_APP_RESOURCES}"
     VERBATIM)
   # for each Boost DLL we found, copy it to the target directory
   # and add it to the list of things we need to install
   FOREACH (boostlib ${Boost_LIBRARIES})
     STRING(REGEX REPLACE ".lib$" ".dll" boostdll ${boostlib})
-    IF (EXISTS ${boostdll})
+    IF (EXISTS ${boostdll} AND NOT "${boostdll}" STREQUAL "debug")
       INSTALL(PROGRAMS ${boostdll} DESTINATION ".")
+	  MESSAGE(STATUS "Copying boost DLL ${boostdll}")
       FILE(TO_NATIVE_PATH ${boostdll} boostdll)
       ADD_CUSTOM_COMMAND(TARGET CopyStuff POST_BUILD COMMAND xcopy /D /I "${boostdll}" "${OpenNERO_APP_RESOURCES}")
-    ENDIF (EXISTS ${boostdll})
+    ENDIF (EXISTS ${boostdll} AND NOT "${boostdll}" STREQUAL "debug")
   ENDFOREACH (boostlib ${Boost_LIBRARIES})
   # we also need the python dll
   STRING(REGEX REPLACE "(.*)libs/python(..)\\.lib" "\\1python\\2.dll" PYTHON_DLL ${PYTHON_LIBRARIES})
   IF (EXISTS ${PYTHON_DLL})
     FILE(TO_NATIVE_PATH ${PYTHON_DLL} PYTHON_DLL)
+	MESSAGE(STATUS ${PYTHON_DLL})
     ADD_CUSTOM_COMMAND(TARGET CopyStuff POST_BUILD COMMAND xcopy /D /I /Y "${PYTHON_DLL}" "${OpenNERO_APP_RESOURCES}")
   ENDIF (EXISTS ${PYTHON_DLL})
 ELSE(APPLE)
