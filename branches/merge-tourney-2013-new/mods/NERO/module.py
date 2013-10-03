@@ -385,7 +385,7 @@ def getServer():
     global script_server
     if script_server is None:
         script_server = common.menu_utils.GetScriptServer()
-        common.startJava(constants.MENU_JAR, constants.MENU_CLASS)
+        common.startScript("NERO/menu.py")
     return script_server
 
 def parseInput(strn):
