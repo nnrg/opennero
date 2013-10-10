@@ -105,7 +105,6 @@ public class TrainingUI extends javax.swing.JFrame {
         
         addCharts();
 
-        this.textpaneAdvice.getDocument().addDocumentListener(new AdviceListener());
         this.thread = new Thread(new StreamReader());
     }
     
@@ -149,17 +148,6 @@ public class TrainingUI extends javax.swing.JFrame {
         labApproachFlag = new javax.swing.JLabel();
         labHitTarget = new javax.swing.JLabel();
         labAvoidFire = new javax.swing.JLabel();
-        panelAdvice = new javax.swing.JPanel();
-        labelAdvice = new javax.swing.JLabel();
-        labelAdviceTemplate = new javax.swing.JLabel();
-        jScrollPane1 = new javax.swing.JScrollPane();
-        textpaneAdvice = new javax.swing.JTextPane();
-        jScrollPane3 = new javax.swing.JScrollPane();
-        textpaneAdviceExamples = new javax.swing.JTextPane();
-        panelExample = new javax.swing.JPanel();
-        buttonGiveExample = new javax.swing.JButton();
-        jScrollPane4 = new javax.swing.JScrollPane();
-        textExample = new javax.swing.JTextPane();
         panelProgress = new javax.swing.JPanel();
         tabsPlot = new javax.swing.JTabbedPane();
         panelFitnessPlots = new javax.swing.JPanel();
@@ -216,7 +204,7 @@ public class TrainingUI extends javax.swing.JFrame {
                     .add(buttonLoadTeam)
                     .add(buttonSaveTeam))
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(jScrollPane5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 422, Short.MAX_VALUE)
+                .add(jScrollPane5, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 419, Short.MAX_VALUE)
                 .addContainerGap())
         );
         panelMainLayout.setVerticalGroup(
@@ -235,7 +223,7 @@ public class TrainingUI extends javax.swing.JFrame {
                         .add(buttonLoadTeam)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(buttonSaveTeam)
-                        .add(0, 253, Short.MAX_VALUE))))
+                        .add(0, 211, Short.MAX_VALUE))))
         );
 
         paneTabs.addTab("Main", panelMain);
@@ -358,7 +346,7 @@ public class TrainingUI extends javax.swing.JFrame {
                     .add(sliderApproachFlag, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 408, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(sliderHitTarget, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 408, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
                     .add(sliderAvoidFire, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 408, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(40, Short.MAX_VALUE))
+                .addContainerGap(82, Short.MAX_VALUE))
         );
         panelFitnessLayout.setVerticalGroup(
             panelFitnessLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
@@ -387,97 +375,10 @@ public class TrainingUI extends javax.swing.JFrame {
                 .add(panelFitnessLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(labAvoidFire)
                     .add(sliderAvoidFire, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(60, Short.MAX_VALUE))
+                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
         paneTabs.addTab("Change Rewards", panelFitness);
-
-        labelAdvice.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
-        labelAdvice.setText("Type your advice here:");
-
-        labelAdviceTemplate.setFont(new java.awt.Font("Lucida Grande", 0, 18)); // NOI18N
-        labelAdviceTemplate.setText("Advice examples");
-
-        jScrollPane1.setViewportView(textpaneAdvice);
-
-        textpaneAdviceExamples.setEditable(false);
-        textpaneAdviceExamples.setBackground(new java.awt.Color(204, 204, 204));
-        textpaneAdviceExamples.setContentType("text/html"); // NOI18N
-        textpaneAdviceExamples.setText("<html>\n  <head>\n\n  </head>\n  <body>\n<pre><tt><i><font color=\"#9A1900\"># Go to a flag</font></i>\n<b><font color=\"#0000FF\">if</font></b> s6 <font color=\"#990000\">&lt;</font> s7 {\n\ta0 <font color=\"#990000\">=</font> <font color=\"#993399\">1</font>\n\ta1 <font color=\"#990000\">=</font> <font color=\"#993399\">1</font>\n} <b><font color=\"#0000FF\">else</font></b> {\n\ta0 <font color=\"#990000\">=</font> <font color=\"#993399\">1</font>\n\ta1 <font color=\"#990000\">=</font> -<font color=\"#993399\">1</font>\n}\n</tt></pre>\n  </body>\n</html>\n");
-        jScrollPane3.setViewportView(textpaneAdviceExamples);
-
-        org.jdesktop.layout.GroupLayout panelAdviceLayout = new org.jdesktop.layout.GroupLayout(panelAdvice);
-        panelAdvice.setLayout(panelAdviceLayout);
-        panelAdviceLayout.setHorizontalGroup(
-            panelAdviceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(panelAdviceLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(panelAdviceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                    .add(labelAdvice, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 287, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 298, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(panelAdviceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(labelAdviceTemplate, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 286, Short.MAX_VALUE)
-                    .add(jScrollPane3))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-        panelAdviceLayout.setVerticalGroup(
-            panelAdviceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(org.jdesktop.layout.GroupLayout.TRAILING, panelAdviceLayout.createSequentialGroup()
-                .add(panelAdviceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
-                    .add(labelAdviceTemplate)
-                    .add(labelAdvice))
-                .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
-                .add(panelAdviceLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING, false)
-                    .add(jScrollPane1, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 333, Short.MAX_VALUE)
-                    .add(jScrollPane3))
-                .addContainerGap(org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-        );
-
-        paneTabs.addTab("Give Advice", panelAdvice);
-
-        buttonGiveExample.setFont(new java.awt.Font("Tahoma", 0, 18)); // NOI18N
-        buttonGiveExample.setText("Give Example");
-        buttonGiveExample.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                buttonGiveExampleActionPerformed(evt);
-            }
-        });
-
-        textExample.setEditable(false);
-        textExample.setBackground(new java.awt.Color(204, 204, 204));
-        textExample.setContentType("text/html"); // NOI18N
-        textExample.setText("<ul><li>Click \"Give Example\".</li>\n<li>Use the arrow keys in the OpenNERO window to drive the big agent and record a trace (in green)</li>\n<li>To apply the example to the population, click \"Apply\" below</li>\n<li>To cancel the example, click \"Cancel\" below.</li><ul>");
-        jScrollPane4.setViewportView(textExample);
-
-        org.jdesktop.layout.GroupLayout panelExampleLayout = new org.jdesktop.layout.GroupLayout(panelExample);
-        panelExample.setLayout(panelExampleLayout);
-        panelExampleLayout.setHorizontalGroup(
-            panelExampleLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(panelExampleLayout.createSequentialGroup()
-                .addContainerGap()
-                .add(buttonGiveExample)
-                .addContainerGap(458, Short.MAX_VALUE))
-            .add(panelExampleLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(panelExampleLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .add(jScrollPane4, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 587, Short.MAX_VALUE)
-                    .addContainerGap()))
-        );
-        panelExampleLayout.setVerticalGroup(
-            panelExampleLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(panelExampleLayout.createSequentialGroup()
-                .add(130, 130, 130)
-                .add(buttonGiveExample)
-                .addContainerGap(210, Short.MAX_VALUE))
-            .add(panelExampleLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-                .add(panelExampleLayout.createSequentialGroup()
-                    .addContainerGap()
-                    .add(jScrollPane4, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE)
-                    .addContainerGap(256, Short.MAX_VALUE)))
-        );
-
-        paneTabs.addTab("Give Examples", panelExample);
 
         panelFitnessPlots.setLayout(new java.awt.GridLayout(2, 3));
         tabsPlot.addTab("Fitness Values", panelFitnessPlots);
@@ -491,11 +392,11 @@ public class TrainingUI extends javax.swing.JFrame {
             panelProgressLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(panelProgressLayout.createSequentialGroup()
                 .addContainerGap()
-                .add(tabsPlot, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 597, Short.MAX_VALUE))
+                .add(tabsPlot, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 641, Short.MAX_VALUE))
         );
         panelProgressLayout.setVerticalGroup(
             panelProgressLayout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
-            .add(tabsPlot, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 371, Short.MAX_VALUE)
+            .add(tabsPlot, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 353, Short.MAX_VALUE)
         );
 
         paneTabs.addTab("Monitor Progress", panelProgress);
@@ -539,20 +440,20 @@ public class TrainingUI extends javax.swing.JFrame {
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
                     .add(layout.createSequentialGroup()
                         .add(buttonHelp)
-                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, 292, Short.MAX_VALUE)
+                        .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .add(buttonPause)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(bCancel)
                         .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                         .add(bApply))
                     .add(org.jdesktop.layout.GroupLayout.TRAILING, layout.createSequentialGroup()
-                        .add(paneTabs, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 612, Short.MAX_VALUE)
+                        .add(paneTabs)
                         .addContainerGap())))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(org.jdesktop.layout.GroupLayout.LEADING)
             .add(layout.createSequentialGroup()
-                .add(paneTabs, org.jdesktop.layout.GroupLayout.DEFAULT_SIZE, 399, Short.MAX_VALUE)
+                .add(paneTabs, org.jdesktop.layout.GroupLayout.PREFERRED_SIZE, 399, Short.MAX_VALUE)
                 .addPreferredGap(org.jdesktop.layout.LayoutStyle.RELATED)
                 .add(layout.createParallelGroup(org.jdesktop.layout.GroupLayout.BASELINE)
                     .add(bApply)
@@ -563,12 +464,6 @@ public class TrainingUI extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
-
-    private void FitnessChangeListener(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_FitnessChangeListener
-        this.weightsModified = true;
-        this.bCancel.setEnabled(true);
-        this.bApply.setEnabled(true);
-    }//GEN-LAST:event_FitnessChangeListener
 
     private SocketClient socketClient = SocketClient.instance;
     
@@ -596,21 +491,6 @@ public class TrainingUI extends javax.swing.JFrame {
                 errorToUser("Could not set fitness weights.", "Fitness Error");
             }
         }
-        if (adviceModified) {
-            Advice advice = new Advice(this.textpaneAdvice.getText());
-            Message m = new Message(advice);
-            String xml = m.toXML();
-            if (socketClient.send(xml)) {
-                this.lastAdvice = advice;
-                record(m);
-            } else {
-                errorToUser("Could not send advice.", "Advice Error");
-            }
-        }
-        if (recordingExample) {
-            sendCommand("example", "confirm");
-            buttonGiveExample.setEnabled(true);
-        }
         weightsModified = false;
         adviceModified = false;
         recordingExample = false;
@@ -625,25 +505,12 @@ public class TrainingUI extends javax.swing.JFrame {
             }
             LOGGER.info("fitness cancelled");
         }
-        if (adviceModified) {
-            this.textpaneAdvice.setText(lastAdvice.getAdvice());
-            LOGGER.info("advice cancelled");
-        }
-        if (recordingExample) {
-            sendCommand("example", "cancel");
-            this.buttonGiveExample.setEnabled(true);
-        }
         adviceModified = false;
         weightsModified = false;
         recordingExample = false;
         this.bCancel.setEnabled(false);
         this.bApply.setEnabled(false);
     }//GEN-LAST:event_bCancelActionPerformed
-
-    private void buttonDeployNEActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDeployNEActionPerformed
-        buttonPause.setEnabled(true);
-        sendCommand("rtneat", "");
-    }//GEN-LAST:event_buttonDeployNEActionPerformed
 
     private void sendCommand(String command, String arg) {
         Message m = new Message(new Command(command, arg));
@@ -655,27 +522,8 @@ public class TrainingUI extends javax.swing.JFrame {
         }
     }
     
-    private void buttonDeployQLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDeployQLActionPerformed
-        buttonPause.setEnabled(true);
-        sendCommand("qlearning", "");
-    }//GEN-LAST:event_buttonDeployQLActionPerformed
-
     private JFileChooser fileChooser = new JFileChooser();
-    
-    private void buttonLoadTeamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonLoadTeamActionPerformed
-        int result = fileChooser.showOpenDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            sendCommand("load1", fileChooser.getSelectedFile().getAbsolutePath());
-        }
-    }//GEN-LAST:event_buttonLoadTeamActionPerformed
-
-    private void buttonSaveTeamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSaveTeamActionPerformed
-        int result = fileChooser.showSaveDialog(this);
-        if (result == JFileChooser.APPROVE_OPTION) {
-            sendCommand("save1", fileChooser.getSelectedFile().getAbsolutePath());
-        }
-    }//GEN-LAST:event_buttonSaveTeamActionPerformed
-    
+        
     private void buttonPauseActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonPauseActionPerformed
         if ("Pause".equals(this.buttonPause.getText())) {
             sendCommand("pause", "");
@@ -686,13 +534,35 @@ public class TrainingUI extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_buttonPauseActionPerformed
 
-    private void buttonGiveExampleActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonGiveExampleActionPerformed
-        sendCommand("example", "start");
-        this.buttonGiveExample.setEnabled(false);
-        this.recordingExample = true;
+    private void FitnessChangeListener(javax.swing.event.ChangeEvent evt) {//GEN-FIRST:event_FitnessChangeListener
+        this.weightsModified = true;
         this.bCancel.setEnabled(true);
         this.bApply.setEnabled(true);
-    }//GEN-LAST:event_buttonGiveExampleActionPerformed
+    }//GEN-LAST:event_FitnessChangeListener
+
+    private void buttonSaveTeamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonSaveTeamActionPerformed
+        int result = fileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            sendCommand("save1", fileChooser.getSelectedFile().getAbsolutePath());
+        }
+    }//GEN-LAST:event_buttonSaveTeamActionPerformed
+
+    private void buttonLoadTeamActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonLoadTeamActionPerformed
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            sendCommand("load1", fileChooser.getSelectedFile().getAbsolutePath());
+        }
+    }//GEN-LAST:event_buttonLoadTeamActionPerformed
+
+    private void buttonDeployQLActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDeployQLActionPerformed
+        buttonPause.setEnabled(true);
+        sendCommand("qlearning", "");
+    }//GEN-LAST:event_buttonDeployQLActionPerformed
+
+    private void buttonDeployNEActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_buttonDeployNEActionPerformed
+        buttonPause.setEnabled(true);
+        sendCommand("rtneat", "");
+    }//GEN-LAST:event_buttonDeployNEActionPerformed
 
     /**
      * @param args the command line arguments
@@ -742,14 +612,10 @@ public class TrainingUI extends javax.swing.JFrame {
     private javax.swing.JButton bCancel;
     private javax.swing.JButton buttonDeployNE;
     private javax.swing.JButton buttonDeployQL;
-    private javax.swing.JButton buttonGiveExample;
     private javax.swing.JButton buttonHelp;
     private javax.swing.JButton buttonLoadTeam;
     private javax.swing.JButton buttonPause;
     private javax.swing.JButton buttonSaveTeam;
-    private javax.swing.JScrollPane jScrollPane1;
-    private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JScrollPane jScrollPane4;
     private javax.swing.JScrollPane jScrollPane5;
     private javax.swing.JLabel labApproachEnemy;
     private javax.swing.JLabel labApproachFlag;
@@ -757,12 +623,8 @@ public class TrainingUI extends javax.swing.JFrame {
     private javax.swing.JLabel labHitTarget;
     private javax.swing.JLabel labStandGround;
     private javax.swing.JLabel labStickTogether;
-    private javax.swing.JLabel labelAdvice;
-    private javax.swing.JLabel labelAdviceTemplate;
     private javax.swing.JTextArea logger;
     private javax.swing.JTabbedPane paneTabs;
-    private javax.swing.JPanel panelAdvice;
-    private javax.swing.JPanel panelExample;
     private javax.swing.JPanel panelFitness;
     private javax.swing.JPanel panelFitnessPlots;
     private javax.swing.JPanel panelMain;
@@ -775,9 +637,6 @@ public class TrainingUI extends javax.swing.JFrame {
     private javax.swing.JSlider sliderStandGround;
     private javax.swing.JSlider sliderStickTogether;
     private javax.swing.JTabbedPane tabsPlot;
-    private javax.swing.JTextPane textExample;
-    private javax.swing.JTextPane textpaneAdvice;
-    private javax.swing.JTextPane textpaneAdviceExamples;
     // End of variables declaration//GEN-END:variables
 
     private void addCharts() {

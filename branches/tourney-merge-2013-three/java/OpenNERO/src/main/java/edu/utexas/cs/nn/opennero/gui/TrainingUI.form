@@ -7,6 +7,7 @@
   </Properties>
   <SyntheticProperties>
     <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
   </SyntheticProperties>
   <AuxValues>
     <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
@@ -28,7 +29,7 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <Component id="buttonHelp" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="292" max="32767" attributes="0"/>
+                      <EmptySpace max="32767" attributes="0"/>
                       <Component id="buttonPause" min="-2" max="-2" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="bCancel" min="-2" max="-2" attributes="0"/>
@@ -36,7 +37,7 @@
                       <Component id="bApply" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <Group type="102" alignment="1" attributes="0">
-                      <Component id="paneTabs" pref="612" max="32767" attributes="0"/>
+                      <Component id="paneTabs" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -84,7 +85,7 @@
                           <Component id="buttonSaveTeam" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jScrollPane5" pref="422" max="32767" attributes="0"/>
+                      <Component id="jScrollPane5" pref="419" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                   </Group>
               </Group>
@@ -106,7 +107,7 @@
                               <Component id="buttonLoadTeam" min="-2" max="-2" attributes="0"/>
                               <EmptySpace max="-2" attributes="0"/>
                               <Component id="buttonSaveTeam" min="-2" max="-2" attributes="0"/>
-                              <EmptySpace min="0" pref="253" max="32767" attributes="0"/>
+                              <EmptySpace min="0" pref="211" max="32767" attributes="0"/>
                           </Group>
                       </Group>
                   </Group>
@@ -196,7 +197,7 @@
                           <Component id="sliderHitTarget" alignment="0" min="-2" pref="408" max="-2" attributes="0"/>
                           <Component id="sliderAvoidFire" alignment="0" min="-2" pref="408" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace pref="40" max="32767" attributes="0"/>
+                      <EmptySpace pref="82" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -233,7 +234,7 @@
                           <Component id="labAvoidFire" alignment="0" min="-2" max="-2" attributes="0"/>
                           <Component id="sliderAvoidFire" alignment="0" min="-2" max="-2" attributes="0"/>
                       </Group>
-                      <EmptySpace type="unrelated" pref="60" max="32767" attributes="0"/>
+                      <EmptySpace type="unrelated" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
@@ -373,175 +374,6 @@
             </Component>
           </SubComponents>
         </Container>
-        <Container class="javax.swing.JPanel" name="panelAdvice">
-          <Constraints>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-              <JTabbedPaneConstraints tabName="Give Advice">
-                <Property name="tabTitle" type="java.lang.String" value="Give Advice"/>
-              </JTabbedPaneConstraints>
-            </Constraint>
-          </Constraints>
-
-          <Layout>
-            <DimensionLayout dim="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" attributes="0">
-                          <Component id="labelAdvice" min="-2" pref="287" max="-2" attributes="0"/>
-                          <Component id="jScrollPane1" min="-2" pref="298" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="labelAdviceTemplate" pref="286" max="32767" attributes="0"/>
-                          <Component id="jScrollPane3" max="32767" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-            <DimensionLayout dim="1">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="1" attributes="0">
-                      <Group type="103" groupAlignment="3" attributes="0">
-                          <Component id="labelAdviceTemplate" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="labelAdvice" alignment="3" min="-2" max="-2" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Group type="103" groupAlignment="0" max="-2" attributes="0">
-                          <Component id="jScrollPane1" pref="333" max="32767" attributes="0"/>
-                          <Component id="jScrollPane3" max="32767" attributes="0"/>
-                      </Group>
-                      <EmptySpace max="32767" attributes="0"/>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-          </Layout>
-          <SubComponents>
-            <Component class="javax.swing.JLabel" name="labelAdvice">
-              <Properties>
-                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Lucida Grande" size="18" style="0"/>
-                </Property>
-                <Property name="text" type="java.lang.String" value="Type your advice here:"/>
-              </Properties>
-            </Component>
-            <Component class="javax.swing.JLabel" name="labelAdviceTemplate">
-              <Properties>
-                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Lucida Grande" size="18" style="0"/>
-                </Property>
-                <Property name="text" type="java.lang.String" value="Advice examples"/>
-              </Properties>
-            </Component>
-            <Container class="javax.swing.JScrollPane" name="jScrollPane1">
-              <AuxValues>
-                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-              </AuxValues>
-
-              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-              <SubComponents>
-                <Component class="javax.swing.JTextPane" name="textpaneAdvice">
-                </Component>
-              </SubComponents>
-            </Container>
-            <Container class="javax.swing.JScrollPane" name="jScrollPane3">
-              <AuxValues>
-                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-              </AuxValues>
-
-              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-              <SubComponents>
-                <Component class="javax.swing.JTextPane" name="textpaneAdviceExamples">
-                  <Properties>
-                    <Property name="editable" type="boolean" value="false"/>
-                    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="cc" green="cc" red="cc" type="rgb"/>
-                    </Property>
-                    <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
-                    <Property name="text" type="java.lang.String" value="&lt;html&gt;&#xa;  &lt;head&gt;&#xa;&#xa;  &lt;/head&gt;&#xa;  &lt;body&gt;&#xa;&lt;pre&gt;&lt;tt&gt;&lt;i&gt;&lt;font color=&quot;#9A1900&quot;&gt;# Go to a flag&lt;/font&gt;&lt;/i&gt;&#xa;&lt;b&gt;&lt;font color=&quot;#0000FF&quot;&gt;if&lt;/font&gt;&lt;/b&gt; s6 &lt;font color=&quot;#990000&quot;&gt;&amp;lt;&lt;/font&gt; s7 {&#xa;&#x9;a0 &lt;font color=&quot;#990000&quot;&gt;=&lt;/font&gt; &lt;font color=&quot;#993399&quot;&gt;1&lt;/font&gt;&#xa;&#x9;a1 &lt;font color=&quot;#990000&quot;&gt;=&lt;/font&gt; &lt;font color=&quot;#993399&quot;&gt;1&lt;/font&gt;&#xa;} &lt;b&gt;&lt;font color=&quot;#0000FF&quot;&gt;else&lt;/font&gt;&lt;/b&gt; {&#xa;&#x9;a0 &lt;font color=&quot;#990000&quot;&gt;=&lt;/font&gt; &lt;font color=&quot;#993399&quot;&gt;1&lt;/font&gt;&#xa;&#x9;a1 &lt;font color=&quot;#990000&quot;&gt;=&lt;/font&gt; -&lt;font color=&quot;#993399&quot;&gt;1&lt;/font&gt;&#xa;}&#xa;&lt;/tt&gt;&lt;/pre&gt;&#xa;  &lt;/body&gt;&#xa;&lt;/html&gt;&#xa;"/>
-                  </Properties>
-                </Component>
-              </SubComponents>
-            </Container>
-          </SubComponents>
-        </Container>
-        <Container class="javax.swing.JPanel" name="panelExample">
-          <Constraints>
-            <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
-              <JTabbedPaneConstraints tabName="Give Examples">
-                <Property name="tabTitle" type="java.lang.String" value="Give Examples"/>
-              </JTabbedPaneConstraints>
-            </Constraint>
-          </Constraints>
-
-          <Layout>
-            <DimensionLayout dim="0">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace max="-2" attributes="0"/>
-                      <Component id="buttonGiveExample" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="458" max="32767" attributes="0"/>
-                  </Group>
-                  <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane4" pref="587" max="32767" attributes="0"/>
-                          <EmptySpace max="-2" attributes="0"/>
-                      </Group>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-            <DimensionLayout dim="1">
-              <Group type="103" groupAlignment="0" attributes="0">
-                  <Group type="102" alignment="0" attributes="0">
-                      <EmptySpace min="-2" pref="130" max="-2" attributes="0"/>
-                      <Component id="buttonGiveExample" min="-2" max="-2" attributes="0"/>
-                      <EmptySpace pref="210" max="32767" attributes="0"/>
-                  </Group>
-                  <Group type="103" rootIndex="1" groupAlignment="0" attributes="0">
-                      <Group type="102" alignment="0" attributes="0">
-                          <EmptySpace max="-2" attributes="0"/>
-                          <Component id="jScrollPane4" min="-2" max="-2" attributes="0"/>
-                          <EmptySpace pref="256" max="32767" attributes="0"/>
-                      </Group>
-                  </Group>
-              </Group>
-            </DimensionLayout>
-          </Layout>
-          <SubComponents>
-            <Component class="javax.swing.JButton" name="buttonGiveExample">
-              <Properties>
-                <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
-                  <Font name="Tahoma" size="18" style="0"/>
-                </Property>
-                <Property name="text" type="java.lang.String" value="Give Example"/>
-              </Properties>
-              <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="buttonGiveExampleActionPerformed"/>
-              </Events>
-            </Component>
-            <Container class="javax.swing.JScrollPane" name="jScrollPane4">
-              <AuxValues>
-                <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
-              </AuxValues>
-
-              <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
-              <SubComponents>
-                <Component class="javax.swing.JTextPane" name="textExample">
-                  <Properties>
-                    <Property name="editable" type="boolean" value="false"/>
-                    <Property name="background" type="java.awt.Color" editor="org.netbeans.beaninfo.editors.ColorEditor">
-                      <Color blue="cc" green="cc" red="cc" type="rgb"/>
-                    </Property>
-                    <Property name="contentType" type="java.lang.String" value="text/html" noResource="true"/>
-                    <Property name="text" type="java.lang.String" value="&lt;ul&gt;&lt;li&gt;Click &quot;Give Example&quot;.&lt;/li&gt;&#xa;&lt;li&gt;Use the arrow keys in the OpenNERO window to drive the big agent and record a trace (in green)&lt;/li&gt;&#xa;&lt;li&gt;To apply the example to the population, click &quot;Apply&quot; below&lt;/li&gt;&#xa;&lt;li&gt;To cancel the example, click &quot;Cancel&quot; below.&lt;/li&gt;&lt;ul&gt;"/>
-                  </Properties>
-                </Component>
-              </SubComponents>
-            </Container>
-          </SubComponents>
-        </Container>
         <Container class="javax.swing.JPanel" name="panelProgress">
           <Constraints>
             <Constraint layoutClass="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout" value="org.netbeans.modules.form.compat2.layouts.support.JTabbedPaneSupportLayout$JTabbedPaneConstraintsDescription">
@@ -556,13 +388,13 @@
               <Group type="103" groupAlignment="0" attributes="0">
                   <Group type="102" alignment="0" attributes="0">
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="tabsPlot" pref="597" max="32767" attributes="0"/>
+                      <Component id="tabsPlot" pref="641" max="32767" attributes="0"/>
                   </Group>
               </Group>
             </DimensionLayout>
             <DimensionLayout dim="1">
               <Group type="103" groupAlignment="0" attributes="0">
-                  <Component id="tabsPlot" alignment="0" pref="371" max="32767" attributes="0"/>
+                  <Component id="tabsPlot" alignment="0" pref="353" max="32767" attributes="0"/>
               </Group>
             </DimensionLayout>
           </Layout>
