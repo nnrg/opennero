@@ -1,0 +1,19 @@
+<Template>
+  <Render>
+    <MaterialType>solid</MaterialType>
+    <MaterialFlagLighting>false</MaterialFlagLighting>
+    <CastsShadow>false</CastsShadow>
+    <AniMesh>data/shapes/steve/steve_red_unarmed.md2</AniMesh>
+    <Texture0>data/shapes/steve/steve_red.jpg</Texture0>
+    <Scale>0.4 0.4 0.4</Scale>
+  </Render>
+  <AI>
+    <Python agent="Maze.agent.AStarSearchAgent()" />
+    <SensorArray>
+      <RaySensor tick="1" x="1"  y="0"  z="0" radius="20" types="1" />
+      <RaySensor tick="1" x="-1" y="0"  z="0" radius="20" types="1" />
+      <RaySensor tick="1" x="0"  y="1"  z="0" radius="20" types="1" />
+      <RaySensor tick="1" x="0"  y="-1" z="0" radius="20" types="1" />
+    </SensorArray>
+  </AI>
+</Template>

@@ -1,0 +1,12 @@
+<Template>
+	<Audio>
+		<Rocket>sandbox/data/sounds/rocket_launcher.ogg</Rocket>
+	</Audio>
+	<Render>
+		<MaterialType>solid</MaterialType>
+		<MaterialFlagLighting>false</MaterialFlagLighting>
+		<AniMesh>data/shapes/journeyman/journeyman_obj.obj</AniMesh>
+		<Scale>1.25 1.25 1.25</Scale>
+		<Rotation>0 0 0</Rotation>
+	</Render>
+</Template>
