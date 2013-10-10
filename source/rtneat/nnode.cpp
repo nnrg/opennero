@@ -160,6 +160,8 @@ NNode::NNode(istream &args, vector<TraitPtr> &traits) :
     args >> traitnum;
     args >> x; type = (nodetype)x;
     args >> x; gen_node_label = (nodeplace)x;
+    // FIXME: might need another argument - check against pop files
+    // args >> x; ftype = (functype)x;
     // Get the Sensor Name and Parameter String if the node is an input node
     if (gen_node_label == INPUT)
     {

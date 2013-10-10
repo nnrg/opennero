@@ -1,4 +1,5 @@
 import subprocess
+import sys
 
 import OpenNero
 
@@ -19,7 +20,7 @@ def addSkyBox(prefix, extension = None):
         OpenNero.getSimContext().addSkyBox(prefix, extension)
     else:
         OpenNero.getSimContext().addSkyBox(prefix)
-    
+
 def openWiki(page):
     import webbrowser
     def closure():
@@ -58,7 +59,7 @@ def startScript(script):
     """
     start the named script unless it is already running
     """
-    global opennero_sub_procs    
+    global opennero_sub_procs
     if script not in opennero_sub_procs:
         subproc = subprocess.Popen(['python', script])
         opennero_sub_procs[script] = subproc
@@ -66,6 +67,20 @@ def startScript(script):
         del opennero_sub_procs[script]
         subproc = subprocess.Popen(['python', script])
         opennero_sub_procs[script] = subproc
+
+def startJava(jar, cla):
+    """
+    start the named java class unless it is already running
+    """
+    global opennero_sub_procs
+    print 'java', jar, cla
+    if (jar, cla) not in opennero_sub_procs:
+        subproc = subprocess.Popen(['java', '-classpath', jar, cla])
+        opennero_sub_procs[(jar, cla)] = subproc
+    elif opennero_sub_procs[(jar,cla)].poll():
+        del opennero_sub_procs[(jar,cla)]
+        subproc = subprocess.Popen(['java', '-classpath', jar, cla])
+        opennero_sub_procs[(jar, cla)] = subproc
 
 def killScript(script):
     """

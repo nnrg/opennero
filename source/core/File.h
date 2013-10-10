@@ -11,7 +11,7 @@
 namespace OpenNero 
 {
     /// Read the contents of a file into a string
-    std::string ReadFileToString( const std::string& filePath );
+    std::string ReadFileToString( const std::string& filePath );	
 
     /// Check for the existence of a file
     bool FileExists( const std::string& filePathName );

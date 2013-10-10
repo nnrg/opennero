@@ -53,7 +53,7 @@ CONDOR_TEMPLATE = """\
 +ProjectDescription = "opennero tournament"
 Universe = vanilla
 Requirements = Arch == "X86_64" && Memory >= 2000
-Image_Size = 250 Meg
+Image_Size = 250000
 Input = /dev/null
 Error = %(logfile)s.stderr
 Output = %(logfile)s.stdout

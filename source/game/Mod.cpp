@@ -2,6 +2,7 @@
 #include "core/File.h"
 #include "game/Mod.h"
 #include <sstream>
+#define BOOST_FILESYSTEM_VERSION 3
 #include <boost/filesystem.hpp>
 
 #if NERO_PLATFORM_WINDOWS
@@ -58,6 +59,10 @@ namespace OpenNero
     /// @return true iff the resource is found and path is set
     bool Mod::FindResource(const string& name, string& path)
     {
+		if (FileExists(name)) {
+			path = name;
+			return true;
+		}
         vector<string>::const_iterator path_elts;
         boost::filesystem::path cwd(boost::filesystem::current_path());
         for (path_elts = mPath.begin(); path_elts != mPath.end(); ++path_elts)
@@ -92,7 +97,7 @@ namespace OpenNero
     }
 
     /// set the path of this mod by parsing a colon-separated string
-    void Mod::SetPath(const string& path)
+    void Mod::SetPath(string path)
     {
         mPath.clear();
         string element;
