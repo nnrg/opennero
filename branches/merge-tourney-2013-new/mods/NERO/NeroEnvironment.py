@@ -69,26 +69,6 @@ class AgentState:
         rot.z = heading
         self.agent.state.rotation = rot
 
-class AgentTrace:
-    '''
-    Class for storing the trace of an agent
-    '''
-    def __init__(self):
-        self.initial_step = None
-        self.position = []
-        self.rotation = []
-        self.velocity = []
-        self.sensors = []
-        self.actions = []
-
-    def print_trace(self, filename):
-        with open(filename, 'w') as file:
-            for i in range(len(self.position)):
-                file.write(str([self.position[i].x, self.position[i].y, self.position[i].z]))
-                file.write(str([self.rotation[i].x, self.rotation[i].y, self.rotation[i].z]))
-            for i in range(len(self.sensors)):
-                file.write(str(self.sensors[i]))
-                file.write(str(self.actions[i]))
 
 class NeroEnvironment(OpenNero.Environment):
     """
@@ -119,12 +99,7 @@ class NeroEnvironment(OpenNero.Environment):
         # we need to know when to update the friend center
         self.friend_center_cache = dict((team, {}) for team in constants.TEAMS)
         
-        self.tracing = False             # indicates if the agent is being traced
         self.simdisplay = True           # indicates if the simulation of agents is being displayed
-        self.trace = None                # trace of agents
-        self.use_trace = False           # use loaded trace for calculating reward
-        self.run_backprop = False        # whether to run backprop if trace is loaded
-        self.path_markers_trace = []     # ids of objects used to mark path of trace
         self.path_markers_champ = []     # ids of objects used to mark path of champ
         self.bbmarkers = []
 
@@ -404,22 +379,6 @@ class NeroEnvironment(OpenNero.Environment):
                 observations[constants.SENSOR_INDEX_FRIEND_RADAR[0]] = fd / 15.0
                 observations[constants.SENSOR_INDEX_FRIEND_RADAR[1]] = fh / 360.0
 
-        if self.tracing:
-            if self.trace.initial_step is None:
-                self.trace.initial_step = agent.step
-            self.trace.position.append(agent.state.position)
-            self.trace.rotation.append(agent.state.rotation)
-            self.trace.sensors.append([o for o in observations])
-        
-        from agent import KeyboardAgent
-        if self.tracing and isinstance(agent, KeyboardAgent):
-            id = common.addObject(
-                'data/shapes/cube/YellowCube.xml',
-                position = agent.state.position,
-                scale = OpenNero.Vector3f(0.25, 0.25, 0.25),
-                type = constants.OBJECT_TYPE_LEVEL_GEOM)
-            self.path_markers_trace.append(id)
-
         return observations
 
     def get_friend_center(self, agent, friends):
@@ -525,62 +484,3 @@ class NeroEnvironment(OpenNero.Environment):
         """
         common.killScript((constants.MENU_JAR, constants.MENU_CLASS))
         return True
-    
-    def start_tracing(self):
-        '''
-        create trace object and start tracing
-        tracing of only one agent is currently supported
-        '''
-        self.trace = AgentTrace()
-        self.tracing = True
-
-    def stop_tracing(self):
-        '''
-        stop tracing the agent
-        '''
-        self.tracing = False
-
-    def save_trace(self, filename):
-        '''
-        pickle the current trace in the given file
-        '''
-        if not self.trace:
-            print 'empty trace on save'
-        with open(filename, 'w') as file:
-            pickle.dump(self.trace, file)
-
-    def use_demonstration(self):
-        '''
-        Start using the currently loaded demonstration
-        '''
-        if self.trace is not None:
-            print 'starting to use demonstration'
-            self.use_trace = True
-        else:
-            print 'no demonstration to use'
-            
-    def load_trace(self, filename):
-        '''
-        load previously pickled trace from the given file
-        '''
-        with open(filename, 'r') as file:
-            self.trace = pickle.load(file)
-        self.use_trace = True
-        for pos in self.trace.position:
-            id = common.addObject(
-                "data/shapes/cube/YellowCube.xml",
-                position = pos,
-                scale = OpenNero.Vector3f(0.25,0.25,0.25),
-                type = constants.OBJECT_TYPE_LEVEL_GEOM)
-            self.path_markers_trace.append(id)
-
-    def cancel_demonstration(self):
-        '''
-        unload previously loaded trace
-        '''
-        self.tracing = False
-        self.trace = None
-        self.use_trace = False
-        while len(self.path_markers_trace) > 0:
-            id = self.path_markers_trace.pop()
-            common.removeObject(id)

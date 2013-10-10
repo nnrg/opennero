@@ -38,20 +38,7 @@ class NeroAgent(object):
 
     def end(self, time, reward):
         org = self.get_org()
-        # if a trace has been loaded, then process it here
-        if self.environment.use_trace:
-            trfitness = self.evaluate_trace()  # Calculate trace fitness and passed steps
-            if self.environment.run_backprop:  # backprop invalidates org.fitness because it changes network
-                if self.index != 0:  # run backprop only if the agent is not the elite organism
-                    self.backprop_trace()
-                    trfitness = self.evaluate_trace()  # Calculate trace fitness again since backprop changes network
-                org.fitness = trfitness
-                print "index: %d, trace fitness: %f" % (self.index, trfitness)
-            else:
-                org.fitness = floor(org.fitness if org.fitness > 0.0 else 0.0) + trfitness
-                print "index: %d, trace fitness: %f, combined fitness: %f" % (self.index, trfitness, org.fitness)
-        else:
-            print "index: %d, fitness: %f" % (self.index, org.fitness)
+        print "index: %d, fitness: %f" % (self.index, org.fitness)
         return True
 
     def destroy(self):
@@ -277,111 +264,6 @@ class RTNEATAgent(NeroAgent, OpenNero.AgentBrain):
         for i in range(len(self.actions.get_instance())):
              actions[i] = outputs[i]
         return self.actions.denormalize(actions)
-
-    def evaluate_trace(self):
-        """
-        evaluate agent and compute fitness based on trace information
-        """
-
-        # flush network from previous activations
-        org = self.get_org()
-        org.net.flush()
-        
-        environment = OpenNero.get_environment()
-        trace = environment.trace
-
-        # place the agent at the beginning of the trace
-        self.state.position = OpenNero.Vector3f(
-            trace.position[0].x, trace.position[0].y, trace.position[0].z)
-        self.state.rotation = OpenNero.Vector3f(
-            trace.rotation[0].x, trace.rotation[0].y, trace.rotation[0].z)
-        current_step = trace.initial_step
-        j = 0  # trace index at which error is calculated
-        while j < len(trace.position)-1 and current_step < environment.STEPS_PER_EPISODE:
-            self.state.position = position
-            self.state.rotation = rotation
-            sensors = environment.sense(self)
-            actions = self.network_action(sensors)
-
-            # error based on position - find index in trace where error based on
-            # current position starts to increase, i.e. starting with the current
-            # trace index, we find position in trace that is closest to the current
-            # state position.
-            error1 = trace.position[j].getDistanceFrom(position)
-            error2 = trace.position[j+1].getDistanceFrom(position)
-            while error1 >= error2 and j < len(trace.position)-2:
-                j += 1
-                error1 = error2
-                error2 = trace.position[j+1].getDistanceFrom(position)
-
-            if error1 > self.ERROR_THRESHOLD:
-                break
-
-            # calculate new position, orientation, and velocity
-            self.environment.act(self, actions)
-            current_step += 1
-
-        self.passed_steps = j
-        return float(j)/len(trace.position)
-
-
-    def backprop_trace(self):
-        """
-        adjust network weights using backprop and position information in the trace
-        """
-        self.net.flush()
-        state = self.environment.get_new_state()
-        trace = self.environment.trace
-        state.position = Vector3f(trace.position[self.passed_steps].x, trace.position[self.passed_steps].y, trace.position[self.passed_steps].z)
-        state.rotation = Vector3f(trace.rotation[self.passed_steps].x, trace.rotation[self.passed_steps].y, trace.rotation[self.passed_steps].z)
-        state.current_step = trace.initial_step + self.passed_steps
-        i = self.passed_steps
-        j = 0
-        while i < len(trace.position) and j < self.BACKPROP_WINDOW_SIZE and state.current_step < self.environment.STEPS_PER_EPISODE:
-            # activate network only if at least one action in the trace is non-zero
-            if reduce(lambda x, y: x or y != 0, trace.actions[i], False):
-                sensors = self.environment.compute_sensors(state)
-                actions = self.network_action(sensors)
-
-                # TODO: will the scaling of actions in network_action() affect the implementation below?
-                # e.g. does it change the derivative at the output nodes?
-
-                # Don't run backprop on the first iteration, i.e. before the agent moves
-                if i > self.passed_steps:
-                    # calculate desired actions based on current state of agent and position in trace
-                    # x-y actions
-                    #poserr = [trace.position[i].x - state.position.x, trace.position[i].y - state.position.y]
-                    #desired_actions = [poserr[0]/self.environment.VELOCITY, poserr[1]/self.environment.VELOCITY]
-
-                    # r-theta actions
-                    poserrx = trace.position[i].x - state.position.x
-                    poserry = trace.position[i].y - state.position.y
-                    errpos = sqrt(poserrx*poserrx + poserry*poserry)
-                    errpos = errpos/self.environment.VELOCITY
-                    errtheta = degrees(atan2(poserry, poserrx)) - state.rotation.z
-                    errtheta = errtheta - floor(errtheta/360)*360  # range [0, 360)
-                    if errtheta > 180: errtheta = errtheta - 360   # range [-180, 180]
-                    errtheta = errtheta/(2*self.environment.ANGULAR_VELOCITY)
-                    desired_actions = [errpos, errtheta]
-
-                    #for j in range(len(desired_actions)):
-                    #    if desired_actions[j] < -0.5: desired_actions[j] = -0.5
-                    #    elif desired_actions[j] > 0.5: desired_actions[j] = 0.5
-
-                    # calculate error based on desired action and network output
-                    error = [desired_actions[0] - actions[0], desired_actions[1] - actions[1]]
-
-                    self.net.load_errors(error)
-                    self.net.backprop()
-
-                # calculate new position, orientation, and velocity
-                self.environment.perform_actions(state, actions)
-                state.current_step += 1
-                j += 1
-
-            i += 1
-
-        self.org.update_genotype()
 
 
 class Turret(NeroAgent, OpenNero.AgentBrain):

@@ -8,7 +8,8 @@ import NERO.constants
 
 try:
     import wx
-except:
+except ImportError as e:
+    print >>sys.stderr, e.message
     import tkMessageBox
     tkMessageBox.showwarning('Warning!', 'Could not start the external menu for NERO because wxPython is not installed.')
     sys.exit()
