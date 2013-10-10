@@ -71,6 +71,8 @@ INCLUDE_DIRECTORIES ( ${OPENGL_INCLUDE_DIR} )
 
 # compile external libraries
 ADD_SUBDIRECTORY (${CMAKE_CURRENT_SOURCE_DIR}/external/source)
+# compile java
+ADD_SUBDIRECTORY (${CMAKE_CURRENT_SOURCE_DIR}/java)
 # compile source
 ADD_SUBDIRECTORY (${CMAKE_CURRENT_SOURCE_DIR}/source)
 
@@ -80,13 +82,13 @@ ENABLE_TESTING()
 # INSTALL
 
 # we want to create packages for the platforms using CMake and CPack
-# To do this, we use INSTALL commands in source/ and external/source/ 
+# To do this, we use INSTALL commands in source/ and external/source/
 # to figure out *what to install*, and the section below to figure out
 # *how to package* it.
 
-# We have to install system libraries ourselves, but use 
+# We have to install system libraries ourselves, but use
 # InstallRequiredSystemLibraries to figure out what they are
-SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP true) 
+SET(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP true)
 INCLUDE(InstallRequiredSystemLibraries)
 # Include system runtime libraries in the installation if any are
 # specified by CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS.

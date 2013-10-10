@@ -41,7 +41,7 @@ namespace OpenNero
     public:
 
         /// constructor
-        Camera( const IrrHandles& handles, float32_t rotateSpeed, float32_t moveSpeed, float32_t zoomSpeed );
+        Camera( IrrHandles& handles, float32_t rotateSpeed, float32_t moveSpeed, float32_t zoomSpeed );
 
         /// get the position of the camera
         Vector3f getPosition() const;
@@ -104,7 +104,7 @@ namespace OpenNero
 
     private:
 
-        IrrHandles              mIrr;
+        IrrHandles_Weak         mIrr;
 
         float32_t               mRotateSpeed;
         float32_t               mMoveSpeed;

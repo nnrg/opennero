@@ -39,15 +39,15 @@ class Slider:
 def send(channel, *args):
     buf = marshall(args)
     value = socket.htonl(len(buf))
-    size = struct.pack("L", value)
+    size = struct.pack("I", value)
     channel.send(size)
     channel.send(buf)
 
 def receive(channel):
-    size = struct.calcsize("L")
+    size = struct.calcsize("I")
     size = channel.recv(size)
     try:
-        size = socket.ntohl(struct.unpack("L", size)[0])
+        size = socket.ntohl(struct.unpack("I", size)[0])
     except struct.error, e:
         return ''
     buf = ""

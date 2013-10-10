@@ -1,6 +1,7 @@
 import NERO.NeroEnvironment
 import NERO.constants as constants
 import OpenNero
+import common
 
 
 class NeroEnvironment(NERO.NeroEnvironment.NeroEnvironment):
@@ -85,6 +86,13 @@ class NeroEnvironment(NERO.NeroEnvironment.NeroEnvironment):
         reset the environment to its initial state
         """
         # NOOP
+        return True
+    
+    def cleanup(self):
+        """
+        cleanup the world
+        """
+        common.killScript("NERO_Battle/menu.py")
         return True
 
     def is_episode_over(self, agent):
