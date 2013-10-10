@@ -1,0 +1,10 @@
+FIND_PROGRAM(MVN_EXECUTABLE mvn PATHS $ENV{M2_HOME} ENV PATH)
+FILE(TO_NATIVE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/pom.xml" source_pom)
+SET(OpenNERO_JAVA_JAR
+  "${CMAKE_CURRENT_SOURCE_DIR}/target/OpenNERO-1.0-SNAPSHOT-jar-with-dependencies.jar")
+FILE(TO_NATIVE_PATH "${OpenNERO_JAVA_JAR}" OpenNERO_JAVA_JAR)
+SET_PROPERTY(GLOBAL PROPERTY OpenNERO_JAVA_JAR "${OpenNERO_JAVA_JAR}")
+ADD_CUSTOM_TARGET(BuildJava ALL
+  COMMAND ${MVN_EXECUTABLE} --file ${source_pom} clean compile assembly:single
+  COMMENT "Running Maven-based Java build"
+)

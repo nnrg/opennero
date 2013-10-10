@@ -72,8 +72,7 @@ namespace OpenNero
     */
     IAnimatedMesh* IrrFactory::LoadAniMesh( const std::string& modelFile )
     {
-        Assert( mIrr.mpSceneManager );
-        return mIrr.mpSceneManager->getMesh( SimFactory::TransformPath(modelFile).c_str() );
+        return mIrr.getSceneManager()->getMesh( SimFactory::TransformPath(modelFile).c_str() );
     }
 
     /**
@@ -83,10 +82,8 @@ namespace OpenNero
     */
     ITexture* IrrFactory::LoadTexture( const std::string& textureFile )
     {
-        Assert( mIrr.mpVideoDriver );
-
         // load the texture
-        ITexture* tex = mIrr.mpVideoDriver->getTexture( SimFactory::TransformPath(textureFile).c_str() );
+        ITexture* tex = mIrr.getVideoDriver()->getTexture( SimFactory::TransformPath(textureFile).c_str() );
 
         if( tex )
         {
@@ -99,13 +96,12 @@ namespace OpenNero
     IAnimatedMeshSceneNode* IrrFactory::addAnimatedMeshSceneNode( IAnimatedMesh* mesh )
     {
         Assert( mesh );
-        Assert( mIrr.mpSceneManager );
-        return mIrr.mpSceneManager->addAnimatedMeshSceneNode( mesh );
+        return mIrr.getSceneManager()->addAnimatedMeshSceneNode( mesh );
     }
 
     ISceneNode* IrrFactory::addAxes()
     {
-        AxesSceneNode* scene = new AxesSceneNode(mIrr.mpSceneManager->getRootSceneNode(), mIrr.mpSceneManager.get(), -1);
+        AxesSceneNode* scene = new AxesSceneNode(mIrr.getSceneManager()->getRootSceneNode(), mIrr.getSceneManager(), -1);
         Assert(scene);
         scene->setAxesScale(10);
         scene->setScale(vector3df(5,5,5));
@@ -115,15 +111,11 @@ namespace OpenNero
 
     ITerrainSceneNode* IrrFactory::addTerrainSceneNode( const std::string& heightmap )
     {
-        Assert( mIrr.mpSceneManager );
-
-        return mIrr.mpSceneManager->addTerrainSceneNode( SimFactory::TransformPath(heightmap).c_str() );
+        return mIrr.getSceneManager()->addTerrainSceneNode( SimFactory::TransformPath(heightmap).c_str() );
     }
 
     IParticleSystemSceneNode* IrrFactory::addParticleSystemNode( const std::string& particleSystemFile )
     {
-        Assert( mIrr.mpSceneManager );
-
         PropertyMap propMap;
 
         if( propMap.constructPropertyMap( SimFactory::TransformPath(particleSystemFile) ) )
@@ -134,7 +126,7 @@ namespace OpenNero
             const vector3df scale( 1, 1, 1 );
 
             // create the particle system node
-            IParticleSystemSceneNode* pSystem = mIrr.mpSceneManager->addParticleSystemSceneNode( false, 0, -1, pos, rot, scale );
+            IParticleSystemSceneNode* pSystem = mIrr.getSceneManager()->addParticleSystemSceneNode( false, 0, -1, pos, rot, scale );
             Assert( pSystem );
 
             // read some custom properties
@@ -246,9 +238,7 @@ namespace OpenNero
 
 	ITextSceneNode* IrrFactory::addTextSceneNode(const std::string& text, const SColor& color, const Vector3f pos, ISceneNode* parent)
 	{
-        Assert( mIrr.mpSceneManager );
-
-		ITextSceneNode* node = mIrr.mpSceneManager->addTextSceneNode(mIrr.mpIrrDevice->getGUIEnvironment()->getFont( "common/data/gui/fonthaettenschweiler.bmp" ), L"TEST", color, parent, pos, 1);
+		ITextSceneNode* node = mIrr.getSceneManager()->addTextSceneNode(mIrr.getGuiEnv()->getFont( "common/data/gui/fonthaettenschweiler.bmp" ), L"TEST", color, parent, pos, 1);
 		Assert(node);
 		return node;
 	}
@@ -296,10 +286,10 @@ namespace OpenNero
         const vector3df& rotation,
         const vector3df& scale)
     {
-        mIrr.mpSceneManager->addSphereSceneNode(
+        mIrr.getSceneManager()->addSphereSceneNode(
             radius, // size of the sphere
             16, // poly-count
-            mIrr.mpSceneManager->getRootSceneNode(), // parent node
+            mIrr.getSceneManager()->getRootSceneNode(), // parent node
             -1, // id
             position, rotation, scale); // pose
     }

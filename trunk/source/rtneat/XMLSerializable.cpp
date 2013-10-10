@@ -20,6 +20,7 @@
 #include "population.h"
 #include "species.h"
 #include "trait.h"
+#include "factor.h"
 
 #include <boost/archive/xml_oarchive.hpp>
 #include <boost/archive/xml_iarchive.hpp>
@@ -110,6 +111,12 @@ namespace NEAT
     }
 
     std::ostream& operator<<(std::ostream& out, const GenePtr& x) {
+        ARCHIVE out_archive(out);
+        out_archive << BOOST_SERIALIZATION_NVP(x);
+        return out;
+    }
+
+    std::ostream& operator<<(std::ostream& out, const FactorPtr& x) {
         ARCHIVE out_archive(out);
         out_archive << BOOST_SERIALIZATION_NVP(x);
         return out;

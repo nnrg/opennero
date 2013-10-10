@@ -129,6 +129,9 @@ namespace NEAT
             /// Just print connections weights with carriage returns
             void print_links_tofile(const std::string& filename) const;
             
+            /// Just print connections weights with carriage returns
+            void print_links() const;
+            
             /// serialize this object to/from a Boost serialization archive
             template<class Archive>
             void serialize(Archive & ar, const unsigned int version)
