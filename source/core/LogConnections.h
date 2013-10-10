@@ -73,13 +73,15 @@ namespace OpenNero
 			{
 #if NERO_DEBUG
 				dump(msg);
+                flush();
 #endif
 			}
 
             /// log a message
             void LogMsg( const char* msg )
             {
-                dump(msg);                
+                dump(msg);
+                flush();
             }
 
             /// log a warning

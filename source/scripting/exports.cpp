@@ -24,6 +24,8 @@
 #include "ai/sensors/RaySensor.h"
 #include "ai/sensors/RadarSensor.h"
 #include "ai/sensors/SensorArray.h"
+#include "ai/rtneat/advice.h"
+#include "advice/scripted.h"
 #include "core/IrrUtil.h"
 #include "game/Kernel.h"
 #include "game/objects/PropertyMap.h"
@@ -337,6 +339,8 @@ namespace OpenNero {
 				.add_property("time_alive", &PyOrganism::GetTimeAlive, &PyOrganism::SetTimeAlive, "organism time alive (integer, non negative)")
                 .def_readwrite("champion", &PyOrganism::champion, "is the organism a champion of the species?")
                 .add_property("species_id", &PyOrganism::GetSpeciesId, "the id of the species of the organism")
+                .add_property("stats", &PyOrganism::GetStats, "the stats of the organism")
+                .add_property("trials", &PyOrganism::GetNumTrials, "number of trials of the organism")
 				.def("save", &PyOrganism::Save, "save the organism to file")
 				.def(self_ns::str(self_ns::self));
 
@@ -344,8 +348,8 @@ namespace OpenNero {
 			py::class_<AI, AIPtr, noncopyable>("AI", "AI algorithm", no_init);
 
 			// export RTNEAT interface
-			py::class_<RTNEAT, bases<AI>, RTNEATPtr>("RTNEAT", init<const std::string&, const std::string&, S32, const RewardInfo&>())
-				.def(init<const std::string&, S32, S32, S32, F32, const RewardInfo&>())
+			py::class_<RTNEAT, bases<AI>, RTNEATPtr>("RTNEAT", init<const std::string&, const std::string&, S32, const RewardInfo&, bool>())
+				.def(init<const std::string&, S32, S32, S32, F32, const RewardInfo&, bool>())
 				.def("get_organism", &RTNEAT::get_organism, "evolve a new organism and return it")
                 .def("release_organism", &RTNEAT::release_organism, "release the organism after the agent is done")
                 .def("ready", &RTNEAT::ready, "return true iff RTNEAT is ready to produce a new organism")
@@ -354,8 +358,25 @@ namespace OpenNero {
                 .def("set_lifetime", &RTNEAT::set_lifetime, "set the lifetime of an agent")
 				.def("save_population", &RTNEAT::save_population, "save the population to a file")
                 .def("enable_evolution", &RTNEAT::enable_evolution, "turn evolution on")
-                .def("disable_evolution", &RTNEAT::disable_evolution, "turn evolution off");
+                .def("disable_evolution", &RTNEAT::disable_evolution, "turn evolution off")
+                .add_property("advice", &RTNEAT::get_advice, &RTNEAT::set_advice, "get/set advice for the population");
 		}
+        
+        /// export advice related classes and functions to Python
+        void ExportAdviceScripts() {
+            class_<Advice>("Advice", "an interface for providing advice to rtNEAT networks", init<const char*, RTNEAT&, S32, S32, bool, FeatureVectorInfo&, FeatureVectorInfo&>())
+                .def("splice_advice_org", &Advice::splice_advice_org, "splice the advice genome into the given organism")
+                .def("splice_advice_pop", &Advice::splice_advice_pop, "splice the advice genome into every organism in the population");
+        }
+
+        /// export scripted classes and functions to Python
+        void ExportScriptedScripts() {
+            class_<Scripted, ScriptedPtr>("Scripted", "an interface for controlling agents scripted through advice", init<S32, S32>())
+                .def("add_advice", &Scripted::add_advice, "add new advice to parse into rules")
+                .def("evaluate", &Scripted::evaluate, "evaluate rules for the given sensors")
+                .def("flush", &Scripted::flush, "flush the advice data structures")
+                ;
+        }
 
 		/// the pickling suite for the Vector class
 		template <typename T>
@@ -940,6 +961,8 @@ namespace OpenNero {
             ExportSensorScripts();
             ExportEnvironmentScripts();
             ExportRTNEATScripts();
+            ExportAdviceScripts();
+            ExportScriptedScripts();
             ExportIrrUtilScripts();
             ExportKernelScripts();
             ExportPropertyMapScripts();

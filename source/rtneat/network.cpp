@@ -141,6 +141,27 @@ void Network::print_links_tofile(const std::string& filename) const
 
 } //print_links_tofile
 
+// Print the connections weights separated by only carriage returns
+void Network::print_links() const
+{
+    vector<NNodePtr>::const_iterator curnode;
+    vector<LinkPtr>::const_iterator curlink;
+
+    for (curnode=all_nodes.begin(); curnode!=all_nodes.end(); ++curnode)
+    {
+        if (((*curnode)->type)!=SENSOR)
+        {
+            for (curlink=((*curnode)->incoming).begin(); curlink!=((*curnode)->incoming).end(); ++curlink)
+            {
+                cout<<(*curlink)->get_in_node()->node_id<<" -> "<<(*curlink)->get_out_node()->node_id<<" : "<<(*curlink)->weight;
+                if ((*curlink)->is_recurrent) cout<<" recur";
+                cout<<endl;
+            } // end for loop on links
+        } //end if
+    } //end for loop on nodes
+
+} //print_links
+
 // Activates the net such that all outputs are active
 // Returns true on success;
 bool Network::activate()
@@ -159,7 +180,7 @@ bool Network::activate()
 
     onetime=false;
     
-    while (outputsoff()||!onetime)
+    while (nodesoff()||!onetime)
     {
 
         ++abortcount;
@@ -287,6 +308,7 @@ bool Network::activate()
         }
 
     } //end if (adaptable)
+
     return true;
 }
 

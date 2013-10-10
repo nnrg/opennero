@@ -6,6 +6,7 @@
 #include "core/Common.h"
 #include "File.h"
 #include <fstream>
+#define BOOST_FILESYSTEM_VERSION 3
 #include <boost/filesystem.hpp>   // includes all needed Boost.Filesystem declarations
 namespace fs = boost::filesystem;
 
@@ -43,7 +44,11 @@ namespace OpenNero
     std::string ConvertNeroToSystemPath( const std::string& pathName )
     {
         fs::path p(pathName);
+#if BOOST_FILESYSTEM_VERSION == 2
+        return p.native_directory_string();
+#else
         return p.string();
+#endif
     }
 
     /// Check for the existence of a file at a given path
