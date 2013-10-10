@@ -5,6 +5,6 @@ SET(OpenNERO_JAVA_JAR
 FILE(TO_NATIVE_PATH "${OpenNERO_JAVA_JAR}" OpenNERO_JAVA_JAR)
 SET_PROPERTY(GLOBAL PROPERTY OpenNERO_JAVA_JAR "${OpenNERO_JAVA_JAR}")
 ADD_CUSTOM_TARGET(BuildJava ALL
-  COMMAND ${MVN_EXECUTABLE} --file ${source_pom} assembly:single
+  COMMAND ${MVN_EXECUTABLE} --file ${source_pom} clean compile assembly:single
   COMMENT "Running Maven-based Java build"
 )
