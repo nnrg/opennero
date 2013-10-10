@@ -234,22 +234,6 @@ class NeroModule:
 
         OpenNero.enable_ai()
     
-    def start_demonstration(self):
-        '''
-        start the keyboard agent to collect demonstration example
-        '''
-        OpenNero.disable_ai()
-        team = constants.OBJECT_TYPE_TEAM_0
-        self.curr_team = team
-        #self.environment.remove_all_agents(team)
-        location = (self.spawn_x[team], self.spawn_y[team], 2)
-        agnt = common.addObject(
-            "data/shapes/character/steve_keyboard.xml",
-            position = OpenNero.Vector3f(*location),
-            type=team)
-        OpenNero.enable_ai()
-        self.environment.start_tracing()
-        return agnt
 
     def _split_population(self, lines):
         rtneat = []
@@ -403,9 +387,6 @@ def parseInput(strn):
             if msg_type == 'FitnessWeights':
                 parseInputFitness(content)
 
-            if msg_type == 'Advice':
-                result = parseInputAdvice(content)
-                
             if msg_type == 'Command':
                 parseInputCommand(content)
 
@@ -439,17 +420,6 @@ def parseInputCommand(content):
     if command == "qlearning": mod.deploy('qlearning')
     if command == "pause": OpenNero.disable_ai()
     if command == "resume": OpenNero.enable_ai()
-    if command == "example":
-        print 'command: example'
-        if arg == "start":
-            print 'command: example start'
-            mod.start_demonstration()
-        elif arg == "cancel":
-            print 'command: example cancel'
-            OpenNero.get_environment().cancel_demonstration()
-        elif arg == "confirm":
-            print 'command: example confirm'
-            OpenNero.get_environment().use_demonstration()
 
 def ServerMain():
     print "Starting mod NERO"
