@@ -57,6 +57,9 @@ Install the following packages (using `sudo apt-get install`)
  * libxxf86vm-dev
  * libgl-dev
  * libz-dev
+ * maven
+ * flex
+ * bison
 ==== or, Fedora RPMs ====
  * boost-devel
  * libX11-devel
