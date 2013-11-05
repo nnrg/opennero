@@ -27,7 +27,6 @@ namespace OpenNero
     BOOST_SHARED_DECL(RTNEAT);
     BOOST_SHARED_DECL(PyNetwork);
     BOOST_SHARED_DECL(PyOrganism);
-    BOOST_SHARED_DECL(Advice);
     BOOST_SHARED_DECL(AIObject);
     /// @endcond
 
@@ -52,7 +51,6 @@ namespace OpenNero
 
         S32 mChampionId; ///< the id of the last champion of the population
 
-        AdvicePtr mAdvice;                ///< user provided advice
         bool mGenerational;               ///< whether to run NEAT in generational or realtime mode
     public:
         /// Constructor
@@ -85,10 +83,6 @@ namespace OpenNero
 
         /// Destructor
         ~RTNEAT();
-
-        /// advice provided by the user
-        AdvicePtr get_advice() const { return mAdvice; }
-        void set_advice(AdvicePtr advice) { mAdvice = advice; }
 
         // get the next organism to be evaluated
         // PyOrganismPtr next_organism(PyOrganismPtr org);
@@ -213,9 +207,6 @@ namespace OpenNero
         /// statistics for fitness calculations
         Stats mStats;
 
-		/// most recent advice of the agent
-		AdvicePtr mAdvice;
-
         /// we keep our own champion flag
         bool champion;
 
@@ -272,7 +263,6 @@ namespace OpenNero
         void UpdateGenotype() { mOrganism->update_genotype(); }
 
         friend std::ostream& operator<<(std::ostream& output, const PyOrganism& net);
-        friend class Advice;
     };
 }
 

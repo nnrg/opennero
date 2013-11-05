@@ -24,8 +24,6 @@
 #include "ai/sensors/RaySensor.h"
 #include "ai/sensors/RadarSensor.h"
 #include "ai/sensors/SensorArray.h"
-#include "ai/rtneat/advice.h"
-#include "advice/scripted.h"
 #include "core/IrrUtil.h"
 #include "game/Kernel.h"
 #include "game/objects/PropertyMap.h"
@@ -358,26 +356,9 @@ namespace OpenNero {
                 .def("set_lifetime", &RTNEAT::set_lifetime, "set the lifetime of an agent")
 				.def("save_population", &RTNEAT::save_population, "save the population to a file")
                 .def("enable_evolution", &RTNEAT::enable_evolution, "turn evolution on")
-                .def("disable_evolution", &RTNEAT::disable_evolution, "turn evolution off")
-                .add_property("advice", &RTNEAT::get_advice, &RTNEAT::set_advice, "get/set advice for the population");
+                .def("disable_evolution", &RTNEAT::disable_evolution, "turn evolution off");
 		}
         
-        /// export advice related classes and functions to Python
-        void ExportAdviceScripts() {
-            class_<Advice>("Advice", "an interface for providing advice to rtNEAT networks", init<const char*, RTNEAT&, S32, S32, bool, FeatureVectorInfo&, FeatureVectorInfo&>())
-                .def("splice_advice_org", &Advice::splice_advice_org, "splice the advice genome into the given organism")
-                .def("splice_advice_pop", &Advice::splice_advice_pop, "splice the advice genome into every organism in the population");
-        }
-
-        /// export scripted classes and functions to Python
-        void ExportScriptedScripts() {
-            class_<Scripted, ScriptedPtr>("Scripted", "an interface for controlling agents scripted through advice", init<S32, S32>())
-                .def("add_advice", &Scripted::add_advice, "add new advice to parse into rules")
-                .def("evaluate", &Scripted::evaluate, "evaluate rules for the given sensors")
-                .def("flush", &Scripted::flush, "flush the advice data structures")
-                ;
-        }
-
 		/// the pickling suite for the Vector class
 		template <typename T>
 		struct irr_vector3d_pickle_suite : py::pickle_suite
@@ -961,8 +942,6 @@ namespace OpenNero {
             ExportSensorScripts();
             ExportEnvironmentScripts();
             ExportRTNEATScripts();
-            ExportAdviceScripts();
-            ExportScriptedScripts();
             ExportIrrUtilScripts();
             ExportKernelScripts();
             ExportPropertyMapScripts();
