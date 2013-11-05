@@ -5,7 +5,6 @@
 #include "ai/AIObject.h"
 #include "ai/AgentBrain.h"
 #include "ai/rtneat/rtNEAT.h"
-#include "ai/rtneat/advice.h"
 #include "rtneat/population.h"
 #include "rtneat/network.h"
 #include "scripting/scriptIncludes.h"
@@ -175,182 +174,6 @@ namespace OpenNero
         return output;
     }
 
-    /* FIXME: this code needs to be integrated into the new rtNEAT
-    PyOrganismPtr RTNEAT::next_organism(PyOrganismPtr org) {
-        static int count = 0;   // count of organisms spliced with advice
-
-        // If user has provided any advice, splice it into the organism
-        // and return it; otherwise, evolve and return the next organism.
-        if (mAdvice && count < mPopulation->organisms.size()) {
-            if (org == NULL) {
-                org = evolve_next_organism();
-            }
-            mAdvice->splice_advice_org(org);
-            count++;
-            if (count == mPopulation->organisms.size()) {
-                mAdvice.reset();
-                count = 0;
-            }
-            return org;
-        }
-        else {
-            return evolve_next_organism();
-        }
-    }
-    */
-
-    /* FIXME: this code needs to be integrated into the new rtNEAT
-    PyOrganismPtr RTNEAT::evolve_next_organism()
-    {
-        OrganismPtr org;
-        static int index = 0;   // index of current organism in population
-        static OrganismPtr elite_org;   // the organism with highest fitness in the population
-
-        if (!mEvalQueue.empty())
-        {
-            org = mEvalQueue.front();
-            mEvalQueue.pop();
-        }
-        else if (mGenerational)
-        {
-            // Create the next generation if we have evaluated all organisms in current generation.
-            if (index == 0) {
-                vector<OrganismPtr>::iterator elite = max_element(mPopulation->organisms.begin(), mPopulation->organisms.end(), fitness_less);
-                AssertMsg(elite != mPopulation->organisms.end(), "highest fitness organism not found");
-                LOG_F_DEBUG("ai", "highest fitness: " << (*elite)->fitness);
-                elite_org = *elite;
-
-                vector<OrganismPtr>::iterator least = min_element(mPopulation->organisms.begin(), mPopulation->organisms.end(), fitness_less);
-                AssertMsg(least != mPopulation->organisms.end(), "lowest fitness organism not found");
-                double least_fitness = (*least)->fitness;
-                LOG_F_DEBUG("ai", "lowest fitness: " << least_fitness);
-
-                // adjust fitness so that there are no negative values.
-                vector<OrganismPtr>::iterator org_iter;
-                for (org_iter = mPopulation->organisms.begin(); org_iter != mPopulation->organisms.end(); ++org_iter) {
-                    if ((*org_iter)->time_alive > 0) {
-                        (*org_iter)->fitness -= least_fitness;
-                    }
-                }
-
-                // Create next generation, keeping the champion of the current generation.
-                // TODO: use Population::epoch() to create next generation instead of reproducing organisms
-                // one by one, but that method is currently buggy (e.g. check the loop that erases organisms).
-                size_t popsize = mPopulation->organisms.size();
-                for (size_t i = 0; i < popsize; ++i) {
-                    OrganismPtr removed = mPopulation->remove_worst(popsize-i);
-                    AssertMsg(removed, "Worst organism could not be removed from population");
-
-                    S32 generation = static_cast<S32>(mOffspringCount++);
-                    if (i == 0) {
-                        OrganismPtr child = OrganismPtr(new Organism(0.0, elite_org->gnome->duplicate(generation), generation));
-                        AssertMsg(child, "Elite organism did not copy correctly");
-                        mPopulation->add_organism(child);
-                    }
-                    else {
-                        SpeciesPtr species = mPopulation->choose_parent_species();
-                        OrganismPtr child = species->reproduce_one(generation, mPopulation, mPopulation->species, 0, 0);
-                        AssertMsg(child, "Organism did not reproduce correctly");
-                    }
-                }
-
-                size_t num_species = mPopulation->species.size(); // number of species in the population
-
-                // adjust species boundaries to keep their number close to target
-                if (num_species < kNumSpeciesTarget)
-                    NEAT::compat_threshold -= kCompatMod;
-                else if (num_species > kNumSpeciesTarget)
-                    NEAT::compat_threshold += kCompatMod;
-
-                if (NEAT::compat_threshold < kMinCompatThreshold)
-                    NEAT::compat_threshold = kMinCompatThreshold;
-
-                //Go through entire population, reassigning organisms to new species
-                for (org_iter = mPopulation->organisms.begin(); org_iter != mPopulation->organisms.end(); ++org_iter) {
-                    assert((*org_iter)->gnome);
-                    mPopulation->reassign_species(*org_iter);
-                }
-
-                // readjust fitness to original values.
-                for (org_iter = mPopulation->organisms.begin(); org_iter != mPopulation->organisms.end(); ++org_iter) {
-                    if ((*org_iter)->time_alive > 0) {
-                        (*org_iter)->fitness += least_fitness;
-                    }
-                }
-            }
-
-            org = mPopulation->organisms[index];
-            index = (index+1)%mPopulation->organisms.size();
-        }
-        else
-        {
-            // Find organism with highest fitness before we change the population.
-            if (index == 0) {
-                vector<OrganismPtr>::iterator elite = max_element(mPopulation->organisms.begin(), mPopulation->organisms.end(), fitness_less);
-                AssertMsg(elite != mPopulation->organisms.end(), "highest fitness organism not found");
-                LOG_F_DEBUG("ai", "highest fitness: " << (*elite)->fitness);
-                elite_org = *elite;
-            }
-
-            vector<OrganismPtr>::iterator least = min_element(mPopulation->organisms.begin(), mPopulation->organisms.end(), fitness_less);
-            AssertMsg(least != mPopulation->organisms.end(), "lowest fitness organism not found");
-            double least_fitness = (*least)->fitness;
-            LOG_F_DEBUG("ai", "lowest fitness: " << least_fitness);
-            vector<OrganismPtr>::iterator org_iter;
-            for (org_iter = mPopulation->organisms.begin(); org_iter != mPopulation->organisms.end(); ++org_iter) {
-                if ((*org_iter)->time_alive > 0) {
-                    (*org_iter)->fitness -= least_fitness;
-                }
-            }
-
-            OrganismPtr removed = mPopulation->remove_worst();
-            if (removed) {
-                SpeciesPtr parent = mPopulation->choose_parent_species();
-                S32 generation = static_cast<S32>(mOffspringCount++);
-
-                // use copy of elite organism for first individual in the population and reproduce
-                // for the other individuals
-                if (index == 0) {
-                    org.reset(new Organism(0.0, elite_org->gnome->duplicate(generation), generation));
-                    mPopulation->add_organism(org);
-                }
-                else {
-                    org = parent->reproduce_one(generation, mPopulation, mPopulation->species, 0, 0);
-                    AssertMsg(org, "Organism did not reproduce correctly");
-                }
-
-                size_t num_species = mPopulation->species.size(); // number of species in the population
-
-                // adjust species boundaries to keep their number close to target
-                if (num_species < kNumSpeciesTarget)
-                    NEAT::compat_threshold -= kCompatMod;
-                else if (num_species > kNumSpeciesTarget)
-                    NEAT::compat_threshold += kCompatMod;
-
-                if (NEAT::compat_threshold < kMinCompatThreshold)
-                    NEAT::compat_threshold = kMinCompatThreshold;
-
-                //Go through entire population, reassigning organisms to new species
-                for (org_iter = mPopulation->organisms.begin(); org_iter != mPopulation->organisms.end(); ++org_iter) {
-                    assert((*org_iter)->gnome);
-                    mPopulation->reassign_species(*org_iter);
-                }
-            }
-
-            for (org_iter = mPopulation->organisms.begin(); org_iter != mPopulation->organisms.end(); ++org_iter) {
-                if ((*org_iter)->time_alive > 0) {
-                    (*org_iter)->fitness += least_fitness;
-                }
-            }
-
-            index = (index+1)%mPopulation->organisms.size();
-        }
-
-        AssertMsg(org, "No rtNEAT organism found!");
-
-        return PyOrganismPtr(new PyOrganism(org));
-    } */
-    
     /// load the population from a file
     bool RTNEAT::load_population(const std::string& pop_file)
     {
@@ -394,11 +217,6 @@ namespace OpenNero
                         " for body: " << agent->GetBody()->GetId());
 
             result = brain;
-        }
-        if (mAdvice && mAdvice != result->mAdvice) {
-            LOG_F_MSG("ai.rtneat", "splicing in advice for brain: " << result->GetId());
-            mAdvice->splice_advice_org(result);
-            result->mAdvice = mAdvice;
         }
         return result;
     }

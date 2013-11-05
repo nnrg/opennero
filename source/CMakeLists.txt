@@ -18,7 +18,7 @@ FILE(GLOB_RECURSE OpenNERO_tests ../test/*.cpp)
 # Find the Boost C++ libraries.
 
 # When trying to figure out why cmake cannot find Boost, uncomment:
-# set(Boost_DEBUG 1)
+set(Boost_DEBUG 1)
 
 # if linking against a custom (recent) version of boost without removing the system version, try:
 # SET(Boost_USE_MULTITHREADED "NO")
@@ -64,12 +64,6 @@ IF (WIN32)
   set(CMAKE_INCLUDE_PATH "/GnuWin32/include")
   message(STATUS "CMAKE_INCLUDE_PATH ${CMAKE_INCLUDE_PATH}")
 ENDIF (WIN32)
-find_package(BISON)
-find_package(FLEX)
-
-BISON_TARGET(AdviceParser advice/advice.y "${CMAKE_CURRENT_BINARY_DIR}/advice.tab.cc")
-FLEX_TARGET(AdviceScanner advice/advice.l "${CMAKE_CURRENT_BINARY_DIR}/advice.yy.cc")
-ADD_FLEX_BISON_DEPENDENCY(AdviceScanner AdviceParser)
 
 # header include directories
 INCLUDE_DIRECTORIES ( ${OpenNERO_SOURCE_DIR}/external/include/irrlicht )
@@ -79,7 +73,6 @@ INCLUDE_DIRECTORIES ( ${OpenNERO_SOURCE_DIR}/source )
 INCLUDE_DIRECTORIES ( ${Boost_INCLUDE_DIR} )
 INCLUDE_DIRECTORIES ( ${PYTHON_INCLUDE_PATH} )
 INCLUDE_DIRECTORIES ( ${OpenNERO_BINARY_DIR}/external/source/Irrlicht ) # irrlicht IrrCompileConfig.h generated
-INCLUDE_DIRECTORIES ( ${CMAKE_CURRENT_BINARY_DIR}/advice/ ) # advice generated files
 INCLUDE_DIRECTORIES ( ${FLEX_INCLUDE_DIRS} )
 LINK_DIRECTORIES (${OpenNERO_BINARY_DIR}/external/source/tiny)
 
@@ -116,7 +109,7 @@ IF (APPLE)
   SET(MACOSX_BUNDLE_COPYRIGHT "(c) 2006-2011 The University of Texas at Austin")
   SET(MACOSX_BUNDLE_NIB_FILE "MainMenu")
   CONFIGURE_FILE(${CMAKE_MODULE_PATH}/OpenNERO-Info.plist ${CMAKE_CURRENT_BINARY_DIR}/Info.plist)
-  ADD_EXECUTABLE(OpenNERO MACOSX_BUNDLE main.cc ${OpenNERO_sources} ${OpenNERO_headers} ${BISON_AdviceParser_OUTPUTS} ${FLEX_AdviceScanner_OUTPUTS})
+  ADD_EXECUTABLE(OpenNERO MACOSX_BUNDLE main.cc ${OpenNERO_sources} ${OpenNERO_headers})
   GET_TARGET_PROPERTY(OpenNERO_LOCATION OpenNERO LOCATION)
   STRING(REGEX REPLACE "\\.app/Contents/MacOS/OpenNERO" "" OpenNERO_LOCATION "${OpenNERO_LOCATION}")
   SET(OpenNERO_APP_RESOURCES "${OpenNERO_LOCATION}.app/Contents/Resources")
@@ -131,7 +124,7 @@ IF (APPLE)
     COMMAND ${CMAKE_MODULE_PATH}/bundle.py ${OpenNERO_LOCATION}.app OpenNERO)
   ADD_DEPENDENCIES(BundleStuff OpenNERO)
 ELSEIF (UNIX)
-  ADD_EXECUTABLE(OpenNERO main.cc ${OpenNERO_sources} ${OpenNERO_headers} ${BISON_AdviceParser_OUTPUTS} ${FLEX_AdviceScanner_OUTPUTS})
+  ADD_EXECUTABLE(OpenNERO main.cc ${OpenNERO_sources} ${OpenNERO_headers})
   SET(OpenNERO_APP_RESOURCES "${EXECUTABLE_OUTPUT_PATH}")
   GET_PROPERTY(OpenNERO_JAVA_JAR GLOBAL PROPERTY OpenNERO_JAVA_JAR)
   # CopyStuff will always run - it copies any updated resources from the source tree into the runtime directory
@@ -139,15 +132,13 @@ ELSEIF (UNIX)
     COMMAND rsync -auv --delete-excluded --exclude='.svn' --exclude='.git' ${OpenNERO_SOURCE_DIR}/mods/* ${OpenNERO_APP_RESOURCES}
     COMMAND cp -f ${OpenNERO_JAVA_JAR} ${OpenNERO_APP_RESOURCES}/TrainingWindow.jar)
 ELSE (APPLE)
-  ADD_EXECUTABLE(OpenNERO main.cc ${OpenNERO_sources} ${OpenNERO_headers} ${BISON_AdviceParser_OUTPUTS} ${FLEX_AdviceScanner_OUTPUTS})
+  ADD_EXECUTABLE(OpenNERO main.cc ${OpenNERO_sources} ${OpenNERO_headers})
 ENDIF(APPLE)
 
 TARGET_LINK_LIBRARIES (OpenNERO Irrlicht)
 TARGET_LINK_LIBRARIES (OpenNERO tinyxml)
 TARGET_LINK_LIBRARIES (OpenNERO ${PYTHON_LIBRARIES})
 TARGET_LINK_LIBRARIES (OpenNERO ${Boost_LIBRARIES})
-#TARGET_LINK_LIBRARIES (OpenNERO ${FLEX_LIBRARIES})
-#TARGET_LINK_LIBRARIES (OpenNERO ${BISON_LIBRARIES})
 
 IF (APPLE)
   FIND_LIBRARY(FOUNDATION_LIB Foundation)
