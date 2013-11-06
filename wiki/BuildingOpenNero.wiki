@@ -72,6 +72,8 @@ Install the following packages (using `sudo apt-get install`)
 == Steps to build ==
  # (recommended) create a new directory for your build
  # in your build directory, run `cmake /path/to/opennero/checkout`
+   * If you are having trouble building on Ubuntu 13.04, try adding the following to your cmake command line: {{{
+$ cmake -DPYTHON_LIBRARY=/usr/lib/libpython2.7.so -DPYTHON_INCLUDE_DIR=/usr/include/python2.7 ...}}}This will force cmake to use python2.7 libraries instead of python3, which is necessary because boost is compiled against python2.7
  # building using make: `make`
 == To run ==
  # `cd dist`
