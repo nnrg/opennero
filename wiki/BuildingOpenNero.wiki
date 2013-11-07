@@ -8,6 +8,7 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The
  * Run [http://www.cmake.org/ CMake].
  * Build.
  * Continue to [RunningOpenNero Running OpenNERO]
+ * If you have problems, scroll through the comments on this page - someone might have solved them for you =).
 ----
 = Mac OS X =
 == Prerequisites == 
