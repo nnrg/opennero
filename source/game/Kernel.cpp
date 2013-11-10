@@ -159,9 +159,6 @@ namespace OpenNero
                 mCurMod->context->ProcessAnimationTick(dt, fullDT/frameDelay);
             }
             prevTime = curTime;
-
-            // yield to other processes
-            mIrrDevice->yield();
         }
 
     }
