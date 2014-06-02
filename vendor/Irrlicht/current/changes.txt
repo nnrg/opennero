@@ -1,3 +1,41 @@
+--------------------------
+Changes in 1.8.2
+
+ - Example 22 no longer select a random texture after loading a new texture (thanks at mongoose7 for reporting).
+ - Fix bug in IGUISkin serialization which messed up serialization of the button-pressed offsets (thanks at Midnight for reporting).
+ - IGUIStaticText::getTextHeight returns now the correct height for texts with newlines even WordWrap is not set.
+ - Crashfix for CGUIEditBox. CGUIEditBox::setMultiLine must break text when changed or other functions like getTextDimension can crash afterward for strings with newline characters.
+ - CGUIEditBox and the GUI-Editor now convert pasted text correctly using mbstowcs.
+ - C::B project files work again on newer Linux-distributions which have cleaned up their dev-lib dependencies.
+ - Makefile for the new IrrFontTool links now correctly to libfontconfig
+
+--------------------------
+Changes in 1.8.1 (17.11.2013)
+
+ - Improved OpenGL performance under OSX (Thanks devonsoft for reporting).
+ - Fixed OSX compilation issues.
+ - [KNOWN BUG] Software driver doesn't work properly under OSX 10.9.
+ - For speed improvement the following attributes accessible by ISceneManager::getParameters() are no longer updated in release: 
+   "culled", "calls", "drawn_solid", "drawn_transparent", "drawn_transparent_effect".
+   They can be enabled by compiling Irrlicht with the define _IRR_SCENEMANAGER_DEBUG. 
+   Thanks @hendu for reporting, see http://irrlicht.sourceforge.net/forum/viewtopic.php?f=2&t=48211 for the discussion.
+ - Fix compile problem with CIrrDeviceSDL on VS2008 (and maybe other systems). Thanks @HellFlip for reporting.
+ - Fix quaternion::rotationFromTo() (Thanks @takamoto for reporting)
+ - Fix iszero for s64 (Thanks @chronologicaldot for reporting)
+ - Fix crash in SoftwareDriver2 when Material was EMT_DETAIL_MAP but texture[1] was not set (Thanks for fix by chronologicaldot)
+ - Fix buffer overrun in x-loader (Thanks for fix by Otaka)
+ - Fix cursor visibility update problem under Windows 8 (Thanks @luthyr for reporting)
+ - Fix irredit links in loadScene/saveScene docs.
+ - Fix issue in CAnimatedMeshSceneNode::clone which caused a crash. (reported and fixed by luthyr)
+ - Fix compiling errors for c++ builder (thx @Greatwolf for many patches and @cfanderek for reminding)
+ - Initialized IColladaMeshWriter::GeometryWriting which was uninitialized.
+ - Fix linker trouble with irr::core::equalsByUl when compiling Irrlicht as managed code (thx @  Memorial76 for a report + testcase)
+ - Fix crashes in CCubeSceneNode::clone and CSphereSceneNode::clone (reported by  marsupial)
+ - Fix the clipping in the listbox drawing which was only showing the right line of the sunken pane (reported by Mloren and Abraxas).
+ - Initialize slider in example 05 correct (reported by Zerochen)
+ - Fix crash in CMeshSceneNode::clone when the mesh had no shadow (reported by  christianclavet, bug-fix found by Nadro)
+
+--------------------------
 Changes in 1.8 (7.11.2012)
 
  - Let sphere mesh use full opaque color, just as all the other ones do
@@ -575,7 +613,13 @@ The following names can be queried for the given types:
  - Support new OpenGL 2.x shader creation
 
 -----------------------------
-Changes in 1.7.4
+Changes in 1.7.4 (not yet released)
+
+ - fixed getDepthFunction in IQ3Shader which always returned ECFN_EQUAL due to missing break (found by the cppcheck tool)
+
+ - STL loader improved to handle arbitrary file starts
+
+ - Compiler problem with gcc4.6 and big endian systems fixed
 
  - Change include order to get example 21 compiling on MinGW.
 

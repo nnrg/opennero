@@ -505,14 +505,14 @@ CIrrDeviceMacOSX::CIrrDeviceMacOSX(const SIrrlichtCreationParameters& param)
 		chdir([path fileSystemRepresentation]);
 		[path release];
 	}
-
+    NSWindow* a;
 	uname(&name);
 	Operator = new COSOperator(name.version);
 	os::Printer::log(name.version,ELL_INFORMATION);
 
 	initKeycodes();
 
-	VideoModeList.setDesktop(CreationParams.Bits, core::dimension2d<u32>([[NSScreen mainScreen] frame].size.width, [[NSScreen mainScreen] frame].size.height));
+	VideoModeList->setDesktop(CreationParams.Bits, core::dimension2d<u32>([[NSScreen mainScreen] frame].size.width, [[NSScreen mainScreen] frame].size.height));
 
 	bool success = true;
 	if (CreationParams.DriverType != video::EDT_NULL)
@@ -958,10 +958,7 @@ void CIrrDeviceMacOSX::createDriver()
 void CIrrDeviceMacOSX::flush()
 {
 	if (CGLContext != NULL)
-	{
-		glFinish();
 		CGLFlushDrawable(CGLContext);
-	}
 }
 
 bool CIrrDeviceMacOSX::run()
@@ -1828,7 +1825,7 @@ void CIrrDeviceMacOSX::pollJoysticks()
 
 video::IVideoModeList* CIrrDeviceMacOSX::getVideoModeList()
 {
-	if (!VideoModeList.getVideoModeCount())
+	if (!VideoModeList->getVideoModeCount())
 	{
 		CGDirectDisplayID display;
 		display = CGMainDisplayID();
@@ -1858,7 +1855,7 @@ video::IVideoModeList* CIrrDeviceMacOSX::getVideoModeList()
 				unsigned int Width = CGDisplayModeGetWidth(CurrentMode);
 				unsigned int Height = CGDisplayModeGetHeight(CurrentMode);
 
-				VideoModeList.addMode(core::dimension2d<u32>(Width, Height), Depth);
+				VideoModeList->addMode(core::dimension2d<u32>(Width, Height), Depth);
 			}
 		}
 #else
@@ -1883,7 +1880,7 @@ video::IVideoModeList* CIrrDeviceMacOSX::getVideoModeList()
 		}
 #endif
 	}
-	return &VideoModeList;
+	return VideoModeList;
 }
 
 } // end namespace

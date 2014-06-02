@@ -178,6 +178,7 @@ bool CGUIEditBox::isWordWrapEnabled() const
 void CGUIEditBox::setMultiLine(bool enable)
 {
 	MultiLine = enable;
+	breakText();
 }
 
 
@@ -332,17 +333,25 @@ bool CGUIEditBox::processKey(const SEvent& event)
 				const c8* p = Operator->getTextFromClipboard();
 				if (p)
 				{
+					// TODO: we should have such a function in core::string
+					size_t lenOld = strlen(p);
+					wchar_t *ws = new wchar_t[lenOld + 1];
+					size_t len = mbstowcs(ws,p,lenOld);
+					ws[len] = 0;
+					irr::core::stringw widep(ws);
+					delete[] ws;
+
 					if (MarkBegin == MarkEnd)
 					{
 						// insert text
 						core::stringw s = Text.subString(0, CursorPos);
-						s.append(p);
+						s.append(widep);
 						s.append( Text.subString(CursorPos, Text.size()-CursorPos) );
 
 						if (!Max || s.size()<=Max) // thx to Fish FH for fix
 						{
 							Text = s;
-							s = p;
+							s = widep;
 							CursorPos += s.size();
 						}
 					}
@@ -351,13 +360,13 @@ bool CGUIEditBox::processKey(const SEvent& event)
 						// replace text
 
 						core::stringw s = Text.subString(0, realmbgn);
-						s.append(p);
+						s.append(widep);
 						s.append( Text.subString(realmend, Text.size()-realmend) );
 
 						if (!Max || s.size()<=Max)  // thx to Fish FH for fix
 						{
 							Text = s;
-							s = p;
+							s = widep;
 							CursorPos = realmbgn + s.size();
 						}
 					}
