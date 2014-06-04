@@ -30,7 +30,6 @@
 	#endif
 
 #elif defined(_IRR_COMPILE_WITH_OSX_DEVICE_)
-	#include "CIrrDeviceMacOSX.h"
 	#if defined(_IRR_OPENGL_USE_EXTPOINTER_)
 		#define GL_GLEXT_LEGACY 1
 	#endif
@@ -1088,7 +1087,7 @@ class COpenGLExtensionHandler
 	void extGlDisableIndexed(GLenum target, GLuint index);
 	void extGlBlendFuncIndexed(GLuint buf, GLenum src, GLenum dst);
 	void extGlBlendEquationIndexed(GLuint buf, GLenum mode);
-	void extGlProgramParameteri(GLhandleARB program, GLenum pname, GLint value);
+	void extGlProgramParameteri(GLuint program, GLenum pname, GLint value);
 
 	// occlusion query
 	void extGlGenQueries(GLsizei n, GLuint *ids);
@@ -2374,7 +2373,7 @@ inline void COpenGLExtensionHandler::extGlBlendEquationIndexed(GLuint buf, GLenu
 #endif
 }
 
-inline void COpenGLExtensionHandler::extGlProgramParameteri(GLhandleARB program, GLenum pname, GLint value)
+inline void COpenGLExtensionHandler::extGlProgramParameteri(GLuint program, GLenum pname, GLint value)
 {
 #if defined(_IRR_OPENGL_USE_EXTPOINTER_)
 	if (queryFeature(EVDF_GEOMETRY_SHADER))
