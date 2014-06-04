@@ -8,11 +8,11 @@
 //! Irrlicht SDK Version
 #define IRRLICHT_VERSION_MAJOR 1
 #define IRRLICHT_VERSION_MINOR 8
-#define IRRLICHT_VERSION_REVISION 0
+#define IRRLICHT_VERSION_REVISION 1
 // This flag will be defined only in SVN, the official release code will have
 // it undefined
 //#define IRRLICHT_VERSION_SVN -alpha
-#define IRRLICHT_SDK_VERSION "1.8.0"
+#define IRRLICHT_SDK_VERSION "1.8.1"
 
 #include <stdio.h> // TODO: Although included elsewhere this is required at least for mingw
 
@@ -138,6 +138,10 @@ headers, e.g. Summer 2004.  This is a Microsoft issue, not an Irrlicht one.
 If not defined, Windows Multimedia library is used, which offers also broad support for joystick devices. */
 #define _IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_
 #ifdef NO_IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_
+#undef _IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_
+#endif
+// can't get this to compile currently under borland, can be removed if someone has a better solution
+#if defined(__BORLANDC__)
 #undef _IRR_COMPILE_WITH_DIRECTINPUT_JOYSTICK_
 #endif
 
@@ -802,6 +806,38 @@ precision will be lower but speed higher. currently X86 only
 #define __IRR_HAS_S64
 #ifdef NO__IRR_HAS_S64
 #undef __IRR_HAS_S64
+#endif
+
+#if defined(__BORLANDC__)
+	#include <tchar.h>
+
+	// Borland 5.5.1 does not have _strcmpi defined
+	#if __BORLANDC__ == 0x551
+	//    #define _strcmpi strcmpi
+		#undef _tfinddata_t
+		#undef _tfindfirst
+		#undef _tfindnext
+
+		#define _tfinddata_t __tfinddata_t
+		#define _tfindfirst  __tfindfirst
+		#define _tfindnext   __tfindnext
+		typedef long intptr_t;
+	#endif
+
+#endif
+
+#ifdef _DEBUG
+	//! A few attributes are written in CSceneManager when _IRR_SCENEMANAGER_DEBUG is enabled
+	// NOTE: Those attributes were used always until 1.8.0 and became a global define for 1.8.1
+	// which is only enabled in debug because it had a large (sometimes >5%) impact on speed.
+	// A better solution in the long run is to break the interface and remove _all_ attribute
+	// access in functions like CSceneManager::drawAll and instead put that information in some
+	// own struct/class or in CSceneManager.
+	// See http://irrlicht.sourceforge.net/forum/viewtopic.php?f=2&t=48211 for the discussion.
+	#define _IRR_SCENEMANAGER_DEBUG
+	#ifdef NO_IRR_SCENEMANAGER_DEBUG
+		#undef _IRR_SCENEMANAGER_DEBUG
+	#endif
 #endif
 
 #endif // __IRR_COMPILE_CONFIG_H_INCLUDED__
