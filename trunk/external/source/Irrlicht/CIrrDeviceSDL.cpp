@@ -478,7 +478,7 @@ bool CIrrDeviceSDL::run()
 				joyevent.JoystickEvent.ButtonStates |= (SDL_JoystickGetButton(joystick, j)<<j);
 
 			// query all axes, already in correct range
-			const int numAxes = core::min_(SDL_JoystickNumAxes(joystick), SEvent::SJoystickEvent::NUMBER_OF_AXES);
+			const int numAxes = core::min_(SDL_JoystickNumAxes(joystick), (int)SEvent::SJoystickEvent::NUMBER_OF_AXES);
 			joyevent.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_X]=0;
 			joyevent.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_Y]=0;
 			joyevent.JoystickEvent.Axis[SEvent::SJoystickEvent::AXIS_Z]=0;
@@ -704,7 +704,7 @@ void CIrrDeviceSDL::closeDevice()
 //! \return Pointer to a list with all video modes supported
 video::IVideoModeList* CIrrDeviceSDL::getVideoModeList()
 {
-	if (!VideoModeList.getVideoModeCount())
+	if (!VideoModeList->getVideoModeCount())
 	{
 		// enumerate video modes.
 		const SDL_VideoInfo *vi = SDL_GetVideoInfo();
@@ -716,12 +716,12 @@ video::IVideoModeList* CIrrDeviceSDL::getVideoModeList()
 			else
 			{
 				for (u32 i=0; modes[i]; ++i)
-					VideoModeList.addMode(core::dimension2d<u32>(modes[i]->w, modes[i]->h), vi->vfmt->BitsPerPixel);
+					VideoModeList->addMode(core::dimension2d<u32>(modes[i]->w, modes[i]->h), vi->vfmt->BitsPerPixel);
 			}
 		}
 	}
 
-	return &VideoModeList;
+	return VideoModeList;
 }
 
 
