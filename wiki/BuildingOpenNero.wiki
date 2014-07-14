@@ -1,17 +1,23 @@
 #summary This page describes how to build OpenNERO from source for a variety of platforms.
 #sidebar TableOfContents
 ----
+
 = Overview =
-OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The general steps are:
+
+OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The general steps to building OpenNERO on any platform are:
  * Install prerequisites as needed.
- * [http://code.google.com/p/opennero/source/checkout Check out the source code].
+ * [http://code.google.com/p/opennero/source/checkout Get a copy of the source code].
  * Run [http://www.cmake.org/ CMake].
- * Build.
- * Continue to [RunningOpenNero Running OpenNERO]
+ * Make.
+ * [RunningOpenNero Run OpenNERO]
  * If you have problems, scroll through the comments on this page - someone might have solved them for you =).
+
 ----
+
 = Mac OS X =
+
 == Prerequisites == 
+
  * Download and install [http://www.cmake.org/cmake/resources/software.html cmake]
  * Install [http://developer.apple.com/tools/xcode/ Xcode] (optional install on the Mac OS X DVD)
  * Install [http://www.wxpython.org/download.php wxPython]
@@ -22,8 +28,11 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The
  # open the resulting OpenNERO.xcodeproja Xcode project file
  # Build OpenNERO using Xcode
 ----
+
 = Windows =
+
 == Prerequisites ==
+
  * [http://www.cmake.org/cmake/resources/software.html cmake]
  * [http://www.microsoft.com/visualstudio/ Microsoft Visual Studio
  * [http://www.boost.org/doc/libs/release/more/getting_started/windows.html build and install Boost]
@@ -33,13 +42,67 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The
  * [http://www.python.org/download/releases/2.7.2/ Latest Python 2.7.x with source]
  * [http://www.wxpython.org/download.php wxPython]
  * Add python.exe to the Path variable (Control Panel -> System -> Environment Variables)
+
 == Steps to build ==
+
  # Open CMake, specify the source directory (opennero checkout directory) and build directory (another directory). Choose 'Suppress dev Warnings -WnoDev' from the Options menu. Click the Configure button twice, then click the Generate button.
  # Open the OpenNERO.sln solution file and build OpenNERO using Visual Studio.
  # To run from within Visual Studio, set OpenNERO as startup project. Also set the working directory of OpenNERO for debugging to `$(TargetDir)` (right mouse click on OpenNERO, select properties, debugging).
 ----
+
 = Linux =
-== Summary ==
+
+== Prerequisites ==
+
+Install the following packages (using `sudo apt-get install <package1> <package2> ...`)
+
+==== Ubuntu Packages ====
+
+ * subversion (needed to get the source code)
+ * cmake
+ * g++
+ * doxygen
+ * libgl1-mesa-dev
+ * libx11-dev
+ * libxxf86vm-dev
+ * zlib1g-dev
+ * libbz2-dev
+ * libpng++-dev
+ * libjpeg-dev
+ * libboost-dev
+ * libboost-python-dev
+ * libboost-filesystem-dev
+ * libboost-serialization-dev
+ * libboost-system-dev
+ * libboost-date-time-dev
+ * maven
+ * openjdk-6-jdk
+
+==== If you are using Fedora, trying finding the equivalent package names in the above list and install them: ====
+
+ * boost-devel
+ * libX11-devel
+ * libXxf86vm-devel
+ * mesa-libGL-devel
+ * zlib-devel
+ * ...
+
+=== Other packages ===
+
+The following packages are not needed for building OpenNERO, but they are needed for running certain mods in OpenNERO.  You would need to install them whether you are building OpenNERO or downloading a precompiled binary.
+
+ * python-tk
+ * python-wxtools
+ * python-matplotlib
+ * python-scipy
+ * python-imaging-tk
+
+== Building OpenNERO ==
+
+Once you have installed the prerequisites, you can continue to build OpenNERO using the following commands:
+
+== Commands for building OpenNERO ==
+
  # `mkdir opennero`
  # `cd opennero`
  # `svn checkout http://opennero.googlecode.com/svn/trunk`
@@ -47,43 +110,23 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The
  # `cd build-of-trunk`
  # `cmake ../trunk`
  # `make`
+
+== Commands for running OpenNERO ==
+
  # `cd dist`
  # `./OpenNERO`
-== Prerequisites ==
-Install the following packages (using `sudo apt-get install`)
-=== Required ===
-==== Ubuntu DEB Packages ====
- * libboost-all-dev
- * libx11-dev
- * libxxf86vm-dev
- * libgl-dev
- * libz-dev
- * maven
- * flex
- * bison
-==== or, Fedora RPMs ====
- * boost-devel
- * libX11-devel
- * libXxf86vm-devel
- * mesa-libGL-devel
- * zlib-devel
-=== Optional ===
- * python-matplotlib
- * python-wxgtk
-== Steps to build ==
- # (recommended) create a new directory for your build
- # in your build directory, run `cmake /path/to/opennero/checkout`
-   * If you are having trouble building on Ubuntu 13.04, try adding the following to your cmake command line:
-{{{
-$ cmake -DPYTHON_LIBRARY=/usr/lib/libpython2.7.so -DPYTHON_INCLUDE_DIR=/usr/include/python2.7 ...
-}}}
-This will force cmake to use python2.7 libraries instead of python3, which is necessary because boost is compiled against python2.7
- # building using make: `make`
-== To run ==
- # `cd dist`
- # `./OpenNERO`
-== Update build ==
+
+== Commands for updating build ==
+
  # `cd trunk`
  # `svn update`
  # `cd ..\build-of-trunk`
  # `make`
+
+=== Notes: ===
+
+If you are having trouble building on Ubuntu 13.04, try running cmake with the following options:
+{{{
+$ cmake -DPYTHON_LIBRARY=/usr/lib/libpython2.7.so -DPYTHON_INCLUDE_DIR=/usr/include/python2.7 ...
+}}}
+This will force cmake to use python2.7 libraries instead of python3, which is necessary because boost is compiled against python2.7.
