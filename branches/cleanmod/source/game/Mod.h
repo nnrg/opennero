@@ -17,6 +17,7 @@ namespace OpenNero
     public:
         SimContextPtr                context;  ///< Context for this mod
         std::string                  name;     ///< Name of the mod
+        std::string                  mode;     ///< Mode of the mod
         
         /// default Mod constructor
         Mod();

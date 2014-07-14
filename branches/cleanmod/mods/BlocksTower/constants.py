@@ -1,3 +1,6 @@
+MODE_PLANNING = "Planning"
+MODE_NLP = "NLP"
+
 ROWS = 8 # rows in maze
 COLS = 8 # columns in maze
 GRID_DX = 20.0#20.0 # x-dimension of the grid world

@@ -6,7 +6,7 @@ import NERO.constants as constants
 import NERO_Battle.module as module
 import OpenNero
 
-def ModMain():
+def ModMain(mode = ""):
     module.getMod()  # initialize the NERO_Battle module.
     client.ClientMain()
 
