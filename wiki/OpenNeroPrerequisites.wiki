@@ -40,5 +40,5 @@ If everything is working correctly, you should not see any errors when doing thi
 If you do not have python installed, install it using your package manager. To do so on Ubuntu Linux, use:
 
 {{{
-sudo apt-get install python python-wxgtk2.8
+sudo apt-get install python python-wxgtk2.8 python-tk
 }}}
