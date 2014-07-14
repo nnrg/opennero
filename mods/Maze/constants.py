@@ -1,5 +1,8 @@
 import math
 
+MODE_SEARCH = "Search"
+MODE_RL = "RL"
+
 ROWS = 8 # rows in maze
 COLS = 8 # columns in maze
 GRID_DX = 20.0 # x-dimension of the grid world

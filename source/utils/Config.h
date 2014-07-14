@@ -24,6 +24,7 @@ namespace OpenNero
         std::string LogConfigFile;      ///< The log config file
         std::string RenderType;         ///< The type of renderer "OpenGL" or "null"
         std::string StartMod;           ///< The starting mod name
+        std::string StartModMode;       ///< The starting mod mode
         std::string StartModDir;        ///< The starting mod directory
         std::string StartCommand;       ///< The Python command to run after loading the module
         uint32_t    Width;              ///< Window width

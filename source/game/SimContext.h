@@ -11,6 +11,7 @@
 #include "core/IrrUtil.h"
 #include "game/objects/PropertyMap.h"
 #include "game/Kernel.h"
+#include "game/Mod.h"
 #include "game/Simulation.h"
 #include "input/IOMapping.h"
 #include "render/SceneObject.h"

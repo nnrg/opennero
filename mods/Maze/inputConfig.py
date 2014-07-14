@@ -6,7 +6,7 @@ from Maze.module import getMod, delMod
 # functions bound to key/mouse events
 def switchToHub():
     delMod()
-    switchMod('hub', 'hub:common')
+    switchMod('hub', '', 'hub:common')
 
 def first_person_control(command):
     # get the controller action

@@ -20,7 +20,7 @@ def showDisplayHint():
 
 def switchToHub():
     module.delMod()
-    OpenNero.switchMod('hub', 'hub:common')
+    OpenNero.switchMod('hub', '', 'hub:common')
 
 # control for keyboard agent
 def key(key):

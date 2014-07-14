@@ -1,25 +1,21 @@
 from OpenNero import *
-from nero_mod import list_mods, list_bases, MOD_NAMES, MOD_DIRS
+from nero_mod import list_mods, list_bases, extract_mod_name, extract_mod_mode, compile_mod_path, MOD_TITLES
 from inputConfig import *
 
 from common import gui, getGuiManager, openWiki
 
 mods = list_mods()
-basenames = [x[1:] for x in list_bases()]
+#basenames = [x[1:] for x in list_bases()]
 
 def SwitchToSelectedMod(combo_box):
     def closure():
         i = combo_box.getSelected()
-        modname = MOD_DIRS.get(mods[i], mods[i])
-        # create the path where to look for mod content
-        modpath = modname
-        # find and append any bases that look like this mod
-        for basename in basenames:
-            if modname.startswith(basename):
-                modpath += ':_' + basename
-        # always append the common directory
-        modpath += ":common"
-        switchMod(modname, modpath)
+        mod_id = mods[i]
+        mod_name = extract_mod_name(mod_id)
+        mod_mode = extract_mod_mode(mod_id)
+        mod_path = compile_mod_path(mod_name)
+        #print "Python going to switchMod mod_name:%s, mod_mode:%s, mod_path:%s\n" % (mod_name, mod_mode, mod_path)
+        switchMod(mod_name, mod_mode, mod_path)
     return closure
 
 def ClientMain():
@@ -33,8 +29,8 @@ def ClientMain():
     x_offset, y_offset = (800 - 200)/2, (600 - 100)/2
 
     combo_box = gui.create_combo_box(guiMan, "mod_selector", Pos2i(x_offset, y_offset + 50), Pos2i(200, 25))
-    for i, modname in enumerate(mods):
-        combo_box.addItem(MOD_NAMES.get(modname,modname))
+    for i, mod_id in enumerate(mods):
+        combo_box.addItem(MOD_TITLES.get(mod_id, mod_id))
 
     startButton = gui.create_button( guiMan, 'start', Pos2i(x_offset, y_offset), Pos2i(60,25), '' )
     startButton.text = 'Start'

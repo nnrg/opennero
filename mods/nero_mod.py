@@ -20,12 +20,50 @@ import os
 import sys
 
 TEMPLATE = 'TEMPLATE'
-SPECIAL_MOD_NAMES = ['TEMPLATE', 'common', 'hub']
+SPECIAL_MOD_NAMES = ['TEMPLATE', 'common', 'hub', 'share']
 SPECIAL_MOD_PREFIX = '_'
 MOD_PATH = '.'
-BUILTIN_MODS = ['Maze', 'NERO', 'NERO_Battle', 'BlocksTower', 'Roomba']
-MOD_NAMES = {'NERO': 'NERO Training', 'NERO_Battle': 'NERO Battle'}
-MOD_DIRS = dict((v,k) for k,v in MOD_NAMES.iteritems())
+SHARE_PATH = 'share'
+BUILTIN_MOD_IDS = ['Maze:Search', 'Maze:RL', 'BlocksTower:Planning', 'BlocksTower:NLP', 'Roomba', 'NERO', 'NERO_Battle']
+MOD_TITLES = {'Maze:Search': 'Search',
+              'Maze:RL': 'Reinforcement Learning',
+              'BlocksTower:Planning': 'Planning',
+              'BlocksTower:NLP': 'Natural Language Processing',
+              'Roomba': 'Neuroevolution',
+              'NERO': 'Multi-agent Systems Training',
+              'NERO_Battle': 'Multi-agent Systems Battle'}
+
+MOD_DEPS = {'Hw1':'Maze', 'Hw2':'BlocksTower', 'Hw3':'Maze', 'Hw4':'BlocksTower'}
+
+#MOD_IDS_OF_TITLES = dict((v, k) for k, v in MOD_TITLES.iteritems())
+
+def extract_mod_name(mod_id):
+    " Get the real mod name from a name:mode string"
+    return mod_id.split(":")[0]
+
+def extract_mod_mode(mod_id):
+    " Get the mode part from a name:mode string"
+    if ":" in mod_id:
+        return mod_id.split(":")[1]
+    else:
+        return ""
+
+def compile_mod_path(mod_name):
+    " compile a list of all paths the mod uses, looking at dependencies and share folders "
+    # create the path where to look for mod content
+    mod_path = mod_name
+    # find and append any bases that look like this mod
+    for share_name in list_shares():
+        if mod_name.startswith(share_name):
+            mod_path += ':' + os.path.join(SHARE_PATH, share_name)
+    # look in the dependency list to see if this mod has dependencies 
+    if mod_name in MOD_DEPS:
+        sub_path = compile_mod_path(MOD_DEPS[mod_name])
+        mod_path += ':' + sub_path
+    # always append the common directory
+    if ":common" not in mod_path:
+        mod_path += ":common"
+    return mod_path
 
 def mod_path(name):
     " get the path of the mod "
@@ -83,20 +121,24 @@ def copy_mod(name, new_name):
     return True
 
 def list_mods():
-    global BUILTIN_MODS
+    global BUILTIN_MOD_IDS
     " list all available mods "
-    mods = []
+    mod_ids = []
+    mod_names = []
     # first list Maze, NERO, BlocksTower and Roomba in order
-    for m in BUILTIN_MODS:
-        if mod_exists(m) and not is_special(m):
-            mods.append(m)
+    for mod_id in BUILTIN_MOD_IDS:
+        mod_name = extract_mod_name(mod_id)
+        if mod_exists(mod_name) and not is_special(mod_name):
+            mod_ids.append(mod_id)
+            mod_names.append(mod_name)
     # now add any other mods
-    BUILTIN_MODS = set(BUILTIN_MODS)
-    files = os.listdir(MOD_PATH)
+    #BUILTIN_MOD_IDS = set(BUILTIN_MOD_IDS)
+    user_mods = []
+    files = sorted(os.listdir(MOD_PATH), reverse=True)
     for f in files:
-        if f not in BUILTIN_MODS and mod_exists(f) and not is_special(f):
-            mods.append(f)
-    return mods
+        if f not in mod_names and mod_exists(f) and not is_special(f):
+            user_mods.append(f)
+    return user_mods + mod_ids
 
 def list_bases():
     " list all available bases (directories starting with an underscore) "
@@ -104,6 +146,13 @@ def list_bases():
     files = os.listdir(MOD_PATH)
     bases = [f for f in files if mod_is_base(f)]
     return bases
+
+def list_shares():
+    " list all available shares (directories inside FOLDER_SHARE) "
+    shares = []
+    files = os.listdir(SHARE_PATH)
+    shares = [f for f in files]
+    return shares 
 
 def move_mod(name, new_name):
     return copy_mod(name, new_name) and delete_mod(name)

@@ -1,8 +1,10 @@
 import OpenNero
 import common
-import constants
-from BlocksTower.environment import TowerEnvironment
+import BlocksTower
 import BlocksTower.agent
+import BlocksTower.constants as constants
+from BlocksTower.constants import *
+from BlocksTower.environment import TowerEnvironment
 
 class TowerMod:
     # initializer
@@ -14,6 +16,13 @@ class TowerMod:
         self.marker_states = {} # states of the marker agents that run for one cell and stop
         self.agent_map = {} # agents active on the map
         self.wall_ids = [] # walls on the map
+        self.AGENTS = [
+    ('Problem reduction', lambda: getMod().start_tower1(), MODE_PLANNING ),
+    ('State-space search', lambda: getMod().start_tower2(), MODE_PLANNING ),
+    ('Goal stacking - 2 Disk', lambda: getMod().start_tower3(), MODE_PLANNING ),
+    ('Goal stacking - 3 Disk - Infinite Loop', lambda: getMod().start_tower4(), MODE_PLANNING ),
+    ('Semantic Parser', lambda: getMod().start_tower5(), MODE_NLP ),
+]
 
     def __del__(self):
         print 'Deleting TowerMod'
