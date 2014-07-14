@@ -98,7 +98,7 @@ use: `yum install <package1> <package2> ...`
 The following packages are not needed for building OpenNERO, but they are needed for running certain mods in OpenNERO.  You would need to install them whether you are building OpenNERO or downloading a precompiled binary.
 
  * python-tk
- * python-wxtools
+ * python-wxgtk2.8
  * python-matplotlib
  * python-scipy
  * python-imaging-tk
