@@ -54,9 +54,11 @@ OpenNERO uses the [http://www.cmake.org/ CMake] cross-platform build system. The
 
 == Prerequisites ==
 
-Install the following packages (using `sudo apt-get install <package1> <package2> ...`)
+Install the following packages:
 
-==== Ubuntu Packages ====
+==== Ubuntu ====
+
+use: `sudo apt-get install <package1> <package2> ...`
 
  * subversion (needed to get the source code)
  * cmake
@@ -78,7 +80,11 @@ Install the following packages (using `sudo apt-get install <package1> <package2
  * maven
  * openjdk-6-jdk
 
-==== If you are using Fedora, trying finding the equivalent package names in the above list and install them: ====
+==== Fedora ====
+
+If you are using Fedora, trying finding the equivalent package names to the list above.  Below is a partial list:
+
+use: `yum install <package1> <package2> ...`
 
  * boost-devel
  * libX11-devel
