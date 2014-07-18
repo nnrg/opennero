@@ -43,3 +43,7 @@ def ClientMain():
     killButton = gui.create_button( guiMan, 'kill', Pos2i(x_offset + 140, y_offset), Pos2i(60,25), '' )
     killButton.text = 'Exit'
     killButton.OnMouseLeftClick = lambda: getSimContext().killGame()
+
+    ioMap = createInputMapping()
+    getSimContext().setInputMapping(ioMap)
+ 
