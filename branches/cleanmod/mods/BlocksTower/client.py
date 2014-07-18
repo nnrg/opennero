@@ -2,7 +2,7 @@ from OpenNero import *
 from random import seed, randint
 
 # add the key and mouse bindings
-from inputConfig import createInputMapping
+from inputConfig import createInputMapping, switchToHub
 
 from common import *
 import common.gui as gui
@@ -36,17 +36,20 @@ def CreateGui(guiMan, mode):
 
     # START/RESET AND PAUSE/CONTINUE AGENT BUTTONS AND HELP BUTTON
     x, y = 5, 0 * control_height + 5
-    w, h = (window_width - 20) / 3, control_height - 5
+    w, h = (window_width - 25) / 4, control_height - 5
     ui.startAgentButton = gui.create_button(guiMan, 'startAgentButton', Pos2i(x, y), Pos2i(w, h), '')
     ui.pauseAgentButton = gui.create_button(guiMan, 'pauseAgentButton', Pos2i(x + w + 5, y), Pos2i(w, h), '')
     ui.helpButton = gui.create_button(guiMan, 'helpButton', Pos2i(x + 2*w + 10, y), Pos2i(w, h), '')
+    ui.exitButton = gui.create_button(guiMan, 'exitButton', Pos2i(x + 3*w + 15, y), Pos2i(w, h), '')
     ui.startAgentButton.text = 'Start'
     ui.pauseAgentButton.text = 'Pause'
     ui.helpButton.text = 'Help'
+    ui.exitButton.text = 'Exit'
     ui.pauseAgentButton.enabled = False
     ui.startAgentButton.OnMouseLeftClick = startAgent(ui)
     ui.pauseAgentButton.OnMouseLeftClick = pauseAgent(ui)
     ui.helpButton.OnMouseLeftClick = openWiki('BlocksWorldMod')
+    ui.exitButton.OnMouseLeftClick = lambda: switchToHub()
 
     # SPEEDUP SLIDER
     x, y = 5, 1 * control_height + 5
@@ -68,6 +71,7 @@ def CreateGui(guiMan, mode):
     ui.agentWindow.addChild(ui.startAgentButton)
     ui.agentWindow.addChild(ui.pauseAgentButton)
     ui.agentWindow.addChild(ui.helpButton)
+    ui.agentWindow.addChild(ui.exitButton)
     ui.agentWindow.addChild(ui.speedupLabel)
     ui.agentWindow.addChild(ui.speedupScroll)
     ui.agentWindow.addChild(ui.speedupValue)

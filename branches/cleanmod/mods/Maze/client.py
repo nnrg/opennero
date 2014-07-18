@@ -1,7 +1,7 @@
 from OpenNero import *
 
 # add the key and mouse bindings
-from inputConfig import createInputMapping
+from inputConfig import createInputMapping, switchToHub
 
 from common import *
 import common.gui as gui
@@ -66,7 +66,7 @@ def CreateGui(guiMan, mode):
     ui.pauseAgentButton.OnMouseLeftClick = pauseAgent(ui)
 
     # HELP BUTTON
-    w, h = (window_width - 15) / 2, control_height - 5
+    w, h = (window_width - 20) / 3, control_height - 5
     x, y = 5, 2 * control_height
     ui.helpButton = gui.create_button(guiMan, 'helpButton', Pos2i(x, y), Pos2i(w, h), '')
     ui.helpButton.text = 'Help'
@@ -77,6 +77,12 @@ def CreateGui(guiMan, mode):
     ui.newMazeButton = gui.create_button(guiMan, 'newMazeButton', Pos2i(x, y), Pos2i(w, h), '')
     ui.newMazeButton.text = 'New Maze'
     ui.newMazeButton.OnMouseLeftClick = lambda: getMod().generate_new_maze()
+
+    # EXIT BUTTON
+    x = 15 + w * 2
+    ui.exitButton = gui.create_button(guiMan, 'exitButton', Pos2i(x, y), Pos2i(w, h), '')
+    ui.exitButton.text = 'Exit'
+    ui.exitButton.OnMouseLeftClick = lambda: switchToHub()
 
     # SPEEDUP SLIDER
     x, y = 5, 1 * control_height
@@ -96,6 +102,7 @@ def CreateGui(guiMan, mode):
     ui.agentWindow.addChild(ui.agentBoxLabel)
     ui.agentWindow.addChild(ui.agentComboBox)
     ui.agentWindow.addChild(ui.newMazeButton)
+    ui.agentWindow.addChild(ui.exitButton)
     ui.agentWindow.addChild(ui.startAgentButton)
     ui.agentWindow.addChild(ui.pauseAgentButton)
     ui.agentWindow.addChild(ui.helpButton)
