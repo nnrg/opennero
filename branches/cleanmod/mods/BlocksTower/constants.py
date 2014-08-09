@@ -32,3 +32,5 @@ MOVES = { \
 CARRY_MOVES = {}
 for (source, dest) in MOVES:
     CARRY_MOVES[(source, dest)] = [3] + MOVES[(source, dest)] + [2]
+
+END_ACTION_SEQ = [0,0,0,5,5,1]

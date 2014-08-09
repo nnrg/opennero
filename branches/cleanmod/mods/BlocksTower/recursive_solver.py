@@ -7,7 +7,7 @@ Pole1 = '1'
 Pole2 = '2'
 Pole3 = '3'
 
-INIT_QUEUE = [1,5]
+BEGIN_QUEUE = [1,5]
 ACTIONS = {}
 ACTIONS[Pole1, Pole2] = [5,1,4,3,4,1,5,2,]
 ACTIONS[Pole2, Pole1] = [3,5,1,4,2,4,1,5,]
@@ -55,7 +55,7 @@ class RecursiveSolver:
         self.viewer.user_pause('Starting to Solve!')
         actions = self.dohanoi(3, Pole2, Pole1, Pole3)
         self.viewer.user_pause('Problem Solved! Please close the window to continue!')
-        return INIT_QUEUE + actions + END_QUEUE
+        return BEGIN_QUEUE + actions + END_QUEUE
 
 def main():
     root = tk.Tk()
