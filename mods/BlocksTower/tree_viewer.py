@@ -179,7 +179,7 @@ class TreeViewer(tk.Frame):
 
         self.fBottom = tk.Frame(self)
 
-        self.return_button = tk.Button(self.fBottom, text='Return Results')
+        self.return_button = tk.Button(self.fBottom, text='Execute Plan')
         self.return_button.config(command=self.return_results)
         self.return_button.pack(side=tk.RIGHT)
 

@@ -636,7 +636,7 @@ def print_plan(plan):
         viewer.display_text(x.simple_str())
         print ' '.join(x.literals)
     viewer.display_text('')
-    viewer.display_text('Close the window to execute the plan!')
+    viewer.display_text('Click Execute Plan or close the window to continue!')
 
 def run():
     time.sleep(0.1)
