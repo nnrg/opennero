@@ -20,7 +20,7 @@ class TowerMod:
     ('Problem reduction', lambda: getMod().start_tower1(), MODE_PLANNING ),
     ('State-space search', lambda: getMod().start_tower2(), MODE_PLANNING ),
     ('Goal stacking - 2 Disk', lambda: getMod().start_tower3(), MODE_PLANNING ),
-    ('Goal stacking - 3 Disk - Infinite Loop', lambda: getMod().start_tower4(), MODE_PLANNING ),
+    ('Goal stacking - 3 Disk', lambda: getMod().start_tower4(), MODE_PLANNING ),
     ('Semantic Parser', lambda: getMod().start_tower5(), MODE_NLP ),
 ]
 
