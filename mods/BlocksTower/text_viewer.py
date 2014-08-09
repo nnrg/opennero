@@ -6,6 +6,8 @@ import Queue
 class TextViewer(tk.Frame):
     def __init__(self, master, **options):
         tk.Frame.__init__(self, master, **options)
+        self.master = master
+
         self.fTop = tk.Frame(self)
 
         self.text = tk.Text(self.fTop)
@@ -20,6 +22,10 @@ class TextViewer(tk.Frame):
         self.fTop.pack(side=tk.TOP, fill=tk.BOTH, expand=True)
 
         self.fBottom = tk.Frame(self)
+
+        self.return_button = tk.Button(self.fBottom, text='Return Results')
+        self.return_button.config(command=self.return_results)
+        self.return_button.pack(side=tk.RIGHT)
 
         self.continue_button = tk.Button(self.fBottom, text='Skip Rest')
         self.continue_button.config(command=self.user_continue)
@@ -44,6 +50,11 @@ class TextViewer(tk.Frame):
         self.callback = Queue.Queue() # wait on items in this queue to continue
         
         self.pack(fill=tk.BOTH, expand=True)
+
+        def window_close_handler():
+            self.return_results()
+
+        self.master.protocol("WM_DELETE_WINDOW", window_close_handler)
 
     def display_text(self, s):
         self.message.put(s)
@@ -80,6 +91,14 @@ class TextViewer(tk.Frame):
     def user_continue(self):
         self.paused.set(False)
         self.continued.set(True)
+
+    def return_results(self):
+        if self.continued.get() or not self.paused.get():
+            self.master.quit()
+        else:
+            # Viewer is paused. Continuing before returning...
+            self.user_continue()
+            self.master.after(1000, self.master.quit)
 
 if __name__ == "__main__":
     viewer = TextViewer()
