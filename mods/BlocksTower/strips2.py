@@ -1,6 +1,6 @@
 from copy import copy
 from towers3 import *
-from strips2_show import demo_planner, get_pole
+from graphical_viewer import demo_planner
 
 __doc__ = """This is an example planning algorithm for Towers of Hanoi"""
 __author__ = "Igor Karpov <ikarpov@cs.utexas.edu>"
