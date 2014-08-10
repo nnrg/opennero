@@ -149,7 +149,7 @@ class TowerAgent2(AgentBrain):
         import subprocess
 
         # solve for show (user can click through)
-        subproc = subprocess.Popen(['python', 'BlocksTower/strips2.py'], stdout=subprocess.PIPE)
+        subproc = subprocess.Popen(['python', 'BlocksTower/state_space_search.py'], stdout=subprocess.PIPE)
         plan = ''
         while True:
             try:
