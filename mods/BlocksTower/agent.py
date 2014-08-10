@@ -144,7 +144,7 @@ class TowerAgent2(AgentBrain):
         return True
 
     def get_action_queue(self):
-        import strips2
+        import state_space_search
         import towers3 as towers
         import subprocess
 
@@ -161,7 +161,7 @@ class TowerAgent2(AgentBrain):
             else:
                 plan += out
         # actually solve to get the plan of actions
-        plan = strips2.solve(towers.INIT, towers.GOAL, towers.ACTIONS)
+        plan = state_space_search.solve(towers.INIT, towers.GOAL, towers.ACTIONS)
         action_queue = [5]
         state = copy(towers.INIT)
         at = towers.Pole1
@@ -252,8 +252,6 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
                 (what, frm, to) = words
                 hl_actions.append((what, frm, to))
         
-        # use strips2 stuff for translating the output into low level actions
-        import strips2
         import towers2 as towers
         
         action_queue = [5]
@@ -347,8 +345,6 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
                 (what, frm, to) = words
                 hl_actions.append((what, frm, to))
         
-        # use strips2 stuff for translating the output into low level actions
-        import strips2
         import towers3 as towers
         
         action_queue = [5]
@@ -481,8 +477,7 @@ class TowerAgent5(AgentBrain):
 
         state = self.global_state
         at = self.global_at
-        # use strips2 stuff for translating the output into low level actions
-        import strips2
+
         import towers2 as towers
         
         words = parsed_plan.strip().split()
