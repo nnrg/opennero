@@ -147,7 +147,6 @@ class TowerAgent2(AgentBrain):
         import strips2
         import towers3 as towers
         import subprocess
-        import strips2_show
 
         # solve for show (user can click through)
         subproc = subprocess.Popen(['python', 'BlocksTower/strips2.py'], stdout=subprocess.PIPE)
@@ -167,8 +166,8 @@ class TowerAgent2(AgentBrain):
         state = copy(towers.INIT)
         at = towers.Pole1
         for (move, what, frm, to) in plan:
-            frm_pole = strips2_show.get_pole(state, frm)
-            to_pole = strips2_show.get_pole(state, to)
+            frm_pole = towers.get_pole(state, frm)
+            to_pole = towers.get_pole(state, to)
             print what, frm, to, at, frm_pole, to_pole
             if at != frm_pole:
                 action_queue += MOVES[(at, frm_pole)]
@@ -256,14 +255,13 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
         # use strips2 stuff for translating the output into low level actions
         import strips2
         import towers2 as towers
-        import strips2_show
         
         action_queue = [5]
         state = copy(towers.INIT)
         at = towers.Pole1
         for (what, frm, to) in hl_actions:
-            frm_pole = strips2_show.get_pole(state, frm)
-            to_pole = strips2_show.get_pole(state, to)
+            frm_pole = towers.get_pole(state, frm)
+            to_pole = towers.get_pole(state, to)
             print what, frm, to, at, frm_pole, to_pole
             if at != frm_pole:
                 action_queue += MOVES[(at, frm_pole)]
@@ -352,14 +350,13 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
         # use strips2 stuff for translating the output into low level actions
         import strips2
         import towers3 as towers
-        import strips2_show
         
         action_queue = [5]
         state = copy(towers.INIT)
         at = towers.Pole1
         for (what, frm, to) in hl_actions:
-            frm_pole = strips2_show.get_pole(state, frm)
-            to_pole = strips2_show.get_pole(state, to)
+            frm_pole = towers.get_pole(state, frm)
+            to_pole = towers.get_pole(state, to)
             print what, frm, to, at, frm_pole, to_pole
             if at != frm_pole:
                 action_queue += MOVES[(at, frm_pole)]
@@ -487,15 +484,14 @@ class TowerAgent5(AgentBrain):
         # use strips2 stuff for translating the output into low level actions
         import strips2
         import towers2 as towers
-        import strips2_show
         
         words = parsed_plan.strip().split()
         (command) = words[0]
 
         if command == 'Mov':
                 (what, frm, to) = words[1:]
-                frm_pole = strips2_show.get_pole(state, frm)
-                to_pole = strips2_show.get_pole(state, to)
+                frm_pole = towers.get_pole(state, frm)
+                to_pole = towers.get_pole(state, to)
                 print what, frm, to, at, frm_pole, to_pole
                 if at != frm_pole:
                     action_queue += MOVES[(at, frm_pole)]
@@ -505,7 +501,7 @@ class TowerAgent5(AgentBrain):
 
         elif command == 'Pick':
                 (what, frm) = words[1:]
-                frm_pole = strips2_show.get_pole(state, frm)
+                frm_pole = towers.get_pole(state, frm)
                 if at != frm_pole:
                     action_queue += MOVES[(at, frm_pole)]
                 action_queue += [3] #Pick up 
@@ -514,7 +510,7 @@ class TowerAgent5(AgentBrain):
 
         elif command == 'Put':
                 (what, to) = words[1:]
-                to_pole = strips2_show.get_pole(state, to)
+                to_pole = towers.get_pole(state, to)
                 if at != to_pole:
                     action_queue += MOVES[(at, to_pole)]
                 action_queue += [2] #Put Down 
