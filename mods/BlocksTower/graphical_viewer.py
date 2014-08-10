@@ -44,7 +44,9 @@ class StripsStateViewer:
         #self.message = Queue.Queue()
         #self.callback = Queue.Queue() # wait on items in this queue to continue
  
-        self.push_canvas()
+        for i in range(8):
+            self.push_canvas()
+
         self.plan = None
         self.lock = lock
         if self.lock:
