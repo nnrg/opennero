@@ -1,5 +1,5 @@
 import Tkinter as tk
-from towers3 import *
+from towers import Towers3
 from pprint import pprint
 import threading
 
@@ -65,12 +65,12 @@ class StripsStateViewer:
         canvas.create_rectangle(145/2, 50/2, 155/2, 190/2, fill="grey")
         canvas.create_rectangle(245/2, 50/2, 255/2, 190/2, fill="grey")
         canvas.create_rectangle(10/2, 130/2, 290/2, 190/2, fill = "grey")
-        for disk in DISKS:
+        for disk in Towers3.DISKS:
             self.handles[(canvas, disk)] = None
         self.canvases.append(canvas)
 
     def clear_canvas(self,canvas):
-        for obj in DISKS:
+        for obj in Towers3.DISKS:
             h = self.handles[(canvas, obj)]
             if h:
                 canvas.delete(h)
@@ -105,12 +105,12 @@ class StripsStateViewer:
         for i in range(depth, len(self.canvases)):
             self.clear_canvas(self.canvases[i])
         canvas = self.canvases[depth]
-        for disk in DISKS:
+        for disk in Towers3.DISKS:
             if self.handles[(canvas,disk)]:
                 canvas.delete(self.handles[(canvas,disk)])
                 self.handles[(canvas,disk)] = None
             h = get_height(state, disk) * DH
-            pole = get_pole(state, disk)
+            pole = Towers3.get_pole(state, disk)
             if pole is not None:
                 x = X[pole]
                 color = C[disk]
@@ -138,7 +138,7 @@ class StripsStateViewer:
         else:
             self.master.quit()
 
-def show_state(state = INIT):
+def show_state(state = Towers3.INIT):
     """ show the current state in a window """
     viewer = StripsStateViewer()
     viewer.show_state(state)
@@ -148,7 +148,7 @@ def demo_planner(planner):
     """ demonstrate the planner with the "thought bubble" of the state stack """
     lock = threading.Lock()
     viewer = StripsStateViewer(lock)
-    viewer.show_state(INIT)
+    #viewer.show_state(Towers3.INIT)
     thread = threading.Thread(target=planner, args=[viewer,])
     thread.start()
     tk.mainloop()

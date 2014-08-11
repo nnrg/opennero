@@ -145,7 +145,7 @@ class TowerAgent2(AgentBrain):
 
     def get_action_queue(self):
         import state_space_search
-        import towers3 as towers
+        from towers import Towers3 as towers
         import subprocess
 
         # solve for show (user can click through)
@@ -161,7 +161,7 @@ class TowerAgent2(AgentBrain):
             else:
                 plan += out
         # actually solve to get the plan of actions
-        plan = state_space_search.solve(towers.INIT, towers.GOAL, towers.ACTIONS)
+        plan = state_space_search.solve(towers.INIT, towers.GOAL, towers.get_actions())
         action_queue = [5]
         state = copy(towers.INIT)
         at = towers.Pole1
@@ -170,8 +170,8 @@ class TowerAgent2(AgentBrain):
             to_pole = towers.get_pole(state, to)
             print what, frm, to, at, frm_pole, to_pole
             if at != frm_pole:
-                action_queue += MOVES[(at, frm_pole)]
-            action_queue += CARRY_MOVES[(frm_pole, to_pole)]
+                action_queue += towers.MOVES[(at, frm_pole)]
+            action_queue += towers.CARRY_MOVES[(frm_pole, to_pole)]
             move(state, what, frm, to)
             at = to_pole
 
@@ -252,7 +252,7 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
                 (what, frm, to) = words
                 hl_actions.append((what, frm, to))
         
-        import towers2 as towers
+        from towers import Towers2 as towers
         
         action_queue = [5]
         state = copy(towers.INIT)
@@ -262,8 +262,8 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
             to_pole = towers.get_pole(state, to)
             print what, frm, to, at, frm_pole, to_pole
             if at != frm_pole:
-                action_queue += MOVES[(at, frm_pole)]
-            action_queue += CARRY_MOVES[(frm_pole, to_pole)]
+                action_queue += towers.MOVES[(at, frm_pole)]
+            action_queue += towers.CARRY_MOVES[(frm_pole, to_pole)]
             towers.Move(state, what, frm, to)
             at = to_pole
 
@@ -345,7 +345,7 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
                 (what, frm, to) = words
                 hl_actions.append((what, frm, to))
         
-        import towers3 as towers
+        from towers import Towers3 as towers
         
         action_queue = [5]
         state = copy(towers.INIT)
@@ -355,8 +355,8 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
             to_pole = towers.get_pole(state, to)
             print what, frm, to, at, frm_pole, to_pole
             if at != frm_pole:
-                action_queue += MOVES[(at, frm_pole)]
-            action_queue += CARRY_MOVES[(frm_pole, to_pole)]
+                action_queue += towers.MOVES[(at, frm_pole)]
+            action_queue += towers.CARRY_MOVES[(frm_pole, to_pole)]
             towers.Move(state, what, frm, to)
             at = to_pole
 
@@ -404,7 +404,7 @@ class TowerAgent5(AgentBrain):
     An agent that uses a STRIPS-like planner to solve the Towers of Hanoi problem
     """
     def __init__(self):
-        import towers3 as towers
+        from towers import Towers3 as towers
         AgentBrain.__init__(self) # have to make this call
         self.action_queue = [10] # rotate left to reset state first
         self.global_at = towers.Pole1 
@@ -478,7 +478,7 @@ class TowerAgent5(AgentBrain):
         state = self.global_state
         at = self.global_at
 
-        import towers2 as towers
+        from towers import Towers2 as towers
         
         words = parsed_plan.strip().split()
         (command) = words[0]
@@ -489,8 +489,8 @@ class TowerAgent5(AgentBrain):
                 to_pole = towers.get_pole(state, to)
                 print what, frm, to, at, frm_pole, to_pole
                 if at != frm_pole:
-                    action_queue += MOVES[(at, frm_pole)]
-                action_queue += CARRY_MOVES[(frm_pole, to_pole)]
+                    action_queue += towers.MOVES[(at, frm_pole)]
+                action_queue += towers.CARRY_MOVES[(frm_pole, to_pole)]
                 towers.Move(state, what, frm, to)
                 at = to_pole
 
@@ -498,7 +498,7 @@ class TowerAgent5(AgentBrain):
                 (what, frm) = words[1:]
                 frm_pole = towers.get_pole(state, frm)
                 if at != frm_pole:
-                    action_queue += MOVES[(at, frm_pole)]
+                    action_queue += towers.MOVES[(at, frm_pole)]
                 action_queue += [3] #Pick up 
                 towers.Move(state, what, frm, frm)
                 at = frm_pole
@@ -507,7 +507,7 @@ class TowerAgent5(AgentBrain):
                 (what, to) = words[1:]
                 to_pole = towers.get_pole(state, to)
                 if at != to_pole:
-                    action_queue += MOVES[(at, to_pole)]
+                    action_queue += towers.MOVES[(at, to_pole)]
                 action_queue += [2] #Put Down 
                 towers.Move(state, what, to, to)
                 at = to_pole
