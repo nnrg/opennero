@@ -1,5 +1,4 @@
-from copy import copy
-from towers3 import *
+from towers import Towers3
 from graphical_viewer import demo_planner
 
 __doc__ = """This is an example planning algorithm for Towers of Hanoi"""
@@ -47,9 +46,9 @@ def solve(start, goal, actions, depth=DEPTH, plan=[], viewer = None ):
         # try all actions with all parameters
         # WARNING: this could get big quickly!
         for (do, undo) in actions:
-            for Disk in DISKS:
-                for Source in set(LITERALS) - set([Disk]):
-                    for Dest in set(LITERALS) - set([Disk, Source]):
+            for Disk in Towers3.DISKS:
+                for Source in set(Towers3.LITERALS) - set([Disk]):
+                    for Dest in set(Towers3.LITERALS) - set([Disk, Source]):
                         action = (do, Disk, Source, Dest)
                         if do(state, Disk, Source, Dest):
                             new_state = frozenset(state)
@@ -68,7 +67,7 @@ def print_plan(plan):
 
 if __name__ == "__main__":
     def planner(viewer):
-        solve(INIT, GOAL, ACTIONS, viewer=viewer)
+        solve(Towers3.INIT, Towers3.GOAL, Towers3.get_actions(), viewer=viewer)
     plan = demo_planner(planner)
     if plan is not None:
         print_plan(plan)

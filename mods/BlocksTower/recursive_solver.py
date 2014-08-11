@@ -10,13 +10,13 @@ Pole2 = '2'
 Pole3 = '3'
 
 BEGIN_QUEUE = [1,5]
-ACTIONS = {}
-ACTIONS[Pole1, Pole2] = [5,1,4,3,4,1,5,2,]
-ACTIONS[Pole2, Pole1] = [3,5,1,4,2,4,1,5,]
-ACTIONS[Pole1, Pole3] = [5,1,4,3,4,1,1,5,2,5,1,4,]
-ACTIONS[Pole3, Pole1] = [4,1,5,3,5,1,1,4,2,4,1,5,]
-ACTIONS[Pole3, Pole2] = [3,4,1,5,2,5,1,4,]
-ACTIONS[Pole2, Pole3] = [4,1,5,3,5,1,4,2,]
+MOVES = {}
+MOVES[Pole1, Pole2] = [5,1,4,3,4,1,5,2,]
+MOVES[Pole2, Pole1] = [3,5,1,4,2,4,1,5,]
+MOVES[Pole1, Pole3] = [5,1,4,3,4,1,1,5,2,5,1,4,]
+MOVES[Pole3, Pole1] = [4,1,5,3,5,1,1,4,2,4,1,5,]
+MOVES[Pole3, Pole2] = [3,4,1,5,2,5,1,4,]
+MOVES[Pole2, Pole3] = [4,1,5,3,5,1,4,2,]
 END_QUEUE = [0,0,0,5,5,1]
 
 class RecursiveSolver:
@@ -25,7 +25,7 @@ class RecursiveSolver:
         self.viewer = viewer
 
     def move(self, frm, to):
-        return ACTIONS[frm, to]
+        return MOVES[frm, to]
 
     def dohanoi(self, n, to, frm, using):
         if n == 0: return []

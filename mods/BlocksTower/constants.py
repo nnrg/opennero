@@ -15,22 +15,3 @@ HISTORY_LENGTH = 5 # number of state-action pairs used to determine if the agent
 OBSTACLE_MASK = 1 #0b0001
 AGENT_MASK = 2 #0b0010
 
-import towers3 as towers
-
-# action primitives
-# move without getting stuff
-MOVES = { \
-    (towers.Pole1, towers.Pole2): [4, 1, 5], 
-    (towers.Pole1, towers.Pole3): [4, 1, 1, 5], 
-    (towers.Pole2, towers.Pole1): [5, 1, 4], 
-    (towers.Pole2, towers.Pole3): [4, 1, 5], 
-    (towers.Pole3, towers.Pole1): [5, 1, 1, 4], 
-    (towers.Pole3, towers.Pole2): [5, 1, 4] 
-}
-
-# move with pick up and put down
-CARRY_MOVES = {}
-for (source, dest) in MOVES:
-    CARRY_MOVES[(source, dest)] = [3] + MOVES[(source, dest)] + [2]
-
-END_ACTION_SEQ = [0,0,0,5,5,1]
