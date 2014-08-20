@@ -18,30 +18,30 @@ from copy import copy
 #
 ###
 
+ACTIONS_BEGIN = [5]
+ACTIONS_BEGIN1 = [1,5]
+ACTIONS_AtoB = [5,1,4,3,4,1,5,2,]
+ACTIONS_BtoA = [3,5,1,4,2,4,1,5,]
+ACTIONS_AtoC = [5,1,4,3,4,1,1,5,2,5,1,4,]
+ACTIONS_CtoA = [4,1,5,3,5,1,1,4,2,4,1,5,]
+ACTIONS_BtoC = [3,4,1,5,2,5,1,4,]
+ACTIONS_CtoB = [4,1,5,3,5,1,4,2,]
+ACTIONS_CELEBERATE = [0,0,0,5,5,1]
+
 class TowerAgent(AgentBrain):
     """
-    An agent designed to solve Towers of Hanoi
+    An agent designed to solve Towers of Hanoi using problem reduction
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-
-        self.begin_queue = [1,5]
-        self.atob = [5,1,4,3,4,1,5,2,]
-        self.btoa = [3,5,1,4,2,4,1,5,]
-        self.atoc = [5,1,4,3,4,1,1,5,2,5,1,4,]
-        self.ctoa = [4,1,5,3,5,1,1,4,2,4,1,5,]
-        self.btoc = [3,4,1,5,2,5,1,4,]
-        self.ctob = [4,1,5,3,5,1,4,2,]
-        self.end_queue = END_ACTION_SEQ
-
         
     def move(self, frm, to):
-        if frm == 'a' and to == 'b': return self.atob
-        if frm == 'a' and to == 'c': return self.atoc
-        if frm == 'b' and to == 'a': return self.btoa
-        if frm == 'b' and to == 'c': return self.btoc
-        if frm == 'c' and to == 'a': return self.ctoa
-        if frm == 'c' and to == 'b': return self.ctob
+        if frm == 'a' and to == 'b': return ACTIONS_AtoB
+        if frm == 'a' and to == 'c': return ACTIONS_AtoC
+        if frm == 'b' and to == 'a': return ACTIONS_BtoA
+        if frm == 'b' and to == 'c': return ACTIONS_BtoC
+        if frm == 'c' and to == 'a': return ACTIONS_CtoA
+        if frm == 'c' and to == 'b': return ACTIONS_CtoB
 
     def dohanoi(self, n, to, frm, using):
         if n == 0: return
@@ -60,12 +60,12 @@ class TowerAgent(AgentBrain):
         self.num_towers = getMod().num_towers
 
         #self.state.label = 'Starting to Solve!'
-        for a in self.begin_queue:
+        for a in ACTIONS_BEGIN1:
             yield a
         for a in self.dohanoi(self.num_towers, 'b', 'a', 'c'):
             yield a
         #self.state.label = 'Problem Solved!'
-        for a in self.end_queue:
+        for a in ACTIONS_CELEBERATE:
             yield a
 
     def initialize(self,init_info):
@@ -128,11 +128,11 @@ class TowerAgent(AgentBrain):
 
 class TowerAgent2(AgentBrain):
     """
-    An agent that uses a STRIPS-like planner to solve the Towers of Hanoi problem
+    An agent designed to solve Towers of Hanoi using state space search
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-        self.action_queue = [5] # rotate left to reset state first
+        self.action_queue = ACTIONS_BEGIN # rotate left to reset state first
 
     def initialize(self,init_info):
         """
@@ -162,7 +162,7 @@ class TowerAgent2(AgentBrain):
                 plan += out
         # actually solve to get the plan of actions
         plan = state_space_search.solve(towers.INIT, towers.GOAL, towers.get_actions())
-        action_queue = [5]
+        action_queue = ACTIONS_BEGIN 
         state = copy(towers.INIT)
         at = towers.Pole1
         for (move, what, frm, to) in plan:
@@ -175,7 +175,7 @@ class TowerAgent2(AgentBrain):
             move(state, what, frm, to)
             at = to_pole
 
-        action_queue.extend(END_ACTION_SEQ)
+        action_queue.extend(ACTIONS_CELEBERATE)
         return action_queue
 
     def start(self, time, observations):
@@ -213,11 +213,11 @@ class TowerAgent2(AgentBrain):
 
 class TowerAgent3(AgentBrain):#2-Disk Strips Planner
     """
-    An agent that uses a STRIPS-like planner to solve the Towers of Hanoi problem
+    An agent that uses a STRIPS planner to solve the Towers of Hanoi problem for 2 disks
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-        self.action_queue = [5] # rotate left to reset state first
+        self.action_queue = ACTIONS_BEGIN # rotate left to reset state first
 
     def initialize(self,init_info):
         """
@@ -254,7 +254,7 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
         
         from towers import Towers2 as towers
         
-        action_queue = [5]
+        action_queue = ACTIONS_BEGIN 
         state = copy(towers.INIT)
         at = towers.Pole1
         for (what, frm, to) in hl_actions:
@@ -267,7 +267,7 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
             towers.Move(state, what, frm, to)
             at = to_pole
 
-        action_queue.extend(END_ACTION_SEQ)
+        action_queue.extend(ACTIONS_CELEBERATE)
         return action_queue
 
     def start(self, time, observations):
@@ -308,11 +308,11 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
 
 class TowerAgent4(AgentBrain):#3-Disk Strips Planner 
     """
-    An agent that uses a STRIPS-like planner to solve the Towers of Hanoi problem
+    An agent that uses a STRIPS planner to solve the Towers of Hanoi problem for 3 disks
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-        self.action_queue = [5] # rotate left to reset state first
+        self.action_queue = ACTIONS_BEGIN # rotate left to reset state first
 
     def initialize(self,init_info):
         """
@@ -347,7 +347,7 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
         
         from towers import Towers3 as towers
         
-        action_queue = [5]
+        action_queue = ACTIONS_BEGIN 
         state = copy(towers.INIT)
         at = towers.Pole1
         for (what, frm, to) in hl_actions:
@@ -360,7 +360,7 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
             towers.Move(state, what, frm, to)
             at = to_pole
 
-        action_queue.extend(END_ACTION_SEQ)
+        action_queue.extend(ACTIONS_CELEBERATE)
         return action_queue
 
     def start(self, time, observations):
@@ -401,7 +401,7 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
 
 class TowerAgent5(AgentBrain):
     """
-    An agent that uses a STRIPS-like planner to solve the Towers of Hanoi problem
+    An NLP agent for the Towers of Hanoi problem 
     """
     def __init__(self):
         from towers import Towers3 as towers
@@ -515,7 +515,7 @@ class TowerAgent5(AgentBrain):
         self.global_state = state
         self.global_at = at
         
-        action_queue.extend(END_ACTION_SEQ)
+        action_queue.extend(ACTIONS_CELEBERATE)
         return action_queue
 
     def start(self, time, observations):
