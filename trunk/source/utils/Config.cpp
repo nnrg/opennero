@@ -27,6 +27,7 @@ namespace OpenNero
         , LogConfigFile("logConfig.py")
         , RenderType("OpenGL")
         , StartMod("hub")
+        , StartModMode("")
         , StartModDir("hub/")
         , StartCommand()
         , Width(800)
@@ -64,6 +65,8 @@ namespace OpenNero
             TCLAP::ValueArg<std::string> 
                 argStartMod("", "mod", "OpenNERO mod to start", false, "hub", "string");
             TCLAP::ValueArg<std::string> 
+                argStartModMode("", "modmode", "OpenNERO mod operating mode", false, "", "string");
+            TCLAP::ValueArg<std::string> 
                 argStartModDir("", "modpath", "OpenNERO modpath to search for resources", false, "hub:common", "colon-separated path");
             TCLAP::ValueArg<std::string> 
                 argStartCommand("", "command", "Python command to run on startup", false, "", "Python command");
@@ -90,6 +93,7 @@ namespace OpenNero
             cmd.add(argLogConfigFile);
             cmd.add(argHeadlessMode);
             cmd.add(argStartMod);
+            cmd.add(argStartModMode);
             cmd.add(argStartModDir);
             cmd.add(argStartCommand);
             cmd.add(argWidth);

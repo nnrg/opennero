@@ -165,7 +165,7 @@ namespace OpenNero
             _globals = py::dict(_main_module.attr("__dict__"));
 
             // add the client and server directories of the current mod
-            AddScriptDirectory( Kernel::findResource("") ); // for the mod we are loading
+            AddScriptDirectory( Kernel::findResource("") ); // for the mod we arem loading
             AddScriptDirectory( "." ); // for other mods
             
             LOG_F_DEBUG("scripting", "initialized path");

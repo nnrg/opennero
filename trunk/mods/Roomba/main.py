@@ -2,6 +2,6 @@
 from Roomba.module import *
 from Roomba.client import *
 
-def ModMain():
+def ModMain(mode = ""):
     ServerMain()
     ClientMain()  

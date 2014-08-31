@@ -22,7 +22,7 @@ namespace OpenNero
     namespace fs = boost::filesystem;
 
     /// default Mod constructor
-    Mod::Mod() : mPath(), mUserPrefix(), context(), name()
+    Mod::Mod() : mPath(), mUserPrefix(), context(), name(), mode()
     {
 		// here we want to get a path that is a user-specific place where we can save files
 #if NERO_PLATFORM_WINDOWS

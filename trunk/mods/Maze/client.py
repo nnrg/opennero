@@ -1,7 +1,7 @@
 from OpenNero import *
 
 # add the key and mouse bindings
-from inputConfig import createInputMapping
+from inputConfig import createInputMapping, switchToHub
 
 from common import *
 import common.gui as gui
@@ -13,26 +13,10 @@ from Maze.environment import EgocentricMazeEnvironment, GranularMazeEnvironment
 
 # Agents and the functions that start them
 
-AGENTS = [
-    ('Depth First Search',      lambda: getMod().start_dfs(),           False),
-    ('Breadth First Search',    lambda: getMod().start_bfs(),           False),
-    ('A* Search',  lambda: getMod().start_astar(),         False),
-    ('A* Search with Teleporting',   lambda: getMod().start_astar2(),        False),
-    ('A* Search with Front',         lambda: getMod().start_astar3(),        False),
-#    ('Random Actions',          lambda: getMod().start_random(),        False),
-#    ('Sarsa RL',                lambda: getMod().start_sarsa(),         True),
-#    ('Q-Learning RL',           lambda: getMod().start_qlearning(),     True),
-#    ('Q-Learning RL (more continuous)',   lambda: getMod().start_qlearning(GranularMazeEnvironment), True),
-    ('Q-Learning (Coarse)',               lambda: getMod().start_customrl(),      True),
-    ('Q-Learning (Fine)',       lambda: getMod().start_customrl(GranularMazeEnvironment), True),
-    ('First Person (Coarse)',       lambda: getMod().start_fps(),           False),
-    ('First Person (Fine)', lambda: getMod().start_fps_granular(),     False),
-]
-
 class UI:
     pass
 
-def CreateGui(guiMan):
+def CreateGui(guiMan, mode):
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")
 
@@ -46,8 +30,11 @@ def CreateGui(guiMan):
     w, h = window_width - 15, control_height - 10
     ui.agentBoxLabel = gui.create_text(guiMan, 'agentLabel', Pos2i(x,y), Pos2i(3*w/10,h), 'Agent Type:')
     ui.agentComboBox = gui.create_combo_box(guiMan, "agentComboBox", Pos2i(x + 5 + 3*w/10, y), Pos2i(7*w/10, h))
-    for agent_name, agent_function, ee_enabled in AGENTS:
-        ui.agentComboBox.addItem(agent_name)
+    ui.active_agents = []
+    for agent_name, agent_function, ee_enabled, agent_mode in getMod().AGENTS:
+        if mode == agent_mode:
+            ui.active_agents.append((agent_name, agent_function, ee_enabled, agent_mode))
+            ui.agentComboBox.addItem(agent_name)
 
     # EXPLORE/EXPLOIT TRADE-OFF SLIDER
     x, y = 5, 0 * control_height + 5
@@ -79,7 +66,7 @@ def CreateGui(guiMan):
     ui.pauseAgentButton.OnMouseLeftClick = pauseAgent(ui)
 
     # HELP BUTTON
-    w, h = (window_width - 15) / 2, control_height - 5
+    w, h = (window_width - 20) / 3, control_height - 5
     x, y = 5, 2 * control_height
     ui.helpButton = gui.create_button(guiMan, 'helpButton', Pos2i(x, y), Pos2i(w, h), '')
     ui.helpButton.text = 'Help'
@@ -90,6 +77,12 @@ def CreateGui(guiMan):
     ui.newMazeButton = gui.create_button(guiMan, 'newMazeButton', Pos2i(x, y), Pos2i(w, h), '')
     ui.newMazeButton.text = 'New Maze'
     ui.newMazeButton.OnMouseLeftClick = lambda: getMod().generate_new_maze()
+
+    # EXIT BUTTON
+    x = 15 + w * 2
+    ui.exitButton = gui.create_button(guiMan, 'exitButton', Pos2i(x, y), Pos2i(w, h), '')
+    ui.exitButton.text = 'Exit'
+    ui.exitButton.OnMouseLeftClick = lambda: switchToHub()
 
     # SPEEDUP SLIDER
     x, y = 5, 1 * control_height
@@ -109,6 +102,7 @@ def CreateGui(guiMan):
     ui.agentWindow.addChild(ui.agentBoxLabel)
     ui.agentWindow.addChild(ui.agentComboBox)
     ui.agentWindow.addChild(ui.newMazeButton)
+    ui.agentWindow.addChild(ui.exitButton)
     ui.agentWindow.addChild(ui.startAgentButton)
     ui.agentWindow.addChild(ui.pauseAgentButton)
     ui.agentWindow.addChild(ui.helpButton)
@@ -145,7 +139,7 @@ def startAgent(ui):
         """starts or stops the agent"""
         if ui.startAgentButton.text == 'Start':
             i = ui.agentComboBox.getSelected()
-            (agent_name, agent_function, ee_enabled) = AGENTS[i]
+            (agent_name, agent_function, ee_enabled, agent_mode) = ui.active_agents[i]
             if ee_enabled:
                 ui.epsilonScroll.enabled = True
                 ui.epsilonValue.visible = True
@@ -191,7 +185,7 @@ def recenter(cam):
         cam.setTarget(Vector3f(GRID_DX * ROWS / 2, GRID_DY * COLS / 2, 0))
     return closure
 
-def ClientMain():
+def ClientMain(mode):
     # create fog effect
     getSimContext().setFog()
 
@@ -215,7 +209,7 @@ def ClientMain():
     getMod().add_maze()
 
     # load the GUI
-    CreateGui(getGuiManager())
+    CreateGui(getGuiManager(), mode)
 
     # create the key binding
     ioMap = createInputMapping()

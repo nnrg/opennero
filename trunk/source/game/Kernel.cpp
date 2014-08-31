@@ -135,7 +135,7 @@ namespace OpenNero
         if( mTransitionInfo.mActive )
         {
             mTransitionInfo.mActive = false;
-            switchMod( mTransitionInfo.mDevice, mTransitionInfo.mNewModName, mTransitionInfo.mNewModDir );
+            switchMod( mTransitionInfo.mDevice, mTransitionInfo.mNewModName, mTransitionInfo.mNewModMode, mTransitionInfo.mNewModDir );
             mTransitionInfo.mDevice.reset();
         }
 
@@ -194,10 +194,10 @@ namespace OpenNero
 	}
 
     /// Switch to a new context
-    SimContextPtr Kernel::switchMod( const std::string& name, const std::string& path )
+    SimContextPtr Kernel::switchMod( const std::string& name, const std::string& mode, const std::string& path )
     {
         Assert( mIrrDevice );
-        return switchMod( mIrrDevice, name, path );
+        return switchMod( mIrrDevice, name, mode, path );
     }
 
 	/**
@@ -207,7 +207,7 @@ namespace OpenNero
 	 * @param path the mod path for loading files
 	 * @return a ptr to the new sim context
 	*/
-	SimContextPtr Kernel::switchMod( IrrlichtDevice_IPtr device, const std::string& name, const std::string& path )
+	SimContextPtr Kernel::switchMod( IrrlichtDevice_IPtr device, const std::string& name, const std::string& mode, const std::string& path )
 	{
         // save the device
         setIrrDevice(device);
@@ -227,6 +227,7 @@ namespace OpenNero
 
 		mCurMod->context = simContext;
 		mCurMod->name = name;
+		mCurMod->mode = mode;
 		mCurMod->SetPath(path);
 
         AssertMsg( mCurMod->context, "Failed to create SimContext" );
@@ -251,17 +252,18 @@ namespace OpenNero
 		return mCurMod->context;
 	}
 
-    void Kernel::RequestModSwitch( const std::string& name, const std::string& path )
+    void Kernel::RequestModSwitch( const std::string& name, const std::string& mode, const std::string& path )
     {
         Assert( mIrrDevice );
-        RequestModSwitch( mIrrDevice, name, path );
+        RequestModSwitch( mIrrDevice, name, mode, path );
     }
 
-    void Kernel::RequestModSwitch( IrrlichtDevice_IPtr device, const std::string& name, const std::string& path )
+    void Kernel::RequestModSwitch( IrrlichtDevice_IPtr device, const std::string& name, const std::string& mode, const std::string& path )
     {
         mTransitionInfo.mActive = true;
         mTransitionInfo.mDevice = device;
         mTransitionInfo.mNewModName = name;
+        mTransitionInfo.mNewModMode = mode;
         mTransitionInfo.mNewModDir = path;
     }
 
