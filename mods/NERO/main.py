@@ -7,7 +7,7 @@ import common
 import common.menu_utils
 import OpenNero
 
-def ModMain():
+def ModMain(mode = ""):
     NERO.client.ClientMain()
 
 def ModTick(dt):

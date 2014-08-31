@@ -1,8 +1,10 @@
 import OpenNero
 import common
-import constants
-from BlocksTower.environment import TowerEnvironment
+import BlocksTower
 import BlocksTower.agent
+import BlocksTower.constants as constants
+from BlocksTower.constants import *
+from BlocksTower.environment import TowerEnvironment
 
 class TowerMod:
     # initializer
@@ -14,6 +16,13 @@ class TowerMod:
         self.marker_states = {} # states of the marker agents that run for one cell and stop
         self.agent_map = {} # agents active on the map
         self.wall_ids = [] # walls on the map
+        self.AGENTS = [
+    ('Problem reduction', lambda: getMod().start_tower1(), MODE_PLANNING ),
+    ('State-space search', lambda: getMod().start_tower2(), MODE_PLANNING ),
+    ('Goal stacking - 2 Disks', lambda: getMod().start_tower3(), MODE_PLANNING ),
+    ('Goal stacking - 3 Disks', lambda: getMod().start_tower4(), MODE_PLANNING ),
+    ('Semantic Parser', lambda: getMod().start_tower5(), MODE_NLP ),
+]
 
     def __del__(self):
         print 'Deleting TowerMod'
@@ -43,21 +52,26 @@ class TowerMod:
     def num_towers(self):
         return num_towers
 
-    def start_tower1(self):
+    def start_tower1(self): #Problem reduction
         """ start the tower demo """
         self.num_towers = 3
         OpenNero.disable_ai()
         self.stop_agent()
-        self.set_environment(TowerEnvironment())
+        env = TowerEnvironment()
+        env.initialize_blocks()
+        self.set_environment(env)
         self.agent_id = common.addObject("data/shapes/character/BlocksRobot.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
         OpenNero.enable_ai()
 
-    def start_tower2(self):
+    def start_tower2(self): #State-space search
         """ start the tower demo """
-        self.num_towers = 2
+        self.num_towers = 3
         OpenNero.disable_ai()
         self.stop_agent()
-        self.set_environment(TowerEnvironment())
+        env = TowerEnvironment()
+        env.initialize_blocks()
+        self.set_environment(env)
+        #self.set_environment(TowerEnvironment())
         self.agent_id = common.addObject("data/shapes/character/BlocksRobot2.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
         OpenNero.enable_ai()
 
@@ -66,7 +80,10 @@ class TowerMod:
         self.num_towers = 2
         OpenNero.disable_ai()
         self.stop_agent()
-        self.set_environment(TowerEnvironment())
+        env = TowerEnvironment()
+        env.initialize_blocks()
+        self.set_environment(env)
+        #self.set_environment(TowerEnvironment())
         self.agent_id = common.addObject("data/shapes/character/BlocksRobot3.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
         OpenNero.enable_ai()
         
@@ -75,7 +92,10 @@ class TowerMod:
         self.num_towers = 3
         OpenNero.disable_ai()
         self.stop_agent()
-        self.set_environment(TowerEnvironment())
+        env = TowerEnvironment()
+        env.initialize_blocks()
+        self.set_environment(env)
+        #self.set_environment(TowerEnvironment())
         self.agent_id = common.addObject("data/shapes/character/BlocksRobot4.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
         OpenNero.enable_ai()
         
@@ -84,7 +104,10 @@ class TowerMod:
         self.num_towers = 3
         OpenNero.disable_ai()
         self.stop_agent()
-        self.set_environment(TowerEnvironment())
+        env = TowerEnvironment()
+        env.initialize_blocks()
+        self.set_environment(env)
+        #self.set_environment(TowerEnvironment())
         self.agent_id = common.addObject("data/shapes/character/BlocksRobot5.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
         OpenNero.enable_ai()
         

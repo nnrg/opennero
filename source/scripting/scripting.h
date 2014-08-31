@@ -186,6 +186,22 @@ namespace OpenNero
             return extraction();
         }
 
+        /// Call a script method with 1 parameter and no return value
+        template <typename Param0>
+        void Call( const std::string& methodName, const Param0& p0 )
+        {
+            try
+            {
+                python::object method = _globals[methodName];
+                AssertMsg(method.ptr(), "Failed to find method '" << methodName << "'");
+                method(p0);
+            }
+            catch (python::error_already_set const &)
+            {
+                LogError();
+            }
+        }
+
         /// Call a script method with 1 parameter
         template <typename Result, typename Param0>
         Result Call( const std::string& methodName, const Param0& p0 )

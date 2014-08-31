@@ -10,7 +10,7 @@ def dfs_heuristic(r,c):
     return 0
 
 def manhattan_heuristic(r,c):
-    return (ROWS - r) + (COLS - c)
+    return abs(ROWS - r) + abs(COLS - c)
 
 def get_action_index(move):
     if move in MAZE_MOVES:

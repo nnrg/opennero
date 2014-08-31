@@ -2,7 +2,7 @@ from OpenNero import *
 from random import seed, randint
 
 # add the key and mouse bindings
-from inputConfig import createInputMapping
+from inputConfig import createInputMapping, switchToHub
 
 from common import *
 import common.gui as gui
@@ -10,18 +10,10 @@ import common.gui as gui
 from BlocksTower.module import getMod, delMod
 from BlocksTower.constants import *
 
-AGENTS = [
-    ('Problem reduction', lambda: getMod().start_tower1() ),
-    ('State-space search', lambda: getMod().start_tower2() ),
-    ('Goal stacking - 2 Disk', lambda: getMod().start_tower3() ),
-    ('Goal stacking - 3 Disk', lambda: getMod().start_tower4() ),
-    ('Semantic Parser', lambda: getMod().start_tower5() ),
-]
-
 class UI:
     pass
 
-def CreateGui(guiMan):
+def CreateGui(guiMan, mode):
     print 'CreateGui'
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")
@@ -36,22 +28,28 @@ def CreateGui(guiMan):
     w, h = window_width - 15, control_height - 10
     ui.agentBoxLabel = gui.create_text(guiMan, 'agentLabel', Pos2i(x,y), Pos2i(3*w/10,h), 'Agent Type:')
     ui.agentComboBox = gui.create_combo_box(guiMan, "agentComboBox", Pos2i(x + 5 + 3*w/10, y), Pos2i(7*w/10, h))
-    for agent_name, agent_function in AGENTS:
-        ui.agentComboBox.addItem(agent_name)
+    ui.active_agents = []
+    for agent_name, agent_function, agent_mode in getMod().AGENTS:
+        if mode == agent_mode:
+            ui.active_agents.append((agent_name, agent_function, agent_mode))
+            ui.agentComboBox.addItem(agent_name)
 
     # START/RESET AND PAUSE/CONTINUE AGENT BUTTONS AND HELP BUTTON
     x, y = 5, 0 * control_height + 5
-    w, h = (window_width - 20) / 3, control_height - 5
+    w, h = (window_width - 25) / 4, control_height - 5
     ui.startAgentButton = gui.create_button(guiMan, 'startAgentButton', Pos2i(x, y), Pos2i(w, h), '')
     ui.pauseAgentButton = gui.create_button(guiMan, 'pauseAgentButton', Pos2i(x + w + 5, y), Pos2i(w, h), '')
     ui.helpButton = gui.create_button(guiMan, 'helpButton', Pos2i(x + 2*w + 10, y), Pos2i(w, h), '')
+    ui.exitButton = gui.create_button(guiMan, 'exitButton', Pos2i(x + 3*w + 15, y), Pos2i(w, h), '')
     ui.startAgentButton.text = 'Start'
     ui.pauseAgentButton.text = 'Pause'
     ui.helpButton.text = 'Help'
+    ui.exitButton.text = 'Exit'
     ui.pauseAgentButton.enabled = False
     ui.startAgentButton.OnMouseLeftClick = startAgent(ui)
     ui.pauseAgentButton.OnMouseLeftClick = pauseAgent(ui)
     ui.helpButton.OnMouseLeftClick = openWiki('BlocksWorldMod')
+    ui.exitButton.OnMouseLeftClick = lambda: switchToHub()
 
     # SPEEDUP SLIDER
     x, y = 5, 1 * control_height + 5
@@ -73,6 +71,7 @@ def CreateGui(guiMan):
     ui.agentWindow.addChild(ui.startAgentButton)
     ui.agentWindow.addChild(ui.pauseAgentButton)
     ui.agentWindow.addChild(ui.helpButton)
+    ui.agentWindow.addChild(ui.exitButton)
     ui.agentWindow.addChild(ui.speedupLabel)
     ui.agentWindow.addChild(ui.speedupScroll)
     ui.agentWindow.addChild(ui.speedupValue)
@@ -93,7 +92,7 @@ def startAgent(ui):
         """starts or stops the agent"""
         if ui.startAgentButton.text == 'Start':
             i = ui.agentComboBox.getSelected()
-            (agent_name, agent_function) = AGENTS[i]
+            (agent_name, agent_function, agent_mode) = ui.active_agents[i]
             print 'Starting', agent_name
             agent_function()
             ui.pauseAgentButton.text = 'Pause'
@@ -128,7 +127,7 @@ def recenter(cam):
         cam.setTarget(Vector3f(NUDGE_X + GRID_DX * ROWS / 2, NUDGE_Y + GRID_DY * COLS / 2, 5))
     return closure
 
-def ClientMain():
+def ClientMain(mode):
     # create fog effect
     getSimContext().setFog()
 
@@ -155,7 +154,7 @@ def ClientMain():
     getMod().add_maze()
 
     # load the GUI
-    CreateGui(getGuiManager())
+    CreateGui(getGuiManager(), mode)
 
     # create the key binding
     ioMap = createInputMapping()

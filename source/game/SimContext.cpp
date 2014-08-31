@@ -98,7 +98,11 @@ namespace OpenNero
         // initialize the mod from script
         ScriptingEngine& scriptEngine = ScriptingEngine::instance();
         scriptEngine.ExecFile(Kernel::findResource("main.py"));
-        scriptEngine.Call( "ModMain" );
+        const std::string& mode = Kernel::instance().getMod()->mode;
+        if (mode.empty())
+            scriptEngine.Call("ModMain");
+        else
+            scriptEngine.Call("ModMain", mode);
 
         return true;
     }

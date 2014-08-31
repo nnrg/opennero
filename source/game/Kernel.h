@@ -82,10 +82,10 @@ namespace OpenNero
 		void flushCurrentMod();
 
 		/// switch to a new Mod
-        SimContextPtr	switchMod( const std::string& name, const std::string& path );
+        SimContextPtr	switchMod( const std::string& name, const std::string& mode, const std::string& path );
 
         /// switch to a new Mod
-		SimContextPtr	switchMod( IrrlichtDevice_IPtr device, const std::string& name, const std::string& path );
+		SimContextPtr	switchMod( IrrlichtDevice_IPtr device, const std::string& name, const std::string& mode, const std::string& path );
 
         /// set the resource search path of the current mod ( separated by ':' )
         void setModPath( const std::string& path );
@@ -94,10 +94,10 @@ namespace OpenNero
         std::string getModPath();
 
         /// request a mod switch next frame
-        void RequestModSwitch( const std::string& name, const std::string& path );
+        void RequestModSwitch( const std::string& name, const std::string& mode, const std::string& path );
 
         /// request a mod switch next frame
-        void RequestModSwitch( IrrlichtDevice_IPtr device, const std::string& name, const std::string& path );
+        void RequestModSwitch( IrrlichtDevice_IPtr device, const std::string& name, const std::string& mode, const std::string& path );
         
         /// Sets the part of the window title after OpenNero - ModName
         void SetWindowCaption(const std::string& caption);
@@ -119,6 +119,7 @@ namespace OpenNero
         {
             IrrlichtDevice_IPtr     mDevice;
             std::string             mNewModName;
+            std::string             mNewModMode;
             std::string             mNewModDir;
             bool                    mActive;
 

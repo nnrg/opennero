@@ -175,6 +175,21 @@ class ParseState:
     ACTION_PRE=5
     ACTION_POST=6
 
+class InfiniteLoopGuard(object):
+    activation_count = 0
+    MAX_ACTIVATION_COUNT = 100
+
+    @classmethod
+    def reset(cls):
+        cls.activation_count = 0
+
+    @classmethod
+    def can_continue(cls):
+        cls.activation_count += 1
+        if cls.activation_count > cls.MAX_ACTIVATION_COUNT:
+            return False
+        else:
+            return True
 
 def create_world(filename):
     w = World()
@@ -361,6 +376,8 @@ def linear_solver(world):
 
     goals = list(world.goals)
     
+    InfiniteLoopGuard.reset()
+
     return linear_solver_helper(world, state, goals, [])
 
 def linear_solver_helper(world, state, goals, current_plan, depth = 0):
@@ -381,6 +398,12 @@ def linear_solver_helper(world, state, goals, current_plan, depth = 0):
         return plan
 
     if depth > 15:
+        return None
+
+    if not InfiniteLoopGuard.can_continue():
+        viewer.display_text("%s recursive calls reached." % InfiniteLoopGuard.MAX_ACTIVATION_COUNT)
+        viewer.display_text("Aborting search to prevent infinite loop.")
+        viewer.user_pause("")
         return None
 
     #display the end goal
@@ -636,7 +659,7 @@ def print_plan(plan):
         viewer.display_text(x.simple_str())
         print ' '.join(x.literals)
     viewer.display_text('')
-    viewer.display_text('Close the window to execute the plan!')
+    viewer.display_text('Click Execute Plan or close the window to continue!')
 
 def run():
     time.sleep(0.1)

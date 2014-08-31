@@ -4,7 +4,7 @@ from module import delMod
 
 def switchToHub():
     delMod()
-    switchMod('hub', 'hub:common')
+    switchMod('hub', '', 'hub:common')
 
 def createInputMapping():
 

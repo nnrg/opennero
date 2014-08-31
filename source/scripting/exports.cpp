@@ -584,9 +584,9 @@ namespace OpenNero {
 		}
 
         /// request a switch to a new mod with the specified mod path
-        void switchMod( const std::string& modName, const std::string& modDir )
+        void switchMod( const std::string& modName, const std::string& modMode, const std::string& modDir )
         {
-            Kernel::instance().RequestModSwitch(modName,modDir);
+            Kernel::instance().RequestModSwitch(modName, modMode, modDir);
         }
 
         /// convert mod-relative path to filesystem path

@@ -69,7 +69,7 @@ namespace OpenNero
         // initialize our kernel and start the first mod
         OpenNero::Kernel&		kern = OpenNero::Kernel::instance();
         kern.Initialize(irrDevice, appConfig, argc, argv);
-        kern.switchMod( irrDevice, appConfig.StartMod, appConfig.StartModDir );
+        kern.switchMod( irrDevice, appConfig.StartMod, appConfig.StartModMode, appConfig.StartModDir );
         if (!appConfig.StartCommand.empty())
         {
         	ScriptingEngine::instance().Exec(appConfig.StartCommand);

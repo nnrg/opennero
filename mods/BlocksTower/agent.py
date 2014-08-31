@@ -18,20 +18,30 @@ from copy import copy
 #
 ###
 
+ACTIONS_BEGIN = [5]
+ACTIONS_BEGIN1 = [1,5]
+ACTIONS_AtoB = [5,1,4,3,4,1,5,2,]
+ACTIONS_BtoA = [3,5,1,4,2,4,1,5,]
+ACTIONS_AtoC = [5,1,4,3,4,1,1,5,2,5,1,4,]
+ACTIONS_CtoA = [4,1,5,3,5,1,1,4,2,4,1,5,]
+ACTIONS_BtoC = [3,4,1,5,2,5,1,4,]
+ACTIONS_CtoB = [4,1,5,3,5,1,4,2,]
+ACTIONS_CELEBERATE = [0,0,0,5,5,1]
+
 class TowerAgent(AgentBrain):
     """
-    An agent designed to solve Towers of Hanoi
+    An agent designed to solve Towers of Hanoi using problem reduction
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
         
     def move(self, frm, to):
-        if frm == 'a' and to == 'b': return self.atob
-        if frm == 'a' and to == 'c': return self.atoc
-        if frm == 'b' and to == 'a': return self.btoa
-        if frm == 'b' and to == 'c': return self.btoc
-        if frm == 'c' and to == 'a': return self.ctoa
-        if frm == 'c' and to == 'b': return self.ctob
+        if frm == 'a' and to == 'b': return ACTIONS_AtoB
+        if frm == 'a' and to == 'c': return ACTIONS_AtoC
+        if frm == 'b' and to == 'a': return ACTIONS_BtoA
+        if frm == 'b' and to == 'c': return ACTIONS_BtoC
+        if frm == 'c' and to == 'a': return ACTIONS_CtoA
+        if frm == 'c' and to == 'b': return ACTIONS_CtoB
 
     def dohanoi(self, n, to, frm, using):
         if n == 0: return
@@ -45,26 +55,17 @@ class TowerAgent(AgentBrain):
         for a in self.dohanoi(n-1, to, using, frm):
             yield a
 
-    def queue_init(self):
-        self.init_queue = [1,5]
-        self.atob = [5,1,4,3,4,1,5,2,]
-        self.btoa = [3,5,1,4,2,4,1,5,]
-        self.atoc = [5,1,4,3,4,1,1,5,2,5,1,4,]
-        self.ctoa = [4,1,5,3,5,1,1,4,2,4,1,5,]
-        self.btoc = [3,4,1,5,2,5,1,4,]
-        self.ctob = [4,1,5,3,5,1,4,2,]
-        self.end_queue = [0,0,0,5,5,1]
-
+    def action_queue_generator(self):
         from module import getMod
         self.num_towers = getMod().num_towers
 
         #self.state.label = 'Starting to Solve!'
-        for a in self.init_queue:
+        for a in ACTIONS_BEGIN1:
             yield a
         for a in self.dohanoi(self.num_towers, 'b', 'a', 'c'):
             yield a
         #self.state.label = 'Problem Solved!'
-        for a in self.end_queue:
+        for a in ACTIONS_CELEBERATE:
             yield a
 
     def initialize(self,init_info):
@@ -87,19 +88,20 @@ class TowerAgent(AgentBrain):
                 break
             else:
                 plan += out
-        print plan        
+        print plan
+        print "Returning from display_planner"
 
     def start(self, time, sensors):
         """
         return first action given the first observations
         """
         self.display_planner()
-        self.action_queue = self.queue_init()
-        return self.action_queue.next()
+        self.action_queue_gen = self.action_queue_generator()
+        return self.action_queue_gen.next()
 
     def reset(self):
         self.display_planner()
-        self.action_queue = self.queue_init()
+        self.action_queue_gen = self.action_queue_generator()
         return True
 
     def act(self, time, sensors, reward):
@@ -107,7 +109,7 @@ class TowerAgent(AgentBrain):
         return an action given the reward for the previous action and the new observations
         """
         try:
-            return self.action_queue.next()
+            return self.action_queue_gen.next()
         except:
             return 1
 
@@ -126,11 +128,11 @@ class TowerAgent(AgentBrain):
 
 class TowerAgent2(AgentBrain):
     """
-    An agent that uses a STRIPS-like planner to solve the Towers of Hanoi problem
+    An agent designed to solve Towers of Hanoi using state space search
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-        self.action_queue = [5] # rotate left to reset state first
+        self.action_queue = ACTIONS_BEGIN # rotate left to reset state first
 
     def initialize(self,init_info):
         """
@@ -141,14 +143,13 @@ class TowerAgent2(AgentBrain):
         self.action_info = init_info.actions
         return True
 
-    def queue_init(self):
-        import strips2
-        import towers3 as towers
+    def get_action_queue(self):
+        import state_space_search
+        from towers import Towers3 as towers
         import subprocess
-        import strips2_show
 
         # solve for show (user can click through)
-        subproc = subprocess.Popen(['python', 'BlocksTower/strips2.py'], stdout=subprocess.PIPE)
+        subproc = subprocess.Popen(['python', 'BlocksTower/state_space_search.py'], stdout=subprocess.PIPE)
         plan = ''
         while True:
             try:
@@ -160,26 +161,28 @@ class TowerAgent2(AgentBrain):
             else:
                 plan += out
         # actually solve to get the plan of actions
-        plan = strips2.solve(towers.INIT, towers.GOAL, towers.ACTIONS)
-        action_queue = [5]
+        plan = state_space_search.solve(towers.INIT, towers.GOAL, towers.get_actions())
+        action_queue = ACTIONS_BEGIN 
         state = copy(towers.INIT)
         at = towers.Pole1
         for (move, what, frm, to) in plan:
-            frm_pole = strips2_show.get_pole(state, frm)
-            to_pole = strips2_show.get_pole(state, to)
+            frm_pole = towers.get_pole(state, frm)
+            to_pole = towers.get_pole(state, to)
             print what, frm, to, at, frm_pole, to_pole
             if at != frm_pole:
-                action_queue += MOVES[(at, frm_pole)]
-            action_queue += CARRY_MOVES[(frm_pole, to_pole)]
+                action_queue += towers.MOVES[(at, frm_pole)]
+            action_queue += towers.CARRY_MOVES[(frm_pole, to_pole)]
             move(state, what, frm, to)
             at = to_pole
+
+        action_queue.extend(ACTIONS_CELEBERATE)
         return action_queue
 
     def start(self, time, observations):
         """
         return first action given the first observations
         """
-        self.action_queue = self.queue_init()
+        self.action_queue = self.get_action_queue()
         return self.action_queue.pop(0)
 
     def act(self, time, observations, reward):
@@ -190,7 +193,7 @@ class TowerAgent2(AgentBrain):
         if len(self.action_queue) > 0:
             return self.action_queue.pop(0)
         else:
-            return 0
+            return 1
 
     def end(self, time, reward):
         """
@@ -199,7 +202,7 @@ class TowerAgent2(AgentBrain):
         return True
 
     def reset(self):
-        self.action_queue = self.queue_init()
+        self.action_queue = self.get_action_queue()
         return True
 
     def destroy(self):
@@ -210,11 +213,11 @@ class TowerAgent2(AgentBrain):
 
 class TowerAgent3(AgentBrain):#2-Disk Strips Planner
     """
-    An agent that uses a STRIPS-like planner to solve the Towers of Hanoi problem
+    An agent that uses a STRIPS planner to solve the Towers of Hanoi problem for 2 disks
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-        self.action_queue = [5] # rotate left to reset state first
+        self.action_queue = ACTIONS_BEGIN # rotate left to reset state first
 
     def initialize(self,init_info):
         """
@@ -225,10 +228,11 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
         self.action_info = init_info.actions
         return True
 
-    def queue_init(self):
+    def get_action_queue(self):
         import subprocess
         # solve for show (user can click through)
         subproc = subprocess.Popen(['python', 'BlocksTower/strips.py', 'BlocksTower/towers2_strips.txt'], stdout=subprocess.PIPE)
+        
         plan = ''
         while True:
             try:
@@ -240,6 +244,7 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
             else:
                 plan += out
         print plan
+
         hl_actions = [] # high level action
         for line in plan.split('\n'):
             words = line.strip().split()
@@ -247,31 +252,29 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
                 (what, frm, to) = words
                 hl_actions.append((what, frm, to))
         
-        # use strips2 stuff for translating the output into low level actions
-        import strips2
-        import towers2 as towers
-        import strips2_show
+        from towers import Towers2 as towers
         
-        action_queue = [5]
+        action_queue = ACTIONS_BEGIN 
         state = copy(towers.INIT)
         at = towers.Pole1
         for (what, frm, to) in hl_actions:
-            frm_pole = strips2_show.get_pole(state, frm)
-            to_pole = strips2_show.get_pole(state, to)
+            frm_pole = towers.get_pole(state, frm)
+            to_pole = towers.get_pole(state, to)
             print what, frm, to, at, frm_pole, to_pole
             if at != frm_pole:
-                action_queue += MOVES[(at, frm_pole)]
-            action_queue += CARRY_MOVES[(frm_pole, to_pole)]
+                action_queue += towers.MOVES[(at, frm_pole)]
+            action_queue += towers.CARRY_MOVES[(frm_pole, to_pole)]
             towers.Move(state, what, frm, to)
             at = to_pole
 
+        action_queue.extend(ACTIONS_CELEBERATE)
         return action_queue
 
     def start(self, time, observations):
         """
         return first action given the first observations
         """
-        self.action_queue = self.queue_init()
+        self.action_queue = self.get_action_queue()
         if len(self.action_queue) > 0:
             return self.action_queue.pop(0)
         else:
@@ -285,7 +288,7 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
         if len(self.action_queue) > 0:
             return self.action_queue.pop(0)
         else:
-            return 0
+            return 1
 
     def end(self, time, reward):
         """
@@ -294,7 +297,7 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
         return True
 
     def reset(self):
-        self.action_queue = self.queue_init()
+        self.action_queue = self.get_action_queue()
         return True
 
     def destroy(self):
@@ -305,11 +308,11 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
 
 class TowerAgent4(AgentBrain):#3-Disk Strips Planner 
     """
-    An agent that uses a STRIPS-like planner to solve the Towers of Hanoi problem
+    An agent that uses a STRIPS planner to solve the Towers of Hanoi problem for 3 disks
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-        self.action_queue = [5] # rotate left to reset state first
+        self.action_queue = ACTIONS_BEGIN # rotate left to reset state first
 
     def initialize(self,init_info):
         """
@@ -320,7 +323,7 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
         self.action_info = init_info.actions
         return True
 
-    def queue_init(self):
+    def get_action_queue(self):
         import subprocess
         # solve for show (user can click through)
         subproc = subprocess.Popen(['python', 'BlocksTower/strips.py', 'BlocksTower/towers3_strips.txt'], stdout=subprocess.PIPE)
@@ -342,31 +345,29 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
                 (what, frm, to) = words
                 hl_actions.append((what, frm, to))
         
-        # use strips2 stuff for translating the output into low level actions
-        import strips2
-        import towers3 as towers
-        import strips2_show
+        from towers import Towers3 as towers
         
-        action_queue = [5]
+        action_queue = ACTIONS_BEGIN 
         state = copy(towers.INIT)
         at = towers.Pole1
         for (what, frm, to) in hl_actions:
-            frm_pole = strips2_show.get_pole(state, frm)
-            to_pole = strips2_show.get_pole(state, to)
+            frm_pole = towers.get_pole(state, frm)
+            to_pole = towers.get_pole(state, to)
             print what, frm, to, at, frm_pole, to_pole
             if at != frm_pole:
-                action_queue += MOVES[(at, frm_pole)]
-            action_queue += CARRY_MOVES[(frm_pole, to_pole)]
+                action_queue += towers.MOVES[(at, frm_pole)]
+            action_queue += towers.CARRY_MOVES[(frm_pole, to_pole)]
             towers.Move(state, what, frm, to)
             at = to_pole
 
+        action_queue.extend(ACTIONS_CELEBERATE)
         return action_queue
 
     def start(self, time, observations):
         """
         return first action given the first observations
         """
-        self.action_queue = self.queue_init()
+        self.action_queue = self.get_action_queue()
         if len(self.action_queue) > 0:
             return self.action_queue.pop(0)
         else:
@@ -380,7 +381,7 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
         if len(self.action_queue) > 0:
             return self.action_queue.pop(0)
         else:
-            return 0
+            return 1
 
     def end(self, time, reward):
         """
@@ -389,7 +390,7 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
         return True
 
     def reset(self):
-        self.action_queue = self.queue_init()
+        self.action_queue = self.get_action_queue()
         return True
 
     def destroy(self):
@@ -400,10 +401,10 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
 
 class TowerAgent5(AgentBrain):
     """
-    An agent that uses a STRIPS-like planner to solve the Towers of Hanoi problem
+    An NLP agent for the Towers of Hanoi problem 
     """
     def __init__(self):
-        import towers3 as towers
+        from towers import Towers3 as towers
         AgentBrain.__init__(self) # have to make this call
         self.action_queue = [10] # rotate left to reset state first
         self.global_at = towers.Pole1 
@@ -451,7 +452,7 @@ class TowerAgent5(AgentBrain):
                 result += w.title() + " "
         return result
 
-    def queue_init(self):
+    def get_action_queue(self):
         import subprocess
         # solve for show (user can click through)
         subproc = subprocess.Popen(['python', 'BlocksTower/text_interface.py'], stdout=subprocess.PIPE)
@@ -476,39 +477,37 @@ class TowerAgent5(AgentBrain):
 
         state = self.global_state
         at = self.global_at
-        # use strips2 stuff for translating the output into low level actions
-        import strips2
-        import towers2 as towers
-        import strips2_show
+
+        from towers import Towers2 as towers
         
         words = parsed_plan.strip().split()
         (command) = words[0]
 
         if command == 'Mov':
                 (what, frm, to) = words[1:]
-                frm_pole = strips2_show.get_pole(state, frm)
-                to_pole = strips2_show.get_pole(state, to)
+                frm_pole = towers.get_pole(state, frm)
+                to_pole = towers.get_pole(state, to)
                 print what, frm, to, at, frm_pole, to_pole
                 if at != frm_pole:
-                    action_queue += MOVES[(at, frm_pole)]
-                action_queue += CARRY_MOVES[(frm_pole, to_pole)]
+                    action_queue += towers.MOVES[(at, frm_pole)]
+                action_queue += towers.CARRY_MOVES[(frm_pole, to_pole)]
                 towers.Move(state, what, frm, to)
                 at = to_pole
 
         elif command == 'Pick':
                 (what, frm) = words[1:]
-                frm_pole = strips2_show.get_pole(state, frm)
+                frm_pole = towers.get_pole(state, frm)
                 if at != frm_pole:
-                    action_queue += MOVES[(at, frm_pole)]
+                    action_queue += towers.MOVES[(at, frm_pole)]
                 action_queue += [3] #Pick up 
                 towers.Move(state, what, frm, frm)
                 at = frm_pole
 
         elif command == 'Put':
                 (what, to) = words[1:]
-                to_pole = strips2_show.get_pole(state, to)
+                to_pole = towers.get_pole(state, to)
                 if at != to_pole:
-                    action_queue += MOVES[(at, to_pole)]
+                    action_queue += towers.MOVES[(at, to_pole)]
                 action_queue += [2] #Put Down 
                 towers.Move(state, what, to, to)
                 at = to_pole
@@ -516,13 +515,14 @@ class TowerAgent5(AgentBrain):
         self.global_state = state
         self.global_at = at
         
+        action_queue.extend(ACTIONS_CELEBERATE)
         return action_queue
 
     def start(self, time, observations):
         """
         return first action given the first observations
         """
-        self.action_queue = self.queue_init()
+        self.action_queue = self.get_action_queue()
         if len(self.action_queue) > 0:
             return self.action_queue.pop(0)
         else:
@@ -536,8 +536,8 @@ class TowerAgent5(AgentBrain):
         if len(self.action_queue) > 0:
             return self.action_queue.pop(0)
         else:
-            self.action_queue = self.queue_init()
-            return 0
+            self.action_queue = self.get_action_queue()
+            return 1
 
     def end(self, time, reward):
         """
@@ -546,7 +546,7 @@ class TowerAgent5(AgentBrain):
         return True
 
     def reset(self):
-        self.action_queue = self.queue_init()
+        self.action_queue = self.get_action_queue()
         return True
 
     def destroy(self):
