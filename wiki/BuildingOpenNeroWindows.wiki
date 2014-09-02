@@ -15,6 +15,7 @@
    * Do not use Boost 1.54 if you are building with Visual Studio 2013 Preview - use 1.53 instead.
  * [http://www.python.org/download/releases/2.7.2/ Latest Python 2.7.x with source]
  * [http://www.wxpython.org/download.php wxPython]
+ * Install a Java Runtime Environment (JRE)
  * Add python.exe to the Path variable (Control Panel -> System -> Environment Variables)
 
 == Steps to build ==
