@@ -5,7 +5,12 @@
 
 == Download a Binary ==
 
+* [https://code.google.com/p/opennero/downloads/detail?name=OpenNERO-2013-11-17-x86_64.tar.gz 64-bit Binary]
+* [https://code.google.com/p/opennero/downloads/detail?name=OpenNERO-2013-10-20-i686.tar.gz 32-bit Binary]
+
 == Install Required Packages ==
+
+OpenNERO depends on the following packages:
 
 If you do not have python installed, install it using your package manager. To do so on Ubuntu Linux, use:
 
