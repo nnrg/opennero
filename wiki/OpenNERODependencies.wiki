@@ -3,7 +3,7 @@
 
 = Dependencies =
 
-OpenNERO depends on the following software on any platform.  Items listed here are Linux package names.
+OpenNERO depends on the following software on any platform.  Items listed here are Linux package names.  Equivalent software is needed on other platforms.
 
 == OpenNERO core dependencies: ==
 
