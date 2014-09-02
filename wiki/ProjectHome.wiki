@@ -1,5 +1,7 @@
 http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.tiny.png  http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png
 
+= OpenNERO =
+
 [http://nn.cs.utexas.edu/?opennero OpenNERO] is an open source software platform designed for
 research and education in Artificial Intelligence. The project is based on the
 [http://www.nerogame.org/ Neuro-Evolving Robotic Operatives (NERO) game] developed by graduate
@@ -8,6 +10,34 @@ and undergraduate students at the  [http://nn.cs.utexas.edu/ Neural Networks Res
 [http://www.utexas.edu/ University of Texas at Austin].
 
 == Get Started ==
+
+
+
+== More about OpenNERO ==
+
+OpenNERO has been used to implement several demos and exercises for Russell
+and Norvig's textbook [http://aima.cs.berkeley.edu/ Artificial Intelligence: A Modern Approach].  These
+demos and exercises illustrate AI methods such as brute-force search, heuristic search, scripting,
+reinforcement learning, and evolutionary computation, and AI problems such as maze running,
+vacuuming, and robotic battle. The methods and problems are implemented in several different
+environments (or "mods"), as described below.
+
+More environments, problems, and methods, as well as demos and exercises illustrating them, will
+be added in the future. The current ones are intended to serve as a starting point on which new
+ones can be built, by us, but also by the community at large. If you have questions or would like to contribute, check out the [http://groups.google.com/group/opennero OpenNERO Google Group].
+
+----
+
+==Contributors==
+
+Many people have contributed to OpenNERO, including [http://www.cs.utexas.edu/~ikarpov/ Igor V. Karpov], [http://www.jbsheblak.com/ John B. Sheblak], Adam Dziuk, Minh Phan, Dan Lessin, Wes Tansey, Risto Miikkulainen, members of the [http://nn.cs.utexas.edu/ Neural Networks Research Group] at [http://www.utexas.edu/ UT Austin], students and alumni of the Computational Intelligence and Game Design stream of the [http://fri.cns.utexas.edu/ Freshman Research Initiative] at [http://www.utexas.edu/ UT Austin].
+
+----
+
+<font color="red">NOTE:</font> as with any active project, OpenNERO is a work in progress and many [http://code.google.com/p/opennero/updates/ updates] are frequently being made. If you have trouble with OpenNERO, check the [http://groups.google.com/group/opennero discussion group] and then consider submitting an [http://code.google.com/p/opennero/issues issue]. And of course, if you would like to contribute, let us know!
+
+
+
 
 You can download a  [http://code.google.com/p/opennero/downloads/list binary build of OpenNERO] for
 your platform, or checkout the current source and [BuildingOpenNero build it yourself]. You
@@ -38,26 +68,3 @@ or [RunningOpenNero explore the various mods] on your own.
   * [OpenNeroExercises Exercises]
 
 ----
-
-== About OpenNERO ==
-
-OpenNERO has been used to implement several demos and exercises for Russell
-and Norvig's textbook [http://aima.cs.berkeley.edu/ Artificial Intelligence: A Modern Approach].  These
-demos and exercises illustrate AI methods such as brute-force search, heuristic search, scripting,
-reinforcement learning, and evolutionary computation, and AI problems such as maze running,
-vacuuming, and robotic battle. The methods and problems are implemented in several different
-environments (or "mods"), as described below.
-
-More environments, problems, and methods, as well as demos and exercises illustrating them, will
-be added in the future. The current ones are intended to serve as a starting point on which new
-ones can be built, by us, but also by the community at large. If you have questions or would like to contribute, check out the [http://groups.google.com/group/opennero OpenNERO Google Group].
-
-----
-
-==Contributors==
-
-Many people have contributed to OpenNERO, including [http://www.cs.utexas.edu/~ikarpov/ Igor V. Karpov], [http://www.jbsheblak.com/ John B. Sheblak], Adam Dziuk, Minh Phan, Dan Lessin, Wes Tansey, Risto Miikkulainen, members of the [http://nn.cs.utexas.edu/ Neural Networks Research Group] at [http://www.utexas.edu/ UT Austin], students and alumni of the Computational Intelligence and Game Design stream of the [http://fri.cns.utexas.edu/ Freshman Research Initiative] at [http://www.utexas.edu/ UT Austin].
-
-----
-
-<font color="red">NOTE:</font> as with any active project, OpenNERO is a work in progress and many [http://code.google.com/p/opennero/updates/ updates] are frequently being made. If you have trouble with OpenNERO, check the [http://groups.google.com/group/opennero discussion group] and then consider submitting an [http://code.google.com/p/opennero/issues issue]. And of course, if you would like to contribute, let us know!
