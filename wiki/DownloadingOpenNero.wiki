@@ -18,5 +18,5 @@ sudo apt-get install libboost-python1.46.1 libboost-libboost-filesystem1.46.1 li
 You also need these additional packages for running various mods:
 
 {{{
-sudo apt-get install python-wxgtk2.8 python-tk python-matplotlib python-scipy python-imaging-tk 
+sudo apt-get install python-wxgtk2.8 python-tk python-matplotlib python-scipy python-numpy python-imaging-tk 
 }}}
