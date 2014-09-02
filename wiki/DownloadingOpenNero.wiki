@@ -6,7 +6,7 @@
 == Download a Binary ==
 
   * 64-bit Binary: [https://drive.google.com/uc?export=download&id=0B_n_pL3SdT0FdGhOdXpFbXllYkE OpenNERO from 2014-09-02 compiled on Ubuntu 12.04.5 LTS and Intel x86_64 architecture]
-  * 32-bit Binary: [https://drive.google.com/uc?export=download&id=0B_n_pL3SdT0FbUJlNnN0VW8yR0U OpenNERO from 2014-09-02 compiled on Ubuntu 12.04.5 and Intel i386 architecture]
+  * 32-bit Binary: [https://drive.google.com/uc?export=download&id=0B_n_pL3SdT0FbUJlNnN0VW8yR0U OpenNERO from 2014-09-02 compiled on Ubuntu 12.04.5 LTS and Intel i386 architecture]
 
 == Install Required Packages ==
 
