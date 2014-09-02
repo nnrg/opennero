@@ -3,6 +3,10 @@
 
 = Linux =
 
+== Download a Binary ==
+
+== Install Required Packages ==
+
 If you do not have python installed, install it using your package manager. To do so on Ubuntu Linux, use:
 
 {{{
