@@ -1,0 +1,31 @@
+== Get Started ==
+
+You can download a  [http://code.google.com/p/opennero/downloads/list binary build of OpenNERO] for
+your platform, or checkout the current source and [BuildingOpenNero build it yourself]. You
+can then [OpenNeroDemos try out the various demos], [OpenNeroExercises work on the exercises],
+or [RunningOpenNero explore the various mods] on your own.
+
+  * [http://code.google.com/p/opennero/downloads/list Download an executable]
+  * [RunningOpenNero Running]
+  * Demos
+    * Search
+      * [FirstPersonSearch Introduction and First Person Search]
+      * [BruteForceSearch Brute Force (Uninformed) Search]
+      * [HeuristicSearch Heuristic (Informed) Search]
+    * Planning
+      * [SymbolicPlanning Symbolic Planning]
+    * Reinforcement Learning
+      * [QLearning Q-Learning]
+    * Evolutionary Computation
+      * [NeuroEvolution Neuroevolution]
+      * [CoEvolution Co-evolution]
+
+----
+
+== Find Out More ==
+
+  * [SystemOverview System Overview]
+  * [BuildingOpenNero Building from Source]
+  * [OpenNeroExercises Exercises]
+
+----
