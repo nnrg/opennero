@@ -8,6 +8,7 @@
  * Download and install [http://www.cmake.org/cmake/resources/software.html cmake]
  * Install [http://developer.apple.com/tools/xcode/ Xcode] (optional install on the Mac OS X DVD)
  * Install [http://www.wxpython.org/download.php wxPython]
+ * Install a Java Runtime Environment (JRE)
  * Build and install [http://www.boost.org/doc/libs/release/more/getting_started/unix-variants.html Boost Libraries]
 == Steps to build ==
  # (recommended) create a new directory for your build
