@@ -16,4 +16,4 @@
 
 ----
 
- * Feel free to share your experience with building OpenNero in the comments.
+ * Feel free to share your experience with building OpenNERO in the comments.
