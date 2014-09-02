@@ -8,6 +8,7 @@
      * [BuildingOpenNero Linux]
      * [BuildingOpenNeroOSX Mac OS X]
      * [BuildingOpenNeroWindows Windows]
+   * [OpenNERODependencies OpenNERO Dependencies]
  * [RunningOpenNero Run OpenNERO]
    * [MazeMod The Maze mod]
    * [BlocksWorldMod Blocks World mod]
