@@ -1,13 +1,19 @@
-#summary One-sentence summary of this page.
+#summary This page describes how to build OpenNERO from source for Mac OS X.
+#sidebar TableOfContents
+----
 
-= Introduction =
+= Mac OS X =
 
-Add your content here.
+ * Download and install [http://www.cmake.org/cmake/resources/software.html cmake]
+ * Install [http://developer.apple.com/tools/xcode/ Xcode] (optional install on the Mac OS X DVD)
+ * Install [http://www.wxpython.org/download.php wxPython]
+ * Build and install [http://www.boost.org/doc/libs/release/more/getting_started/unix-variants.html Boost Libraries]
+== Steps to build ==
+ # (recommended) create a new directory for your build
+ # in your build directory, run `cmake -G Xcode /path/to/opennero/checkout`
+ # open the resulting OpenNERO.xcodeproja Xcode project file
+ # Build OpenNERO using Xcode
 
+----
 
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+ * Feel free to share your experience with building OpenNero in the comments.
