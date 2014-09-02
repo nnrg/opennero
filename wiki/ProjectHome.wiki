@@ -9,7 +9,7 @@ and undergraduate students at the  [http://nn.cs.utexas.edu/ Neural Networks Res
 [http://www.cs.utexas.edu/ Department of Computer Science] at the
 [http://www.utexas.edu/ University of Texas at Austin].
 
-OpenNERO has been used to implement several demos and exercises for Russell
+In particular, OpenNERO has been used to implement several demos and exercises for Russell
 and Norvig's textbook [http://aima.cs.berkeley.edu/ Artificial Intelligence: A Modern Approach].  These
 demos and exercises illustrate AI methods such as brute-force search, heuristic search, scripting,
 reinforcement learning, and evolutionary computation, and AI problems such as maze running,
