@@ -1,0 +1,26 @@
+#summary This page documents the dependencies of OpenNERO and various mods.
+#sidebar TableOfContents
+
+= Dependencies =
+
+== OpenNERO core dependencies: ==
+
+  * python
+  * libboost-python
+  * libboost-filesystem
+  * libboost-serialization
+  * libboost-system
+  * libboost-date-time
+
+== Dependencies of Mods: ==
+
+  * BlocksTower (Planning, NLP):
+    * python-tk
+  * NERO Training:
+    * Current version: openjdk-6-jre
+    * Pure python version: python-wxgtk2.8
+  * Vision:
+    * python-wxgtk2.8
+    * python-imaging-tk
+    * python-scipy
+    * python-numpy
