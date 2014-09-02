@@ -1,3 +1,9 @@
+#summary This page describes how to build OpenNERO from source for Windows.
+#sidebar TableOfContents
+----
+
+As of Sep 2014, this article is outdated.  If you manage to build OpenNERO on Windows, feel free to share your experience in the comments section.
+
 = Windows =
 
 == Prerequisites ==
@@ -17,5 +23,3 @@
  # Open CMake, specify the source directory (opennero checkout directory) and build directory (another directory). Choose 'Suppress dev Warnings -WnoDev' from the Options menu. Click the Configure button twice, then click the Generate button.
  # Open the OpenNERO.sln solution file and build OpenNERO using Visual Studio.
  # To run from within Visual Studio, set OpenNERO as startup project. Also set the working directory of OpenNERO for debugging to `$(TargetDir)` (right mouse click on OpenNERO, select properties, debugging).
-
-----
