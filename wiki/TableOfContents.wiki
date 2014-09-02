@@ -8,8 +8,12 @@
      * [BuildingOpenNero Linux]
      * [BuildingOpenNeroOSX Mac OS X]
      * [BuildingOpenNeroWindows Windows]
- * [OpenNeroPrerequisites Prerequisites]
- * [SystemOverview System Overview]
+ * [RunningOpenNero Running]
+   * [MazeMod The Maze mod]
+   * [BlocksWorldMod Blocks World mod]
+   * [RoombaMod The Roomba mod]
+   * [NeroMod NERO Machine Learning Game]
+   * [RunningOpenNeroHeadless Running Headless]
  * Demonstrations
    * Search
      * [FirstPersonSearch Introduction: First Person Search]
@@ -25,6 +29,7 @@
      * [NeroMod NERO Machine Learning Game]
    * Vision
      * [EdgeDetection Edge Detection]
+ * [SystemOverview System Overview]
  * [OpenNeroExercises Exercises]
     * AddingStuffExercise
     * CreateRoombaAgentExercise
@@ -38,9 +43,3 @@
     * NeroTournamentExercise
       * TournamentResults2011
     * ObjectRecognitionExercise
- * [RunningOpenNero Running]
-   * [MazeMod The Maze mod]
-   * [BlocksWorldMod Blocks World mod]
-   * [RoombaMod The Roomba mod]
-   * [NeroMod NERO Machine Learning Game]
-   * [RunningOpenNeroHeadless Running Headless]
