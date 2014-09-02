@@ -1,0 +1,22 @@
+#summary This page describes how to download a precompiled OpenNERO binary for Linux and install the prerequisites.
+#sidebar TableOfContents
+
+= Linux =
+
+If you do not have python installed, install it using your package manager. To do so on Ubuntu Linux, use:
+
+{{{
+sudo apt-get install python
+}}}
+
+OpenNERO depends on some libboost binaries.  You may have to replace the version numbers to match what the latest binary has been linked against:
+
+{{{
+sudo apt-get install libboost-python1.46.1 libboost-libboost-filesystem1.46.1 libboost-serialization1.46.1 libboost-system1.46.1 libboost-date-time1.46.1
+}}}
+
+You also need these additional packages for running various mods:
+
+{{{
+sudo apt-get install python-wxgtk2.8 python-tk python-matplotlib python-scipy python-imaging-tk 
+}}}
