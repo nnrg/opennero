@@ -1,7 +1,14 @@
  * [http://code.google.com/p/opennero/ Introduction]
+ * Get OpenNERO
+   * Download a Binary
+     * [DownloadingOpenNero Linux]
+     * [DownloadingOpenNeroOSX Mac OS X]
+     * [DownloadingOpenNeroWindows Windows]
+   * Build from Source
+     * [BuildingOpenNero Linux]
+     * [BuildingOpenNeroOSX Mac OS X]
+     * [BuildingOpenNeroWindows Windows]
  * [OpenNeroPrerequisites Prerequisites]
- * [BuildingOpenNero Building]
-   * [BuildingOpenNero2012 Building for Tournament 2012]
  * [SystemOverview System Overview]
  * Demonstrations
    * Search
