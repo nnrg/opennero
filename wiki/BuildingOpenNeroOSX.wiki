@@ -2,6 +2,8 @@
 #sidebar TableOfContents
 ----
 
+*Note:* As of Sep 2014, this article is outdated.  If you manage to build OpenNERO on Mac OS X, feel free to share your experience in the comments section.
+
 = Mac OS X =
 
  * Download and install [http://www.cmake.org/cmake/resources/software.html cmake]
@@ -13,7 +15,3 @@
  # in your build directory, run `cmake -G Xcode /path/to/opennero/checkout`
  # open the resulting OpenNERO.xcodeproja Xcode project file
  # Build OpenNERO using Xcode
-
-----
-
- * Feel free to share your experience with building OpenNERO in the comments.
