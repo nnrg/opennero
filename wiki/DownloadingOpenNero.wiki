@@ -18,6 +18,12 @@ If you do not have python installed, install it using your package manager. To d
 sudo apt-get install python
 }}}
 
+The current build of OpenNERO also depends on Java.  You need to install a JRE to be able to use the training window in the NERO game:
+
+{{{
+sudo apt-get install openjdk-6-jre
+}}}
+
 OpenNERO depends on some boost libraries.  You may have to replace the version numbers to match what the latest binary has been linked against:
 
 {{{
