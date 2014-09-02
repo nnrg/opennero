@@ -62,6 +62,7 @@ The following packages are not needed for building OpenNERO, but they are needed
  * python-wxgtk2.8
  * python-matplotlib
  * python-scipy
+ * python-numpy
  * python-imaging-tk
 
 == Building OpenNERO ==
