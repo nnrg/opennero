@@ -8,7 +8,7 @@
      * [BuildingOpenNero Linux]
      * [BuildingOpenNeroOSX Mac OS X]
      * [BuildingOpenNeroWindows Windows]
- * [RunningOpenNero Running]
+ * [RunningOpenNero Run OpenNERO]
    * [MazeMod The Maze mod]
    * [BlocksWorldMod Blocks World mod]
    * [RoombaMod The Roomba mod]
