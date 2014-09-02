@@ -9,7 +9,7 @@ If you do not have python installed, install it using your package manager. To d
 sudo apt-get install python
 }}}
 
-OpenNERO depends on some libboost binaries.  You may have to replace the version numbers to match what the latest binary has been linked against:
+OpenNERO depends on some boost libraries.  You may have to replace the version numbers to match what the latest binary has been linked against:
 
 {{{
 sudo apt-get install libboost-python1.46.1 libboost-libboost-filesystem1.46.1 libboost-serialization1.46.1 libboost-system1.46.1 libboost-date-time1.46.1
