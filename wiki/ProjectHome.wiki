@@ -25,6 +25,7 @@ ones can be built, by us, but also by the community at large. If you have questi
 == Get Started ==
 
  * Get OpenNERO
+   * [OpenNERODependencies OpenNERO Dependencies]
    * Download a Binary
      * [DownloadingOpenNero Linux]
      * [DownloadingOpenNeroOSX Mac OS X]
