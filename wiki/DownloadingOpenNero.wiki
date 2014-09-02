@@ -24,7 +24,7 @@ The current build of OpenNERO also depends on Java.  You need to install a JRE t
 sudo apt-get install openjdk-6-jre
 }}}
 
-OpenNERO depends on some boost libraries.  You may have to replace the version numbers to match what the latest binary has been linked against:
+OpenNERO depends on some boost libraries.  You may need to replace the version numbers to match what the latest binary has been linked against:
 
 {{{
 sudo apt-get install libboost-python1.46.1 libboost-libboost-filesystem1.46.1 libboost-serialization1.46.1 libboost-system1.46.1 libboost-date-time1.46.1
