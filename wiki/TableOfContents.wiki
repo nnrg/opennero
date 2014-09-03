@@ -3,12 +3,12 @@
    * [OpenNERODependencies OpenNERO Dependencies]
    * Download a Binary
      * [DownloadingOpenNero Linux]
-     * [DownloadingOpenNeroOSX Mac OS X]
      * [DownloadingOpenNeroWindows Windows]
+     * [DownloadingOpenNeroOSX Mac OS X]
    * Build from Source
      * [BuildingOpenNero Linux]
-     * [BuildingOpenNeroOSX Mac OS X]
      * [BuildingOpenNeroWindows Windows]
+     * [BuildingOpenNeroOSX Mac OS X]
  * [RunningOpenNero Run OpenNERO]
    * [MazeMod The Maze mod]
    * [BlocksWorldMod Blocks World mod]
