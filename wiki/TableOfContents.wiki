@@ -1,7 +1,7 @@
  * [http://code.google.com/p/opennero/ Introduction]
  * Get OpenNERO
-   * [OpenNERODependencies OpenNERO Dependencies]
    * Download a Binary
+     * [OpenNERODependencies OpenNERO Dependencies]
      * [DownloadingOpenNero Linux]
      * [DownloadingOpenNeroOSX Mac OS X]
      * [DownloadingOpenNeroWindows Windows]
