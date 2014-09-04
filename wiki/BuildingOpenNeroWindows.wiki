@@ -1,7 +1,7 @@
 #summary This page describes how to build OpenNERO from source for Windows.
 #sidebar TableOfContents
 
-*Note:* As of Sep 2014, this article is outdated.  If you manage to build OpenNERO on Windows, feel free to share your experience in the comments section.
+*Note:* Feel free to share your experience with building OpenNERO in the comments section.
 
 = Windows =
 
