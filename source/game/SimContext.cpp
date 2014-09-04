@@ -334,7 +334,7 @@ namespace OpenNero
         mFPSCounter.registerFrame();
         std::stringstream sstr;
         sstr << mFPSCounter.getFPS();
-        DrawText( Vector2i( 5, 55 ), SColor(255,255,255,255), sstr.str(), mIrr.getDevice() );
+        DrawText( Vector2i( 780, 5 ), SColor(255,255,255,255), sstr.str(), mIrr.getDevice() );
 
         mIrr.getVideoDriver()->endScene();
 
