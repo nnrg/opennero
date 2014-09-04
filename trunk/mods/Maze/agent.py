@@ -226,6 +226,8 @@ class SearchAgent(AgentBrain):
     def __init__(self):
         """ constructor """
         AgentBrain.__init__(self)
+        self.backpointers = {}
+
     def highlight_path(self):
         """
         backtrack to highlight the path
@@ -240,6 +242,20 @@ class SearchAgent(AgentBrain):
             if node == (0, 0):
                 break
 
+    def get_distance(self, row, col):
+        """
+        get the distance to given cell from the source based on the backpointers
+        """
+        # retrace the path
+        hops = 0
+        node = (row, col)
+        while node in self.backpointers:
+            node = self.backpointers[node]
+            hops += 1
+            if node == (0, 0):
+                break
+        return hops
+
 class DFSSearchAgent(SearchAgent):
     """
     Depth first search implementation
@@ -253,7 +269,6 @@ class DFSSearchAgent(SearchAgent):
         self.visited = set([])
         self.adjlist = {}
         self.parents = {}
-        self.backpointers = {}
 
     def dfs_action(self, observations):
         r = observations[0]
@@ -324,7 +339,6 @@ class GenericSearchAlgorithm(SearchAgent):
         """
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
         SearchAgent.__init__(self)
-        self.backpointers = {}
         self.reset()
 
     def reset(self):
@@ -412,10 +426,10 @@ class GenericSearchAlgorithm(SearchAgent):
                 c2 = col + dc # compute the col we could move to
                 if (r2, c2) not in self.enqueued:
                     self.mark_the_front(row, col, r2, c2)
-                    self.enqueued.add((r2, c2))
-                    self.enque((r2, c2))
                     assert self.backpointers.get((row, col)) != (r2, c2)
                     self.backpointers[(r2, c2)] = row, col # remember where we (would) come from
+                    self.enqueued.add((r2, c2))
+                    self.enque((r2, c2))
 
     def start(self, time, observations):
         """
@@ -476,7 +490,7 @@ class BFSSearchAgent(GenericSearchAlgorithm):
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
         GenericSearchAlgorithm.__init__(self)
 
-    def enque(self, cell ):
+    def enque(self, cell):
         self.queue.append(cell)
 
     def deque(self):
@@ -531,7 +545,10 @@ class AStarSearchAgent(GenericSearchAlgorithm):
 
     def enque(self, cell):
         (r, c) = cell
-        heappush(self.queue, Cell(self.heuristic(r, c), r, c))
+        d = self.get_distance(r, c)
+        h = self.heuristic(r, c)
+        print "Queuing cell (%s, %s), d = %s, h = %s" % (r, c, d, h)
+        heappush(self.queue, Cell(d + h, r, c))
 
     def deque(self):
         cell = heappop(self.queue)
