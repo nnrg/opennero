@@ -6,7 +6,7 @@
 = Windows =
 
 == Prerequisites ==
-
+ * [https://code.google.com/p/opennero/source/checkout OpenNERO source code]
  * [http://www.cmake.org/cmake/resources/software.html cmake]
  * [http://www.microsoft.com/visualstudio/ Microsoft Visual Studio
  * [http://www.boost.org/doc/libs/release/more/getting_started/windows.html build and install Boost]
