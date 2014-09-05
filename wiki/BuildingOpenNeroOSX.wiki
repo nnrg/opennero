@@ -5,6 +5,7 @@
 
 = Mac OS X =
 
+ * Get a copy of [https://code.google.com/p/opennero/source/checkout OpenNERO source code]
  * Download and install [http://www.cmake.org/cmake/resources/software.html cmake]
  * Install [http://developer.apple.com/tools/xcode/ Xcode] (optional install on the Mac OS X DVD)
  * Install [http://www.wxpython.org/download.php wxPython]
