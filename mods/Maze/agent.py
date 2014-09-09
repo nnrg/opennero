@@ -537,9 +537,6 @@ class AStarSearchAgent(GenericSearchAlgorithm):
         """
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
         GenericSearchAlgorithm.__init__(self)
-
-    def reset(self):
-        GenericSearchAlgorithm.reset(self)
         # minimize the Manhattan distance
         self.heuristic = manhattan_heuristic
 
