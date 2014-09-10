@@ -358,16 +358,18 @@ class MazeEnvironment(Environment):
             self.handles[o] = [None, None, None, None, None]
         (x, y) = self.maze.rc2xy(o[0], o[1])
         center = len(MAZE_MOVES)
-        cube_file = "data/shapes/cube/YellowCube.xml"
-        if max_a > 0:
-            cube_file = "data/shapes/cube/GreenCube.xml"
         if self.handles[o][center] is not None:
             removeObject(self.handles[o][center])
         lowest_a = 0
         scale_factor = float(max_a - lowest_a) / (100 - lowest_a)
-        cube_size = max(1.0 + scale_factor * 3, 0.6)
+        if max_a > 0:
+            cube_file = "data/shapes/cube/GreenCube.xml"
+            cube_size = max(scale_factor * 2.4, 0.8)
+        else:
+            cube_file = "data/shapes/cube/YellowCube.xml"
+            cube_size = max(1.4 + scale_factor * 2, 0.6)
         self.handles[o][center] = addObject(cube_file, Vector3f(x, y, 0), \
-                scale=Vector3f(cube_size, cube_size, 0.1))
+                scale=Vector3f(cube_size, cube_size, 0.6))
         #print "Adding cube with max_a, scale_factor, size: %s, %s, %s" % (max_a, scale_factor, cube_size)
         for a, (dr, dc) in enumerate(MAZE_MOVES):
             p = Vector3f(x, y, 0)
