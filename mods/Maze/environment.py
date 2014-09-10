@@ -1,4 +1,5 @@
 import time
+import random
 from math import *
 from copy import copy
 from mazer import Maze
@@ -11,17 +12,17 @@ from Maze.agent import MoveForwardAndStopAgent
 class MazeRewardStructure:
     """ This defines the reward that the agents get for running the maze """
     def null_move(self, agent):
-        """ a null move is -1 """
+        """ reward for a null move """
         return -1
     def valid_move(self, agent):
         """ a valid move is just a -1 (to reward shorter routes) """
         return -1
     def out_of_bounds(self, agent):
         """ reward for running out of bounds of the maze (hitting the outer wall) """
-        return -1
+        return -100
     def hit_wall(self, agent):
         """ reward for hitting any other wall """
-        return -1
+        return -100
     def goal_reached(self, agent):
         """ reward for reaching the goal """
         print 'GOAL REACHED!'
@@ -80,6 +81,8 @@ class MazeEnvironment(Environment):
         self.agent_map = {} # agents active on the map
         self.agents_at_goal = set() # the set of agents that have reached the goal
         self.handles = {} # handes for the objects used to draw q-values
+        self.initdist = 0
+        self.generate_init_pos()
         print 'Initialized MazeEnvironment'
 
     def can_move(self, agent, move):
@@ -97,15 +100,37 @@ class MazeEnvironment(Environment):
         """
         return Vector3f(0,0,degrees(atan2(move[1], move[0])))
 
+    def generate_init_pos(self):
+        """
+        Generate a random initial position in the maze
+        """
+        r = self.initdist
+        c = 0
+        if r > ROWS - 1:
+            r = ROWS - 1
+            c = self.initdist - (ROWS - 1)
+
+        candidates = []
+        while r >= 0 and r <= ROWS - 1 and c >= 0 and c <= COLS - 1:
+            candidates.append((r, c))
+            r -= 1
+            c += 1
+
+        self.init_pos = random.choice(candidates)
+        print "Initial positions calculated as: %s" % (self.init_pos, )
+        return self.init_pos
+
     def reset(self, agent):
         """
         reset the environment to its initial state
         """
         print 'Episode %d complete' % agent.episode
-        (x,y) = MazeEnvironment.maze.rc2xy(0,0)
-        pos = Vector3f(x,y,0)
+
+        (r, c) = self.generate_init_pos()
+        (x, y) = MazeEnvironment.maze.rc2xy(r, c)
+        pos = Vector3f(x, y, 0)
         agent.state.position = pos
-        agent.state.rotation = Vector3f(0,0,0)
+        agent.state.rotation = Vector3f(0, 0, 0)
         return True
 
     def get_agent_info(self, agent):
@@ -325,15 +350,28 @@ class MazeEnvironment(Environment):
     def draw_q(self, o, Q):
         aa = Q[o] # get the action values
         min_a = min(aa) # minimum of the action values
+        max_a = max(aa)
         aa = [a - min_a for a in aa] # shift to make all >= 0
         sum_a = sum(aa) # sum of action values
         if sum_a != 0: aa = [a/sum_a for a in aa] # normalize
         if o not in self.handles: # create handles list
             self.handles[o] = [None, None, None, None, None]
         (x, y) = self.maze.rc2xy(o[0], o[1])
+        center = len(MAZE_MOVES)
+        cube_file = "data/shapes/cube/YellowCube.xml"
+        if max_a > 0:
+            cube_file = "data/shapes/cube/GreenCube.xml"
+        if self.handles[o][center] is not None:
+            removeObject(self.handles[o][center])
+        lowest_a = 0
+        scale_factor = float(max_a - lowest_a) / (100 - lowest_a)
+        cube_size = max(1.0 + scale_factor * 3, 0.6)
+        self.handles[o][center] = addObject(cube_file, Vector3f(x, y, 0), \
+                scale=Vector3f(cube_size, cube_size, 0.1))
+        #print "Adding cube with max_a, scale_factor, size: %s, %s, %s" % (max_a, scale_factor, cube_size)
         for a, (dr, dc) in enumerate(MAZE_MOVES):
             p = Vector3f(x, y, 0)
-            value = aa[a] * 5
+            value = aa[a] * 6.5
             if dr == 0: dr = 0.1
             else: p.x += dr*value
             if dc == 0: dc = 0.1
@@ -350,12 +388,6 @@ class MazeEnvironment(Environment):
             else:
                 # move the existing cube
                 getSimContext().setObjectPosition(self.handles[o][a], p)
-        center = len(MAZE_MOVES)
-        if self.handles[o][center] is None:
-            self.handles[o][center] = \
-                addObject("data/shapes/cube/YellowCube.xml", \
-                    Vector3f(x, y, 0), \
-                    scale=Vector3f(0.6,0.6,0.6))
 
 class EgocentricMazeEnvironment(MazeEnvironment):
     """
@@ -395,13 +427,38 @@ class EgocentricMazeEnvironment(MazeEnvironment):
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
         self.granularity = granularity
         self.max_steps = MAX_STEPS * 15 * self.granularity # allow 15 * g actions per cell
+        self.initdist = 0
+        self.generate_init_pos()
         print 'Initialized EgocentricMazeEnvironment'
+                
+    def generate_init_pos(self):
+        """
+        Generate a random initial position in the maze
+        """
+        r = self.initdist
+        c = 0
+        if r > ROWS - 1:
+            r = ROWS - 1
+            c = self.initdist - (ROWS - 1)
+
+        candidates = []
+        while r >= 0 and r <= ROWS - 1 and c >= 0 and c <= COLS - 1:
+            candidates.append((r, c))
+            r -= 1
+            c += 1
+
+        self.init_pos = random.choice(candidates)
+        print "Initial position calculated as: %s" % (self.init_pos, )
+        return self.init_pos
 
     def reset(self, agent):
         """
         reset the environment to its initial state
         """
-        (x,y) = MazeEnvironment.maze.rc2xy(0,0)
+        print 'Episode %d complete' % agent.episode
+
+        (r, c) = self.generate_init_pos()
+        (x, y) = MazeEnvironment.maze.rc2xy(r, c)
         agent.state.position = Vector3f(x,y,0)
         agent.state.rotation = Vector3f(0,0,0)
         self.agents_at_goal.discard(agent)
@@ -540,13 +597,38 @@ class GranularMazeEnvironment(MazeEnvironment):
         self.agent_info = AgentInitInfo(observation_info, action_info, reward_info)
         self.max_steps = MAX_STEPS * (granularity * 2) # allow 2x granularity steps per cell
         self.granularity = granularity
+        self.initdist = 0
+        self.generate_init_pos()
         print 'Initialized GranularMazeEnvironment'
+                
+    def generate_init_pos(self):
+        """
+        Generate a random initial position in the maze
+        """
+        r = self.initdist
+        c = 0
+        if r > ROWS - 1:
+            r = ROWS - 1
+            c = self.initdist - (ROWS - 1)
+
+        candidates = []
+        while r >= 0 and r <= ROWS - 1 and c >= 0 and c <= COLS - 1:
+            candidates.append((r, c))
+            r -= 1
+            c += 1
+
+        self.init_pos = random.choice(candidates)
+        print "Initial positions calculated as: %s" % (self.init_pos, )
+        return self.init_pos
 
     def reset(self, agent):
         """
         reset the environment to its initial state
         """
-        (x,y) = MazeEnvironment.maze.rc2xy(0,0)
+        print 'Episode %d complete' % agent.episode
+
+        (r, c) = self.generate_init_pos()
+        (x, y) = MazeEnvironment.maze.rc2xy(r, c)
         agent.state.position = Vector3f(x,y,0)
         agent.state.rotation = Vector3f(0,0,0)
         self.agents_at_goal.discard(agent)
