@@ -58,7 +58,7 @@ def CreateGui(guiMan, mode):
     x, y = 5, 4 * control_height + 5
     w, h = window_width - 20, control_height - 5
     initdist = INITIAL_DIST
-    ui.initdistLabel = gui.create_text(guiMan, 'initdistLabel', Pos2i(x, y), Pos2i(3*w/10, h), 'Initial Distance:')
+    ui.initdistLabel = gui.create_text(guiMan, 'initdistLabel', Pos2i(x, y), Pos2i(3*w/10, h), 'Initial Boost:')
     ui.initdistScroll = gui.create_scroll_bar(guiMan, 'initdistScroll', Pos2i(x + 3*w/10 + 5, y), Pos2i(6*w/10, h - 5), True)
     ui.initdistValue = gui.create_text(guiMan, 'initdistEditBox', Pos2i(x + 9*w/10 + 10, y), Pos2i(w/10, h), str(initdist))
     ui.initdistScroll.setMax(2 * ROWS - 3)

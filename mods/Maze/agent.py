@@ -239,11 +239,14 @@ class SearchAgent(AgentBrain):
         """
         # retrace the path
         node = (ROWS - 1, COLS - 1)
+        #print "starting with node (%s, %s)" % node
         while node in self.backpointers:
+            #print "Marked white."
             self.mark_path(node[0], node[1])
             next_node = self.backpointers[node]
-            del self.backpointers[node]
+            #del self.backpointers[node]
             node = next_node
+            #print "Moving to next node: (%s, %s)" % node
             if node == self.starting_pos:
                 break
 
@@ -278,36 +281,37 @@ class DFSSearchAgent(SearchAgent):
     def dfs_action(self, observations):
         r = observations[0]
         c = observations[1]
+        current_cell = (r, c)
         # if we have not been here before, build a list of other places we can go
-        if (r, c) not in self.visited:
+        if current_cell not in self.visited:
             tovisit = []
             for m, (dr, dc) in enumerate(MAZE_MOVES):
                 r2, c2 = r + dr, c + dc
                 if not observations[2 + m]: # can we go that way?
                     if (r2, c2) not in self.visited:
                         tovisit.append((r2, c2))
-                        self.parents[(r2,c2)] = (r,c)
+                        self.parents[(r2, c2)] = current_cell
             # remember the cells that are adjacent to this one
-            self.adjlist[(r, c)] = tovisit
+            self.adjlist[current_cell] = tovisit
         # if we have been here before, check if we have other places to visit
-        adjlist = self.adjlist[(r, c)]
+        adjlist = self.adjlist[current_cell]
         k = 0
         while k < len(adjlist) and adjlist[k] in self.visited:
             k += 1
         # if we don't have other neighbors to visit, back up
         if k == len(adjlist):
-            next_cell = self.parents[(r, c)]
+            next_cell = self.parents[current_cell]
         else: # otherwise visit the next place
             next_cell = adjlist[k]
-        self.visited.add((r, c)) # add this location to visited list
-        if (r, c) != self.starting_pos:
+        self.visited.add(current_cell) # add this location to visited list
+        if current_cell != self.starting_pos:
             get_environment().mark_maze_blue(r, c) # mark it as blue on the maze
         v = self.constraints.get_instance() # make the action vector to return
         dr, dc = next_cell[0] - r, next_cell[1] - c # the move we want to make
         v[0] = get_action_index((dr, dc))
         # remember how to get back
-        if (r + dr, c + dc) not in self.backpointers:
-            self.backpointers[(r + dr, c + dc)] = (r, c)
+        if next_cell not in self.backpointers:
+            self.backpointers[next_cell] = current_cell
         return v
 
     def initialize(self, init_info):
