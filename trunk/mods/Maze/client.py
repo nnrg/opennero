@@ -26,7 +26,7 @@ def CreateGui(guiMan, mode):
     control_height = 30  # height
 
     # AGENT SELECTION BOX
-    x, y = 5, 4 * control_height + 5
+    x, y = 5, 2 * control_height + 5
     w, h = window_width - 15, control_height - 10
     ui.agentBoxLabel = gui.create_text(guiMan, 'agentLabel', Pos2i(x,y), Pos2i(3*w/10,h), 'Agent Type:')
     ui.agentComboBox = gui.create_combo_box(guiMan, "agentComboBox", Pos2i(x + 5 + 3*w/10, y), Pos2i(7*w/10, h))
@@ -37,10 +37,10 @@ def CreateGui(guiMan, mode):
             ui.agentComboBox.addItem(agent_name)
 
     # EXPLORE/EXPLOIT TRADE-OFF SLIDER
-    x, y = 5, 0 * control_height + 5
+    x, y = 5, 5 * control_height + 5
     w, h = window_width - 20, control_height - 5
     epsilon_percent = int(INITIAL_EPSILON * 100)
-    ui.epsilonLabel = gui.create_text(guiMan, 'epsilonLabel', Pos2i(x, y), Pos2i(3*w/10, h), 'Exploit-Explore:')
+    ui.epsilonLabel = gui.create_text(guiMan, 'epsilonLabel', Pos2i(x, y), Pos2i(3*w/10, h), 'Explore-Exploit:')
     ui.epsilonScroll = gui.create_scroll_bar(guiMan, 'epsilonScroll', Pos2i(x + 3*w/10 + 5, y), Pos2i(6*w/10, h - 5), True)
     ui.epsilonValue = gui.create_text(guiMan, 'epsilonEditBox', Pos2i(x + 9*w/10 + 10, y), Pos2i(w/10, h), str(epsilon_percent))
     ui.epsilonScroll.setMax(100)
@@ -54,8 +54,30 @@ def CreateGui(guiMan, mode):
     getMod().set_epsilon(INITIAL_EPSILON)
     ui.epsilonScroll.OnScrollBarChange = epsilon_adjusted(ui)
 
+    # INITIAL DISTANCE SLIDER
+    x, y = 5, 4 * control_height + 5
+    w, h = window_width - 20, control_height - 5
+    initdist = INITIAL_DIST
+    ui.initdistLabel = gui.create_text(guiMan, 'initdistLabel', Pos2i(x, y), Pos2i(3*w/10, h), 'Initial Distance:')
+    ui.initdistScroll = gui.create_scroll_bar(guiMan, 'initdistScroll', Pos2i(x + 3*w/10 + 5, y), Pos2i(6*w/10, h - 5), True)
+    ui.initdistValue = gui.create_text(guiMan, 'initdistEditBox', Pos2i(x + 9*w/10 + 10, y), Pos2i(w/10, h), str(initdist))
+    ui.initdistScroll.setMax(2 * ROWS - 3)
+    ui.initdistScroll.setLargeStep(2)
+    ui.initdistScroll.setSmallStep(1)
+    ui.initdistScroll.setPos(initdist)
+#    ui.initdistScroll.enabled = False
+#    ui.initdistValue.visible = False
+#    ui.initdistLabel.visible = False
+#    ui.initdistScroll.visible = False
+    ui.initdistScroll.enabled = True 
+    ui.initdistValue.visible = True
+    ui.initdistLabel.visible = True
+    ui.initdistScroll.visible = True
+    getMod().set_initdist(INITIAL_DIST)
+    ui.initdistScroll.OnScrollBarChange = initdist_adjusted(ui)
+
     # START/RESET AND PAUSE/CONTINUE AGENT BUTTONS
-    x, y = 5, 3 * control_height
+    x, y = 5, 1 * control_height + 5
     w, h = (window_width - 15) / 2, control_height - 5
     ui.startAgentButton = gui.create_button(guiMan, 'startAgentButton', Pos2i(x, y), Pos2i(w, h), '')
     ui.pauseAgentButton = gui.create_button(guiMan, 'pauseAgentButton', Pos2i(x + w + 5, y), Pos2i(w, h), '')
@@ -67,7 +89,7 @@ def CreateGui(guiMan, mode):
 
     # HELP BUTTON
     w, h = (window_width - 20) / 3, control_height - 5
-    x, y = 5, 2 * control_height
+    x, y = 5, 0 * control_height + 5
     ui.helpButton = gui.create_button(guiMan, 'helpButton', Pos2i(x, y), Pos2i(w, h), '')
     ui.helpButton.text = 'Help'
     ui.helpButton.OnMouseLeftClick = openWiki('MazeMod')
@@ -85,7 +107,7 @@ def CreateGui(guiMan, mode):
     ui.exitButton.OnMouseLeftClick = lambda: switchToHub()
 
     # SPEEDUP SLIDER
-    x, y = 5, 1 * control_height
+    x, y = 5, 3 * control_height + 5
     w, h = window_width - 20, control_height - 5
     ui.speedupLabel = gui.create_text(guiMan, 'speedupLabel', Pos2i(x, y), Pos2i(3*w/10, h), 'Speedup:')
     ui.speedupScroll = gui.create_scroll_bar(guiMan, 'speedupScroll', Pos2i(x + 5 + 3*w/10, y), Pos2i(3*w/5, h-5), True)
@@ -98,7 +120,7 @@ def CreateGui(guiMan, mode):
     ui.speedupScroll.OnScrollBarChange = speedup_adjusted(ui)
 
     # THE WINDOW THAT HOLDS ALL THE CONTROLS ABOVE
-    ui.agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(10, 10), Pos2i(window_width, 5*control_height+25), 'Agent')
+    ui.agentWindow = gui.create_window(guiMan, 'agentWindow', Pos2i(10, 10), Pos2i(window_width, 6*control_height+30), 'Agent')
     ui.agentWindow.addChild(ui.agentBoxLabel)
     ui.agentWindow.addChild(ui.agentComboBox)
     ui.agentWindow.addChild(ui.newMazeButton)
@@ -109,6 +131,9 @@ def CreateGui(guiMan, mode):
     ui.agentWindow.addChild(ui.epsilonLabel)
     ui.agentWindow.addChild(ui.epsilonScroll)
     ui.agentWindow.addChild(ui.epsilonValue)
+    ui.agentWindow.addChild(ui.initdistLabel)
+    ui.agentWindow.addChild(ui.initdistScroll)
+    ui.agentWindow.addChild(ui.initdistValue)
     ui.agentWindow.addChild(ui.speedupLabel)
     ui.agentWindow.addChild(ui.speedupScroll)
     ui.agentWindow.addChild(ui.speedupValue)
@@ -121,6 +146,16 @@ def epsilon_adjusted(ui):
         """called whenever the epsilon slider is adjusted"""
         ui.epsilonValue.text = str(ui.epsilonScroll.getPos())
         getMod().set_epsilon(float(ui.epsilonScroll.getPos())/100)
+    return closure
+
+def initdist_adjusted(ui):
+    """ generate a closure that will be called whenever the initdist slider is adjusted """
+    ui.initdistValue.text = str(ui.initdistScroll.getPos())
+    getMod().set_initdist(ui.initdistScroll.getPos())
+    def closure():
+        """called whenever the initdist slider is adjusted"""
+        ui.initdistValue.text = str(ui.initdistScroll.getPos())
+        getMod().set_initdist(ui.initdistScroll.getPos())
     return closure
 
 def speedup_adjusted(ui):
@@ -145,6 +180,10 @@ def startAgent(ui):
                 ui.epsilonValue.visible = True
                 ui.epsilonLabel.visible = True
                 ui.epsilonScroll.visible = True
+#                ui.initdistScroll.enabled = True
+#                ui.initdistValue.visible = True
+#                ui.initdistLabel.visible = True
+#                ui.initdistScroll.visible = True
             print 'Starting', agent_name
             agent_function()
             ui.pauseAgentButton.text = 'Pause'
@@ -158,6 +197,10 @@ def startAgent(ui):
             ui.epsilonValue.visible = False
             ui.epsilonLabel.visible = False
             ui.epsilonScroll.visible = False
+#            ui.initdistScroll.enabled = False
+#            ui.initdistValue.visible = False
+#            ui.initdistLabel.visible = False
+#            ui.initdistScroll.visible = False
             get_environment().cleanup()
             ui.startAgentButton.text = 'Start'
             ui.pauseAgentButton.text = 'Pause'

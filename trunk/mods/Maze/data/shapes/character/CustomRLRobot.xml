@@ -8,6 +8,6 @@
     <Scale>0.4 0.4 0.4</Scale>
   </Render>
   <AI>
-    <Python agent="Maze.agent.CustomRLAgent(0.8, 0.8, 0.1)" />
+    <Python agent="Maze.agent.CustomRLAgent(0.96, 0.8, 0.1)" />
   </AI>
 </Template>

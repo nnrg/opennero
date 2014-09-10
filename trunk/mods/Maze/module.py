@@ -3,15 +3,16 @@ from OpenNero import *
 from common import *
 from constants import *
 from mazer import Maze
-from Maze.environment import MazeEnvironment, EgocentricMazeEnvironment
+from Maze.environment import MazeEnvironment, EgocentricMazeEnvironment, GranularMazeEnvironment
 from Maze.agent import FirstPersonAgent
 
 class MazeMod:
     # initializer
     def __init__(self):
         print 'Creating MazeMod'
-        self.epsilon = 0.5
-        self.speedup = 0.0
+        self.epsilon = INITIAL_EPSILON
+        self.speedup = 0
+        self.initdist = INITIAL_EPSILON
         self.environment = None
         self.agent_id = None # the ID of the agent
         self.wall_ids = [] # walls on the map
@@ -71,12 +72,15 @@ class MazeMod:
         # goal (red cube)
         self.wall_ids.append(addObject("data/shapes/cube/RedCube.xml", Vector3f(ROWS * GRID_DX, COLS * GRID_DY, 5), Vector3f(45,45,45)))
 
-    def set_environment(self,env):
+    def set_environment(self, env):
+        print "set_environment()... setting speedup, epsilon, initdist to %s, %s, %s" % (self.speedup, self.epsilon, self.initdist)
         self.environment = env
         self.environment.epsilon = self.epsilon
+        self.environment.initdist = self.initdist
         self.environment.speedup = self.speedup
+        self.environment.generate_init_pos()
         self.delete_maze_objects()
-        set_environment(env)
+        set_environment(self.environment)
         self.add_maze_objects()
 
     def reset_maze(self):
@@ -85,6 +89,7 @@ class MazeMod:
         if self.agent_id is not None:
             removeObject(self.agent_id)
         self.agent_id = None
+        self.environment.generate_init_pos()
         reset_ai()
 
     def stop_maze(self):
@@ -94,13 +99,17 @@ class MazeMod:
         self.agent_id = None
         disable_ai()
 
-    def start_agent(self, xml, env_class):
+    def start_agent(self, xml, env_class, init_height = 0):
         """ start an agent """
         disable_ai()
         self.reset_maze()
         if self.environment.__class__.__name__ != env_class.__name__:
             self.set_environment(env_class())
-        self.agent_id = addObject(xml, Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
+        #self.agent_id = addObject(xml, Vector3f(GRID_DX, GRID_DY, 0), type=AGENT_MASK )
+        self.environment.generate_init_pos()
+        (r, c) = self.environment.init_pos
+        (x, y) = self.environment.maze.rc2xy(r, c)
+        self.agent_id = addObject(xml, Vector3f(x, y, init_height), type=AGENT_MASK )
         enable_ai()
 
     def start_dfs(self):
@@ -123,23 +132,33 @@ class MazeMod:
         """ start the A* search demo with teleporting agents and a front marked by moving agents """
         self.start_agent("data/shapes/character/SydneyAStar3.xml", MazeEnvironment)
 
-    def start_fps(self, env_class = EgocentricMazeEnvironment):
+#    def start_fps(self, env_class = EgocentricMazeEnvironment):
+#        """ start the FPS navigation demo """
+#        disable_ai()
+#        self.reset_maze()
+#        #if self.environment.__class__.__name__ != env_class.__name__:
+#        self.set_environment(env_class())
+#        self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+#        enable_ai()
+#
+#    def start_fps_granular(self):
+#        """ start the FPS navigation demo with a more continous environment """
+#        disable_ai()
+#        self.reset_maze()
+#        #if self.environment.__class__.__name__ != EgocentricMazeEnvironment.__name__:
+#        self.set_environment(EgocentricMazeEnvironment(granularity=8))
+#        self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
+#        enable_ai()
+
+    def start_fps(self):
         """ start the FPS navigation demo """
-        disable_ai()
-        self.reset_maze()
-        #if self.environment.__class__.__name__ != env_class.__name__:
-        self.set_environment(env_class())
-        self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
-        enable_ai()
+        self.set_environment(EgocentricMazeEnvironment())
+        self.start_agent("data/shapes/character/SydneyFPS.xml", EgocentricMazeEnvironment, 2)
 
     def start_fps_granular(self):
         """ start the FPS navigation demo with a more continous environment """
-        disable_ai()
-        self.reset_maze()
-        #if self.environment.__class__.__name__ != EgocentricMazeEnvironment.__name__:
         self.set_environment(EgocentricMazeEnvironment(granularity=8))
-        self.agent_id = addObject("data/shapes/character/SydneyFPS.xml", Vector3f(GRID_DX, GRID_DY, 2), type=AGENT_MASK )
-        enable_ai()
+        self.start_agent("data/shapes/character/SydneyFPS.xml", EgocentricMazeEnvironment, 2)
 
     def start_random(self, env_class = MazeEnvironment):
         """ start the random baseline demo """
@@ -165,6 +184,12 @@ class MazeMod:
         print 'Epsilon set to', self.epsilon
         if self.environment:
             self.environment.epsilon = epsilon
+
+    def set_initdist(self, initdist):
+        self.initdist = initdist
+        print 'Initial distance set to', self.initdist
+        if self.environment:
+            self.environment.initdist = initdist
 
     def set_speedup(self, speedup):
         self.speedup = speedup
