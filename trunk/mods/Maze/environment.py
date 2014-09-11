@@ -81,6 +81,7 @@ class MazeEnvironment(Environment):
         self.agent_map = {} # agents active on the map
         self.agents_at_goal = set() # the set of agents that have reached the goal
         self.handles = {} # handes for the objects used to draw q-values
+        self.prepare_for_new_episode = False
         self.initdist = 0
         self.generate_init_pos()
         print 'Initialized MazeEnvironment'
@@ -126,7 +127,10 @@ class MazeEnvironment(Environment):
         """
         print 'Episode %d complete' % agent.episode
 
-        (r, c) = self.generate_init_pos()
+        if not self.prepare_for_new_episode:
+            self.generate_init_pos()
+        self.prepare_for_new_episode = False
+        (r, c) = self.init_pos
         (x, y) = MazeEnvironment.maze.rc2xy(r, c)
         pos = Vector3f(x, y, 0)
         agent.state.position = pos
@@ -287,6 +291,7 @@ class MazeEnvironment(Environment):
         elif r == ROWS-1 and c == COLS-1:
             if hasattr(agent, "highlight_path"):
                 disable_ai() # stop running
+                self.prepare_for_new_episode = True
                 agent.highlight_path() # mark the final path
                 self.set_animation(agent, 'stand') # stop animation
             return True
@@ -459,7 +464,10 @@ class EgocentricMazeEnvironment(MazeEnvironment):
         """
         print 'Episode %d complete' % agent.episode
 
-        (r, c) = self.generate_init_pos()
+        if not self.prepare_for_new_episode:
+            self.generate_init_pos()
+        self.prepare_for_new_episode = False
+        (r, c) = self.init_pos
         (x, y) = MazeEnvironment.maze.rc2xy(r, c)
         agent.state.position = Vector3f(x,y,0)
         agent.state.rotation = Vector3f(0,0,0)
@@ -629,7 +637,10 @@ class GranularMazeEnvironment(MazeEnvironment):
         """
         print 'Episode %d complete' % agent.episode
 
-        (r, c) = self.generate_init_pos()
+        if not self.prepare_for_new_episode:
+            self.generate_init_pos()
+        self.prepare_for_new_episode = False
+        (r, c) = self.init_pos
         (x, y) = MazeEnvironment.maze.rc2xy(r, c)
         agent.state.position = Vector3f(x,y,0)
         agent.state.rotation = Vector3f(0,0,0)
