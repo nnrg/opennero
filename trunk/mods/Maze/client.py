@@ -55,7 +55,7 @@ def CreateGui(guiMan, mode):
     ui.epsilonScroll.OnScrollBarChange = epsilon_adjusted(ui)
 
     # INITIAL DISTANCE SLIDER
-    x, y = 5, 4 * control_height + 5
+    x, y = 5, 3 * control_height + 5
     w, h = window_width - 20, control_height - 5
     initdist = INITIAL_DIST
     ui.initdistLabel = gui.create_text(guiMan, 'initdistLabel', Pos2i(x, y), Pos2i(3*w/10, h), 'Starting Offset:')
@@ -107,7 +107,7 @@ def CreateGui(guiMan, mode):
     ui.exitButton.OnMouseLeftClick = lambda: switchToHub()
 
     # SPEEDUP SLIDER
-    x, y = 5, 3 * control_height + 5
+    x, y = 5, 4 * control_height + 5
     w, h = window_width - 20, control_height - 5
     ui.speedupLabel = gui.create_text(guiMan, 'speedupLabel', Pos2i(x, y), Pos2i(3*w/10, h), 'Speedup:')
     ui.speedupScroll = gui.create_scroll_bar(guiMan, 'speedupScroll', Pos2i(x + 5 + 3*w/10, y), Pos2i(3*w/5, h-5), True)
