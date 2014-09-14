@@ -388,10 +388,10 @@ class GenericSearchAlgorithm(SearchAgent):
             back2.append((r, c))
         return self.backpointers[(r1, c1)]
 
-    def enque(self, cell):
+    def enqueue(self, cell):
         self.queue.append(cell)
 
-    def deque(self):
+    def dequeue(self):
         return self.queue.pop(0)
 
     def get_action(self, r, c, observations):
@@ -403,7 +403,7 @@ class GenericSearchAlgorithm(SearchAgent):
          - The next step for the agent to take
         """
         if not self.goal: # first, figure out where we are trying to go
-            (r2, c2) = self.deque()
+            (r2, c2) = self.dequeue()
             self.mark_target(r2,c2)
             self.goal = (r2, c2)
         # then, check if we can get there
@@ -445,12 +445,12 @@ class GenericSearchAlgorithm(SearchAgent):
                     assert self.backpointers.get((row, col)) != (r2, c2)
                     self.backpointers[(r2, c2)] = row, col # remember where we (would) come from
                     self.enqueued.add((r2, c2))
-                    self.enque((r2, c2))
+                    self.enqueue((r2, c2))
 
     def start(self, time, observations):
         """
         Choose initial action after receiving the first sensor vector.
-        For the manual A* search, we enqueue the neighboring nodes and move to one of them.
+        For the manual A* search, we enqueueue the neighboring nodes and move to one of them.
         """
         # interpret the observations
         row = observations[0]
@@ -466,7 +466,7 @@ class GenericSearchAlgorithm(SearchAgent):
     def act(self, time, observations, reward):
         """
         Choose an action after receiving the current sensor vector and the instantaneous reward from the previous time step.
-        For the manual A* search, we deque our next node and check if we can go there. If we can, we do, and mark the node visited.
+        For the manual A* search, we dequeue our next node and check if we can go there. If we can, we do, and mark the node visited.
         If we cannot, we have to follow the path to the goal.
         """
         # interpret the observations
@@ -510,10 +510,10 @@ class BFSSearchAgent(GenericSearchAlgorithm):
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
         GenericSearchAlgorithm.__init__(self)
 
-    def enque(self, cell):
+    def enqueue(self, cell):
         self.queue.append(cell)
 
-    def deque(self):
+    def dequeue(self):
         return self.queue.pop(0)
 
     def get_action(self, r, c, observations):
@@ -521,7 +521,7 @@ class BFSSearchAgent(GenericSearchAlgorithm):
         we override the get_action method so that we can spawn marker agents and teleport
         """
         if not self.goal: # first, figure out where we are trying to go
-            (r2,c2) = self.deque()
+            (r2,c2) = self.dequeue()
             get_environment().unmark_maze_agent(r2,c2)
             get_environment().mark_maze_yellow(r2,c2)
             self.goal = (r2, c2)
@@ -561,14 +561,14 @@ class AStarSearchAgent(GenericSearchAlgorithm):
         # minimize the Manhattan distance
         self.heuristic = manhattan_heuristic
 
-    def enque(self, cell):
+    def enqueue(self, cell):
         (r, c) = cell
         d = self.get_distance(r, c)
         h = self.heuristic(r, c)
         print "Queuing cell (%s, %s), d = %s, h = %s" % (r, c, d, h)
         heappush(self.queue, Cell(d + h, r, c))
 
-    def deque(self):
+    def dequeue(self):
         cell = heappop(self.queue)
         h, r, c = cell.h, cell.r, cell.c
         return (r, c)
@@ -582,7 +582,7 @@ class FrontAStarSearchAgent(AStarSearchAgent):
         we override the get_action method so that we can teleport from place to place
         """
         if not self.goal: # first, figure out where we are trying to go
-            (r2, c2) = self.deque()
+            (r2, c2) = self.dequeue()
             get_environment().unmark_maze_agent(r2, c2)
             get_environment().mark_maze_yellow(r2, c2)
             self.goal = (r2, c2)
@@ -609,7 +609,7 @@ class CloningAStarSearchAgent(FrontAStarSearchAgent):
         we override the get_action method so that we can spawn marker agents and teleport
         """
         if not self.goal: # first, figure out where we are trying to go
-            (r2, c2) = self.deque()
+            (r2, c2) = self.dequeue()
             get_environment().unmark_maze_agent(r2, c2)
             get_environment().mark_maze_yellow(r2, c2)
             self.goal = (r2, c2)
