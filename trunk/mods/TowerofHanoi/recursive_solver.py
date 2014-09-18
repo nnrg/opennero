@@ -95,7 +95,7 @@ class RecursiveSolver:
 
 def main():
     root = tk.Tk()
-    root.title('Problem Decomposition')
+    root.title('Problem Reduction')
     viewer = TreeViewer(root)
     solver = RecursiveSolver(viewer)
     worker = threading.Thread(target=solver.solve)

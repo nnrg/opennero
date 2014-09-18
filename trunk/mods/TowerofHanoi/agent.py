@@ -1,9 +1,9 @@
 from OpenNero import *
 from common import *
-import BlocksHanoi
+import TowerofHanoi
 import random
-from BlocksHanoi.environment import TowerEnvironment
-from BlocksHanoi.constants import *
+from TowerofHanoi.environment import TowerEnvironment
+from TowerofHanoi.constants import *
 from copy import copy
 
 ###
@@ -77,7 +77,7 @@ class TowerAgentProblemReduction(AgentBrain):
         """ show planner internals by running it externally """
         import subprocess
         # solve for show (user can click through)
-        subproc = subprocess.Popen(['python', 'BlocksHanoi/recursive_solver.py'], stdout=subprocess.PIPE)
+        subproc = subprocess.Popen(['python', 'TowerofHanoi/recursive_solver.py'], stdout=subprocess.PIPE)
         plan = ''
         while True:
             try:
@@ -150,7 +150,7 @@ class TowerAgentStateSpaceSearch(AgentBrain):
         import subprocess
 
         # solve for show (user can click through)
-        subproc = subprocess.Popen(['python', 'BlocksHanoi/state_space_search.py'], stdout=subprocess.PIPE)
+        subproc = subprocess.Popen(['python', 'TowerofHanoi/state_space_search.py'], stdout=subprocess.PIPE)
         plan = ''
         while True:
             try:
@@ -234,7 +234,7 @@ class TowerAgentStrips2Disk(AgentBrain):#2-Disk Strips Planner
     def generate_action_list(self):
         import subprocess
         # solve for show (user can click through)
-        subproc = subprocess.Popen(['python', 'BlocksHanoi/strips.py', 'BlocksHanoi/towers2_strips.txt'], stdout=subprocess.PIPE)
+        subproc = subprocess.Popen(['python', 'TowerofHanoi/strips.py', 'TowerofHanoi/towers2_strips.txt'], stdout=subprocess.PIPE)
         
         plan = ''
         while True:
@@ -331,7 +331,7 @@ class TowerAgentStrips3Disk(AgentBrain):#3-Disk Strips Planner
     def generate_action_list(self):
         import subprocess
         # solve for show (user can click through)
-        subproc = subprocess.Popen(['python', 'BlocksHanoi/strips.py', 'BlocksHanoi/towers3_strips.txt'], stdout=subprocess.PIPE)
+        subproc = subprocess.Popen(['python', 'TowerofHanoi/strips.py', 'TowerofHanoi/towers3_strips.txt'], stdout=subprocess.PIPE)
         plan = ''
         while True:
             try:
@@ -461,7 +461,7 @@ class TowerAgentNLP(AgentBrain):
     def generate_action_list(self):
         import subprocess
         # solve for show (user can click through)
-        subproc = subprocess.Popen(['python', 'BlocksHanoi/text_interface.py'], stdout=subprocess.PIPE)
+        subproc = subprocess.Popen(['python', 'TowerofHanoi/text_interface.py'], stdout=subprocess.PIPE)
         plan = ''
         while True:
             try:

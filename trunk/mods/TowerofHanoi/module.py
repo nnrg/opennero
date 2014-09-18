@@ -1,10 +1,10 @@
 import OpenNero
 import common
-import BlocksHanoi
-import BlocksHanoi.agent
-import BlocksHanoi.constants as constants
-from BlocksHanoi.constants import *
-from BlocksHanoi.environment import TowerEnvironment
+import TowerofHanoi
+import TowerofHanoi.agent
+import TowerofHanoi.constants as constants
+from TowerofHanoi.constants import *
+from TowerofHanoi.environment import TowerEnvironment
 
 class TowerMod:
     # initializer
