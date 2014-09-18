@@ -5,8 +5,8 @@
 
 == Download a Binary ==
 
-  * 64-bit Binary: [http://www.cs.utexas.edu/~reza/opennero/OpenNERO-2014-09-10-x86_64.tar.gz OpenNERO from 2014-09-10 compiled on Ubuntu 12.04.5 LTS for Intel x86_64]
-  * 32-bit Binary: [http://www.cs.utexas.edu/~reza/opennero/OpenNERO-2014-09-10-i386.tar.gz OpenNERO from 2014-09-10 compiled on Ubuntu 12.04.5 LTS for Intel i386]
+  * 64-bit Binary: [http://www.cs.utexas.edu/~reza/opennero/OpenNERO-2014-09-17-x86_64.tar.gz OpenNERO from 2014-09-17 compiled on Ubuntu 12.04.5 LTS for Intel x86_64]
+  * 32-bit Binary: [http://www.cs.utexas.edu/~reza/opennero/OpenNERO-2014-09-17-i386.tar.gz OpenNERO from 2014-09-17 compiled on Ubuntu 12.04.5 LTS for Intel i386]
 
 == Install Required Packages ==
 
