@@ -11,7 +11,7 @@
      * [BuildingOpenNeroOSX Mac OS X]
  * [RunningOpenNero Run OpenNERO]
    * [MazeMod The Maze mod]
-   * [BlocksWorldMod Blocks World mod]
+   * [BlocksWorldMod Tower of Hanoi mod]
    * [RoombaMod The Roomba mod]
    * [NeroMod NERO Machine Learning Game]
    * [RunningOpenNeroHeadless Running Headless]
