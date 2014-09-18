@@ -24,16 +24,16 @@ SPECIAL_MOD_NAMES = ['TEMPLATE', 'common', 'hub', 'share']
 SPECIAL_MOD_PREFIX = '_'
 MOD_PATH = '.'
 SHARE_PATH = 'share'
-BUILTIN_MOD_IDS = ['Maze:Search', 'Maze:RL', 'BlocksTower:Planning', 'BlocksTower:NLP', 'Roomba', 'NERO', 'NERO_Battle']
+BUILTIN_MOD_IDS = ['Maze:Search', 'Maze:RL', 'TowerofHanoi:Planning', 'TowerofHanoi:NLP', 'Roomba', 'NERO', 'NERO_Battle']
 MOD_TITLES = {'Maze:Search': 'Search',
               'Maze:RL': 'Reinforcement Learning',
-              'BlocksTower:Planning': 'Planning',
-              'BlocksTower:NLP': 'Natural Language Processing',
+              'TowerofHanoi:Planning': 'Planning',
+              'TowerofHanoi:NLP': 'Natural Language Processing',
               'Roomba': 'Neuroevolution',
               'NERO': 'Multi-agent Systems Training',
               'NERO_Battle': 'Multi-agent Systems Battle'}
 
-MOD_DEPS = {'Hw1':'Maze', 'Hw2':'BlocksTower', 'Hw3':'Maze', 'Hw4':'BlocksTower'}
+MOD_DEPS = {'Hw1':'Maze', 'Hw2':'TowerofHanoi', 'Hw3':'Maze', 'Hw4':'TowerofHanoi'}
 
 #MOD_IDS_OF_TITLES = dict((v, k) for k, v in MOD_TITLES.iteritems())
 
@@ -125,7 +125,7 @@ def list_mods():
     " list all available mods "
     mod_ids = []
     mod_names = []
-    # first list Maze, NERO, BlocksTower and Roomba in order
+    # first list Maze, NERO, TowerofHanoi and Roomba in order
     for mod_id in BUILTIN_MOD_IDS:
         mod_name = extract_mod_name(mod_id)
         if mod_exists(mod_name) and not is_special(mod_name):
