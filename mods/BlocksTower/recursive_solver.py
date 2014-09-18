@@ -3,7 +3,7 @@ import Tkinter as tk
 import threading
 import time
 
-NUM_TOWERS = 3
+NUM_DISKS = 3
 
 Pole1 = '1'
 Pole2 = '2'
@@ -21,7 +21,7 @@ END_QUEUE = [0,0,0,5,5,1]
 
 class RecursiveSolver:
     def __init__(self, viewer):
-        self.num_towers = NUM_TOWERS
+        self.num_disks = NUM_DISKS
         self.viewer = viewer
 
     def move(self, frm, to):
@@ -29,7 +29,7 @@ class RecursiveSolver:
 
     def dohanoi(self, n, to, frm, using):
         if n == 0: return []
-        level = self.num_towers - n
+        level = self.num_disks - n
         prefix = ''.join(['\t' for i in range(level)])
         self.viewer.display_text(prefix + "At level {0} goal is to move {1} disks from pole {2} to pole {3}".format(level, n, frm, to))
         self.viewer.user_pause('')
@@ -83,11 +83,11 @@ class RecursiveSolver:
             continue
 
     def queue_init(self):
-        self.viewer.add_item_viewer("Goal", ['Move %s disks from %s to %s' % (self.num_towers, Pole1, Pole3)], -1, [])
+        self.viewer.add_item_viewer("Goal", ['Move %s disks from %s to %s' % (self.num_disks, Pole1, Pole3)], -1, [])
         self.viewer.display_text('Starting to Solve!')
         self.viewer.user_pause('')
         self.viewer.set_active_index(0, 0)
-        actions = self.dohanoi(self.num_towers, Pole3, Pole1, Pole2)
+        actions = self.dohanoi(self.num_disks, Pole3, Pole1, Pole2)
         self.viewer.add_completed_index(0, 0)
         self.viewer.display_text('Problem Solved! Please click Execute Plan or close the window to continue!')
         self.viewer.user_pause('')

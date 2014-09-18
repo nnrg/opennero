@@ -49,12 +49,12 @@ class TowerMod:
         common.addObject("data/shapes/cube/WhiteCube.xml", OpenNero.Vector3f(2 * constants.GRID_DX, 2 * constants.GRID_DY, 0 * constants.GRID_DZ), OpenNero.Vector3f(0,0,0), scale=OpenNero.Vector3f(.25,.25,4))
         common.addObject("data/shapes/cube/WhiteCube.xml", OpenNero.Vector3f(3 * constants.GRID_DX, 2 * constants.GRID_DY, 0 * constants.GRID_DZ), OpenNero.Vector3f(0,0,0), scale=OpenNero.Vector3f(.25,.25,4))
 
-    def num_towers(self):
-        return num_towers
+    def get_num_disks(self):
+        return num_disks
 
     def start_tower1(self): #Problem reduction
         """ start the tower demo """
-        self.num_towers = 3
+        self.num_disks = 3
         OpenNero.disable_ai()
         self.stop_agent()
         env = TowerEnvironment()
@@ -65,7 +65,7 @@ class TowerMod:
 
     def start_tower2(self): #State-space search
         """ start the tower demo """
-        self.num_towers = 3
+        self.num_disks = 3
         OpenNero.disable_ai()
         self.stop_agent()
         env = TowerEnvironment()
@@ -77,7 +77,7 @@ class TowerMod:
 
     def start_tower3(self): #2 Disk Goal Stack Planner
         """ start the tower demo """
-        self.num_towers = 2
+        self.num_disks = 2
         OpenNero.disable_ai()
         self.stop_agent()
         env = TowerEnvironment()
@@ -89,7 +89,7 @@ class TowerMod:
         
     def start_tower4(self): #3 Disk Goal Stack Planner
         """ start the tower demo """
-        self.num_towers = 3
+        self.num_disks = 3
         OpenNero.disable_ai()
         self.stop_agent()
         env = TowerEnvironment()
@@ -101,7 +101,7 @@ class TowerMod:
         
     def start_tower5(self): #Natural Language Processing
         """ start the tower demo """
-        self.num_towers = 3
+        self.num_disks = 3
         OpenNero.disable_ai()
         self.stop_agent()
         env = TowerEnvironment()
