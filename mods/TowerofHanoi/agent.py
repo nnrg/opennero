@@ -18,8 +18,8 @@ from copy import copy
 #
 ###
 
-ACTIONS_BEGIN = [5]
-ACTIONS_BEGIN1 = [1,5]
+ACTIONS_TURN_LEFT_TO_BEGIN = [5]
+ACTIONS_TURN_LEFT_TO_BEGIN1 = [1,5]
 ACTIONS_AtoB = [5,1,4,3,4,1,5,2,]
 ACTIONS_BtoA = [3,5,1,4,2,4,1,5,]
 ACTIONS_AtoC = [5,1,4,3,4,1,1,5,2,5,1,4,]
@@ -28,7 +28,7 @@ ACTIONS_BtoC = [3,4,1,5,2,5,1,4,]
 ACTIONS_CtoB = [4,1,5,3,5,1,4,2,]
 ACTIONS_CELEBERATE = [0,0,0,5,5,1]
 
-class TowerAgent(AgentBrain):
+class TowerAgentProblemReduction(AgentBrain):
     """
     An agent designed to solve Tower of Hanoi using problem reduction
     """
@@ -60,7 +60,7 @@ class TowerAgent(AgentBrain):
         self.num_disks = getMod().num_disks
 
         #self.state.label = 'Starting to Solve!'
-        for a in ACTIONS_BEGIN1:
+        for a in ACTIONS_TURN_LEFT_TO_BEGIN1:
             yield a
         for a in self.dohanoi(self.num_disks, 'c', 'a', 'b'):
             yield a
@@ -126,13 +126,14 @@ class TowerAgent(AgentBrain):
         """
         return True
 
-class TowerAgent2(AgentBrain):
+class TowerAgentStateSpaceSearch(AgentBrain):
     """
     An agent designed to solve Tower of Hanoi using state space search
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-        self.action_queue = ACTIONS_BEGIN # rotate left to reset state first
+        #self.action_queue = []
+        #self.action_queue.extend(ACTIONS_TURN_LEFT_TO_BEGIN) # rotate left to reset state first
 
     def initialize(self,init_info):
         """
@@ -162,7 +163,8 @@ class TowerAgent2(AgentBrain):
                 plan += out
         # actually solve to get the plan of actions
         plan = state_space_search.solve(towers.INIT, towers.GOAL, towers.get_actions())
-        action_queue = ACTIONS_BEGIN 
+        action_queue = []
+        action_queue.extend(ACTIONS_TURN_LEFT_TO_BEGIN)
         state = copy(towers.INIT)
         at = towers.Pole1
         for (move, what, frm, to) in plan:
@@ -211,13 +213,14 @@ class TowerAgent2(AgentBrain):
         """
         return True
 
-class TowerAgent3(AgentBrain):#2-Disk Strips Planner
+class TowerAgentStrips2Disk(AgentBrain):#2-Disk Strips Planner
     """
     An agent that uses a STRIPS planner to solve the Tower of Hanoi problem for 2 disks
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-        self.action_queue = ACTIONS_BEGIN # rotate left to reset state first
+        #self.action_queue = []
+        #self.action_queue.extend(ACTIONS_TURN_LEFT_TO_BEGIN) # rotate left to reset state first
 
     def initialize(self,init_info):
         """
@@ -254,7 +257,8 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
         
         from towers import Towers2 as towers
         
-        action_queue = ACTIONS_BEGIN 
+        action_queue = []
+        action_queue.extend(ACTIONS_TURN_LEFT_TO_BEGIN)
         state = copy(towers.INIT)
         at = towers.Pole1
         for (what, frm, to) in hl_actions:
@@ -306,13 +310,14 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
         """
         return True
 
-class TowerAgent4(AgentBrain):#3-Disk Strips Planner 
+class TowerAgentStrips3Disk(AgentBrain):#3-Disk Strips Planner 
     """
     An agent that uses a STRIPS planner to solve the Tower of Hanoi problem for 3 disks
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-        self.action_queue = ACTIONS_BEGIN # rotate left to reset state first
+        #self.action_queue = []
+        #self.action_queue.extend(ACTIONS_TURN_LEFT_TO_BEGIN) # rotate left to reset state first
 
     def initialize(self,init_info):
         """
@@ -347,7 +352,8 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
         
         from towers import Towers3 as towers
         
-        action_queue = ACTIONS_BEGIN 
+        action_queue = []
+        action_queue.extend(ACTIONS_TURN_LEFT_TO_BEGIN)
         state = copy(towers.INIT)
         at = towers.Pole1
         for (what, frm, to) in hl_actions:
@@ -399,7 +405,7 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
         """
         return True
 
-class TowerAgent5(AgentBrain):
+class TowerAgentNLP(AgentBrain):
     """
     An NLP agent for the Tower of Hanoi problem 
     """

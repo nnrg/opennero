@@ -17,11 +17,11 @@ class TowerMod:
         self.agent_map = {} # agents active on the map
         self.wall_ids = [] # walls on the map
         self.AGENTS = [
-    ('Problem reduction', lambda: getMod().start_tower1(), MODE_PLANNING ),
-    ('State-space search', lambda: getMod().start_tower2(), MODE_PLANNING ),
-    ('Goal stacking - 2 Disks', lambda: getMod().start_tower3(), MODE_PLANNING ),
-    ('Goal stacking - 3 Disks', lambda: getMod().start_tower4(), MODE_PLANNING ),
-    ('Semantic Parser', lambda: getMod().start_tower5(), MODE_NLP ),
+    ('Problem reduction', lambda: getMod().start_agent_problem_reduction(), MODE_PLANNING ),
+    ('State-space search', lambda: getMod().start_agent_state_space_search(), MODE_PLANNING ),
+    ('Goal stacking - 2 Disks', lambda: getMod().start_agent_strips_2_disk(), MODE_PLANNING ),
+    ('Goal stacking - 3 Disks', lambda: getMod().start_agent_strips_3_disk(), MODE_PLANNING ),
+    ('Semantic Parser', lambda: getMod().start_agent_nlp(), MODE_NLP ),
 ]
 
     def __del__(self):
@@ -52,7 +52,7 @@ class TowerMod:
     def get_num_disks(self):
         return num_disks
 
-    def start_tower1(self): #Problem reduction
+    def start_agent_problem_reduction(self): #Problem reduction
         """ start the tower demo """
         self.num_disks = 3
         OpenNero.disable_ai()
@@ -63,7 +63,7 @@ class TowerMod:
         self.agent_id = common.addObject("data/shapes/character/BlocksRobot.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
         OpenNero.enable_ai()
 
-    def start_tower2(self): #State-space search
+    def start_agent_state_space_search(self): #State-space search
         """ start the tower demo """
         self.num_disks = 3
         OpenNero.disable_ai()
@@ -75,7 +75,7 @@ class TowerMod:
         self.agent_id = common.addObject("data/shapes/character/BlocksRobot2.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
         OpenNero.enable_ai()
 
-    def start_tower3(self): #2 Disk Goal Stack Planner
+    def start_agent_strips_2_disk(self): #2 Disk Goal Stack Planner
         """ start the tower demo """
         self.num_disks = 2
         OpenNero.disable_ai()
@@ -87,7 +87,7 @@ class TowerMod:
         self.agent_id = common.addObject("data/shapes/character/BlocksRobot3.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
         OpenNero.enable_ai()
         
-    def start_tower4(self): #3 Disk Goal Stack Planner
+    def start_agent_strips_3_disk(self): #3 Disk Goal Stack Planner
         """ start the tower demo """
         self.num_disks = 3
         OpenNero.disable_ai()
@@ -99,7 +99,7 @@ class TowerMod:
         self.agent_id = common.addObject("data/shapes/character/BlocksRobot4.xml", OpenNero.Vector3f(constants.GRID_DX, constants.GRID_DY, 2), type=constants.AGENT_MASK, scale=OpenNero.Vector3f(3,3,3))
         OpenNero.enable_ai()
         
-    def start_tower5(self): #Natural Language Processing
+    def start_agent_nlp(self): #Natural Language Processing
         """ start the tower demo """
         self.num_disks = 3
         OpenNero.disable_ai()
