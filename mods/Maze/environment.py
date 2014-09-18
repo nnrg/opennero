@@ -6,7 +6,6 @@ from mazer import Maze
 from constants import *
 from OpenNero import *
 from common import *
-from collections import deque
 from Maze.agent import MoveForwardAndStopAgent
 
 class MazeRewardStructure:
