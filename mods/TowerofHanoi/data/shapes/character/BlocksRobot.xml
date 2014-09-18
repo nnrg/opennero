@@ -9,6 +9,6 @@
     <Scale>0.2 0.2 0.2</Scale>
   </Render>
   <AI>
-    <Python agent="BlocksHanoi.agent.TowerAgentProblemReduction()" />
+    <Python agent="TowerofHanoi.agent.TowerAgentProblemReduction()" />
   </AI>
 </Template>

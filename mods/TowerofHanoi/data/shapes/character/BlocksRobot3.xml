@@ -9,6 +9,6 @@
     <Scale>0.2 0.2 0.2</Scale>
   </Render>
   <AI>
-    <Python agent="BlocksHanoi.agent.TowerAgentStrips2Disk()" />
+    <Python agent="TowerofHanoi.agent.TowerAgentStrips2Disk()" />
   </AI>
 </Template>
