@@ -55,7 +55,7 @@ class TowerAgentProblemReduction(AgentBrain):
         for a in self.dohanoi(n-1, to, using, frm):
             yield a
 
-    def action_queue_generator(self):
+    def action_list_generator(self):
         from module import getMod
         self.num_disks = getMod().num_disks
 
@@ -96,12 +96,12 @@ class TowerAgentProblemReduction(AgentBrain):
         return first action given the first observations
         """
         self.display_planner()
-        self.action_queue_gen = self.action_queue_generator()
-        return self.action_queue_gen.next()
+        self.action_list_gen = self.action_list_generator()
+        return self.action_list_gen.next()
 
     def reset(self):
-        self.display_planner()
-        self.action_queue_gen = self.action_queue_generator()
+        #self.display_planner()
+        #self.action_list_gen = self.action_list_generator()
         return True
 
     def act(self, time, sensors, reward):
@@ -109,7 +109,7 @@ class TowerAgentProblemReduction(AgentBrain):
         return an action given the reward for the previous action and the new observations
         """
         try:
-            return self.action_queue_gen.next()
+            return self.action_list_gen.next()
         except:
             return 1
 
@@ -132,8 +132,8 @@ class TowerAgentStateSpaceSearch(AgentBrain):
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-        #self.action_queue = []
-        #self.action_queue.extend(ACTIONS_TURN_LEFT_TO_BEGIN) # rotate left to reset state first
+        #self.action_list = []
+        #self.action_list.extend(ACTIONS_TURN_LEFT_TO_BEGIN) # rotate left to reset state first
 
     def initialize(self,init_info):
         """
@@ -144,7 +144,7 @@ class TowerAgentStateSpaceSearch(AgentBrain):
         self.action_info = init_info.actions
         return True
 
-    def get_action_queue(self):
+    def generate_action_list(self):
         import state_space_search
         from towers import Towers3 as towers
         import subprocess
@@ -163,8 +163,8 @@ class TowerAgentStateSpaceSearch(AgentBrain):
                 plan += out
         # actually solve to get the plan of actions
         plan = state_space_search.solve(towers.INIT, towers.GOAL, towers.get_actions())
-        action_queue = []
-        action_queue.extend(ACTIONS_TURN_LEFT_TO_BEGIN)
+        action_list = []
+        action_list.extend(ACTIONS_TURN_LEFT_TO_BEGIN)
         state = copy(towers.INIT)
         at = towers.Pole1
         for (move, what, frm, to) in plan:
@@ -172,28 +172,28 @@ class TowerAgentStateSpaceSearch(AgentBrain):
             to_pole = towers.get_pole(state, to)
             print what, frm, to, at, frm_pole, to_pole
             if at != frm_pole:
-                action_queue += towers.MOVES[(at, frm_pole)]
-            action_queue += towers.CARRY_MOVES[(frm_pole, to_pole)]
+                action_list += towers.MOVES[(at, frm_pole)]
+            action_list += towers.CARRY_MOVES[(frm_pole, to_pole)]
             move(state, what, frm, to)
             at = to_pole
 
-        action_queue.extend(ACTIONS_CELEBERATE)
-        return action_queue
+        action_list.extend(ACTIONS_CELEBERATE)
+        return action_list
 
     def start(self, time, observations):
         """
         return first action given the first observations
         """
-        self.action_queue = self.get_action_queue()
-        return self.action_queue.pop(0)
+        self.action_list = self.generate_action_list()
+        return self.action_list.pop(0)
 
     def act(self, time, observations, reward):
         """
         return an action given the reward for the previous
         action and the new observations
         """
-        if len(self.action_queue) > 0:
-            return self.action_queue.pop(0)
+        if len(self.action_list) > 0:
+            return self.action_list.pop(0)
         else:
             return 1
 
@@ -204,7 +204,7 @@ class TowerAgentStateSpaceSearch(AgentBrain):
         return True
 
     def reset(self):
-        self.action_queue = self.get_action_queue()
+        #self.action_list = self.generate_action_list()
         return True
 
     def destroy(self):
@@ -219,8 +219,8 @@ class TowerAgentStrips2Disk(AgentBrain):#2-Disk Strips Planner
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-        #self.action_queue = []
-        #self.action_queue.extend(ACTIONS_TURN_LEFT_TO_BEGIN) # rotate left to reset state first
+        #self.action_list = []
+        #self.action_list.extend(ACTIONS_TURN_LEFT_TO_BEGIN) # rotate left to reset state first
 
     def initialize(self,init_info):
         """
@@ -231,7 +231,7 @@ class TowerAgentStrips2Disk(AgentBrain):#2-Disk Strips Planner
         self.action_info = init_info.actions
         return True
 
-    def get_action_queue(self):
+    def generate_action_list(self):
         import subprocess
         # solve for show (user can click through)
         subproc = subprocess.Popen(['python', 'TowerofHanoi/strips.py', 'TowerofHanoi/towers2_strips.txt'], stdout=subprocess.PIPE)
@@ -257,8 +257,8 @@ class TowerAgentStrips2Disk(AgentBrain):#2-Disk Strips Planner
         
         from towers import Towers2 as towers
         
-        action_queue = []
-        action_queue.extend(ACTIONS_TURN_LEFT_TO_BEGIN)
+        action_list = []
+        action_list.extend(ACTIONS_TURN_LEFT_TO_BEGIN)
         state = copy(towers.INIT)
         at = towers.Pole1
         for (what, frm, to) in hl_actions:
@@ -266,21 +266,21 @@ class TowerAgentStrips2Disk(AgentBrain):#2-Disk Strips Planner
             to_pole = towers.get_pole(state, to)
             print what, frm, to, at, frm_pole, to_pole
             if at != frm_pole:
-                action_queue += towers.MOVES[(at, frm_pole)]
-            action_queue += towers.CARRY_MOVES[(frm_pole, to_pole)]
+                action_list += towers.MOVES[(at, frm_pole)]
+            action_list += towers.CARRY_MOVES[(frm_pole, to_pole)]
             towers.Move(state, what, frm, to)
             at = to_pole
 
-        action_queue.extend(ACTIONS_CELEBERATE)
-        return action_queue
+        action_list.extend(ACTIONS_CELEBERATE)
+        return action_list
 
     def start(self, time, observations):
         """
         return first action given the first observations
         """
-        self.action_queue = self.get_action_queue()
-        if len(self.action_queue) > 0:
-            return self.action_queue.pop(0)
+        self.action_list = self.generate_action_list()
+        if len(self.action_list) > 0:
+            return self.action_list.pop(0)
         else:
             return 0
 
@@ -289,8 +289,8 @@ class TowerAgentStrips2Disk(AgentBrain):#2-Disk Strips Planner
         return an action given the reward for the previous
         action and the new observations
         """
-        if len(self.action_queue) > 0:
-            return self.action_queue.pop(0)
+        if len(self.action_list) > 0:
+            return self.action_list.pop(0)
         else:
             return 1
 
@@ -301,7 +301,7 @@ class TowerAgentStrips2Disk(AgentBrain):#2-Disk Strips Planner
         return True
 
     def reset(self):
-        self.action_queue = self.get_action_queue()
+        #self.action_list = self.generate_action_list()
         return True
 
     def destroy(self):
@@ -316,8 +316,8 @@ class TowerAgentStrips3Disk(AgentBrain):#3-Disk Strips Planner
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
-        #self.action_queue = []
-        #self.action_queue.extend(ACTIONS_TURN_LEFT_TO_BEGIN) # rotate left to reset state first
+        #self.action_list = []
+        #self.action_list.extend(ACTIONS_TURN_LEFT_TO_BEGIN) # rotate left to reset state first
 
     def initialize(self,init_info):
         """
@@ -328,7 +328,7 @@ class TowerAgentStrips3Disk(AgentBrain):#3-Disk Strips Planner
         self.action_info = init_info.actions
         return True
 
-    def get_action_queue(self):
+    def generate_action_list(self):
         import subprocess
         # solve for show (user can click through)
         subproc = subprocess.Popen(['python', 'TowerofHanoi/strips.py', 'TowerofHanoi/towers3_strips.txt'], stdout=subprocess.PIPE)
@@ -352,8 +352,8 @@ class TowerAgentStrips3Disk(AgentBrain):#3-Disk Strips Planner
         
         from towers import Towers3 as towers
         
-        action_queue = []
-        action_queue.extend(ACTIONS_TURN_LEFT_TO_BEGIN)
+        action_list = []
+        action_list.extend(ACTIONS_TURN_LEFT_TO_BEGIN)
         state = copy(towers.INIT)
         at = towers.Pole1
         for (what, frm, to) in hl_actions:
@@ -361,21 +361,21 @@ class TowerAgentStrips3Disk(AgentBrain):#3-Disk Strips Planner
             to_pole = towers.get_pole(state, to)
             print what, frm, to, at, frm_pole, to_pole
             if at != frm_pole:
-                action_queue += towers.MOVES[(at, frm_pole)]
-            action_queue += towers.CARRY_MOVES[(frm_pole, to_pole)]
+                action_list += towers.MOVES[(at, frm_pole)]
+            action_list += towers.CARRY_MOVES[(frm_pole, to_pole)]
             towers.Move(state, what, frm, to)
             at = to_pole
 
-        action_queue.extend(ACTIONS_CELEBERATE)
-        return action_queue
+        action_list.extend(ACTIONS_CELEBERATE)
+        return action_list
 
     def start(self, time, observations):
         """
         return first action given the first observations
         """
-        self.action_queue = self.get_action_queue()
-        if len(self.action_queue) > 0:
-            return self.action_queue.pop(0)
+        self.action_list = self.generate_action_list()
+        if len(self.action_list) > 0:
+            return self.action_list.pop(0)
         else:
             return 0
 
@@ -384,8 +384,8 @@ class TowerAgentStrips3Disk(AgentBrain):#3-Disk Strips Planner
         return an action given the reward for the previous
         action and the new observations
         """
-        if len(self.action_queue) > 0:
-            return self.action_queue.pop(0)
+        if len(self.action_list) > 0:
+            return self.action_list.pop(0)
         else:
             return 1
 
@@ -396,7 +396,7 @@ class TowerAgentStrips3Disk(AgentBrain):#3-Disk Strips Planner
         return True
 
     def reset(self):
-        self.action_queue = self.get_action_queue()
+        #self.action_list = self.generate_action_list()
         return True
 
     def destroy(self):
@@ -412,7 +412,7 @@ class TowerAgentNLP(AgentBrain):
     def __init__(self):
         from towers import Towers3 as towers
         AgentBrain.__init__(self) # have to make this call
-        self.action_queue = [10] # rotate left to reset state first
+        self.action_list = [10] # rotate left to reset state first
         self.global_at = towers.Pole1 
         self.global_state = copy (towers.INIT)
     
@@ -458,7 +458,7 @@ class TowerAgentNLP(AgentBrain):
                 result += w.title() + " "
         return result
 
-    def get_action_queue(self):
+    def generate_action_list(self):
         import subprocess
         # solve for show (user can click through)
         subproc = subprocess.Popen(['python', 'TowerofHanoi/text_interface.py'], stdout=subprocess.PIPE)
@@ -476,10 +476,10 @@ class TowerAgentNLP(AgentBrain):
 
         parsed_plan = self.semantic_parser(plan)
         
-        if (self.action_queue == [10]):
-                action_queue = [5]
+        if (self.action_list == [10]):
+                action_list = [5]
         else:
-                action_queue = []
+                action_list = []
 
         state = self.global_state
         at = self.global_at
@@ -495,8 +495,8 @@ class TowerAgentNLP(AgentBrain):
                 to_pole = towers.get_pole(state, to)
                 print what, frm, to, at, frm_pole, to_pole
                 if at != frm_pole:
-                    action_queue += towers.MOVES[(at, frm_pole)]
-                action_queue += towers.CARRY_MOVES[(frm_pole, to_pole)]
+                    action_list += towers.MOVES[(at, frm_pole)]
+                action_list += towers.CARRY_MOVES[(frm_pole, to_pole)]
                 towers.Move(state, what, frm, to)
                 at = to_pole
 
@@ -504,8 +504,8 @@ class TowerAgentNLP(AgentBrain):
                 (what, frm) = words[1:]
                 frm_pole = towers.get_pole(state, frm)
                 if at != frm_pole:
-                    action_queue += towers.MOVES[(at, frm_pole)]
-                action_queue += [3] #Pick up 
+                    action_list += towers.MOVES[(at, frm_pole)]
+                action_list += [3] #Pick up 
                 towers.Move(state, what, frm, frm)
                 at = frm_pole
 
@@ -513,24 +513,24 @@ class TowerAgentNLP(AgentBrain):
                 (what, to) = words[1:]
                 to_pole = towers.get_pole(state, to)
                 if at != to_pole:
-                    action_queue += towers.MOVES[(at, to_pole)]
-                action_queue += [2] #Put Down 
+                    action_list += towers.MOVES[(at, to_pole)]
+                action_list += [2] #Put Down 
                 towers.Move(state, what, to, to)
                 at = to_pole
 
         self.global_state = state
         self.global_at = at
         
-        action_queue.extend(ACTIONS_CELEBERATE)
-        return action_queue
+        action_list.extend(ACTIONS_CELEBERATE)
+        return action_list
 
     def start(self, time, observations):
         """
         return first action given the first observations
         """
-        self.action_queue = self.get_action_queue()
-        if len(self.action_queue) > 0:
-            return self.action_queue.pop(0)
+        self.action_list = self.generate_action_list()
+        if len(self.action_list) > 0:
+            return self.action_list.pop(0)
         else:
             return 0
 
@@ -539,10 +539,10 @@ class TowerAgentNLP(AgentBrain):
         return an action given the reward for the previous
         action and the new observations
         """
-        if len(self.action_queue) > 0:
-            return self.action_queue.pop(0)
+        if len(self.action_list) > 0:
+            return self.action_list.pop(0)
         else:
-            self.action_queue = self.get_action_queue()
+            self.action_list = self.generate_action_list()
             return 1
 
     def end(self, time, reward):
@@ -552,7 +552,7 @@ class TowerAgentNLP(AgentBrain):
         return True
 
     def reset(self):
-        self.action_queue = self.get_action_queue()
+        #self.action_list = self.generate_action_list()
         return True
 
     def destroy(self):
