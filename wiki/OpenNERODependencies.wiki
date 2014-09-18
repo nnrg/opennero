@@ -16,7 +16,7 @@ OpenNERO depends on the following software on any platform.  Items listed here a
 
 == Dependencies of Mods: ==
 
-  * BlocksTower (Planning, NLP):
+  * TowerofHanoi (Planning, NLP):
     * python-tk
   * NERO Training:
     * Current version: openjdk-6-jre
