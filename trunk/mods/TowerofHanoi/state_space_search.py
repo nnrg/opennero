@@ -1,7 +1,7 @@
 from towers import Towers3
 from canvas_viewer import demo_planner
 
-__doc__ = """This is an example planning algorithm for Towers of Hanoi"""
+__doc__ = """This is an example planning algorithm for Tower of Hanoi"""
 __author__ = "Igor Karpov <ikarpov@cs.utexas.edu>"
 __version__ = "0.1"
 

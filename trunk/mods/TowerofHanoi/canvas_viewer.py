@@ -11,7 +11,7 @@ C = {'Disk1': 'red', 'Disk2': 'green', 'Disk3': 'blue'}
 class StripsStateViewer:
     def __init__(self, lock = None):
         self.master = tk.Tk()
-        self.master.title('Towers of Hanoi planning state')
+        self.master.title('Tower of Hanoi planning state')
         self.canvases = []
         self.handles = {}
 

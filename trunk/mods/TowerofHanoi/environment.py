@@ -83,7 +83,7 @@ class AgentState:
 
 class TowerEnvironment(Environment):
     """
-    Towers of Hanoi environment
+    Tower of Hanoi environment
     """
     MOVES = [(1,0), (0,1), (-1,0), (0,-1)]
 

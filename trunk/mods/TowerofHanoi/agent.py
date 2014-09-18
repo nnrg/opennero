@@ -30,7 +30,7 @@ ACTIONS_CELEBERATE = [0,0,0,5,5,1]
 
 class TowerAgent(AgentBrain):
     """
-    An agent designed to solve Towers of Hanoi using problem reduction
+    An agent designed to solve Tower of Hanoi using problem reduction
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
@@ -128,7 +128,7 @@ class TowerAgent(AgentBrain):
 
 class TowerAgent2(AgentBrain):
     """
-    An agent designed to solve Towers of Hanoi using state space search
+    An agent designed to solve Tower of Hanoi using state space search
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
@@ -213,7 +213,7 @@ class TowerAgent2(AgentBrain):
 
 class TowerAgent3(AgentBrain):#2-Disk Strips Planner
     """
-    An agent that uses a STRIPS planner to solve the Towers of Hanoi problem for 2 disks
+    An agent that uses a STRIPS planner to solve the Tower of Hanoi problem for 2 disks
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
@@ -308,7 +308,7 @@ class TowerAgent3(AgentBrain):#2-Disk Strips Planner
 
 class TowerAgent4(AgentBrain):#3-Disk Strips Planner 
     """
-    An agent that uses a STRIPS planner to solve the Towers of Hanoi problem for 3 disks
+    An agent that uses a STRIPS planner to solve the Tower of Hanoi problem for 3 disks
     """
     def __init__(self):
         AgentBrain.__init__(self) # have to make this call
@@ -401,7 +401,7 @@ class TowerAgent4(AgentBrain):#3-Disk Strips Planner
 
 class TowerAgent5(AgentBrain):
     """
-    An NLP agent for the Towers of Hanoi problem 
+    An NLP agent for the Tower of Hanoi problem 
     """
     def __init__(self):
         from towers import Towers3 as towers
