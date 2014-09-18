@@ -62,7 +62,7 @@ class TowerAgent(AgentBrain):
         #self.state.label = 'Starting to Solve!'
         for a in ACTIONS_BEGIN1:
             yield a
-        for a in self.dohanoi(self.num_towers, 'b', 'a', 'c'):
+        for a in self.dohanoi(self.num_towers, 'c', 'a', 'b'):
             yield a
         #self.state.label = 'Problem Solved!'
         for a in ACTIONS_CELEBERATE:
