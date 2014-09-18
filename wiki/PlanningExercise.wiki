@@ -16,8 +16,8 @@ The following steps should help get you up and running in OpenNERO:
 ==Creating your agent==
 
 To create your extended planning agent, open the
-[http://code.google.com/p/opennero/source/browse/trunk/mods/BlocksTower/agent.py
-agent.py] file (located in `trunk/mods/BlocksTower`).  Create a new
+[http://code.google.com/p/opennero/source/browse/trunk/mods/TowerofHanoi/agent.py
+agent.py] file (located in `trunk/mods/TowerofHanoi`).  Create a new
 class called `MyPlanningAgent` by copying the existing
 `PlanningAgent`.
 
