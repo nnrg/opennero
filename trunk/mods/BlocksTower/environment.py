@@ -116,9 +116,9 @@ class TowerEnvironment(Environment):
 
     def initialize_blocks(self):
         from module import getMod
-        num_towers = getMod().num_towers
+        num_disks = getMod().num_disks
 
-        if num_towers >= 1:
+        if num_disks >= 1:
             if not self.get_block_state('blue'):
                 self.add_block("data/shapes/cube/BlueCube.xml", 0, 1, 0, 5, 'blue')
             else:
@@ -126,7 +126,7 @@ class TowerEnvironment(Environment):
 
         bstate = self.get_block_state('blue')
 
-        if num_towers >= 2:
+        if num_disks >= 2:
             if not self.get_block_state('green'):
                 self.add_block('data/shapes/cube/GreenCube.xml', 0, 1, 1, 4, 'green')
             else:
@@ -134,7 +134,7 @@ class TowerEnvironment(Environment):
 
         gstate = self.get_block_state('green')
 
-        if num_towers >= 3:
+        if num_disks >= 3:
             if not self.get_block_state('yellow'):
                 self.add_block('data/shapes/cube/YellowCube.xml', 0, 1, 2, 3, 'yellow')
             else:
@@ -142,7 +142,7 @@ class TowerEnvironment(Environment):
 
         ystate = self.get_block_state('yellow')
 
-        if num_towers >=  4:
+        if num_disks >=  4:
             if not self.get_block_state('red'):
                 self.add_block('data/shapes/cube/RedCube.xml', 0, 1, 3, 2, 'red', scaler = (1.0/2.5))
             else:
@@ -153,7 +153,7 @@ class TowerEnvironment(Environment):
         
         rstate = self.get_block_state('red')
 
-        if num_towers >=  5:
+        if num_disks >=  5:
             if not self.get_block_state('white'):
                 self.add_block('data/shapes/cube/BlueCube.xml', 0, 1, 4, 1, 'white')
             else:
@@ -166,12 +166,12 @@ class TowerEnvironment(Environment):
         
         bstate.above = gstate
         gstate.below = bstate
-        if num_towers > 2: gstate.above = ystate
-        if num_towers > 2: ystate.below = gstate
-        if num_towers > 3: ystate.above = rstate
-        if num_towers > 3: rstate.below = ystate
-        if num_towers > 4: rstate.above = wstate
-        if num_towers > 4: wstate.below = rstate
+        if num_disks > 2: gstate.above = ystate
+        if num_disks > 2: ystate.below = gstate
+        if num_disks > 3: ystate.above = rstate
+        if num_disks > 3: rstate.below = ystate
+        if num_disks > 4: rstate.above = wstate
+        if num_disks > 4: wstate.below = rstate
 
         print 'Initialized TowerEnvironment'
 

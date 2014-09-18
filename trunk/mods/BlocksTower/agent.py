@@ -45,7 +45,7 @@ class TowerAgent(AgentBrain):
 
     def dohanoi(self, n, to, frm, using):
         if n == 0: return
-        prefix = '\t'.join(['' for i in range(self.num_towers - n)])
+        prefix = '\t'.join(['' for i in range(self.num_disks - n)])
         strn = "Moving depth {n} from {frm} to {to} using {using}".format(n=n, frm=frm, to=to, using=using)
         for a in self.dohanoi(n-1, using, frm, to):
             yield a
@@ -57,12 +57,12 @@ class TowerAgent(AgentBrain):
 
     def action_queue_generator(self):
         from module import getMod
-        self.num_towers = getMod().num_towers
+        self.num_disks = getMod().num_disks
 
         #self.state.label = 'Starting to Solve!'
         for a in ACTIONS_BEGIN1:
             yield a
-        for a in self.dohanoi(self.num_towers, 'c', 'a', 'b'):
+        for a in self.dohanoi(self.num_disks, 'c', 'a', 'b'):
             yield a
         #self.state.label = 'Problem Solved!'
         for a in ACTIONS_CELEBERATE:
