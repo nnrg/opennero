@@ -34,7 +34,7 @@ printed at the end of the text window
 This plan is then given to Steve to execute. Press "Pause" to
 temporarily pause its execution, and "Continue" to resume.
 
-==Towers of Hanoi==
+==Tower of Hanoi==
 
 Somewhere in Hanoi there's a monastery with a courtyard with three
 tall poles and 64 disks (each with a different size and with a hole in
