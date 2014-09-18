@@ -1,7 +1,7 @@
 from OpenNero import *
 
 from common.module import openWiki
-from TowerofHanoi.module import getMod, delMod
+from BlocksHanoi.module import getMod, delMod
 
 # functions bound to key/mouse events
 def switchToHub():

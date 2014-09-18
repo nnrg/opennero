@@ -7,8 +7,8 @@ from inputConfig import createInputMapping, switchToHub
 from common import *
 import common.gui as gui
 
-from TowerofHanoi.module import getMod, delMod
-from TowerofHanoi.constants import *
+from BlocksHanoi.module import getMod, delMod
+from BlocksHanoi.constants import *
 
 class UI:
     pass
