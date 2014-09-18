@@ -24,7 +24,7 @@ def CreateGui(guiMan, mode):
     control_height = 30  # height
 
     # AGENT SELECTION BOX
-    x, y = 5, 2 * control_height + 5
+    x, y = 5, 1 * control_height + 5
     w, h = window_width - 15, control_height - 10
     ui.agentBoxLabel = gui.create_text(guiMan, 'agentLabel', Pos2i(x,y), Pos2i(3*w/10,h), 'Agent Type:')
     ui.agentComboBox = gui.create_combo_box(guiMan, "agentComboBox", Pos2i(x + 5 + 3*w/10, y), Pos2i(7*w/10, h))
@@ -52,7 +52,7 @@ def CreateGui(guiMan, mode):
     ui.exitButton.OnMouseLeftClick = lambda: switchToHub()
 
     # SPEEDUP SLIDER
-    x, y = 5, 1 * control_height + 5
+    x, y = 5, 2 * control_height + 5
     w, h = window_width - 20, control_height - 5
     ui.speedupLabel = gui.create_text(guiMan, 'speedupLabel', Pos2i(x, y), Pos2i(3*w/10, h), 'Speedup:')
     ui.speedupScroll = gui.create_scroll_bar(guiMan, 'speedupScroll', Pos2i(x + 5 + 3*w/10, y), Pos2i(3*w/5, h-5), True)
