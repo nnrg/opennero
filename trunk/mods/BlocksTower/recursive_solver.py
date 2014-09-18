@@ -83,11 +83,11 @@ class RecursiveSolver:
             continue
 
     def queue_init(self):
-        self.viewer.add_item_viewer("Goal", ['Move %s disks from %s to %s' % (self.num_towers, Pole1, Pole2)], -1, [])
+        self.viewer.add_item_viewer("Goal", ['Move %s disks from %s to %s' % (self.num_towers, Pole1, Pole3)], -1, [])
         self.viewer.display_text('Starting to Solve!')
         self.viewer.user_pause('')
         self.viewer.set_active_index(0, 0)
-        actions = self.dohanoi(self.num_towers, Pole2, Pole1, Pole3)
+        actions = self.dohanoi(self.num_towers, Pole3, Pole1, Pole2)
         self.viewer.add_completed_index(0, 0)
         self.viewer.display_text('Problem Solved! Please click Execute Plan or close the window to continue!')
         self.viewer.user_pause('')
