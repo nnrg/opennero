@@ -33,5 +33,5 @@ sudo apt-get install openjdk-6-jre
 You also need these additional packages for running various mods:
 
 {{{
-sudo apt-get install python-wxgtk2.8 python-tk python-matplotlib python-scipy python-numpy python-imaging-tk 
+sudo apt-get install python-tk python-wxgtk2.8 python-matplotlib python-scipy python-numpy python-imaging-tk 
 }}}
