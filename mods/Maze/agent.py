@@ -61,13 +61,13 @@ class RandomAgent(AgentBrain):
         print  "Final reward: %f, cumulative: %f" % (reward[0], self.fitness[0])
         return True
 
-class CustomRLAgent(AgentBrain):
+class QLearningAgent(AgentBrain):
     """
-    Write your custom reinforcement learning agent here!
+    Tabular Q-Learning Agent
     """
     def __init__(self, gamma, alpha, epsilon):
         """
-        Constructor that is called from CustomRLRobot.xml
+        Constructor that is called from SydneyQLearning.xml
         Parameters:
         @param gamma reward discount factor (between 0 and 1)
         @param alpha learning rate (between 0 and 1)

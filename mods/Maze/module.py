@@ -17,17 +17,15 @@ class MazeMod:
         self.agent_id = None # the ID of the agent
         self.wall_ids = [] # walls on the map
         self.AGENTS = [
+#    ('Random Actions',          lambda: getMod().start_random(),        False, MODE_SEARCH | MODE_RL),
     ('Depth First Search',      lambda: getMod().start_dfs(),           False, MODE_SEARCH),
     ('Breadth First Search',    lambda: getMod().start_bfs(),           False, MODE_SEARCH),
     ('A* Search',  lambda: getMod().start_astar(),         False, MODE_SEARCH),
     ('A* Search with Teleporting',   lambda: getMod().start_astar2(),        False, MODE_SEARCH),
     ('A* Search with Front',         lambda: getMod().start_astar3(),        False, MODE_SEARCH),
-#    ('Random Actions',          lambda: getMod().start_random(),        False, MODE_SEARCH | MODE_RL),
-#    ('Sarsa RL',                lambda: getMod().start_sarsa(),         True, MODE_RL),
-#    ('Q-Learning RL',           lambda: getMod().start_qlearning(),     True, MODE_RL),
-#    ('Q-Learning RL (more continuous)',   lambda: getMod().start_qlearning(GranularMazeEnvironment), True, MODE_RL),
-    ('Q-Learning (Coarse)',               lambda: getMod().start_customrl(),      True, MODE_RL),
-    ('Q-Learning (Fine)',       lambda: getMod().start_customrl(GranularMazeEnvironment), True, MODE_RL),
+    ('Q-Learning (Coarse)',               lambda: getMod().start_qlearning(),      True, MODE_RL),
+    ('Q-Learning (Fine)',       lambda: getMod().start_qlearning(GranularMazeEnvironment), True, MODE_RL),
+#    ('Sarsa',                lambda: getMod().start_sarsa(),         True, MODE_RL),
     ('First Person (Coarse)',       lambda: getMod().start_fps(),           False, MODE_SEARCH),
     ('First Person (Coarse)',       lambda: getMod().start_fps(),           False, MODE_RL),
     ('First Person (Fine)', lambda: getMod().start_fps_granular(),     False, MODE_RL),
