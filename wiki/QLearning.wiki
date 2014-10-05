@@ -80,7 +80,7 @@ The parameters passed to the QLearningBrain constructor are:
 
  * γ (gamma) - reward discount factor (between 0 and 1)
  * α (alpha) - learning rate (between 0 and 1)
- * ε (epsilon) - parameter for the epsilon-greedy policy (between 0 and 1)  Since the Explore-Exploit slider in the user interface overrides this setting, the value of ε set here is in effect ignored.
+ * ε (epsilon) - parameter for the epsilon-greedy policy (between 0 and 1.)  Since the Explore-Exploit slider in the user interface overrides this setting, the value of ε set here is effectively ignored.
 
 ==Next Steps==
 
