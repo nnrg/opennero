@@ -61,7 +61,7 @@ Additional parameters can be set in [http://code.google.com/p/opennero/source/br
 
 {{{
   <AI>
-    <Python agent="QLearningBrain(0.8, 0.8, 0.1)" />
+    <Python agent="QLearningBrain(0.96, 0.8, 0.1)" />
   </AI>
 }}}
 
@@ -69,7 +69,7 @@ The parameters passed to the QLearningBrain constructor are:
 
  * γ (gamma) - reward discount factor (between 0 and 1)
  * α (alpha) - learning rate (between 0 and 1)
- * ε (epsilon) - parameter for the epsilon-greedy policy (between 0 and 1)
+ * ε (epsilon) - parameter for the epsilon-greedy policy (between 0 and 1)  Since the Explore-Exploit slider in the user interface overrides this setting, the value of ε set here is in effect ignored.
 
 ==Next Steps==
 
