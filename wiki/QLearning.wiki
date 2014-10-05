@@ -66,13 +66,13 @@ The Fine version is similar, but moves from one 64x64 location to the next, corr
 
 ==Source Code==
 
-A Python implementation of the basic tabular Q-Learning agent can be found in the CustomRLAgent in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py agent.py].
+A Python implementation of the basic tabular Q-Learning agent can be found in the QLearningAgent in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py agent.py].
 
 Additional parameters can be set in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/data/shapes/character/SydneyQLearning.xml SydneyQLearning.xml] by changing the AI section:
 
 {{{
   <AI>
-    <Python agent="QLearningBrain(0.96, 0.8, 0.1)" />
+    <Python agent="QLearningAgent(0.96, 0.8, 0.1)" />
   </AI>
 }}}
 
