@@ -8,6 +8,8 @@
 
 <wiki:video url="http://www.youtube.com/watch?v=4CyjQowM5Mg"/>
 
+Note that this video is recorded using an earlier version of OpenNERO.  The current implementation uses a slightly different form of visualization.
+
 ==Running the Demo==
 
 To run the demo,
@@ -24,19 +26,28 @@ You can also
   # Click Pause to temporarily suspend the method
   # Click Reset to terminate the method
   # Click New Maze to try again with a different maze
-  # Use the Exploit-Explore slider (that appears once you start the Q-learning agent) to adjust the fraction of the actions taken greedily (i.e. those with the best Q-values) vs. actions taken to explore the environment (i.e. randomly selected actions).
+  # Use the Explore-Exploit slider (that appears once you start the Q-learning agent) to adjust the fraction of the actions taken to explore the environment (i.e. randomly selected actions) vs. actions taken greedily (i.e. those with the best Q-values.)
   # Use the Speedup slider to run the visualization faster or slower
+  # Use the Starting Offset slider to control the spawn location of the agent at the beginning of new episodes.  
   # Use the keyboard controls described in the [RunningOpenNero Running OpenNERO page] to move around in the environment.
 
 The details of each method are described below.
 
+==The Maze Environment ==
+
+In the coarse-grained version, the maze consists of 8x8 discrete locations. At each location, the agent can select from four actions: North, south, west, and east. The agent receives a reward of 100 on the final move when it reaches the goal and a reward of -1 when it moves from a cell to another cell that is not the goal. This reward structure encourages reaching the goal with the minimum number of moves (each subtracting -1).  Also, if the agent takes an action that hits a wall, it receives a reward of -100.
 
 ==Q-Learning (Coarse) ==
 
-In the coarse-grained version, the maze consists of 8x8 discrete locations. At each location, the agent can select from four actions: North, south, west, and east. The learning therefore consists of learning Q-values for each action at each location. The Q-learner uses a tabular representation, which is appropriate and effective for such a small state and action space.
+The learning consists of learning Q-values for each action at each location. The Q-learner uses a tabular representation, which is appropriate and effective for such a small state and action space.
 
-The locations are shown by yellow squares, and the Q-values as blue squares in the four directions around it. The distance of each blue square from the yellow square indicates how large the Q-value is.  The values are initially small and random, and you can see how they gradually change as a result of learning.  The agent receives a reward of 100 when it reaches the goal and other states return a reward of -1 (to encourage short paths), with a discount factor of 1. As soon as the agent reaches the goal for the first time, you should see that the values near the goal start to point in the right direction, and the learning proceeds gradually towards the start location.  After learning, the pattern of blue squares at each location thus forms an arrow pointing at the best direction of movement.
+The visited tiles are marked by yellow or green markers, and the Q-values by blue squares in the four directions around the central markers. The distance of each blue square from the yellow/green tile indicates how large the Q-value is. Also, the size of the central yellow/green marker in each maze tile corresponds to the highest Q-value in that tile. The values are initially small, and you can see how they gradually change as a result of learning. The central marker turns green when the value of the tile is above 0, which means the agent has discovered some action in that tile which can eventually take it to the goal. 
 
+As soon as the agent reaches the goal for the first time, you should see that the values near the goal start to point in the right direction, and the learning proceeds gradually towards the start location.  After learning, the pattern of blue squares at each location thus forms an arrow pointing at the best direction of movement.
+
+Based on this observation, you can use the learning parameters that are available on the user interface (Explore-Exploit (epsilon), and Starting Offset) to speed up the learning process.  The Explore-Exploit slider controls the probability of taking random exploratory moves vs. moves based on which action has the highest Q-value at the moment.  Starting Offset controls the spawn location of the agent: The agent starts at a cell whose Manhattan distance from the source is equal to the value of the slider.
+
+Start with very high values for Starting Offset so the agent starts very close to the goal.  Also set the value of epsilon close to 1.0 so that the agent can explore different actions.  Learning progresses particularly when the agent is exploring a yellow tile and suddenly discovers an action that takes it to an adjacent green tile. At that point in time, the yellow marker becomes green, indicating that Steve can reach the goal from that tile by following the highest Q values. In other words, to increase the learning speed you should make Steve explore the boundary between the the two green and yellow regions so that more yellow cells can become green. When enough tiles turn green in the vicinity of the spawn location, gradually lower the value of Starting Offset so that the agent starts farther from the goal and explores more of the maze. Also, gradually lower the value of epsilon so that the agent tries to reach the goal from those farther locations. In the end, the agent should be able to reach the goal starting from the source (Starting Offset = 0.)
 
 ==Q-Learning (Fine) ==
 
