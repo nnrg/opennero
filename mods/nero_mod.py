@@ -33,7 +33,7 @@ MOD_TITLES = {'Maze:Search': 'Search',
               'NERO': 'Multi-agent Systems Training',
               'NERO_Battle': 'Multi-agent Systems Battle'}
 
-MOD_DEPS = {'Hw1':'Maze', 'Hw2':'TowerofHanoi', 'Hw3':'Maze', 'Hw4':'TowerofHanoi'}
+MOD_DEPS = {'Hw1':'Maze', 'Hw2':'TowerofHanoi', 'Hw3':'Maze', 'Hw4':'TowerofHanoi', 'Hw5':'NERO'}
 
 #MOD_IDS_OF_TITLES = dict((v, k) for k, v in MOD_TITLES.iteritems())
 
