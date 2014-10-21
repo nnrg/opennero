@@ -6,12 +6,12 @@ Follow the steps below to install the vision extension to OpenNERO.
 
 ==1. Get a fresh version of OpenNERO==
 
-The following steps should help get you up and running in OpenNERO:
+One of the following steps should help get you up and running in OpenNERO:
 
-  * Install it on your own machine by downloading one of the <a href="http://code.google.com/p/opennero/downloads/list">prebuilt binaries</a>
-  * <a href="http://code.google.com/p/opennero/wiki/BuildingOpenNero">Build OpenNERO</a> on your own machine using the source code.
+  * Install it on your own machine by downloading one of the [DownloadingOpenNero prebuilt binaries].
+  * [BuildingOpenNero Build OpenNero] on your own machine using the source code.
 
-Once you have the standard distribution of OpenNERO, you need to <a href="hw5_vision.zip">download the modified NERO files for this assignment</a>. Replace your existing OpenNERO NERO files with the ones in the <a href="https://opennero.googlecode.com/svn/wiki/vision.zip">zip file</a>.
+Once you have the standard distribution of OpenNERO, you need to <a href="http://www.cs.utexas.edu/users/risto/cs343/private/hw5/Hw5.tar.gz">download the skeleton files</a> for this assignment. Extract the folder Hw5 inside your OpenNERO installation folder.
 
 ==2. Install the Python Imaging Library==
 
