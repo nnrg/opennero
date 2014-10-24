@@ -399,18 +399,44 @@ class NeroEnvironment(OpenNero.Environment):
         # update: this is now being done using a RaySensor
         #observations[constants.SENSOR_INDEX_TARGETING[0]] = int(self.target(agent) is not None)
 
-        friends, foes = self.getFriendFoe(agent)
+#        friends, foes = self.getFriendFoe(agent)
+#        if friends:
+#            # the 2 before that are the angle and heading to the center of mass of
+#            # the agent's team
+#            ax, ay = agent.state.position.x, agent.state.position.y
+#            cx, cy = self.get_friend_center(agent, friends)
+#            fd = self.distance((ax, ay), (cx, cy))
+#            ah = agent.state.rotation.z
+#            fh = self.angle((ax, ay, ah), (cx, cy)) + 180.0
+#            if fd <= constants.MAX_FRIEND_DISTANCE:
+#                observations[constants.SENSOR_INDEX_FRIEND_RADAR[0]] = fd / 15.0
+#                observations[constants.SENSOR_INDEX_FRIEND_RADAR[1]] = fh / 360.0
 
-        if friends:
-            # the 2 before that are the angle and heading to the center of mass of
-            # the agent's team
-            ax, ay = agent.state.position.x, agent.state.position.y
-            cx, cy = self.get_friend_center(agent, friends)
-            fd = self.distance((ax, ay), (cx, cy))
-            ah = agent.state.rotation.z
-            fh = self.angle((ax, ay, ah), (cx, cy)) + 180.0
-            if fd <= constants.MAX_FRIEND_DISTANCE:
-                observations[constants.SENSOR_INDEX_FRIEND_RADAR[0]] = fd / 15.0
+
+        # The code above miscalculates the friend center by looking at all teammates
+        # instead of looking only inside the friend radius.
+        # Updated friend sensing code:
+        my_team = agent.get_team()
+        all_friends = self.teams[my_team] 
+
+        ax, ay = agent.state.position.x, agent.state.position.y
+        cx, cy = 0.0, 0.0
+        if all_friends:
+            n = 0
+            for f in all_friends:
+                fx, fy = f.state.position.x, f.state.position.y
+                if self.distance((ax, ay), (fx, fy)) <= constants.MAX_FRIEND_DISTANCE:
+                    n += 1
+                    cx += fx
+                    cy += fy
+            if n > 0:
+                cx, cy = cx / n, cy / n
+                fd = self.distance((ax, ay), (cx, cy))
+                ah = agent.state.rotation.z
+                fh = self.angle((ax, ay, ah), (cx, cy)) + 180.0
+                value = 1 - (fd / constants.MAX_FRIEND_DISTANCE)
+                value = max(0, min(value, 1))
+                observations[constants.SENSOR_INDEX_FRIEND_RADAR[0]] = value
                 observations[constants.SENSOR_INDEX_FRIEND_RADAR[1]] = fh / 360.0
 
         if self.tracing:
