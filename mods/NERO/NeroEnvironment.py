@@ -168,7 +168,8 @@ class NeroEnvironment(OpenNero.Environment):
         """
         for a in constants.WALL_RAY_SENSORS:
             agent.add_sensor(OpenNero.RaySensor(
-                    math.cos(math.radians(a)), math.sin(math.radians(a)), 0, 50,
+                    math.cos(math.radians(a)), math.sin(math.radians(a)), 0,
+                    constants.WALL_SENSOR_RADIUS,
                     constants.OBJECT_TYPE_OBSTACLE,
                     False))
         for a0, a1 in constants.FLAG_RADAR_SENSORS:
@@ -176,14 +177,21 @@ class NeroEnvironment(OpenNero.Environment):
                     a0, a1, -90, 90, constants.MAX_VISION_RADIUS,
                     constants.OBJECT_TYPE_FLAG,
                     False))
+        sense = constants.OBJECT_TYPE_TEAM_0
+        if agent.get_team() == sense:
+            sense = constants.OBJECT_TYPE_TEAM_1
         for a0, a1 in constants.ENEMY_RADAR_SENSORS:
-            sense = constants.OBJECT_TYPE_TEAM_0
-            if agent.get_team() == sense:
-                sense = constants.OBJECT_TYPE_TEAM_1
             agent.add_sensor(OpenNero.RadarSensor(
                     a0, a1, -90, 90, constants.MAX_VISION_RADIUS,
                     sense,
                     False))
+        for a in constants.TARGETING_SENSORS:
+            agent.add_sensor(OpenNero.RaySensor(
+                    math.cos(math.radians(a)), math.sin(math.radians(a)), 0,
+                    constants.TARGET_SENSOR_RADIUS,
+                    sense,
+                    False))
+
         return agent.info
 
     def get_state(self, agent):
@@ -388,7 +396,8 @@ class NeroEnvironment(OpenNero.Environment):
         figure out what the agent should sense
         """
         # the last observation is whether there is a target for the agent
-        observations[constants.SENSOR_INDEX_TARGETING[0]] = int(self.target(agent) is not None)
+        # update: this is now being done using a RaySensor
+        #observations[constants.SENSOR_INDEX_TARGETING[0]] = int(self.target(agent) is not None)
 
         friends, foes = self.getFriendFoe(agent)
 

@@ -33,11 +33,17 @@ namespace OpenNero {
         if (Kernel::GetSimContext()->FindInRay(hitEntity, hitPos, sourcePos, targetPos, getTypes(), vis))
         {
             Vector3f toHit = hitPos - sourcePos;
-            return toHit.getLength()/radius;
+            //return toHit.getLength()/radius;
+            double retval = radius / (toHit.getLength() * 10);
+            if (retval < 0)
+                retval = 0;
+            if (retval > 1.0)
+                retval = 1.0;
+            return retval;
         }
         else
         {
-            return 1.0;
+            return 0.0;
         }        
     }
 
