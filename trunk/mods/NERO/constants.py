@@ -19,6 +19,12 @@ MAX_TURNING_RATE = 0.2
 # maximum vision radius for most sensors
 MAX_VISION_RADIUS = 300
 
+# radius for target sensor 
+TARGET_SENSOR_RADIUS = 30
+
+# radius for wall sensor 
+WALL_SENSOR_RADIUS = 50
+
 # maximum shot radius
 MAX_SHOT_RADIUS = 600
 
@@ -77,8 +83,8 @@ SENSOR_INDEX_FRIEND_RADAR = [i for i in range(N_SENSORS, N_SENSORS+len(FRIEND_RA
 N_SENSORS += len(FRIEND_RADAR_SENSORS)
 
 # 1 targeting sensor - becomes 1 if and only iff the agent is looking at a target
-# Flag Radar Sensors
-TARGETING_SENSORS = [(-2,2)]
+#TARGETING_SENSORS = [(-2,2)]
+TARGETING_SENSORS = [0]
 SENSOR_INDEX_TARGETING = [i for i in range(N_SENSORS, N_SENSORS+len(TARGETING_SENSORS))]
 N_SENSORS += len(TARGETING_SENSORS)
 
