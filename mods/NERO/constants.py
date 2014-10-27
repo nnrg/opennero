@@ -26,7 +26,9 @@ TARGET_SENSOR_RADIUS = 30
 WALL_SENSOR_RADIUS = 50
 
 # maximum shot radius
-MAX_SHOT_RADIUS = 600
+#MAX_SHOT_RADIUS = 600
+MAX_SHOT_RADIUS = 200
+MAX_FIRE_ACTION_RADIUS = 300 
 
 # maximum distance to center of friend group
 MAX_FRIEND_DISTANCE = 15.0

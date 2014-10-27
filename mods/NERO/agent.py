@@ -1,4 +1,5 @@
 import sys
+import random
 import tempfile
 
 import constants
@@ -283,6 +284,8 @@ class RTNEATAgent(NeroAgent, OpenNero.AgentBrain):
         actions = self.actions.get_instance()
         for i in range(len(self.actions.get_instance())):
              actions[i] = outputs[i]
+        #disabling firing for testing...
+        #actions[constants.ACTION_INDEX_FIRE] = 0
         denormalized_actions = self.actions.denormalize(actions)
 
         if denormalized_actions[constants.ACTION_INDEX_ZERO_FRIEND_SENSORS] > 0.5:
@@ -412,13 +415,15 @@ class Turret(NeroAgent, OpenNero.AgentBrain):
     def start(self, time, sensors):
         self.state.label = 'Turret'
         a = self.actions.get_instance()
-        a[0] = a[1] = 0
+        a[0] = a[1] = a[2] = a[3] = 0
         return a
 
     def act(self, time, sensors, reward):
         a = self.actions.get_instance()
         a[0] = 0
         a[1] = 0.1
+        a[2] = 1 
+        a[3] = 0
         return a
 
 
