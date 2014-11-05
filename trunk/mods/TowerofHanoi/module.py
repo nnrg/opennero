@@ -50,7 +50,7 @@ class TowerMod:
         common.addObject("data/shapes/cube/WhiteCube.xml", OpenNero.Vector3f(3 * constants.GRID_DX, 2 * constants.GRID_DY, 0 * constants.GRID_DZ), OpenNero.Vector3f(0,0,0), scale=OpenNero.Vector3f(.25,.25,4))
 
     def get_num_disks(self):
-        return num_disks
+        return self.num_disks
 
     def start_agent_problem_reduction(self): #Problem reduction
         """ start the tower demo """
