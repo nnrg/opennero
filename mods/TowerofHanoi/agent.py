@@ -1,10 +1,12 @@
 from OpenNero import *
 from common import *
-import TowerofHanoi
+#import TowerofHanoi
 import random
 from TowerofHanoi.environment import TowerEnvironment
 from TowerofHanoi.constants import *
 from copy import copy
+import subprocess
+import string
 
 ###
 #
@@ -20,13 +22,14 @@ from copy import copy
 
 ACTIONS_TURN_LEFT_TO_BEGIN = [5]
 ACTIONS_TURN_LEFT_TO_BEGIN1 = [1,5]
-ACTIONS_AtoB = [5,1,4,3,4,1,5,2,]
-ACTIONS_BtoA = [3,5,1,4,2,4,1,5,]
-ACTIONS_AtoC = [5,1,4,3,4,1,1,5,2,5,1,4,]
-ACTIONS_CtoA = [4,1,5,3,5,1,1,4,2,4,1,5,]
-ACTIONS_BtoC = [3,4,1,5,2,5,1,4,]
-ACTIONS_CtoB = [4,1,5,3,5,1,4,2,]
+ACTIONS_1to2 = [5,1,4,3,4,1,5,2,]
+ACTIONS_2to1 = [3,5,1,4,2,4,1,5,]
+ACTIONS_1to3 = [5,1,4,3,4,1,1,5,2,5,1,4,]
+ACTIONS_3to1 = [4,1,5,3,5,1,1,4,2,4,1,5,]
+ACTIONS_2to3 = [3,4,1,5,2,5,1,4,]
+ACTIONS_3to2 = [4,1,5,3,5,1,4,2,]
 ACTIONS_CELEBERATE = [0,0,0,5,5,1]
+ACTIONS_BAD_COMMAND = [4,5,5,4]
 
 class TowerAgentProblemReduction(AgentBrain):
     """
@@ -36,12 +39,12 @@ class TowerAgentProblemReduction(AgentBrain):
         AgentBrain.__init__(self) # have to make this call
         
     def move(self, frm, to):
-        if frm == 'a' and to == 'b': return ACTIONS_AtoB
-        if frm == 'a' and to == 'c': return ACTIONS_AtoC
-        if frm == 'b' and to == 'a': return ACTIONS_BtoA
-        if frm == 'b' and to == 'c': return ACTIONS_BtoC
-        if frm == 'c' and to == 'a': return ACTIONS_CtoA
-        if frm == 'c' and to == 'b': return ACTIONS_CtoB
+        if frm == 'a' and to == 'b': return ACTIONS_1to2
+        if frm == 'a' and to == 'c': return ACTIONS_1to3
+        if frm == 'b' and to == 'a': return ACTIONS_2to1
+        if frm == 'b' and to == 'c': return ACTIONS_2to3
+        if frm == 'c' and to == 'a': return ACTIONS_3to1
+        if frm == 'c' and to == 'b': return ACTIONS_3to2
 
     def dohanoi(self, n, to, frm, using):
         if n == 0: return
@@ -75,7 +78,6 @@ class TowerAgentProblemReduction(AgentBrain):
         
     def display_planner(self):
         """ show planner internals by running it externally """
-        import subprocess
         # solve for show (user can click through)
         subproc = subprocess.Popen(['python', 'TowerofHanoi/recursive_solver.py'], stdout=subprocess.PIPE)
         plan = ''
@@ -147,7 +149,6 @@ class TowerAgentStateSpaceSearch(AgentBrain):
     def generate_action_list(self):
         import state_space_search
         from towers import Towers3 as towers
-        import subprocess
 
         # solve for show (user can click through)
         subproc = subprocess.Popen(['python', 'TowerofHanoi/state_space_search.py'], stdout=subprocess.PIPE)
@@ -232,7 +233,6 @@ class TowerAgentStrips2Disk(AgentBrain):#2-Disk Strips Planner
         return True
 
     def generate_action_list(self):
-        import subprocess
         # solve for show (user can click through)
         subproc = subprocess.Popen(['python', 'TowerofHanoi/strips.py', 'TowerofHanoi/towers2_strips.txt'], stdout=subprocess.PIPE)
         
@@ -329,7 +329,6 @@ class TowerAgentStrips3Disk(AgentBrain):#3-Disk Strips Planner
         return True
 
     def generate_action_list(self):
-        import subprocess
         # solve for show (user can click through)
         subproc = subprocess.Popen(['python', 'TowerofHanoi/strips.py', 'TowerofHanoi/towers3_strips.txt'], stdout=subprocess.PIPE)
         plan = ''
@@ -412,9 +411,12 @@ class TowerAgentNLP(AgentBrain):
     def __init__(self):
         from towers import Towers3 as towers
         AgentBrain.__init__(self) # have to make this call
-        self.action_list = [10] # rotate left to reset state first
+        self.rotate_first = True
+        #self.action_list = [10] # rotate left to reset state first
+        self.action_list = []
         self.global_at = towers.Pole1 
-        self.global_state = copy (towers.INIT)
+        self.global_state = copy(towers.INIT)
+        self.stop_flag = False
     
     def initialize(self,init_info):
         """
@@ -431,7 +433,6 @@ class TowerAgentNLP(AgentBrain):
             #1. Mov Object Source Destination
             #2. Pick Object Source
             #3. Put Object Destination
-        import string
         plan = string.lower(plan)
         words = string.split(plan) # A list of the words in the user command
         result = plan # In case we cannot parse the plan propperly, return it unmodified
@@ -450,7 +451,6 @@ class TowerAgentNLP(AgentBrain):
         Helper method. Given a string representing a plan,
         remove every word other than "disk*" or "pole*"
         """
-        import string
         words = string.split(plan)
         result = ""
         for w in words:
@@ -459,8 +459,9 @@ class TowerAgentNLP(AgentBrain):
         return result
 
     def generate_action_list(self):
-        import subprocess
-        # solve for show (user can click through)
+        if self.stop_flag:
+            return [0]
+
         subproc = subprocess.Popen(['python', 'TowerofHanoi/text_interface.py'], stdout=subprocess.PIPE)
         plan = ''
         while True:
@@ -472,15 +473,28 @@ class TowerAgentNLP(AgentBrain):
                 break
             else:
                 plan += out
+
+        plan = plan.strip()
+        plan = plan.replace("Disk ", "Disk").replace("Pole ", "Pole")
+        plan = plan.replace("disk ", "disk").replace("pole ", "pole")
+        print "Plan is:" 
         print plan
+
+        if plan == "close":
+            self.stop_flag = True
+            return [0]
+
+        action_list = []
+        if self.rotate_first:
+            self.rotate_first = False
+            action_list.extend(ACTIONS_TURN_LEFT_TO_BEGIN) 
+
+        if plan.isspace() or not plan: #if it's an empty string or contains only whitespace
+            action_list.extend(ACTIONS_BAD_COMMAND)
+            return action_list 
 
         parsed_plan = self.semantic_parser(plan)
         
-        if (self.action_list == [10]):
-                action_list = [5]
-        else:
-                action_list = []
-
         state = self.global_state
         at = self.global_at
 
@@ -490,38 +504,39 @@ class TowerAgentNLP(AgentBrain):
         (command) = words[0]
 
         if command == 'Mov':
-                (what, frm, to) = words[1:]
-                frm_pole = towers.get_pole(state, frm)
-                to_pole = towers.get_pole(state, to)
-                print what, frm, to, at, frm_pole, to_pole
-                if at != frm_pole:
-                    action_list += towers.MOVES[(at, frm_pole)]
-                action_list += towers.CARRY_MOVES[(frm_pole, to_pole)]
-                towers.Move(state, what, frm, to)
-                at = to_pole
+            (what, frm, to) = words[1:]
+            frm_pole = towers.get_pole(state, frm)
+            to_pole = towers.get_pole(state, to)
+            print what, frm, to, at, frm_pole, to_pole
+            if at != frm_pole:
+                action_list += towers.MOVES[(at, frm_pole)]
+            action_list += towers.CARRY_MOVES[(frm_pole, to_pole)]
+            towers.Move(state, what, frm, to)
+            at = to_pole
 
         elif command == 'Pick':
-                (what, frm) = words[1:]
-                frm_pole = towers.get_pole(state, frm)
-                if at != frm_pole:
-                    action_list += towers.MOVES[(at, frm_pole)]
-                action_list += [3] #Pick up 
-                towers.Move(state, what, frm, frm)
-                at = frm_pole
+            (what, frm) = words[1:]
+            frm_pole = towers.get_pole(state, frm)
+            if at != frm_pole:
+                action_list += towers.MOVES[(at, frm_pole)]
+            action_list += [3] #Pick up 
+            towers.Move(state, what, frm, frm)
+            at = frm_pole
 
         elif command == 'Put':
-                (what, to) = words[1:]
-                to_pole = towers.get_pole(state, to)
-                if at != to_pole:
-                    action_list += towers.MOVES[(at, to_pole)]
-                action_list += [2] #Put Down 
-                towers.Move(state, what, to, to)
-                at = to_pole
+            (what, to) = words[1:]
+            to_pole = towers.get_pole(state, to)
+            if at != to_pole:
+                action_list += towers.MOVES[(at, to_pole)]
+            action_list += [2] #Put Down 
+            towers.Move(state, what, to, to)
+            at = to_pole
+        else:
+            action_list.extend(ACTIONS_BAD_COMMAND)
 
         self.global_state = state
         self.global_at = at
         
-        action_list.extend(ACTIONS_CELEBERATE)
         return action_list
 
     def start(self, time, observations):
@@ -543,7 +558,7 @@ class TowerAgentNLP(AgentBrain):
             return self.action_list.pop(0)
         else:
             self.action_list = self.generate_action_list()
-            return 1
+            return 0
 
     def end(self, time, reward):
         """
@@ -552,7 +567,7 @@ class TowerAgentNLP(AgentBrain):
         return True
 
     def reset(self):
-        #self.action_list = self.generate_action_list()
+        self.action_list = self.generate_action_list()
         return True
 
     def destroy(self):

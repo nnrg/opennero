@@ -16,6 +16,18 @@ class Towers(object):
     POLES = ['Pole1', 'Pole2', 'Pole3']
 
     @classmethod
+    def On(cls, A, B):
+        return On(A, B)
+
+    @classmethod
+    def Clear(cls, A):
+        return Clear(A)
+
+    @classmethod
+    def Smaller(cls, A, B):
+        return Smaller(A, B)
+    
+    @classmethod
     def Move(cls, STATE, Disk, Source, Dest):
         if Clear(Disk) in STATE and On(Disk, Source) in STATE and Clear(Dest) in STATE and Smaller(Disk, Dest) in STATE:
             STATE.add( On(Disk, Dest) )
