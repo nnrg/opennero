@@ -13,7 +13,7 @@ The most prominent heuristic search method is the [http://en.wikipedia.org/wiki/
 ==Running the Demo==
 
   # [RunningOpenNero Start OpenNERO]
-  # Select the [MazeMod Search Experiment]
+  # Select the Search Experiment
   # Click on the Single Agent `A*` agent and run to completion
   # Click on the Teleporting `A*` agent and run to completion
   # Click on the Front `A*` agent and run to completion
