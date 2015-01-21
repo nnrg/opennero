@@ -1,9 +1,9 @@
 #summary Help for Maze mod of OpenNERO
 #sidebar TableOfContents
 
-=Maze Mod=
+=The Maze Environment=
 
-is a 2-D grid world embedded in a 3-D simulation. Grid locations
+The Maze Environment is a 2-D grid world embedded in a 3-D simulation. Grid locations
 correspond to potential intersections in the maze; the maze is
 randomly generated and contains a single shortest path to the goal, no
 loops. Various search and learning agents are implemented in the Maze
