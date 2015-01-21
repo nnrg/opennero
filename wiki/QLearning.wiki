@@ -4,7 +4,7 @@
 
 ==Introduction==
 
-[http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node65.html Q-Learning] (section 21.2.3 of [http://aima.cs.berkeley.edu/ AIMA]) is a type of temporal difference Reinforcement Learning that uses a _value function_ to pick the best action. In this demo, a Q-Learning agent leans to navigate the maze from experience: It learns how likely each possible move (north, south, west, east) at each location of the maze is to lead to the goal. The video below shows how it works; you can also run OpenNERO yourself to test it interactively.
+[http://webdocs.cs.ualberta.ca/~sutton/book/ebook/node65.html Q-learning] (section 21.2.3 of [http://aima.cs.berkeley.edu/ AIMA]) is a type of temporal difference Reinforcement Learning that uses a _value function_ to pick the best action. In this demo, a Q-Learning agent leans to navigate the maze from experience: It learns how likely each possible move (north, south, west, east) at each location of the maze is to lead to the goal. The video below shows how it works; you can also run OpenNERO yourself to test it interactively.
 
 <wiki:video url="http://www.youtube.com/watch?v=4CyjQowM5Mg"/>
 
@@ -17,8 +17,8 @@ To run the demo,
   # [RunningOpenNero start OpenNERO]
   # Start the Reinforcement Learning Experiment
   # Select the method you want to run from the pull-down menu:
-    # Q-Learning (Coarse) runs the coarse-grained (easy) version
-    # Q-Learning (Fine) runs the fine-grained (more difficult) version
+    # Q-learning (Coarse) runs the coarse-grained (easy) version
+    # Q-learning (Fine) runs the fine-grained (more difficult) version
     # First Person Coarse/Fine allows you to solve the maze yourself
   # Click on the Start button to start the demo
 
@@ -37,7 +37,7 @@ The details of each method are described below.
 
 In the coarse-grained version, the maze consists of 8x8 discrete locations. At each location, the agent can select from four actions: North, south, west, and east. The agent receives a reward of 100 on the final move when it reaches the goal and a reward of -1 when it moves from a cell to another cell that is not the goal. This reward structure encourages reaching the goal with the minimum number of moves (each subtracting -1).  Also, if the agent takes an action that hits a wall, it receives a reward of -100.
 
-==Q-Learning (Coarse) ==
+==Q-learning (Coarse) ==
 
 The learning consists of learning Q-values for each action at each location. The Q-learner uses a tabular representation, which is appropriate and effective for such a small state and action space.
 
@@ -49,7 +49,7 @@ Based on this observation, you can use the learning parameters that are availabl
 
 Start with very high values for Starting Offset so the agent starts very close to the goal.  Also set the value of epsilon close to 1.0 so that the agent can explore different actions.  Learning progresses particularly when the agent is exploring a yellow tile and suddenly discovers an action that takes it to an adjacent green tile. At that point in time, the yellow marker becomes green, indicating that Steve can reach the goal from that tile by following the highest Q values. In other words, to increase the learning speed you should make Steve explore the boundary between the the two green and yellow regions so that more yellow cells can become green. When enough tiles turn green in the vicinity of the spawn location, gradually lower the value of Starting Offset so that the agent starts farther from the goal and explores more of the maze. Also, gradually lower the value of epsilon so that the agent tries to reach the goal from those farther locations. In the end, the agent should be able to reach the goal starting from the source (Starting Offset = 0.)
 
-==Q-Learning (Fine) ==
+==Q-learning (Fine) ==
 
 In the fine-grained version, the maze has 64x64 locations, and there are the same four actions (north, south, west, each) at each location. As a result, the agent moves much more continuously within the maze; on the other hand, the space is much larger and more difficult to learn. Because the state and action space is still represented as a table, it takes a very long time for the agent to explore all states and eventually learn Q-values for them (probably too long for you to watch).
 
@@ -67,7 +67,7 @@ The Fine version is similar, but moves from one 64x64 location to the next, corr
 <wiki:comment>
 ==Source Code==
 
-A Python implementation of the basic tabular Q-Learning agent can be found in the QLearningAgent in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py agent.py].
+A Python implementation of the basic tabular Q-learning agent can be found in the QLearningAgent in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py agent.py].
 
 Additional parameters can be set in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/data/shapes/character/SydneyQLearning.xml SydneyQLearning.xml] by changing the AI section:
 
