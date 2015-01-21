@@ -18,7 +18,7 @@ try it out interactively.
 To run the demo, first:
 
   # [RunningOpenNero Start OpenNERO]
-  # Start the [BlocksWorldMod TowerofHanoi Experiment]
+  # Start the [BlocksWorldMod Planning] Experiment
   # Select the method you want to run from the pull-down menu:
     # Goal-stacking runs a STRIPS-style planner on 2-3 disks
     # Forward search runs a state-space search planner on 2-4 disks
