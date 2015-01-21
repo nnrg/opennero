@@ -30,7 +30,6 @@
      * [InstallVision The Vision Environment]
      * [EdgeDetection Edge Detection]
    * [RunningOpenNeroHeadless Headless Mode]
- * [SystemOverview System Overview]
  * [OpenNeroExercises Exercises]
     * AddingStuffExercise
     * CreateRoombaAgentExercise
@@ -44,3 +43,4 @@
     * NeroTournamentExercise
       * TournamentResults2011
     * ObjectRecognitionExercise
+ * [SystemOverview System Overview]
