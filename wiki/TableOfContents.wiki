@@ -38,7 +38,7 @@
     * MazeSolverExercise
     * HeuristicSearchExercise
     * PlanningExercise
-    * [QLearningExercise]
+    * QLearningExercise
     * MazeLearnerExercise
     * AdvancedMazeExercise
     * NeroTournamentExercise
