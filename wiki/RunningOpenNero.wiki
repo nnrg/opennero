@@ -7,7 +7,7 @@ Please be sure to follow the instructions to install [OpenNeroPrerequisites Prer
 
 = Introduction =
 
-OpenNERO consists of the core program and a collection of experiments.  Each experiment takes place in its appropriate environment.  The different environments in OpenNERO are called *mods*.  A mod is a logically separate unit of OpenNERO that can be a custom game or any other AI environment.  Each experiment is defined as a directory in OpenNERO's installation directory. When you start OpenNERO, it shows a menu with existing experiments and an option to exit
+OpenNERO consists of the core program and a collection of experiments.  Each experiment takes place in its appropriate environment.  The different environments in OpenNERO are called *mods*.  A mod is a logically separate unit of OpenNERO that can be a custom game or any other AI environment.  Each experiment is defined as a separate directory in OpenNERO's installation location. When you start OpenNERO, it shows a menu with existing experiments and an option to exit
 
 <wiki:comment>
 Currently, the following experiments are included:
