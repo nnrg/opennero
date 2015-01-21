@@ -9,9 +9,8 @@ The Maze Environment is a 2-D grid world embedded in a 3-D simulation. Grid loca
 
 == What the display means ==
 
- * Yellow cube - location of a (discrete) state
+ * Yellow/Green cube - location of a (discrete) state.  Green cubes represent states which have a non-zero Q-value.  When a yellow cube turns green, it means the agent knows of a path from that location to the goal.
  * Blue cube - Q-value of the action in that state (direction from the yellow cube identifies the direction of the action (NSWE), and distance from the yellow cube corresponds to the actual Q-value: the further the blue cube is, the higher the corresponding Q-value
-
 
 == Controls ==
 
