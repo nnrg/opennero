@@ -64,6 +64,7 @@ The Coarse version of first person control is the same as in the Search demos: y
 
 The Fine version is similar, but moves from one 64x64 location to the next, corresponding to the Fine version of the Q-learner. As you can see, you can move around the space in a more continuous and natural fashion, but it also takes many more actions to get to the goal.
 
+<wiki:comment>
 ==Source Code==
 
 A Python implementation of the basic tabular Q-Learning agent can be found in the QLearningAgent in [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py agent.py].
@@ -81,6 +82,7 @@ The parameters passed to the QLearningBrain constructor are:
  * γ (gamma) - reward discount factor (between 0 and 1)
  * α (alpha) - learning rate (between 0 and 1)
  * ε (epsilon) - parameter for the epsilon-greedy policy (between 0 and 1.)  Since the Explore-Exploit slider in the user interface overrides this setting, the value of ε set here is effectively ignored.
+</wiki:comment>
 
 ==Next Steps==
 
