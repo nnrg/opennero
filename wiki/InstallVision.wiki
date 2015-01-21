@@ -5,7 +5,7 @@
 
 Follow the steps below to install the vision extension in OpenNERO.
 
-Download the <a href="http://www.cs.utexas.edu/users/risto/cs343/private/hw5/Hw5.tar.gz">vistion extension files</a>.  Extract the archive inside your OpenNERO installation folder.
+Download the <a href="http://www.cs.utexas.edu/users/risto/cs343/private/hw5/Hw5.tar.gz">vision extension files</a>.  Extract the archive inside your OpenNERO installation folder.
 
 ==2. Install the Python Imaging Library==
 
