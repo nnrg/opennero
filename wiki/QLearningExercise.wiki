@@ -65,15 +65,10 @@ if ((3,4), (3,5)) in get_environment().maze.walls:
 }}}
 
 The walls set uses the coarse-grained (8x8) mapping for rows and columns, which should work out well for your approximator.
-For further details, refer to [QLearning_faq FAQs page].
 
 ==Frequently Asked Questions==
 
-You may check out the [http://www.cs.utexas.edu/users/risto/cs343/private/hw3/HW03_FAQ.txt FAQ] accumulated from previous classes.
-
-===Switching between approaches===
-
-All three approaches (pure tabular, tiling, and nearest neighbors) should be implemented such that they can be easily switched between (e.g., by commenting out a piece of python code or passing a different parameter) so that it is easy to check that each works.
+You may check out the [QLearning_faq FAQ] accumulated from previous classes.
 
 ==Debugging==
 
