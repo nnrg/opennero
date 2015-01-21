@@ -23,7 +23,7 @@ The details of each method are described below.
 
 ==Depth First Search==
 
-[http://en.wikipedia.org/wiki/Depth-first_search Depth-First Search] (see section 3.4.3 of [http://aima.cs.berkeley.edu/ AIMA]) is a technique for searching a graph or a tree-like structure. MazeMod includes an agent that searches for the target (<font color="red">RED</font> cube) by expanding the graph representing the maze in a depth-first manner. Click on Depth First Search and observe the resulting behavior. Note:
+[http://en.wikipedia.org/wiki/Depth-first_search Depth-First Search] (see section 3.4.3 of [http://aima.cs.berkeley.edu/ AIMA]) is a technique for searching a graph or a tree-like structure. The Maze environment includes an agent that searches for the target (<font color="red">RED</font> cube) by expanding the graph representing the maze in a depth-first manner. Click on Depth First Search and observe the resulting behavior. Note:
 
   * The maze can be abstracted as a graph of cells connected by edges where there are no walls
   * <font color="blue">BLUE</font> square markers represent expanded nodes
