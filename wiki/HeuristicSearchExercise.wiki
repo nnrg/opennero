@@ -17,11 +17,11 @@ Before your implement your agent, it's a good idea to look at the demos for [Bru
 
 ==Downloading Exercise Files==
 
-To create your `IDA*` agent, start with downloading the [http://www.cs.utexas.edu/users/risto/cs343/private/hw1/Hw1.tar.gz skeleton files for the search exercise]. Copy the folder named Hw1 from the archive to your OpenNERO installation folder. At this point, a new mod named Hw1 should show up in OpenNERO whenever you run it.
+To create your `IDA*` agent, start with downloading the [http://www.cs.utexas.edu/users/risto/cs343/private/hw1/Hw1.tar.gz skeleton files for the search exercise]. Copy the folder from the archive to your OpenNERO installation folder. At this point, a new mod should show up in OpenNERO whenever you run it.
 
 ==Implementing Your Agent==
 
-Open the agent.py file inside Hw1. Modify the code in the IdaStarSearchAgent class to implement the `IDA*` search algorithm.  The starting implementation for this agent is listed below.  The starting implementation returns random actions on every request.
+Open the agent.py file inside the exercise folder. Modify the code in the IdaStarSearchAgent class to implement the `IDA*` search algorithm.  The starting implementation for this agent is listed below.  The starting implementation returns random actions on every request.
 
 You may want to study the implementation of other search agents in the Maze environment in the [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py Maze/agent.py] file (located in trunk/mods/Maze). Notice that there are several agents implemented here, including a DFS agent (DFSSearchAgent) and an `A*` agent (AStarSearchAgent).
 
