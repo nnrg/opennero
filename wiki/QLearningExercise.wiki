@@ -12,9 +12,9 @@ Start with [http://www.cs.utexas.edu/users/risto/cs343/private/hw3/Hw3.tar.gz do
 
 The file Hw3/agent.py contains 3 classes:
 
-- MyTabularRLAgent: This class has the same implementation as QLearningAgent from Maze/agent.py. The mod Hw3 lists this agent twice: once with the coarse-grained maze environment and once with the fine-grained maze environment.
-- MyTilingRLAgent: This class has an empty implementation which just subclasses MyTabularRLAgent, making it behave like the tabular Q-Learning agent. You will need to complete the implementation of this class so that it implements a tiling approximator.
-- MyNearestNeighborsRLAgent: This class has an empty implementation which just subclasses MyTabularRLAgent, making it behave like the tabular Q-Learning agent. You will need to complete the implementation of this class so that it implements a nearest neighbors approximator.
+  # MyTabularRLAgent: This class has the same implementation as QLearningAgent from Maze/agent.py. The mod Hw3 lists this agent twice: once with the coarse-grained maze environment and once with the fine-grained maze environment.
+  # MyTilingRLAgent: This class has an empty implementation which just subclasses MyTabularRLAgent, making it behave like the tabular Q-Learning agent. You will need to complete the implementation of this class so that it implements a tiling approximator.
+  # MyNearestNeighborsRLAgent: This class has an empty implementation which just subclasses MyTabularRLAgent, making it behave like the tabular Q-Learning agent. You will need to complete the implementation of this class so that it implements a nearest neighbors approximator.
 
 ==Creating your agent==
 
