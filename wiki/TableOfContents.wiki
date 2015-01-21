@@ -27,6 +27,7 @@
    * Multi-Agent Systems
      * [NeroMod NERO Machine Learning Game]
    * Vision
+     * [InstallVision The Vision Environment]
      * [EdgeDetection Edge Detection]
    * [RunningOpenNeroHeadless Running Headless]
  * [SystemOverview System Overview]
