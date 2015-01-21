@@ -9,7 +9,7 @@ OpenNERO consists of the core program and a collection of experiments.  Each exp
 
   * Either:
     * [DownloadingOpenNero Download a prebuilt binary]
-    * [BuildingOpenNero Build OpenNERO] from the source code
+    * [BuildingOpenNero Build OpenNERO from the source code] 
 
 <wiki:comment>
 Currently, the following experiments are included:
