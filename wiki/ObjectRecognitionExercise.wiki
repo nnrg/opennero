@@ -1,4 +1,5 @@
 #summary Object Recognition Exercise
+#sidebar TableOfContents
 
 =Object Recognition=
 
