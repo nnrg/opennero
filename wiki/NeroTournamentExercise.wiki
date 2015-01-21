@@ -22,9 +22,8 @@ See OpenNeroPrerequisites for detailed instructions for your platform.
 OpenNERO runs on Linux, Mac OSX, and Windows platforms. In order to
 install it on your system, you can either:
 
-  * Install it on your own machine by downloading one of the [http://code.google.com/p/opennero/downloads/list prebuilt binaries]. Note that they do require that you have some additional software installed, such as Python and wxPython (see instructions on the [http://code.google.com/p/opennero/downloads/list download page]).
-  * [BuildingOpenNero Build OpenNERO] on your own machine using the source code.
-
+    * [DownloadingOpenNero Download a prebuilt binary]
+    * [BuildingOpenNero Build OpenNERO from the source code] 
 If you build from the source, you can modify and extend the game
 yourself (for the tournament, or otherwise), but no such modifications
 are necessary to train and enter the tournament.
