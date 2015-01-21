@@ -11,7 +11,7 @@ The first step is to install all the components necessary to run the vision exte
 
 ==2. Create training, testing, and validation sets in OpenNERO==
 
-Load the NERO mod in OpenNERO and click the `First Person Agent` button. This enables you to now move around in first person and take snapshots of the different characters and objects in the world. Each time you take a snapshot, it will be processed using a similar method to the edge detection algorithm is described in section 24.2.1 of your AIMA (third edition) textbook. The results window shows you each of the four steps of edge detection: original (upper left), black and white (upper right), smoothed with a Gaussian filter (lower left), and finally edge pixels detected (lower right). Each intermediate image is saved into the `snapshots` folder with a timestamped filename. Although each of the images is saved, you should *only use the images saved in `NERO/snapshots/edges` in your classifier*.
+Load the vision mod in OpenNERO and click the `First Person Agent` button. This enables you to now move around in first person and take snapshots of the different characters and objects in the world. Each time you take a snapshot, it will be processed using a similar method to the edge detection algorithm is described in section 24.2.1 of your AIMA (third edition) textbook. The results window shows you each of the four steps of edge detection: original (upper left), black and white (upper right), smoothed with a Gaussian filter (lower left), and finally edge pixels detected (lower right). Each intermediate image is saved into the `snapshots` folder with a timestamped filename. Although each of the images is saved, you should *only use the images saved in `snapshots/edges` in your classifier*.
 
 Take at least 40 training, 20 testing, and 20 validation pictures in this world, with a good mix of each of the objects. You want to be able to classify:
 
@@ -28,7 +28,7 @@ You will be using a naive Bayes classifier and a set of custom features to class
 ===3a. Implement a naive Bayes classifer===
 As a reminder, a naive Bayes classifier works under the (naive) assumption that all feature probabilities are independent. If we are trying to determine the probability that a certain image should be classified as type C, given that it has a certain collection of features {f1, f2, ..., fn}, then we can write that as P(C | f1, f2, ..., fn). Since we are assuming each of our features is independent given C, we can simplify this to be P(C | f1, f2, ..., fn) = P(C | f1) `*` P(C | f2) `*` ... `*` P(C | fn). To create a classifier, you simply calculate the probability score for each possible value of C (i.e., C = Sydney, C = Steve, C = Tree, C = Cube) and choose the C with the highest score.
 
-In the `NERO/classify.py` file, you will notice a skeleton for your classifier:
+In the `classifier.py` file, you will notice a skeleton for your classifier:
 
 {{{
 """
