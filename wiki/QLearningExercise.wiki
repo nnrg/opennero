@@ -16,23 +16,33 @@ The file Hw3/agent.py contains 3 classes:
   # MyTilingRLAgent: This class has an empty implementation which just subclasses MyTabularRLAgent, making it behave like the tabular Q-Learning agent. You will need to complete the implementation of this class so that it implements a tiling approximator.
   # MyNearestNeighborsRLAgent: This class has an empty implementation which just subclasses MyTabularRLAgent, making it behave like the tabular Q-Learning agent. You will need to complete the implementation of this class so that it implements a nearest neighbors approximator.
 
-==Creating your agent==
+==Learning parameters==
 
-To create your RL agent, open the [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py agent.py] file (located in `trunk/mods/Maze`). Just as in the search exercise, you will be creating your own agent. However, in this case, you will inherit from the `AgentBrain` class, since there is no need to highlight a final path.
+The following parameters are available to you to tweak during training:
 
-Create a new class called `MyRLAgent` by copying the existing `CustomRLAgent`. Verify that your agent works correctly by comparing its behavior to the built-in RL agent in the coarse version.
+Epsilon parameter for the epsilon-greedy policy (varies between 0 and 1): The value of this parameter is controlled by the "Explore-Exploit" slider in the user interface. You can modify the value of epsilon during the episode and it will take effect immediately for every subsequent action. A high epsilon means more exploration. Keep this high at start (0.9) and slowly reduce this as agent learns more and more. Once the agent is full-trained, you can make this parameter 0 so that it always follows the best known action.
 
+Starting Offset: The value of this parameter is controlled using another slider in the user interface. This parameter controls the spawn location of the agent at the beginning of the next episode: The agent will start from a random tile whose Manhattan distance from the source is equal to the Starting Offset. For example, if you set this value to 0, the agent will always start from the source. If you set it to 1, it will start from one of the two tiles that are adjacent to the source. A new value set for this parameter takes effect when the current episode ends and a new episode starts.
+Problem statement
 
-==The fine-grained maze and function approximators==
+==Tabular Q-Learning==
 
-Then try running your agent on the fine-grained version. This environment divides the world into much smaller steps (64x64), resulting in a substantially larger state space. You'll likely notice that your agent is not performing as well with the larger state. In such cases, it's helpful to implement a function approximator that abstracts the large state space into something more manageable. You will implement two such approximators.
+You don't need to change the implementation of MyTabularRLAgent for this assignment. Instead, you will use this agent to familiarize yourself with the behavior of tabular Q-Learning as the baseline for implementing the function approximators in the next sections.
 
-===Tiling Approximator===
+Try training the tabular Q-Learning agent in the coarse-grained maze environment. Start with very high values for Starting Offset so the agent starts very close to the goal. Also set the value of epsilon close to 1.0 so that the agent can explore different actions.
+
+The visited tiles are marked by yellow or green markers, and the Q-values by blue squares in the four directions around the central markers. The distance of each blue square from the yellow/green tile indicates how large the Q-value is. Also, the size of the central yellow/green marker in each maze tile corresponds to the highest Q-value in that tile. The values are initially small, and you can see how they gradually change as a result of learning. The central marker turns green when the value of the tile is above 0, which means the agent has discovered some action in that tile which can eventually take it to the goal. The agent receives a reward of 100 on the final move when it reaches the goal and a reward of -1 when it moves from a cell to another cell that is not the goal. This reward structure encourages reaching the goal with the minimum number of moves (each subtracting -1).
+
+Learning progresses particularly when the agent is exploring a yellow tile and suddenly discovers an action that takes it to an adjacent green tile. At that point in time, the yellow marker becomes green, indicating that Steve can reach the goal from that tile by following the highest Q values. In other words, to increase the learning speed you should make Steve explore the boundary between the the two green and yellow regions so that more yellow cells can become green. When enough tiles turn green in the vicinity of the spawn location, gradually lower the value of Starting Offset so that the agent starts farther from the goal and explores more of the maze. Also, gradually lower the value of epsilon so that the agent tries to reach the goal from those farther locations. In the end, the agent should be able to reach the goal starting from the source (Starting Offset = 0.)
+
+Now try running the tabular Q-Learning agent on the fine-grained maze environment. This environment divides the world into much smaller steps (64x64), resulting in a substantially larger state space. You'll likely notice that your agent is not performing as well with the larger state. In such cases, it's helpful to implement a function approximator that abstracts the large state space into something more manageable. You will implement two such approximators.
+
+==Tiling Approximator==
 
 Begin by implementing a simple tiling approximator. This function should simply map the current state back to the standard 8x8 space.
 
-For the simple tiling approximator, think of it this way - lets say you have got just 8x8 memory i.e you can just store 64 value function entries. Now due to the limited memory, you divide the 64x64 world grid into 64 tiles of size 8x8 (just like in the figure below where each one of the four quadrants encapsulates 8x8 states). Having such a coarse tiling means that each 8x8 states falling into a single tile will have the same value function. Of-course this does not help you much in terms of learning (and your agent might wander around aimlessly), because nearby states lying in a single tile are not distinguishable. But such coarse tiling does saves you space. However, do not spend too much time in training your agent. For further details, refer to [QLearning_faq FAQs page].
-As a next step, you will implement nearest-neighbor approximator in order to distinguish the states falling in a single tile.
+For the simple tiling approximator, think of it this way - let's say you have got just 8x8 memory i.e you can just store 64 value function entries. Now due to the limited memory, you divide the 64x64 world grid into 64 tiles of size 8x8 (just like in the figure below where each one of the four quadrants encapsulates 8x8 states). Having such a coarse tiling means that each 8x8 states falling into a single tile will have the same value function. Of-course this does not help you much in terms of learning (and your agent might wander around aimlessly), because nearby states lying in a single tile are not distinguishable. But such coarse tiling does saves you space. However, do not spend too much time in training your agent. For further details, refer to FAQ page. As a next step, you will implement nearest-neighbor approximator in order to distinguish the states falling in a single tile.
+Nearest-Neighbors Approximator
 
 ===Nearest-Neighbors Approximator===
 
@@ -56,6 +66,10 @@ if ((3,4), (3,5)) in get_environment().maze.walls:
 
 The walls set uses the coarse-grained (8x8) mapping for rows and columns, which should work out well for your approximator.
 For further details, refer to [QLearning_faq FAQs page].
+
+==Frequently Asked Questions==
+
+You may check out the [http://www.cs.utexas.edu/users/risto/cs343/private/hw3/HW03_FAQ.txt FAQ] accumulated from previous classes.
 
 ===Switching between approaches===
 
