@@ -15,7 +15,7 @@ Note that this video is recorded using an earlier version of OpenNERO.  The curr
 To run the demo,
 
   # [RunningOpenNero start OpenNERO]
-  # Start the [MazeMod Maze mod]
+  # Start the Reinforcement Learning Experiment
   # Select the method you want to run from the pull-down menu:
     # Q-Learning (Coarse) runs the coarse-grained (easy) version
     # Q-Learning (Fine) runs the fine-grained (more difficult) version
