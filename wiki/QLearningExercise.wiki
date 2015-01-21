@@ -6,13 +6,15 @@
 
 In this exercise, you will implement a function approximator for the Python Q-learning agent. It will abstract a more fine-grained version of the problem space, making the problem tractable for the Q-Learner. 
 
-==The OpenNERO Platform==
+==Downloading Exercise Files==
 
-The following steps should help get you up and running in OpenNERO:
+Start with [http://www.cs.utexas.edu/users/risto/cs343/private/hw3/Hw3.tar.gz downloading the skeleton files for the Q-learning exercise]. Copy the folder named Hw3 from the archive to your OpenNERO installation folder. At this point, a new mod named Hw3 should show up in OpenNERO whenever you run it.
 
-  * Either:
-    * Install it on your own machine by downloading one of the [http://code.google.com/p/opennero/downloads/list prebuilt binaries]
-    * [BuildingOpenNero Build OpenNERO] on your own machine using the source code.
+The file Hw3/agent.py contains 3 classes:
+
+- MyTabularRLAgent: This class has the same implementation as QLearningAgent from Maze/agent.py. The mod Hw3 lists this agent twice: once with the coarse-grained maze environment and once with the fine-grained maze environment.
+- MyTilingRLAgent: This class has an empty implementation which just subclasses MyTabularRLAgent, making it behave like the tabular Q-Learning agent. You will need to complete the implementation of this class so that it implements a tiling approximator.
+- MyNearestNeighborsRLAgent: This class has an empty implementation which just subclasses MyTabularRLAgent, making it behave like the tabular Q-Learning agent. You will need to complete the implementation of this class so that it implements a nearest neighbors approximator.
 
 ==Creating your agent==
 
