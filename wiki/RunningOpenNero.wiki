@@ -3,13 +3,13 @@
 
 = Prerequisites =
 
-Please be sure to follow the instructions to install [OpenNeroPrerequisites Prerequisites] (Python and wxPython).
+Please be sure to follow the instructions to install [OpenNeroPrerequisites Prerequisites].
 
 = Introduction =
 
-OpenNERO consists of the core program and a collection of one or more *mods*. A mod is a logically separate unit of OpenNERO that can be a custom game, an AI experiment, or both. Each mod is defined as a directory next to the application. When you start OpenNERO, it shows a menu with existing mods and an option to exit. Currently, the following mods are included:
+OpenNERO consists of the core program and a collection of one or more *mods*, or environments.  A mod is a logically separate unit of OpenNERO that can be a custom game, an AI experiment, or both. Each mod is defined as a directory next to the application. When you start OpenNERO, it shows a menu with existing mods and an option to exit. Currently, the following mods are included:
   * [MazeMod Maze] - a simple maze world on an island, with search, learning and first-person agents.
-  * [BlocksWorldMod Blocks World] - a classic AI problem for planning and natural language understanding.
+  * [BlocksWorldMod Tower of Hanoi] - a classic AI problem for planning.
   * [RoombaMod Roomba] - a messy computer lab which gets cleaner with the help of some cleaning robots.
   * [NeroMod NERO] - an implementation of [http://www.nerogame.org/ Neuro Evolving Robotic Operatives (NERO)], where you can evolve your own team of neural network-driven robots along a variety of fitness criteria.
 
@@ -38,7 +38,7 @@ The controls can be easily redefined, but in general, the following keys should 
 
 [http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.png http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png]
 
-== [BlocksWorldMod Blocks World] ==
+== [BlocksWorldMod Tower of Hanoi] ==
 
 [http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.png http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.tiny.png]
 
