@@ -21,7 +21,7 @@ To create your `IDA*` agent, start with downloading the [http://www.cs.utexas.ed
 
 ==Implementing Your Agent==
 
-Open the agent.py file inside Hw1. Modify the code in the IdaStarSearchAgent class to implement the IDA* search algorithm.  The starting implementation for this agent is listed below.  The starting implementation returns random actions on every request.
+Open the agent.py file inside Hw1. Modify the code in the IdaStarSearchAgent class to implement the `IDA*` search algorithm.  The starting implementation for this agent is listed below.  The starting implementation returns random actions on every request.
 
 You may want to study the implementation of other search agents in the Maze environment in the [http://code.google.com/p/opennero/source/browse/trunk/mods/Maze/agent.py Maze/agent.py] file (located in trunk/mods/Maze). Notice that there are several agents implemented here, including a DFS agent (DFSSearchAgent) and an `A*` agent (AStarSearchAgent).
 
