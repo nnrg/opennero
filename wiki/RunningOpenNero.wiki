@@ -8,8 +8,8 @@ OpenNERO consists of the core program and a collection of experiments.  Each exp
 = OpenNERO Platform =
 
   * Either:
-    * Install OpenNERO by downloading one of the [DownloadingOpenNero prebuilt binaries]
-    * [BuildingOpenNero Build OpenNERO] from the source code.
+    * [DownloadingOpenNero Download a prebuilt binary]
+    * [BuildingOpenNero Build OpenNERO] from the source code
 
 <wiki:comment>
 Currently, the following experiments are included:
