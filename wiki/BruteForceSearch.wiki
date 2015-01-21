@@ -15,7 +15,7 @@ them out interactively.
 To run the demo, first:
 
   # [RunningOpenNero Start OpenNERO]
-  # Start the [MazeMod Search Experiment]
+  # Start the Search Experiment
   # Click on the Depth First Search button to run DFS
   # Click on the Breadth First Search button to run BFS
 
