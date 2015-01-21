@@ -2,7 +2,7 @@
 #labels Exercise
 #sidebar TableOfContents
 
-= Introduction =
+= Running OpenNERO in Headless Mode =
 
 When running experiments, you might want to run OpenNERO multiple times to explore parameter settings or make statistically significant comparisons. When doing so, it is nice to automate this process or even to distribute multiple runs of OpenNERO to a bunch of machines in a cluster. This is how we, for example, ran the [TournamentResults2011 OpenNERO Tournament].
 
