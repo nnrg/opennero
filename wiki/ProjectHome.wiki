@@ -35,26 +35,26 @@ ones can be built, by us, but also by the community at large. If you have questi
      * [BuildingOpenNeroWindows Windows]
      * [BuildingOpenNeroOSX Mac OS X]
  * [RunningOpenNero Run OpenNERO]
-   * [MazeMod The Maze mod]
-   * [BlocksWorldMod Blocks World mod]
-   * [RoombaMod The Roomba mod]
-   * [NeroMod NERO Machine Learning Game]
-   * [RunningOpenNeroHeadless Running Headless]
- * Demonstrations
    * Search
-     * [FirstPersonSearch Introduction: First Person Search]
+     * [MazeMod The Maze Environment]
+     * [FirstPersonSearch First Person Search]
      * [BruteForceSearch Uninformed Search]
      * [HeuristicSearch Heuristic Search]
    * Planning
+     * [BlocksWorldMod Tower of Hanoi Environment]
      * [SymbolicPlanning Symbolic Planning]
    * Reinforcement Learning
-     * [QLearning Q-Learning]
+     * [MazeModQ The Maze Environment]
+     * [QLearning Q-learning]
    * Evolutionary Computation
+     * [RoombaMod The Roomba Environment]
      * [NeuroEvolution Neuroevolution]
    * Multi-Agent Systems
      * [NeroMod NERO Machine Learning Game]
    * Vision
+     * [InstallVision The Vision Environment]
      * [EdgeDetection Edge Detection]
+   * [RunningOpenNeroHeadless Headless Mode]
  * [SystemOverview System Overview]
  * [OpenNeroExercises Exercises]
     * AddingStuffExercise
