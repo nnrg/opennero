@@ -72,6 +72,8 @@ established [http://groups.google.com/group/opennero OpenNERO Google group] to s
 and answered by anyone on the forum, hopefully making it
 easier to figure out issues as they happen.
 
+<wiki:comment>
+
 In order to provide the best experience for everyone, we may release
 bug fixes before the tournament submissions are due. Below is a concise summary of such fixes:
 
@@ -93,6 +95,9 @@ If you are experiencing any of the following, try upgrading to the most recent v
   * battle never ends
   * agents removed from battle continue to accumulate damage
   * <a href="http://code.google.com/p/opennero/issues/detail?id=128">rtNEAT sliders disabled when loading team for further training</a>
+
+</wiki:comment>
+
 
 ==== Known issues ====
   * See [http://code.google.com/p/opennero/issues/list issues list] for a general list of known issues
