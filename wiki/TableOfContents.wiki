@@ -20,7 +20,7 @@
      * [SymbolicPlanning Symbolic Planning]
    * Reinforcement Learning
      * [MazeModQ The Maze Environment]
-     * [QLearning Q-Learning]
+     * [QLearning Q-learning]
    * Evolutionary Computation
      * [RoombaMod The Roomba Environment]
      * [NeuroEvolution Neuroevolution]
