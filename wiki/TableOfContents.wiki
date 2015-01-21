@@ -29,7 +29,7 @@
    * Vision
      * [InstallVision The Vision Environment]
      * [EdgeDetection Edge Detection]
-   * [RunningOpenNeroHeadless Running Headless]
+   * [RunningOpenNeroHeadless Headless Mode]
  * [SystemOverview System Overview]
  * [OpenNeroExercises Exercises]
     * AddingStuffExercise
