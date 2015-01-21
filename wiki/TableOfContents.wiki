@@ -19,7 +19,7 @@
      * [BlocksWorldMod Tower of Hanoi Environment]
      * [SymbolicPlanning Symbolic Planning]
    * Reinforcement Learning
-     * [MazeMod The Maze Environment]
+     * [MazeModQ The Maze Environment]
      * [QLearning Q-Learning]
    * Evolutionary Computation
      * [RoombaMod The Roomba Environment]
