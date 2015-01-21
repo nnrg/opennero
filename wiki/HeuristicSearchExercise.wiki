@@ -94,7 +94,7 @@ In these methods, you are required to return an `action` -- an integer correspon
 
 The class above is an empty skeleton. Refer to the other agent implementations in `agent.py` for guidance on how to implement in your agent. 
 
-===Frequently Asked Questions===
+==Frequently Asked Questions==
 
 You can check out the [http://www.cs.utexas.edu/users/risto/cs343/private/hw1/hw1.html FAQ] accumulated from previous classes.
 
