@@ -5,6 +5,12 @@
 
 OpenNERO consists of the core program and a collection of experiments.  Each experiment takes place in its appropriate environment.  The different environments in OpenNERO are called *mods*.  A mod is a logically separate unit of OpenNERO that can be a custom game or any other AI environment.  Each experiment is defined as a separate directory in OpenNERO's installation location. When you start OpenNERO, it shows a list of experiments that are installed and available for running.
 
+= OpenNERO Platform =
+
+  * Either:
+    * Install OpenNERO by downloading one of the [DownloadingOpenNero prebuilt binaries]
+    * [BuildingOpenNero Build OpenNERO] from the source code.
+
 <wiki:comment>
 Currently, the following experiments are included:
   * [MazeMod Maze] - a simple maze world on an island, with search, learning and first-person agents.
