@@ -7,7 +7,7 @@ Please be sure to follow the instructions to install [OpenNeroPrerequisites Prer
 
 = Introduction =
 
-OpenNERO consists of the core program and a collection of one or more *mods*, or environments.  A mod is a logically separate unit of OpenNERO that can be a custom game, an AI experiment, or both. Each mod is defined as a directory next to the application. When you start OpenNERO, it shows a menu with existing mods and an option to exit. Currently, the following mods are included:
+OpenNERO consists of the core program and a collection of experiments.  Each experiment takes place in its appropriate environment.  The different environments in OpenNERO are called *mods*.  A mod is a logically separate unit of OpenNERO that can be a custom game, or any other AI environment.  Each experiment is defined as a directory in OpenNERO's installation directory. When you start OpenNERO, it shows a menu with existing experiments and an option to exit. Currently, the following experiments are included:
   * [MazeMod Maze] - a simple maze world on an island, with search, learning and first-person agents.
   * [BlocksWorldMod Tower of Hanoi] - a classic AI problem for planning.
   * [RoombaMod Roomba] - a messy computer lab which gets cleaner with the help of some cleaning robots.
