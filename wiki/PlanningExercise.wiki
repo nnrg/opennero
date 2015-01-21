@@ -5,15 +5,7 @@
 
 In this exercise, you will implement extensions to each of the three planning methods in the [Planning Planning demo] to make them more general and effective.
 
-==The OpenNERO Platform==
-
-The following steps should help get you up and running in OpenNERO:
-
-  * Either:
-    * Install it on your own machine by downloading one of the [http://code.google.com/p/opennero/downloads/list prebuilt binaries]
-    * [BuildingOpenNero Build OpenNERO] on your own machine using the source code.
-
-==Creating your agent==
+==Creating Your Agent==
 
 To create your extended planning agent, open the
 [http://code.google.com/p/opennero/source/browse/trunk/mods/TowerofHanoi/agent.py
