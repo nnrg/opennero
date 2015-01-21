@@ -10,26 +10,25 @@
      * [BuildingOpenNeroWindows Windows]
      * [BuildingOpenNeroOSX Mac OS X]
  * [RunningOpenNero Run OpenNERO]
-   * [MazeMod The Maze mod]
-   * [BlocksWorldMod Tower of Hanoi mod]
-   * [RoombaMod The Roomba mod]
-   * [NeroMod NERO Machine Learning Game]
-   * [RunningOpenNeroHeadless Running Headless]
- * Demonstrations
    * Search
+     * [MazeMod The Maze Environment]
      * [FirstPersonSearch Introduction: First Person Search]
      * [BruteForceSearch Uninformed Search]
      * [HeuristicSearch Heuristic Search]
    * Planning
+     * [BlocksWorldMod Tower of Hanoi Environment]
      * [SymbolicPlanning Symbolic Planning]
    * Reinforcement Learning
+     * [MazeMod The Maze Environment]
      * [QLearning Q-Learning]
    * Evolutionary Computation
+     * [RoombaMod The Roomba Environment]
      * [NeuroEvolution Neuroevolution]
    * Multi-Agent Systems
      * [NeroMod NERO Machine Learning Game]
    * Vision
      * [EdgeDetection Edge Detection]
+   * [RunningOpenNeroHeadless Running Headless]
  * [SystemOverview System Overview]
  * [OpenNeroExercises Exercises]
     * AddingStuffExercise
