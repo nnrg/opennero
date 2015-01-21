@@ -12,7 +12,7 @@
  * [RunningOpenNero Run OpenNERO]
    * Search
      * [MazeMod The Maze Environment]
-     * [FirstPersonSearch Introduction: First Person Search]
+     * [FirstPersonSearch First Person Search]
      * [BruteForceSearch Uninformed Search]
      * [HeuristicSearch Heuristic Search]
    * Planning
