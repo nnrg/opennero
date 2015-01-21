@@ -16,7 +16,7 @@ to test it interactively.
 To run the demo,
 
   # [InstallVision Install the vision extension] for OpenNERO.
-  # Start the Hw5 mod.
+  # Start the Vision Experiment.
   # Click the First Person Agent button.
   # Position your agent with the W, A, S, and D keys.
   # When you have an object in sight, press the Snapshot button.
