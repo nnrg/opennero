@@ -1,4 +1,5 @@
 #summary FAQ - Function Approximators for Reinforcement Learning
+#sidebar TableOfContents
 
 ==1. Value function is defined for three types of entities - tile, state (location) and state-action. How are these different from each other?== 
 
