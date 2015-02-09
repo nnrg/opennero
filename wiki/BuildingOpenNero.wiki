@@ -39,7 +39,7 @@ use: `sudo apt-get install <package1> <package2> ...`
  * libboost-system-dev
  * libboost-date-time-dev
  * maven
- * openjdk-6-jdk
+ * openjdk-7-jdk
 
 ==== Fedora ====
 
@@ -74,8 +74,8 @@ Once you have installed the prerequisites, you can continue to build OpenNERO us
  # `mkdir opennero`
  # `cd opennero`
  # `svn checkout http://opennero.googlecode.com/svn/trunk`
- # `mkdir build-of-trunk`
- # `cd build-of-trunk`
+ # `mkdir build`
+ # `cd build`
  # `cmake ../trunk`
  # `make`
 
@@ -88,7 +88,7 @@ Once you have installed the prerequisites, you can continue to build OpenNERO us
 
  # `cd trunk`
  # `svn update`
- # `cd ..\build-of-trunk`
+ # `cd ..\build`
  # `make`
 
 === Notes: ===
