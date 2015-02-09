@@ -9,7 +9,7 @@
      * [BuildingOpenNero Linux]
      * [BuildingOpenNeroWindows Windows]
      * [BuildingOpenNeroOSX Mac OS X]
- * [RunningOpenNero Run OpenNERO]
+ * Demonstrations
    * Search
      * [MazeMod The Maze Environment]
      * [FirstPersonSearch First Person Search]
