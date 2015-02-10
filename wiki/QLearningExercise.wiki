@@ -8,7 +8,7 @@ In this exercise, you will implement a function approximator for the Python Q-le
 
 ==Downloading Exercise Files==
 
-Start with [http://www.cs.utexas.edu/users/risto/cs343/private/hw3/Hw3.tar.gz downloading the skeleton files for the Q-learning exercise]. Copy the folder from the archive to your OpenNERO installation folder. At this point, a new mod should show up in OpenNERO whenever you run it.
+Start with [http://opennero.googlecode.com/svn/wiki/Hw3.tar.gz downloading the skeleton files for the Q-learning exercise]. Copy the folder from the archive to your OpenNERO installation folder. At this point, a new mod should show up in OpenNERO whenever you run it.
 
 The file agent.py contains 3 classes:
 
