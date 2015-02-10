@@ -2,7 +2,7 @@
 #labels Demo
 #sidebar TableOfContents
 
-=The NERO Machine Learning Game=
+==Introduction==
 
 In the NERO game, the user trains intelligent agents to perform well
 in battle.  It is a machine learning game, i.e. the focus is on
