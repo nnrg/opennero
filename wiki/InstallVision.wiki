@@ -3,6 +3,8 @@
 
 =The Vision Environment=
 
+<img src=http://opennero.googlecode.com/svn/wiki/OpenNERO-vision.png height=300 width=400></img>
+
 To run the demo,
 
   # Download the Vision Environment for OpenNERO.
