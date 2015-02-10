@@ -1,6 +1,8 @@
 #summary This page describes how to build OpenNERO from source for Windows.
 #sidebar TableOfContents
 
+*Note:* If you manage to compile OpenNERO for Windows, please let us know so we can share it with other users.
+
 *Note:* Feel free to share your experience with building OpenNERO in the comments section.
 
 = Windows =
