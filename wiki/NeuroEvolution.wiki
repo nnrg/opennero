@@ -2,7 +2,7 @@
 #labels Demo
 #sidebar TableOfContents
 
-=Introduction=
+==Introduction==
 
 http://opennero.googlecode.com/svn/wiki/neuroevolution.png
 
