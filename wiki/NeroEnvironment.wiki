@@ -1,4 +1,4 @@
-#summary The NERO game description
+#summary The NERO game environment
 #sidebar TableOfContents
 
 =NERO Environment=
