@@ -1,7 +1,7 @@
 #summary This page describes how to download a precompiled OpenNERO binary for Windows and install the prerequisites.
 #sidebar TableOfContents
 
-*Note:* As of Sep 2014, this binary is outdated.  Please use the [DownloadingOpenNero Linux version].
+*Note:* This binary is outdated.  Please use the [DownloadingOpenNero Linux version].  If you manage to compile OpenNERO for Windows, please let us know so we can share it with other users.
 
 = Windows =
 
