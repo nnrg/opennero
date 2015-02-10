@@ -47,7 +47,7 @@ Your assignment is to improve the parser to handle more complex grammar. Specifi
 
 {{{
 S -> S and S
-S -> VP1 NP1 NP3 NP4 | VP1 NP1 NP4 NP3 | VP2 NP1 NP3 | VP3 NP1 NP4
+S -> VP1 NP1 NP3 NP4 | *VP1 NP1 NP4 NP3* | VP2 NP1 NP3 | VP3 NP1 NP4
 VP1 -> move 
 VP2 -> pick up 
 VP3 -> put
