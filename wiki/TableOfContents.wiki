@@ -34,6 +34,7 @@
      * [VisionMod The Vision Environment]
      * [EdgeDetection Vision: Edge Detection]
    * [RunningOpenNeroHeadless Headless Mode]
+ * [SystemOverview System Overview]
  * [OpenNeroExercises Exercises]
     * AddingStuffExercise
     * CreateRoombaAgentExercise
@@ -48,4 +49,3 @@
     * NeroTournamentExercise
       * TournamentResults2011
     * ObjectRecognitionExercise
- * [SystemOverview System Overview]
