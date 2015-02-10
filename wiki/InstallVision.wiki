@@ -5,7 +5,7 @@
 
 To run the demo,
 
-  # [InstallVision Download the Vision Environment] for OpenNERO.
+  # Download the Vision Environment for OpenNERO.
   # Start the Vision Experiment.
   # Click the First Person Agent button.
   # Position your agent with the W, A, S, and D keys.
