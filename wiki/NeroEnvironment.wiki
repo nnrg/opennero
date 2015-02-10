@@ -21,11 +21,8 @@ The agents are simulated "Steve" robots seen also in the [MazeMod Maze] and
 Their effectors are
   * Forward/backward speed: -1..1 of maximum. The agents move at a rate of up to 1 unit per frame (MAX_MOVEMENT_SPEED in [http://code.google.com/p/opennero/source/browse/trunk/mods/NERO/constants.py constants.py].
   * Turning speed: -1..1 of maximum. The agents can turn at a rate of up to 0.2 radians per frame (MAX_TURNING_RATE in [http://code.google.com/p/opennero/source/browse/trunk/mods/NERO/constants.py constants.py]).
-Because the robot can shoot only forward, both directions of running
-are useful (forward for attacking, backward for retreating). If the
-robot tries to run into an object, it is simply stopped. However, in
-the current version the robots run through each other (to speed up the
-simulation).
+
+Because the robot can shoot only forward, both directions of running are useful (forward for attacking, backward for retreating). If the robot tries to run into an object, it is simply stopped. However, in the current version the robots run through each other (to speed up the simulation).
 
 Note that there is no output for taking a shot. Instead, the agents
 shoot probabilistically. First, they have to be oriented within 2
