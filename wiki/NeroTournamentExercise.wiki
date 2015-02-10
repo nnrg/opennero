@@ -113,7 +113,7 @@ You don't have to wait until you are done to do this, but you will at least want
 
 To see a team play an actual game instead of just watching it train load the Multi-agent Systems Battle module instead of Multi-agent Systems Training. You will see a window with the arena, and a dialog box that will let you load a red team and a blue team. You can pit your own previously-saved teams against each other. Don't spend too much time on this, as no training is taking place in battle mode. However this mode will allow you to confirm that you team ats intelligently against opponents that move around, and that the agents that you have choosen work well together.
 
-If you want, you can test how well your team fares against these practice opponents: [http://www.cs.utexas.edu/~reza/opennero/teams/team1.txt team1], team2, team3, team4, team5.
+If you want, you can test how well your team fares against these practice opponents: [http://www.cs.utexas.edu/~reza/opennero/teams/team1.txt team1], [http://www.cs.utexas.edu/~reza/opennero/teams/team2.txt team2], [http://www.cs.utexas.edu/~reza/opennero/teams/team3.txt team3], [http://www.cs.utexas.edu/~reza/opennero/teams/team4.txt team4], [http://www.cs.utexas.edu/~reza/opennero/teams/team5.txt team5].
 
 ==7. Report==
 
@@ -133,11 +133,16 @@ Your team and your report should be turned in separately.
 
 If you run into any bugs in your program, you can find the error log file for OpenNERO at this location: 
 
+{{{
 ~/.opennero/nero_log.txt 
+}}}
 
 Note that the training window runs as a separate process. If the window is not properly closed before you exit OpenNERO, the program might fail to launch the window again and report that port 8888 is busy. If this happens, you'd need to kill the process manually:
 
+{{{
 $ ps auwx | grep java
+}}}
+
 user 17604 29.5 1.7 2631232 67944 pts/0 Sl+ 10:34 0:02 java -classpath TrainingWindow.jar edu.utexas.cs.nn.opennero.gui.TrainingUI
 
 $ kill 17604
