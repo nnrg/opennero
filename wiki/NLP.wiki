@@ -26,18 +26,23 @@ To run the demo, first:
 
 ==Text input interface==
 
-Once you have downloaded the homework files, run OpenNERO and start the Extended Semantic Parser from Hw4 mod. A pop-up dialog box will open up which will take text input. For a start, enter the following commands in the dialog box and see how the agent responds.
+Once you run the agent, a pop-up dialog box will open up which will take text input. For a start, enter the following commands in the dialog box and see how the agent responds.
+
 Move Disk1 from Pole1 to pole3
 Pick up Disk1 lying on Pole1
 Put Disk1 on Pole2
+
 The current parser can only handle three possible types of English language sentences and the actions corresponding to each of them.
-English sentences	OpenNERO command
+English sentences:
+
+OpenNERO command
 Move Disk1 from Pole1 to Pole2	Mov Disk1 Pole1 Pole2
 Pick up Disk1 from Pole1	Pick Disk1 Pole1
 Put down Disk1 on Pole2	Put Disk1 Pole2
 
 Similarly, variants of the above sentences/commands can be made by using Disk1/Disk2/Disk3 and Pole1/Pole2/Pole3. The command format is always:
 
+{{{
 S -> VP1 NP1 NP3 NP4 | VP2 NP1 NP3 | VP3 NP1 NP4
 VP1 -> move 
 VP2 -> pick up 
@@ -46,5 +51,6 @@ NP1 -> disk1 | disk2 | disk3
 NP2 -> pole1 | pole2 | pole3
 NP3 -> from NP2
 NP4 -> to NP2 | on NP2
+}}}
 
-The current parser will currently accept many commands that do not follow the above grammer, as long as they still begin with VP1, VP2 or VP3. The simulator, however, will only execute legal commands. For example, if Disk1 is lying on Pole1, then you cannot pick it from Pole2 or, if Disk1 is lying on Disk2, then you cannot move Disk2. Remember, the starting configuration of 3-disk planner includes Disk3 lying on Pole1, Disk2 lying on Disk3 and Disk1 lying on Disk2.
+The simulator will only execute legal commands. For example, if Disk1 is lying on Pole1, then you cannot pick it from Pole2 or, if Disk1 is lying on Disk2, then you cannot move Disk2. Remember, the starting configuration of 3-disk planner includes Disk3 lying on Pole1, Disk2 lying on Disk3 and Disk1 lying on Disk2.
