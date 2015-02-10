@@ -146,12 +146,11 @@ Note that the training window runs as a separate process. If the window is not p
 
 {{{
 $ ps auwx | grep java
-}}}
 
 user 17604 29.5 1.7 2631232 67944 pts/0 Sl+ 10:34 0:02 java -classpath TrainingWindow.jar edu.utexas.cs.nn.opennero.gui.TrainingUI
 
 $ kill 17604
-
+}}}
 
 
 
