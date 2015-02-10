@@ -1,3 +1,4 @@
+#summary Tower of Hanoi Environment
 #sidebar TableOfContents
 
 =Tower of Hanoi Environment=
