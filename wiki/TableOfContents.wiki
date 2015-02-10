@@ -41,7 +41,7 @@
     * MazeSolverExercise
     * HeuristicSearchExercise
     * PlanningExercise
-    * NLPExercise
+    * [NLPExercise]
     * [QLearningExercise]
     * MazeLearnerExercise
     * AdvancedMazeExercise
