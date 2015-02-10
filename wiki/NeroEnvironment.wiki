@@ -1,3 +1,6 @@
+#summary The NERO game description
+#sidebar TableOfContents
+
 ==NERO Environment==
 
 The player first enters the NERO-Training environment, where s/he
