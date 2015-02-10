@@ -3,7 +3,7 @@
 
 =NERO Environment=
 
-http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png
+<img src=http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.png height=300 width=400></img>
 
 The player first enters the NERO-Training environment, where s/he
 develops a team and saves it. The player then enters the NERO-Battle
