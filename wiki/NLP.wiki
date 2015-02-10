@@ -2,7 +2,7 @@
 #labels Demo
 #sidebar TableOfContents
 
-==NLP Demo==
+==Introduction==
 
 Planning means deciding on a course of action before acting. In this
 demo, three different planning methods (goal-stacking, forward
