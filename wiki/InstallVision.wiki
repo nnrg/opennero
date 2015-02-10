@@ -1,7 +1,7 @@
 #summary InstallVision
 #sidebar TableOfContents
 
-==The Vision Environment==
+=The Vision Environment=
 
 To run the demo,
 
@@ -12,7 +12,8 @@ To run the demo,
   # When you have an object in sight, press the Snapshot button.
 
 Each snapshot will automatically be processed by OpenNERO and the results will be displayed in a four-panel window. Note that the default version included in the demo is a faster, more efficient implementation of the canonical edge detection algorithm; it should complete its analysis in about 10 seconds and requires `numpy` and `scipy` to be installed. If you prefer to use the slower, more canonical implementation of the edge detection algorithm, or if you are not able to install `numpy` or `scipy`, you can checkout the cs343vision2 branch.
-= Downloading the Vision Environment =
+
+== Downloading the Vision Environment ==
 
 Follow the steps below to download and install the vision environment in OpenNERO.
 
