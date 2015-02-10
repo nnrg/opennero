@@ -20,8 +20,8 @@ try it out interactively.
 To run the demo, first:
 
   # [RunningOpenNero Start OpenNERO]
-  # Start the NLP
-  # Select Semantic Parser from the pull-down menu:
+  # Start the NLP experiment
+  # Select Semantic Parser from the pull-down menu
   # Click on the Start button to start the demo
 
 ==Text input interface==
