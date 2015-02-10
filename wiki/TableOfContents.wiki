@@ -29,7 +29,7 @@
      * [NeroGame NERO Machine Learning Game]
    * Vision
      * [InstallVision The Vision Environment]
-     * [EdgeDetection Edge Detection]
+     * [EdgeDetection Vision: Edge Detection]
    * [RunningOpenNeroHeadless Headless Mode]
  * [OpenNeroExercises Exercises]
     * AddingStuffExercise
