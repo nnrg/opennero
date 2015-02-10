@@ -1,4 +1,4 @@
-#summary InstallVision
+#summary Help for Vision mod of OpenNERO
 #sidebar TableOfContents
 
 =The Vision Environment=
