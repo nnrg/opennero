@@ -1,4 +1,4 @@
-#summary Tower of Hanoi Environment
+#summary Help for Blocks World mod of OpenNERO
 #sidebar TableOfContents
 
 =Tower of Hanoi Environment=
