@@ -4,6 +4,8 @@
 
 ==Introduction==
 
+<img src=http://opennero.googlecode.com/svn/wiki/OpenNERO-nlp.png height=300 width=400></img>
+
 Planning means deciding on a course of action before acting. In this
 demo, three different planning methods (goal-stacking, forward
 search, and problem reduction) are demonstrated in the Towers of Hanoi
