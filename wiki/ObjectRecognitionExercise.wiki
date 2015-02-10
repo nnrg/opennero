@@ -7,7 +7,7 @@ In this assignment you will create a Computer Vision (CV) system to classify dif
 
 ==1. Install the vision extension==
 
-The first step is to install all the components necessary to run the vision extension. See the [InstallVision vision installation instructions] for more information.
+The first step is to install all the components necessary to run the vision extension. See the [VisionMod vision installation instructions] for more information.
 
 ==2. Create training, testing, and validation sets in OpenNERO==
 

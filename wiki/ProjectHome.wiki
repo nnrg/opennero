@@ -52,7 +52,7 @@ ones can be built, by us, but also by the community at large. If you have questi
    * Multi-Agent Systems
      * [NeroMod NERO Machine Learning Game]
    * Vision
-     * [InstallVision The Vision Environment]
+     * [VisionMod The Vision Environment]
      * [EdgeDetection Edge Detection]
    * [RunningOpenNeroHeadless Headless Mode]
  * [OpenNeroExercises Exercises]

@@ -31,7 +31,7 @@
      * [NeroMod NERO Environment]
      * [NeroGame NERO Machine Learning Game]
    * Vision
-     * [InstallVision The Vision Environment]
+     * [VisionMod The Vision Environment]
      * [EdgeDetection Vision: Edge Detection]
    * [RunningOpenNeroHeadless Headless Mode]
  * [OpenNeroExercises Exercises]
