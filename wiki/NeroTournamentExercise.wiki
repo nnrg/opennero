@@ -118,7 +118,7 @@ You don't have to wait until you are done to do this, but you will at least want
 
 To see a team play an actual game instead of just watching it train load the Multi-agent Systems Battle module instead of Multi-agent Systems Training. You will see a window with the arena, and a dialog box that will let you load a red team and a blue team. You can pit your own previously-saved teams against each other. Don't spend too much time on this, as no training is taking place in battle mode. However this mode will allow you to confirm that you team ats intelligently against opponents that move around, and that the agents that you have choosen work well together.
 
-If you want, you can test how well your team fares against these practice opponents: [http://www.cs.utexas.edu/~reza/opennero/teams/team1.txt team1], [http://www.cs.utexas.edu/~reza/opennero/teams/team2.txt team2], [http://www.cs.utexas.edu/~reza/opennero/teams/team3.txt team3], [http://www.cs.utexas.edu/~reza/opennero/teams/team4.txt team4], [http://www.cs.utexas.edu/~reza/opennero/teams/team5.txt team5].
+If you want, you can test how well your team fares against these practice opponents: [http://opennero.googlecode.com/svn/wiki/teams/team1.txt team1], [http://opennero.googlecode.com/svn/wiki/teams/team2.txt team2], [http://opennero.googlecode.com/svn/wiki/teams/team3.txt team3], [http://opennero.googlecode.com/svn/wiki/teams/team4.txt team4], [http://opennero.googlecode.com/svn/wiki/teams/team5.txt team5].
 
 ==7. Report==
 
