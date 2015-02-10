@@ -17,7 +17,7 @@ Before your implement your agent, it's a good idea to look at the demos for [Bru
 
 ==Downloading Exercise Files==
 
-To create your `IDA*` agent, start with downloading the [http://www.cs.utexas.edu/users/risto/cs343/private/hw1/Hw1.tar.gz skeleton files for the search exercise]. Copy the folder from the archive to your OpenNERO installation folder. At this point, a new mod should show up in OpenNERO whenever you run it.
+To create your `IDA*` agent, start with downloading the [http://opennero.googlecode.com/svn/wiki/Hw1.tar.gz skeleton files for the search exercise]. Copy the folder from the archive to your OpenNERO installation folder. At this point, a new mod should show up in OpenNERO whenever you run it.
 
 ==Implementing Your Agent==
 
