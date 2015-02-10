@@ -1,7 +1,7 @@
 #summary EdgeDetection Demo
 #sidebar TableOfContents
 
-==Vision: Edge Detection==
+==Introcution==
 
 The first step in many vision systems is to detect the edges in the image  (see section 24.2.1 of <a href="http://aima.cs.berkeley.edu">AIMA</a>). Given an image, an edge detection algorithm determines which pixels lay along the boundary of two different elements, such as an agent's head and a distant mountain. The edge maps and histograms can then be classified into different objects. In this demo you will drive a NERO agent around the environment and take snapshots of different objects in it. Each snapshot will then be processed through smoothing and edge detection; building a system that labels these objects is left for an exercise.
 
