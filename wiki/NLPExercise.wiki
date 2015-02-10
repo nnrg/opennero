@@ -47,7 +47,7 @@ Your assignment is to improve the parser to handle more complex grammar. Specifi
 
 {{{
 S -> S and S
-S -> VP1 NP1 NP3 NP4 | *VP1 NP1 NP4 NP3* | VP2 NP1 NP3 | VP3 NP1 NP4
+S -> VP1 NP1 NP3 NP4 | VP1 NP1 NP4 NP3 | VP2 NP1 NP3 | VP3 NP1 NP4
 VP1 -> move 
 VP2 -> pick up 
 VP3 -> put
@@ -58,7 +58,7 @@ NP4 -> to NP2 | on NP2
 ADJ  -> left | middle | right 
 }}}
 
-The items in bold represent the following additional capabilities:
+Note that there are changes in the grammar which represent the following additional capabilities:
 
 Compound commands: ([Verb Phrase] [Noun Phrases] and [Verb Phrase] [Noun Phrases])
 The noun phrases should be able to be in any order that still makes a proper english sentence.
