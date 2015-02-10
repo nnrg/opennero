@@ -1,4 +1,4 @@
-#summary The NERO game environment
+#summary Help for NERO mod of OpenNERO
 #sidebar TableOfContents
 
 =NERO Environment=
