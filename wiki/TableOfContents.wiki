@@ -25,6 +25,7 @@
      * [RoombaMod The Roomba Environment]
      * [NeuroEvolution Neuroevolution]
    * Multi-Agent Systems
+     * [NeroEnvironment NERO Environment]
      * [NeroMod NERO Machine Learning Game]
    * Vision
      * [InstallVision The Vision Environment]
