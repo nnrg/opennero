@@ -10,19 +10,6 @@ to test it interactively.
 
 <wiki:video url="http://www.youtube.com/watch?v=PlrKywV5ep8"/>
 
-
-==Running the Demo==
-
-To run the demo,
-
-  # [InstallVision Download the Vision Environment] for OpenNERO.
-  # Start the Vision Experiment.
-  # Click the First Person Agent button.
-  # Position your agent with the W, A, S, and D keys.
-  # When you have an object in sight, press the Snapshot button.
-
-Each snapshot will automatically be processed by OpenNERO and the results will be displayed in a four-panel window. Note that the default version included in the demo is a faster, more efficient implementation of the canonical edge detection algorithm; it should complete its analysis in about 10 seconds and requires `numpy` and `scipy` to be installed. If you prefer to use the slower, more canonical implementation of the edge detection algorithm, or if you are not able to install `numpy` or `scipy`, you can checkout the cs343vision2 branch.
-
 ==Four-Panel Window Results==
 
 Each time you take a snapshot, it will be processed using a method similar to that in section 24.2.1 of the AIMA (third edition) textbook. That is, first the brightness is extracted from the original color image, resulting in a gray-scale image. Next, the image is convolved with a Gaussian filter, resulting in a smoothed image. The smoothing step is necessary to detected edges more reliably. The last step is to calculate the brightness gradients for each pixel in the smoothed image. When the gradient is high, there is an edge throught that pixel. The gradients are thresholded, resulting in a map of edges in the image.                                                             
