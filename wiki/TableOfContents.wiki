@@ -18,6 +18,9 @@
    * Planning
      * [BlocksWorldMod Tower of Hanoi Environment]
      * [SymbolicPlanning Symbolic Planning]
+   * Natural Language Processing
+     * [BlocksWorldModNLP Tower of Hanoi Environment]
+     * [NLP Natural Language Processing]
    * Reinforcement Learning
      * [MazeModQ The Maze Environment]
      * [QLearning Q-learning]
