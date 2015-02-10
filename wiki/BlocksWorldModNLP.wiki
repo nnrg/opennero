@@ -6,23 +6,17 @@
 Blocks World is a classical test problem for traditional AI techniques such as symbolic planning, natural language understanding, and even robotics. The idea is to manipulate simple objects (blocks) that can be moved around and stacked on top of each other. While it is a relatively simple domain, it hides some surprising challenges and provides a good illustration for some fundamental principles of AI.
 
 Currently the "Towers of Hanoi" problem is implemented in the Blocks
-World, and it is used to demonstrate three different planning methods.
+World, and it is used to demonstrate different planning methods.
 
 <img src=http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.png height=300 width=400></img>
 
 == What the display means ==
 
 In the Planning demo:
-  * The nearest pole - starting location for the disks
-  * The furthest pole - goal location for the disks
-  * The middle pole - temporary storage for the disks
+  * Pole 1 - starting location for the disks
+  * Pole 2 - temporary storage for the disks
+  * Pole 3 - goal location for the disks
   * Size of disks - indicates which disk can be placed on which other disks (smaller on larger)
-
-The text window
-  * text - log output of the planning process, with final plan in the end
-  * Next Stop - advance the planning algorithm to its next logical step
-  * Skip Rest - skip the rest of the pauses and run the algorithm to completion
-  * Close Window - close the window to get back to OpenNERO and execute the resulting plan
 
 == Controls ==
 
@@ -42,10 +36,3 @@ The keyboard controls allow moving around in the environment:
   * *Mouse Scroll* - zoom in or zoom out
   * *Z* - zoom in
   * *C* - zoom out
-
-==User Interface==
-
-There are three agent type buttons that start the demonstration of the three planning algorithms:
-  * *Problem reduction* - Hierarchical planning through problem decomposition
-  * *Goal Stacking* - STRIPS-like linear search (depth first, with goal reintroduction)
-  * *State-space search* - Systematic forward search (depth first)
