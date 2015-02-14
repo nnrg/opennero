@@ -20,7 +20,7 @@ sudo apt-get install python
 OpenNERO depends on some boost libraries.  You may need to replace the version numbers to match what the latest binary has been linked against:
 
 {{{
-sudo apt-get install libboost-python1.54.1 libboost-filesystem1.54.1 libboost-serialization1.54.1 libboost-system1.54.1 libboost-date-time1.54.1
+sudo apt-get install libboost-python1.54.0 libboost-filesystem1.54.0 libboost-serialization1.54.0 libboost-system1.54.0 libboost-date-time1.54.0
 }}}
 
 The current build of OpenNERO also depends on Java.  You need to install a JRE to be able to use the training window in the NERO game:
