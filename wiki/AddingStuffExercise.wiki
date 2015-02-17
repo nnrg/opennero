@@ -26,6 +26,19 @@ You should see a button appear for TESTMOD in the Hub menu. When you press this 
 
 Now let's make it more useful.
 
+==nero_log.txt==
+
+If you launch OpenNERO from the command line you will see the OpenNERO log printed on the terminal as the application is running.  To do so on Linux, open a terminal, change the directory to where you installed OpenNERO and type:
+
+{{{
+./OpenNERO
+}}}
+
+You can also find the OpenNERO log in a file at the following location:
+
+Linux or Mac: ~/.opennero/nero_log.txt
+Windows: "AppData\Local\OpenNERO\nero_log.txt" or "Local Settings\Application Data\OpenNERO\nero_log.txt" depending on the version of Windows you have.
+
 ==Adding objects==
 
 Each new type of object in OpenNERO is defined in an XML file called a Template. Here is an example (which is just a cube):
