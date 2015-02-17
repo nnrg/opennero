@@ -22,13 +22,13 @@ def ModMain():
  * If using source, update the build
  * Run the application
 
-You should see a button appear for TESTMOD in the Hub menu. When you press this button, you should see an empty screen and the output log (usually nero_log.txt) should contain 'Hello, Mod!'. Congratulations, you've added a mod!
+You should see a button appear for TESTMOD in the Hub menu. When you press this button, you should see an empty screen and the output log (usually nero_log.txt) should contain 'Hello, Mod!'. Congratulations, you've added a mod!  Press the window close button to quit the application.
 
 Now let's make it more useful.
 
 ==nero_log.txt==
 
-If you launch OpenNERO from the command line you will see the OpenNERO log printed on the terminal as the application is running.  To do so on Linux, open a terminal, change the directory to where you installed OpenNERO and type:
+If you launch OpenNERO from the command line, you can see the OpenNERO log messages printed on the terminal as the application is running.  To do so on Linux, open a terminal, change the directory to where you installed OpenNERO, and type:
 
 {{{
 ./OpenNERO
