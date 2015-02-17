@@ -37,7 +37,6 @@ If you launch OpenNERO from the command line, you can see the OpenNERO log messa
 You can also find the OpenNERO log in a file at the following location:
 
 Linux or Mac: ~/.opennero/nero_log.txt
-
 Windows: "AppData\Local\OpenNERO\nero_log.txt" or "Local Settings\Application Data\OpenNERO\nero_log.txt" depending on the version of Windows you have.
 
 ==Adding objects==
