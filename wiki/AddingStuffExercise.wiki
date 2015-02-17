@@ -4,7 +4,7 @@
 
 ==Introduction==
 
-In this exercise, you will go through the steps required to create a Mod consisting of a flat terrain surrounded by four walls and a simple environment with an agent that can move around. This exercise can be done either with the [http://code.google.com/p/opennero/source/browse/ working copy of the source] or with one of the [DownloadingOpenNERO binary distributions].
+In this exercise, you will go through the steps required to create a Mod consisting of a flat terrain surrounded by four walls and a simple environment with an agent that can move around. This exercise can be done either with the [http://code.google.com/p/opennero/source/browse/ working copy of the source] or with one of the [DownloadingOpenNero binary distributions].
 
  * If working with source, use the `mods` directory and update the application build to copy your files into the product folder `dist`.
  * If working with a binary distribution, use the same folder as the executable on Windows and Linux, or `OpenNERO.app/Contents/Resources` folder on Mac OS X (right click on the app to "Show Package Contents".
