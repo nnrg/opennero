@@ -1,0 +1,7 @@
+## Introduction ##
+
+![http://opennero.googlecode.com/svn/wiki/neuroevolution.png](http://opennero.googlecode.com/svn/wiki/neuroevolution.png)
+
+[Neuroevolution](http://nn.cs.utexas.edu/?miikkulainen:encyclopedia10-ne) is a method for modifying neural network weights, topologies, or ensembles in order to learn a specific task. Evolutionary computation is used to search for network parameters that maximize a fitness function that measures performance in the task. Compared to other neural network learning methods, neuroevolution is highly general, allowing learning without explicit targets, with nondifferentiable activation functions, and with recurrent networks. It can also be combined with standard neural network learning to e.g. model biological adaptation. Neuroevolution can also be seen as a policy search method for reinforcement-learning problems, where it is well suited to continuous domains and to domains where the state is only partially observable.
+
+In OpenNERO, neuroevolution is primarily demonstrated in the [NERO Game environment](NeroMod.md). The particular neuroevolution method is [rtNEAT](http://nn.cs.utexas.edu/?stanley:ieeetec05), i.e. an evolutionary algorithm that adapts the weights and the topologies of neural network controllers. With a little bit of work (left as an exercise), rtNEAT can be used to solve (instead of Q-learning) the [Maze Running task](MazeMod.md) as well as the [Roomba](RoombaMod.md) task, and perhaps even the [Towers of Hanoi](BlocksWorldMod.md) task.
