@@ -1,5 +1,3 @@
-![http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png](http://opennero.googlecode.com/svn/wiki/OpenNERO-maze.tiny.png) ![http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.tiny.png](http://opennero.googlecode.com/svn/wiki/OpenNERO-blocks.tiny.png)  ![http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png](http://opennero.googlecode.com/svn/wiki/OpenNERO-roomba.tiny.png) ![http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png](http://opennero.googlecode.com/svn/wiki/OpenNERO-nero.tiny.png)
-
 # OpenNERO #
 
 [OpenNERO](http://nn.cs.utexas.edu/?opennero) is an open source software platform designed for
@@ -81,4 +79,4 @@ Many people have contributed to OpenNERO, including [Igor V. Karpov](http://www.
 ---
 
 
-<font color='red'>NOTE:</font> as with any active project, OpenNERO is a work in progress and many [updates](http://code.google.com/p/opennero/updates/) are frequently being made. If you have trouble with OpenNERO, check the [discussion group](http://groups.google.com/group/opennero) and then consider submitting an [issue](http://code.google.com/p/opennero/issues). And of course, if you would like to contribute, let us know!
+<font color='red'>NOTE:</font> as with any active project, OpenNERO is a work in progress and many [updates](https://github.com/nnrg/opennero) are frequently being made. If you have trouble with OpenNERO, check the [discussion group](http://groups.google.com/group/opennero) and then consider submitting an [issue](http://code.google.com/p/opennero/issues). And of course, if you would like to contribute, let us know!
