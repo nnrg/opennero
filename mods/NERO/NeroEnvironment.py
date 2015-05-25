@@ -251,12 +251,12 @@ class NeroEnvironment(OpenNero.Environment):
             dist = self.distance(pose, f_pose)
             if dist < min_dist:
                 source_pos = agent.state.position
-                target_pos = f.state.position
+                enemy_pos = f.state.position
                 source_pos.z = source_pos.z + 5
-                target_pos.z = target_pos.z + 5
+                enemy_pos.z = enemy_pos.z + 5
                 obstacles = OpenNero.getSimContext().findInRay(
                     source_pos,
-                    target_pos,
+                    enemy_pos,
                     constants.OBJECT_TYPE_OBSTACLE,
                     False,
                     color,
@@ -327,18 +327,18 @@ class NeroEnvironment(OpenNero.Environment):
 
         scored_hit = False
         # firing decision
-        target = self.closest_enemy(agent)
+        closest_enemy = self.closest_enemy(agent)
         if firing_status:
-            if target is not None:
+            if closest_enemy is not None:
                 pose = state.pose
-                target_pose = self.get_state(target).pose
-                relative_angle = self.angle(pose, target_pose)
+                closest_enemy_pose = self.get_state(closest_enemy).pose
+                relative_angle = self.angle(pose, closest_enemy_pose)
                 if abs(relative_angle) <= 2:
                     source_pos = agent.state.position
-                    target_pos = target.state.position
+                    closest_enemy_pos = closest_enemy.state.position
                     source_pos.z = source_pos.z + 5
-                    target_pos.z = target_pos.z + 5
-                    dist = target_pos.getDistanceFrom(source_pos)
+                    closest_enemy_pos.z = closest_enemy_pos.z + 5
+                    dist = closest_enemy_pos.getDistanceFrom(source_pos)
                     d = (constants.MAX_SHOT_RADIUS - dist)/constants.MAX_SHOT_RADIUS
                     if random.random() < d/2: # attempt a shot depending on distance
                         team_color = constants.TEAM_LABELS[agent.get_team()]
@@ -351,7 +351,7 @@ class NeroEnvironment(OpenNero.Environment):
                         wall_color = OpenNero.Color(128, 0, 255, 0)
                         obstacles = OpenNero.getSimContext().findInRay(
                             source_pos,
-                            target_pos,
+                            closest_enemy_pos,
                             constants.OBJECT_TYPE_OBSTACLE,
                             True,
                             wall_color,
@@ -359,7 +359,7 @@ class NeroEnvironment(OpenNero.Environment):
                         #if len(obstacles) == 0 and random.random() < d/2:
                         if len(obstacles) == 0:
                             # count as hit depending on distance
-                            self.get_state(target).curr_damage += 1
+                            self.get_state(closest_enemy).curr_damage += 1
                             scored_hit = True
                 else: # turn toward the enemy
                     turn_by = relative_angle
@@ -409,9 +409,9 @@ class NeroEnvironment(OpenNero.Environment):
         #                continue
 
         # just check for collisions with the closest enemy
-        if target:
+        if closest_enemy:
             if not collision_detected:
-                f_pose = self.get_state(target).pose
+                f_pose = self.get_state(closest_enemy).pose
                 dist = self.distance(desired_pose, f_pose)
                 if dist < constants.MANUAL_COLLISION_DISTANCE:
                     collision_detected = True
