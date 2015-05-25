@@ -23,7 +23,7 @@ MAX_TURNING_RATE = 0.2
 MAX_VISION_RADIUS = 300
 
 # radius for target sensor 
-TARGET_SENSOR_RADIUS = 30
+TARGET_SENSOR_RADIUS = 50
 
 # radius for wall sensor 
 WALL_SENSOR_RADIUS = 50
@@ -34,7 +34,7 @@ MAX_SHOT_RADIUS = 200
 MAX_FIRE_ACTION_RADIUS = 300 
 
 # maximum distance to center of friend group
-MAX_FRIEND_DISTANCE = 15.0
+MAX_FRIEND_DISTANCE = 25.0
 
 # minimum distance required between robots on the field 
 MANUAL_COLLISION_DISTANCE = 10.0 
