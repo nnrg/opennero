@@ -29,8 +29,8 @@ class AgentState:
             (self.id, x, y, h, px, py, ph)
 
     def randomize(self):
-        dx = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
-        dy = random.randrange(constants.XDIM / 20) - constants.XDIM / 40
+        dx = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
+        dy = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
         self.initial_position.x = module.getMod().spawn_x[self.agent.get_team()] + dx
         self.initial_position.y = module.getMod().spawn_y[self.agent.get_team()] + dy
         self.prev_pose = self.pose = (self.initial_position.x,
@@ -373,7 +373,41 @@ class NeroEnvironment(OpenNero.Environment):
         reward = self.calculate_reward(agent, action, scored_hit)
 
         # tell the system to make the calculated motion
-        state.update_pose(move_by, turn_by)
+        # if the motion doesn't result in a collision
+        dist = constants.MAX_MOVEMENT_SPEED * move_by
+        heading = common.wrap_degrees(agent.state.rotation.z, turn_by)
+        x = agent.state.position.x + dist * math.cos(math.radians(heading))
+        y = agent.state.position.y + dist * math.sin(math.radians(heading))
+
+        # manual collision detection
+        desired_pose = (x, y, heading)
+
+        collision_detected = False
+
+        friends, foes = self.getFriendFoe(agent)
+        for f in friends:
+            if f != agent:
+                f_state = self.get_state(f)
+                # we impose an order on agents to avoid deadlocks. Without this
+                # two agents which spawn very close to each other can never escape
+                # each other's collision radius
+                if state.id > f_state.id:
+                    f_pose = f_state.pose
+                    dist = self.distance(desired_pose, f_pose)
+                    if dist < constants.MANUAL_COLLISION_DISTANCE:
+                        collision_detected = True
+                        continue
+        if foes:
+            if not collision_detected:
+                for f in foes:
+                    f_pose = self.get_state(f).pose
+                    dist = self.distance(desired_pose, f_pose)
+                    if dist < constants.MANUAL_COLLISION_DISTANCE:
+                        collision_detected = True
+                        continue
+
+        if not collision_detected:
+            state.update_pose(move_by, turn_by)
 
         return reward
 

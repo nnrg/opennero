@@ -5,6 +5,9 @@ import itertools
 XDIM = 800
 YDIM = 800
 
+# Maximum distance from spawn location
+SPAWN_RANGE = XDIM / 20 
+
 # Height and width of walls
 WIDTH = 4
 HEIGHT = 20
@@ -32,6 +35,9 @@ MAX_FIRE_ACTION_RADIUS = 300
 
 # maximum distance to center of friend group
 MAX_FRIEND_DISTANCE = 15.0
+
+# minimum distance required between robots on the field 
+MANUAL_COLLISION_DISTANCE = 10.0 
 
 # rate of animation at full speed (in frames per second)
 ANIMATION_RATE = 100
