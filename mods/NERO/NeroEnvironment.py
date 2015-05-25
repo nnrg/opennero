@@ -327,8 +327,8 @@ class NeroEnvironment(OpenNero.Environment):
 
         scored_hit = False
         # firing decision
+        target = self.closest_enemy(agent)
         if firing_status:
-            target = self.closest_enemy(agent)
             if target is not None:
                 pose = state.pose
                 target_pose = self.get_state(target).pose
@@ -397,14 +397,24 @@ class NeroEnvironment(OpenNero.Environment):
                     if dist < constants.MANUAL_COLLISION_DISTANCE:
                         collision_detected = True
                         continue
-        if foes:
+
+        # no need to check for collisions with all enemies
+        #if foes:
+        #    if not collision_detected:
+        #        for f in foes:
+        #            f_pose = self.get_state(f).pose
+        #            dist = self.distance(desired_pose, f_pose)
+        #            if dist < constants.MANUAL_COLLISION_DISTANCE:
+        #                collision_detected = True
+        #                continue
+
+        # just check for collisions with the closest enemy
+        if target:
             if not collision_detected:
-                for f in foes:
-                    f_pose = self.get_state(f).pose
-                    dist = self.distance(desired_pose, f_pose)
-                    if dist < constants.MANUAL_COLLISION_DISTANCE:
-                        collision_detected = True
-                        continue
+                f_pose = self.get_state(target).pose
+                dist = self.distance(desired_pose, f_pose)
+                if dist < constants.MANUAL_COLLISION_DISTANCE:
+                    collision_detected = True
 
         if not collision_detected:
             state.update_pose(move_by, turn_by)
