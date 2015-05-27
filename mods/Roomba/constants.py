@@ -1,15 +1,15 @@
 # initialize global variables #
-STEP_DT = 0.1
+STEP_DT = 0.001
 AGENT_X = 10
 AGENT_Y = 10
-MAX_SPEED = 1 # max per-step translational speed
+MAX_SPEED = .33 # max per-step translational speed
 ANGULAR_SPEED = 90 # max angles in degrees agent can turn in one step
 TIME_PER_STEP = 0.01 # min time between steps in seconds
 STEPS_PER_EPISODE = 100 # max number of steps per episode
 MAX_DISTANCE = 1000000 # max possible distance of objects from agent
 MIN_DISTANCE = 1 # min distance from object for agent to visit it
 
-ROOMBA_RAD = 6  # Physical Radius of Roomba, for vacuuming and collisions
+ROOMBA_RAD = 2  # Physical Radius of Roomba, for vacuuming and collisions
 
 FIXED_SENSORS = ['wall bump', 'self.x', 'self.y', 'closest.x', 'closest.y']
 N_FIXED_SENSORS = len(FIXED_SENSORS)

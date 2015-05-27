@@ -15,6 +15,7 @@ from agent_handler import AgentState, AgentInit
 # load agent script
 from roomba import RoombaBrain
 from RTNEATAgent import RTNEATAgent
+from RLAgent import TabularRLAgent
 
 class SandboxMod:
 
@@ -111,6 +112,10 @@ class SandboxMod:
         elif bot_type.lower().find("rtneat") >= 0:
             self.start_rtneat(num_bots)
             return True
+        elif bot_type.lower().find("rlagent") >= 0:
+            self.distribute_bots(num_bots, "data/shapes/roomba/RLAgent.xml")
+            OpenNero.enable_ai()
+            return True
         else:
             return False
 
@@ -123,7 +128,7 @@ class SandboxMod:
         # Create RTNEAT object
         rbound = OpenNero.FeatureVectorInfo()
         rbound.add_continuous(-sys.float_info.max, sys.float_info.max)
-        rtneat = OpenNero.RTNEAT("data/ai/neat-params.dat", 7, 2, pop_size, 1.0, rbound)
+        rtneat = OpenNero.RTNEAT("data/ai/neat-params.dat", 2, 1, pop_size, 1.0, rbound, False)
         rtneat.set_weight(0,1)
         OpenNero.set_ai("rtneat",rtneat)
         OpenNero.enable_ai()
@@ -186,6 +191,7 @@ class RoombaEnvironment(OpenNero.Environment):
         self.init_list = AgentInit()
         self.init_list.add_type("<class 'Roomba.roomba.RoombaBrain'>")
         self.init_list.add_type("<class 'Roomba.RTNEATAgent.RTNEATAgent'>")
+        self.init_list.add_type("<class 'Roomba.RLAgent.TabularRLAgent'>")
         #print self.init_list.types
 
         roomba_abound = self.init_list.get_action("<class 'Roomba.roomba.RoombaBrain'>")
@@ -194,6 +200,9 @@ class RoombaEnvironment(OpenNero.Environment):
         rtneat_abound = self.init_list.get_action("<class 'Roomba.RTNEATAgent.RTNEATAgent'>")
         rtneat_sbound = self.init_list.get_sensor("<class 'Roomba.RTNEATAgent.RTNEATAgent'>")
         rtneat_rbound = self.init_list.get_reward("<class 'Roomba.RTNEATAgent.RTNEATAgent'>")
+        rltabular_abound = self.init_list.get_action("<class 'Roomba.RLAgent.TabularRLAgent'>")
+        rltabular_sbound = self.init_list.get_sensor("<class 'Roomba.RLAgent.TabularRLAgent'>")
+        rltabular_rbound = self.init_list.get_reward("<class 'Roomba.RLAgent.TabularRLAgent'>")
 
         ### Bounds for Roomba ###
         # actions
@@ -216,16 +225,26 @@ class RoombaEnvironment(OpenNero.Environment):
         rtneat_abound.add_continuous(-math.pi, math.pi) # amount to turn by
         
         # sensors
-        rtneat_sbound.add_continuous(-1, 1)
-        rtneat_sbound.add_continuous(-1, 1)
-        rtneat_sbound.add_continuous(-1, 1)
-        rtneat_sbound.add_continuous(-1, 1)
-        rtneat_sbound.add_continuous(-1, 1)
-        rtneat_sbound.add_continuous(-1, 1)
+        rtneat_sbound.add_continuous(-math.pi, math.pi) # nearest crumb angle
+        rtneat_sbound.add_continuous(0, 1) # proportion of crumb nearby
     
         # rewards
-        rtneat_rbound.add_continuous(-1, 1)
+        rtneat_rbound.add_continuous(-math.pi, math.pi)
         ### End Bounds for RTNEAT ###
+
+        ### Bounds for RLTabular ###
+        # actions
+        rltabular_abound.add_continuous(-math.pi, math.pi) # amount to turn by
+        
+        # sensors
+        rltabular_sbound.add_continuous(-math.pi, math.pi) # nearest crumb angle
+        rltabular_sbound.add_continuous(0, 1) # proportion of crumb nearby
+    
+        # rewards
+        rltabular_rbound.add_continuous(-1, 1)
+        ### End Bounds for RLTabular ###
+        #------------------------------------------------------------------------
+
 
         # set up shop
         # Add Wayne's Roomba room with experimentally-derived vertical offset to match crumbs.
@@ -328,6 +347,9 @@ class RoombaEnvironment(OpenNero.Environment):
         position.x += delta_dist*math.cos(math.radians(rotation.z))
         position.y += delta_dist*math.sin(math.radians(rotation.z))
 
+
+        reward = 0
+
         # check if one of 4 out-of-bound conditions applies
         # if yes, back-track to correct position
         if (position.x) < 0 or (position.y) < 0 or \
@@ -335,26 +357,30 @@ class RoombaEnvironment(OpenNero.Environment):
             # correct position
             if (position.x) < 0:
                 position.x -= 2 * delta_dist*math.cos(math.radians(rotation.z))
+                reward -= .05
             if (position.y) < 0:
                 position.y -= 2 * delta_dist*math.sin(math.radians(rotation.z))
+                reward -= .05
             if (position.x) > self.XDIM:
                 position.x -= 2 * delta_dist*math.cos(math.radians(rotation.z))
+                reward -= .05
             if (position.y) > self.YDIM:
                 position.y -= 2 * delta_dist*math.sin(math.radians(rotation.z))
+                reward -= .05
         elif position.x < self.XDIM * 0.174 and position.y > self.YDIM * (1.0 - 0.309):
             position.x -= 2 * delta_dist*math.cos(math.radians(rotation.z))
             position.y -= 2 * delta_dist*math.sin(math.radians(rotation.z))
+            reward -= .05
         elif furniture_collide_all(position.x, position.y):
             position.x -= 2 * delta_dist*math.cos(math.radians(rotation.z))
             position.y -= 2 * delta_dist*math.sin(math.radians(rotation.z))
+            reward -= .05
                 
         # register new position
         state.position = position
         state.rotation = rotation
         agent.state.position = position
         agent.state.rotation = rotation
-        
-        reward = 0
         
         # remove all crumbs within ROOMBA_RAD of agent position
         pos = (position.x, position.y)
@@ -368,7 +394,7 @@ class RoombaEnvironment(OpenNero.Environment):
         # check if agent has expended its step allowance
         if (self.max_steps != 0) and (state.step_count >= self.max_steps):
             state.is_out = True    # if yes, mark it to be removed
-        return reward            
+        return reward
     
     def sense(self, agent, sensors):
         """ figure out what the agent should sense """
@@ -389,62 +415,30 @@ class RoombaEnvironment(OpenNero.Environment):
             self.sense_crumbs(sensors, constants.N_S_IN_BLOCK, constants.N_FIXED_SENSORS, agent)
 
         else:
-            """ Copied over from creativeit branch """
+            max_dist = math.hypot(self.XDIM, self.YDIM)
+
+            # Min angle and distance to nearest crumb
             sensors[0] = constants.MAX_DISTANCE
             sensors[1] = constants.MAX_DISTANCE
-            sensors[2] = constants.MAX_DISTANCE
-            sensors[3] = constants.MAX_DISTANCE
-            sensors[4] = -1
-            sensors[5] = constants.MAX_DISTANCE
-            
-            # The first four sensors detect the distance to the nearest cube in each of the
-            # four quadrants defined by the coordinate frame attached to the agent.  The
-            # positive X axis of the coordinate frame is oriented in the forward direction
-            # with respect to the agent.  The fifth sensor detects the minimum angular
-            # distance between the agent and the nearest cubes detected by the other sensors.
-            # All sensor readings are normalized to lie in [-1, 1].
-            
+
+            min_dist = max_dist
+            min_dist_angle = 0
+            nearby_crumbs = 0.0
             for cube_position in getMod().marker_map:
-                
                 distx = cube_position[0] - agent.state.position.x
                 disty = cube_position[1] - agent.state.position.y
                 dist = math.hypot(distx, disty)
-                angle = math.degrees(math.atan2(disty, distx)) - agent.state.rotation.z  # range [-360, 360]
-                if angle > 180: angle = angle - 360
-                if angle < -180: angle = angle + 360
-                angle = angle/180 # range [-1, 1]
-                if angle >= -1 and angle < -0.5:
-                    if dist < sensors[0]:
-                        sensors[0] = dist
-                        if math.fabs(angle) < math.fabs(sensors[4]): sensors[4] = angle
-                elif angle >= -0.5 and angle < 0:
-                    if dist < sensors[1]:
-                        sensors[1] = dist
-                        if math.fabs(angle) < math.fabs(sensors[4]): sensors[4] = angle
-                elif angle >= 0 and angle < 0.5:
-                    if dist < sensors[2]:
-                        sensors[2] = dist
-                        if math.fabs(angle) < math.fabs(sensors[4]): sensors[4] = angle
-                else:
-                    if dist < sensors[3]:
-                        sensors[3] = dist
-                        if math.fabs(angle) < math.fabs(sensors[4]): sensors[4] = angle
-                                
-            # Any distance sensor that still has the value MAX_DISTANCE is set to -1.
-            for i in range(0, 6):
-                if i != 4 and sensors[i] >= constants.MAX_DISTANCE:
-                    sensors[i] = -1
+                angle = math.atan2(disty, distx)
+                angle = angle # range [-pi, pi]
+                if dist < min_dist:
+                    min_dist = dist
+                    min_dist_angle = angle
+                if dist < self.XDIM / 8:
+                    nearby_crumbs += 1
+            
+            sensors[0] = min_dist_angle
+            sensors[1] = nearby_crumbs / len(getMod().marker_map) # propotion of crumbs which are nearby
 
-            # Invert and normalize the remaining distance sensor values to [0, 1]
-            maxval = max(sensors[0], sensors[1], sensors[2], sensors[3], sensors[5])
-            if maxval > 0:
-                for i in range(0, 6):
-                    if i != 4 and sensors[i] > 0:
-                        sensors[i] = 1 - (sensors[i]/maxval)
-
-            # Now, sensors that do not detect any cubes/wall will have the value -1,
-            # sensors that detect cubes/wall at maxval distance will have the value 0,
-            # and sensors that detect cubes/wall at zero distance will have value 1.
         return sensors
 
     def sense_crumbs(self, sensors, num_sensors, start_sensor, agent):

@@ -13,6 +13,8 @@ class RTNEATAgent(AgentBrain):
         # this line is crucial, otherwise the class is not recognized as an AgentBrainPtr by C++
         AgentBrain.__init__(self)
 
+        self.past_actions = None
+
     def initialize(self, init_info):
         """
         Initialize an agent brain with sensor information
@@ -25,16 +27,13 @@ class RTNEATAgent(AgentBrain):
         """
         start of an episode
         """
-        sensors = self.sensors.normalize(sensors)
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
         """
         a state transition
         """
-        if reward >= 1:
-            sensors = self.sensors.normalize(sensors)
-        return self.network_action(sensors)
+	return self.network_action(sensors)
 
     def end(self, time, reward):
         """
@@ -57,13 +56,9 @@ class RTNEATAgent(AgentBrain):
         Collect and interpret the outputs as valid maze actions.
         """
         # make sure we have the right number of sensors
-        assert(len(sensors)==6)
-        # convert the sensors into the [0.0, 1.0] range
-        sensors = self.sensors.normalize(sensors)
+        assert(len(sensors)==2)
         # create the list of sensors
-        inputs = [sensor for sensor in sensors]        
-        # add the bias value
-        inputs.append(0.3)
+        inputs = [sensor for sensor in sensors[0:2]]        
 
         # get the rtNEAT organism we are assigned
         org = get_ai("rtneat").get_organism(self)
@@ -78,10 +73,13 @@ class RTNEATAgent(AgentBrain):
         outputs = net.get_outputs()
         # create a C++ vector for action values
         actions = self.actions.get_instance()
+
         # assign network outputs to action vector
         for i in range(0,len(self.actions.get_instance())):
             actions[i] = outputs[i]
+
         # convert the action vector back from [0.0, 1.0] range
         actions = self.actions.denormalize(actions)
+        self.past_actions = actions
         #print "in:", inputs, "out:", outputs, "a:", actions
         return actions

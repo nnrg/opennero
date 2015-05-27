@@ -10,6 +10,7 @@ class Pellet:
         self.info = other_info
         self.mode = mode
         self.placement(mode)
+
     def placement(self, mode):
         if (mode == "manual"):
             # requires 2 values: x and y
@@ -17,9 +18,9 @@ class Pellet:
                 self.x = 0
                 self.y = 0
             else:
-                self.x = self.info[0]
+                self.x = float(self.info[0])
                 if (len(self.info) >= 1):
-                    self.y = self.info[1]
+                    self.y = float(self.info[1])
                 else:
                     self.y = self.x
         if (mode == "random"):
@@ -144,7 +145,7 @@ def read_world(file_name = world):
         data['pellets'] = []
         for line in in_file:
             info = line.split("\t")
-            reward = info[0]
+            reward = float(info[0])
             mode = info[1]
             other_info = info[2:len(info)-1]
             pellet = Pellet(reward, mode, other_info)
