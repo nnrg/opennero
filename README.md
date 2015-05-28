@@ -59,9 +59,9 @@ ones can be built, by us, but also by the community at large. If you have questi
   * [Exercises](https://github.com/nnrg/opennero/wiki/OpenNeroExercises)
     * OpenNero Setup
      * [Adding Stuff](https://github.com/nnrg/opennero/wiki/AddingStuffExercise)
+     * [Create Roomba Agent](https://github.com/nnrg/opennero/wiki/CreateRoombaAgentExercise)
      * [Maze Generator](https://github.com/nnrg/opennero/wiki/MazeGeneratorExercise)
      * [Maze Solver](https://github.com/nnrg/opennero/wiki/MazeSolverExercise)
-     * [Create Roomba Agent](https://github.com/nnrg/opennero/wiki/CreateRoombaAgentExercise)
     * AI Exercises
      * [Heuristic Search](https://github.com/nnrg/opennero/wiki/HeuristicSearchExercise)
      * [Planning](https://github.com/nnrg/opennero/wiki/PlanningExercise)
