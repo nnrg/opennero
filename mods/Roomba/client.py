@@ -24,10 +24,10 @@ def toggle_ai_callback(pauseButton):
 def toggle_bot_type(changeBotButton, botTypeBox):
     if botTypeBox.text.lower().find('script') >= 0:
         botTypeBox.text = 'rtNEAT'
-        changeBotButton.text = 'Switch to Script'
+        changeBotButton.text = 'Select Script Bots'
     else:
         botTypeBox.text = 'Script'
-        changeBotButton.text = 'Switch to rtNEAT'
+        changeBotButton.text = 'Select rtNEAT Bots'
 
 def remove_bots_closure(removeBotsButton, addBotsButton):
     def closure():
@@ -50,14 +50,15 @@ def CreateGui(guiMan):
     guiMan.setTransparency(1.0)
     guiMan.setFont("data/gui/fonthaettenschweiler.bmp")
     
-    botTypeBox = gui.create_edit_box(guiMan, 'botType', Pos2i(10,10), Pos2i(110,30), 'Script')
+    botTypeLabel = gui.create_text(guiMan, 'botTypeLabel', Pos2i(10,17), Pos2i(50,30), 'Bot Type:')
+    botTypeBox = gui.create_edit_box(guiMan, 'botType', Pos2i(60,10), Pos2i(60,30), 'Script')
     numBotBox = gui.create_edit_box(guiMan, 'numBot', Pos2i(130,10), Pos2i(40,30), '5')
     
     addBotButton = gui.create_button(guiMan, 'addBot', Pos2i(180,10), Pos2i(60,30), '')
     addBotButton.text = "Add bots"
     
     changeBotButton = gui.create_button(guiMan, 'changeBot', Pos2i(10,50), Pos2i(230,30), '')
-    changeBotButton.text = "Switch to rtNEAT"
+    changeBotButton.text = "Select rtNEAT Bots"
     changeBotButton.OnMouseLeftClick = lambda:toggle_bot_type(changeBotButton, botTypeBox)
 
     w = (window_width - 40) / 3
@@ -79,6 +80,7 @@ def CreateGui(guiMan):
     removeBotButton.enabled = False
 
     AiWindow = gui.create_window( guiMan, 'AiWindow', Pos2i(530,20), Pos2i(window_width,150), 'AI Controls' )
+    AiWindow.addChild(botTypeLabel)
     AiWindow.addChild(botTypeBox)
     AiWindow.addChild(numBotBox)
     AiWindow.addChild(changeBotButton)
