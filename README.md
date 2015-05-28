@@ -56,22 +56,25 @@ ones can be built, by us, but also by the community at large. If you have questi
     * Vision
       * [The Vision Environment](https://github.com/nnrg/opennero/wiki/VisionMod)
       * [Vision: Edge Detection](https://github.com/nnrg/opennero/wiki/EdgeDetection)
-    * [Headless Mode](https://github.com/nnrg/opennero/wiki/RunningOpenNeroHeadless)
-  * [System Overview](https://github.com/nnrg/opennero/wiki/SystemOverview)
   * [Exercises](https://github.com/nnrg/opennero/wiki/OpenNeroExercises)
-    * AddingStuffExercise
-    * CreateRoombaAgentExercise
-    * MazeGeneratorExercise
-    * MazeSolverExercise
-    * HeuristicSearchExercise
-    * PlanningExercise
-    * [NLPExercise](https://github.com/nnrg/opennero/wiki/NLPExercise)
-    * [QLearningExercise](https://github.com/nnrg/opennero/wiki/QLearningExercise)
-    * MazeLearnerExercise
-    * AdvancedMazeExercise
-    * NeroTournamentExercise
-      * TournamentResults2011
-    * ObjectRecognitionExercise
+    * OpenNero Setup
+     * [Adding Stuff](https://github.com/nnrg/opennero/wiki/AddingStuffExercise)
+     * [Maze Generator](https://github.com/nnrg/opennero/wiki/MazeGeneratorExercise)
+     * [Maze Solver](https://github.com/nnrg/opennero/wiki/MazeSolverExercise)
+     * [Create Roomba Agent](https://github.com/nnrg/opennero/wiki/CreateRoombaAgentExercise)
+    * AI Exercises
+     * [Heuristic Search](https://github.com/nnrg/opennero/wiki/HeuristicSearchExercise)
+     * [Planning](https://github.com/nnrg/opennero/wiki/PlanningExercise)
+     * [NLPExercise](https://github.com/nnrg/opennero/wiki/NLPExercise)
+     * [QLearningExercise](https://github.com/nnrg/opennero/wiki/QLearningExercise)
+     * [Maze Learner](https://github.com/nnrg/opennero/wiki/MazeLearnerExercise)
+     * [Advanced Maze](https://github.com/nnrg/opennero/wiki/AdvancedMazeExercise)
+     * [Nero Tournament](https://github.com/nnrg/opennero/wiki/NeroTournamentExercise)
+      * [Sample Tournament Results](https://github.com/nnrg/opennero/wiki/TournamentResults2011)
+     * [Object Recognition](https://github.com/nnrg/opennero/wiki/ObjectRecognitionExercise)
+  * System Documentation
+   * [Headless Mode](https://github.com/nnrg/opennero/wiki/RunningOpenNeroHeadless)
+   * [System Overview](https://github.com/nnrg/opennero/wiki/SystemOverview)
 
 ## Contributors ##
 
