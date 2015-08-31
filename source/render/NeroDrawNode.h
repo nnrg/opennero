@@ -26,12 +26,12 @@ namespace OpenNero
         void OnRegisterSceneNode();
         virtual void render();        
         /// returns the bounding box
-        virtual const core::aabbox3df& getBoundingBox() const;
+        virtual const irr::core::aabbox3df& getBoundingBox() const;
 
     private:
 
         // our bounding box
-        core::aabbox3df mBBox;
+        irr::core::aabbox3df mBBox;
     };
 
 };//end OpenNero

@@ -173,7 +173,7 @@ namespace OpenNero
             } else {
                 full_caption = GetAppConfig().Title + " - " + mCurMod->name + " - " + caption;
             }
-            mIrrDevice->setWindowCaption(core::stringw(full_caption.c_str()).c_str());
+            mIrrDevice->setWindowCaption(irr::core::stringw(full_caption.c_str()).c_str());
         } else {
             LOG_ERROR("Could not SetWindowCaption, no mod loaded!");
         }

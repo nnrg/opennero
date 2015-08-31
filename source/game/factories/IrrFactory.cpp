@@ -45,7 +45,7 @@ namespace OpenNero
             virtual void render();
             void setAxesCoordinates();
 
-            virtual const core::aabbox3d<f32>& getBoundingBox() const
+            virtual const irr::core::aabbox3d<f32>& getBoundingBox() const
             {
                 return ZMeshBuffer.BoundingBox;
             }
@@ -321,9 +321,9 @@ namespace OpenNero
                 XMeshBuffer.Indices[i] = u[i];
             }
             // Default Position, Rotation and Scale
-            this->setPosition(core::vector3df(0,0,0));
-            this->setRotation(core::vector3df(0,0,0));
-            this->setScale(core::vector3df(1,1,1));
+            this->setPosition(irr::core::vector3df(0,0,0));
+            this->setRotation(irr::core::vector3df(0,0,0));
+            this->setScale(irr::core::vector3df(1,1,1));
             // Axes Box Coordinates Settings
             setAxesCoordinates();
         }

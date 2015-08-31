@@ -180,22 +180,22 @@ namespace OpenNero
                 return GetTriangleSelector()->getTriangleCount();
             }
 
-            void getTriangles(core::triangle3df* triangles, s32 arraySize,
-                 s32& outTriangleCount, const core::matrix4* transform=0) const
+            void getTriangles(irr::core::triangle3df* triangles, s32 arraySize,
+                 s32& outTriangleCount, const irr::core::matrix4* transform=0) const
             {
                  GetTriangleSelector()->getTriangles(triangles, arraySize, outTriangleCount, transform);
             }
 
-            void getTriangles(core::triangle3df* triangles, s32 arraySize,
-                 s32& outTriangleCount, const core::aabbox3d<f32>& box,
-                 const core::matrix4* transform=0) const
+            void getTriangles(irr::core::triangle3df* triangles, s32 arraySize,
+                 s32& outTriangleCount, const irr::core::aabbox3d<f32>& box,
+                 const irr::core::matrix4* transform=0) const
             {
                  GetTriangleSelector()->getTriangles(triangles, arraySize, outTriangleCount, transform);
             }
 
-            void getTriangles(core::triangle3df* triangles, s32 arraySize,
-                 s32& outTriangleCount, const core::line3d<f32>& line,
-                 const core::matrix4* transform=0) const
+            void getTriangles(irr::core::triangle3df* triangles, s32 arraySize,
+                 s32& outTriangleCount, const irr::core::line3d<f32>& line,
+                 const irr::core::matrix4* transform=0) const
             {
                  GetTriangleSelector()->getTriangles(triangles, arraySize, outTriangleCount, line, transform);
             }
@@ -662,7 +662,7 @@ namespace OpenNero
                 float dY = bbox.MaxEdge.Y - bbox.MinEdge.Y;
                 mTextNode = GetSceneManager()->addTextSceneNode
                     (f, 
-                     core::stringw(str.c_str()).c_str(), 
+                     irr::core::stringw(str.c_str()).c_str(), 
                      SColor(255,255,255,255), 
                      mSceneNode.get(), 
                      Vector3f(0,1.25 * dY,0));

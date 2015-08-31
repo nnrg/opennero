@@ -47,8 +47,8 @@ namespace OpenNero
     void LineSet::Render( irr::video::IVideoDriver* driver ) const
     {
         using namespace irr;
-        using namespace video;
-        using namespace core;
+        using namespace irr::video;
+        using namespace irr::core;
 
         // setup the render state
         driver->setTransform( ETS_WORLD, matrix4( matrix4::EM4CONST_IDENTITY ) );

@@ -28,13 +28,13 @@ namespace OpenNero
 		// set inverted world matrix
 		// if we are using highlevel shaders (the user can select this when
 		// starting the program), we must set the constants by name.
-		core::matrix4 invWorld = driver->getTransform(video::ETS_WORLD);
+		irr::core::matrix4 invWorld = driver->getTransform(video::ETS_WORLD);
 		invWorld.makeInverse();
 
 		services->setVertexShaderConstant("mInvWorld", &invWorld[0], 16);    
 
 		// set clip matrix
-		core::matrix4 worldViewProj;
+		irr::core::matrix4 worldViewProj;
 		worldViewProj = driver->getTransform(video::ETS_PROJECTION);			
 		worldViewProj *= driver->getTransform(video::ETS_VIEW);
 		worldViewProj *= driver->getTransform(video::ETS_WORLD);
@@ -44,7 +44,7 @@ namespace OpenNero
 		// set camera position
 		Assert( mIrrHandles.mpSceneManager );
 		Assert( mIrrHandles.mpSceneManager->getActiveCamera() );
-		core::vector3df pos = mIrrHandles.mpSceneManager->getActiveCamera()->getAbsolutePosition();		
+		irr::core::vector3df pos = mIrrHandles.mpSceneManager->getActiveCamera()->getAbsolutePosition();		
 		services->setVertexShaderConstant("mLightPos", reinterpret_cast<f32*>(&pos), 3);		
 
 		// set light color 
@@ -52,7 +52,7 @@ namespace OpenNero
 		services->setVertexShaderConstant("mLightColor", reinterpret_cast<f32*>(&col), 4);
 		
 		// set transposed world matrix
-		core::matrix4 world = driver->getTransform(video::ETS_WORLD);
+		irr::core::matrix4 world = driver->getTransform(video::ETS_WORLD);
 		world = world.getTransposed();		
 		services->setVertexShaderConstant("mTransWorld", &world[0], 16);		
 	}

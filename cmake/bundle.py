@@ -57,6 +57,7 @@ class Bundler:
                     sys.exit(1)
             copy(lib,self.libpath)
             newlib = os.path.join(self.libpath, libname)
+            os.chmod(newlib, 0755)
             newid = self.libprefix + libname
             assert(os.system('install_name_tool -id %s %s' % (newid, newlib)) == 0)
             self.libraries[id] = newid

@@ -15,7 +15,7 @@ namespace OpenNero
     {
         // we don't want this node to ever be clipped so make a rediculously large bbox
         const float32_t kBoxSize = 10000;
-        mBBox = core::aabbox3df(-kBoxSize, -kBoxSize, -kBoxSize, kBoxSize, kBoxSize, kBoxSize );
+        mBBox = irr::core::aabbox3df(-kBoxSize, -kBoxSize, -kBoxSize, kBoxSize, kBoxSize, kBoxSize );
     }
 
     void NeroDrawNode::OnRegisterSceneNode()
@@ -31,7 +31,7 @@ namespace OpenNero
         LineSet::instance().Render( SceneManager->getVideoDriver() );
     }
     
-    const core::aabbox3df& NeroDrawNode::getBoundingBox() const
+    const irr::core::aabbox3df& NeroDrawNode::getBoundingBox() const
     {
         return mBBox;
     }    
