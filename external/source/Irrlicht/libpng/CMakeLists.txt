@@ -1,7 +1,6 @@
 ADD_LIBRARY(png
 png.c
 pngerror.c
-pnggccrd.c
 pngget.c
 pngmem.c
 pngpread.c
@@ -11,7 +10,6 @@ pngrtran.c
 pngrutil.c
 pngset.c
 pngtrans.c
-pngvcrd.c
 pngwio.c
 pngwrite.c
 pngwtran.c

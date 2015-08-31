@@ -15,6 +15,10 @@
 #include <hash_map>
 using namespace stdext;
 #else
+#if NERO_PLATFORM_MAC
+#include <unordered_map>
+#define hash_map std::unordered_map
+#else
 #if __GNUC__ >= 4 && __GNUC_MINOR__ >= 2
 // gcc 4.2 and greater uses tr1::unordered_set
 // see http://gcc.gnu.org/gcc-4.3/changes.html
@@ -35,6 +39,7 @@ namespace __gnu_cxx
 }
 /// @endcond
 #define hash_map __gnu_cxx::hash_map
+#endif
 #endif
 #endif
 

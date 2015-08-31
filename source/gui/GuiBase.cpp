@@ -267,7 +267,7 @@ namespace OpenNero
     {
         Assert( mpGuiElement );
 
-        const core::rect<int32_t> absPos( mpGuiElement->getAbsolutePosition() );
+        const irr::core::rect<int32_t> absPos( mpGuiElement->getAbsolutePosition() );
         return position2di( pos2D.X - absPos.UpperLeftCorner.X,
                             pos2D.Y - absPos.UpperLeftCorner.Y );
     }

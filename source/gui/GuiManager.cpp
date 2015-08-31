@@ -380,9 +380,9 @@ namespace OpenNero
             Assert( itr->second );
 
             // remove any children
-            const core::list<IGUIElement*>& children = itr->second->getGuiElement()->getChildren();
-            core::list<IGUIElement*>::ConstIterator citr = children.begin();
-            core::list<IGUIElement*>::ConstIterator cend = children.end();
+            const irr::core::list<IGUIElement*>& children = itr->second->getGuiElement()->getChildren();
+            irr::core::list<IGUIElement*>::ConstIterator citr = children.begin();
+            irr::core::list<IGUIElement*>::ConstIterator cend = children.end();
 
             for( ; citr != cend; ++citr )
             {   
