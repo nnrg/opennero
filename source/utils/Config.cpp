@@ -105,10 +105,8 @@ namespace OpenNero
             cmd.add(argRandomSeeds);
             cmd.add(argFrameDelay);
 
-#if !NERO_PLATFORM_MAC
             // parse the command line
             cmd.parse( argc, argv );
-#endif
 
             // set the values
             Title = argTitle.getValue();
