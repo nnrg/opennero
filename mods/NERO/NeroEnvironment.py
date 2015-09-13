@@ -431,58 +431,30 @@ class NeroEnvironment(OpenNero.Environment):
             return reward
 
         R = dict((f, 0) for f in constants.FITNESS_DIMENSIONS)
+        dist_reward = lambda d: 1 / ((d * d / constants.MAX_DIST) + 1)
 
-        R[constants.FITNESS_STAND_GROUND] = -abs(action[0])
+        R[constants.FITNESS_STAND_GROUND] = 1 - abs(action[0])
 
         friend = self.nearest(state.pose, friends)
         if friend:
             d = self.distance(self.get_state(friend).pose, state.pose)
-            R[constants.FITNESS_STICK_TOGETHER] = -d * d
+            R[constants.FITNESS_STICK_TOGETHER] = dist_reward(d)
 
         foe = self.nearest(state.pose, foes)
         if foe:
             d = self.distance(self.get_state(foe).pose, state.pose)
-            R[constants.FITNESS_APPROACH_ENEMY] = -d * d
+            R[constants.FITNESS_APPROACH_ENEMY] = dist_reward(d)
 
         f = module.getMod().flag_loc
         if f:
             d = self.distance(state.pose, (f.x, f.y))
-            R[constants.FITNESS_APPROACH_FLAG] = -d * d
-
-#        target = self.target(agent)
-#        if target is not None:
-#            source_pos = agent.state.position
-#            target_pos = target.state.position
-#            source_pos.z = source_pos.z + 5
-#            target_pos.z = target_pos.z + 5
-#            dist = target_pos.getDistanceFrom(source_pos)
-#            d = (constants.MAX_SHOT_RADIUS - dist)/constants.MAX_SHOT_RADIUS
-#            if random.random() < d/2: # attempt a shot depending on distance
-#                team_color = constants.TEAM_LABELS[agent.get_team()]
-#                if team_color == 'red':
-#                    color = OpenNero.Color(255, 255, 0, 0)
-#                elif team_color == 'blue':
-#                    color = OpenNero.Color(255, 0, 0, 255)
-#                else:
-#                    color = OpenNero.Color(255, 255, 255, 0)
-#                wall_color = OpenNero.Color(128, 0, 255, 0)
-#                obstacles = OpenNero.getSimContext().findInRay(
-#                    source_pos,
-#                    target_pos,
-#                    constants.OBJECT_TYPE_OBSTACLE,
-#                    True,
-#                    wall_color,
-#                    color)
-#                if len(obstacles) == 0 and random.random() < d/2:
-#                    # count as hit depending on distance
-#                    self.get_state(target).curr_damage += 1
-#                    R[constants.FITNESS_HIT_TARGET] = 1
+            R[constants.FITNESS_APPROACH_FLAG] = dist_reward(d)
 
         if scored_hit:
             R[constants.FITNESS_HIT_TARGET] = 1
 
         damage = state.update_damage()
-        R[constants.FITNESS_AVOID_FIRE] = -damage
+        R[constants.FITNESS_AVOID_FIRE] = 1 - damage
 
         if len(reward) == 1:
             for i, f in enumerate(constants.FITNESS_DIMENSIONS):

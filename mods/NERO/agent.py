@@ -472,5 +472,5 @@ class QLearningAgent(NeroAgent, OpenNero.QLearningBrain):
     def agent_info_tuple(self):
         sbound, abound, _ = NeroAgent.agent_info_tuple(self)
         rbound = OpenNero.FeatureVectorInfo() # single-dimension rewards
-        rbound.add_continuous(-sys.float_info.max, sys.float_info.max)
+        rbound.add_continuous(0, 1)
         return sbound, abound, rbound

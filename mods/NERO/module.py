@@ -17,7 +17,7 @@ def rtneat_rewards():
     """
     reward = OpenNero.FeatureVectorInfo()
     for f in constants.FITNESS_DIMENSIONS:
-        reward.add_continuous(-sys.float_info.max, sys.float_info.max)
+        reward.add_continuous(0, 1)
     return reward
 
 class NeroModule:
