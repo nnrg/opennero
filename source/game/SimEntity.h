@@ -13,6 +13,7 @@
 #include "core/IrrUtil.h"
 #include "core/BoostCommon.h"
 #include "game/SimEntityData.h"
+#include "ai/AI.h"
 
 namespace OpenNero
 {
@@ -41,7 +42,7 @@ namespace OpenNero
     * A simulation entity is able to update itself in the world. After it updates
     * itself it can send its changes on the server to all of the clients
     */
-    class SimEntity
+    class SimEntity : public BOOST_SHARED_THIS(SimEntity)
     {
         // Allow Simulation to manage SimEntity ids and parent sim.
         friend class Simulation;
@@ -65,6 +66,9 @@ namespace OpenNero
 
 		/// default destructor
         ~SimEntity();
+
+        /// Initializes the AIObject for an entity that was created without one
+        void InitializeAIObject();
 
         /// called before the simulation tick takes place
         void BeforeTick( float32_t incAmt );
@@ -135,6 +139,12 @@ namespace OpenNero
 
         /// Mark the object for removal
         void SetRemoved() { mRemoved = true; }
+
+        /// Initialize AIObject if necessary and set brain
+        void SetBrain( AgentBrainPtr brain );
+
+        /// Initialize AIObject if necessary and initialize brain
+        void InitializeBrain( AgentBrainPtr brain);
     private:
         /// output human-readable information about this SimEntity
         friend std::ostream& operator<<(std::ostream& stream, const SimEntityPtr&);

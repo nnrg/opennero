@@ -866,6 +866,12 @@ namespace OpenNero {
                 .def("transformVector",
                      &SimContext::TransformVector,
                      "Transform the given vector by the matrix of the object specified by id")
+                .def("setObjectBrain",
+                     &SimContext::SetObjectBrain,
+                     "Set the brain of the object specified by its id")
+                .def("initObjectBrain",
+                     &SimContext::InitObjectBrain,
+                     "Initialize the brain of the object specified by its id")
                 .add_property("delay", &SimContext::GetFrameDelay, &SimContext::SetFrameDelay)
                 ;
 

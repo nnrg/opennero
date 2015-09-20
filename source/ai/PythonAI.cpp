@@ -39,14 +39,11 @@ namespace OpenNero
         script.Eval<AgentBrainPtr>(py_agent_expression, brain);
         AssertMsg(brain, "Could not load Python agent " << py_agent_expression);
         brain->name = pythonTemplate->getBrainExpr();
-        setBrain(brain);
         if (!brain) {
             LOG_F_WARNING("ai", "Could not load an agent brain");
             return false;
         } else {
-            brain->SetBody(shared_from_this());
-            setInitInfo(getWorld()->get_agent_info(brain));
-            brain->initialize(getInitInfo());
+            initializeBrain(brain);
             return true;
         }
     }

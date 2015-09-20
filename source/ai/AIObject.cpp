@@ -109,6 +109,22 @@ namespace OpenNero
         return observations;
     }
 
+    void AIObject::initializeBrain()
+    {
+        if (mAgentBrain)
+        {
+            mAgentBrain->SetBody(shared_from_this());
+            setInitInfo(getWorld()->get_agent_info(mAgentBrain));
+            mAgentBrain->initialize(getInitInfo());
+        }
+    }
+
+    void AIObject::initializeBrain(AgentBrainPtr brain)
+    {
+        setBrain(brain);
+        initializeBrain();
+    }
+
     inline std::ostream& operator<<(std::ostream& out, AIObject& obj)
     {
         return obj.stream(out);
