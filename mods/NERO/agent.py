@@ -3,15 +3,23 @@ import random
 import tempfile
 
 import constants
-import module
 import OpenNero
+
+def rtneat_rewards():
+    """
+    Create a reward FeatureVectorInfo to pass to RTNEAT.
+    """
+    reward = OpenNero.FeatureVectorInfo()
+    for f in constants.FITNESS_DIMENSIONS:
+        reward.add_continuous(0, 1)
+    return reward
 
 class NeroAgent(object):
     """
     base class for nero agents
     """
     def __init__(self, team=None, group='Agent'):
-        self.team = team or module.getMod().curr_team
+        self.team = team
         self.group = group
         self.info = OpenNero.AgentInitInfo(*self.agent_info_tuple())
 
@@ -32,7 +40,7 @@ class NeroAgent(object):
         for a in range(constants.N_SENSORS):
             sbound.add_continuous(0, 1)
 
-        return sbound, abound, module.rtneat_rewards()
+        return sbound, abound, rtneat_rewards()
 
     def initialize(self, init_info):
         self.actions = init_info.actions
@@ -166,14 +174,14 @@ class RTNEATAgent(NeroAgent, OpenNero.AgentBrain):
 
     ai = 'rtneat'
 
-    def __init__(self):
+    def __init__(self, *args, **kwargs):
         """
         Create an agent brain
         """
         # this line is crucial, otherwise the class is not recognized as an
         # AgentBrainPtr by C++
         OpenNero.AgentBrain.__init__(self)
-        NeroAgent.__init__(self)
+        NeroAgent.__init__(self, *args, **kwargs)
         self.omit_friend_sensors = False
 
     def get_org(self):
@@ -188,15 +196,6 @@ class RTNEATAgent(NeroAgent, OpenNero.AgentBrain):
         """
         org = self.get_org()
         org.time_alive += 1
-        if (org.time_alive > 1):
-            module.getServer().write_data(self.stats())
-        # at the beginning of a physical life cycle, print the organism deets
-        # FIXME: this causes lots of giant files
-        #tf = tempfile.NamedTemporaryFile(
-        #    prefix='opennero-org-%05d-' % org.id,
-        #    suffix='.xml',
-        #    delete=False)
-        #print >>tf, org        
         return self.network_action(sensors)
 
     def act(self, time, sensors, reward):
@@ -434,14 +433,14 @@ class QLearningAgent(NeroAgent, OpenNero.QLearningBrain):
 
     ai = 'qlearning'
 
-    def __init__(self, gamma=0.8, alpha=0.8, epsilon=0.1,
+    def __init__(self, team=None, gamma=0.8, alpha=0.8, epsilon=0.1,
                  action_bins=3, state_bins=5,
                  num_tiles=0, num_weights=0):
         OpenNero.QLearningBrain.__init__(
             self, gamma, alpha, epsilon,
             action_bins, state_bins,
             num_tiles, num_weights)
-        NeroAgent.__init__(self)
+        NeroAgent.__init__(self, team)
     
     def set_display_hint(self):
         """

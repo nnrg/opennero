@@ -10,18 +10,16 @@ import common
 import constants
 import NeroEnvironment
 import OpenNero
+import agent
 
-def rtneat_rewards():
-    """
-    Create a reward FeatureVectorInfo to pass to RTNEAT.
-    """
-    reward = OpenNero.FeatureVectorInfo()
-    for f in constants.FITNESS_DIMENSIONS:
-        reward.add_continuous(0, 1)
-    return reward
 
 class NeroModule:
+    aiMap = {
+        'rtneat': agent.RTNEATAgent,
+        'qlearning': agent.QLearningAgent
+    }
     def __init__(self):
+        print "INITIALIZING NERO MOD"
         self.environment = None
         self.agent_id = None
 
@@ -245,7 +243,7 @@ class NeroModule:
             OpenNero.set_ai("rtneat-%s" % team, OpenNero.RTNEAT(
                     tf.name, "data/ai/neat-params.dat",
                     pop_size,
-                    rtneat_rewards(),
+                    agent.rtneat_rewards(),
                     False))
             os.unlink(tf.name)
             while pop_size > 0:
@@ -356,16 +354,23 @@ class NeroModule:
         if ai == 'rtneat' and not OpenNero.get_ai('rtneat-%s' % team):
             self.start_rtneat(team)
 
-        self.curr_team = team
         color = constants.TEAM_LABELS[team]
 
         dx = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
         dy = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
-        return common.addObject(
-            "data/shapes/character/steve_%s_%s.xml" % (color, ai),
+        simId = common.addObject(
+            "data/shapes/character/steve_%s.xml" % (color),
             OpenNero.Vector3f(self.spawn_x[team] + dx, self.spawn_y[team] + dy, 2),
             type=team)
-    
+
+        agent = self.createAgent(ai, team)
+        common.initObjectBrain(simId, agent)
+        return simId
+
+    def createAgent(self, ai=None, team=constants.OBJECT_TYPE_TEAM_0):
+        klass = self.aiMap.get(ai, agent.RTNEATAgent)
+        return klass(team)
+        
     def setAdvice(self, advice, team=constants.OBJECT_TYPE_TEAM_0):
         """ advice for rtneat agents """
         # if there are rtneat agents in the environment, give them some advice
@@ -393,7 +398,7 @@ class NeroModule:
                                  constants.N_ACTIONS,
                                  constants.pop_size,
                                  1.0,
-                                 rtneat_rewards(), 
+                                 agent.rtneat_rewards(), 
                                  False)
 
         key = "rtneat-%s" % team

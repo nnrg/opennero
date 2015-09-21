@@ -10,6 +10,12 @@ def addObject(templateFile, position, rotation=OpenNero.Vector3f(0, 0, 0), scale
     return OpenNero.getSimContext().addObject(
         templateFile, position, rotation, scale, label, collision, type)
 
+def setObjectBrain(simId, brain):
+    return OpenNero.getSimContext().setObjectBrain(simId, brain)
+
+def initObjectBrain(simId, brain):
+    return OpenNero.getSimContext().initObjectBrain(simId, brain)
+
 def removeObject(ID):
     """ remove an object from the simulation """
     OpenNero.getSimContext().removeObject(ID)
