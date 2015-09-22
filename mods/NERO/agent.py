@@ -28,7 +28,7 @@ class AgentState:
         dx = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
         dy = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
         self.initial_position.x = x + dx
-        self.initial_position.y = module.getMod().spawn_y[self.agent.get_team()] + dy
+        self.initial_position.y = y + dy
         self.prev_pose = self.pose = (self.initial_position.x,
                                       self.initial_position.y,
                                       self.initial_rotation.z)
@@ -72,10 +72,10 @@ class NeroAgent(object):
     @staticmethod
     def factory_class(ai):
         ai_map = {
-            'rtneat': agent.RTNEATAgent,
-            'qlearning': agent.QLearningAgent
+            'neat': NEATAgent,
+            'qlearning': QLearningAgent
         }
-        return ai_map.get(ai, agent.RTNEATAgent)
+        return ai_map.get(ai, NEATAgent)
 
     @staticmethod
     def factory(ai, *args):
@@ -123,6 +123,12 @@ class NeroAgent(object):
         mod = module.getMod()
         if mod is not None:
             return mod.teams[self.team_type]
+
+    def randomize(self):
+        env = OpenNero.get_environment()
+        x = env.spawn_x[self.team_type]
+        y = env.spawn_y[self.team_type]
+        self.mod_state.randomize(x, y)
 
 class NEATAgent(NeroAgent, OpenNero.AgentBrain):
 

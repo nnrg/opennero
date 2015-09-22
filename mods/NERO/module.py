@@ -11,6 +11,7 @@ import constants
 import environment
 import OpenNero
 import agent
+import team
 
 class NeroModule:
     def __init__(self):
@@ -56,9 +57,9 @@ class NeroModule:
     #The following is run when one of the Deploy buttons is pressed
     def deploy(self, team_ai='rtneat', agent_ai='neat', team_type=constants.OBJECT_TYPE_TEAM_0):
         OpenNero.disable_ai()
-        team = Team.factory(team_ai, team_type)
-        self.teams[team] = team
-        team.deploy(agent_ai)
+        t = team.NeroTeam.factory(team_ai, team_type)
+        self.teams[team_type] = t
+        t.deploy(agent_ai)
         OpenNero.enable_ai()
 
     #The following is run when the Save button is pressed
@@ -79,19 +80,6 @@ class NeroModule:
     def set_spawn(self, x, y, team_type=constants.OBJECT_TYPE_TEAM_0):
         if self.environment:
             self.environment.set_spawn(x, y)
-
-    def remove_all_agents(self, team):
-        for agent in list(self.teams[team]):
-            self.remove_agent(agent)
-
-    def remove_agent(self, agent):
-        common.removeObject(agent.state.id)
-        try:
-            self.teams[agent.get_team()].discard(agent)
-            if agent in self.states:
-                self.states.pop(agent)
-        except:
-            pass
     
     def getFriendFoe(self, agent):
         """
@@ -165,8 +153,8 @@ def parseInputCommand(content):
         vali = int(arg)
     if command == "save1": mod.save_team(arg, constants.OBJECT_TYPE_TEAM_0)
     if command == "load1": mod.load_team(arg, constants.OBJECT_TYPE_TEAM_0)
-    if command == "rtneat": mod.deploy('rtneat')
-    if command == "qlearning": mod.deploy('qlearning')
+    if command == "rtneat": mod.deploy('rtneat', 'neat')
+    if command == "qlearning": mod.deploy(None, 'qlearning')
     if command == "pause": OpenNero.disable_ai()
     if command == "resume": OpenNero.enable_ai()
 
