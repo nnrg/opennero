@@ -17,7 +17,8 @@ class NeroModule:
     def __init__(self):
         self.set_speedup(constants.DEFAULT_SPEEDUP)
         self.environment = None
-        self.teams = {}    
+        self.teams = dict((t, team.NeroTeam(t)) for t in constants.TEAMS)
+
     def set_speedup(self, speedup):
         OpenNero.getSimContext().delay = 1.0 - (speedup / 100.0)
         print 'speedup delay', OpenNero.getSimContext().delay
@@ -81,15 +82,15 @@ class NeroModule:
         if self.environment:
             self.environment.set_spawn(x, y)
     
-    def getFriendFoe(self, agent):
+    def get_friend_foe(self, agent):
         """
         Returns sets of all friend agents and all foe agents.
         """
-        my_team = agent.get_team()
+        my_team = agent.team_type
         other_team = constants.OBJECT_TYPE_TEAM_1
         if my_team == other_team:
             other_team = constants.OBJECT_TYPE_TEAM_0
-        return self.teams[my_team], self.teams[other_team]
+        return self.teams[my_team].agents, self.teams[other_team].agents
 
 
 gMod = None

@@ -132,7 +132,7 @@ class NeroEnvironment(OpenNero.Environment):
         """
         reset the environment to its initial state
         """
-        state = self.get_state(agent)
+        state = agent.mod_state
         state.total_damage = 0
         state.curr_damage = 0
         if agent.group == "Agent":
@@ -174,26 +174,18 @@ class NeroEnvironment(OpenNero.Environment):
 
         return agent.info
 
-    def get_state(self, agent):
-        """
-        Returns the state of an agent
-        """
-        if agent not in self.states:
-            self.states[agent] = AgentState(agent)
-        return self.states[agent]
-
     def target(self, agent):
         """
         Returns the nearest foe in a 2-degree cone from an agent.
         """
-        friends, foes = self.getFriendFoe(agent)
+        friends, foes = module.getMod().get_friend_foe(agent)
         if not foes:
             return None
-        pose = self.get_state(agent).pose
+        pose = agent.mod_state.pose
         min_f = None
         min_v = None
         for f in foes:
-            p = self.get_state(f).pose
+            p = g.mod_state.pose
             fd = self.distance(pose, p)
             fh = abs(self.angle(pose, p))
             if fh <= 2:
@@ -207,16 +199,16 @@ class NeroEnvironment(OpenNero.Environment):
         """
         Returns the nearest enemy to agent 
         """
-        friends, foes = self.getFriendFoe(agent)
+        friends, foes = module.getMod().get_friend_foe(agent)
         if not foes:
             return None
 
         min_enemy = None
         min_dist = constants.MAX_FIRE_ACTION_RADIUS
-        pose = self.get_state(agent).pose
+        pose = agent.mod_state.pose
         color = OpenNero.Color(128, 0, 0, 0)
         for f in foes:
-            f_pose = self.get_state(f).pose
+            f_pose = g.mod_state.pose
             dist = self.distance(pose, f_pose)
             if dist < min_dist:
                 source_pos = agent.state.position
@@ -239,7 +231,7 @@ class NeroEnvironment(OpenNero.Environment):
         """
         2A step for an agent
         """
-        state = self.get_state(agent)
+        state = agent.mod_state
 
         #Initilize Agent state
         if agent.step == 0 and agent.group != "Turret":
@@ -267,7 +259,7 @@ class NeroEnvironment(OpenNero.Environment):
         if firing_status:
             if closest_enemy is not None:
                 pose = state.pose
-                closest_enemy_pose = self.get_state(closest_enemy).pose
+                closest_enemy_pose = closest_enemy.mod_state.pose
                 relative_angle = self.angle(pose, closest_enemy_pose)
                 if abs(relative_angle) <= 2:
                     source_pos = agent.state.position
@@ -295,7 +287,7 @@ class NeroEnvironment(OpenNero.Environment):
                         #if len(obstacles) == 0 and random.random() < d/2:
                         if len(obstacles) == 0:
                             # count as hit depending on distance
-                            self.get_state(closest_enemy).curr_damage += 1
+                            closest_enemy.mod_state.curr_damage += 1
                             scored_hit = True
                 else: # turn toward the enemy
                     turn_by = relative_angle
@@ -320,10 +312,10 @@ class NeroEnvironment(OpenNero.Environment):
 
         collision_detected = False
 
-        friends, foes = self.getFriendFoe(agent)
+        friends, foes = module.getMod().get_friend_foe(agent)
         for f in friends:
             if f != agent:
-                f_state = self.get_state(f)
+                f_state = f.mod_state
                 # we impose an order on agents to avoid deadlocks. Without this
                 # two agents which spawn very close to each other can never escape
                 # each other's collision radius
@@ -334,20 +326,10 @@ class NeroEnvironment(OpenNero.Environment):
                         collision_detected = True
                         continue
 
-        # no need to check for collisions with all enemies
-        #if foes:
-        #    if not collision_detected:
-        #        for f in foes:
-        #            f_pose = self.get_state(f).pose
-        #            dist = self.distance(desired_pose, f_pose)
-        #            if dist < constants.MANUAL_COLLISION_DISTANCE:
-        #                collision_detected = True
-        #                continue
-
         # just check for collisions with the closest enemy
         if closest_enemy:
             if not collision_detected:
-                f_pose = self.get_state(closest_enemy).pose
+                f_pose = closest_enemy.mod_state.pose
                 dist = self.distance(desired_pose, f_pose)
                 if dist < constants.MANUAL_COLLISION_DISTANCE:
                     collision_detected = True
@@ -360,8 +342,8 @@ class NeroEnvironment(OpenNero.Environment):
     def calculate_reward(self, agent, action, scored_hit = False):
         reward = agent.info.reward.get_instance()
 
-        state = self.get_state(agent)
-        friends, foes = self.getFriendFoe(agent)
+        state = agent.mod_state
+        friends, foes = module.getMod().get_friend_foe(agent)
 
         if agent.group != 'Turret' and self.hitpoints > 0 and state.total_damage >= self.hitpoints:
             return reward
@@ -373,12 +355,12 @@ class NeroEnvironment(OpenNero.Environment):
 
         friend = self.nearest(state.pose, friends)
         if friend:
-            d = self.distance(self.get_state(friend).pose, state.pose)
+            d = self.distance(friend.mod_state.pose, state.pose)
             R[constants.FITNESS_STICK_TOGETHER] = dist_reward(d)
 
         foe = self.nearest(state.pose, foes)
         if foe:
-            d = self.distance(self.get_state(foe).pose, state.pose)
+            d = self.distance(foe.mod_state.pose, state.pose)
             R[constants.FITNESS_APPROACH_ENEMY] = dist_reward(d)
 
         f = module.getMod().flag_loc
@@ -407,7 +389,7 @@ class NeroEnvironment(OpenNero.Environment):
         figure out what the agent should sense
         """
         my_team = agent.get_team()
-        all_friends = self.teams[my_team] 
+        all_friends = my_team.agents
 
         ax, ay = agent.state.position.x, agent.state.position.y
         cx, cy = 0.0, 0.0
@@ -461,7 +443,7 @@ class NeroEnvironment(OpenNero.Environment):
         nearest = None
         min_dist = self.MAX_DIST * 5
         for agent in agents:
-            d = self.distance(loc, self.get_state(agent).pose)
+            d = self.distance(loc, agent.mod_state.pose)
             if 0 < d < min_dist:
                 nearest = agent
                 min_dist = d
@@ -481,24 +463,14 @@ class NeroEnvironment(OpenNero.Environment):
         if agent.group == 'Turret':
             return False
 
-        state = self.get_state(agent)
+        state = agent.mod_state
         dead = self.hitpoints > 0 and state.total_damage >= self.hitpoints
         old = self.lifetime > 0 and agent.step > 0 and 0 == agent.step % self.lifetime
-
-        if agent.ai == 'qlearning':
-            if dead or old:
-                # simulate a respawn by moving this agent towards the spawn location.
-                state.total_damage = 0
-                state.randomize()
-                agent.state.position = copy.copy(state.initial_position)
-                agent.state.rotation = copy.copy(state.initial_rotation)
-                agent.teleport()
-            return False
 
         return dead or old
     
     def get_hitpoints(self, agent):
-        damage = self.get_state(agent).total_damage
+        damage = agent.mod_state.total_damage
         if self.hitpoints > 0 and damage >= 0:
             return float(self.hitpoints-damage)/self.hitpoints
         else:
