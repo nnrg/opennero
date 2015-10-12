@@ -335,10 +335,8 @@ namespace OpenNero {
 				.add_property("id", &PyOrganism::GetId, "evolution-wide unique id of the organism")
 				.add_property("fitness", &PyOrganism::GetFitness, &PyOrganism::SetFitness, "organism fitness (non-negative real)")
 				.add_property("time_alive", &PyOrganism::GetTimeAlive, &PyOrganism::SetTimeAlive, "organism time alive (integer, non negative)")
-                .def_readwrite("champion", &PyOrganism::champion, "is the organism a champion of the species?")
-                .add_property("species_id", &PyOrganism::GetSpeciesId, "the id of the species of the organism")
-                .add_property("stats", &PyOrganism::GetStats, "the stats of the organism")
-                .add_property("trials", &PyOrganism::GetNumTrials, "number of trials of the organism")
+        .def_readwrite("champion", &PyOrganism::champion, "is the organism a champion of the species?")
+        .add_property("species_id", &PyOrganism::GetSpeciesId, "the id of the species of the organism")
 				.def("save", &PyOrganism::Save, "save the organism to file")
 				.def(self_ns::str(self_ns::self));
 
@@ -346,17 +344,10 @@ namespace OpenNero {
 			py::class_<AI, AIPtr, noncopyable>("AI", "AI algorithm", no_init);
 
 			// export RTNEAT interface
-			py::class_<RTNEAT, bases<AI>, RTNEATPtr>("RTNEAT", init<const std::string&, const std::string&, S32, const RewardInfo&, bool>())
-				.def(init<const std::string&, S32, S32, S32, F32, const RewardInfo&, bool>())
-				.def("get_organism", &RTNEAT::get_organism, "evolve a new organism and return it")
-                .def("release_organism", &RTNEAT::release_organism, "release the organism after the agent is done")
-                .def("ready", &RTNEAT::ready, "return true iff RTNEAT is ready to produce a new organism")
-                .def("has_organism", &RTNEAT::has_organism, "return true iff RTNEAT has an organism for this agent")
-                .def("set_weight", &RTNEAT::set_weight, "set weight i to value f")
-                .def("set_lifetime", &RTNEAT::set_lifetime, "set the lifetime of an agent")
-				.def("save_population", &RTNEAT::save_population, "save the population to a file")
-                .def("enable_evolution", &RTNEAT::enable_evolution, "turn evolution on")
-                .def("disable_evolution", &RTNEAT::disable_evolution, "turn evolution off");
+			py::class_<RTNEAT, bases<AI>, RTNEATPtr>("RTNEAT", init<const std::string&, const std::string&, S32, S32>())
+				.def(init<const std::string&, S32, S32, S32, F32, S32>())
+        .def("set_lifetime", &RTNEAT::set_lifetime, "set the lifetime of an agent")
+				.def("save_population", &RTNEAT::save_population, "save the population to a file");
 		}
         
 		/// the pickling suite for the Vector class

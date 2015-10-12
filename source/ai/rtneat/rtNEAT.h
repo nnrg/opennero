@@ -36,34 +36,23 @@ namespace OpenNero
     /// An interface for the RTNEAT learning algorithm
     class RTNEAT : public AI {
         PopulationPtr mPopulation;        ///< population of organisms
-        queue<PyOrganismPtr> mWaitingBrainList; ///< queue of organisms to be evaluated
-        vector<PyOrganismPtr> mBrainList; ///< all the organisms along with their stats
-        BrainBodyMap mBrainBodyMap;       ///< map from agents to organisms
         size_t mOffspringCount;           ///< number of reproductions so far
 		size_t mSpawnTickCount;           ///< number of spawn ticks
 		size_t mEvolutionTickCount;       ///< number of evolution ticks
         size_t mTotalUnitsDeleted;        ///< total units deleted
         size_t mUnitsToDeleteBeforeFirstJudgment; ///< number of units to delete before judging
         size_t mTimeBetweenEvolutions;    ///< time (in ticks) between rounds of evolution
-        RewardInfo mRewardInfo; ///< the constraints that describe the per-step rewards
-        FeatureVector mFitnessWeights; ///< fitness weights
-        bool mEvolutionEnabled; ///< whether the evolution is enabled
 
-        S32 mChampionId; ///< the id of the last champion of the population
-
-        bool mGenerational;               ///< whether to run NEAT in generational or realtime mode
     public:
         /// Constructor
         /// @param filename name of the file with the initial population genomes
         /// @param param_file file with RTNEAT parameters to load
         /// @param population_size size of the population to construct
-        /// @param reward_info the specifications for the multidimensional reward
-        /// @param generational if true then run generational NEAT; otherwise run realtime NEAT
-        RTNEAT(const std::string& filename,
-               const std::string& param_file,
+        /// @param time_between_evolutions time between evolution steps
+        RTNEAT(const std::string& param_file,
+               const std::string& filename,
                size_t population_size,
-               const RewardInfo& reward_info,
-               bool generational = false);
+               size_t time_between_evolutions);
 
         /// Constructor
         /// @param param_file RTNEAT parameter file
@@ -71,35 +60,16 @@ namespace OpenNero
         /// @param outputs number of outputs
         /// @param population_size size of the population to construct
         /// @param noise variance of the Gaussian used to assign initial weights
-        /// @param reward_info the specifications for the multidimensional reward
-        /// @param generational if true then run generational NEAT; otherwise run realtime NEAT
+        /// @param time_between_evolutions time between evolution steps
         RTNEAT(const std::string& param_file,
                size_t inputs,
                size_t outputs,
                size_t population_size,
                F32 noise,
-               const RewardInfo& reward_info,
-               bool generational = false);
+               size_t time_between_evolutions);
 
         /// Destructor
         ~RTNEAT();
-
-        // get the next organism to be evaluated
-        // PyOrganismPtr next_organism(PyOrganismPtr org);
-        /// are we ready to spawn a new organism?
-        bool ready();
-
-        // evolve and return the next organism to be evaluated
-        // PyOrganismPtr evolve_next_organism();
-
-        /// have we been deleted?
-        bool has_organism(AgentBrainPtr agent);
-
-        /// get the organism currently assigned to the agent
-        PyOrganismPtr get_organism(AgentBrainPtr agent);
-
-        /// release the organism that was being used by the agent
-        void release_organism(AgentBrainPtr agent);
 
         /// Called every step by the OpenNERO system
         virtual void ProcessTick( float32_t incAmt );
@@ -111,25 +81,13 @@ namespace OpenNero
         /// load a population from a file
         bool load_population(const std::string& population_file);
 
-        /// get the weight vector
-        const FeatureVector& get_weights() const { return mFitnessWeights; }
-
-        /// set the i'th weight
-        void set_weight(size_t i, double weight) { mFitnessWeights[i] = weight; }
-
         /// set the lifetime so that we can ensure that the units have been alive
         /// at least that long before evaluating them
         void set_lifetime(size_t lifetime);
 
-        /// enable or disable evolution
-        /// @{
-        void enable_evolution() { mEvolutionEnabled = true; }
-        void disable_evolution() { mEvolutionEnabled = false; }
-        /// @}
+        /// Reproduces a new organism to replace a previously killed one
+        PyOrganismPtr reproduce_one();
 
-        /// check if the evolution is enabled
-        bool is_evolution_enabled() const { return mEvolutionEnabled; }
-        
         /// @return the current population
         PopulationPtr get_population() { return mPopulation; }
 
@@ -137,20 +95,8 @@ namespace OpenNero
         bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data) { return true; }
 
 	private:
-
-        /// tally the rewards of all the fielded agents
-        void tallyAll();
-
-		/// evaluate all brains by compiling their stats
-		void evaluateAll();
-
-		/// evolution step that potentially replaces an organism with an
-		/// offspring
-		void evolveAll();
-
-		/// Delete the unit which is currently associated with the specified
-		/// brain and move the brain back to waiting list.
-		void deleteUnit(PyOrganismPtr brain);
+		/// evolution step that potentially kills a low-fitness organism
+		void remove_worst();
     };
 
     /// A Python wrapper for the Network class with a simple interface for forward prop
@@ -201,30 +147,18 @@ namespace OpenNero
     {
         OrganismPtr mOrganism;
     public:
-        /// the absolute score (Z-weighted average)
-		F32 mAbsoluteScore;
-
-        /// statistics for fitness calculations
-        Stats mStats;
-
         /// we keep our own champion flag
         bool champion;
 
 		/// constructor for a PyOrganism
         /// @param org rtNEAT organism to wrap
-        /// @param reward_info the info about the multidimensional reward
-        PyOrganism(OrganismPtr org, const RewardInfo& reward_info) :
+        PyOrganism(OrganismPtr org) :
             mOrganism(org),
-            mAbsoluteScore(0),
-            mStats(reward_info),
             champion(false)
         { }
 
         /// set the fitness of the organism
-        void SetFitness(double fitness) {
-            if (mOrganism->fitness == 0)
-                mOrganism->fitness = fitness;
-        }
+        void SetFitness(double fitness) { mOrganism->fitness = fitness; }
 
         /// get the fitness of the organism
         double GetFitness() const { return mOrganism->fitness; }
@@ -248,16 +182,10 @@ namespace OpenNero
         OrganismPtr GetOrganism() { return mOrganism; }
 
         /// Set the organism
-        void SetOrganism(OrganismPtr organism) { mOrganism = organism; mAbsoluteScore = 0; }
+        void SetOrganism(OrganismPtr organism) { mOrganism = organism; }
 
         /// get network of the organism
         PyNetworkPtr GetNetwork() const { return PyNetworkPtr(new PyNetwork(mOrganism->net)); }
-
-		/// get stats
-        Reward GetStats() const { return mStats.getStats(); }
-
-		/// get number of lifetime trials
-        U32 GetNumTrials() const { return mStats.GetNumTrials(); }
 
         /// in Lamarckian evolution, save the weights back into the genotype
         void UpdateGenotype() { mOrganism->update_genotype(); }
