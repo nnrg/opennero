@@ -46,7 +46,9 @@ ANIMATION_RATE = 100
 pop_size = 50
 
 # number of steps per lifetime
-DEFAULT_LIFETIME = 1000
+DEFAULT_LIFETIME_MAX = 10000
+DEFAULT_LIFETIME_MIN = 1000
+DEFAULT_EVOLVE_RATE = 100
 DEFAULT_HITPOINTS = 20
 
 # default value of explore/exploit slider (x out of 100)

@@ -337,6 +337,7 @@ namespace OpenNero {
 				.add_property("time_alive", &PyOrganism::GetTimeAlive, &PyOrganism::SetTimeAlive, "organism time alive (integer, non negative)")
         .def_readwrite("champion", &PyOrganism::champion, "is the organism a champion of the species?")
         .add_property("species_id", &PyOrganism::GetSpeciesId, "the id of the species of the organism")
+        .add_property("eliminate", &PyOrganism::GetEliminate, "whether the organism is flagged for elimination")
 				.def("save", &PyOrganism::Save, "save the organism to file")
 				.def(self_ns::str(self_ns::self));
 
@@ -347,7 +348,9 @@ namespace OpenNero {
 			py::class_<RTNEAT, bases<AI>, RTNEATPtr>("RTNEAT", init<const std::string&, const std::string&, S32, S32>())
 				.def(init<const std::string&, S32, S32, S32, F32, S32>())
         .def("set_lifetime", &RTNEAT::set_lifetime, "set the lifetime of an agent")
-				.def("save_population", &RTNEAT::save_population, "save the population to a file");
+				.def("save_population", &RTNEAT::save_population, "save the population to a file")
+        .def("reproduce_one", &RTNEAT::reproduce_one, "Reproduce a new organism to replace a previously killed one")
+        .add_property("organisms", &RTNEAT::get_organisms, "the organisms being evolved");
 		}
         
 		/// the pickling suite for the Vector class

@@ -10,19 +10,16 @@ import common
 import constants
 import environment
 import OpenNero
-import agent
-import team
 
 class NeroModule:
     def __init__(self):
         self.set_speedup(constants.DEFAULT_SPEEDUP)
         self.environment = None
-        self.teams = dict((t, team.NeroTeam(t)) for t in constants.TEAMS)
 
     def set_speedup(self, speedup):
         OpenNero.getSimContext().delay = 1.0 - (speedup / 100.0)
         print 'speedup delay', OpenNero.getSimContext().delay
-    
+
     def setup_map(self):
         """
         setup the test environment
@@ -57,11 +54,8 @@ class NeroModule:
 
     #The following is run when one of the Deploy buttons is pressed
     def deploy(self, team_ai='rtneat', agent_ai='neat', team_type=constants.OBJECT_TYPE_TEAM_0):
-        OpenNero.disable_ai()
-        t = team.NeroTeam.factory(team_ai, team_type)
-        self.teams[team_type] = t
-        t.deploy(agent_ai)
-        OpenNero.enable_ai()
+        if self.environment:
+            self.environment.deploy(team_ai, agent_ai, team_type)
 
     #The following is run when the Save button is pressed
     def save_team(self, location, team_type=constants.OBJECT_TYPE_TEAM_0):
@@ -81,16 +75,6 @@ class NeroModule:
     def set_spawn(self, x, y, team_type=constants.OBJECT_TYPE_TEAM_0):
         if self.environment:
             self.environment.set_spawn(x, y)
-    
-    def get_friend_foe(self, agent):
-        """
-        Returns sets of all friend agents and all foe agents.
-        """
-        my_team = agent.team_type
-        other_team = constants.OBJECT_TYPE_TEAM_1
-        if my_team == other_team:
-            other_team = constants.OBJECT_TYPE_TEAM_0
-        return self.teams[my_team].agents, self.teams[other_team].agents
 
 
 gMod = None

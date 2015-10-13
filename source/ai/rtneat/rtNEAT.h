@@ -91,6 +91,9 @@ namespace OpenNero
         /// @return the current population
         PopulationPtr get_population() { return mPopulation; }
 
+        /// @ return list of organisms being evolved
+        py::list get_organisms();       
+
         /// load info about this AI from the object template
         bool LoadFromTemplate( ObjectTemplatePtr objTemplate, const SimEntityData& data) { return true; }
 
@@ -174,6 +177,9 @@ namespace OpenNero
 
         /// get the amount of time that the organism has to live
         int GetTimeAlive() const { return mOrganism->time_alive; }
+
+        /// whether the organism is marked for elimination
+        bool GetEliminate() const { return mOrganism->eliminate; }
 
         /// save this organism to a file
         bool Save(const std::string& fname) const { return mOrganism->print_to_file(fname); }

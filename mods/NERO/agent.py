@@ -2,68 +2,10 @@ import sys
 import random
 import tempfile
 
+import common
 import constants
 import module
 import OpenNero
-
-class AgentState:
-    """
-    State that we keep for each agent
-    """
-    def __init__(self):
-        self.pose = (0, 0, 0)  # current x, y, heading
-        self.prev_pose = (0, 0, 0)
-        self.initial_position = OpenNero.Vector3f(0, 0, 0)
-        self.initial_rotation = OpenNero.Vector3f(0, 0, 0)
-        self.total_damage = 0
-        self.curr_damage = 0
-
-    def __str__(self):
-        x, y, h = self.pose
-        px, py, ph = self.prev_pose
-        return 'agent { id: %d, pose: (%.02f, %.02f, %.02f), prev_pose: (%.02f, %.02f, %.02f) }' % \
-            (self.id, x, y, h, px, py, ph)
-
-    def randomize(self, x, y):
-        dx = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
-        dy = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
-        self.initial_position.x = x + dx
-        self.initial_position.y = y + dy
-        self.prev_pose = self.pose = (self.initial_position.x,
-                                      self.initial_position.y,
-                                      self.initial_rotation.z)
-
-    def reset_pose(self, position, rotation):
-        self.prev_pose = self.pose = (position.x, position.y, rotation.z)
-
-    def update_damage(self):
-        """
-        Update the damage for an agent, returning the current damage.
-        """
-        self.total_damage += self.curr_damage
-        damage = self.curr_damage
-        self.curr_damage = 0
-        return damage
-
-    def update_pose(self, move_by, turn_by):
-        dist = constants.MAX_MOVEMENT_SPEED * move_by
-        heading = common.wrap_degrees(self.agent.state.rotation.z, turn_by)
-        x = self.agent.state.position.x + dist * math.cos(math.radians(heading))
-        y = self.agent.state.position.y + dist * math.sin(math.radians(heading))
-
-        self.prev_pose = self.pose
-        self.pose = (x, y, heading)
-
-        # try to update position
-        pos = copy.copy(self.agent.state.position)
-        pos.x = x
-        pos.y = y
-        self.agent.state.position = pos
-
-        # try to update rotation
-        rot = copy.copy(self.agent.state.rotation)
-        rot.z = heading
-        self.agent.state.rotation = rot
 
 class NeroAgent(object):
     """
@@ -85,7 +27,6 @@ class NeroAgent(object):
         self.team_type = team_type
         self.group = group
         self.info = OpenNero.AgentInitInfo(*self.agent_info_tuple())
-        self.mod_state = AgentState()
 
     def agent_info_tuple(self):
         abound = OpenNero.FeatureVectorInfo() # actions
@@ -114,25 +55,13 @@ class NeroAgent(object):
         return True
 
     def destroy(self):
-        mod = module.getMod()
-        if mod is not None:
-            mod.remove_agent(self)
         return True
 
-    def get_team(self):
-        mod = module.getMod()
-        if mod is not None:
-            return mod.teams[self.team_type]
-
-    def randomize(self):
-        env = OpenNero.get_environment()
-        x = env.spawn_x[self.team_type]
-        y = env.spawn_y[self.team_type]
-        self.mod_state.randomize(x, y)
-
 class NEATAgent(NeroAgent, OpenNero.AgentBrain):
+    num_inputs = constants.N_SENSORS + 1
+    num_outputs = constants.N_ACTIONS
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, team_type=None, org=None):
         """
         Create an agent brain
         """
@@ -140,9 +69,9 @@ class NEATAgent(NeroAgent, OpenNero.AgentBrain):
         # AgentBrainPtr by C++
         OpenNero.AgentBrain.__init__(self)
 
-        NeroAgent.__init__(self, *args, **kwargs)
+        NeroAgent.__init__(self, team_type)
         self.omit_friend_sensors = False
-        #TODO org init
+        self.org = org
 
     def start(self, time, sensors):
         """
@@ -236,6 +165,9 @@ class NEATAgent(NeroAgent, OpenNero.AgentBrain):
             self.omit_friend_sensors = False
 
         return denormalized_actions
+
+    def is_episode_over(self):
+        return self.org.eliminate
 
 class QLearningAgent(NeroAgent, OpenNero.QLearningBrain):
     """

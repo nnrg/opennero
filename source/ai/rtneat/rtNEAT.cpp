@@ -218,6 +218,18 @@ namespace OpenNero
         }
     }
 
+    py::list RTNEAT::get_organisms()
+    {
+        py::list l;
+        std::vector<OrganismPtr>::const_iterator iter;
+        for (iter=mPopulation->organisms.begin();iter!=mPopulation->organisms.end();++iter)
+        {
+            PyOrganismPtr p(new PyOrganism(*iter));
+            l.append(p);
+        }
+        return l;
+    }
+
     /// the id of the species of the organism
     int PyOrganism::GetSpeciesId() const
     {
