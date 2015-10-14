@@ -188,11 +188,10 @@ class NeroEnvironment(OpenNero.Environment):
             scale=OpenNero.Vector3f(1, 1, 10),
             type=constants.OBJECT_TYPE_FLAG)
 
-    def place_basic_turret(self, loc):
-        return common.addObject(
-            "data/shapes/character/steve_basic_turret.xml",
-            OpenNero.Vector3f(*loc),
-            type=constants.OBJECT_TYPE_TEAM_1)
+    def place_basic_turret(self, loc, team_type=constants.OBJECT_TYPE_TEAM_1):
+        turret = self.teams[team_type].create_agent('turret')
+        (x, y, z) = loc
+        self.spawn_agent(turret, x, y)
 
     def get_state(self, agent):
         if agent not in self.states:
@@ -215,28 +214,34 @@ class NeroEnvironment(OpenNero.Environment):
             other_team = constants.OBJECT_TYPE_TEAM_0
         return self.teams[my_team].agents, self.teams[other_team].agents
 
+    def remove_team(self, team):
+        for agent in team.agents:
+            self.despawn_agent(agent)
+        team.destroy()
+
     def deploy(self, team_ai, agent_ai, team_type):
         OpenNero.disable_ai()
+        self.remove_team(self.teams[team_type])
         t = team.factory(team_ai, team_type)
         self.teams[team_type] = t
         t.create_agents(agent_ai)
         for agent in t.agents:
-            self.spawn_agent(agent)
+            (x, y) = self.get_spawn(agent)
+            dx = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
+            dy = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
+            self.spawn_agent(agent, x+dx, y+dy)
         OpenNero.enable_ai()
 
-    def spawn_agent(self, agent):
-        """
-        Spawn a single agent with the appropriate AI
-        """
-        (x, y) = self.get_spawn(agent)
-        dx = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
-        dy = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
+    def spawn_agent(self, agent, x, y):
         simId = common.addObject(
             "data/shapes/character/steve_%s.xml" % (constants.TEAM_LABELS[agent.team_type]),
-            OpenNero.Vector3f(x + dx, y + dy, 2),
+            OpenNero.Vector3f(x, y, 2),
             type=agent.team_type)
         common.initObjectBrain(simId, agent)
         return simId
+
+    def despawn_agent(self, agent):
+        common.removeObject(agent.state.id)
 
     def reset(self, agent):
         """
@@ -285,7 +290,22 @@ class NeroEnvironment(OpenNero.Environment):
                     sense,
                     False))
 
-        return agent.info
+        abound = OpenNero.FeatureVectorInfo() # actions
+        sbound = OpenNero.FeatureVectorInfo() # sensors
+
+        # actions
+        abound.add_continuous(-1, 1) # forward/backward speed
+        abound.add_continuous(-constants.MAX_TURNING_RATE, constants.MAX_TURNING_RATE) # left/right turn (in radians)
+        abound.add_continuous(0, 1) # fire 
+        abound.add_continuous(0, 1) # omit friend sensors 
+
+        # sensor dimensions
+        for a in range(constants.N_SENSORS):
+            sbound.add_continuous(0, 1)
+
+        rbound = OpenNero.FeatureVectorInfo()
+        rbound.add_continuous(0, 1)
+        return OpenNero.AgentInitInfo(sbound, abound, rbound)
 
     def target(self, agent):
         """
@@ -321,7 +341,7 @@ class NeroEnvironment(OpenNero.Environment):
         pose = self.get_state(agent).pose
         color = OpenNero.Color(128, 0, 0, 0)
         for f in foes:
-            f_pose = self.get_state(g).pose
+            f_pose = self.get_state(f).pose
             dist = self.distance(pose, f_pose)
             if dist < min_dist:
                 source_pos = agent.state.position
@@ -354,7 +374,7 @@ class NeroEnvironment(OpenNero.Environment):
                 r.z = random.randrange(360)
                 agent.state.rotation = r
             state.reset_pose(p, r)
-            return agent.info.reward.get_instance()
+            return agent.rewards.get_instance()
 
         # display agent info if neccessary
         if hasattr(agent, 'set_display_hint'):
@@ -413,6 +433,8 @@ class NeroEnvironment(OpenNero.Environment):
 
         reward = self.calculate_reward(agent, action, scored_hit)
 
+        team = self.get_team(agent)
+
         # tell the system to make the calculated motion
         # if the motion doesn't result in a collision
         dist = constants.MAX_MOVEMENT_SPEED * move_by
@@ -453,7 +475,7 @@ class NeroEnvironment(OpenNero.Environment):
         return reward
 
     def calculate_reward(self, agent, action, scored_hit = False):
-        reward = agent.info.reward.get_instance()
+        reward = agent.rewards.get_instance()
 
         state = self.get_state(agent)
         friends, foes = self.get_friend_foe(agent)
@@ -462,6 +484,7 @@ class NeroEnvironment(OpenNero.Environment):
             return reward
 
         R = dict((f, 0) for f in constants.FITNESS_DIMENSIONS)
+        W = dict((f, self.reward_weights[f]) for f in constants.FITNESS_DIMENSIONS)
         dist_reward = lambda d: 1 / ((d * d / constants.MAX_DIST) + 1)
 
         R[constants.FITNESS_STAND_GROUND] = 1 - abs(action[0])
@@ -470,16 +493,22 @@ class NeroEnvironment(OpenNero.Environment):
         if friend:
             d = self.distance(self.get_state(friend).pose, state.pose)
             R[constants.FITNESS_STICK_TOGETHER] = dist_reward(d)
+        else:
+            W[constants.FITNESS_STICK_TOGETHER] = 0
 
         foe = self.nearest(state.pose, foes)
         if foe:
             d = self.distance(self.get_state(foe).pose, state.pose)
             R[constants.FITNESS_APPROACH_ENEMY] = dist_reward(d)
+        else:
+            W[constants.FITNESS_APPROACH_ENEMY] = 0
 
         f = self.flag_loc
         if f:
             d = self.distance(state.pose, (f.x, f.y))
             R[constants.FITNESS_APPROACH_FLAG] = dist_reward(d)
+        else:
+            W[constants.FITNESS_APPROACH_FLAG] = 0
 
         if scored_hit:
             R[constants.FITNESS_HIT_TARGET] = 1
@@ -487,14 +516,15 @@ class NeroEnvironment(OpenNero.Environment):
         damage = state.update_damage()
         R[constants.FITNESS_AVOID_FIRE] = 1 - damage
 
-        if len(reward) == 1:
-            for i, f in enumerate(constants.FITNESS_DIMENSIONS):
-                reward[0] += self.reward_weights[f] * R[f] / constants.FITNESS_SCALE.get(f, 1.0)
-                #print f, self.reward_weights[f], R[f] / constants.FITNESS_SCALE.get(f, 1.0)
-        else:
-            for i, f in enumerate(constants.FITNESS_DIMENSIONS):
-                reward[i] = R[f]
-
+        min_sum = 0
+        max_sum = 0
+        for i, f in enumerate(constants.FITNESS_DIMENSIONS):
+            reward[0] += W[f] * R[f]
+            min_sum += min(W[f], 0)
+            max_sum += max(W[f], 0)
+        if max_sum > min_sum:
+            d = max_sum - min_sum
+            reward[0] = 1.0 * (reward[0] - min_sum) / d
         return reward
 
     def sense(self, agent, observations):

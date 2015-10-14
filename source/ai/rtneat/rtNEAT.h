@@ -8,14 +8,9 @@
 #include "rtneat/population.h"
 #include "scripting/scripting.h"
 #include "ai/AI.h"
-#include "ai/Environment.h"
-#include "ai/rtneat/ScoreHelper.h"
 #include <string>
-#include <set>
-#include <queue>
 #include <iostream>
 #include <boost/python.hpp>
-#include <boost/bimap.hpp>
 
 namespace OpenNero
 {
@@ -27,11 +22,7 @@ namespace OpenNero
     BOOST_SHARED_DECL(RTNEAT);
     BOOST_SHARED_DECL(PyNetwork);
     BOOST_SHARED_DECL(PyOrganism);
-    BOOST_SHARED_DECL(AIObject);
     /// @endcond
-
-    /// A bi-directional map associating AIObjects (bodies) with PyOrganisms (rtNEAT brains)
-    typedef boost::bimap<AIObjectPtr, PyOrganismPtr> BrainBodyMap;
 
     /// An interface for the RTNEAT learning algorithm
     class RTNEAT : public AI {

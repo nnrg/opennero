@@ -3,7 +3,6 @@
 #include "game/SimContext.h"
 #include "game/Kernel.h"
 #include "ai/AIObject.h"
-#include "ai/AgentBrain.h"
 #include "ai/rtneat/rtNEAT.h"
 #include "rtneat/population.h"
 #include "rtneat/network.h"
@@ -19,21 +18,7 @@ namespace OpenNero
     BOOST_SHARED_DECL(SimEntity);
     /// @endcond
 
-    const F32 FRACTION_POPULATION_INELIGIBLE_ALLOWED = 0.5;
-
     using namespace NEAT;
-
-    namespace {
-        const size_t kNumSpeciesTarget = 5; ///< target number of species in the population
-        const double kCompatMod = 0.1; ///< compatibility threshold modifier
-        const double kMinCompatThreshold = 0.3; // minimum species compatibility threshold
-
-        /// compare two organisms by fitness
-        bool fitness_less(OrganismPtr a, OrganismPtr b)
-        {
-            return a->fitness < b->fitness;
-        }
-    }
 
     /// Constructor
     /// @param filename name of the file with the initial population genomes

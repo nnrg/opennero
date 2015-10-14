@@ -23,13 +23,12 @@ class NeroTeam(object):
     
     def create_agents(self, ai):
         for _ in range(constants.pop_size):
-            self.agents.add(agent.NeroAgent.factory(ai, self.team_type))
+            self.self.create_agent(ai)
 
-    def start_ai(self):
-        """
-        Start Team level AI
-        """
-        pass
+    def create_agent(self, ai):
+        a = agent.factory(ai, self.team_type)
+        self.agents.add(a)
+        return a
 
     def save(self, location):
         """
@@ -41,6 +40,9 @@ class NeroTeam(object):
         return False
 
     def reset(self, agent):
+        pass
+
+    def destroy(self):
         pass
 
     # def load(location):
@@ -55,7 +57,7 @@ class RTNEATTeam(NeroTeam):
         self.ai = None
 
     def create_agents(self, ai):
-        cls = agent.NeroAgent.factory_class(ai)
+        cls = agent.factory_class(ai)
         self.ai = OpenNero.RTNEAT("data/ai/neat-params.dat",
                                   cls.num_inputs,
                                   cls.num_outputs,
@@ -70,8 +72,16 @@ class RTNEATTeam(NeroTeam):
     def start_ai(self):
         OpenNero.set_ai('rtneat-%s' % self.team_type, self.ai)
 
+    def stop_ai(self):
+        OpenNero.set_ai('rtneat-%s' % self.team_type, None)
+
     def is_episode_over(self, agent):
         return agent.org.eliminate
 
     def reset(self, agent):
         agent.org = self.ai.reproduce_one()
+
+    def destroy(self):
+        self.stop_ai()
+
+

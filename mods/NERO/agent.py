@@ -7,46 +7,25 @@ import constants
 import module
 import OpenNero
 
+
+def factory_class(ai):
+    ai_map = {
+        'neat': NEATAgent,
+        'qlearning': QLearningAgent,
+        'turret': Turret
+    }
+    return ai_map.get(ai, NEATAgent)
+
+def factory(ai, *args):
+    return factory_class(ai)(*args)
+
 class NeroAgent(object):
     """
     base class for nero agents
     """
-    @staticmethod
-    def factory_class(ai):
-        ai_map = {
-            'neat': NEATAgent,
-            'qlearning': QLearningAgent
-        }
-        return ai_map.get(ai, NEATAgent)
-
-    @staticmethod
-    def factory(ai, *args):
-        return NeroAgent.factory_class(ai)(*args)
-
     def __init__(self, team_type=None, group='Agent'):
         self.team_type = team_type
         self.group = group
-        self.info = OpenNero.AgentInitInfo(*self.agent_info_tuple())
-
-    def agent_info_tuple(self):
-        abound = OpenNero.FeatureVectorInfo() # actions
-        sbound = OpenNero.FeatureVectorInfo() # sensors
-
-        # actions
-        abound.add_continuous(-1, 1) # forward/backward speed
-        abound.add_continuous(-constants.MAX_TURNING_RATE, constants.MAX_TURNING_RATE) # left/right turn (in radians)
-        abound.add_continuous(0, 1) # fire 
-        abound.add_continuous(0, 1) # omit friend sensors 
-
-        # sensor dimensions
-        for a in range(constants.N_SENSORS):
-            sbound.add_continuous(0, 1)
-
-        rbound = OpenNero.FeatureVectorInfo()
-        for f in constants.FITNESS_DIMENSIONS:
-            rbound.add_continuous(0, 1)
-
-        return sbound, abound, rbound
 
     def initialize(self, init_info):
         self.actions = init_info.actions
@@ -85,6 +64,7 @@ class NEATAgent(NeroAgent, OpenNero.AgentBrain):
         a state transition
         """
         # return action
+        self.org.fitness = self.fitness[0] / self.step
         return self.network_action(sensors)
 
     def stats(self):
@@ -208,19 +188,13 @@ class QLearningAgent(NeroAgent, OpenNero.QLearningBrain):
             if self.state.label:
                 self.state.label = ""
 
-    def agent_info_tuple(self):
-        sbound, abound, _ = NeroAgent.agent_info_tuple(self)
-        rbound = OpenNero.FeatureVectorInfo() # single-dimension rewards
-        rbound.add_continuous(0, 1)
-        return sbound, abound, rbound
-
 class Turret(NeroAgent, OpenNero.AgentBrain):
     """
     Simple Rotating Turret
     """
-    def __init__(self):
+    def __init__(self, team_type=None):
         OpenNero.AgentBrain.__init__(self)
-        NeroAgent.__init__(self, team_type=constants.OBJECT_TYPE_TEAM_1, group='Turret')
+        NeroAgent.__init__(self, team_type, group='Turret')
 
     def start(self, time, sensors):
         self.state.label = 'Turret'
