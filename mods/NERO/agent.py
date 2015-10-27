@@ -135,8 +135,6 @@ class NEATAgent(NeroAgent, OpenNero.AgentBrain):
         actions = self.actions.get_instance()
         for i in range(len(self.actions.get_instance())):
              actions[i] = outputs[i]
-        #disabling firing for testing...
-        #actions[constants.ACTION_INDEX_FIRE] = 0
         denormalized_actions = self.actions.denormalize(actions)
 
         if denormalized_actions[constants.ACTION_INDEX_ZERO_FRIEND_SENSORS] > 0.5:

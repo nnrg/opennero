@@ -2,7 +2,6 @@
 #include "game/SimEntity.h"
 #include "game/SimContext.h"
 #include "game/Kernel.h"
-#include "ai/AIObject.h"
 #include "ai/rtneat/rtNEAT.h"
 #include "rtneat/population.h"
 #include "rtneat/network.h"

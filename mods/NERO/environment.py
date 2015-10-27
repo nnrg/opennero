@@ -230,7 +230,7 @@ class NeroEnvironment(OpenNero.Environment):
             dx = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
             dy = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
             self.spawn_agent(agent, x+dx, y+dy)
-        OpenNero.enable_ai()
+        #OpenNero.enable_ai()
 
     def spawn_agent(self, agent, x, y):
         simId = common.addObject(
