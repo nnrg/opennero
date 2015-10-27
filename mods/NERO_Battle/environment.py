@@ -1,15 +1,15 @@
-import NERO.NeroEnvironment
+from NERO.environment import NeroEnvironment
 import NERO.constants as constants
 import OpenNero
 import common
 
 
-class NeroEnvironment(NERO.NeroEnvironment.NeroEnvironment):
+class BattleEnvironment(NeroEnvironment):
     """
     Environment for Nero battle.
     """
     def __init__(self):
-        NERO.NeroEnvironment.NeroEnvironment.__init__(self)
+        NeroEnvironment.__init__(self)
         self.script = 'NERO_Battle/menu.py'
         self.print_damage = -1
         self.last_damage = []
@@ -21,7 +21,7 @@ class NeroEnvironment(NERO.NeroEnvironment.NeroEnvironment):
         # make sure RL agents cannot learn in battle mode.
         agent.alpha = 0.0
 
-        reward = NERO.NeroEnvironment.NeroEnvironment.step(self, agent, action)
+        reward = NeroEnvironment.step(self, agent, action)
 
         live_agents = sum(len(t) for t in self.teams.itervalues())
 

@@ -20,6 +20,9 @@ class NeroModule:
         OpenNero.getSimContext().delay = 1.0 - (speedup / 100.0)
         print 'speedup delay', OpenNero.getSimContext().delay
 
+    def create_environment(self):
+        return environment.NeroEnvironment()
+
     def setup_map(self):
         """
         setup the test environment
@@ -29,9 +32,7 @@ class NeroModule:
         if self.environment:
             error("Environment already created")
             return
-
-        # create the environment - this also creates the rtNEAT object
-        self.environment = environment.NeroEnvironment()
+        self.environment = self.create_environment()
         OpenNero.set_environment(self.environment)
         self.environment.setup()
 
