@@ -9,14 +9,12 @@
 #include "population.h"
 #include "network.h"
 #include "gene.h"
-#include "XMLSerializable.h"
 
 namespace NEAT
 {
 
     class Organism;
     class Population;
-    class Pool;
 
     // ---------------------------------------------  
     // SPECIES CLASS:
@@ -27,9 +25,7 @@ namespace NEAT
     // ---------------------------------------------  
     class Species : public boost::enable_shared_from_this<Species>
     {
-            friend class boost::serialization::access;
-
-            Species() {}
+        Species() {}
 
         public:
 
@@ -50,8 +46,6 @@ namespace NEAT
             bool add_Organism(OrganismPtr o);
 
             OrganismPtr first();
-
-            bool print_to_file(std::ofstream &outFile);
 
             //Change the fitness of all the organisms in the species to possibly depend slightly on the age of the species
             //and then divide it by the size of the species so that the organisms in the species "share" the fitness
@@ -115,24 +109,6 @@ namespace NEAT
 
             ~Species();
             
-            /// serialize this object to/from a Boost serialization archive
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                //LOG_F_DEBUG("rtNEAT", "serialize::species");
-                ar & BOOST_SERIALIZATION_NVP(id);
-                ar & BOOST_SERIALIZATION_NVP(age);
-                ar & BOOST_SERIALIZATION_NVP(ave_fitness);
-                ar & BOOST_SERIALIZATION_NVP(max_fitness);
-                ar & BOOST_SERIALIZATION_NVP(max_fitness_ever);
-                ar & BOOST_SERIALIZATION_NVP(expected_offspring);
-                ar & BOOST_SERIALIZATION_NVP(novel);
-                ar & BOOST_SERIALIZATION_NVP(checked);
-                ar & BOOST_SERIALIZATION_NVP(obliterate);
-                ar & BOOST_SERIALIZATION_NVP(organisms);
-                ar & BOOST_SERIALIZATION_NVP(age_of_last_improvement);        
-            }
-
     };
 
     std::ostream& operator<<(std::ostream& out, const SpeciesPtr& species);

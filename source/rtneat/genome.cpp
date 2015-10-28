@@ -105,7 +105,7 @@ Genome::Genome(const Genome& genome)
     }
 }
 
-Genome::Genome(S32 id, std::ifstream &iFile)
+Genome::Genome(S32 id, std::istream &in)
     : genome_id(id)
 {
     string curword; //max word size of 128 characters
@@ -114,10 +114,10 @@ Genome::Genome(S32 id, std::ifstream &iFile)
     bool done=false;
     
     //Loop until file is finished, parsing each line
-    while (!done && iFile)
+    while (!done && in)
     {
         curline = "";
-        getline(iFile, curline);
+        getline(in, curline);
         std::istringstream line(curline);
         line >> curword;
         //Check for end of Genome
@@ -531,44 +531,6 @@ Genome::Genome(S32 num_in, S32 num_out, S32 num_hidden, S32 type)
 
 }
 
-GenomePtr Genome::new_Genome_load(const std::string& filename)
-{
-    S32 id;
-
-    string curword;
-
-    ifstream iFile(filename.c_str());
-
-    //Make sure it worked
-    if (!iFile)
-    {
-        cerr<<"Can't open "<<filename<<" for input"<<endl;
-        return GenomePtr();
-    }
-
-    iFile>>curword;
-
-    //Bypass initial comment
-    if (curword == "/*")
-    {
-        iFile>>curword;
-        while (curword.find("*/") != string::npos)
-        {
-            iFile>>curword;
-        }
-
-        iFile>>curword;
-    }
-
-    iFile>>id;
-
-    GenomePtr newgenome(new Genome(id,iFile));
-
-    iFile.close();
-
-    return newgenome;
-}
-
 Genome::~Genome()
 {
     traits.clear();
@@ -799,51 +761,6 @@ bool Genome::verify()
     //cout<<"GENOME OK!"<<endl;
 
     return true;
-}
-
-void Genome::print_to_file(std::ofstream &outFile)
-{
-    vector<TraitPtr>::iterator curtrait;
-    vector<NNodePtr>::iterator curnode;
-    vector<GenePtr>::iterator curgene;
-
-    outFile<<"genomestart "<<genome_id<<endl;
-
-    //Output the traits
-    for (curtrait=traits.begin(); curtrait!=traits.end(); ++curtrait)
-    {
-        (*curtrait)->trait_id=static_cast<int>(curtrait-traits.begin()+1);
-        (*curtrait)->print_to_file(outFile);
-    }
-
-    //Output the nodes
-    for (curnode=nodes.begin(); curnode!=nodes.end(); ++curnode)
-    {
-        (*curnode)->print_to_file(outFile);
-    }
-
-    //Output the genes
-    for (curgene=genes.begin(); curgene!=genes.end(); ++curgene)
-    {
-        (*curgene)->print_to_file(outFile);
-    }
-
-    { //Output the factors
-        vector<FactorPtr>::iterator curfactor;
-        for (curfactor = factors.begin(); curfactor != factors.end(); 
-             ++curfactor) {
-            (*curfactor)->print_to_file(outFile);
-        }
-    }
-
-    outFile<<"genomeend "<<genome_id<<endl;
-}
-
-void Genome::print_to_filename(const std::string& filename)
-{
-    ofstream oFile(filename.c_str());
-    print_to_file(oFile);
-    oFile.close();
 }
 
 S32 Genome::get_last_node_id()
@@ -3074,39 +2991,6 @@ vector<string> Genome::getSensorArgs() const
     return args;
 }
 
-//Calls special constructor that creates a Genome of 3 possible types:
-//0 - Fully linked, no hidden nodes
-//1 - Fully linked, one hidden node splitting each link
-//2 - Fully connected with a hidden layer 
-//num_hidden is only used in type 2
-//Saves to filename argument
-GenomePtr NEAT::new_Genome_auto(S32 num_in, S32 num_out, S32 num_hidden,
-                                S32 type, const std::string& filename)
-{
-    GenomePtr g(new Genome(num_in,num_out,num_hidden,type));
-
-    //print_Genome_tofile(g,"auto_genome");
-    print_Genome_tofile(g, filename);
-
-    return g;
-}
-
-void NEAT::print_Genome_tofile(GenomePtr g, const std::string& filename)
-{
-
-    ofstream oFile(filename.c_str());
-
-    //Make sure	it worked
-    if (!oFile)
-    {
-        cerr<<"Can't open "<<filename<<" for output"<<endl;
-        return;
-    }
-    g->print_to_file(oFile);
-
-    oFile.close();
-}
-
 void combine_factors(vector<FactorPtr>& newfactors, const vector<FactorPtr>& factors1, const vector<FactorPtr>& factors2) {
     set<FactorPtr> factorunion;
     { // copy factors1
@@ -3133,14 +3017,38 @@ void combine_factors(vector<FactorPtr>& newfactors, const vector<FactorPtr>& fac
 }
 
 std::ostream& NEAT::operator<<(std::ostream& out, const GenomePtr& genome) {
-    boost::archive::xml_oarchive out_archive(out);
-    out_archive << BOOST_SERIALIZATION_NVP(genome);
-    return out;
-}
+    vector<TraitPtr>::iterator curtrait;
+    vector<NNodePtr>::iterator curnode;
+    vector<GenePtr>::iterator curgene;
+    vector<FactorPtr>::iterator curfactor;
 
-std::istream& NEAT::operator>>(std::istream& in, GenomePtr& genome)
-{
-    boost::archive::xml_iarchive in_archive(in);
-    in_archive >> BOOST_SERIALIZATION_NVP(genome);
-    return in;
+    out<<"genomestart "<<genome->genome_id<<endl;
+
+    //Output the traits
+    for (curtrait=genome->traits.begin(); curtrait!=genome->traits.end(); ++curtrait)
+    {
+        (*curtrait)->trait_id=static_cast<int>(curtrait-genome->traits.begin()+1);
+        out << (*curtrait);
+    }
+
+    //Output the nodes
+    for (curnode=genome->nodes.begin(); curnode!=genome->nodes.end(); ++curnode)
+    {
+        out << (*curnode);
+    }
+
+    //Output the genes
+    for (curgene=genome->genes.begin(); curgene!=genome->genes.end(); ++curgene)
+    {
+        out << (*curgene);
+    }
+
+    //Output the factors
+    for (curfactor = genome->factors.begin(); curfactor != genome->factors.end(); ++curfactor) {
+        out << (*curfactor);
+    }
+
+    out<<"genomeend "<<genome->genome_id<<endl;
+
+    return out;
 }

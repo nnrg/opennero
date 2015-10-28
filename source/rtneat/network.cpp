@@ -111,57 +111,6 @@ bool Network::gradientoff() const
     return false;
 }
 
-// Print the connections weights to a file separated by only carriage returns
-void Network::print_links_tofile(const std::string& filename) const
-{
-    vector<NNodePtr>::const_iterator curnode;
-    vector<LinkPtr>::const_iterator curlink;
-
-    ofstream oFile(filename.c_str(), ios::out);
-
-    //Make sure it worked
-    if (!oFile)
-    {
-        cerr<<"Can't open "<<filename<<" for output"<<endl;
-        return;
-    }
-
-    for (curnode=all_nodes.begin(); curnode!=all_nodes.end(); ++curnode)
-    {
-        if (((*curnode)->type)!=SENSOR)
-        {
-            for (curlink=((*curnode)->incoming).begin(); curlink!=((*curnode)->incoming).end(); ++curlink)
-            {
-                oFile<<(*curlink)->get_in_node()->node_id<<" -> "<<(*curlink)->get_out_node()->node_id<<" : "<<(*curlink)->weight<<endl;
-            } // end for loop on links
-        } //end if
-    } //end for loop on nodes
-
-    oFile.close();
-
-} //print_links_tofile
-
-// Print the connections weights separated by only carriage returns
-void Network::print_links() const
-{
-    vector<NNodePtr>::const_iterator curnode;
-    vector<LinkPtr>::const_iterator curlink;
-
-    for (curnode=all_nodes.begin(); curnode!=all_nodes.end(); ++curnode)
-    {
-        if (((*curnode)->type)!=SENSOR)
-        {
-            for (curlink=((*curnode)->incoming).begin(); curlink!=((*curnode)->incoming).end(); ++curlink)
-            {
-                cout<<(*curlink)->get_in_node()->node_id<<" -> "<<(*curlink)->get_out_node()->node_id<<" : "<<(*curlink)->weight;
-                if ((*curlink)->is_recurrent) cout<<" recur";
-                cout<<endl;
-            } // end for loop on links
-        } //end if
-    } //end for loop on nodes
-
-} //print_links
-
 // Activates the net such that all outputs are active
 // Returns true on success;
 bool Network::activate()
@@ -713,9 +662,23 @@ S32 Network::load_in(F64 d)
         return 1;
 }
 
-std::ostream& operator<<(std::ostream& out, const NetworkPtr& network) 
+std::ostream& NEAT::operator<<(std::ostream& out, const NetworkPtr& network) 
 {
-    boost::archive::xml_oarchive out_archive(out);
-    out_archive << BOOST_SERIALIZATION_NVP(network);
+    vector<NNodePtr>::const_iterator curnode;
+    vector<LinkPtr>::const_iterator curlink;
+
+    for (curnode=network->all_nodes.begin(); curnode!=network->all_nodes.end(); ++curnode)
+    {
+        if (((*curnode)->type)!=SENSOR)
+        {
+            for (curlink=((*curnode)->incoming).begin(); curlink!=((*curnode)->incoming).end(); ++curlink)
+            {
+                out<<(*curlink)->get_in_node()->node_id<<" -> "<<(*curlink)->get_out_node()->node_id<<" : "<<(*curlink)->weight;
+                if ((*curlink)->is_recurrent) cout<<" recur";
+                out<<endl;
+            } // end for loop on links
+        } //end if
+    } //end for loop on nodes
+
     return out;
 }

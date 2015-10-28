@@ -1,6 +1,5 @@
 #include "core/Common.h"
 #include "link.h"
-#include <iostream>
 
 using namespace NEAT;
 using namespace std;
@@ -74,11 +73,4 @@ void Link::derive_trait(TraitPtr curtrait)
     else
         trait_id=1;
 
-}
-
-
-std::ostream& NEAT::operator<<(std::ostream& out, const LinkPtr& link) {
-    boost::archive::xml_oarchive out_archive(out);
-    out_archive << BOOST_SERIALIZATION_NVP(link);
-    return out;
 }

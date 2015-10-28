@@ -1,23 +1,22 @@
 import sys
-import random
-import tempfile
+import json
 
-import common
 import constants
-import module
 import OpenNero
 
-
 def factory_class(ai):
-    ai_map = {
-        'neat': NEATAgent,
-        'qlearning': QLearningAgent,
-        'turret': Turret
-    }
     return ai_map.get(ai, NEATAgent)
 
 def factory(ai, *args):
     return factory_class(ai)(*args)
+
+class AgentEncoder(json.JSONEncoder):
+    def default(self, obj):
+        if isinstance(obj, NeroAgent):
+            return {
+                'agent_ai': inv_ai_map.get(type(obj), 'none'),
+                '__str__': str(obj).split('\n') 
+            }
 
 class NeroAgent(object):
     """
@@ -32,9 +31,6 @@ class NeroAgent(object):
         self.sensors = init_info.sensors
         self.rewards = init_info.sensors
         return True
-
-    def end(self, time, reward):
-        print "End:", self
 
     def destroy(self):
         return True
@@ -199,3 +195,11 @@ class Turret(NeroAgent, OpenNero.AgentBrain):
         a[2] = 1 
         a[3] = 0
         return a
+
+ai_map = {
+    'neat': NEATAgent,
+    'qlearning': QLearningAgent,
+    'turret': Turret
+}
+
+inv_ai_map = {v: k for k, v in ai_map.items()}

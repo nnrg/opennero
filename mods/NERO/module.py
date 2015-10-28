@@ -5,11 +5,14 @@ import gzip
 import random
 import tempfile
 import xml.etree.ElementTree as ET
+import json
 
 import common
 import constants
 import environment
 import OpenNero
+
+from team import TeamEncoder
 
 class NeroModule:
     def __init__(self):
@@ -59,9 +62,13 @@ class NeroModule:
 
     #The following is run when the Save button is pressed
     def save_team(self, location, team_type=constants.OBJECT_TYPE_TEAM_0):
-        team = self.teams[team_type]
-        if team:
-            team.save(location)
+        if not self.environment:
+            return
+        team = self.environment.teams[team_type]
+        if not team:
+            return
+        with open(location, 'w') as f:
+            json.dump(team, f, cls=TeamEncoder, indent=4, separators=(',', ': '))
 
     #The following is run when the Load button is pressed
     def load_team(self, location, team_type=constants.OBJECT_TYPE_TEAM_0):
@@ -139,7 +146,7 @@ def parseInputCommand(content):
     if command == "save1": mod.save_team(arg, constants.OBJECT_TYPE_TEAM_0)
     if command == "load1": mod.load_team(arg, constants.OBJECT_TYPE_TEAM_0)
     if command == "rtneat": mod.deploy('rtneat', 'neat')
-    if command == "qlearning": mod.deploy(None, 'qlearning')
+    if command == "qlearning": mod.deploy('none', 'qlearning')
     if command == "pause": OpenNero.disable_ai()
     if command == "resume": OpenNero.enable_ai()
 

@@ -5,15 +5,12 @@
 #include "trait.h"
 #include "link.h"
 #include "network.h"
-#include "XMLSerializable.h"
 
 namespace NEAT
 {
 
     class Gene
     {
-            friend class boost::serialization::access;
-
         public:
 
             LinkPtr lnk;
@@ -45,20 +42,6 @@ namespace NEAT
             Gene(const Gene& gene);
 
             ~Gene();
-
-            //Print gene to a file- called from Genome
-            void print_to_file(std::ofstream &outFile);
-            
-            /// serialize this object to/from a Boost serialization archive
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                //LOG_F_DEBUG("rtNEAT", "serialize::gene");
-                ar & BOOST_SERIALIZATION_NVP(lnk);
-                ar & BOOST_SERIALIZATION_NVP(innovation_num);
-                ar & BOOST_SERIALIZATION_NVP(mutation_num);
-                ar & BOOST_SERIALIZATION_NVP(enable);
-            }
     };
 
     std::ostream& operator<<(std::ostream& out, const GenePtr& gene);

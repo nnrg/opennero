@@ -3,7 +3,7 @@
 
 #include "neat.h"
 #include "nnode.h"
-#include "XMLSerializable.h"
+#include <ostream>
 
 namespace NEAT
 {
@@ -16,7 +16,6 @@ namespace NEAT
     {
 
             friend class Genome;
-            friend class boost::serialization::access;
             Network() {}
 
         protected:
@@ -125,27 +124,6 @@ namespace NEAT
 
             /// If the gradient in all nodes are not active then return true
             bool gradientoff() const;
-
-            /// Just print connections weights with carriage returns
-            void print_links_tofile(const std::string& filename) const;
-            
-            /// Just print connections weights with carriage returns
-            void print_links() const;
-            
-            /// serialize this object to/from a Boost serialization archive
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                //LOG_F_DEBUG("rtNEAT", "serialize::network");
-                ar & BOOST_SERIALIZATION_NVP(all_nodes);
-                ar & BOOST_SERIALIZATION_NVP(name);
-                ar & BOOST_SERIALIZATION_NVP(numnodes);
-                ar & BOOST_SERIALIZATION_NVP(numlinks);
-                ar & BOOST_SERIALIZATION_NVP(inputs);
-                ar & BOOST_SERIALIZATION_NVP(outputs);
-                ar & BOOST_SERIALIZATION_NVP(net_id);
-                ar & BOOST_SERIALIZATION_NVP(adaptable);
-            }
     };
 
     std::ostream& operator<<(std::ostream& out, const NetworkPtr& network);

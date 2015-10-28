@@ -2,7 +2,6 @@
 #include "species.h"
 #include <vector>
 #include <cmath>
-#include <fstream>
 #include <string>
 
 using namespace NEAT;
@@ -554,37 +553,6 @@ OrganismPtr Species::first()
 {
 	assert(organisms.size() > 0);
     return *(organisms.begin());
-}
-
-bool Species::print_to_file(std::ofstream &outFile)
-{
-    vector<OrganismPtr>::iterator curorg;
-
-    //Print a comment on the Species info
-    outFile<<endl<<"/* Species #"<<id<<" : (Size "<<organisms.size()<<") (AF "
-        <<ave_fitness<<") (Age "<<age<<")  */"<<endl<<endl;
-
-    //Print all the Organisms' Genomes to the outFile
-    for (curorg=organisms.begin(); curorg!=organisms.end(); ++curorg)
-    {
-
-        //Put the fitness for each organism in a comment
-        outFile<<endl<<"/* Organism #"<<((*curorg)->gnome)->genome_id<<" Fitness: "<<(*curorg)->fitness<<" Error: "<<(*curorg)->error<<" */"<<endl;
-
-        //If it is a winner, mark it in a comment
-        if ((*curorg)->winner)
-        {
-            outFile<<"/* ##------$ WINNER "<<((*curorg)->gnome)->genome_id<<" SPECIES #"<<id
-                <<" $------## */"<<endl;
-        }
-
-        ((*curorg)->gnome)->print_to_file(outFile);
-    }
-
-    outFile << endl << endl;
-
-    return true;
-
 }
 
 void Species::adjust_fitness()
@@ -1198,10 +1166,32 @@ bool Species::reproduce(S32 generation, PopulationPtr pop,
     return true;
 }
 
-std::ostream& operator<<(std::ostream& out, const SpeciesPtr& species) 
+std::ostream& NEAT::operator<<(std::ostream& out, const SpeciesPtr& species) 
 {
-    boost::archive::xml_oarchive out_archive(out);
-    out_archive << BOOST_SERIALIZATION_NVP(species);
+    vector<OrganismPtr>::iterator curorg;
+
+    //Print a comment on the Species info
+    out<<endl<<"/* Species #"<<species->id<<" : (Size "<<species->organisms.size()<<") (AF "
+        <<species->ave_fitness<<") (Age "<<species->age<<")  */"<<endl<<endl;
+
+    //Print all the Organisms' Genomes to the out
+    for (curorg=species->organisms.begin(); curorg!=species->organisms.end(); ++curorg)
+    {
+
+        //Put the fitness for each organism in a comment
+        out<<endl<<"/* Organism #"<<((*curorg)->gnome)->genome_id<<" Fitness: "<<(*curorg)->fitness<<" Error: "<<(*curorg)->error<<" */"<<endl;
+
+        //If it is a winner, mark it in a comment
+        if ((*curorg)->winner)
+        {
+            out<<"/* ##------$ WINNER "<<((*curorg)->gnome)->genome_id<<" SPECIES #"<< species->id
+                <<" $------## */"<<endl;
+        }
+
+        out << (*curorg)->gnome;
+    }
+
+    out << endl << endl;
     return out;
 }
 

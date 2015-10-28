@@ -4,8 +4,6 @@
 #include "neat.h"
 #include "genome.h"
 #include "species.h"
-#include "pool.h"
-#include "XMLSerializable.h"
 #include <string>
 #include <ostream>
 #include <map>
@@ -15,14 +13,13 @@ namespace NEAT
 
     class Species;
     class Population;
-    class Pool;
 
     /// ORGANISM CLASS:
     /// Organisms are Genomes and Networks with fitness information, 
     /// i.e. The genotype and phenotype together
     class Organism
     {
-        friend class boost::serialization::access;
+        Organism() {}
         
         public:
             double fitness; //A measure of fitness for the Organism
@@ -56,11 +53,6 @@ namespace NEAT
             // Update genotype based on changes in the network (for Lamarckian evolution)
             void update_genotype();
 
-            // Print the Organism's genome to a file preceded by a comment detailing the organism's species, number, and fitness 
-            bool print_to_file(const std::string& filename); //PFHACK
-            bool write_to_file(std::ofstream &outFile);
-
-            Organism() {}
             Organism(double fit, GenomePtr g, int gen,
                      const std::string &md = "");
             Organism(const Organism& org); ///<  Copy Constructor
@@ -68,15 +60,6 @@ namespace NEAT
 
             //Should this organism have a fitness penalty?
             bool smited;
-            
-            /// serialize this object to/from a Boost serialization archive
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                ar & BOOST_SERIALIZATION_NVP(fitness);
-                ar & BOOST_SERIALIZATION_NVP(gnome);
-                ar & BOOST_SERIALIZATION_NVP(generation);
-            }
     };
 
     // This is used for list sorting of Organisms by fitness..highest fitness first
@@ -108,9 +91,8 @@ namespace NEAT
     };
 
 
+    std::ostream& operator<<(std::ostream& out, const OrganismPtr& organism);
     std::ostream& operator<<(std::ostream& out, const Organism& organism);
-
-    std::istream& operator>>(std::istream& in, Organism& organism);
 } // namespace NEAT
 
 #endif

@@ -2,7 +2,6 @@
 #define _INNOVATION_H_
 
 #include "neat.h"
-#include "XMLSerializable.h"
 
 namespace NEAT
 {
@@ -28,7 +27,6 @@ namespace NEAT
     class Innovation
     {
         private:
-            friend class boost::serialization::access;
             Innovation() {}
 
         public:
@@ -59,24 +57,6 @@ namespace NEAT
             //Constructor for a recur link
             Innovation(int nin, int nout, double num1, double w, int t,
                        bool recur);
-                       
-            /// serialize this object to/from a Boost serialization archive
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                //LOG_F_DEBUG("rtNEAT", "serialize::innovation");
-                ar & BOOST_SERIALIZATION_NVP(innovation_type);
-                ar & BOOST_SERIALIZATION_NVP(node_in_id);
-                ar & BOOST_SERIALIZATION_NVP(node_out_id);
-                ar & BOOST_SERIALIZATION_NVP(innovation_num1);
-                ar & BOOST_SERIALIZATION_NVP(innovation_num2);
-                ar & BOOST_SERIALIZATION_NVP(new_weight);
-                ar & BOOST_SERIALIZATION_NVP(new_traitnum);
-                ar & BOOST_SERIALIZATION_NVP(newnode_id);
-                ar & BOOST_SERIALIZATION_NVP(old_innov_num);
-                ar & BOOST_SERIALIZATION_NVP(recur_flag);
-                
-            }
     };
 
 } // namespace NEAT

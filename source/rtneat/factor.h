@@ -5,15 +5,12 @@
 #include <ostream>
 #include <string>
 #include "neat.h"
-#include "XMLSerializable.h"
 
 namespace NEAT
 {
-    /// A Factor is a record of an event in the genome's 
     /// history that has influenced its evolution.
     class Factor
     {
-        friend class boost::serialization::access;
         int _id; ///< id of this factor
         std::string _record; ///< content of this factor
         Factor() {}
@@ -25,16 +22,8 @@ namespace NEAT
 
         /// Destructor
         ~Factor() {}
-
-        /// Print this factor to a population file
-        void print_to_file(std::ofstream &outFile);
-
-        /// serialize this factor to/from a Boost ser. archive
-        template<class Archive> void serialize
-            (Archive & ar, const unsigned int version) {
-            ar & BOOST_SERIALIZATION_NVP(_id);
-            ar & BOOST_SERIALIZATION_NVP(_record);
-        }
+        
+        friend std::ostream& operator<<(std::ostream& out, const FactorPtr& factor);    /// A Factor is a record of an event in the genome's 
     }; // class Factor
 
     std::ostream& operator<<(std::ostream& out, const FactorPtr& factor);

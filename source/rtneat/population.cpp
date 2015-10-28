@@ -4,7 +4,6 @@
 #include <algorithm>
 #include <cmath>
 #include <string>
-#include <fstream>
 #include <stdexcept>
 
 using namespace std;
@@ -399,34 +398,6 @@ bool Population::speciate()
     return true;
 }
 
-bool Population::print_to_file_by_species(ofstream& outFile)
-{
-
-    vector<SpeciesPtr>::iterator curspecies;
-
-    //Step through the Species and print them to the file
-    for (curspecies=species.begin(); curspecies!=species.end(); ++curspecies)
-    {
-        (*curspecies)->print_to_file(outFile);
-    }
-
-    return true;
-}
-
-// Print all the genomes in the population to a file
-bool Population::print_to_file(std::ofstream &outFile)
-{
-    vector<OrganismPtr>::iterator curorg;
-    
-    for (curorg = organisms.begin(); curorg != organisms.end(); ++curorg)
-    {
-        (*curorg)->gnome->print_to_file(outFile);
-    }
-    
-    return true;
-}
-
-
 bool Population::epoch(S32 generation)
 {
 
@@ -728,10 +699,6 @@ bool Population::epoch(S32 generation)
             stolen_babies-=one_fifth_stolen;
             //cout<<"Gave "<<one_fifth_stolen<<" babies to Species "<<(*curspecies)->id<<endl;
             //      cout<<"The best superchamp is "<<(*(((*curspecies)->organisms).begin()))->gnome->genome_id<<endl;
-
-            //Print this champ to file "champ" for observation if desired
-            //IMPORTANT:  This causes generational file output 
-            //print_Genome_tofile((*(((*curspecies)->organisms).begin()))->gnome,"champ");
 
             curspecies++;
 
@@ -1504,15 +1471,13 @@ void Population::add_organism(OrganismPtr org)
     organisms.push_back(org);
 }
 
-std::ostream& operator<<(std::ostream& out, const PopulationPtr& population) {
-    boost::archive::xml_oarchive out_archive(out);
-    out_archive << BOOST_SERIALIZATION_NVP(population);
-    return out;
-}    
+std::ostream& NEAT::operator<<(std::ostream& out, const PopulationPtr& population) {
+    vector<OrganismPtr>::iterator curorg;
+    
+    for (curorg = population->organisms.begin(); curorg != population->organisms.end(); ++curorg)
+    {
+        out << (*curorg)->gnome;
+    }
 
-std::istream& operator>>(std::istream& in, PopulationPtr& population)
-{
-    boost::archive::xml_iarchive in_archive(in);
-    in_archive >> BOOST_SERIALIZATION_NVP(population);
-    return in;
-}
+    return out;
+} 

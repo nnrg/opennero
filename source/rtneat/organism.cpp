@@ -5,6 +5,7 @@
 #include <string>
 #include <map>
 #include <sstream>
+#include <boost/make_shared.hpp>
 
 using namespace NEAT;
 using namespace std;
@@ -78,22 +79,6 @@ void Organism::update_genotype()
     gnome->Lamarck();
 
     modified = true;
-}
-
-bool Organism::print_to_file(const std::string& filename)
-{
-
-    ofstream oFile(filename.c_str());
-    return write_to_file(oFile);
-}
-
-bool Organism::write_to_file(std::ofstream &outFile)
-{
-
-    outFile << "Organims #"<< (gnome)->genome_id<< " Fitness: "<< fitness << " Time: "<< time_alive
-        << endl;
-    gnome->print_to_file(outFile);
-    return true;
 }
 
 bool NEAT::order_orgs(OrganismPtr x, OrganismPtr y)
@@ -175,15 +160,15 @@ void MetadataParser::UpdateOrganism()
     }
 }
 
-std::ostream& NEAT::operator<<(std::ostream& out, const Organism& organism) {
-    boost::archive::xml_oarchive out_archive(out);
-    out_archive << BOOST_SERIALIZATION_NVP(organism);
+std::ostream& NEAT::operator<<(std::ostream& out, const OrganismPtr& organism) {
+    out << "Organism #"<< organism->gnome->genome_id<< " Fitness: "<< organism->fitness << " Time: "<< organism->time_alive
+        << endl;
+    out << organism->gnome;
+
     return out;
 }
-
-std::istream& NEAT::operator>>(std::istream& in, Organism& organism)
-{
-    boost::archive::xml_iarchive in_archive(in);
-    in_archive >> BOOST_SERIALIZATION_NVP(organism);
-    return in;
+std::ostream& NEAT::operator<<(std::ostream& out, const Organism& organism){
+    OrganismPtr p = boost::make_shared<Organism>(organism);
+    out << p;
+    return out;
 }

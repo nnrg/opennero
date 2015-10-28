@@ -1,15 +1,22 @@
-import common
+import json
+
 import constants
-import environment
 import OpenNero
-import agent
+import agent as agents
 
 def factory(ai, *args):
-    ai_map = {
-        'rtneat': RTNEATTeam
-    }
     cls = ai_map.get(ai, NeroTeam)
     return cls(*args)
+
+class TeamEncoder(json.JSONEncoder):
+    def default(self, obj):
+        agentEncoder = agents.AgentEncoder()
+        if isinstance(obj, NeroTeam):
+            return {
+                'team_ai': inv_ai_map.get(type(obj), 'none'),
+                'agents': [agentEncoder.default(agent) for agent in obj.agents]
+            }
+        return json.JSONEncoder.default(self, obj)
 
 class NeroTeam(object):
     """
@@ -26,15 +33,9 @@ class NeroTeam(object):
             self.self.create_agent(ai)
 
     def create_agent(self, ai):
-        a = agent.factory(ai, self.team_type)
+        a = agents.factory(ai, self.team_type)
         self.agents.add(a)
         return a
-
-    def save(self, location):
-        """
-        Saves a team to a file at location
-        """
-        pass
 
     def is_episode_over(self, agent):
         return False
@@ -45,19 +46,13 @@ class NeroTeam(object):
     def destroy(self):
         pass
 
-    # def load(location):
-    #     """
-    #     Loads a team from a file at location
-    #     """
-    #     pass
-
 class RTNEATTeam(NeroTeam):
     def __init__(self, team_type):
         NeroTeam.__init__(self, team_type)
         self.ai = None
 
     def create_agents(self, ai):
-        cls = agent.factory_class(ai)
+        cls = agents.factory_class(ai)
         self.pop = OpenNero.Population(cls.genome,
                                        constants.pop_size,
                                        1.0)
@@ -87,3 +82,9 @@ class RTNEATTeam(NeroTeam):
         self.stop_ai()
 
 
+ai_map = {
+    'rtneat': RTNEATTeam,
+    'none': NeroTeam
+}
+
+inv_ai_map = {v: k for k, v in ai_map.items()}

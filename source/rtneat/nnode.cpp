@@ -1,6 +1,5 @@
 #include "core/Common.h"
 #include <vector>
-#include <sstream>
 
 #include "nnode.h"
 
@@ -398,18 +397,6 @@ void NNode::activate_override()
     override=false;
 }
 
-void NNode::print_to_file(std::ofstream &outFile)
-{
-    outFile<<"node "<<node_id<<" ";
-    if (nodetrait!=0)
-        outFile<<nodetrait->trait_id<<" ";
-    else
-        outFile<<"0 ";
-    outFile<<type<<" ";
-    outFile<<gen_node_label<<" ";
-    outFile<<ftype<<endl;
-}
-
 const char* NEAT::getNodePlaceString(nodeplace place) {
     switch (place) {
     case (HIDDEN):
@@ -425,8 +412,14 @@ const char* NEAT::getNodePlaceString(nodeplace place) {
     }
 }
 
-std::ostream& operator<<(std::ostream& out, const NNodePtr& nnode) {
-    boost::archive::xml_oarchive out_archive(out);
-    out_archive << BOOST_SERIALIZATION_NVP(nnode);
+std::ostream& NEAT::operator<<(std::ostream& out, const NNodePtr& nnode) {
+    out<<"node "<<nnode->node_id<<" ";
+    if (nnode->nodetrait!=0)
+        out<<nnode->nodetrait->trait_id<<" ";
+    else
+        out<<"0 ";
+    out<<nnode->type<<" ";
+    out<<nnode->gen_node_label<<" ";
+    out<<nnode->ftype<<endl;
     return out;
 }

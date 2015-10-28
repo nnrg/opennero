@@ -4,7 +4,6 @@
 #include <iostream>
 #include <string>
 #include "neat.h"
-#include "XMLSerializable.h"
 
 using namespace std;
 

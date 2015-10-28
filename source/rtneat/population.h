@@ -6,15 +6,15 @@
 #include "genome.h"
 #include "species.h"
 #include "organism.h"
-#include "pool.h"
 #include <boost/enable_shared_from_this.hpp>
+#include <ostream>
+#include <fstream>
 
 namespace NEAT
 {
 
     class Species;
     class Organism;
-    class Pool;
 
     // ---------------------------------------------  
     // POPULATION CLASS:
@@ -24,7 +24,6 @@ namespace NEAT
     class Population : public boost::enable_shared_from_this<Population>
     {
         private:
-            friend class boost::serialization::access;
         
             Population() {}
         
@@ -61,18 +60,6 @@ namespace NEAT
 
             // Separate the Organisms into species
             bool speciate();
-
-            // Print all the genomes in the population to a file
-            bool print_to_file(std::ofstream &outFile);
-
-            // Print Population to a file in speciated order with comments separating each species
-            bool print_to_file_by_species(std::ofstream &outFile);
-
-            // Prints the champions of each species to files starting with directory_prefix
-            // The file name are as follows: [prefix]g[generation_num]cs[species_num]
-            // Thus, they can be indexed by generation or species
-            bool print_species_champs_tofiles(std::string& directory_prefix,
-                                              S32 generation);
 
             // Run verify on all Genomes in this Population (Debugging)
             bool verify();
@@ -154,30 +141,9 @@ namespace NEAT
             //    -delete by killing off the organisms themselves (if not speciated)
             // It does the latter if it sees the species list is empty
             ~Population();
-            
-            /// serialize this object to/from a Boost serialization archive
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                //LOG_F_DEBUG("rtNEAT", "serialize::population");
-                ar & BOOST_SERIALIZATION_NVP(organisms);
-                ar & BOOST_SERIALIZATION_NVP(species);
-                ar & BOOST_SERIALIZATION_NVP(last_species);
-                ar & BOOST_SERIALIZATION_NVP(cur_innov_num);
-                ar & BOOST_SERIALIZATION_NVP(cur_node_id);
-                ar & BOOST_SERIALIZATION_NVP(innovations);
-                ar & BOOST_SERIALIZATION_NVP(mean_fitness);
-                ar & BOOST_SERIALIZATION_NVP(variance);
-                ar & BOOST_SERIALIZATION_NVP(standard_deviation);
-                ar & BOOST_SERIALIZATION_NVP(winnergen);
-                ar & BOOST_SERIALIZATION_NVP(highest_fitness);
-                ar & BOOST_SERIALIZATION_NVP(highest_last_changed);
-            }
     };
     
     std::ostream& operator<<(std::ostream& out, const PopulationPtr& population);  
-
-    std::istream& operator>>(std::istream& in, PopulationPtr& population);
 
 } // namespace NEAT
 

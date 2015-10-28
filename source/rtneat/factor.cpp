@@ -1,9 +1,6 @@
 #include "core/Common.h"
 #include "rtneat/factor.h"
 #include <string>
-#include <sstream>
-#include <fstream>
-#include <iostream>
 
 using namespace NEAT;
 using namespace std;
@@ -12,17 +9,11 @@ Factor::Factor(const std::string& record, int id)
     : _record(record), _id(id) 
 { }
 
-void Factor::print_to_file(std::ofstream &outFile)
-{
-    outFile << "factor ";
-    outFile << _id;
-    outFile << " ";
-    outFile << _record;
-    outFile << std::endl;
-}
-
-std::ostream& operator<<(std::ostream& out, const FactorPtr& factor) {
-    boost::archive::xml_oarchive out_archive(out);
-    out_archive << BOOST_SERIALIZATION_NVP(factor);
+std::ostream& NEAT::operator<<(std::ostream& out, const FactorPtr& factor) {
+    out << "factor ";
+    out << factor->_id;
+    out << " ";
+    out << factor->_record;
+    out << std::endl;
     return out;
 }
