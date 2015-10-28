@@ -871,6 +871,7 @@ GenomePtr Genome::duplicate(S32 new_id)
     vector<TraitPtr>::iterator curtrait;
     vector<NNodePtr>::iterator curnode;
     vector<GenePtr>::iterator curgene;
+    vector<FactorPtr>::iterator curfactor;
 
     TraitPtr assoc_trait; //Trait associated with current item
 
@@ -931,13 +932,11 @@ GenomePtr Genome::duplicate(S32 new_id)
 
     }
 
-    { // Duplicate Factors
-        vector<FactorPtr>::iterator curfactor;
-        for (curfactor = factors.begin(); curfactor != factors.end(); 
-             ++curfactor) {
-            // factors are immutable, can use the same ptr
-            factors_dup.push_back(*curfactor);
-        }
+    // Duplicate Factors
+    for (curfactor = factors.begin(); curfactor != factors.end(); 
+         ++curfactor) {
+        // factors are immutable, can use the same ptr
+        factors_dup.push_back(*curfactor);
     }
 
     //Finally, return the genome
@@ -3131,4 +3130,17 @@ void combine_factors(vector<FactorPtr>& newfactors, const vector<FactorPtr>& fac
             newfactors.push_back(*curfactor);
         }
     }
+}
+
+std::ostream& NEAT::operator<<(std::ostream& out, const GenomePtr& genome) {
+    boost::archive::xml_oarchive out_archive(out);
+    out_archive << BOOST_SERIALIZATION_NVP(genome);
+    return out;
+}
+
+std::istream& NEAT::operator>>(std::istream& in, GenomePtr& genome)
+{
+    boost::archive::xml_iarchive in_archive(in);
+    in_archive >> BOOST_SERIALIZATION_NVP(genome);
+    return in;
 }

@@ -1198,6 +1198,13 @@ bool Species::reproduce(S32 generation, PopulationPtr pop,
     return true;
 }
 
+std::ostream& operator<<(std::ostream& out, const SpeciesPtr& species) 
+{
+    boost::archive::xml_oarchive out_archive(out);
+    out_archive << BOOST_SERIALIZATION_NVP(species);
+    return out;
+}
+
 bool NEAT::order_species(SpeciesPtr x, SpeciesPtr y)
 {
     return x->organisms.front()->orig_fitness > y->organisms.front()->orig_fitness;

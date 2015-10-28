@@ -42,6 +42,67 @@ namespace py = boost::python;
 
 namespace OpenNero {
 	namespace scripting {
+    /// @brief Type that allows for registration of conversions from
+    ///        python iterable types.
+    struct iterable_converter
+    {
+      /// @note Registers converter from a python interable type to the
+      ///       provided type.
+      template <typename Container>
+      iterable_converter&
+      from_python()
+      {
+        boost::python::converter::registry::push_back(
+          &iterable_converter::convertible,
+          &iterable_converter::construct<Container>,
+          boost::python::type_id<Container>());
+
+        // Support chaining.
+        return *this;
+      }
+
+      /// @brief Check if PyObject is iterable.
+      static void* convertible(PyObject* object)
+      {
+        return PyObject_GetIter(object) ? object : NULL;
+      }
+
+      /// @brief Convert iterable PyObject to C++ container type.
+      ///
+      /// Container Concept requirements:
+      ///
+      ///   * Container::value_type is CopyConstructable.
+      ///   * Container can be constructed and populated with two iterators.
+      ///     I.e. Container(begin, end)
+      template <typename Container>
+      static void construct(
+        PyObject* object,
+        boost::python::converter::rvalue_from_python_stage1_data* data)
+      {
+        namespace python = boost::python;
+        // Object is a borrowed reference, so create a handle indicting it is
+        // borrowed for proper reference counting.
+        python::handle<> handle(python::borrowed(object));
+
+        // Obtain a handle to the memory block that the converter has allocated
+        // for the C++ type.
+        typedef python::converter::rvalue_from_python_storage<Container>
+                                                                    storage_type;
+        void* storage = reinterpret_cast<storage_type*>(data)->storage.bytes;
+
+        typedef python::stl_input_iterator<typename Container::value_type>
+                                                                        iterator;
+
+        // Allocate the C++ type into the converter's memory block, and assign
+        // its handle to the converter's convertible variable.  The C++
+        // container is populated by passing the begin and end iterators of
+        // the python object to the container's constructor.
+        new (storage) Container(
+          iterator(python::object(handle)), // begin
+          iterator());                      // end
+        data->convertible = storage;
+      }
+    };
 
 		/**
          * Export Agent-specific script components
@@ -321,36 +382,55 @@ namespace OpenNero {
 		/// Export RTNEAT related classes and functions to Python
 		void ExportRTNEATScripts()
 		{
-			// export Network
-			py::class_<PyNetwork, PyNetworkPtr>("Network", "an artificial neural network", no_init )
-				.def("load_sensors", &PyNetwork::load_sensors, "load sensor values into the network")
-				.def("activate", &PyNetwork::activate, "activate the network for one or more steps until signal reaches output")
-				.def("flush", &PyNetwork::flush, "flush the network by clearing its internal state")
-				.def("get_outputs", &PyNetwork::get_outputs, "get output values from the network")
-				.def(self_ns::str(self_ns::self));
+      iterable_converter()
+        .from_python<vector<double> >();
 
+			// export Network
+      void (Network::*load_sensors)(const vector<F64>&) = &Network::load_sensors;
+			py::class_<Network, NetworkPtr>("Network", "an artificial neural network", no_init )
+				.def("load_sensors", load_sensors, "load sensor values into the network")
+				.def("activate", &Network::activate, "activate the network for one or more steps until signal reaches output")
+				.def("flush", &Network::flush, "flush the network by clearing its internal state")
+				.def_readonly("outputs", &Network::outputs, "get output values from the network");
+
+      // export NNode
+      py::class_<NNode, NNodePtr>("NNode", "a node in a network", no_init)
+        .add_property("active_out", &NNode::get_active_out, "Get output of node");
+
+      py::class_< vector<NNodePtr> >("NNodeVector")
+        .def(vector_indexing_suite< vector<NNodePtr>, true >());
+      
 			// export Organism
-			py::class_<PyOrganism, PyOrganismPtr>("Organism", "a phenotype and a genotype for a neural network", no_init)
-				.add_property("net", &PyOrganism::GetNetwork, "neural network (phenotype)")
-				.add_property("id", &PyOrganism::GetId, "evolution-wide unique id of the organism")
-				.add_property("fitness", &PyOrganism::GetFitness, &PyOrganism::SetFitness, "organism fitness (non-negative real)")
-				.add_property("time_alive", &PyOrganism::GetTimeAlive, &PyOrganism::SetTimeAlive, "organism time alive (integer, non negative)")
-        .def_readwrite("champion", &PyOrganism::champion, "is the organism a champion of the species?")
-        .add_property("species_id", &PyOrganism::GetSpeciesId, "the id of the species of the organism")
-        .add_property("eliminate", &PyOrganism::GetEliminate, "whether the organism is flagged for elimination")
-				.def("save", &PyOrganism::Save, "save the organism to file")
-				.def(self_ns::str(self_ns::self));
+			py::class_<Organism, OrganismPtr>("Organism", "a phenotype and a genotype for a neural network", init<double, GenomePtr, int>())
+        .def_readonly("genome", &Organism::gnome, "Organism's genotype")
+				.def_readonly("net", &Organism::net, "neural network (phenotype)")
+        .def_readonly("species", &Organism::species, "The organism's species")
+        .def_readonly("eliminate", &Organism::eliminate, "whether the organism is flagged for elimination")
+				.def_readwrite("fitness", &Organism::fitness, "organism fitness (non-negative real)")
+				.def_readwrite("time_alive", &Organism::time_alive, "organism time alive (integer, non negative)")
+        .def_readwrite("champion", &Organism::champion, "is the organism a champion of the species?")
+        .def(self_ns::str(self_ns::self));
+
+      py::class_< vector<OrganismPtr> >("OrganismVector")
+        .def(vector_indexing_suite< vector<OrganismPtr>, true >());
+
+      py::class_<Population, PopulationPtr>("Population", "a population of organisms, further categorized by species", init<GenomePtr, S32, F32>() )
+        .def_readonly("organisms", &Population::organisms, "A collection of all organisms in a population")
+        .def("epoch", &Population::epoch, "Turnover the population to a new generation using fitness");
+
+      py::class_<Genome, GenomePtr>("Genome", "primary source of genotype", init<S32, S32, S32, S32>())
+        .def_readonly("id", &Genome::genome_id);
+
+      py::class_<Species, SpeciesPtr>("Species", "A group of similar organisms that can reproduce", no_init)
+        .def_readonly("id", &Species::id);
 
 			// export AI base class
 			py::class_<AI, AIPtr, noncopyable>("AI", "AI algorithm", no_init);
 
 			// export RTNEAT interface
-			py::class_<RTNEAT, bases<AI>, RTNEATPtr>("RTNEAT", init<const std::string&, const std::string&, S32, S32>())
-				.def(init<const std::string&, S32, S32, S32, F32, S32>())
+			py::class_<RTNEAT, bases<AI>, RTNEATPtr>("RTNEAT", init<const std::string&, PopulationPtr, S32, S32>())
         .def("set_lifetime", &RTNEAT::set_lifetime, "set the lifetime of an agent")
-				.def("save_population", &RTNEAT::save_population, "save the population to a file")
-        .def("reproduce_one", &RTNEAT::reproduce_one, "Reproduce a new organism to replace a previously killed one")
-        .add_property("organisms", &RTNEAT::get_organisms, "the organisms being evolved");
+        .def("reproduce_one", &RTNEAT::reproduce_one, "Reproduce a new organism to replace a previously killed one");
 		}
         
 		/// the pickling suite for the Vector class

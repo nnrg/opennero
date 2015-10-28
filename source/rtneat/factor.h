@@ -4,7 +4,6 @@
 #include <vector>
 #include <ostream>
 #include <string>
-#include <boost/enable_shared_from_this.hpp>
 #include "neat.h"
 #include "XMLSerializable.h"
 
@@ -12,9 +11,7 @@ namespace NEAT
 {
     /// A Factor is a record of an event in the genome's 
     /// history that has influenced its evolution.
-    class Factor 
-        : public boost::enable_shared_from_this<Factor>
-        , public XMLSerializable
+    class Factor
     {
         friend class boost::serialization::access;
         int _id; ///< id of this factor
@@ -40,7 +37,8 @@ namespace NEAT
         }
     }; // class Factor
 
-    std::ostream& operator<<(std::ostream& out, const FactorPtr& x);
+    std::ostream& operator<<(std::ostream& out, const FactorPtr& factor);
+    
 } // name space NEAT
 
 #endif //  header wrapper

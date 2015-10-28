@@ -20,11 +20,10 @@ namespace NEAT
     /// ORGANISM CLASS:
     /// Organisms are Genomes and Networks with fitness information, 
     /// i.e. The genotype and phenotype together
-    class Organism : public XMLSerializable
+    class Organism
     {
-            friend class boost::serialization::access;
-
-            Organism() {}
+        friend class boost::serialization::access;
+        
         public:
             double fitness; //A measure of fitness for the Organism
             double orig_fitness; ///< A fitness measure that won't change during adjustments
@@ -61,6 +60,7 @@ namespace NEAT
             bool print_to_file(const std::string& filename); //PFHACK
             bool write_to_file(std::ofstream &outFile);
 
+            Organism() {}
             Organism(double fit, GenomePtr g, int gen,
                      const std::string &md = "");
             Organism(const Organism& org); ///<  Copy Constructor
@@ -73,19 +73,9 @@ namespace NEAT
             template<class Archive>
             void serialize(Archive & ar, const unsigned int version)
             {
-                //LOG_F_DEBUG("rtNEAT", "serialize::organism");
                 ar & BOOST_SERIALIZATION_NVP(fitness);
-                ar & BOOST_SERIALIZATION_NVP(winner);
                 ar & BOOST_SERIALIZATION_NVP(gnome);
-                // ar & BOOST_SERIALIZATION_NVP(net);
-                ar & BOOST_SERIALIZATION_NVP(species);
-                ar & BOOST_SERIALIZATION_NVP(expected_offspring);
                 ar & BOOST_SERIALIZATION_NVP(generation);
-                ar & BOOST_SERIALIZATION_NVP(eliminate);
-                ar & BOOST_SERIALIZATION_NVP(champion);
-                ar & BOOST_SERIALIZATION_NVP(super_champ_offspring);
-                ar & BOOST_SERIALIZATION_NVP(pop_champ);
-                ar & BOOST_SERIALIZATION_NVP(pop_champ_child);        
             }
     };
 
@@ -117,11 +107,10 @@ namespace NEAT
             std::map<std::string,std::string> mTokens; ///< metadata key value pair tokens
     };
 
-    /// write organism to stream
-    std::ostream& operator<<(std::ostream& out, const OrganismPtr& x);
-    
-    /// read organism from stream
-    std::istream& operator>>(std::istream& in, OrganismPtr& x);
+
+    std::ostream& operator<<(std::ostream& out, const Organism& organism);
+
+    std::istream& operator>>(std::istream& in, Organism& organism);
 } // namespace NEAT
 
 #endif

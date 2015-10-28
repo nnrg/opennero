@@ -25,7 +25,7 @@ namespace NEAT
     //   single species, so that compatible organisms
     //   can mate.                                      
     // ---------------------------------------------  
-    class Species : public XMLSerializable, public boost::enable_shared_from_this<Species>
+    class Species : public boost::enable_shared_from_this<Species>
     {
             friend class boost::serialization::access;
 
@@ -135,7 +135,7 @@ namespace NEAT
 
     };
 
-    std::ostream& operator<<(std::ostream& out, const SpeciesPtr& x);
+    std::ostream& operator<<(std::ostream& out, const SpeciesPtr& species);
 
     // This is used for list sorting of Species by fitness of best organism highest fitness first 
     bool order_species(SpeciesPtr x, SpeciesPtr y);

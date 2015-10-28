@@ -175,3 +175,15 @@ void MetadataParser::UpdateOrganism()
     }
 }
 
+std::ostream& NEAT::operator<<(std::ostream& out, const Organism& organism) {
+    boost::archive::xml_oarchive out_archive(out);
+    out_archive << BOOST_SERIALIZATION_NVP(organism);
+    return out;
+}
+
+std::istream& NEAT::operator>>(std::istream& in, Organism& organism)
+{
+    boost::archive::xml_iarchive in_archive(in);
+    in_archive >> BOOST_SERIALIZATION_NVP(organism);
+    return in;
+}

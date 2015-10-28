@@ -12,7 +12,7 @@ namespace NEAT
     /// A NETWORK is a LIST of input NODEs and a LIST of output NODEs           
     ///   The point of the network is to define a single entity which can evolve
     ///   or learn on its own, even though it may be part of a larger framework 
-    class Network : public XMLSerializable
+    class Network
     {
 
             friend class Genome;
@@ -138,7 +138,6 @@ namespace NEAT
             {
                 //LOG_F_DEBUG("rtNEAT", "serialize::network");
                 ar & BOOST_SERIALIZATION_NVP(all_nodes);
-                ar & BOOST_SERIALIZATION_NVP(genotype);
                 ar & BOOST_SERIALIZATION_NVP(name);
                 ar & BOOST_SERIALIZATION_NVP(numnodes);
                 ar & BOOST_SERIALIZATION_NVP(numlinks);
@@ -149,7 +148,7 @@ namespace NEAT
             }
     };
 
-    std::ostream& operator<<(std::ostream& out, const NetworkPtr& node);
+    std::ostream& operator<<(std::ostream& out, const NetworkPtr& network);
 
 } // namespace NEAT
 

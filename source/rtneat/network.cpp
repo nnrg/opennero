@@ -712,3 +712,10 @@ S32 Network::load_in(F64 d)
     else
         return 1;
 }
+
+std::ostream& operator<<(std::ostream& out, const NetworkPtr& network) 
+{
+    boost::archive::xml_oarchive out_archive(out);
+    out_archive << BOOST_SERIALIZATION_NVP(network);
+    return out;
+}

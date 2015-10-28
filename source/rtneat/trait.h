@@ -15,7 +15,7 @@ namespace NEAT
     //        algorithm from having to search vast parameter landscapes  
     //        on every node.  Instead, each node can simply point to a trait 
     //        and those traits can evolve on their own 
-    class Trait : public XMLSerializable
+    class Trait
     {
             friend class boost::serialization::access;
 
@@ -57,10 +57,11 @@ namespace NEAT
             {
                 //LOG_F_DEBUG("rtNEAT", "serialize::trait");
                 ar & BOOST_SERIALIZATION_NVP(trait_id);
+                ar & BOOST_SERIALIZATION_NVP(params);
             }
     };
 
-    std::ostream& operator<<(std::ostream& out, const TraitPtr& x);
+    std::ostream& operator<<(std::ostream& out, const TraitPtr& trait);
 
 } // namespace NEAT
 

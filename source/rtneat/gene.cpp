@@ -126,3 +126,9 @@ void Gene::print_to_file(std::ofstream &outFile)
     outFile<<mutation_num<<" ";
     outFile<<enable<<endl;
 }
+
+std::ostream& operator<<(std::ostream& out, const GenePtr& gene) {
+    boost::archive::xml_oarchive out_archive(out);
+    out_archive << BOOST_SERIALIZATION_NVP(gene);
+    return out;
+}

@@ -58,14 +58,16 @@ class RTNEATTeam(NeroTeam):
 
     def create_agents(self, ai):
         cls = agent.factory_class(ai)
+        self.pop = OpenNero.Population(cls.genome,
+                                       constants.pop_size,
+                                       1.0)
+
         self.ai = OpenNero.RTNEAT("data/ai/neat-params.dat",
-                                  cls.num_inputs,
-                                  cls.num_outputs,
-                                  constants.pop_size,
-                                  1.0,
+                                  self.pop,
+                                  constants.DEFAULT_LIFETIME_MIN,
                                   constants.DEFAULT_EVOLVE_RATE)
-        self.ai.set_lifetime(constants.DEFAULT_LIFETIME_MIN)
-        for org in self.ai.organisms:
+        
+        for org in self.pop.organisms:
             self.agents.add(cls(self.team_type, org))
         self.start_ai()
 

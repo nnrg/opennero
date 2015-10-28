@@ -424,3 +424,9 @@ const char* NEAT::getNodePlaceString(nodeplace place) {
         return "unknown";
     }
 }
+
+std::ostream& operator<<(std::ostream& out, const NNodePtr& nnode) {
+    boost::archive::xml_oarchive out_archive(out);
+    out_archive << BOOST_SERIALIZATION_NVP(nnode);
+    return out;
+}

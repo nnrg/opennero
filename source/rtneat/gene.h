@@ -10,7 +10,7 @@
 namespace NEAT
 {
 
-    class Gene : public XMLSerializable
+    class Gene
     {
             friend class boost::serialization::access;
 
@@ -58,11 +58,11 @@ namespace NEAT
                 ar & BOOST_SERIALIZATION_NVP(innovation_num);
                 ar & BOOST_SERIALIZATION_NVP(mutation_num);
                 ar & BOOST_SERIALIZATION_NVP(enable);
-                ar & BOOST_SERIALIZATION_NVP(frozen);        
             }
     };
 
-    std::ostream& operator<<(std::ostream& out, const GenePtr& x);
+    std::ostream& operator<<(std::ostream& out, const GenePtr& gene);
+
 } // namespace NEAT
 
 

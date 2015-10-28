@@ -25,7 +25,7 @@ namespace NEAT
     //  nodes fully specify the innovation and where it must have
     //  occured.  (Between them)                                     
     // ------------------------------------------------------------ 
-    class Innovation : public XMLSerializable
+    class Innovation
     {
         private:
             friend class boost::serialization::access;

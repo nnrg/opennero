@@ -76,3 +76,9 @@ void Link::derive_trait(TraitPtr curtrait)
 
 }
 
+
+std::ostream& NEAT::operator<<(std::ostream& out, const LinkPtr& link) {
+    boost::archive::xml_oarchive out_archive(out);
+    out_archive << BOOST_SERIALIZATION_NVP(link);
+    return out;
+}

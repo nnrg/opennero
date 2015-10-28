@@ -86,3 +86,10 @@ void Trait::mutate()
         }
     }
 }
+
+std::ostream& operator<<(std::ostream& out, const TraitPtr& trait) 
+{
+    boost::archive::xml_oarchive out_archive(out);
+    out_archive << BOOST_SERIALIZATION_NVP(trait);
+    return out;
+}

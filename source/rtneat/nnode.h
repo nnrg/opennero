@@ -43,7 +43,7 @@ namespace NEAT
     //   - If it's a sensor, it can be loaded with a value for output
     //   - If it's a neuron, it has a list of its incoming input signals (List<Link> is used) 
     // Use an activation count to avoid flushing
-    class NNode : public boost::enable_shared_from_this<NNode>, public XMLSerializable
+    class NNode : public boost::enable_shared_from_this<NNode>
     {
 
             friend class Network;
@@ -196,23 +196,16 @@ namespace NEAT
             {
                 //LOG_F_DEBUG("rtNEAT", "serialize::nnode");
                 ar & BOOST_SERIALIZATION_NVP(node_id);
-                ar & BOOST_SERIALIZATION_NVP(incoming);
-                ar & BOOST_SERIALIZATION_NVP(outgoing);
-                ar & BOOST_SERIALIZATION_NVP(type);
-                ar & BOOST_SERIALIZATION_NVP(activation_count);
-                ar & BOOST_SERIALIZATION_NVP(ftype);
                 ar & BOOST_SERIALIZATION_NVP(nodetrait);
+                ar & BOOST_SERIALIZATION_NVP(type);
                 ar & BOOST_SERIALIZATION_NVP(gen_node_label);
-                ar & BOOST_SERIALIZATION_NVP(_sensorName);
-                ar & BOOST_SERIALIZATION_NVP(_sensorArgs);
-                ar & BOOST_SERIALIZATION_NVP(frozen);
-                ar & BOOST_SERIALIZATION_NVP(trait_id);        
+                ar & BOOST_SERIALIZATION_NVP(ftype);
             }
 
     };
 
-    std::ostream& operator<<(std::ostream& out, const NNodePtr& x);
-    
+    std::ostream& operator<<(std::ostream& out, const NNodePtr& nnode);
+
 } // namespace NEAT
 
 #endif

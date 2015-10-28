@@ -47,7 +47,7 @@ pop_size = 50
 
 # number of steps per lifetime
 DEFAULT_LIFETIME_MAX = 10000
-DEFAULT_LIFETIME_MIN = 1000
+DEFAULT_LIFETIME_MIN = 0
 DEFAULT_EVOLVE_RATE = 40
 DEFAULT_HITPOINTS = 20
 
@@ -140,7 +140,7 @@ FITNESS_SCALE = {
     FITNESS_APPROACH_FLAG: SQ_DIST_SCALE,
     }
 
-DISPLAY_HINTS = itertools.cycle([None, 'fitness', 'time alive', 'champion', 'hit points', 'id', 'species id'])
+DISPLAY_HINTS = itertools.cycle([None, 'fitness', 'time alive', 'champion', 'hit points', 'id'])
 DISPLAY_HINT = DISPLAY_HINTS.next()
 
 def getDisplayHint():

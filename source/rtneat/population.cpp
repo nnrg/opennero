@@ -1503,3 +1503,16 @@ void Population::add_organism(OrganismPtr org)
     //Put the org also in the master organism list
     organisms.push_back(org);
 }
+
+std::ostream& operator<<(std::ostream& out, const PopulationPtr& population) {
+    boost::archive::xml_oarchive out_archive(out);
+    out_archive << BOOST_SERIALIZATION_NVP(population);
+    return out;
+}    
+
+std::istream& operator>>(std::istream& in, PopulationPtr& population)
+{
+    boost::archive::xml_iarchive in_archive(in);
+    in_archive >> BOOST_SERIALIZATION_NVP(population);
+    return in;
+}

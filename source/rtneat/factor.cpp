@@ -20,3 +20,9 @@ void Factor::print_to_file(std::ofstream &outFile)
     outFile << _record;
     outFile << std::endl;
 }
+
+std::ostream& operator<<(std::ostream& out, const FactorPtr& factor) {
+    boost::archive::xml_oarchive out_archive(out);
+    out_archive << BOOST_SERIALIZATION_NVP(factor);
+    return out;
+}

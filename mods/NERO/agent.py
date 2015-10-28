@@ -33,12 +33,16 @@ class NeroAgent(object):
         self.rewards = init_info.sensors
         return True
 
+    def end(self, time, reward):
+        print "End:", self
+
     def destroy(self):
         return True
 
 class NEATAgent(NeroAgent, OpenNero.AgentBrain):
     num_inputs = constants.N_SENSORS + 1
     num_outputs = constants.N_ACTIONS
+    genome = OpenNero.Genome(num_inputs, num_outputs, 0, 0)
 
     def __init__(self, team_type=None, org=None):
         """
@@ -51,6 +55,9 @@ class NEATAgent(NeroAgent, OpenNero.AgentBrain):
         NeroAgent.__init__(self, team_type)
         self.omit_friend_sensors = False
         self.org = org
+
+    def __str__(self):
+        return str(self.org)
 
     def start(self, time, sensors):
         """
@@ -67,18 +74,6 @@ class NEATAgent(NeroAgent, OpenNero.AgentBrain):
         self.org.fitness = self.fitness[0] / self.step
         return self.network_action(sensors)
 
-    def stats(self):
-        stats = '<message><content class="edu.utexas.cs.nn.opennero.Genome"\n'
-        stats += 'id="%d" bodyId="%d" fitness="%f" timeAlive="%d"' % (org.id, self.state.id, org.fitness, org.time_alive)
-        stats += ' champ="%s">\n' % ('true' if org.champion else 'false')
-        stats += '<rawFitness>\n'
-        for d in constants.FITNESS_DIMENSIONS:
-            dname = constants.FITNESS_NAMES[d]
-            f = self.org.stats[constants.FITNESS_INDEX[d]]
-            stats += '  <entry dimension="%s">%f</entry>\n' % (dname, f)
-        stats += '</rawFitness></content></message>'
-        return stats
-
     def set_display_hint(self):
         """
         set the display hint above the agent's head (toggled with F2)
@@ -92,9 +87,7 @@ class NEATAgent(NeroAgent, OpenNero.AgentBrain):
             elif display_hint == 'hit points':
                 self.state.label = ''.join('.' for i in range(int(5*OpenNero.get_environment().get_hitpoints(self))))
             elif display_hint == 'id':
-                self.state.label = str(self.org.id)
-            elif display_hint == 'species id':
-                self.state.label = str(self.org.species_id)
+                self.state.label = str(self.org.genome.id)
             elif display_hint == 'champion':
                 if self.org.champion:
                     self.state.label = 'champ!'
@@ -130,11 +123,10 @@ class NEATAgent(NeroAgent, OpenNero.AgentBrain):
         self.org.net.load_sensors(
             list(self.sensors.normalize(sensors)) + [constants.NEAT_BIAS])
         self.org.net.activate()
-        outputs = self.org.net.get_outputs()
 
         actions = self.actions.get_instance()
         for i in range(len(self.actions.get_instance())):
-             actions[i] = outputs[i]
+             actions[i] = self.org.net.outputs[i].active_out
         #disabling firing for testing...
         #actions[constants.ACTION_INDEX_FIRE] = 0
         denormalized_actions = self.actions.denormalize(actions)
@@ -176,8 +168,6 @@ class QLearningAgent(NeroAgent, OpenNero.QLearningBrain):
                 self.state.label = ''.join('.' for i in range(int(5*OpenNero.get_environment().get_hitpoints(self))))
             elif display_hint == 'id':
                 self.state.label = str(self.state.id)
-            elif display_hint == 'species id':
-                self.state.label = 'q'
             elif display_hint == 'debug':
                 self.state.label = str(OpenNero.get_environment().get_state(self))
             else:

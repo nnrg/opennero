@@ -175,12 +175,10 @@ namespace NEAT
             }
     };
     
-    /// write the population out to stream (XML serialization)
-    std::ostream& operator<<(std::ostream& out, const PopulationPtr& x);
-    
-    /// read the population from stream (XML serialization)
-    std::istream& operator>>(std::istream& in, PopulationPtr& x);
-    
+    std::ostream& operator<<(std::ostream& out, const PopulationPtr& population);  
+
+    std::istream& operator>>(std::istream& in, PopulationPtr& population);
+
 } // namespace NEAT
 
 #endif
