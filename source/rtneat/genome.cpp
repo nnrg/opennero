@@ -863,6 +863,15 @@ GenomePtr Genome::duplicate(S32 new_id)
 
 }
 
+GenomePtr Genome::clone(S32 new_id, F32 power)
+{
+    GenomePtr new_genome = duplicate(new_id);
+    if (power>0)
+        new_genome->mutate_link_weights(power, 1.0, GAUSSIAN);
+    new_genome->randomize_traits();
+    return new_genome;
+}
+
 void Genome::mutate_random_trait()
 {
     vector<TraitPtr>::iterator thetrait; //Trait to be mutated

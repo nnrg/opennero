@@ -92,6 +92,9 @@ namespace NEAT
             // Duplicate this Genome to create a new one with the specified id
             GenomePtr duplicate(S32 new_id);
 
+            // Duplicate and mutate this Genome to create a new one with the specified id
+            GenomePtr clone(S32 new_id, F32 power);
+
             // For debugging: A number of tests can be run on a genome to check its
             // integrity
             // Note: Some of these tests do not indicate a bug, but rather are meant

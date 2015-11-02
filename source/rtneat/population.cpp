@@ -28,6 +28,13 @@ namespace PopulationConsole
         }
     }
 }
+Population::Population()
+{
+    PopulationConsole::initConsole();
+    winnergen=0;
+    highest_fitness=0.0;
+    highest_last_changed=0;
+}
 
 Population::Population(GenomePtr g, S32 size)
 {
@@ -84,173 +91,28 @@ Population::Population(vector<Genome*> genomeList, F32 power)
     speciate();
 }
 
-Population::Population(const std::string& filename)
+Population::Population(std::istream &in)
 {
-
     PopulationConsole::initConsole();
+    winnergen=0;
+    highest_fitness=0.0;
+    highest_last_changed=0;
+
     string curword;
 
-    GenomePtr new_genome;
-
-    winnergen=0;
-
-    highest_fitness=0.0;
-    highest_last_changed=0;
-
-    cur_node_id=0;
-    cur_innov_num=0.0;
-
-    ifstream iFile(filename.c_str());
-    if (!iFile)
+    while (in)
     {
-        throw std::runtime_error("Could not open genome file: " + filename);
-    }
+        in >> curword;
+        if (!in) break;
 
-		//FIXME - PUT '&& iFile' INTO IF STATEMENTS
-    else
-    {
-        bool md = false;
-        string metadata;
-        //Loop until file is finished, parsing each line
-        while (iFile)
+        if (curword == "Organism")
         {
-            iFile >> curword;
-	    if (!iFile) break;
-
-            //Check for next
-            if (curword == "genomestart")
-            {
-                int idcheck;
-                iFile >> idcheck;
-
-                // If there isn't metadata, set metadata to ""
-                if (md == false)
-                {
-                    metadata = "";
-                }
-                md = false;
-
-                new_genome.reset(new Genome(idcheck,iFile));
-                OrganismPtr p(new Organism(0,new_genome,1, metadata));
-                organisms.push_back(p);
-                if (cur_node_id<(new_genome->get_last_node_id()))
-                    cur_node_id=new_genome->get_last_node_id();
-
-                if (cur_innov_num<(new_genome->get_last_gene_innovnum()))
-                    cur_innov_num=new_genome->get_last_gene_innovnum();
-            }
-            else if (curword == "/*")
-            {
-                // New metadata possibly, so clear out the metadata
-                metadata = "";
-                while (curword != "*/")
-                {
-                    // If we've started to form the metadata, put a space in the front
-                    if (md)
-                    {
-                        metadata += " ";
-                    }
-
-                    // Append the next word to the metadata, and say that there is metadata
-                    metadata += curword;
-                    md = true;
-
-                    iFile >> curword;
-                }
-            }
+            OrganismPtr p(new Organism(in));
+            organisms.push_back(p);
         }
-
-        iFile.close();
-
-        speciate();
-
     }
-}
 
-//Creates a population filled to the inputed size.
-Population::Population(const std::string& filename, S32 size)
-{
-
-    PopulationConsole::initConsole();
-    string curword; //max word size of 128 characters
-
-    GenomePtr new_genome;
-
-    winnergen=0;
-
-    highest_fitness=0.0;
-    highest_last_changed=0;
-
-    cur_node_id=0;
-    cur_innov_num=0.0;
-
-    ifstream iFile(filename.c_str());
-    if (!iFile)
-    {
-        throw std::runtime_error("Could not open genomes file for input: " + filename);
-    }
-    else
-    {
-        while (static_cast<S32>(organisms.size()) < size)
-        {
-            bool md = false;
-            string metadata;
-            //Loop until file is finished, parsing each line
-            //If we have enough guys, then stop reading more in!
-            while (iFile && static_cast<S32>(organisms.size()) < size)
-            {
-                iFile >> curword;
-                if (!iFile) break;
-
-                //Check for next
-                if (curword == "genomestart")
-                {
-                    S32 idcheck;
-                    iFile >> idcheck;
-
-                    // If there isn't metadata, set metadata to ""
-                    if (md == false)
-                    {
-                        metadata = "";
-                    }
-                    md = false;
-
-                    new_genome.reset(new Genome(idcheck,iFile));
-                    OrganismPtr p(new Organism(0,new_genome,1, metadata));
-                    organisms.push_back(p);
-                    if (cur_node_id<(new_genome->get_last_node_id()))
-                        cur_node_id=new_genome->get_last_node_id();
-
-                    if (cur_innov_num<(new_genome->get_last_gene_innovnum()))
-                        cur_innov_num=new_genome->get_last_gene_innovnum();
-                }
-                else if (curword == "/*")
-                {
-                    // New metadata possibly, so clear out the metadata
-                    metadata = "";
-                    iFile >> curword;
-                    while (curword.find("*/") == string::npos)
-                    {
-                        // If we've started to form the metadata, put a space in the front
-                        if (md)
-                        {
-                            metadata += " ";
-                        }
-
-                        // Append the next word to the metadata, and say that there is metadata
-                        metadata += curword;
-                        md = true;
-
-                        iFile >> curword;
-                    }
-                }
-            }
-            iFile.clear(); // clear end-of-file state
-            iFile.seekg(0, ios::beg); // rewind the file pointer
-        }
-        iFile.close();
-        speciate();
-    }
+    speciate();
 }
 
 Population::~Population()

@@ -35,6 +35,73 @@ Organism::Organism(double fit, GenomePtr g, int gen, const string &md) :
 {
 }
 
+Organism::Organism(std::istream &in):
+    fitness(0),
+    orig_fitness(fitness),
+    error(0),
+    winner(false),
+    species(),
+    expected_offspring(0),
+    generation(1),
+    eliminate(false),
+    champion(false),
+    super_champ_offspring(0),
+    pop_champ(false),
+    pop_champ_child(false),
+    high_fit(0),
+    time_alive(0),
+    mut_struct_baby(false),
+    mate_baby(false),
+    modified(true),
+    smited(false)
+    {
+        string curword;
+        bool md = false;
+        while (in)
+        {
+            in >> curword;
+            if (!in) break;
+
+            //Check for next
+            if (curword == "genomestart")
+            {
+                int idcheck;
+                in >> idcheck;
+
+                // If there isn't metadata, set metadata to ""
+                if (md == false)
+                {
+                    metadata = "";
+                }
+                md = false;
+
+                gnome.reset(new Genome(idcheck,in));
+                net = gnome->genesis(gnome->genome_id);
+                metadata = metadata;
+                return;
+            }
+            else if (curword == "/*")
+            {
+                // New metadata possibly, so clear out the metadata
+                metadata = "";
+                while (curword != "*/")
+                {
+                    // If we've started to form the metadata, put a space in the front
+                    if (md)
+                    {
+                        metadata += " ";
+                    }
+
+                    // Append the next word to the metadata, and say that there is metadata
+                    metadata += curword;
+                    md = true;
+
+                    in >> curword;
+                }
+            }
+        }
+    }
+
 Organism::Organism(const Organism& org) :
     fitness(org.fitness),
     orig_fitness(org.orig_fitness),
@@ -168,7 +235,8 @@ std::ostream& NEAT::operator<<(std::ostream& out, const OrganismPtr& organism) {
     return out;
 }
 std::ostream& NEAT::operator<<(std::ostream& out, const Organism& organism){
-    OrganismPtr p = boost::make_shared<Organism>(organism);
-    out << p;
+    out << "Organism #"<< organism.gnome->genome_id<< " Fitness: "<< organism.fitness << " Time: "<< organism.time_alive
+        << endl;
+    out << organism.gnome;
     return out;
 }

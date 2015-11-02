@@ -6,7 +6,7 @@ import common
 import constants
 import module
 import OpenNero
-import team
+import teams
 
 
 class AgentState:
@@ -88,7 +88,7 @@ class NeroEnvironment(OpenNero.Environment):
         self.hitpoints = constants.DEFAULT_HITPOINTS
 
         self.states = {}
-        self.teams = dict((t, team.NeroTeam(t)) for t in constants.TEAMS)
+        self.teams = dict((t, teams.NeroTeam(t)) for t in constants.TEAMS)
 
         x = constants.XDIM / 2.0
         y = constants.YDIM / 3.0
@@ -214,23 +214,25 @@ class NeroEnvironment(OpenNero.Environment):
             other_team = constants.OBJECT_TYPE_TEAM_0
         return self.teams[my_team].agents, self.teams[other_team].agents
 
-    def remove_team(self, team):
-        for agent in team.agents:
-            self.despawn_agent(agent)
-        team.destroy()
-
-    def deploy(self, team_ai, agent_ai, team_type):
+    def deploy(self, team):
         OpenNero.disable_ai()
-        self.remove_team(self.teams[team_type])
-        t = team.factory(team_ai, team_type)
-        self.teams[team_type] = t
-        t.create_agents(agent_ai)
+        self.remove_team(team.team_type)
+        self.teams[team.team_type] = team
+        self.spawn_team(team)
+        OpenNero.enable_ai()
+
+    def remove_team(self, team_type):
+        t = self.teams[team_type]
         for agent in t.agents:
+            self.despawn_agent(agent)
+        t.destroy()
+
+    def spawn_team(self, team):
+        for agent in team.agents:
             (x, y) = self.get_spawn(agent)
             dx = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
             dy = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
             self.spawn_agent(agent, x+dx, y+dy)
-        OpenNero.enable_ai()
 
     def spawn_agent(self, agent, x, y):
         simId = common.addObject(

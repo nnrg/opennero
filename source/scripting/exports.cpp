@@ -10,6 +10,9 @@
 #include "core/Common.h"
 #include "core/BoostCommon.h"
 #include "scripting/scriptIncludes.h"
+#include <boost/iostreams/concepts.hpp>
+#include <boost/iostreams/stream.hpp>
+#include <boost/python/make_function.hpp>
 
 // this section has one include for each ExportXXXScripts function
 #include "ai/AI.h"
@@ -42,6 +45,38 @@ namespace py = boost::python;
 
 namespace OpenNero {
 	namespace scripting {
+
+    class PythonInputDevice: public boost::iostreams::source
+    {
+    public:
+      explicit
+      PythonInputDevice(py::object object):
+        object_(object)
+      {}
+
+      std::streamsize read(char_type* buffer, std::streamsize buffer_size) 
+      {
+        // Read data through the Python object's API.  The following is
+        // is equivalent to:
+        //   data = object_.read(buffer_size)
+        py::object py_data = object_.attr("read")(buffer_size);
+        std::string data = py::extract<std::string>(py_data);
+
+        // If the string is empty, then EOF has been reached.
+        if (data.empty())
+        {
+          return -1; // Indicate end-of-sequence, per Source concept.
+        }
+
+        // Otherwise, copy data into the buffer.
+        copy(data.begin(), data.end(), buffer);
+        return data.size();
+      }
+
+    private:
+      boost::python::object object_;
+    };
+
     /// @brief Type that allows for registration of conversions from
     ///        python iterable types.
     struct iterable_converter
@@ -401,7 +436,16 @@ namespace OpenNero {
         .def(vector_indexing_suite< vector<NNodePtr>, true >());
       
 			// export Organism
+      struct OrgWrap{
+        static OrganismPtr init_from_stream(const py::object& data)
+        {
+          boost::iostreams::stream<PythonInputDevice> input(data);
+          return OrganismPtr(new Organism(input));
+        }
+      };
+
 			py::class_<Organism, OrganismPtr>("Organism", "a phenotype and a genotype for a neural network", init<double, GenomePtr, int>())
+        .def("__init__", make_constructor(&OrgWrap::init_from_stream))
         .def_readonly("genome", &Organism::gnome, "Organism's genotype")
 				.def_readonly("net", &Organism::net, "neural network (phenotype)")
         .def_readonly("species", &Organism::species, "The organism's species")
@@ -414,12 +458,14 @@ namespace OpenNero {
       py::class_< vector<OrganismPtr> >("OrganismVector")
         .def(vector_indexing_suite< vector<OrganismPtr>, true >());
 
-      py::class_<Population, PopulationPtr>("Population", "a population of organisms, further categorized by species", init<GenomePtr, S32, F32>() )
+      py::class_<Population, PopulationPtr>("Population", "a population of organisms, further categorized by species")
         .def_readonly("organisms", &Population::organisms, "A collection of all organisms in a population")
-        .def("epoch", &Population::epoch, "Turnover the population to a new generation using fitness");
+        .def("epoch", &Population::epoch, "Turnover the population to a new generation using fitness")
+        .def("add_organism", &Population::add_organism, "Add an organism to the population");
 
       py::class_<Genome, GenomePtr>("Genome", "primary source of genotype", init<S32, S32, S32, S32>())
-        .def_readonly("id", &Genome::genome_id);
+        .def_readwrite("id", &Genome::genome_id)
+        .def("clone", &Genome::clone);
 
       py::class_<Species, SpeciesPtr>("Species", "A group of similar organisms that can reproduce", no_init)
         .def_readonly("id", &Species::id);

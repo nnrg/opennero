@@ -23,10 +23,7 @@ namespace NEAT
     // ---------------------------------------------  
     class Population : public boost::enable_shared_from_this<Population>
     {
-        private:
-        
-            Population() {}
-        
+        private:        
             // A Population can be spawned off of a single Genome 
             // There will be size Genomes added to the Population 
             // The Population does not have to be empty to add Genomes 
@@ -113,6 +110,9 @@ namespace NEAT
             // Add an organism to the population and to the proper species.
             void add_organism(OrganismPtr org);
 
+            // Empty population
+            Population();
+
             // Construct off of a single spawning Genome 
             Population(GenomePtr g, S32 size);
 
@@ -123,18 +123,15 @@ namespace NEAT
             // Construct off of a vector of genomes with a mutation rate of "power"
             Population(std::vector<Genome*> genomeList, F32 power);
 
+            //From stream
+            Population(std::istream &in);
+
             bool clone(GenomePtr g, S32 size, F32 power);
 
             //// Special constructor to create a population of random topologies     //PFHACK
             //// uses Genome(int i, int o, int n,int nmax, bool r, double linkprob) 
             //// See the Genome constructor for the argument specifications
             //Population(int size,int i,int o, int nmax, bool r, double linkprob);
-
-            // Construct off of a file of Genomes 
-            Population(const std::string& filename);
-
-            // Construct off of a file of Genomes to the specified size.
-            Population(const std::string& filename, S32 size);
 
             // It can delete a Population in two ways:
             //    -delete by killing off the species

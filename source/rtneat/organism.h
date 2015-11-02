@@ -5,7 +5,7 @@
 #include "genome.h"
 #include "species.h"
 #include <string>
-#include <ostream>
+#include <iostream>
 #include <map>
 
 namespace NEAT
@@ -55,6 +55,7 @@ namespace NEAT
 
             Organism(double fit, GenomePtr g, int gen,
                      const std::string &md = "");
+            Organism(std::istream &in);
             Organism(const Organism& org); ///<  Copy Constructor
             ~Organism();
 

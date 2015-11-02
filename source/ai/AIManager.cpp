@@ -96,7 +96,13 @@ namespace OpenNero
 
     void AIManager::SetAI(const std::string& name, AIPtr ai)
     {
-        mAIs[name] = ai;
+        if (ai) {
+            mAIs[name] = ai;
+        }
+        else
+        {
+            mAIs.erase(name);
+        }
     }
     
     /// tick the AIs

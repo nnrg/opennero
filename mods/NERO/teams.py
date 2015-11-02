@@ -10,13 +10,26 @@ def factory(ai, *args):
 
 class TeamEncoder(json.JSONEncoder):
     def default(self, obj):
-        agentEncoder = agents.AgentEncoder()
         if isinstance(obj, NeroTeam):
             return {
-                'team_ai': inv_ai_map.get(type(obj), 'none'),
-                'agents': [agentEncoder.default(agent) for agent in obj.agents]
+                'team_ai': inv_ai_map.get(obj.__class__, 'none'),
+                'agents': [
+                    {
+                        'agent_ai': agent.ai_label(),
+                        'args': agent.args()
+                    } 
+                    for agent in obj.agents
+                ]
             }
         return json.JSONEncoder.default(self, obj)
+
+def as_team(team_type, dct):
+    if 'team_ai' in dct:
+        team = factory(dct['team_ai'], team_type)
+        for a in dct['agents']:
+            team.create_agent(a['agent_ai'], *a['args'])
+        return team
+    return dct
 
 class NeroTeam(object):
     """
@@ -30,12 +43,15 @@ class NeroTeam(object):
     
     def create_agents(self, ai):
         for _ in range(constants.pop_size):
-            self.self.create_agent(ai)
+            self.create_agent(ai)
 
-    def create_agent(self, ai):
-        a = agents.factory(ai, self.team_type)
-        self.agents.add(a)
+    def create_agent(self, ai, *args):
+        a = agents.factory(ai, self.team_type, *args)
+        self.add_agent(a)
         return a
+
+    def add_agent(self, a):
+        self.agents.add(a)
 
     def is_episode_over(self, agent):
         return False
@@ -49,22 +65,15 @@ class NeroTeam(object):
 class RTNEATTeam(NeroTeam):
     def __init__(self, team_type):
         NeroTeam.__init__(self, team_type)
-        self.ai = None
-
-    def create_agents(self, ai):
-        cls = agents.factory_class(ai)
-        self.pop = OpenNero.Population(cls.genome,
-                                       constants.pop_size,
-                                       1.0)
-
+        self.pop = OpenNero.Population()
         self.ai = OpenNero.RTNEAT("data/ai/neat-params.dat",
                                   self.pop,
                                   constants.DEFAULT_LIFETIME_MIN,
                                   constants.DEFAULT_EVOLVE_RATE)
-        
-        for org in self.pop.organisms:
-            self.agents.add(cls(self.team_type, org))
-        self.start_ai()
+
+    def add_agent(self, a):
+        NeroTeam.add_agent(self, a)
+        self.pop.add_organism(a.org)
 
     def start_ai(self):
         OpenNero.set_ai('rtneat-%s' % self.team_type, self.ai)
