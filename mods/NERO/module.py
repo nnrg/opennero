@@ -5,11 +5,15 @@ import gzip
 import random
 import tempfile
 import xml.etree.ElementTree as ET
+import json
+from functools import partial
 
 import common
 import constants
 import environment
 import OpenNero
+
+import teams
 
 class NeroModule:
     def __init__(self):
@@ -53,25 +57,30 @@ class NeroModule:
     def set_weight(self, key, value):
         self.environment.set_weight(key, value)
 
-    #The following is run when one of the Deploy buttons is pressed
-    def deploy(self, team_ai='rtneat', agent_ai='neat', team_type=constants.OBJECT_TYPE_TEAM_0):
-        if self.environment:
-            self.environment.deploy(team_ai, agent_ai, team_type)
+    def deploy(self, team_ai, agent_ai, team_type=constants.OBJECT_TYPE_TEAM_0):
+        if not self.environment:
+            return
+        team = teams.factory(team_ai, team_type)
+        team.create_agents(agent_ai)
+        self.environment.deploy(team)
 
     #The following is run when the Save button is pressed
     def save_team(self, location, team_type=constants.OBJECT_TYPE_TEAM_0):
-        team = self.teams[team_type]
-        if team:
-            team.save(location)
+        if not self.environment:
+            return
+        t = self.environment.teams[team_type]
+        if not t:
+            return
+        with open(location, 'w') as f:
+            json.dump(t, f, cls=teams.TeamEncoder, indent=4, separators=(',', ': '))
 
     #The following is run when the Load button is pressed
     def load_team(self, location, team_type=constants.OBJECT_TYPE_TEAM_0):
-        # OpenNero.disable_ai()
-        # team = self.teams[team_type]
-        # if team:
-        #     team.load(location)
-        # OpenNero.enable_ai()
-        pass
+        if not self.environment:
+            return
+        with open(location, 'r') as f:
+            team = json.load(f, object_hook=partial(teams.as_team, team_type))
+            self.environment.deploy(team)
 
     def set_spawn(self, x, y, team_type=constants.OBJECT_TYPE_TEAM_0):
         if self.environment:
@@ -140,7 +149,7 @@ def parseInputCommand(content):
     if command == "save1": mod.save_team(arg, constants.OBJECT_TYPE_TEAM_0)
     if command == "load1": mod.load_team(arg, constants.OBJECT_TYPE_TEAM_0)
     if command == "rtneat": mod.deploy('rtneat', 'neat')
-    if command == "qlearning": mod.deploy(None, 'qlearning')
+    if command == "qlearning": mod.deploy('none', 'qlearning')
     if command == "pause": OpenNero.disable_ai()
     if command == "resume": OpenNero.enable_ai()
 

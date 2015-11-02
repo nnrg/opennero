@@ -6,15 +6,15 @@
 #include "genome.h"
 #include "species.h"
 #include "organism.h"
-#include "pool.h"
 #include <boost/enable_shared_from_this.hpp>
+#include <ostream>
+#include <fstream>
 
 namespace NEAT
 {
 
     class Species;
     class Organism;
-    class Pool;
 
     // ---------------------------------------------  
     // POPULATION CLASS:
@@ -23,11 +23,7 @@ namespace NEAT
     // ---------------------------------------------  
     class Population : public boost::enable_shared_from_this<Population>
     {
-        private:
-            friend class boost::serialization::access;
-        
-            Population() {}
-        
+        private:        
             // A Population can be spawned off of a single Genome 
             // There will be size Genomes added to the Population 
             // The Population does not have to be empty to add Genomes 
@@ -61,18 +57,6 @@ namespace NEAT
 
             // Separate the Organisms into species
             bool speciate();
-
-            // Print all the genomes in the population to a file
-            bool print_to_file(std::ofstream &outFile);
-
-            // Print Population to a file in speciated order with comments separating each species
-            bool print_to_file_by_species(std::ofstream &outFile);
-
-            // Prints the champions of each species to files starting with directory_prefix
-            // The file name are as follows: [prefix]g[generation_num]cs[species_num]
-            // Thus, they can be indexed by generation or species
-            bool print_species_champs_tofiles(std::string& directory_prefix,
-                                              S32 generation);
 
             // Run verify on all Genomes in this Population (Debugging)
             bool verify();
@@ -126,6 +110,9 @@ namespace NEAT
             // Add an organism to the population and to the proper species.
             void add_organism(OrganismPtr org);
 
+            // Empty population
+            Population();
+
             // Construct off of a single spawning Genome 
             Population(GenomePtr g, S32 size);
 
@@ -136,6 +123,9 @@ namespace NEAT
             // Construct off of a vector of genomes with a mutation rate of "power"
             Population(std::vector<Genome*> genomeList, F32 power);
 
+            //From stream
+            Population(std::istream &in);
+
             bool clone(GenomePtr g, S32 size, F32 power);
 
             //// Special constructor to create a population of random topologies     //PFHACK
@@ -143,44 +133,15 @@ namespace NEAT
             //// See the Genome constructor for the argument specifications
             //Population(int size,int i,int o, int nmax, bool r, double linkprob);
 
-            // Construct off of a file of Genomes 
-            Population(const std::string& filename);
-
-            // Construct off of a file of Genomes to the specified size.
-            Population(const std::string& filename, S32 size);
-
             // It can delete a Population in two ways:
             //    -delete by killing off the species
             //    -delete by killing off the organisms themselves (if not speciated)
             // It does the latter if it sees the species list is empty
             ~Population();
-            
-            /// serialize this object to/from a Boost serialization archive
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                //LOG_F_DEBUG("rtNEAT", "serialize::population");
-                ar & BOOST_SERIALIZATION_NVP(organisms);
-                ar & BOOST_SERIALIZATION_NVP(species);
-                ar & BOOST_SERIALIZATION_NVP(last_species);
-                ar & BOOST_SERIALIZATION_NVP(cur_innov_num);
-                ar & BOOST_SERIALIZATION_NVP(cur_node_id);
-                ar & BOOST_SERIALIZATION_NVP(innovations);
-                ar & BOOST_SERIALIZATION_NVP(mean_fitness);
-                ar & BOOST_SERIALIZATION_NVP(variance);
-                ar & BOOST_SERIALIZATION_NVP(standard_deviation);
-                ar & BOOST_SERIALIZATION_NVP(winnergen);
-                ar & BOOST_SERIALIZATION_NVP(highest_fitness);
-                ar & BOOST_SERIALIZATION_NVP(highest_last_changed);
-            }
     };
     
-    /// write the population out to stream (XML serialization)
-    std::ostream& operator<<(std::ostream& out, const PopulationPtr& x);
-    
-    /// read the population from stream (XML serialization)
-    std::istream& operator>>(std::istream& in, PopulationPtr& x);
-    
+    std::ostream& operator<<(std::ostream& out, const PopulationPtr& population);  
+
 } // namespace NEAT
 
 #endif

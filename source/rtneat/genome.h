@@ -2,11 +2,11 @@
 #define _GENOME_H_
 
 #include <vector>
-#include <ostream>
+#include <iostream>
 #include <string>
 #include <boost/enable_shared_from_this.hpp>
+#include "factor.h"
 #include "neat.h"
-#include "XMLSerializable.h"
 
 namespace NEAT
 {
@@ -30,9 +30,8 @@ namespace NEAT
     //    list of Genes provide an evolutionary history of innovation and
     //    link-building.
 
-    class Genome : public boost::enable_shared_from_this<Genome>, public XMLSerializable
+    class Genome : public boost::enable_shared_from_this<Genome>
     {
-            friend class boost::serialization::access;
             Genome() {}
 
         public:
@@ -63,7 +62,7 @@ namespace NEAT
 
             //Special constructor which spawns off an input file
             //This constructor assumes that some routine has already read in GENOMESTART
-            Genome(S32 id, std::ifstream &inFile);
+            Genome(S32 id, std::istream &in);
 
             // This special constructor creates a Genome
             // with i inputs, o outputs, n out of nmax hidden units, and random
@@ -81,9 +80,6 @@ namespace NEAT
             //num_hidden is only used in type 2
             Genome(S32 num_in, S32 num_out, S32 num_hidden, S32 type);
 
-            // Loads a new Genome from a file (doesn't require knowledge of Genome's id)
-            static GenomePtr new_Genome_load(const std::string& filename);
-
             //Destructor kills off all lists (including the trait vector)
             ~Genome();
 
@@ -93,14 +89,11 @@ namespace NEAT
             // Lamarckian weight changes from network phenotype
             void Lamarck();
 
-            // Dump this genome to specified file
-            void print_to_file(std::ofstream &outFile);
-
-            // Wrapper for print_to_file above
-            void print_to_filename(const std::string& filename);
-
             // Duplicate this Genome to create a new one with the specified id
             GenomePtr duplicate(S32 new_id);
+
+            // Duplicate and mutate this Genome to create a new one with the specified id
+            GenomePtr clone(S32 new_id, F32 power);
 
             // For debugging: A number of tests can be run on a genome to check its
             // integrity
@@ -192,19 +185,6 @@ namespace NEAT
             // For the Sensor Registry
             std::vector<std::string> getSensorNames() const;
             std::vector<std::string> getSensorArgs() const;
-
-            /// serialize this object to/from a Boost serialization archive
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                //LOG_F_DEBUG("rtNEAT", "serialize::genome");
-                ar & BOOST_SERIALIZATION_NVP(genome_id);
-                ar & BOOST_SERIALIZATION_NVP(traits);
-                ar & BOOST_SERIALIZATION_NVP(nodes);
-                ar & BOOST_SERIALIZATION_NVP(genes);
-                ar & BOOST_SERIALIZATION_NVP(factors);
-                // ar & BOOST_SERIALIZATION_NVP(phenotype); // TODO: don't really need to save the network
-            }
         protected:
             //Inserts a NNode into a given ordered list of NNodes in order
             void node_insert(std::vector<NNodePtr> &nlist, NNodePtr n);
@@ -215,22 +195,7 @@ namespace NEAT
 
     };
 
-    //Calls special constructor that creates a Genome of 3 possible types:
-    //0 - Fully linked, no hidden nodes
-    //1 - Fully linked, one hidden node splitting each link
-    //2 - Fully connected with a hidden layer
-    //num_hidden is only used in type 2
-    //Saves to file "auto_genome"
-    GenomePtr new_Genome_auto(int num_in, int num_out, int num_hidden,
-                              int type, const std::string& filename);
-
-    void print_Genome_tofile(GenomePtr g, const std::string& filename);
-
-    /// write genome to stream
-    std::ostream& operator<<(std::ostream& out, const GenomePtr& x);
-
-    /// read genome from stream
-    std::istream& operator>>(std::istream& in, GenomePtr& x);
+    std::ostream& operator<<(std::ostream& out, const GenomePtr& genome);    
 } // namespace NEAT
 
 #endif

@@ -1,19 +1,12 @@
 import sys
-import random
-import tempfile
+import json
+import string
+import io
 
-import common
 import constants
-import module
 import OpenNero
 
-
 def factory_class(ai):
-    ai_map = {
-        'neat': NEATAgent,
-        'qlearning': QLearningAgent,
-        'turret': Turret
-    }
     return ai_map.get(ai, NEATAgent)
 
 def factory(ai, *args):
@@ -23,9 +16,9 @@ class NeroAgent(object):
     """
     base class for nero agents
     """
-    def __init__(self, team_type=None, group='Agent'):
+    group = 'Agent'
+    def __init__(self, team_type, *args):
         self.team_type = team_type
-        self.group = group
 
     def initialize(self, init_info):
         self.actions = init_info.actions
@@ -36,11 +29,19 @@ class NeroAgent(object):
     def destroy(self):
         return True
 
+    def ai_label(self):
+        return inv_ai_map.get(self.__class__, 'none')
+
+    def args(self):
+        return []
+
 class NEATAgent(NeroAgent, OpenNero.AgentBrain):
     num_inputs = constants.N_SENSORS + 1
     num_outputs = constants.N_ACTIONS
+    base_genome = OpenNero.Genome(num_inputs, num_outputs, 0, 0)
+    count = 0
 
-    def __init__(self, team_type=None, org=None):
+    def __init__(self, team_type, *args):
         """
         Create an agent brain
         """
@@ -49,8 +50,19 @@ class NEATAgent(NeroAgent, OpenNero.AgentBrain):
         OpenNero.AgentBrain.__init__(self)
 
         NeroAgent.__init__(self, team_type)
+
         self.omit_friend_sensors = False
-        self.org = org
+        
+        if len(args) > 0:
+            stream = io.BytesIO(string.join(args, '\n').encode('utf-8'))
+            self.org = OpenNero.Organism(stream)
+        else:
+            NEATAgent.count += 1
+            genome = self.base_genome.clone(NEATAgent.count, 1)
+            self.org = OpenNero.Organism(0, genome, 1)
+
+    def args(self):
+        return str(self.org).split('\n')
 
     def start(self, time, sensors):
         """
@@ -67,18 +79,6 @@ class NEATAgent(NeroAgent, OpenNero.AgentBrain):
         self.org.fitness = self.fitness[0] / self.step
         return self.network_action(sensors)
 
-    def stats(self):
-        stats = '<message><content class="edu.utexas.cs.nn.opennero.Genome"\n'
-        stats += 'id="%d" bodyId="%d" fitness="%f" timeAlive="%d"' % (org.id, self.state.id, org.fitness, org.time_alive)
-        stats += ' champ="%s">\n' % ('true' if org.champion else 'false')
-        stats += '<rawFitness>\n'
-        for d in constants.FITNESS_DIMENSIONS:
-            dname = constants.FITNESS_NAMES[d]
-            f = self.org.stats[constants.FITNESS_INDEX[d]]
-            stats += '  <entry dimension="%s">%f</entry>\n' % (dname, f)
-        stats += '</rawFitness></content></message>'
-        return stats
-
     def set_display_hint(self):
         """
         set the display hint above the agent's head (toggled with F2)
@@ -92,9 +92,7 @@ class NEATAgent(NeroAgent, OpenNero.AgentBrain):
             elif display_hint == 'hit points':
                 self.state.label = ''.join('.' for i in range(int(5*OpenNero.get_environment().get_hitpoints(self))))
             elif display_hint == 'id':
-                self.state.label = str(self.org.id)
-            elif display_hint == 'species id':
-                self.state.label = str(self.org.species_id)
+                self.state.label = str(self.org.genome.id)
             elif display_hint == 'champion':
                 if self.org.champion:
                     self.state.label = 'champ!'
@@ -130,11 +128,10 @@ class NEATAgent(NeroAgent, OpenNero.AgentBrain):
         self.org.net.load_sensors(
             list(self.sensors.normalize(sensors)) + [constants.NEAT_BIAS])
         self.org.net.activate()
-        outputs = self.org.net.get_outputs()
 
         actions = self.actions.get_instance()
         for i in range(len(self.actions.get_instance())):
-             actions[i] = outputs[i]
+            actions[i] = self.org.net.outputs[i].active_out
         denormalized_actions = self.actions.denormalize(actions)
 
         if denormalized_actions[constants.ACTION_INDEX_ZERO_FRIEND_SENSORS] > 0.5:
@@ -144,14 +141,11 @@ class NEATAgent(NeroAgent, OpenNero.AgentBrain):
 
         return denormalized_actions
 
-    def is_episode_over(self):
-        return self.org.eliminate
-
 class QLearningAgent(NeroAgent, OpenNero.QLearningBrain):
     """
     QLearning agent.
     """
-    def __init__(self, team_type=None, gamma=0.8, alpha=0.8, epsilon=0.1,
+    def __init__(self, team_type, gamma=0.8, alpha=0.8, epsilon=0.1,
                  action_bins=3, state_bins=5,
                  num_tiles=0, num_weights=0):
         OpenNero.QLearningBrain.__init__(
@@ -174,8 +168,6 @@ class QLearningAgent(NeroAgent, OpenNero.QLearningBrain):
                 self.state.label = ''.join('.' for i in range(int(5*OpenNero.get_environment().get_hitpoints(self))))
             elif display_hint == 'id':
                 self.state.label = str(self.state.id)
-            elif display_hint == 'species id':
-                self.state.label = 'q'
             elif display_hint == 'debug':
                 self.state.label = str(OpenNero.get_environment().get_state(self))
             else:
@@ -190,9 +182,10 @@ class Turret(NeroAgent, OpenNero.AgentBrain):
     """
     Simple Rotating Turret
     """
-    def __init__(self, team_type=None):
+    group = 'Turret'
+    def __init__(self, team_type, *args):
         OpenNero.AgentBrain.__init__(self)
-        NeroAgent.__init__(self, team_type, group='Turret')
+        NeroAgent.__init__(self, team_type, *args)
 
     def start(self, time, sensors):
         self.state.label = 'Turret'
@@ -207,3 +200,11 @@ class Turret(NeroAgent, OpenNero.AgentBrain):
         a[2] = 1 
         a[3] = 0
         return a
+
+ai_map = {
+    'neat': NEATAgent,
+    'qlearning': QLearningAgent,
+    'turret': Turret
+}
+
+inv_ai_map = {v: k for k, v in ai_map.items()}
