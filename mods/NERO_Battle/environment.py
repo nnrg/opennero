@@ -14,78 +14,42 @@ class BattleEnvironment(NeroEnvironment):
         self.print_damage = -1
         self.last_damage = []
 
-    def step(self, agent, action):
-        """
-        2A step for an agent
-        """
-        # make sure RL agents cannot learn in battle mode.
-        agent.alpha = 0.0
+    def tick(self, dt):
+        if self.is_battle_over():
+            self.end_battle()
 
-        reward = NeroEnvironment.step(self, agent, action)
+    def is_battle_over(self):
+        return any([team.is_destroyed() for team in self.teams.values()])
 
-        live_agents = sum(len(t) for t in self.teams.itervalues())
-
-        # wait until all agents have spawned before we keep track of damage.
-        if self.print_damage < 0 and live_agents < 2 * constants.pop_size:
-            return reward
-
-        # print out damages every loop through the entire population.
-        self.print_damage += 1
-        if self.print_damage >= live_agents:
-            self.print_damage = 0
+    def end_battle(self):
+        print "Battled Ended"
+        blue_damage = self.tally_damage(constants.OBJECT_TYPE_TEAM_0)
+        red_damage = self.tally_damage(constants.OBJECT_TYPE_TEAM_1)
+        if blue_damage < red_damage:
+            self.declare_winner(constants.OBJECT_TYPE_TEAM_0)
+        elif blue_damage > red_damage:
+            self.declare_winner(constants.OBJECT_TYPE_TEAM_1)
         else:
-            return reward
+            print "Battle Tied"
 
-        damages = {}
-        winner = None
-        for team in constants.TEAMS:
-            damages[team] = 0
-            agents = self.teams.get(team, set())
-            agent_damages = [self.get_state(a).total_damage for a in agents]
-            if any(d < self.hitpoints for d in agent_damages):
-                damage = sum(agent_damages)
-                damage += (constants.pop_size - len(agents)) * self.hitpoints
-                damages[team] = damage
-            else:
-                damages[team] = constants.pop_size * self.hitpoints
-                winner = constants.OBJECT_TYPE_TEAM_0
-                if team == winner:
-                    winner = constants.OBJECT_TYPE_TEAM_1
+    def declare_winner(self, team_type):
+        print "%s team wins!" % constants.TEAM_LABELS[team_type]
 
-        if len(damages) == 2:
-            ss = []
-            for t, d in sorted(damages.iteritems()):
-                s = '%s: %d' % (constants.TEAM_LABELS[t], d)
-                ss.append(s)
-            ss = tuple(ss)
-            if self.last_damage != ss:
-                print 'damages sustained by: ' +' '.join(ss)
-                self.last_damage = ss
-                if not constants.getDisplayHint():
-                    OpenNero.setWindowCaption('Damage sustained: ' + ' '.join(ss))
-
-        if winner is not None:
-            s = constants.TEAM_LABELS[winner] + ' team wins!!!'
-            print s
-            try:
-                if OpenNero.getAppConfig().rendertype != 'null':
-                    import tkMessageBox
-                    tkMessageBox.showinfo('NERO Battle Results', s)
-            except:
-                pass
-            if not constants.getDisplayHint():
-                OpenNero.setWindowCaption(s)
-            OpenNero.disable_ai()
-            for a in self.teams[winner]:
-                self.set_animation(a, self.get_state(a), 'jump')
-
-        return reward
+    def tally_damage(self, team_type):
+        team = self.teams[team_type]
+        damages = sum([self.get_state(a).total_damage for a in team.agents | team.dead_agents])
+        print "%s damages: %d" % (constants.TEAM_LABELS[team_type], damages)
+        return damages
 
     def reset(self, agent):
         """
         reset the environment to its initial state
         """
-        # NOOP
+        print "KILLING AGENT: %s" % agent
+        team = self.get_team(agent)
+        team.kill_agent(agent)
+        self.despawn_agent(agent)
+        print "KILLED AGENT: %s" % agent
         return True
     
     def cleanup(self):
@@ -94,13 +58,3 @@ class BattleEnvironment(NeroEnvironment):
         """
         common.killScript("NERO_Battle/menu.py")
         return True
-
-    def is_episode_over(self, agent):
-        """
-        is the current episode over for the agent?
-        """
-        assert self.hitpoints > 0
-        if self.get_state(agent).total_damage >= self.hitpoints:
-            self.remove_agent(agent)
-            return True
-        return False

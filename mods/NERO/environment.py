@@ -225,7 +225,7 @@ class NeroEnvironment(OpenNero.Environment):
         t = self.teams[team_type]
         for agent in t.agents:
             self.despawn_agent(agent)
-        t.destroy()
+        t.cleanup()
 
     def spawn_team(self, team):
         for agent in team.agents:

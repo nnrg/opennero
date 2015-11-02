@@ -8,6 +8,9 @@ def ModMain(mode = ""):
     client.ClientMain()
 
 def ModTick(dt):
+    mod = module.getMod()
+    if mod.environment:
+        mod.environment.tick(dt)
     if OpenNero.getAppConfig().rendertype == 'null':
         return
     script_server = module.getServer()

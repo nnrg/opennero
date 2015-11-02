@@ -26,7 +26,7 @@ class TeamEncoder(json.JSONEncoder):
 def as_team(team_type, dct):
     if 'team_ai' in dct:
         team = factory(dct['team_ai'], team_type)
-        for a in dct['agents']:
+        for a in dct['agents'][:constants.pop_size]:
             team.create_agent(a['agent_ai'], *a['args'])
         return team
     return dct
@@ -40,6 +40,7 @@ class NeroTeam(object):
         self.team_type = team_type
         self.color = constants.TEAM_LABELS[team_type]
         self.agents = set()
+        self.dead_agents = set()
     
     def create_agents(self, ai):
         for _ in range(constants.pop_size):
@@ -53,13 +54,23 @@ class NeroTeam(object):
     def add_agent(self, a):
         self.agents.add(a)
 
+    def kill_agent(self, a):
+        self.agents.remove(a)
+        self.dead_agents.add(a)
+
     def is_episode_over(self, agent):
         return False
 
     def reset(self, agent):
         pass
 
-    def destroy(self):
+    def cleanup(self):
+        pass
+
+    def is_destroyed(self):
+        return len(self.agents) == 0 and len(self.dead_agents) > 0
+    
+    def reset_all(self):
         pass
 
 class RTNEATTeam(NeroTeam):
@@ -85,9 +96,10 @@ class RTNEATTeam(NeroTeam):
         return agent.org.eliminate
 
     def reset(self, agent):
-        agent.org = self.ai.reproduce_one()
+        if agent.org.elminate:
+            agent.org = self.ai.reproduce_one()
 
-    def destroy(self):
+    def cleanup(self):
         self.stop_ai()
 
 
