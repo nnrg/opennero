@@ -71,7 +71,8 @@ class NeroTeam(object):
         return len(self.agents) == 0 and len(self.dead_agents) > 0
     
     def reset_all(self):
-        pass
+        self.agents |= self.dead_agents
+        self.dead_agents = set()
 
 class RTNEATTeam(NeroTeam):
     def __init__(self, team_type):

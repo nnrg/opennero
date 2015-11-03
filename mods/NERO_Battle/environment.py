@@ -17,6 +17,7 @@ class BattleEnvironment(NeroEnvironment):
     def tick(self, dt):
         if self.is_battle_over():
             self.end_battle()
+            self.reset_all()
 
     def is_battle_over(self):
         return any([team.is_destroyed() for team in self.teams.values()])
@@ -41,15 +42,23 @@ class BattleEnvironment(NeroEnvironment):
         print "%s damages: %d" % (constants.TEAM_LABELS[team_type], damages)
         return damages
 
+    def reset_all(self):
+        for team in self.teams.values():
+            self.remove_team(team.team_type)
+            team.reset_all()
+            for a in team.agents:
+                state = self.get_state(a)
+                state.total_damage = 0
+                state.curr_damage = 0
+            self.spawn_team(team)
+
     def reset(self, agent):
         """
         reset the environment to its initial state
         """
-        print "KILLING AGENT: %s" % agent
         team = self.get_team(agent)
         team.kill_agent(agent)
         self.despawn_agent(agent)
-        print "KILLED AGENT: %s" % agent
         return True
     
     def cleanup(self):

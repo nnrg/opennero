@@ -215,17 +215,14 @@ class NeroEnvironment(OpenNero.Environment):
         return self.teams[my_team].agents, self.teams[other_team].agents
 
     def deploy(self, team):
-        OpenNero.disable_ai()
         self.remove_team(team.team_type)
         self.teams[team.team_type] = team
         self.spawn_team(team)
-        OpenNero.enable_ai()
 
     def remove_team(self, team_type):
         t = self.teams[team_type]
         for agent in t.agents:
             self.despawn_agent(agent)
-        t.cleanup()
 
     def spawn_team(self, team):
         for agent in team.agents:
