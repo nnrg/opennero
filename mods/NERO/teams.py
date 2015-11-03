@@ -64,7 +64,10 @@ class NeroTeam(object):
     def reset(self, agent):
         pass
 
-    def cleanup(self):
+    def start_training(self):
+        pass
+
+    def stop_training(self):
         pass
 
     def is_destroyed(self):
@@ -78,19 +81,20 @@ class RTNEATTeam(NeroTeam):
     def __init__(self, team_type):
         NeroTeam.__init__(self, team_type)
         self.pop = OpenNero.Population()
-        self.ai = OpenNero.RTNEAT("data/ai/neat-params.dat",
+        self.rtneat = OpenNero.RTNEAT("data/ai/neat-params.dat",
                                   self.pop,
                                   constants.DEFAULT_LIFETIME_MIN,
                                   constants.DEFAULT_EVOLVE_RATE)
+        self.generation = 1
 
     def add_agent(self, a):
         NeroTeam.add_agent(self, a)
         self.pop.add_organism(a.org)
 
-    def start_ai(self):
-        OpenNero.set_ai('rtneat-%s' % self.team_type, self.ai)
+    def start_training(self):
+        OpenNero.set_ai('rtneat-%s' % self.team_type, self.rtneat)
 
-    def stop_ai(self):
+    def stop_training(self):
         OpenNero.set_ai('rtneat-%s' % self.team_type, None)
 
     def is_episode_over(self, agent):
@@ -98,11 +102,16 @@ class RTNEATTeam(NeroTeam):
 
     def reset(self, agent):
         if agent.org.elminate:
-            agent.org = self.ai.reproduce_one()
+            agent.org = self.rtneat.reproduce_one()
 
-    def cleanup(self):
-        self.stop_ai()
-
+    def reset_all(self):
+        NeroTeam.reset_all(self)
+        #TODO: Epoch can segfault without fitness differentials
+        if any([agent.org.fitness > 0 for agent in self.agents]):
+            self.generation += 1
+            self.pop.epoch(self.generation)
+            for agent, org in zip(self.agents, self.pop.organisms):
+                agent.org = org
 
 ai_map = {
     'rtneat': RTNEATTeam,

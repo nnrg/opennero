@@ -44,7 +44,7 @@ class BattleEnvironment(NeroEnvironment):
 
     def reset_all(self):
         for team in self.teams.values():
-            self.remove_team(team.team_type)
+            self.despawn_team(team)
             team.reset_all()
             for a in team.agents:
                 state = self.get_state(a)
@@ -67,3 +67,9 @@ class BattleEnvironment(NeroEnvironment):
         """
         common.killScript("NERO_Battle/menu.py")
         return True
+
+    def start_team_training(self, team):
+        pass
+
+    def stop_team_training(self, team):
+        pass

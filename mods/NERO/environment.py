@@ -218,18 +218,31 @@ class NeroEnvironment(OpenNero.Environment):
         self.remove_team(team.team_type)
         self.teams[team.team_type] = team
         self.spawn_team(team)
+        self.start_team_training(team)
 
     def remove_team(self, team_type):
-        t = self.teams[team_type]
-        for agent in t.agents:
-            self.despawn_agent(agent)
-
+        team = self.teams[team_type]
+        self.stop_team_training(team)
+        self.despawn_team(team)
+        for agent in team.agents:
+            del self.states[agent]
+    
     def spawn_team(self, team):
         for agent in team.agents:
             (x, y) = self.get_spawn(agent)
             dx = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
             dy = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
             self.spawn_agent(agent, x+dx, y+dy)
+
+    def despawn_team(self, team):
+        for agent in team.agents:
+            self.despawn_agent(agent)
+
+    def start_team_training(self, team):
+        team.start_training()
+
+    def stop_team_training(self, team):
+        team.stop_training()
 
     def spawn_agent(self, agent, x, y):
         simId = common.addObject(
