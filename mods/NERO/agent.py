@@ -23,7 +23,7 @@ class NeroAgent(object):
     def initialize(self, init_info):
         self.actions = init_info.actions
         self.sensors = init_info.sensors
-        self.rewards = init_info.sensors
+        self.rewards = init_info.rewards
         return True
 
     def destroy(self):
