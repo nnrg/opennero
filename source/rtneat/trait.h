@@ -2,9 +2,7 @@
 #define _TRAIT_H_
 
 #include "neat.h"
-#include "XMLSerializable.h"
 #include <iostream>
-#include <fstream>
 
 namespace NEAT
 {
@@ -15,10 +13,8 @@ namespace NEAT
     //        algorithm from having to search vast parameter landscapes  
     //        on every node.  Instead, each node can simply point to a trait 
     //        and those traits can evolve on their own 
-    class Trait : public XMLSerializable
+    class Trait
     {
-            friend class boost::serialization::access;
-
             // ************ LEARNING PARAMETERS *********** 
             // The following parameters are for use in    
             //   neurons that learn through habituation,
@@ -45,22 +41,11 @@ namespace NEAT
             // Special Constructor creates a new Trait which is the average of 2 existing traits passed in
             Trait(TraitPtr t1, TraitPtr t2);
 
-            // Dump trait to a file
-            void print_to_file(std::ofstream &file);
-
             // Perturb the trait parameters slightly
             void mutate();
-
-            /// serialize this object to/from a Boost serialization archive
-            template<class Archive>
-            void serialize(Archive & ar, const unsigned int version)
-            {
-                //LOG_F_DEBUG("rtNEAT", "serialize::trait");
-                ar & BOOST_SERIALIZATION_NVP(trait_id);
-            }
     };
 
-    std::ostream& operator<<(std::ostream& out, const TraitPtr& x);
+    std::ostream& operator<<(std::ostream& out, const TraitPtr& trait);
 
 } // namespace NEAT
 

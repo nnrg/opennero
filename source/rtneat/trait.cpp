@@ -62,15 +62,6 @@ Trait::Trait(TraitPtr t1, TraitPtr t2)
     trait_id=t1->trait_id;
 }
 
-void Trait::print_to_file(std::ofstream &outFile)
-{
-
-    outFile << "trait "<< trait_id << " ";
-    for (S32 count=0; count < NEAT::num_trait_params; count++)
-        outFile<<params[count]<<" ";
-    outFile<<endl;
-}
-
 void Trait::mutate()
 {
     for (S32 count=0; count<NEAT::num_trait_params; count++)
@@ -85,4 +76,13 @@ void Trait::mutate()
                 params[count]=1.0;
         }
     }
+}
+
+std::ostream& NEAT::operator<<(std::ostream& out, const TraitPtr& trait) 
+{
+    out << "trait "<< trait->trait_id << " ";
+    for (S32 count=0; count < NEAT::num_trait_params; count++)
+        out<<trait->params[count]<<" ";
+    out<<endl;
+    return out;
 }

@@ -1,16 +1,16 @@
-import common
-import common.menu_utils
-import NERO.agent
+import OpenNero
 import NERO.client as client
 import NERO.constants as constants
-import NERO_Battle.module as module
-import OpenNero
+import module
 
 def ModMain(mode = ""):
     module.getMod()  # initialize the NERO_Battle module.
     client.ClientMain()
 
 def ModTick(dt):
+    mod = module.getMod()
+    if mod.environment:
+        mod.environment.tick(dt)
     if OpenNero.getAppConfig().rendertype == 'null':
         return
     script_server = module.getServer()

@@ -58,6 +58,12 @@ namespace OpenNero
         /// get the current brain of this AIObject
         AgentBrainPtr getBrain() const { return mAgentBrain; }
 
+        // initialize the brain of this AIObject
+        void initializeBrain();
+
+        // set and initialize the brain of this AIObject
+        void initializeBrain(AgentBrainPtr brain);
+
         /// get the environment in which this AIObject operates
         EnvironmentPtr getWorld() const { return mWorld.lock(); }
 

@@ -16,6 +16,7 @@
 #include "input/IOMapping.h"
 #include "render/SceneObject.h"
 #include "render/FPSCounter.h"
+#include "ai/AI.h"
 
 namespace OpenNero
 {
@@ -140,6 +141,8 @@ namespace OpenNero
         void SetObjectColor( SimId id, const SColor& color );
 		bool SetObjectAnimation( SimId id, const std::string& animationType );
         void SetObjectAnimationSpeed( SimId id, float32_t framesPerSecond );
+        void SetObjectBrain (SimId id, AgentBrainPtr brain);
+        void InitObjectBrain (SimId id, AgentBrainPtr brain);
         /// @}
 
         /// Push the changes made to the object without animation

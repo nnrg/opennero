@@ -1,47 +1,23 @@
 import sys
 
+import OpenNero
+
 import NERO.module
 import NERO.constants as constants
-import NeroEnvironment
-import OpenNero
 import common
+import common.menu_utils
+import environment
 
-# this value, between 0 (slowest) and 100 (fastest)
-# overrides the default from NERO Training
-BATTLE_DEFAULT_SPEEDUP = 80
-
-class NeroModule(NERO.module.NeroModule):
-    def __init__(self):
-        NERO.module.NeroModule.__init__(self)
-        if OpenNero.getAppConfig().rendertype != 'null':
-            self.set_speedup(BATTLE_DEFAULT_SPEEDUP)
-            print 'setting speedup for on-screen battle'
-
+class BattleModule(NERO.module.NeroModule):
     def create_environment(self):
-        return NeroEnvironment.NeroEnvironment()
-
-    def load_team(self, location, team=constants.OBJECT_TYPE_TEAM_0):
-        NERO.module.NeroModule.load_team(self, location, team)
-        rtneat = OpenNero.get_ai('rtneat-%s' % team)
-        if rtneat:
-            rtneat.set_lifetime(sys.maxint)
-            rtneat.disable_evolution()
-        OpenNero.disable_ai() # don't run until button
-
-    def start_rtneat(self, team=constants.OBJECT_TYPE_TEAM_0):
-        NERO.module.NeroModule.start_rtneat(self, team)
-        rtneat = OpenNero.get_ai('rtneat-%s' % team)
-        if rtneat:
-            rtneat.set_lifetime(sys.maxint)
-            rtneat.disable_evolution()
-
+        return environment.BattleEnvironment()
 
 def delMod():
     NERO.module.gMod = None
 
 def getMod():
     if not NERO.module.gMod:
-        NERO.module.gMod = NeroModule()
+        NERO.module.gMod = BattleModule()
     return NERO.module.gMod
 
 script_server = None

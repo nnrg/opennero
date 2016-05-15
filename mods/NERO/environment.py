@@ -6,6 +6,7 @@ import common
 import constants
 import module
 import OpenNero
+import teams
 
 
 class AgentState:
@@ -28,11 +29,11 @@ class AgentState:
         return 'agent { id: %d, pose: (%.02f, %.02f, %.02f), prev_pose: (%.02f, %.02f, %.02f) }' % \
             (self.id, x, y, h, px, py, ph)
 
-    def randomize(self):
+    def randomize(self, x, y):
         dx = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
         dy = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
-        self.initial_position.x = module.getMod().spawn_x[self.agent.get_team()] + dx
-        self.initial_position.y = module.getMod().spawn_y[self.agent.get_team()] + dy
+        self.initial_position.x = x + dx
+        self.initial_position.y = y + dy
         self.prev_pose = self.pose = (self.initial_position.x,
                                       self.initial_position.y,
                                       self.initial_rotation.z)
@@ -69,26 +70,6 @@ class AgentState:
         rot.z = heading
         self.agent.state.rotation = rot
 
-class AgentTrace:
-    '''
-    Class for storing the trace of an agent
-    '''
-    def __init__(self):
-        self.initial_step = None
-        self.position = []
-        self.rotation = []
-        self.velocity = []
-        self.sensors = []
-        self.actions = []
-
-    def print_trace(self, filename):
-        with open(filename, 'w') as file:
-            for i in range(len(self.position)):
-                file.write(str([self.position[i].x, self.position[i].y, self.position[i].z]))
-                file.write(str([self.rotation[i].x, self.rotation[i].y, self.rotation[i].z]))
-            for i in range(len(self.sensors)):
-                file.write(str(self.sensors[i]))
-                file.write(str(self.actions[i]))
 
 class NeroEnvironment(OpenNero.Environment):
     """
@@ -100,53 +81,179 @@ class NeroEnvironment(OpenNero.Environment):
         """
         OpenNero.Environment.__init__(self)
 
-        self.lifetime = constants.DEFAULT_LIFETIME
-        self.hitpoints = constants.DEFAULT_HITPOINTS
-        self.epsilon = constants.DEFAULT_EE / 100.0
+        self.flag_loc = None
+        self.flag_id = None
 
-        self.curr_id = 0
-        self.max_steps = 20
-        self.MAX_DIST = math.hypot(constants.XDIM, constants.YDIM)
+        self.lifetime = constants.DEFAULT_LIFETIME_MAX
+        self.hitpoints = constants.DEFAULT_HITPOINTS
 
         self.states = {}
-        self.teams = dict((t, set()) for t in constants.TEAMS)
-        self.agents_to_load = {}
+        self.teams = dict((t, teams.NeroTeam(t)) for t in constants.TEAMS)
 
+        x = constants.XDIM / 2.0
+        y = constants.YDIM / 3.0
+        self.spawn_x = {
+            constants.OBJECT_TYPE_TEAM_0: x,
+            constants.OBJECT_TYPE_TEAM_1: x
+        }
+        self.spawn_y = {
+            constants.OBJECT_TYPE_TEAM_0: y,
+            constants.OBJECT_TYPE_TEAM_1: 2 * y
+        }
         self.reward_weights = dict((f, 0.) for f in constants.FITNESS_DIMENSIONS)
-
-        # we only want to compute the center of mass of friends once per tick
-        self.friend_center = dict((team, None) for team in constants.TEAMS)
-        # we need to know when to update the friend center
-        self.friend_center_cache = dict((team, {}) for team in constants.TEAMS)
         
-        self.tracing = False             # indicates if the agent is being traced
-        self.simdisplay = True           # indicates if the simulation of agents is being displayed
-        self.trace = None                # trace of agents
-        self.use_trace = False           # use loaded trace for calculating reward
-        self.run_backprop = False        # whether to run backprop if trace is loaded
-        self.path_markers_trace = []     # ids of objects used to mark path of trace
-        self.path_markers_champ = []     # ids of objects used to mark path of champ
-        self.bbmarkers = []
+    def setup(self):
+        # world walls
+        height = constants.HEIGHT + constants.OFFSET
+        common.addObject(
+            "data/shapes/cube/Cube.xml",
+            OpenNero.Vector3f(constants.XDIM/2, 0, height),
+            OpenNero.Vector3f(0, 0, 90),
+            scale=OpenNero.Vector3f(constants.WIDTH, constants.XDIM, constants.HEIGHT*2),
+            label="World Wall0",
+            type=constants.OBJECT_TYPE_OBSTACLE)
+        common.addObject(
+            "data/shapes/cube/Cube.xml",
+            OpenNero.Vector3f(0, constants.YDIM/2, height),
+            OpenNero.Vector3f(0, 0, 0),
+            scale=OpenNero.Vector3f(constants.WIDTH, constants.YDIM, constants.HEIGHT*2),
+            label="World Wall1",
+            type=constants.OBJECT_TYPE_OBSTACLE)
+        common.addObject(
+            "data/shapes/cube/Cube.xml",
+            OpenNero.Vector3f(constants.XDIM, constants.YDIM/2, height),
+            OpenNero.Vector3f(0, 0, 0),
+            scale=OpenNero.Vector3f(constants.WIDTH, constants.YDIM, constants.HEIGHT*2),
+            label="World Wall2",
+            type=constants.OBJECT_TYPE_OBSTACLE)
+        common.addObject(
+            "data/shapes/cube/Cube.xml",
+            OpenNero.Vector3f(constants.XDIM/2, constants.YDIM, height),
+            OpenNero.Vector3f(0, 0, 90),
+            scale=OpenNero.Vector3f(constants.WIDTH, constants.XDIM, constants.HEIGHT*2),
+            label="World Wall3",
+            type=constants.OBJECT_TYPE_OBSTACLE)
+
+        # Add an obstacle wall in the middle
+        common.addObject(
+            "data/shapes/cube/Cube.xml",
+            OpenNero.Vector3f(constants.XDIM/2, constants.YDIM/2, height),
+            OpenNero.Vector3f(0, 0, 90),
+            scale=OpenNero.Vector3f(constants.WIDTH, constants.YDIM / 4, constants.HEIGHT*2),
+            label="World Wall4",
+            type=constants.OBJECT_TYPE_OBSTACLE)
+
+        # Add some trees
+        for i in (0.25, 0.75):
+            for j in (0.25, 0.75):
+                # don't collide with trees - they are over 500 triangles each
+                common.addObject(
+                    "data/shapes/tree/Tree.xml",
+                    OpenNero.Vector3f(i * constants.XDIM, j * constants.YDIM, constants.OFFSET),
+                    OpenNero.Vector3f(0, 0, 0),
+                    scale=OpenNero.Vector3f(1, 1, 1),
+                    label="Tree %d %d" % (10 * i, 10 * j),
+                    type=constants.OBJECT_TYPE_LEVEL_GEOM)
+                # collide with their trunks represented with cubes instead
+                common.addObject(
+                    "data/shapes/cube/Cube.xml",
+                    OpenNero.Vector3f(i * constants.XDIM, j * constants.YDIM, constants.OFFSET),
+                    OpenNero.Vector3f(0,0,0),
+                    scale=OpenNero.Vector3f(1,1,constants.HEIGHT),
+                    type=constants.OBJECT_TYPE_OBSTACLE)
+
+        # Add the surrounding Environment
+        common.addObject(
+            "data/terrain/NeroWorld.xml",
+            OpenNero.Vector3f(constants.XDIM/2, constants.YDIM/2, 0),
+            scale=OpenNero.Vector3f(1.2, 1.2, 1.2),
+            label="NeroWorld",
+            type=constants.OBJECT_TYPE_LEVEL_GEOM)
+
+    def remove_flag(self):
+        if self.flag_id:
+            common.removeObject(self.flag_id)
 
     def set_weight(self, key, value):
         self.reward_weights[key] = value
-        for team in self.teams:
-            rtneat = OpenNero.get_ai("rtneat-%s" % team)
-            if rtneat:
-                rtneat.set_weight(constants.FITNESS_INDEX[key], value)
 
-    def remove_all_agents(self, team):
-        for agent in list(self.teams[team]):
-            self.remove_agent(agent)
+    def change_flag(self, loc):
+        if self.flag_id:
+            common.removeObject(self.flag_id)
+        self.flag_loc = OpenNero.Vector3f(*loc)
+        self.flag_id = common.addObject(
+            "data/shapes/cube/BlueCube.xml",
+            self.flag_loc,
+            label="Flag",
+            scale=OpenNero.Vector3f(1, 1, 10),
+            type=constants.OBJECT_TYPE_FLAG)
 
-    def remove_agent(self, agent):
+    def place_basic_turret(self, loc, team_type=constants.OBJECT_TYPE_TEAM_1):
+        turret = self.teams[team_type].create_agent('turret')
+        (x, y, z) = loc
+        self.spawn_agent(turret, x, y)
+
+    def get_state(self, agent):
+        if agent not in self.states:
+            self.states[agent] = AgentState(agent)
+        return self.states[agent]
+
+    def get_spawn(self, agent):
+        return self.spawn_x[agent.team_type], self.spawn_y[agent.team_type]
+
+    def get_team(self, agent):
+        return self.teams[agent.team_type]
+
+    def get_friend_foe(self, agent):
+        """
+        Returns sets of all friend agents and all foe agents.
+        """
+        my_team = agent.team_type
+        other_team = constants.OBJECT_TYPE_TEAM_1
+        if my_team == other_team:
+            other_team = constants.OBJECT_TYPE_TEAM_0
+        return self.teams[my_team].agents, self.teams[other_team].agents
+
+    def deploy(self, team):
+        self.remove_team(team.team_type)
+        self.teams[team.team_type] = team
+        self.spawn_team(team)
+        self.start_team_training(team)
+
+    def remove_team(self, team_type):
+        team = self.teams[team_type]
+        self.stop_team_training(team)
+        self.despawn_team(team)
+        for agent in team.agents:
+            del self.states[agent]
+    
+    def spawn_team(self, team):
+        for agent in team.agents:
+            (x, y) = self.get_spawn(agent)
+            dx = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
+            dy = random.randrange(constants.SPAWN_RANGE * 2) - constants.SPAWN_RANGE
+            self.spawn_agent(agent, x+dx, y+dy)
+
+    def despawn_team(self, team):
+        for agent in team.agents:
+            self.despawn_agent(agent)
+
+    def start_team_training(self, team):
+        team.start_training()
+
+    def stop_team_training(self, team):
+        team.stop_training()
+
+    def spawn_agent(self, agent, x, y):
+        simId = common.addObject(
+            "data/shapes/character/steve_%s.xml" % (constants.TEAM_LABELS[agent.team_type]),
+            OpenNero.Vector3f(x, y, 2),
+            type=agent.team_type)
+        common.initObjectBrain(simId, agent)
+        return simId
+
+    def despawn_agent(self, agent):
         common.removeObject(agent.state.id)
-        try:
-            self.teams[agent.get_team()].discard(agent)
-            if agent in self.states:
-                self.states.pop(agent)
-        except:
-            pass
 
     def reset(self, agent):
         """
@@ -156,10 +263,13 @@ class NeroEnvironment(OpenNero.Environment):
         state.total_damage = 0
         state.curr_damage = 0
         if agent.group == "Agent":
-            state.randomize()
+            state.randomize(*self.get_spawn(agent))
             agent.state.position = copy.copy(state.initial_position)
             agent.state.rotation = copy.copy(state.initial_rotation)
             agent.teleport()
+
+        team = self.get_team(agent)
+        team.reset(agent)
         return True
 
     def get_agent_info(self, agent):
@@ -178,7 +288,7 @@ class NeroEnvironment(OpenNero.Environment):
                     constants.OBJECT_TYPE_FLAG,
                     False))
         sense = constants.OBJECT_TYPE_TEAM_0
-        if agent.get_team() == sense:
+        if agent.team_type == sense:
             sense = constants.OBJECT_TYPE_TEAM_1
         for a0, a1 in constants.ENEMY_RADAR_SENSORS:
             agent.add_sensor(OpenNero.RadarSensor(
@@ -192,39 +302,35 @@ class NeroEnvironment(OpenNero.Environment):
                     sense,
                     False))
 
-        return agent.info
+        abound = OpenNero.FeatureVectorInfo() # actions
+        sbound = OpenNero.FeatureVectorInfo() # sensors
 
-    def get_state(self, agent):
-        """
-        Returns the state of an agent
-        """
-        if agent not in self.states:
-            self.states[agent] = AgentState(agent)
-            self.teams[agent.get_team()].add(agent)
-        return self.states[agent]
+        # actions
+        abound.add_continuous(-1, 1) # forward/backward speed
+        abound.add_continuous(-constants.MAX_TURNING_RATE, constants.MAX_TURNING_RATE) # left/right turn (in radians)
+        abound.add_continuous(0, 1) # fire 
+        abound.add_continuous(0, 1) # omit friend sensors 
 
-    def getFriendFoe(self, agent):
-        """
-        Returns sets of all friend agents and all foe agents.
-        """
-        my_team = agent.get_team()
-        other_team = constants.OBJECT_TYPE_TEAM_1
-        if my_team == other_team:
-            other_team = constants.OBJECT_TYPE_TEAM_0
-        return self.teams[my_team], self.teams[other_team]
+        # sensor dimensions
+        for a in range(constants.N_SENSORS):
+            sbound.add_continuous(0, 1)
+
+        rbound = OpenNero.FeatureVectorInfo()
+        rbound.add_continuous(0, 1)
+        return OpenNero.AgentInitInfo(sbound, abound, rbound)
 
     def target(self, agent):
         """
         Returns the nearest foe in a 2-degree cone from an agent.
         """
-        friends, foes = self.getFriendFoe(agent)
+        friends, foes = self.get_friend_foe(agent)
         if not foes:
             return None
         pose = self.get_state(agent).pose
         min_f = None
         min_v = None
         for f in foes:
-            p = self.get_state(f).pose
+            p = self.get_state(g).pose
             fd = self.distance(pose, p)
             fh = abs(self.angle(pose, p))
             if fh <= 2:
@@ -238,7 +344,7 @@ class NeroEnvironment(OpenNero.Environment):
         """
         Returns the nearest enemy to agent 
         """
-        friends, foes = self.getFriendFoe(agent)
+        friends, foes = self.get_friend_foe(agent)
         if not foes:
             return None
 
@@ -270,36 +376,6 @@ class NeroEnvironment(OpenNero.Environment):
         """
         2A step for an agent
         """
-        # if this agent has a serialized representation waiting, load it.
-        chunk = self.agents_to_load.get(agent.state.id)
-        if chunk is not None:
-            print 'loading agent', agent.state.id, 'from', len(chunk), 'bytes'
-            del self.agents_to_load[agent.state.id]
-            try:
-                agent.from_string(chunk)
-            except:
-                # if loading fails, remove this agent.
-                print 'error loading agent', agent.state.id
-                self.remove_agent(agent)
-
-                # if a user has a badly formatted q-learning agent in a mixed
-                # population file, the agent won't load and will be properly
-                # removed here. however, RTNEAT has only allocated enough brainz
-                # to cover (pop_size - num_qlearning_agents) agents, so whenever
-                # it comes time to spawn new agents, RTNEAT will think that it
-                # needs to spawn an extra agent to cover for this "missing" one.
-                # to prevent this exception, we decrement pop_size here.
-                #
-                # this probably prevents teams from having the proper number of
-                # agents if the user clicks on the deploy button after loading a
-                # broken pop file ... but that's tricky to fix.
-                constants.pop_size -= 1
-
-                return agent.info.reward.get_instance()
-
-        # set the epsilon for this agent, in case it's changed recently.
-        agent.epsilon = self.epsilon
-
         state = self.get_state(agent)
 
         #Initilize Agent state
@@ -310,14 +386,11 @@ class NeroEnvironment(OpenNero.Environment):
                 r.z = random.randrange(360)
                 agent.state.rotation = r
             state.reset_pose(p, r)
-            return agent.info.reward.get_instance()
+            return agent.rewards.get_instance()
 
         # display agent info if neccessary
         if hasattr(agent, 'set_display_hint'):
             agent.set_display_hint()
-
-        # spawn more agents if possible.
-        self.maybe_spawn(agent)
 
         # get the desired action of the agent
         move_by = action[constants.ACTION_INDEX_SPEED]
@@ -341,7 +414,7 @@ class NeroEnvironment(OpenNero.Environment):
                     dist = closest_enemy_pos.getDistanceFrom(source_pos)
                     d = (constants.MAX_SHOT_RADIUS - dist)/constants.MAX_SHOT_RADIUS
                     if random.random() < d/2: # attempt a shot depending on distance
-                        team_color = constants.TEAM_LABELS[agent.get_team()]
+                        team_color = constants.TEAM_LABELS[agent.team_type]
                         if team_color == 'red':
                             color = OpenNero.Color(255, 255, 0, 0)
                         elif team_color == 'blue':
@@ -372,6 +445,8 @@ class NeroEnvironment(OpenNero.Environment):
 
         reward = self.calculate_reward(agent, action, scored_hit)
 
+        team = self.get_team(agent)
+
         # tell the system to make the calculated motion
         # if the motion doesn't result in a collision
         dist = constants.MAX_MOVEMENT_SPEED * move_by
@@ -384,7 +459,7 @@ class NeroEnvironment(OpenNero.Environment):
 
         collision_detected = False
 
-        friends, foes = self.getFriendFoe(agent)
+        friends, foes = self.get_friend_foe(agent)
         for f in friends:
             if f != agent:
                 f_state = self.get_state(f)
@@ -397,16 +472,6 @@ class NeroEnvironment(OpenNero.Environment):
                     if dist < constants.MANUAL_COLLISION_DISTANCE:
                         collision_detected = True
                         continue
-
-        # no need to check for collisions with all enemies
-        #if foes:
-        #    if not collision_detected:
-        #        for f in foes:
-        #            f_pose = self.get_state(f).pose
-        #            dist = self.distance(desired_pose, f_pose)
-        #            if dist < constants.MANUAL_COLLISION_DISTANCE:
-        #                collision_detected = True
-        #                continue
 
         # just check for collisions with the closest enemy
         if closest_enemy:
@@ -422,122 +487,64 @@ class NeroEnvironment(OpenNero.Environment):
         return reward
 
     def calculate_reward(self, agent, action, scored_hit = False):
-        reward = agent.info.reward.get_instance()
+        reward = agent.rewards.get_instance()
 
         state = self.get_state(agent)
-        friends, foes = self.getFriendFoe(agent)
+        friends, foes = self.get_friend_foe(agent)
 
         if agent.group != 'Turret' and self.hitpoints > 0 and state.total_damage >= self.hitpoints:
             return reward
 
         R = dict((f, 0) for f in constants.FITNESS_DIMENSIONS)
+        W = dict((f, self.reward_weights[f]) for f in constants.FITNESS_DIMENSIONS)
+        dist_reward = lambda d: 1 / ((d * d / constants.MAX_DIST) + 1)
 
-        R[constants.FITNESS_STAND_GROUND] = -abs(action[0])
+        R[constants.FITNESS_STAND_GROUND] = 1 - abs(action[0])
 
         friend = self.nearest(state.pose, friends)
         if friend:
             d = self.distance(self.get_state(friend).pose, state.pose)
-            R[constants.FITNESS_STICK_TOGETHER] = -d * d
+            R[constants.FITNESS_STICK_TOGETHER] = dist_reward(d)
+        else:
+            W[constants.FITNESS_STICK_TOGETHER] = 0
 
         foe = self.nearest(state.pose, foes)
         if foe:
             d = self.distance(self.get_state(foe).pose, state.pose)
-            R[constants.FITNESS_APPROACH_ENEMY] = -d * d
+            R[constants.FITNESS_APPROACH_ENEMY] = dist_reward(d)
+        else:
+            W[constants.FITNESS_APPROACH_ENEMY] = 0
 
-        f = module.getMod().flag_loc
+        f = self.flag_loc
         if f:
             d = self.distance(state.pose, (f.x, f.y))
-            R[constants.FITNESS_APPROACH_FLAG] = -d * d
-
-#        target = self.target(agent)
-#        if target is not None:
-#            source_pos = agent.state.position
-#            target_pos = target.state.position
-#            source_pos.z = source_pos.z + 5
-#            target_pos.z = target_pos.z + 5
-#            dist = target_pos.getDistanceFrom(source_pos)
-#            d = (constants.MAX_SHOT_RADIUS - dist)/constants.MAX_SHOT_RADIUS
-#            if random.random() < d/2: # attempt a shot depending on distance
-#                team_color = constants.TEAM_LABELS[agent.get_team()]
-#                if team_color == 'red':
-#                    color = OpenNero.Color(255, 255, 0, 0)
-#                elif team_color == 'blue':
-#                    color = OpenNero.Color(255, 0, 0, 255)
-#                else:
-#                    color = OpenNero.Color(255, 255, 255, 0)
-#                wall_color = OpenNero.Color(128, 0, 255, 0)
-#                obstacles = OpenNero.getSimContext().findInRay(
-#                    source_pos,
-#                    target_pos,
-#                    constants.OBJECT_TYPE_OBSTACLE,
-#                    True,
-#                    wall_color,
-#                    color)
-#                if len(obstacles) == 0 and random.random() < d/2:
-#                    # count as hit depending on distance
-#                    self.get_state(target).curr_damage += 1
-#                    R[constants.FITNESS_HIT_TARGET] = 1
+            R[constants.FITNESS_APPROACH_FLAG] = dist_reward(d)
+        else:
+            W[constants.FITNESS_APPROACH_FLAG] = 0
 
         if scored_hit:
             R[constants.FITNESS_HIT_TARGET] = 1
 
         damage = state.update_damage()
-        R[constants.FITNESS_AVOID_FIRE] = -damage
+        R[constants.FITNESS_AVOID_FIRE] = 1 - damage
 
-        if len(reward) == 1:
-            for i, f in enumerate(constants.FITNESS_DIMENSIONS):
-                reward[0] += self.reward_weights[f] * R[f] / constants.FITNESS_SCALE.get(f, 1.0)
-                #print f, self.reward_weights[f], R[f] / constants.FITNESS_SCALE.get(f, 1.0)
-        else:
-            for i, f in enumerate(constants.FITNESS_DIMENSIONS):
-                reward[i] = R[f]
-
+        min_sum = 0
+        max_sum = 0
+        for i, f in enumerate(constants.FITNESS_DIMENSIONS):
+            reward[0] += W[f] * R[f]
+            min_sum += min(W[f], 0)
+            max_sum += max(W[f], 0)
+        if max_sum > min_sum:
+            d = max_sum - min_sum
+            reward[0] = 1.0 * (reward[0] - min_sum) / d
         return reward
-
-    def maybe_spawn(self, agent):
-        '''Spawn more agents if there are more to spawn.'''
-        if agent.ai != 'rtneat' or agent.group != 'Agent':
-            return
-
-        team = agent.get_team()
-        rtneat = OpenNero.get_ai('rtneat-%s' % team)
-        if not rtneat or not rtneat.ready():
-            return
-
-        friends, foes = self.getFriendFoe(agent)
-        if len(friends) >= constants.pop_size:
-            return
-
-        if agent is tuple(f for f in friends if f.ai == agent.ai)[0]:
-            module.getMod().spawnAgent(team=team, ai=agent.ai)
 
     def sense(self, agent, observations):
         """
         figure out what the agent should sense
         """
-        # the last observation is whether there is a target for the agent
-        # update: this is now being done using a RaySensor
-        #observations[constants.SENSOR_INDEX_TARGETING[0]] = int(self.target(agent) is not None)
-
-#        friends, foes = self.getFriendFoe(agent)
-#        if friends:
-#            # the 2 before that are the angle and heading to the center of mass of
-#            # the agent's team
-#            ax, ay = agent.state.position.x, agent.state.position.y
-#            cx, cy = self.get_friend_center(agent, friends)
-#            fd = self.distance((ax, ay), (cx, cy))
-#            ah = agent.state.rotation.z
-#            fh = self.angle((ax, ay, ah), (cx, cy)) + 180.0
-#            if fd <= constants.MAX_FRIEND_DISTANCE:
-#                observations[constants.SENSOR_INDEX_FRIEND_RADAR[0]] = fd / 15.0
-#                observations[constants.SENSOR_INDEX_FRIEND_RADAR[1]] = fh / 360.0
-
-
-        # The code above miscalculates the friend center by looking at all teammates
-        # instead of looking only inside the friend radius.
-        # Updated friend sensing code:
-        my_team = agent.get_team()
-        all_friends = self.teams[my_team] 
+        my_team = self.teams[agent.team_type]
+        all_friends = my_team.agents
 
         ax, ay = agent.state.position.x, agent.state.position.y
         cx, cy = 0.0, 0.0
@@ -558,43 +565,7 @@ class NeroEnvironment(OpenNero.Environment):
                 value = max(0, min(value, 1))
                 observations[constants.SENSOR_INDEX_FRIEND_RADAR[0]] = value
                 observations[constants.SENSOR_INDEX_FRIEND_RADAR[1]] = fh / 360.0
-
-        if self.tracing:
-            if self.trace.initial_step is None:
-                self.trace.initial_step = agent.step
-            self.trace.position.append(agent.state.position)
-            self.trace.rotation.append(agent.state.rotation)
-            self.trace.sensors.append([o for o in observations])
-        
-        from agent import KeyboardAgent
-        if self.tracing and isinstance(agent, KeyboardAgent):
-            id = common.addObject(
-                'data/shapes/cube/YellowCube.xml',
-                position = agent.state.position,
-                scale = OpenNero.Vector3f(0.25, 0.25, 0.25),
-                type = constants.OBJECT_TYPE_LEVEL_GEOM)
-            self.path_markers_trace.append(id)
-
         return observations
-
-    def get_friend_center(self, agent, friends):
-        ''' get the x, y position of the center of mass of the friends group '''
-        id = agent.state.id
-        step = agent.step
-        team = agent.get_team()
-        # only recompute the center of mass once we find an agent that goes
-        # to the next step since the last computation
-        if self.friend_center[team] is None or step != self.friend_center_cache[team].get(id, step):
-            n = float(len(friends))
-            cx, cy = 0, 0
-            for f in friends:
-                fx, fy = f.state.position.x, f.state.position.y
-                cx += fx / n
-                cy += fy / n
-            self.friend_center[team] = (cx, cy)
-            self.friend_center_cache[team].clear()
-        self.friend_center_cache[team][id] = step
-        return self.friend_center[team]
 
     def distance(self, a, b):
         """
@@ -625,7 +596,7 @@ class NeroEnvironment(OpenNero.Environment):
         if not agents:
             return None
         nearest = None
-        min_dist = self.MAX_DIST * 5
+        min_dist = constants.MAX_DIST * 5
         for agent in agents:
             d = self.distance(loc, self.get_state(agent).pose)
             if 0 < d < min_dist:
@@ -647,25 +618,13 @@ class NeroEnvironment(OpenNero.Environment):
         if agent.group == 'Turret':
             return False
 
-        team = agent.get_team()
         state = self.get_state(agent)
         dead = self.hitpoints > 0 and state.total_damage >= self.hitpoints
         old = self.lifetime > 0 and agent.step > 0 and 0 == agent.step % self.lifetime
 
-        if agent.ai == 'qlearning':
-            if dead or old:
-                # simulate a respawn by moving this agent towards the spawn location.
-                state.total_damage = 0
-                state.randomize()
-                agent.state.position = copy.copy(state.initial_position)
-                agent.state.rotation = copy.copy(state.initial_rotation)
-                agent.teleport()
-            return False
+        team = self.get_team(agent)
 
-        rtneat = OpenNero.get_ai("rtneat-%s" % team)
-        orphaned = rtneat and not rtneat.has_organism(agent)
-
-        return orphaned or dead or old
+        return dead or old or team.is_episode_over(agent)
     
     def get_hitpoints(self, agent):
         damage = self.get_state(agent).total_damage
@@ -680,62 +639,3 @@ class NeroEnvironment(OpenNero.Environment):
         """
         common.killScript((constants.MENU_JAR, constants.MENU_CLASS))
         return True
-    
-    def start_tracing(self):
-        '''
-        create trace object and start tracing
-        tracing of only one agent is currently supported
-        '''
-        self.trace = AgentTrace()
-        self.tracing = True
-
-    def stop_tracing(self):
-        '''
-        stop tracing the agent
-        '''
-        self.tracing = False
-
-    def save_trace(self, filename):
-        '''
-        pickle the current trace in the given file
-        '''
-        if not self.trace:
-            print 'empty trace on save'
-        with open(filename, 'w') as file:
-            pickle.dump(self.trace, file)
-
-    def use_demonstration(self):
-        '''
-        Start using the currently loaded demonstration
-        '''
-        if self.trace is not None:
-            print 'starting to use demonstration'
-            self.use_trace = True
-        else:
-            print 'no demonstration to use'
-            
-    def load_trace(self, filename):
-        '''
-        load previously pickled trace from the given file
-        '''
-        with open(filename, 'r') as file:
-            self.trace = pickle.load(file)
-        self.use_trace = True
-        for pos in self.trace.position:
-            id = common.addObject(
-                "data/shapes/cube/YellowCube.xml",
-                position = pos,
-                scale = OpenNero.Vector3f(0.25,0.25,0.25),
-                type = constants.OBJECT_TYPE_LEVEL_GEOM)
-            self.path_markers_trace.append(id)
-
-    def cancel_demonstration(self):
-        '''
-        unload previously loaded trace
-        '''
-        self.tracing = False
-        self.trace = None
-        self.use_trace = False
-        while len(self.path_markers_trace) > 0:
-            id = self.path_markers_trace.pop()
-            common.removeObject(id)

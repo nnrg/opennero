@@ -1,6 +1,5 @@
 #include "core/Common.h"
 #include "gene.h"
-#include "XMLSerializable.h"
 #include <sstream>
 
 using namespace NEAT;
@@ -105,24 +104,25 @@ Gene::~Gene()
 {
 }
 
-void Gene::print_to_file(std::ofstream &outFile)
-{
-    outFile<<"gene ";
+std::ostream& NEAT::operator<<(std::ostream& out, const GenePtr& gene) {
+    out<<"gene ";
 
     //Start off with the trait number for this gene
-    if (!lnk->linktrait)
+    if (!gene->lnk->linktrait)
     {
-        outFile<<"0 ";
+        out<<"0 ";
     }
     else
     {
-        outFile<<((lnk->linktrait)->trait_id)<<" ";
+        out<<((gene->lnk->linktrait)->trait_id)<<" ";
     }
-    outFile<<(lnk->get_in_node())->node_id<<" ";
-    outFile<<(lnk->get_out_node())->node_id<<" ";
-    outFile<<(lnk->weight)<<" ";
-    outFile<<(lnk->is_recurrent)<<" ";
-    outFile<<innovation_num<<" ";
-    outFile<<mutation_num<<" ";
-    outFile<<enable<<endl;
+    out<<(gene->lnk->get_in_node())->node_id<<" ";
+    out<<(gene->lnk->get_out_node())->node_id<<" ";
+    out<<(gene->lnk->weight)<<" ";
+    out<<(gene->lnk->is_recurrent)<<" ";
+    out<<gene->innovation_num<<" ";
+    out<<gene->mutation_num<<" ";
+    out<<gene->enable<<endl;
+
+    return out;
 }

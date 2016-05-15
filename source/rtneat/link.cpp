@@ -1,6 +1,5 @@
 #include "core/Common.h"
 #include "link.h"
-#include <iostream>
 
 using namespace NEAT;
 using namespace std;
@@ -75,4 +74,3 @@ void Link::derive_trait(TraitPtr curtrait)
         trait_id=1;
 
 }
-

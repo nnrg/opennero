@@ -11,6 +11,7 @@
 #include "game/SimContext.h"
 #include "render/SceneObject.h"
 #include "ai/AI.h"
+#include "ai/PythonAI.h"
 #include "ai/AIObject.h"
 #include "ai/AIManager.h"
 
@@ -75,6 +76,14 @@ namespace OpenNero
             }
         }
         ent->SetCreationTemplate( templateName );
+    }
+
+    void SimEntity::InitializeAIObject()
+    {
+        EnvironmentPtr env = AIManager::instance().GetEnvironment();
+        AssertMsg(env, "Environment is not set up when initializing an AI Object");
+        AIObjectPtr aiObj(new PythonAIObject(env, shared_from_this()));
+        SetAIObject(aiObj);
     }
 
     void SimEntity::BeforeTick(float32_t incAmt)
@@ -283,6 +292,24 @@ namespace OpenNero
         // set all the bits to indicate that the information was updated
         mSharedData.SetAllDirtyBits();
         mSceneObject->DisregardCollisions();
+    }
+
+    void SimEntity::SetBrain(AgentBrainPtr brain)
+    {
+        if (!mAIObject)
+        {
+            InitializeAIObject();
+        }
+        mAIObject->setBrain(brain);
+    }
+
+    void SimEntity::InitializeBrain(AgentBrainPtr brain)
+    {
+        if (!mAIObject)
+        {
+            InitializeAIObject();
+        }
+        mAIObject->initializeBrain(brain);
     }
 
     /// output SimEntity to stream

@@ -46,7 +46,9 @@ ANIMATION_RATE = 100
 pop_size = 50
 
 # number of steps per lifetime
-DEFAULT_LIFETIME = 1000
+DEFAULT_LIFETIME_MAX = 10000
+DEFAULT_LIFETIME_MIN = 1000
+DEFAULT_EVOLVE_RATE = 40
 DEFAULT_HITPOINTS = 20
 
 # default value of explore/exploit slider (x out of 100)
@@ -130,15 +132,15 @@ FITNESS_NAMES = dict(zip(FITNESS_DIMENSIONS, [
 
 FITNESS_INDEX = dict([(f,i) for i,f in enumerate(FITNESS_DIMENSIONS)])
 
+MAX_DIST = math.hypot(XDIM, YDIM)
 SQ_DIST_SCALE = math.hypot(XDIM, YDIM) / 2.0
 FITNESS_SCALE = {
-    FITNESS_STAND_GROUND: SQ_DIST_SCALE,
     FITNESS_STICK_TOGETHER: SQ_DIST_SCALE,
     FITNESS_APPROACH_ENEMY: SQ_DIST_SCALE,
     FITNESS_APPROACH_FLAG: SQ_DIST_SCALE,
     }
 
-DISPLAY_HINTS = itertools.cycle([None, 'fitness', 'time alive', 'champion', 'hit points', 'id', 'species id'])
+DISPLAY_HINTS = itertools.cycle([None, 'fitness', 'time alive', 'champion', 'hit points', 'id'])
 DISPLAY_HINT = DISPLAY_HINTS.next()
 
 def getDisplayHint():

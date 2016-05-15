@@ -20,6 +20,7 @@
 #include "factories/SimFactory.h"
 
 #include "ai/AIManager.h"
+#include "ai/AI.h"
 
 #include "input/IOMapping.h"
 
@@ -580,6 +581,20 @@ namespace OpenNero
         SimEntityPtr ent = mpSimulation->Find(id);
         AssertMsg(ent, kCouldNotFindObjectWithId << id);
         ent->GetSceneObject()->SetAnimationSpeed(framesPerSecond);
+    }
+
+    void SimContext::SetObjectBrain( SimId id, AgentBrainPtr brain )
+    {
+        SimEntityPtr ent = mpSimulation->Find(id);
+        AssertMsg(end, kCouldNotFindObjectWithId << id);
+        ent->SetBrain(brain);
+    }
+
+    void SimContext::InitObjectBrain( SimId id, AgentBrainPtr brain )
+    {
+        SimEntityPtr ent = mpSimulation->Find(id);
+        AssertMsg(end, kCouldNotFindObjectWithId << id);
+        ent->InitializeBrain(brain);
     }
 
     /// Push the changes made to the object without animation
